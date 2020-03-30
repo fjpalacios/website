@@ -1,0 +1,17 @@
+version: '3.7'
+services:
+  website:
+    container_name: website-dev
+    image: website-dev:latest
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: build
+    ports:
+      - "8000:8000"
+    restart: always
+    volumes:
+      - ./:/app
+      - /app/node_modules
+    command: yarn develop --host 0.0.0.0
+

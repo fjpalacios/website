@@ -1,0 +1,75 @@
+{
+  "name": "website",
+  "version": "1.0.0",
+  "description": "Personal Website",
+  "author": "Javi Palacios <javi@fjp.es>",
+  "private": true,
+  "scripts": {
+    "start": "gatsby develop",
+    "develop": "gatsby develop",
+    "build": "gatsby build",
+    "serve": "gatsby serve",
+    "clean": "gatsby clean",
+    "lint": "eslint '*/**/*.{js,json,ts,tsx}'",
+    "lint:fix": "eslint '*/**/*.{js,json,ts,tsx}' --quiet --fix",
+    "type-check": "tsc --noEmit",
+    "test": "jest --coverage --passWithNoTests",
+    "test:watch": "jest --watch"
+  },
+  "husky": {
+    "hooks": {
+      "pre-commit": "lint-staged",
+      "commit-msg": "commitlint -E HUSKY_GIT_PARAMS"
+    }
+  },
+  "lint-staged": {
+    "*.{js,json,ts,tsx}": "yarn lint && yarn type-check && yarn test",
+    "*.{scss}": "stylelint"
+  },
+  "dependencies": {
+    "gatsby": "^2.19.45",
+    "gatsby-plugin-typescript": "^2.3.1",
+    "react": "^16.12.0",
+    "react-dom": "^16.12.0"
+  },
+  "devDependencies": {
+    "@commitlint/cli": "^8.3.5",
+    "@commitlint/config-conventional": "^8.3.4",
+    "@testing-library/jest-dom": "^5.3.0",
+    "@testing-library/react": "^10.0.1",
+    "@types/jest": "^25.1.4",
+    "@types/react": "^16.9.27",
+    "@types/react-dom": "^16.9.5",
+    "@typescript-eslint/eslint-plugin": "^2.25.0",
+    "@typescript-eslint/parser": "^2.25.0",
+    "babel-jest": "^25.2.3",
+    "babel-preset-gatsby": "^0.3.1",
+    "cz-conventional-changelog": "3.1.0",
+    "eslint": "^6.8.0",
+    "eslint-config-prettier": "^6.10.1",
+    "eslint-plugin-prettier": "^3.1.2",
+    "eslint-plugin-react": "^7.19.0",
+    "husky": "^4.2.3",
+    "identity-obj-proxy": "^3.0.0",
+    "jest": "^25.2.3",
+    "lint-staged": "^10.0.10",
+    "prettier": "^2.0.2",
+    "react-test-renderer": "^16.13.1",
+    "stylelint": "^13.2.1",
+    "stylelint-config-recommended": "^3.0.0",
+    "tslint-react": "^4.2.0",
+    "typescript": "^3.8.3"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/fjpalacios/website"
+  },
+  "bugs": {
+    "url": "https://github.com/fjpalacios/website/issues"
+  },
+  "config": {
+    "commitizen": {
+      "path": "./node_modules/cz-conventional-changelog"
+    }
+  }
+}
