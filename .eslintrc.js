@@ -24,6 +24,7 @@ module.exports = {
     'react/prop-types': 'off',
     '@typescript-eslint/explicit-function-return-type': 'off',
     'react/display-name': 'off',
+    'newline-before-return': 1,
   },
   settings: {
     react: {
