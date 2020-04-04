@@ -10,5 +10,6 @@ module.exports = {
         redirect: false,
       },
     },
+    'gatsby-plugin-sass',
   ],
 }

@@ -1,0 +1,11 @@
+.container {
+  display: grid;
+  grid-template-columns: repeat(12, 1fr);
+  align-items: initial;
+  max-width: 1400px;
+  padding: 20px;
+
+  @include print {
+    padding: 0;
+  }
+}
