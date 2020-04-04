@@ -25,6 +25,12 @@ module.exports = {
     '@typescript-eslint/explicit-function-return-type': 'off',
     'react/display-name': 'off',
     'newline-before-return': 1,
+    'sort-imports': [
+      'error',
+      {
+        ignoreCase: true,
+      },
+    ],
   },
   settings: {
     react: {
