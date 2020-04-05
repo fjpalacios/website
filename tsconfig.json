@@ -3,6 +3,7 @@
     "module": "commonjs",
     "target": "esnext",
     "jsx": "preserve",
+    "allowJs": true,
     "lib": ["dom", "esnext"],
     "strict": true,
     "noEmit": true,

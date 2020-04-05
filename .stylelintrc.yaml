@@ -258,15 +258,14 @@ rules:
     - nav-left
   declaration-property-unit-whitelist:
     font-size:
-      - rem
+      - em
       - px
+      - rem
   at-rule-no-vendor-prefix: true
   media-feature-name-no-vendor-prefix: true
   selector-no-vendor-prefix: true
   value-no-vendor-prefix: true
-  max-nesting-depth: 3
   selector-max-compound-selectors: 4
-  selector-max-specificity: 0,4,1
   at-rule-no-unknown:
     - true
     - ignoreAtRules:
@@ -288,13 +287,7 @@ rules:
     - true
     - ignoreProperties:
         - contain
-  selector-max-id: 0
   selector-no-qualifying-type: true
-  selector-max-type:
-    - 0
-    - ignoreTypes:
-        - /fieldset/
-  selector-max-universal: 0
   font-weight-notation: named-where-possible
   function-url-no-scheme-relative: true
   comment-word-blacklist:
@@ -324,10 +317,6 @@ rules:
     ignoreSelectors:
       - ^fieldset
       - ^\[aria\-disabled=(?:.+)\]
-  scss/dollar-variable-pattern:
-    - ^_?mdc-.+
-    -
-      ignore: local
   scss/selector-no-redundant-nesting-selector: true
   scss/at-import-no-partial-leading-underscore: true
   scss/at-else-closing-brace-newline-after: always-last-in-chain
