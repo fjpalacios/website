@@ -31,6 +31,7 @@ module.exports = {
         ignoreCase: true,
       },
     ],
+    'react/jsx-no-target-blank': [1, { enforceDynamicLinks: 'never' }],
   },
   settings: {
     react: {

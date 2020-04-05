@@ -1,2 +1,2 @@
 import 'normalize.css/normalize.css'
-import './src/styles/main.scss'
+import './static/fontello/css/fontello.css'

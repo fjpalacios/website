@@ -1,0 +1,141 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Header should render properly 1`] = `
+<IntlProvider
+  defaultFormats={Object {}}
+  defaultLocale="en"
+  formats={Object {}}
+  locale="en"
+  messages={
+    Object {
+      "subtitle": "Software Developer",
+      "title": "Francisco Javier Palacios Pérez",
+    }
+  }
+  onError={[Function]}
+  textComponent={Symbol(react.fragment)}
+>
+  <Header>
+    <header
+      className="header"
+    >
+      <h1
+        className="header__title"
+      >
+        Francisco Javier Palacios Pérez
+      </h1>
+      <h2
+        className="header__subtitle"
+      >
+        Software Developer
+      </h2>
+      <div
+        className="header__contact"
+      >
+        <div
+          className="header__contact__item linkedin"
+          key="0"
+        >
+          <a
+            href="https://www.linkedin.com/in/fjpalacios/"
+            rel="noreferer"
+            target="_blank"
+          >
+            <i
+              className="icon-linkedin"
+            />
+            <p>
+              fjpalacios
+            </p>
+          </a>
+        </div>
+        <div
+          className="header__contact__item mail"
+          key="1"
+        >
+          <a
+            href="mailto:javi@fjp.es"
+            rel="noreferer"
+            target="_blank"
+          >
+            <i
+              className="icon-mail"
+            />
+            <p>
+              javi@fjp.es
+            </p>
+          </a>
+        </div>
+        <div
+          className="header__contact__item github-circled"
+          key="2"
+        >
+          <a
+            href="https://github.com/fjpalacios"
+            rel="noreferer"
+            target="_blank"
+          >
+            <i
+              className="icon-github-circled"
+            />
+            <p>
+              fjpalacios
+            </p>
+          </a>
+        </div>
+        <div
+          className="header__contact__item globe"
+          key="3"
+        >
+          <a
+            href="https://fjp.es"
+            rel="noreferer"
+            target="_blank"
+          >
+            <i
+              className="icon-globe"
+            />
+            <p>
+              fjp.es
+            </p>
+          </a>
+        </div>
+        <div
+          className="header__contact__item location"
+          key="4"
+        >
+          <a
+            href="https://osm.org/go/b_qODpV--"
+            rel="noreferer"
+            target="_blank"
+          >
+            <i
+              className="icon-location"
+            />
+            <p>
+              Valencia, ES
+            </p>
+          </a>
+        </div>
+        <div
+          className="header__contact__item phone"
+          key="5"
+        >
+          <a
+            href="tel:0034671995762"
+            rel="noreferer"
+            target="_blank"
+          >
+            <i
+              className="icon-phone"
+            />
+            <p>
+              671995762
+            </p>
+          </a>
+        </div>
+      </div>
+    </header>
+  </Header>
+</IntlProvider>
+`;

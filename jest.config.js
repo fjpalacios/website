@@ -15,4 +15,6 @@ module.exports = {
   setupFiles: [`<rootDir>/loadershim.js`],
   moduleFileExtensions: ['ts', 'tsx', 'js'],
   coverageReporters: ['lcov', 'text', 'html'],
+  snapshotSerializers: ['enzyme-to-json/serializer'],
+  setupFilesAfterEnv: ['<rootDir>/src/setup-enzyme.ts'],
 }

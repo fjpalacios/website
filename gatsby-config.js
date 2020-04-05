@@ -1,3 +1,5 @@
+const autoprefixer = require('autoprefixer')
+
 module.exports = {
   plugins: [
     'gatsby-plugin-typescript',
@@ -10,6 +12,12 @@ module.exports = {
         redirect: false,
       },
     },
-    'gatsby-plugin-sass',
+    {
+      resolve: 'gatsby-plugin-sass',
+      options: {
+        data: `@import "${__dirname}/src/styles/main";`,
+        postCssPlugins: [autoprefixer({ grid: 'autoplace' })],
+      },
+    },
   ],
 }
