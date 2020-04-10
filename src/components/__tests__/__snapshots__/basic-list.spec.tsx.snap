@@ -1,0 +1,73 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`BasicList should render properly 1`] = `
+<IntlProvider
+  defaultFormats={Object {}}
+  defaultLocale="en"
+  formats={Object {}}
+  locale="en"
+  messages={
+    Object {
+      "about": Object {
+        "education": "Education",
+        "experience": "Experience",
+        "freelance": "Freelance work",
+        "me": "About me",
+        "projects": "Side projects",
+        "talks": "Talks / workshops",
+        "volunteering": "Volunteering",
+      },
+      "subtitle": "Software Developer",
+      "title": "Francisco Javier Palacios Pérez",
+    }
+  }
+  onError={[Function]}
+  textComponent={Symbol(react.fragment)}
+>
+  <BasicList
+    data={
+      Array [
+        Object {
+          "dates": "Tue Jul 23 2019",
+          "desc": "Nihil dolor voluptatibus velit nobis culpa.",
+          "location": "New Kathrynechester",
+          "name": "Rath, Graham and Keebler",
+        },
+      ]
+    }
+  >
+    <div
+      className="basic-list"
+      key="0"
+    >
+      <div
+        className="basic-list__name"
+      >
+        <Name>
+          <span>
+            Rath, Graham and Keebler
+          </span>
+        </Name>
+      </div>
+      <div
+        className="basic-list__dates"
+      >
+        Tue Jul 23 2019
+      </div>
+      <div
+        className="basic-list__location"
+      >
+        New Kathrynechester
+      </div>
+      <div
+        className="basic-list__desc"
+        dangerouslySetInnerHTML={
+          Object {
+            "__html": "Nihil dolor voluptatibus velit nobis culpa.",
+          }
+        }
+      />
+    </div>
+  </BasicList>
+</IntlProvider>
+`;

@@ -1,0 +1,39 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Title should render properly 1`] = `
+<IntlProvider
+  defaultFormats={Object {}}
+  defaultLocale="en"
+  formats={Object {}}
+  locale="en"
+  messages={
+    Object {
+      "about": Object {
+        "education": "Education",
+        "experience": "Experience",
+        "freelance": "Freelance work",
+        "me": "About me",
+        "projects": "Side projects",
+        "talks": "Talks / workshops",
+        "volunteering": "Volunteering",
+      },
+      "subtitle": "Software Developer",
+      "title": "Francisco Javier Palacios Pérez",
+    }
+  }
+  onError={[Function]}
+  textComponent={Symbol(react.fragment)}
+>
+  <Title
+    title="Foo"
+  >
+    <div
+      className="title"
+    >
+      <h3>
+        Foo
+      </h3>
+    </div>
+  </Title>
+</IntlProvider>
+`;

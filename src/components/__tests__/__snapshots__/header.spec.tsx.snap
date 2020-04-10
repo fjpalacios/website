@@ -8,6 +8,15 @@ exports[`Header should render properly 1`] = `
   locale="en"
   messages={
     Object {
+      "about": Object {
+        "education": "Education",
+        "experience": "Experience",
+        "freelance": "Freelance work",
+        "me": "About me",
+        "projects": "Side projects",
+        "talks": "Talks / workshops",
+        "volunteering": "Volunteering",
+      },
       "subtitle": "Software Developer",
       "title": "Francisco Javier Palacios Pérez",
     }

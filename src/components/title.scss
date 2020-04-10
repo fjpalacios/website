@@ -1,0 +1,20 @@
+.title {
+  margin-bottom: 20px;
+  padding: 10px 20px;
+  background-color: $secondary;
+  line-height: 0;
+  text-transform: uppercase;
+
+  @include print {
+    margin-bottom: 10px;
+    padding: 1px 10px;
+  }
+
+  h3 {
+    font-weight: 100;
+
+    @include print {
+      margin: 10px 0;
+    }
+  }
+}

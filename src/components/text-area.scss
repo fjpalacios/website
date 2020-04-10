@@ -1,0 +1,11 @@
+.text-area {
+  margin-bottom: 20px;
+  padding: 0 20px;
+
+  &__content {
+    p {
+      text-align: justify;
+      text-justify: inter-word;
+    }
+  }
+}

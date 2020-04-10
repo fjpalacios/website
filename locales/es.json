@@ -1,4 +1,13 @@
 {
   "title": "Francisco Javier Palacios Pérez",
-  "subtitle": "Desarrollador de software"
+  "subtitle": "Desarrollador de software",
+  "about": {
+    "me": "Sobre mí",
+    "experience": "Experiencia",
+    "education": "Educación",
+    "freelance": "Trabajos como freelance",
+    "projects": "Proyectos personales",
+    "volunteering": "Voluntariado",
+    "talks": "Charlas / talleres"
+  }
 }
