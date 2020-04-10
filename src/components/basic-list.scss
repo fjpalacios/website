@@ -1,0 +1,32 @@
+.basic-list {
+  display: grid;
+  grid-template-areas:
+    'name dates'
+    'location .'
+    'desc desc';
+  margin-bottom: 20px;
+  padding: 0 20px;
+
+  @include print {
+    margin-bottom: 10px;
+  }
+
+  &__name {
+    grid-area: name;
+    text-transform: uppercase;
+  }
+
+  &__location {
+    grid-area: location;
+  }
+
+  &__dates {
+    display: grid;
+    grid-area: dates;
+    justify-content: end;
+  }
+
+  &__desc {
+    grid-area: desc;
+  }
+}

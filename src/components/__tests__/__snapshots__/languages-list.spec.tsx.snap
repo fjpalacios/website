@@ -1,0 +1,77 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`TextArea should render properly 1`] = `
+<IntlProvider
+  defaultFormats={Object {}}
+  defaultLocale="en"
+  formats={Object {}}
+  locale="en"
+  messages={
+    Object {
+      "about": Object {
+        "education": "Education",
+        "experience": "Experience",
+        "freelance": "Freelance work",
+        "me": "About me",
+        "projects": "Side projects",
+        "talks": "Talks / workshops",
+        "volunteering": "Volunteering",
+      },
+      "subtitle": "Software Developer",
+      "title": "Francisco Javier Palacios Pérez",
+    }
+  }
+  onError={[Function]}
+  textComponent={Symbol(react.fragment)}
+>
+  <LanguagesList
+    data={
+      Array [
+        Object {
+          "desc": "Molestiae tempora eligendi omnis quisquam.",
+          "languages": Array [
+            "synthesize",
+          ],
+          "name": "maurine.net",
+        },
+      ]
+    }
+  >
+    <div
+      className="languages-list"
+      key="0"
+    >
+      <div
+        className="languages-list__name"
+      >
+        <Name>
+          <span>
+            maurine.net
+          </span>
+        </Name>
+      </div>
+      <ul
+        className="languages-list__languages"
+      >
+        <li
+          key="0"
+        >
+          <a
+            href="https://ddg.gg/?q=synthesize"
+          >
+            #synthesize
+          </a>
+        </li>
+      </ul>
+      <div
+        className="languages-list__desc"
+        dangerouslySetInnerHTML={
+          Object {
+            "__html": "Molestiae tempora eligendi omnis quisquam.",
+          }
+        }
+      />
+    </div>
+  </LanguagesList>
+</IntlProvider>
+`;

@@ -1,0 +1,44 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`TextArea should render properly 1`] = `
+<IntlProvider
+  defaultFormats={Object {}}
+  defaultLocale="en"
+  formats={Object {}}
+  locale="en"
+  messages={
+    Object {
+      "about": Object {
+        "education": "Education",
+        "experience": "Experience",
+        "freelance": "Freelance work",
+        "me": "About me",
+        "projects": "Side projects",
+        "talks": "Talks / workshops",
+        "volunteering": "Volunteering",
+      },
+      "subtitle": "Software Developer",
+      "title": "Francisco Javier Palacios Pérez",
+    }
+  }
+  onError={[Function]}
+  textComponent={Symbol(react.fragment)}
+>
+  <TextArea
+    text="Foo"
+  >
+    <div
+      className="text-area"
+    >
+      <div
+        className="text-area__content"
+        dangerouslySetInnerHTML={
+          Object {
+            "__html": "Foo",
+          }
+        }
+      />
+    </div>
+  </TextArea>
+</IntlProvider>
+`;

@@ -1,4 +1,13 @@
 {
   "title": "Francisco Javier Palacios Pérez",
-  "subtitle": "Software Developer"
+  "subtitle": "Software Developer",
+  "about": {
+    "me": "About me",
+    "experience": "Experience",
+    "education": "Education",
+    "freelance": "Freelance work",
+    "projects": "Side projects",
+    "volunteering": "Volunteering",
+    "talks": "Talks / workshops"
+  }
 }
