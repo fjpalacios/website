@@ -40,7 +40,7 @@
     "gatsby-plugin-typescript": "^2.3.1",
     "normalize.css": "^8.0.1",
     "react": "^16.13.1",
-    "react-dom": "^16.13.0"
+    "react-dom": "^16.13.1"
   },
   "devDependencies": {
     "@commitlint/cli": "^8.3.5",
