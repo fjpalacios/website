@@ -1,9 +1,9 @@
 .languages-list {
   display: grid;
   grid-template-areas:
-    'name'
-    'languages'
-    'desc';
+    'name dates'
+    'languages .'
+    'desc .';
   margin-bottom: 20px;
   padding: 0 20px;
 
@@ -14,6 +14,12 @@
   &__name {
     grid-area: name;
     text-transform: uppercase;
+  }
+
+  &__dates {
+    display: grid;
+    grid-area: dates;
+    justify-content: end;
   }
 
   &__languages {

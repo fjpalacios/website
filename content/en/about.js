@@ -106,14 +106,15 @@ export default {
       name: 'fjp.es',
       url: 'https://fjp.es',
       desc: 'Personal website and blog',
-      languages: ['html5', 'nuxt.js', 'scss'],
+      languages: ['gatsbyjs', 'html5', 'scss'],
     },
   ],
   volunteering: [
     {
       name: 'VOST Euskadi',
+      dates: 'Feb 2018 - Oct 2018',
       desc: 'Backend and frontend applications for emergency management',
-      languages: ['angular', 'materialdesign', 'node.js'],
+      languages: ['angular', 'materialdesign', 'nodejs'],
     },
   ],
   talks: [

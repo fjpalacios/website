@@ -50,6 +50,7 @@ exports[`TextArea should render properly 1`] = `
           </span>
         </Name>
       </div>
+      <Dates />
       <ul
         className="languages-list__languages"
       >

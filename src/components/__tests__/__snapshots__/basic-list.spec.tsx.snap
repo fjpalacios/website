@@ -28,7 +28,7 @@ exports[`BasicList should render properly 1`] = `
     data={
       Array [
         Object {
-          "dates": "Tue Jul 23 2019",
+          "dates": "Thu Jul 25 2019",
           "desc": "Nihil dolor voluptatibus velit nobis culpa.",
           "location": "New Kathrynechester",
           "name": "Rath, Graham and Keebler",
@@ -52,7 +52,7 @@ exports[`BasicList should render properly 1`] = `
       <div
         className="basic-list__dates"
       >
-        Tue Jul 23 2019
+        Thu Jul 25 2019
       </div>
       <div
         className="basic-list__location"
