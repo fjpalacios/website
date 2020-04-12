@@ -38,6 +38,20 @@ describe('TextArea', () => {
     expect(location).toBe(`#${data[0].languages[0]}`)
   })
 
+  it('should not show the dates if they are not defined', () => {
+    const languagesList = createComponentWithIntl(<LanguagesList data={data} />)
+    const dates = languagesList.find('.languages-list__dates')
+    expect(dates).toBeEmpty
+  })
+
+  it('should show the dates if they are defined', () => {
+    data[0].dates = Faker.date.past().toDateString()
+    const languagesList = createComponentWithIntl(<LanguagesList data={data} />)
+    const dates = languagesList.find('.languages-list__dates').text()
+    expect(dates).toBe(data[0].dates)
+    data[0].dates = undefined
+  })
+
   it('should show the description', () => {
     const textArea = createComponentWithIntl(<LanguagesList data={data} />)
     const desc = textArea.find('.languages-list__desc').text()
