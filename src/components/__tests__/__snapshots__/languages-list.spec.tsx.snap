@@ -1,6 +1,6 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`TextArea should render properly 1`] = `
+exports[`LanguagesList should render properly 1`] = `
 <IntlProvider
   defaultFormats={Object {}}
   defaultLocale="en"
