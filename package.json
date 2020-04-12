@@ -79,7 +79,7 @@
     "stylelint": "^13.3.2",
     "stylelint-config-standard": "^20.0.0",
     "stylelint-order": "^4.0.0",
-    "stylelint-scss": "^3.16.0",
+    "stylelint-scss": "^3.16.1",
     "stylelint-selector-bem-pattern": "^2.1.0",
     "tslint-react": "^4.2.0",
     "typescript": "^3.8.3"
