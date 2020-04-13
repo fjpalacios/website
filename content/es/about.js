@@ -1,28 +1,28 @@
 export default {
   experience: [
     {
-      name: 'Onestic, Valencia',
+      name: 'Onestic',
       url: 'https://onestic.com',
       location: 'Valencia',
       dates: 'Mar 2020 - Actualidad',
       desc: 'Ingeniero DevOps',
     },
     {
-      name: 'Avantio, Paterna',
+      name: 'Avantio',
       url: 'https://www.avantio.es',
       location: 'Paterna',
       dates: 'Sep 2019 - Feb 2020',
       desc: 'Desarrollador web full-stack (MEAN Stack)',
     },
     {
-      name: 'Avantio, Paterna',
+      name: 'Avantio',
       url: 'https://www.avantio.es',
       location: 'Paterna',
       dates: 'Mar 2019 - Sep 2019',
       desc: 'Desarrollador web frontend',
     },
     {
-      name: 'Churba & Portillo, Murcia',
+      name: 'Churba & Portillo',
       url: 'https://www.churbayportillo.com/',
       location: 'Murcia',
       dates: 'Ene 2010 - Jun 2010',
