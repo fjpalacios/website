@@ -13,7 +13,7 @@
     "lint": "eslint '*/**/*.{js,json,ts,tsx}'",
     "lint:fix": "eslint '*/**/*.{js,json,ts,tsx}' --quiet --fix",
     "type-check": "tsc",
-    "test": "NODE_ICU_DATA=node_modules/full-icu jest --coverage",
+    "test": "NODE_ICU_DATA=node_modules/full-icu jest --coverage --passWithNoTests",
     "test:watch": "NODE_ICU_DATA=node_modules/full-icu jest --watch"
   },
   "browserslist": [

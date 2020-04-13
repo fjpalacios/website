@@ -1,0 +1,10 @@
+.menu {
+  grid-column: span 12;
+  padding: 0 20px 10px;
+}
+
+@include print {
+  .menu {
+    display: none;
+  }
+}
