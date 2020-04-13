@@ -5,10 +5,10 @@ import { Menu } from './menu'
 
 export const Layout: FunctionComponent = ({ children }): ReactElement => {
   return (
-    <nav className="container">
+    <div className="container">
       <Menu />
       <Header />
-      <nav className="content">{children}</nav>
-    </nav>
+      <div className="content">{children}</div>
+    </div>
   )
 }
