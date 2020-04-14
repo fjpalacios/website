@@ -1,15 +1,32 @@
 $accent: var(--accent);
 $background: var(--background);
 $primary: var(--primary);
-$secondary: var(--secondary);
 $text: var(--text);
+$inverted-text: var(--inverted-text);
 $header-link: var(--header-link);
 
 body {
-  --accent: #efbb35;
-  --background: #11151c;
-  --primary: #212d40;
-  --secondary: #192734;
-  --text: #f8f8f8;
-  --header-link: var(--text);
+  &.dark {
+    --accent: #efbb35;
+    --background: #11151c;
+    --primary: #192734;
+    --text: #f8f8f8;
+    --inverted-text: #f8f8f8;
+    --header-link: var(--text);
+  }
+
+  &.light {
+    --accent: #d1603d;
+    --background: #fbfef9;
+    --primary: #343330;
+    --text: #000;
+    --inverted-text: var(--background);
+    --header-link: var(--inverted-text);
+
+    @include print {
+      --background: #fff;
+      --primary: #000;
+      --inverted-text: var(--background);
+    }
+  }
 }

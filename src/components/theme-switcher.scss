@@ -1,0 +1,38 @@
+.theme-switcher {
+  line-height: 0;
+
+  &__selector {
+    display: none;
+
+    &__image {
+      width: 15px;
+      height: 15px;
+      transition: all .45s ease;
+      border-radius: 50%;
+      background-color: transparent;
+      box-shadow: inset 6px -5px 0 0 $text;
+      cursor: pointer;
+    }
+
+    &:checked {
+      + label {
+        > .theme-switcher__selector__image {
+          width: 10px;
+          height: 10px;
+          transition: all .45s ease;
+          border-radius: 50%;
+          background-color: $text;
+          box-shadow:
+            8px 0 0 -4px $text,
+            -8px 0 0 -4px $text,
+            0 8px 0 -4px $text,
+            0 -8px 0 -4px $text,
+            6px -6px 0 -4px $text,
+            -6px -6px 0 -4px $text,
+            -6px 6px 0 -4px $text,
+            6px 6px 0 -4px $text;
+        }
+      }
+    }
+  }
+}

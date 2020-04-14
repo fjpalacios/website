@@ -4,7 +4,8 @@
   &__me {
     margin-bottom: 40px;
     overflow: hidden;
-    border: 2px solid $secondary;
+    transition: all .45s ease;
+    border: 2px solid $primary;
 
     @include print {
       margin-bottom: 10px;
@@ -27,7 +28,8 @@
     > * {
       margin-bottom: 40px;
       overflow: hidden;
-      border: 2px solid $secondary;
+      transition: all .45s ease;
+      border: 2px solid $primary;
       break-inside: avoid;
 
       @include print {

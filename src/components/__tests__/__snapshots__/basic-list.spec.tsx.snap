@@ -17,6 +17,11 @@ exports[`BasicList should render properly 1`] = `
         "talks": "Talks / workshops",
         "volunteering": "Volunteering",
       },
+      "menu": Object {
+        "switchTheme": "Switch Theme",
+        "toEnglish": "Switch to English language",
+        "toSpanish": "Switch to Spanish language",
+      },
       "subtitle": "Software Developer",
       "title": "Francisco Javier Palacios Pérez",
     }
@@ -28,7 +33,7 @@ exports[`BasicList should render properly 1`] = `
     data={
       Array [
         Object {
-          "dates": "Thu Jul 25 2019",
+          "dates": "Sat Jul 27 2019",
           "desc": "Nihil dolor voluptatibus velit nobis culpa.",
           "location": "New Kathrynechester",
           "name": "Rath, Graham and Keebler",
@@ -52,7 +57,7 @@ exports[`BasicList should render properly 1`] = `
       <div
         className="basic-list__dates"
       >
-        Thu Jul 25 2019
+        Sat Jul 27 2019
       </div>
       <div
         className="basic-list__location"

@@ -1,6 +1,11 @@
 {
   "title": "Francisco Javier Palacios Pérez",
   "subtitle": "Desarrollador de software",
+  "menu": {
+    "toEnglish": "Cambia a Inglés",
+    "toSpanish": "Cambia a español",
+    "switchTheme": "Cambia tema"
+  },
   "about": {
     "me": "Sobre mí",
     "experience": "Experiencia",

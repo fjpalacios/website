@@ -287,7 +287,6 @@ rules:
     - true
     - ignoreProperties:
         - contain
-  selector-no-qualifying-type: true
   font-weight-notation: named-where-possible
   function-url-no-scheme-relative: true
   comment-word-blacklist:
