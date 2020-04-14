@@ -24,6 +24,7 @@ module.exports = {
     'react/prop-types': 'off',
     '@typescript-eslint/explicit-function-return-type': 'off',
     '@typescript-eslint/no-explicit-any': 'off',
+    '@typescript-eslint/no-non-null-assertion': 'off',
     'react/display-name': 'off',
     'newline-before-return': 1,
     'sort-imports': [

@@ -1,6 +1,11 @@
 {
   "title": "Francisco Javier Palacios Pérez",
   "subtitle": "Software Developer",
+  "menu": {
+    "toEnglish": "Switch to English language",
+    "toSpanish": "Switch to Spanish language",
+    "switchTheme": "Switch Theme"
+  },
   "about": {
     "me": "About me",
     "experience": "Experience",

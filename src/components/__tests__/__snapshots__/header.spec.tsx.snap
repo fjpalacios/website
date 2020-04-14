@@ -17,6 +17,11 @@ exports[`Header should render properly 1`] = `
         "talks": "Talks / workshops",
         "volunteering": "Volunteering",
       },
+      "menu": Object {
+        "switchTheme": "Switch Theme",
+        "toEnglish": "Switch to English language",
+        "toSpanish": "Switch to Spanish language",
+      },
       "subtitle": "Software Developer",
       "title": "Francisco Javier Palacios Pérez",
     }

@@ -1,7 +1,9 @@
 .title {
   margin-bottom: 20px;
   padding: 10px 20px;
-  background-color: $secondary;
+  transition: all .45s ease;
+  background-color: $primary;
+  color: $inverted-text;
   line-height: 0;
   text-transform: uppercase;
 

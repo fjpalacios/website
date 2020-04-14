@@ -2,6 +2,11 @@
   margin-bottom: 20px;
   padding: 0 20px;
 
+  @include print {
+    margin-bottom: 10px;
+    padding: 0 10px;
+  }
+
   &__content {
     p {
       text-align: justify;

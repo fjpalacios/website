@@ -13,7 +13,8 @@ export const LanguageSwitcher: FunctionComponent = (): ReactElement => {
       return (
         <img
           src="/images/flags/es.svg"
-          alt="Switch to Spanish language"
+          alt={intl.formatMessage({ id: 'menu.toSpanish' })}
+          title={intl.formatMessage({ id: 'menu.toSpanish' })}
           onClick={() => changeLocale(newLocale)}
         />
       )
@@ -22,7 +23,8 @@ export const LanguageSwitcher: FunctionComponent = (): ReactElement => {
     return (
       <img
         src="/images/flags/uk.svg"
-        alt="Switch to English language"
+        alt={intl.formatMessage({ id: 'menu.toEnglish' })}
+        title={intl.formatMessage({ id: 'menu.toEnglish' })}
         onClick={() => changeLocale(newLocale)}
       />
     )
