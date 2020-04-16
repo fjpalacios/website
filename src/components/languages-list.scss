@@ -2,10 +2,17 @@
   display: grid;
   grid-template-areas:
     'name dates'
-    'languages .'
-    'desc .';
+    'languages languages'
+    'desc desc';
   margin-bottom: 20px;
   padding: 0 20px;
+
+  @include small-and-up {
+    grid-template-areas:
+      'name dates'
+      'languages .'
+      'desc .';
+  }
 
   @include print {
     margin-bottom: 10px;
