@@ -11,21 +11,22 @@ body {
     --background: #11151c;
     --primary: #192734;
     --text: #f8f8f8;
-    --inverted-text: #f8f8f8;
+    --inverted-text: var(--text);
     --header-link: var(--text);
   }
 
   &.light {
-    --accent: #d1603d;
+    --accent: #23b5d3;
     --background: #fbfef9;
-    --primary: #343330;
-    --text: #000;
+    --primary: #071013;
+    --text: #284b63;
     --inverted-text: var(--background);
     --header-link: var(--inverted-text);
 
     @include print {
       --background: #fff;
       --primary: #000;
+      --text: var(--primary);
       --inverted-text: var(--background);
     }
   }
