@@ -1,16 +1,14 @@
 import { basicList, BasicList } from '../basic-list'
 import createComponentWithIntl from '../../../__helpers__/i18n-component'
-import Faker from 'faker'
 import React from 'react'
 
 describe('BasicList', () => {
-  Faker.seed(123)
   const data: basicList[] = [
     {
-      name: Faker.company.companyName(),
-      location: Faker.address.city(),
-      dates: Faker.date.past().toDateString(),
-      desc: Faker.lorem.sentence(),
+      name: 'Lorem ipsum',
+      location: 'Location',
+      dates: '10/07/1856',
+      desc: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit.',
     },
   ]
 

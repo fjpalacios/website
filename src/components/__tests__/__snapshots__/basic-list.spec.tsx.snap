@@ -33,10 +33,10 @@ exports[`BasicList should render properly 1`] = `
     data={
       Array [
         Object {
-          "dates": "Sat Jul 27 2019",
-          "desc": "Nihil dolor voluptatibus velit nobis culpa.",
-          "location": "New Kathrynechester",
-          "name": "Rath, Graham and Keebler",
+          "dates": "10/07/1856",
+          "desc": "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
+          "location": "Location",
+          "name": "Lorem ipsum",
         },
       ]
     }
@@ -50,25 +50,25 @@ exports[`BasicList should render properly 1`] = `
       >
         <Name>
           <span>
-            Rath, Graham and Keebler
+            Lorem ipsum
           </span>
         </Name>
       </div>
       <div
         className="basic-list__dates"
       >
-        Sat Jul 27 2019
+        10/07/1856
       </div>
       <div
         className="basic-list__location"
       >
-        New Kathrynechester
+        Location
       </div>
       <div
         className="basic-list__desc"
         dangerouslySetInnerHTML={
           Object {
-            "__html": "Nihil dolor voluptatibus velit nobis culpa.",
+            "__html": "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
           }
         }
       />

@@ -33,11 +33,11 @@ exports[`LanguagesList should render properly 1`] = `
     data={
       Array [
         Object {
-          "desc": "Molestiae tempora eligendi omnis quisquam.",
+          "desc": "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
           "languages": Array [
-            "synthesize",
+            "javascript",
           ],
-          "name": "maurine.net",
+          "name": "loremipsum.com",
         },
       ]
     }
@@ -51,7 +51,7 @@ exports[`LanguagesList should render properly 1`] = `
       >
         <Name>
           <span>
-            maurine.net
+            loremipsum.com
           </span>
         </Name>
       </div>
@@ -63,9 +63,9 @@ exports[`LanguagesList should render properly 1`] = `
           key="0"
         >
           <a
-            href="https://ddg.gg/?q=synthesize"
+            href="https://ddg.gg/?q=javascript"
           >
-            #synthesize
+            #javascript
           </a>
         </li>
       </ul>
@@ -73,7 +73,7 @@ exports[`LanguagesList should render properly 1`] = `
         className="languages-list__desc"
         dangerouslySetInnerHTML={
           Object {
-            "__html": "Molestiae tempora eligendi omnis quisquam.",
+            "__html": "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
           }
         }
       />

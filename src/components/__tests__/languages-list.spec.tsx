@@ -1,15 +1,13 @@
 import { languagesList, LanguagesList } from '../languages-list'
 import createComponentWithIntl from '../../../__helpers__/i18n-component'
-import Faker from 'faker'
 import React from 'react'
 
 describe('LanguagesList', () => {
-  Faker.seed(123)
   const data: languagesList[] = [
     {
-      name: Faker.internet.domainName(),
-      desc: Faker.lorem.sentence(),
-      languages: [Faker.hacker.verb()],
+      name: 'loremipsum.com',
+      desc: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit.',
+      languages: ['javascript'],
     },
   ]
 
@@ -47,7 +45,7 @@ describe('LanguagesList', () => {
   })
 
   it('should show the dates if they are defined', () => {
-    data[0].dates = Faker.date.past().toDateString()
+    data[0].dates = '10/07/1856'
     const languagesList = createComponentWithIntl(<LanguagesList data={data} />)
     const dates = languagesList.find('.languages-list__dates').text()
     expect(dates).toBe(data[0].dates)
