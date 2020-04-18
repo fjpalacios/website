@@ -274,15 +274,14 @@ rules:
       - each
       - else
       - error
+      - extend
       - for
       - function
-      - include
       - if
+      - include
       - mixin
       - return
       - warn
-  at-rule-blacklist:
-    - extend
   property-no-unknown:
     - true
     - ignoreProperties:
