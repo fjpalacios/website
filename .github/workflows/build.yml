@@ -1,0 +1,7 @@
+name: Build Docker image
+on: push
+jobs:
+  build:
+    uses: docker/build-push-action@v1
+    with:
+      push: false

@@ -32,10 +32,8 @@
   },
   "lint-staged": {
     "*.{js,json,ts,tsx}": [
-      "yarn run lint",
-      "yarn run test"
+      "yarn run lint"
     ],
-    "*.{ts,tsx}": "yarn type-check --noEmit --jsx preserve --esModuleInterop true --skipLibCheck",
     "*.{scss}": "stylelint"
   },
   "dependencies": {
