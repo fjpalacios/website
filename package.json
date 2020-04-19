@@ -13,7 +13,7 @@
     "lint": "eslint '*/**/*.{js,json,ts,tsx}'",
     "lint:fix": "eslint '*/**/*.{js,json,ts,tsx}' --quiet --fix",
     "type-check": "tsc",
-    "test": "NODE_ICU_DATA=node_modules/full-icu jest --coverage --passWithNoTests",
+    "test": "NODE_ICU_DATA=node_modules/full-icu jest --coverage",
     "test:watch": "NODE_ICU_DATA=node_modules/full-icu jest --watch",
     "cy:open": "cypress open",
     "cy:run": "cypress run",
@@ -32,10 +32,8 @@
   },
   "lint-staged": {
     "*.{js,json,ts,tsx}": [
-      "yarn run lint",
-      "yarn run test"
+      "yarn run lint"
     ],
-    "*.{ts,tsx}": "yarn type-check --noEmit --jsx preserve --esModuleInterop true --skipLibCheck",
     "*.{scss}": "stylelint"
   },
   "dependencies": {

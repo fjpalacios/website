@@ -1,11 +1,8 @@
 FROM node:12.16-alpine3.9 AS build
 WORKDIR /app
 COPY package.json yarn.lock ./
-RUN yarn
+RUN yarn install --pure-lockfile
 COPY . .
-
-FROM build AS test
-RUN yarn test
 
 FROM build as static
 RUN yarn build
