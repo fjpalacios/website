@@ -6,7 +6,4 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - name: Build Docker image
-        uses: docker/build-push-action@v1
-        with:
-          repository: fjpalacios/website
-          push: false
+        run: docker build -t website:latest .
