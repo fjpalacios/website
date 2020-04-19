@@ -1,5 +1,8 @@
 name: Run Test Suites
-on: push
+on:
+  push:
+    branches-ignore:
+      - master
 jobs:
   test:
     runs-on: ubuntu-latest
