@@ -5,14 +5,14 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
-      - name: Cache
+      - name: Use cache from a previous build
         uses: actions/cache@v1
         with:
           path: ~/.cache/yarn
           key: ${{ runner.os }}-yarn-${{ hashFiles(format('{0}{1}', github.workspace, '/yarn.lock')) }}
           restore-keys: |
             ${{ runner.os }}-yarn-
-      - name: Build
+      - name: Build Docker image
         uses: docker/build-push-action@v1
         with:
           repository: fjpalacios/website
