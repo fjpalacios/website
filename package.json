@@ -37,7 +37,7 @@
     "*.{scss}": "stylelint"
   },
   "dependencies": {
-    "gatsby": "^2.20.23",
+    "gatsby": "^2.20.27",
     "gatsby-plugin-intl": "^0.3.3",
     "gatsby-plugin-typescript": "^2.3.2",
     "normalize.css": "^8.0.1",
