@@ -18,9 +18,10 @@ module.exports = {
   env: {
     node: true,
     browser: true,
-    jest: true,
+    'jest/globals': true,
+    'cypress/globals': true,
   },
-  plugins: ['@typescript-eslint', 'react'],
+  plugins: ['@typescript-eslint', 'react', 'jest'],
   rules: {
     'react/prop-types': 'off',
     '@typescript-eslint/explicit-function-return-type': 'off',
