@@ -8,6 +8,10 @@ exports[`Header should render properly 1`] = `
   locale="en"
   messages={
     Object {
+      "about": Object {
+        "internet": "Internet",
+        "me": "About me",
+      },
       "menu": Object {
         "switchTheme": "Switch Theme",
         "toEnglish": "Switch to English language",
@@ -18,6 +22,10 @@ exports[`Header should render properly 1`] = `
         "image": "https://fjp.es/logo.jpg",
         "twitterUsername": "@fjpalacios",
         "url": "https://fjp.es",
+      },
+      "pages": Object {
+        "about": "About me",
+        "home": "Home",
       },
       "resume": Object {
         "education": "Education",

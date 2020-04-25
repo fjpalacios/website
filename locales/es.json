@@ -20,5 +20,13 @@
     "projects": "Proyectos personales",
     "volunteering": "Voluntariado",
     "talks": "Charlas / talleres"
+  },
+  "pages": {
+    "home": "Inicio",
+    "about": "Sobre mí"
+  },
+  "about": {
+    "me": "Sobre mí",
+    "internet": "Internet"
   }
 }

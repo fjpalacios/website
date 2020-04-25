@@ -20,5 +20,13 @@
     "projects": "Side projects",
     "volunteering": "Volunteering",
     "talks": "Talks / workshops"
+  },
+  "pages": {
+    "home": "Home",
+    "about": "About me"
+  },
+  "about": {
+    "me": "About me",
+    "internet": "Internet"
   }
 }
