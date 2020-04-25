@@ -22,6 +22,12 @@ exports[`Header should render properly 1`] = `
         "toEnglish": "Switch to English language",
         "toSpanish": "Switch to Spanish language",
       },
+      "metaData": Object {
+        "description": "Francisco Javier Palacios Pérez's personal website, Software Developer based in Valencia (Spain)",
+        "image": "https://fjp.es/logo.jpg",
+        "twitterUsername": "@fjpalacios",
+        "url": "https://fjp.es",
+      },
       "subtitle": "Software Developer",
       "title": "Francisco Javier Palacios Pérez",
     }

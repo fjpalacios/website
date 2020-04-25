@@ -1,6 +1,12 @@
 {
   "title": "Francisco Javier Palacios Pérez",
   "subtitle": "Software Developer",
+  "metaData": {
+    "url": "https://fjp.es",
+    "description": "Francisco Javier Palacios Pérez's personal website, Software Developer based in Valencia (Spain)",
+    "image": "https://fjp.es/logo.jpg",
+    "twitterUsername": "@fjpalacios"
+  },
   "menu": {
     "toEnglish": "Switch to English language",
     "toSpanish": "Switch to Spanish language",
