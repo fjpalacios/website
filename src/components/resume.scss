@@ -1,7 +1,7 @@
-.about {
+.resume {
   grid-column: span 12;
 
-  &__me {
+  &__main-block {
     margin-bottom: 40px;
     overflow: hidden;
     transition: all .45s ease;
@@ -12,7 +12,7 @@
     }
   }
 
-  &__resume {
+  &__grid {
     columns: 1;
 
     @include medium-and-up {

@@ -8,15 +8,6 @@ exports[`LanguagesList should render properly 1`] = `
   locale="en"
   messages={
     Object {
-      "about": Object {
-        "education": "Education",
-        "experience": "Experience",
-        "freelance": "Freelance work",
-        "me": "About me",
-        "projects": "Side projects",
-        "talks": "Talks / workshops",
-        "volunteering": "Volunteering",
-      },
       "menu": Object {
         "switchTheme": "Switch Theme",
         "toEnglish": "Switch to English language",
@@ -27,6 +18,15 @@ exports[`LanguagesList should render properly 1`] = `
         "image": "https://fjp.es/logo.jpg",
         "twitterUsername": "@fjpalacios",
         "url": "https://fjp.es",
+      },
+      "resume": Object {
+        "education": "Education",
+        "experience": "Experience",
+        "freelance": "Freelance work",
+        "me": "About me",
+        "projects": "Side projects",
+        "talks": "Talks / workshops",
+        "volunteering": "Volunteering",
       },
       "subtitle": "Software Developer",
       "title": "Francisco Javier Palacios Pérez",
