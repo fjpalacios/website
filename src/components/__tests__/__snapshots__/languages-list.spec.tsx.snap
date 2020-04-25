@@ -25,7 +25,7 @@ exports[`LanguagesList should render properly 1`] = `
       "metaData": Object {
         "description": "Francisco Javier Palacios Pérez's personal website, Software Developer based in Valencia (Spain)",
         "image": "https://fjp.es/logo.jpg",
-        "twitterUsername": "@fjpslacios",
+        "twitterUsername": "@fjpalacios",
         "url": "https://fjp.es",
       },
       "subtitle": "Software Developer",
