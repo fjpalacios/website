@@ -1,5 +1,16 @@
-.about {
+.resume {
   grid-column: span 12;
+
+  &__main-block {
+    margin-bottom: 40px;
+    overflow: hidden;
+    transition: all .45s ease;
+    border: 2px solid $primary;
+
+    @include print {
+      margin-bottom: 10px;
+    }
+  }
 
   &__grid {
     columns: 1;

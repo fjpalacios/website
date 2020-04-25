@@ -12,7 +12,7 @@
     "toSpanish": "Switch to Spanish language",
     "switchTheme": "Switch Theme"
   },
-  "about": {
+  "resume": {
     "me": "About me",
     "experience": "Experience",
     "education": "Education",
@@ -20,5 +20,13 @@
     "projects": "Side projects",
     "volunteering": "Volunteering",
     "talks": "Talks / workshops"
+  },
+  "pages": {
+    "home": "Home",
+    "about": "About me"
+  },
+  "about": {
+    "me": "About me",
+    "internet": "Internet"
   }
 }

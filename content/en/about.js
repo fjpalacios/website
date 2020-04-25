@@ -1,128 +1,48 @@
 export default {
-  experience: [
-    {
-      name: 'Onestic',
-      url: 'https://onestic.com',
-      location: 'Valencia',
-      dates: 'Mar 2020 - Present',
-      desc: 'DevOps Engineer',
-    },
-    {
-      name: 'Avantio',
-      url: 'https://www.avantio.es',
-      location: 'Paterna',
-      dates: 'Sep 2019 - Feb 2020',
-      desc: 'Full Stack Developer (MEAN Stack)',
-    },
-    {
-      name: 'Avantio',
-      url: 'https://www.avantio.es',
-      location: 'Paterna',
-      dates: 'Mar 2019 - Sep 2019',
-      desc: 'Frontend Web Developer',
-    },
-    {
-      name: 'Churba & Portillo',
-      url: 'https://www.churbayportillo.com/',
-      location: 'Murcia',
-      dates: 'Jan 2010 - Jun 2010',
-      desc: `Graphic Designer and Web Developer<br />
-        Maintenance and management of a VPS`,
-    },
-    {
-      name: 'CP San Luis',
-      location: 'Buñol',
-      dates: 'Sep 2008 - Jun 2009',
-      desc: 'Computer teacher for students of all primary education courses',
-    },
-    {
-      name: 'Jepsi',
-      location: 'Castellón',
-      dates: 'Aug 2004 - Jan 2007',
-      desc: `Customer service, technical troubleshooting and software
-        installation in Linux environments`,
-    },
-  ],
   me: `
-    <p>
-      Hi! Everyone knows me as <strong>Javi</strong> and I'm a techie.
-      Since I was a kid I've been passionate about computers and generally any
-      technological device. Since I started programming as a child I knew I
-      wanted to continue doing it for the rest of my life; if I can also turn
-      my greatest hobby into my profession it will be a dream come true.
-    </p>
-    <p>
-      In my personal projects I've applied most of the best practices
-      recommended in <em>Extreme Programming Explained</em>, by Kent Beck;
-      also the knowledge acquired by reading <em>Clean Code</em>, by
-      Robert C. Martin and <em>Refactoring</em> by Martin Fowler and Kent Beck.
-      I totally share the idea of writing code you can be proud of.
-    </p>
-    <p>
-      I'm a self-taught person, and with my academic background, I feel ready
-      to work in a team using current technologies with a focus on good practices.
-      My main characteristic is the passion for what I do and the desire to
-      learn something new every day.
-    </p>
+  <p>
+    My name is Francisco Javier, although everybody knows me as Javi.
+    Since I was a child I am passionate about computers and any technological
+    device. The first day that I code I knew that I wanted to continue
+    programing for the rest of my life; if my biggest hobby becomes my job it
+    will be a dream come true.
+  </p>
+  <p>
+    However, my relationship with face-to-face training was not as good as I
+    would liked; at one point in my life, I dropped out of school and started
+    studying on my own what really excited me: computer science, and more
+    specifically programming and management of GNU/Linux operating systems.
+    This was a blip in my professional career, but also made me a self-taught
+    person who quickly finds a solution to the problems that may come during
+    the development of projects or setting up a new service on servers.
+  </p>
+  <p>
+    After leaving school I was working on several jobs, not related to
+    computers, in order to get money… but I did not see myself working on any
+    of them for my whole life. Having assumed that, I went back to studying,
+    performing all the intermediate necessary steps to achieve the real goal:
+    get the Multi-platform Applications Development Higher National Diploma
+    (EQF level 5), it means being able to justify in my CV that I really know
+    what I know without needing someone to trust my word.
+  </p>
   `,
-  education: [
-    {
-      name: 'CIPFP Complejo Educativo de Cheste',
-      url: 'http://www.fpcheste.com',
-      location: 'Cheste',
-      dates: '2017 - 2019',
-      desc:
-        'Higher National Diploma, Multi-platform Applications Development (EQF 5)',
-    },
-  ],
-  freelance: [
-    {
-      name: 'josemariatena.es',
-      desc: 'Static presentation page with contact form',
-      languages: ['css3', 'html5', 'php'],
-    },
-    {
-      name: 'profesionaldelapsicologia.es',
-      url: 'http://www.profesionaldelapsicologia.es',
-      desc: 'Website presenting the psychological office and its services',
-      languages: ['css3', 'html5', 'wordpress'],
-    },
-    {
-      name: 'numismaticallamas.es',
-      url: 'https://numismaticallamas.es',
-      desc: 'E-commerce selling coins, banknotes and medals',
-      languages: ['php', 'zencart'],
-    },
-  ],
-  projects: [
-    {
-      name: 'sargantanacode.es',
-      url: 'https://sargantanacode.es',
-      desc: `Web application from which I teach programming<br />
-      It's also an open source application; code available on GitHub`,
-      languages: ['html5', 'scss', 'rubyonrails'],
-    },
-    {
-      name: 'fjp.es',
-      url: 'https://fjp.es',
-      desc: 'Personal website and blog',
-      languages: ['gatsbyjs', 'html5', 'scss'],
-    },
-  ],
-  volunteering: [
-    {
-      name: 'VOST Euskadi',
-      dates: 'Feb 2018 - Oct 2018',
-      desc: 'Backend and frontend applications for emergency management',
-      languages: ['angular', 'materialdesign', 'nodejs'],
-    },
-  ],
-  talks: [
-    {
-      name: 'HTML5: el lenguaje de la web',
-      location: 'Cheste',
-      dates: '14 Dec 2018',
-      desc: 'Workshop at The Hour of Code',
-    },
-  ],
+  internet: `
+  <p>
+    My first steps on the internet started around the year 2000.
+    At the beginning I did the same things as everyone: discover what the
+    internet means, join chats to meet people, spend some time in the missing
+    MSN Messenger, and so on. I started to take internet more seriously around
+    2003; together with some friends we started some projects, which for one
+    reason or another never became a success… perhaps the lack of experience
+    and youth of all the partners had something to do. It was at the end of
+    2004 when I decided to have my own website. At that time I did not know
+    anything about web pages, but despite that, I created my first weblog.
+    It was hosted until May 2007 on the servers of Geanostrum, one of those
+    projects I mentioned before, which was not a success but allowed me to
+    learn many things (I installed and configured my first network services:
+    email server, jabber server, IRC server, streaming radio servers,
+    I programmed my first bots, I met the C language…) and all of this on one
+    of my home computers.
+  </p>
+  `,
 }
