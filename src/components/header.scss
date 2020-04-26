@@ -124,4 +124,14 @@
   .phone {
     display: none;
   }
+
+  .globe {
+    display: none;
+  }
+}
+
+@include print {
+  .twitter {
+    display: none;
+  }
 }

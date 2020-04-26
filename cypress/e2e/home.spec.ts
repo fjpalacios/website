@@ -83,7 +83,15 @@ describe('Home', () => {
 
   describe('Header', () => {
     it('should hide the phone on the screen', () => {
-      cy.get('.header__contact phone').should('not.be.visible')
+      cy.get('.header__contact .phone').should('not.be.visible')
+    })
+
+    it('should hide the website on the screen', () => {
+      cy.get('.header__contact .globe').should('not.be.visible')
+    })
+
+    it('should show twitter profile on the screen', () => {
+      cy.get('.header__contact .twitter').should('be.visible')
     })
   })
 })

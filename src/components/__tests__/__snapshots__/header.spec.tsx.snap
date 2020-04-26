@@ -129,8 +129,25 @@ exports[`Header should render properly 1`] = `
           </a>
         </div>
         <div
-          className="header__contact__item location"
+          className="header__contact__item twitter"
           key="4"
+        >
+          <a
+            href="https://twitter.com/fjpalacios"
+            rel="noreferer"
+            target="_blank"
+          >
+            <i
+              className="icon-twitter"
+            />
+            <p>
+              fjpalacios
+            </p>
+          </a>
+        </div>
+        <div
+          className="header__contact__item location"
+          key="5"
         >
           <a
             href="https://osm.org/go/b_qODpV--"
@@ -147,7 +164,7 @@ exports[`Header should render properly 1`] = `
         </div>
         <div
           className="header__contact__item phone"
-          key="5"
+          key="6"
         >
           <a
             href="tel:0034671995762"
