@@ -43,16 +43,10 @@
       "src": "fontawesome"
     },
     {
-      "uid": "ivmsk67zo1yb1tthd3ugi4xnb3get418",
-      "css": "sun",
-      "code": 59392,
-      "src": "typicons"
-    },
-    {
-      "uid": "7d6302991626c252d089d14dc760fc37",
-      "css": "moon",
-      "code": 59395,
-      "src": "typicons"
+      "uid": "627abcdb627cb1789e009c08e2678ef9",
+      "css": "twitter",
+      "code": 61593,
+      "src": "fontawesome"
     }
   ]
 }
