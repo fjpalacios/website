@@ -1,7 +1,7 @@
 import './header.scss'
 import React, { FunctionComponent, ReactElement } from 'react'
-import contactEn from '../../content/en/contact.js'
-import contactEs from '../../content/es/contact.js'
+import contactEn from '../../content/static/contact/en'
+import contactEs from '../../content/static/contact/es'
 import { useIntl } from 'gatsby-plugin-intl'
 
 export const Header: FunctionComponent = (): ReactElement => {
