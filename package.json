@@ -46,7 +46,7 @@
     "react-helmet": "^6.1.0"
   },
   "devDependencies": {
-    "@commitlint/cli": "^8.3.5",
+    "@commitlint/cli": "^11.0.0",
     "@commitlint/config-conventional": "^8.3.4",
     "@testing-library/jest-dom": "^5.11.4",
     "@testing-library/react": "^10.4.7",
