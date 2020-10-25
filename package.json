@@ -79,7 +79,7 @@
     "jest": "^26.4.2",
     "lint-staged": "^10.4.0",
     "node-sass": "^4.14.1",
-    "prettier": "^2.0.5",
+    "prettier": "^2.1.2",
     "react-test-renderer": "^16.13.1",
     "start-server-and-test": "^1.11.5",
     "stylelint": "^13.7.2",
