@@ -3,10 +3,6 @@ update_configs:
   - package_manager: "javascript"
     directory: "/"
     update_schedule: "weekly"
-    default_reviewers:
-      - "fjpalacios"
-    default_assignees:
-      - "fjpalacios"
     commit_message:
       prefix: "chore"
       include_scope: true
@@ -15,10 +11,6 @@ update_configs:
   - package_manager: "docker"
     directory: "/"
     update_schedule: "weekly"
-    default_reviewers:
-      - "fjpalacios"
-    default_assignees:
-      - "fjpalacios"
     commit_message:
       prefix: "chore"
       include_scope: true
