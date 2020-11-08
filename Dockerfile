@@ -1,4 +1,4 @@
-FROM node:12.19.0-alpine3.9 AS build
+FROM node:lts-buster-slim AS build
 WORKDIR /app
 COPY package.json yarn.lock ./
 RUN yarn install --pure-lockfile
