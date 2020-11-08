@@ -1,19 +1,18 @@
 import './header.scss'
 import React, { FunctionComponent, ReactElement } from 'react'
+import { useI18next, useTranslation } from 'gatsby-plugin-react-i18next'
 import contactEn from '../../content/static/contact/en'
 import contactEs from '../../content/static/contact/es'
-import { useIntl } from 'gatsby-plugin-intl'
 
 export const Header: FunctionComponent = (): ReactElement => {
-  const intl = useIntl()
-  const contact = intl.locale === 'en' ? contactEn : contactEs
+  const { t } = useTranslation()
+  const { defaultLanguage, language } = useI18next()
+  const contact = language === defaultLanguage ? contactEn : contactEs
 
   return (
     <header className="header">
-      <h1 className="header__title">{intl.formatMessage({ id: 'title' })}</h1>
-      <h2 className="header__subtitle">
-        {intl.formatMessage({ id: 'subtitle' })}
-      </h2>
+      <h1 className="header__title">{t('title')}</h1>
+      <h2 className="header__subtitle">{t('subtitle')}</h2>
       <div className="header__contact">
         {contact.map((item, key) => {
           return (

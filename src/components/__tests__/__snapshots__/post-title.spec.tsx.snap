@@ -1,6 +1,6 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`LanguagesList should render properly 1`] = `
+exports[`Post Title should render properly 1`] = `
 <I18nextProvider
   i18n={
     I18n {
@@ -8138,55 +8138,20 @@ exports[`LanguagesList should render properly 1`] = `
     }
   }
 >
-  <LanguagesList
-    data={
-      Array [
-        Object {
-          "desc": "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
-          "languages": Array [
-            "javascript",
-          ],
-          "name": "loremipsum.com",
-        },
-      ]
-    }
+  <PostTitle
+    date="Bar"
+    title="Foo"
   >
     <div
-      className="languages-list"
-      key="0"
+      className="title"
     >
-      <div
-        className="languages-list__name"
-      >
-        <Name>
-          <span>
-            loremipsum.com
-          </span>
-        </Name>
-      </div>
-      <Dates />
-      <ul
-        className="languages-list__languages"
-      >
-        <li
-          key="0"
-        >
-          <a
-            href="https://ddg.gg/?q=javascript"
-          >
-            #javascript
-          </a>
-        </li>
-      </ul>
-      <div
-        className="languages-list__desc"
-        dangerouslySetInnerHTML={
-          Object {
-            "__html": "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
-          }
-        }
-      />
+      <h3>
+        Foo
+      </h3>
+      <p>
+        Bar
+      </p>
     </div>
-  </LanguagesList>
+  </PostTitle>
 </I18nextProvider>
 `;

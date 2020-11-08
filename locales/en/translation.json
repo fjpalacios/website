@@ -23,10 +23,15 @@
   },
   "pages": {
     "home": "Home",
-    "about": "About me"
+    "about": "About me",
+    "blog": "Blog"
   },
   "about": {
     "me": "About me",
     "internet": "Internet"
+  },
+  "paginator": {
+    "prev": "← previuos page",
+    "next": "next page →"
   }
 }

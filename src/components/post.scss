@@ -1,0 +1,19 @@
+.blog {
+  display: grid;
+  grid-column: span 6;
+
+  &__post {
+    margin-bottom: 40px;
+    overflow: hidden;
+    transition: all .45s ease;
+    border: 2px solid $primary;
+
+    .text-area {
+      img,
+      span.gatsby-resp-image-background-image {
+        width: calc(100% + 40px) !important;
+        margin: 0 -20px !important;
+      }
+    }
+  }
+}

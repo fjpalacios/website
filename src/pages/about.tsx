@@ -2,18 +2,14 @@ import React, { ReactElement } from 'react'
 import { About } from '../components/about'
 import { Layout } from '../components/layout'
 import { Seo } from '../components/seo'
-import { useIntl } from 'gatsby-plugin-intl'
+import { useTranslation } from 'gatsby-plugin-react-i18next'
 
 export default (): ReactElement => {
-  const intl = useIntl()
+  const { t } = useTranslation()
 
   return (
     <Layout>
-      <Seo
-        title={`${intl.formatMessage({
-          id: 'pages.about',
-        })} - ${intl.formatMessage({ id: 'title' })}`}
-      />
+      <Seo title={`${t('pages.about')} - ${t('title')}`} />
       <About />
     </Layout>
   )

@@ -1,10 +1,10 @@
 import './theme-switcher.scss'
 import { getSavedTheme, switchTheme } from '../helpers'
 import React, { FunctionComponent, ReactElement, useEffect } from 'react'
-import { useIntl } from 'gatsby-plugin-intl'
+import { useTranslation } from 'gatsby-plugin-react-i18next'
 
 export const ThemeSwitcher: FunctionComponent = (): ReactElement => {
-  const intl = useIntl()
+  const { t } = useTranslation()
   const theme = getSavedTheme()
 
   useEffect(() => {
@@ -24,7 +24,7 @@ export const ThemeSwitcher: FunctionComponent = (): ReactElement => {
       <label htmlFor="selector">
         <div
           className="theme-switcher__selector__image"
-          title={intl.formatMessage({ id: 'menu.switchTheme' })}
+          title={t('menu.switchTheme')}
         ></div>
       </label>
     </div>

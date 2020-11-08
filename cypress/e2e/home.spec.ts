@@ -2,7 +2,7 @@
 
 describe('Home', () => {
   beforeEach(() => {
-    cy.visit('/').get('main')
+    cy.visit('/en').get('main')
   })
 
   it('should have valid English SEO properties', () => {
@@ -11,7 +11,7 @@ describe('Home', () => {
     cy.get('head meta[property="og:url"]').should(
       'have.attr',
       'content',
-      'https://fjp.es/'
+      'https://fjp.es/en'
     )
     cy.get('head meta[property="og:type"]').should(
       'have.attr',
@@ -38,7 +38,7 @@ describe('Home', () => {
     cy.get('head meta[property="og:url"]').should(
       'have.attr',
       'content',
-      'https://fjp.es/es/'
+      'https://fjp.es/'
     )
     cy.get('head meta[property="og:type"]').should(
       'have.attr',
@@ -61,11 +61,14 @@ describe('Home', () => {
     it('should have a functional language switcher', () => {
       cy.get('.header__subtitle').should('have.text', 'Software Developer')
       cy.get('.menu .menu__left .language-switcher img').click()
-      cy.url().should('include', '/es')
+      cy.url().should('not.include', '/en')
       cy.get('.header__subtitle').should(
         'have.text',
         'Desarrollador de software'
       )
+      cy.get('.menu .menu__left .language-switcher img').click()
+      cy.get('html').should('have.attr', 'lang', 'en')
+      cy.get('.header__subtitle').should('have.text', 'Software Developer')
     })
 
     it('should have a functional light/dark theme switcher', () => {

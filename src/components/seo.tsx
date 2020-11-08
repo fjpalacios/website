@@ -1,6 +1,6 @@
 import React, { FunctionComponent, ReactElement } from 'react'
+import { useI18next, useTranslation } from 'gatsby-plugin-react-i18next'
 import { Helmet } from 'react-helmet'
-import { useIntl } from 'gatsby-plugin-intl'
 import { useLocation } from '@reach/router'
 
 type seoProps = {
@@ -14,25 +14,25 @@ export const Seo: FunctionComponent<seoProps> = ({
   description,
   image,
 }): ReactElement => {
-  const intl = useIntl()
+  const { t } = useTranslation()
+  const { language } = useI18next()
   const { pathname } = useLocation()
   const seo = {
-    title: title || intl.formatMessage({ id: 'title' }),
-    description:
-      description || intl.formatMessage({ id: 'metaData.description' }),
-    image: image || intl.formatMessage({ id: 'metaData.image' }),
-    url: `${intl.formatMessage({ id: 'metaData.url' })}${pathname}`,
-    twitterUsername: intl.formatMessage({ id: 'metaData.twitterUsername' }),
+    title: title || t('title'),
+    description: description || t('metaData.description'),
+    image: image || t('metaData.image'),
+    url: `${t('metaData.url')}${pathname}`,
+    twitterUsername: t('metaData.twitterUsername'),
   }
 
   return (
     <Helmet
       title={seo.title}
       htmlAttributes={{
-        lang: intl.locale,
+        lang: language,
       }}
     >
-      <meta property="og:locale" content={intl.locale} />
+      <meta property="og:locale" content={language} />
       <meta property="og:url" content={seo.url} />
       <meta property="og:type" content="website" />
 

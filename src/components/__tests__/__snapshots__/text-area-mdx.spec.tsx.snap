@@ -1,6 +1,6 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`LanguagesList should render properly 1`] = `
+exports[`TextAreaMdx should render properly 1`] = `
 <I18nextProvider
   i18n={
     I18n {
@@ -8138,55 +8138,56 @@ exports[`LanguagesList should render properly 1`] = `
     }
   }
 >
-  <LanguagesList
-    data={
-      Array [
-        Object {
-          "desc": "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
-          "languages": Array [
-            "javascript",
-          ],
-          "name": "loremipsum.com",
-        },
-      ]
-    }
+  <TextAreaMdx
+    text="function _extends() { _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; }; return _extends.apply(this, arguments); }
+
+function _objectWithoutProperties(source, excluded) { if (source == null) return {}; var target = _objectWithoutPropertiesLoose(source, excluded); var key, i; if (Object.getOwnPropertySymbols) { var sourceSymbolKeys = Object.getOwnPropertySymbols(source); for (i = 0; i < sourceSymbolKeys.length; i++) { key = sourceSymbolKeys[i]; if (excluded.indexOf(key) >= 0) continue; if (!Object.prototype.propertyIsEnumerable.call(source, key)) continue; target[key] = source[key]; } } return target; }
+
+function _objectWithoutPropertiesLoose(source, excluded) { if (source == null) return {}; var target = {}; var sourceKeys = Object.keys(source); var key, i; for (i = 0; i < sourceKeys.length; i++) { key = sourceKeys[i]; if (excluded.indexOf(key) >= 0) continue; target[key] = source[key]; } return target; }
+
+/* @jsxRuntime classic */
+
+/* @jsx mdx */
+var MDXLayout = \\"wrapper\\";
+return function MDXContent(_ref) {
+  var components = _ref.components,
+      props = _objectWithoutProperties(_ref, [\\"components\\"]);
+
+  return mdx(MDXLayout, _extends({}, props, {
+    components: components,
+    mdxType: \\"MDXLayout\\"
+  }), mdx(\\"p\\", null, \\"Foo\\"));
+}
+;
+MDXContent.isMDXComponent = true;"
   >
     <div
-      className="languages-list"
-      key="0"
+      className="text-area"
     >
       <div
-        className="languages-list__name"
+        className="text-area__content"
       >
-        <Name>
-          <span>
-            loremipsum.com
-          </span>
-        </Name>
+        <MDXRenderer>
+          <MDXContent>
+            <MDXCreateElement
+              mdxType="wrapper"
+              originalType="wrapper"
+            >
+              <wrapper>
+                <MDXCreateElement
+                  mdxType="p"
+                  originalType="p"
+                >
+                  <p>
+                    Foo
+                  </p>
+                </MDXCreateElement>
+              </wrapper>
+            </MDXCreateElement>
+          </MDXContent>
+        </MDXRenderer>
       </div>
-      <Dates />
-      <ul
-        className="languages-list__languages"
-      >
-        <li
-          key="0"
-        >
-          <a
-            href="https://ddg.gg/?q=javascript"
-          >
-            #javascript
-          </a>
-        </li>
-      </ul>
-      <div
-        className="languages-list__desc"
-        dangerouslySetInnerHTML={
-          Object {
-            "__html": "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
-          }
-        }
-      />
     </div>
-  </LanguagesList>
+  </TextAreaMdx>
 </I18nextProvider>
 `;

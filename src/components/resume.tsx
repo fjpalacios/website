@@ -1,16 +1,16 @@
 import './resume.scss'
 import React, { FunctionComponent, ReactElement } from 'react'
+import { useI18next, useTranslation } from 'gatsby-plugin-react-i18next'
 import { BasicList } from './basic-list'
 import { LanguagesList } from './languages-list'
 import resumeEn from '../../content/static/resume/en'
 import resumeEs from '../../content/static/resume/es'
 import { TextArea } from './text-area'
 import { Title } from './title'
-import { useIntl } from 'gatsby-plugin-intl'
 
 export const Resume: FunctionComponent = (): ReactElement => {
-  const intl = useIntl()
-  const locale = intl.locale
+  const { t } = useTranslation()
+  const { language } = useI18next()
   const data: { [key: string]: { [key: string]: any } } = {
     me: {
       en: resumeEn.me,
@@ -45,33 +45,33 @@ export const Resume: FunctionComponent = (): ReactElement => {
   return (
     <main className="resume">
       <section className="resume__main-block">
-        <Title title={intl.formatMessage({ id: 'resume.me' })} />
-        <TextArea text={data.me[locale]} />
+        <Title title={t('resume.me')} />
+        <TextArea text={data.me[language]} />
       </section>
       <section className="resume__grid">
         <section className="resume__grid__experience">
-          <Title title={intl.formatMessage({ id: 'resume.experience' })} />
-          <BasicList data={data.experience[locale]} />
+          <Title title={t('resume.experience')} />
+          <BasicList data={data.experience[language]} />
         </section>
         <section className="resume__grid__education">
-          <Title title={intl.formatMessage({ id: 'resume.education' })} />
-          <BasicList data={data.education[locale]} />
+          <Title title={t('resume.education')} />
+          <BasicList data={data.education[language]} />
         </section>
         <section className="resume__grid__freelance">
-          <Title title={intl.formatMessage({ id: 'resume.freelance' })} />
-          <LanguagesList data={data.freelance[locale]} />
+          <Title title={t('resume.freelance')} />
+          <LanguagesList data={data.freelance[language]} />
         </section>
         <section className="resume__grid__projects">
-          <Title title={intl.formatMessage({ id: 'resume.projects' })} />
-          <LanguagesList data={data.projects[locale]} />
+          <Title title={t('resume.projects')} />
+          <LanguagesList data={data.projects[language]} />
         </section>
         <section className="resume__grid__volunteering">
-          <Title title={intl.formatMessage({ id: 'resume.volunteering' })} />
-          <LanguagesList data={data.volunteering[locale]} />
+          <Title title={t('resume.volunteering')} />
+          <LanguagesList data={data.volunteering[language]} />
         </section>
         <section className="resume__grid__talks">
-          <Title title={intl.formatMessage({ id: 'resume.talks' })} />
-          <BasicList data={data.talks[locale]} />
+          <Title title={t('resume.talks')} />
+          <BasicList data={data.talks[language]} />
         </section>
       </section>
     </main>

@@ -1,0 +1,31 @@
+.blog {
+  .title {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    line-height: inherit;
+    text-transform: inherit;
+
+    h3 {
+      margin: 17px 20px 13px 0;
+      font-size: 12px;
+
+      @include small {
+        font-size: 14px;
+      }
+
+      @include medium {
+        font-size: 16px;
+      }
+
+      @include large {
+        font-size: 18px;
+      }
+    }
+
+    p {
+      margin: 17px 0 13px;
+      font-weight: 100;
+    }
+  }
+}

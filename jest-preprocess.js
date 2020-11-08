@@ -1,5 +1,6 @@
 const babelOptions = {
   presets: [
+    '@babel/preset-env',
     '@babel/preset-react',
     'babel-preset-gatsby',
     '@babel/preset-typescript',

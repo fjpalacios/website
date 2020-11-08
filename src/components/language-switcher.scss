@@ -1,9 +1,25 @@
 .language-switcher {
   line-height: 0;
 
-  img {
-    width: 100%;
-    max-width: 20px;
-    cursor: pointer;
+  a {
+    img {
+      width: 100%;
+      max-width: 20px;
+      cursor: pointer;
+    }
+  }
+
+  &--disabled {
+    @extend .language-switcher;
+
+    a {
+      pointer-events: none;
+
+      img {
+        width: 100%;
+        max-width: 20px;
+        filter: grayscale(100%);
+      }
+    }
   }
 }
