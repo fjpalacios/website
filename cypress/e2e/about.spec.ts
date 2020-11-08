@@ -35,7 +35,7 @@ describe('About', () => {
 
   it('should have valid Spanish SEO properties', () => {
     cy.get('.header__subtitle').should('have.text', 'Software Developer')
-    cy.get('.menu .menu__left .language-switcher img').click()
+    cy.get('.menu .menu__left .language-switcher a').click()
     cy.get('html').should('have.attr', 'lang', 'es')
     cy.get('head title').should(
       'have.text',

@@ -32,7 +32,7 @@ describe('Home', () => {
 
   it('should have valid Spanish SEO properties', () => {
     cy.get('.header__subtitle').should('have.text', 'Software Developer')
-    cy.get('.menu .menu__left .language-switcher img').click()
+    cy.get('.menu .menu__left .language-switcher a').click()
     cy.get('html').should('have.attr', 'lang', 'es')
     cy.get('head title').should('have.text', 'Francisco Javier Palacios Pérez')
     cy.get('head meta[property="og:url"]').should(
@@ -60,13 +60,13 @@ describe('Home', () => {
   describe('Menu bar', () => {
     it('should have a functional language switcher', () => {
       cy.get('.header__subtitle').should('have.text', 'Software Developer')
-      cy.get('.menu .menu__left .language-switcher img').click()
+      cy.get('.menu .menu__left .language-switcher a').click()
       cy.url().should('not.include', '/en')
       cy.get('.header__subtitle').should(
         'have.text',
         'Desarrollador de software'
       )
-      cy.get('.menu .menu__left .language-switcher img').click()
+      cy.get('.menu .menu__left .language-switcher a').click()
       cy.get('html').should('have.attr', 'lang', 'en')
       cy.get('.header__subtitle').should('have.text', 'Software Developer')
     })
