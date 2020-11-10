@@ -41,7 +41,7 @@
     "gatsby-plugin-intl": "^0.3.3",
     "gatsby-plugin-typescript": "^2.5.0",
     "normalize.css": "^8.0.1",
-    "react": "^16.13.1",
+    "react": "^16.14.0",
     "react-dom": "^16.13.1",
     "react-helmet": "^6.1.0"
   },
