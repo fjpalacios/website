@@ -1,30 +1,31 @@
 {
   "name": "website",
   "version": "1.0.0",
-  "description": "Personal Website",
-  "author": "Javi Palacios <javi@fjp.es>",
   "private": true,
+  "description": "Personal Website",
+  "bugs": {
+    "url": "https://github.com/fjpalacios/website/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/fjpalacios/website"
+  },
+  "author": "Javi Palacios <javi@fjp.es>",
   "scripts": {
-    "start": "node -r esm ./node_modules/.bin/gatsby develop",
-    "develop": "node -r esm ./node_modules/.bin/gatsby develop -H 0.0.0.0 -p 8000",
     "build": "NODE_ICU_DATA=node_modules/full-icu node -r esm ./node_modules/.bin/gatsby build",
-    "serve": "node -r esm ./node_modules/.bin/gatsby serve",
     "clean": "gatsby clean",
-    "lint": "eslint '*/**/*.{js,json,ts,tsx}'",
-    "lint:fix": "eslint '*/**/*.{js,json,ts,tsx}' --quiet --fix",
-    "test": "NODE_ICU_DATA=node_modules/full-icu jest --coverage",
-    "test:watch": "NODE_ICU_DATA=node_modules/full-icu jest --watch",
     "cy:open": "cypress open",
     "cy:run": "cypress run",
+    "develop": "node -r esm ./node_modules/.bin/gatsby develop -H 0.0.0.0 -p 8000",
+    "lint": "eslint '*/**/*.{js,json,ts,tsx}'",
+    "lint:fix": "eslint '*/**/*.{js,json,ts,tsx}' --quiet --fix",
+    "serve": "node -r esm ./node_modules/.bin/gatsby serve",
+    "start": "node -r esm ./node_modules/.bin/gatsby develop",
+    "test": "NODE_ICU_DATA=node_modules/full-icu jest --coverage",
     "test:e2e": "start-server-and-test develop http://localhost:8000 cy:open",
-    "test:e2e:ci": "start-server-and-test develop http://localhost:8000 cy:run"
+    "test:e2e:ci": "start-server-and-test develop http://localhost:8000 cy:run",
+    "test:watch": "NODE_ICU_DATA=node_modules/full-icu jest --watch"
   },
-  "browserslist": [
-    "> 0.25%",
-    "last 5 versions",
-    "not ie > 0",
-    "not ie_mob > 0"
-  ],
   "husky": {
     "hooks": {
       "pre-commit": "lint-staged",
@@ -37,14 +38,25 @@
     ],
     "*.{scss}": "stylelint"
   },
+  "config": {
+    "commitizen": {
+      "path": "./node_modules/cz-conventional-changelog"
+    }
+  },
+  "browserslist": [
+    "> 0.25%",
+    "last 5 versions",
+    "not ie > 0",
+    "not ie_mob > 0"
+  ],
   "dependencies": {
     "@reach/router": "^1.3.3",
-    "gatsby": "^2.25.3",
+    "gatsby": "^2.26.1",
     "gatsby-plugin-intl": "^0.3.3",
     "gatsby-plugin-typescript": "^2.5.0",
     "normalize.css": "^8.0.1",
-    "react": "^16.13.1",
-    "react-dom": "^16.13.1",
+    "react": "^16.14.0",
+    "react-dom": "^16.14.0",
     "react-helmet": "^6.1.0"
   },
   "devDependencies": {
@@ -55,21 +67,21 @@
     "@commitlint/config-conventional": "^11.0.0",
     "@mdx-js/mdx": "^1.6.19",
     "@mdx-js/react": "^1.6.19",
-    "@testing-library/jest-dom": "^5.11.4",
-    "@testing-library/react": "^11.1.0",
+    "@testing-library/jest-dom": "^5.11.5",
+    "@testing-library/react": "^11.1.2",
     "@types/cypress": "^1.1.3",
     "@types/enzyme": "^3.10.8",
     "@types/enzyme-adapter-react-16": "^1.0.6",
-    "@types/jest": "^26.0.14",
+    "@types/jest": "^26.0.15",
     "@types/mdx-js__react": "^1.5.3",
-    "@types/react": "^16.9.53",
-    "@types/react-dom": "^16.9.8",
+    "@types/react": "^16.9.56",
+    "@types/react-dom": "^16.9.9",
     "@typescript-eslint/eslint-plugin": "^2.34.0",
     "@typescript-eslint/parser": "^2.34.0",
     "autoprefixer": "^9.8.0",
-    "babel-jest": "^26.6.1",
+    "babel-jest": "^26.6.3",
     "babel-preset-gatsby": "^0.4.7",
-    "cypress": "^5.5.0",
+    "cypress": "^5.6.0",
     "cz-conventional-changelog": "3.3.0",
     "enzyme": "^3.11.0",
     "enzyme-adapter-react-16": "^1.15.5",
@@ -77,7 +89,7 @@
     "eslint": "^6.8.0",
     "eslint-config-prettier": "^6.15.0",
     "eslint-plugin-cypress": "^2.11.2",
-    "eslint-plugin-jest": "^24.1.0",
+    "eslint-plugin-jest": "^24.1.3",
     "eslint-plugin-prettier": "^3.1.4",
     "eslint-plugin-react": "^7.21.5",
     "esm": "^3.2.25",
@@ -86,7 +98,7 @@
     "gatsby-plugin-mdx": "^1.2.51",
     "gatsby-plugin-react-i18next": "^0.0.27",
     "gatsby-plugin-remove-trailing-slashes": "^2.3.13",
-    "gatsby-plugin-sass": "2.3.22",
+    "gatsby-plugin-sass": "2.5.1",
     "gatsby-plugin-sharp": "^2.7.1",
     "gatsby-plugin-sitemap": "^2.4.17",
     "gatsby-remark-images": "^3.4.1",
@@ -96,11 +108,10 @@
     "i18next": "^19.8.2",
     "identity-obj-proxy": "^3.0.0",
     "jest": "^26.6.3",
-    "lint-staged": "^10.4.0",
+    "lint-staged": "^10.5.1",
     "node-sass": "^4.14.1",
     "prettier": "^2.1.2",
     "react-i18next": "^11.7.3",
-    "react-test-renderer": "^16.13.1",
     "start-server-and-test": "^1.11.5",
     "stylelint": "^13.7.2",
     "stylelint-config-standard": "^20.0.0",
@@ -108,18 +119,6 @@
     "stylelint-scss": "^3.18.0",
     "stylelint-selector-bem-pattern": "^2.1.0",
     "ts-jest": "^26.4.2",
-    "typescript": "^4.0.3"
-  },
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/fjpalacios/website"
-  },
-  "bugs": {
-    "url": "https://github.com/fjpalacios/website/issues"
-  },
-  "config": {
-    "commitizen": {
-      "path": "./node_modules/cz-conventional-changelog"
-    }
+    "typescript": "^4.0.5"
   }
 }
