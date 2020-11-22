@@ -12,9 +12,9 @@ describe('Post Title', () => {
     const titleComponent = createComponentWithIntl(
       <PostTitle title="Foo" date="Bar" />
     )
-    const title = titleComponent.find('.title h3').text()
+    const title = titleComponent.find('.post-title h3').text()
     expect(title).toBe('Foo')
-    const date = titleComponent.find('.title p').text()
+    const date = titleComponent.find('.post-title p').text()
     expect(date).toBe('Bar')
   })
 })

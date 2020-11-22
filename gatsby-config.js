@@ -13,6 +13,7 @@ module.exports = {
         path: `${__dirname}/locales`,
         languages: ['en', 'es'],
         defaultLanguage: 'es',
+        redirect: false,
       },
     },
     {

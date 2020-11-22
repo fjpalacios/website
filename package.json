@@ -6,7 +6,7 @@
   "private": true,
   "scripts": {
     "start": "node -r esm ./node_modules/.bin/gatsby develop",
-    "develop": "node -r esm ./node_modules/.bin/gatsby develop",
+    "develop": "node -r esm ./node_modules/.bin/gatsby develop -H 0.0.0.0 -p 8000",
     "build": "NODE_ICU_DATA=node_modules/full-icu node -r esm ./node_modules/.bin/gatsby build",
     "serve": "node -r esm ./node_modules/.bin/gatsby serve",
     "clean": "gatsby clean",

@@ -67,6 +67,7 @@ exports[`Header should render properly 1`] = `
                   "internet": "Internet",
                   "me": "About me",
                 },
+                "latestBlogPosts": "Latest blog posts",
                 "menu": Object {
                   "switchTheme": "Switch Theme",
                   "toEnglish": "Switch to English language",
@@ -106,6 +107,7 @@ exports[`Header should render properly 1`] = `
                   "internet": "Internet",
                   "me": "Sobre mí",
                 },
+                "latestBlogPosts": "Últimos posts del blog",
                 "menu": Object {
                   "switchTheme": "Cambia tema",
                   "toEnglish": "Cambia a Inglés",
@@ -208,6 +210,7 @@ exports[`Header should render properly 1`] = `
                 "internet": "Internet",
                 "me": "About me",
               },
+              "latestBlogPosts": "Latest blog posts",
               "menu": Object {
                 "switchTheme": "Switch Theme",
                 "toEnglish": "Switch to English language",
@@ -247,6 +250,7 @@ exports[`Header should render properly 1`] = `
                 "internet": "Internet",
                 "me": "Sobre mí",
               },
+              "latestBlogPosts": "Últimos posts del blog",
               "menu": Object {
                 "switchTheme": "Cambia tema",
                 "toEnglish": "Cambia a Inglés",
@@ -353,6 +357,7 @@ exports[`Header should render properly 1`] = `
                         "internet": "Internet",
                         "me": "About me",
                       },
+                      "latestBlogPosts": "Latest blog posts",
                       "menu": Object {
                         "switchTheme": "Switch Theme",
                         "toEnglish": "Switch to English language",
@@ -392,6 +397,7 @@ exports[`Header should render properly 1`] = `
                         "internet": "Internet",
                         "me": "Sobre mí",
                       },
+                      "latestBlogPosts": "Últimos posts del blog",
                       "menu": Object {
                         "switchTheme": "Cambia tema",
                         "toEnglish": "Cambia a Inglés",
@@ -480,6 +486,7 @@ exports[`Header should render properly 1`] = `
                       "internet": "Internet",
                       "me": "About me",
                     },
+                    "latestBlogPosts": "Latest blog posts",
                     "menu": Object {
                       "switchTheme": "Switch Theme",
                       "toEnglish": "Switch to English language",
@@ -519,6 +526,7 @@ exports[`Header should render properly 1`] = `
                       "internet": "Internet",
                       "me": "Sobre mí",
                     },
+                    "latestBlogPosts": "Últimos posts del blog",
                     "menu": Object {
                       "switchTheme": "Cambia tema",
                       "toEnglish": "Cambia a Inglés",
@@ -618,6 +626,7 @@ exports[`Header should render properly 1`] = `
                       "internet": "Internet",
                       "me": "About me",
                     },
+                    "latestBlogPosts": "Latest blog posts",
                     "menu": Object {
                       "switchTheme": "Switch Theme",
                       "toEnglish": "Switch to English language",
@@ -657,6 +666,7 @@ exports[`Header should render properly 1`] = `
                       "internet": "Internet",
                       "me": "Sobre mí",
                     },
+                    "latestBlogPosts": "Últimos posts del blog",
                     "menu": Object {
                       "switchTheme": "Cambia tema",
                       "toEnglish": "Cambia a Inglés",
@@ -750,6 +760,7 @@ exports[`Header should render properly 1`] = `
                     "internet": "Internet",
                     "me": "About me",
                   },
+                  "latestBlogPosts": "Latest blog posts",
                   "menu": Object {
                     "switchTheme": "Switch Theme",
                     "toEnglish": "Switch to English language",
@@ -789,6 +800,7 @@ exports[`Header should render properly 1`] = `
                     "internet": "Internet",
                     "me": "Sobre mí",
                   },
+                  "latestBlogPosts": "Últimos posts del blog",
                   "menu": Object {
                     "switchTheme": "Cambia tema",
                     "toEnglish": "Cambia a Inglés",
@@ -845,6 +857,7 @@ exports[`Header should render properly 1`] = `
                   "internet": "Internet",
                   "me": "About me",
                 },
+                "latestBlogPosts": "Latest blog posts",
                 "menu": Object {
                   "switchTheme": "Switch Theme",
                   "toEnglish": "Switch to English language",
@@ -884,6 +897,7 @@ exports[`Header should render properly 1`] = `
                   "internet": "Internet",
                   "me": "Sobre mí",
                 },
+                "latestBlogPosts": "Últimos posts del blog",
                 "menu": Object {
                   "switchTheme": "Cambia tema",
                   "toEnglish": "Cambia a Inglés",
@@ -975,6 +989,7 @@ exports[`Header should render properly 1`] = `
                       "internet": "Internet",
                       "me": "About me",
                     },
+                    "latestBlogPosts": "Latest blog posts",
                     "menu": Object {
                       "switchTheme": "Switch Theme",
                       "toEnglish": "Switch to English language",
@@ -1014,6 +1029,7 @@ exports[`Header should render properly 1`] = `
                       "internet": "Internet",
                       "me": "Sobre mí",
                     },
+                    "latestBlogPosts": "Últimos posts del blog",
                     "menu": Object {
                       "switchTheme": "Cambia tema",
                       "toEnglish": "Cambia a Inglés",
@@ -1107,6 +1123,7 @@ exports[`Header should render properly 1`] = `
                     "internet": "Internet",
                     "me": "About me",
                   },
+                  "latestBlogPosts": "Latest blog posts",
                   "menu": Object {
                     "switchTheme": "Switch Theme",
                     "toEnglish": "Switch to English language",
@@ -1146,6 +1163,7 @@ exports[`Header should render properly 1`] = `
                     "internet": "Internet",
                     "me": "Sobre mí",
                   },
+                  "latestBlogPosts": "Últimos posts del blog",
                   "menu": Object {
                     "switchTheme": "Cambia tema",
                     "toEnglish": "Cambia a Inglés",
@@ -1251,6 +1269,7 @@ exports[`Header should render properly 1`] = `
                       "internet": "Internet",
                       "me": "About me",
                     },
+                    "latestBlogPosts": "Latest blog posts",
                     "menu": Object {
                       "switchTheme": "Switch Theme",
                       "toEnglish": "Switch to English language",
@@ -1290,6 +1309,7 @@ exports[`Header should render properly 1`] = `
                       "internet": "Internet",
                       "me": "Sobre mí",
                     },
+                    "latestBlogPosts": "Últimos posts del blog",
                     "menu": Object {
                       "switchTheme": "Cambia tema",
                       "toEnglish": "Cambia a Inglés",
@@ -1378,6 +1398,7 @@ exports[`Header should render properly 1`] = `
                     "internet": "Internet",
                     "me": "About me",
                   },
+                  "latestBlogPosts": "Latest blog posts",
                   "menu": Object {
                     "switchTheme": "Switch Theme",
                     "toEnglish": "Switch to English language",
@@ -1417,6 +1438,7 @@ exports[`Header should render properly 1`] = `
                     "internet": "Internet",
                     "me": "Sobre mí",
                   },
+                  "latestBlogPosts": "Últimos posts del blog",
                   "menu": Object {
                     "switchTheme": "Cambia tema",
                     "toEnglish": "Cambia a Inglés",
@@ -1515,6 +1537,7 @@ exports[`Header should render properly 1`] = `
                     "internet": "Internet",
                     "me": "About me",
                   },
+                  "latestBlogPosts": "Latest blog posts",
                   "menu": Object {
                     "switchTheme": "Switch Theme",
                     "toEnglish": "Switch to English language",
@@ -1554,6 +1577,7 @@ exports[`Header should render properly 1`] = `
                     "internet": "Internet",
                     "me": "Sobre mí",
                   },
+                  "latestBlogPosts": "Últimos posts del blog",
                   "menu": Object {
                     "switchTheme": "Cambia tema",
                     "toEnglish": "Cambia a Inglés",
@@ -1654,6 +1678,7 @@ exports[`Header should render properly 1`] = `
                         "internet": "Internet",
                         "me": "About me",
                       },
+                      "latestBlogPosts": "Latest blog posts",
                       "menu": Object {
                         "switchTheme": "Switch Theme",
                         "toEnglish": "Switch to English language",
@@ -1693,6 +1718,7 @@ exports[`Header should render properly 1`] = `
                         "internet": "Internet",
                         "me": "Sobre mí",
                       },
+                      "latestBlogPosts": "Últimos posts del blog",
                       "menu": Object {
                         "switchTheme": "Cambia tema",
                         "toEnglish": "Cambia a Inglés",
@@ -1781,6 +1807,7 @@ exports[`Header should render properly 1`] = `
                       "internet": "Internet",
                       "me": "About me",
                     },
+                    "latestBlogPosts": "Latest blog posts",
                     "menu": Object {
                       "switchTheme": "Switch Theme",
                       "toEnglish": "Switch to English language",
@@ -1820,6 +1847,7 @@ exports[`Header should render properly 1`] = `
                       "internet": "Internet",
                       "me": "Sobre mí",
                     },
+                    "latestBlogPosts": "Últimos posts del blog",
                     "menu": Object {
                       "switchTheme": "Cambia tema",
                       "toEnglish": "Cambia a Inglés",
@@ -1919,6 +1947,7 @@ exports[`Header should render properly 1`] = `
                       "internet": "Internet",
                       "me": "About me",
                     },
+                    "latestBlogPosts": "Latest blog posts",
                     "menu": Object {
                       "switchTheme": "Switch Theme",
                       "toEnglish": "Switch to English language",
@@ -1958,6 +1987,7 @@ exports[`Header should render properly 1`] = `
                       "internet": "Internet",
                       "me": "Sobre mí",
                     },
+                    "latestBlogPosts": "Últimos posts del blog",
                     "menu": Object {
                       "switchTheme": "Cambia tema",
                       "toEnglish": "Cambia a Inglés",
@@ -2973,6 +3003,7 @@ exports[`Header should render properly 1`] = `
                 "internet": "Internet",
                 "me": "About me",
               },
+              "latestBlogPosts": "Latest blog posts",
               "menu": Object {
                 "switchTheme": "Switch Theme",
                 "toEnglish": "Switch to English language",
@@ -3012,6 +3043,7 @@ exports[`Header should render properly 1`] = `
                 "internet": "Internet",
                 "me": "Sobre mí",
               },
+              "latestBlogPosts": "Últimos posts del blog",
               "menu": Object {
                 "switchTheme": "Cambia tema",
                 "toEnglish": "Cambia a Inglés",
@@ -3057,6 +3089,7 @@ exports[`Header should render properly 1`] = `
               "internet": "Internet",
               "me": "About me",
             },
+            "latestBlogPosts": "Latest blog posts",
             "menu": Object {
               "switchTheme": "Switch Theme",
               "toEnglish": "Switch to English language",
@@ -3096,6 +3129,7 @@ exports[`Header should render properly 1`] = `
               "internet": "Internet",
               "me": "Sobre mí",
             },
+            "latestBlogPosts": "Últimos posts del blog",
             "menu": Object {
               "switchTheme": "Cambia tema",
               "toEnglish": "Cambia a Inglés",
@@ -3184,6 +3218,7 @@ exports[`Header should render properly 1`] = `
                         "internet": "Internet",
                         "me": "About me",
                       },
+                      "latestBlogPosts": "Latest blog posts",
                       "menu": Object {
                         "switchTheme": "Switch Theme",
                         "toEnglish": "Switch to English language",
@@ -3223,6 +3258,7 @@ exports[`Header should render properly 1`] = `
                         "internet": "Internet",
                         "me": "Sobre mí",
                       },
+                      "latestBlogPosts": "Últimos posts del blog",
                       "menu": Object {
                         "switchTheme": "Cambia tema",
                         "toEnglish": "Cambia a Inglés",
@@ -3311,6 +3347,7 @@ exports[`Header should render properly 1`] = `
                       "internet": "Internet",
                       "me": "About me",
                     },
+                    "latestBlogPosts": "Latest blog posts",
                     "menu": Object {
                       "switchTheme": "Switch Theme",
                       "toEnglish": "Switch to English language",
@@ -3350,6 +3387,7 @@ exports[`Header should render properly 1`] = `
                       "internet": "Internet",
                       "me": "Sobre mí",
                     },
+                    "latestBlogPosts": "Últimos posts del blog",
                     "menu": Object {
                       "switchTheme": "Cambia tema",
                       "toEnglish": "Cambia a Inglés",
@@ -3449,6 +3487,7 @@ exports[`Header should render properly 1`] = `
                       "internet": "Internet",
                       "me": "About me",
                     },
+                    "latestBlogPosts": "Latest blog posts",
                     "menu": Object {
                       "switchTheme": "Switch Theme",
                       "toEnglish": "Switch to English language",
@@ -3488,6 +3527,7 @@ exports[`Header should render properly 1`] = `
                       "internet": "Internet",
                       "me": "Sobre mí",
                     },
+                    "latestBlogPosts": "Últimos posts del blog",
                     "menu": Object {
                       "switchTheme": "Cambia tema",
                       "toEnglish": "Cambia a Inglés",
@@ -3581,6 +3621,7 @@ exports[`Header should render properly 1`] = `
                     "internet": "Internet",
                     "me": "About me",
                   },
+                  "latestBlogPosts": "Latest blog posts",
                   "menu": Object {
                     "switchTheme": "Switch Theme",
                     "toEnglish": "Switch to English language",
@@ -3620,6 +3661,7 @@ exports[`Header should render properly 1`] = `
                     "internet": "Internet",
                     "me": "Sobre mí",
                   },
+                  "latestBlogPosts": "Últimos posts del blog",
                   "menu": Object {
                     "switchTheme": "Cambia tema",
                     "toEnglish": "Cambia a Inglés",
@@ -3725,6 +3767,7 @@ exports[`Header should render properly 1`] = `
                           "internet": "Internet",
                           "me": "About me",
                         },
+                        "latestBlogPosts": "Latest blog posts",
                         "menu": Object {
                           "switchTheme": "Switch Theme",
                           "toEnglish": "Switch to English language",
@@ -3764,6 +3807,7 @@ exports[`Header should render properly 1`] = `
                           "internet": "Internet",
                           "me": "Sobre mí",
                         },
+                        "latestBlogPosts": "Últimos posts del blog",
                         "menu": Object {
                           "switchTheme": "Cambia tema",
                           "toEnglish": "Cambia a Inglés",
@@ -3857,6 +3901,7 @@ exports[`Header should render properly 1`] = `
                         "internet": "Internet",
                         "me": "About me",
                       },
+                      "latestBlogPosts": "Latest blog posts",
                       "menu": Object {
                         "switchTheme": "Switch Theme",
                         "toEnglish": "Switch to English language",
@@ -3896,6 +3941,7 @@ exports[`Header should render properly 1`] = `
                         "internet": "Internet",
                         "me": "Sobre mí",
                       },
+                      "latestBlogPosts": "Últimos posts del blog",
                       "menu": Object {
                         "switchTheme": "Cambia tema",
                         "toEnglish": "Cambia a Inglés",
@@ -4001,6 +4047,7 @@ exports[`Header should render properly 1`] = `
                           "internet": "Internet",
                           "me": "About me",
                         },
+                        "latestBlogPosts": "Latest blog posts",
                         "menu": Object {
                           "switchTheme": "Switch Theme",
                           "toEnglish": "Switch to English language",
@@ -4040,6 +4087,7 @@ exports[`Header should render properly 1`] = `
                           "internet": "Internet",
                           "me": "Sobre mí",
                         },
+                        "latestBlogPosts": "Últimos posts del blog",
                         "menu": Object {
                           "switchTheme": "Cambia tema",
                           "toEnglish": "Cambia a Inglés",
@@ -4128,6 +4176,7 @@ exports[`Header should render properly 1`] = `
                         "internet": "Internet",
                         "me": "About me",
                       },
+                      "latestBlogPosts": "Latest blog posts",
                       "menu": Object {
                         "switchTheme": "Switch Theme",
                         "toEnglish": "Switch to English language",
@@ -4167,6 +4216,7 @@ exports[`Header should render properly 1`] = `
                         "internet": "Internet",
                         "me": "Sobre mí",
                       },
+                      "latestBlogPosts": "Últimos posts del blog",
                       "menu": Object {
                         "switchTheme": "Cambia tema",
                         "toEnglish": "Cambia a Inglés",
@@ -4265,6 +4315,7 @@ exports[`Header should render properly 1`] = `
                         "internet": "Internet",
                         "me": "About me",
                       },
+                      "latestBlogPosts": "Latest blog posts",
                       "menu": Object {
                         "switchTheme": "Switch Theme",
                         "toEnglish": "Switch to English language",
@@ -4304,6 +4355,7 @@ exports[`Header should render properly 1`] = `
                         "internet": "Internet",
                         "me": "Sobre mí",
                       },
+                      "latestBlogPosts": "Últimos posts del blog",
                       "menu": Object {
                         "switchTheme": "Cambia tema",
                         "toEnglish": "Cambia a Inglés",
@@ -4404,6 +4456,7 @@ exports[`Header should render properly 1`] = `
                             "internet": "Internet",
                             "me": "About me",
                           },
+                          "latestBlogPosts": "Latest blog posts",
                           "menu": Object {
                             "switchTheme": "Switch Theme",
                             "toEnglish": "Switch to English language",
@@ -4443,6 +4496,7 @@ exports[`Header should render properly 1`] = `
                             "internet": "Internet",
                             "me": "Sobre mí",
                           },
+                          "latestBlogPosts": "Últimos posts del blog",
                           "menu": Object {
                             "switchTheme": "Cambia tema",
                             "toEnglish": "Cambia a Inglés",
@@ -4531,6 +4585,7 @@ exports[`Header should render properly 1`] = `
                           "internet": "Internet",
                           "me": "About me",
                         },
+                        "latestBlogPosts": "Latest blog posts",
                         "menu": Object {
                           "switchTheme": "Switch Theme",
                           "toEnglish": "Switch to English language",
@@ -4570,6 +4625,7 @@ exports[`Header should render properly 1`] = `
                           "internet": "Internet",
                           "me": "Sobre mí",
                         },
+                        "latestBlogPosts": "Últimos posts del blog",
                         "menu": Object {
                           "switchTheme": "Cambia tema",
                           "toEnglish": "Cambia a Inglés",
@@ -4669,6 +4725,7 @@ exports[`Header should render properly 1`] = `
                           "internet": "Internet",
                           "me": "About me",
                         },
+                        "latestBlogPosts": "Latest blog posts",
                         "menu": Object {
                           "switchTheme": "Switch Theme",
                           "toEnglish": "Switch to English language",
@@ -4708,6 +4765,7 @@ exports[`Header should render properly 1`] = `
                           "internet": "Internet",
                           "me": "Sobre mí",
                         },
+                        "latestBlogPosts": "Últimos posts del blog",
                         "menu": Object {
                           "switchTheme": "Cambia tema",
                           "toEnglish": "Cambia a Inglés",
@@ -5723,6 +5781,7 @@ exports[`Header should render properly 1`] = `
                     "internet": "Internet",
                     "me": "About me",
                   },
+                  "latestBlogPosts": "Latest blog posts",
                   "menu": Object {
                     "switchTheme": "Switch Theme",
                     "toEnglish": "Switch to English language",
@@ -5762,6 +5821,7 @@ exports[`Header should render properly 1`] = `
                     "internet": "Internet",
                     "me": "Sobre mí",
                   },
+                  "latestBlogPosts": "Últimos posts del blog",
                   "menu": Object {
                     "switchTheme": "Cambia tema",
                     "toEnglish": "Cambia a Inglés",
@@ -5808,6 +5868,7 @@ exports[`Header should render properly 1`] = `
                   "internet": "Internet",
                   "me": "About me",
                 },
+                "latestBlogPosts": "Latest blog posts",
                 "menu": Object {
                   "switchTheme": "Switch Theme",
                   "toEnglish": "Switch to English language",
@@ -5847,6 +5908,7 @@ exports[`Header should render properly 1`] = `
                   "internet": "Internet",
                   "me": "Sobre mí",
                 },
+                "latestBlogPosts": "Últimos posts del blog",
                 "menu": Object {
                   "switchTheme": "Cambia tema",
                   "toEnglish": "Cambia a Inglés",
@@ -5938,6 +6000,7 @@ exports[`Header should render properly 1`] = `
                       "internet": "Internet",
                       "me": "About me",
                     },
+                    "latestBlogPosts": "Latest blog posts",
                     "menu": Object {
                       "switchTheme": "Switch Theme",
                       "toEnglish": "Switch to English language",
@@ -5977,6 +6040,7 @@ exports[`Header should render properly 1`] = `
                       "internet": "Internet",
                       "me": "Sobre mí",
                     },
+                    "latestBlogPosts": "Últimos posts del blog",
                     "menu": Object {
                       "switchTheme": "Cambia tema",
                       "toEnglish": "Cambia a Inglés",
@@ -6070,6 +6134,7 @@ exports[`Header should render properly 1`] = `
                     "internet": "Internet",
                     "me": "About me",
                   },
+                  "latestBlogPosts": "Latest blog posts",
                   "menu": Object {
                     "switchTheme": "Switch Theme",
                     "toEnglish": "Switch to English language",
@@ -6109,6 +6174,7 @@ exports[`Header should render properly 1`] = `
                     "internet": "Internet",
                     "me": "Sobre mí",
                   },
+                  "latestBlogPosts": "Últimos posts del blog",
                   "menu": Object {
                     "switchTheme": "Cambia tema",
                     "toEnglish": "Cambia a Inglés",
@@ -6215,6 +6281,7 @@ exports[`Header should render properly 1`] = `
                       "internet": "Internet",
                       "me": "About me",
                     },
+                    "latestBlogPosts": "Latest blog posts",
                     "menu": Object {
                       "switchTheme": "Switch Theme",
                       "toEnglish": "Switch to English language",
@@ -6254,6 +6321,7 @@ exports[`Header should render properly 1`] = `
                       "internet": "Internet",
                       "me": "Sobre mí",
                     },
+                    "latestBlogPosts": "Últimos posts del blog",
                     "menu": Object {
                       "switchTheme": "Cambia tema",
                       "toEnglish": "Cambia a Inglés",
@@ -6342,6 +6410,7 @@ exports[`Header should render properly 1`] = `
                     "internet": "Internet",
                     "me": "About me",
                   },
+                  "latestBlogPosts": "Latest blog posts",
                   "menu": Object {
                     "switchTheme": "Switch Theme",
                     "toEnglish": "Switch to English language",
@@ -6381,6 +6450,7 @@ exports[`Header should render properly 1`] = `
                     "internet": "Internet",
                     "me": "Sobre mí",
                   },
+                  "latestBlogPosts": "Últimos posts del blog",
                   "menu": Object {
                     "switchTheme": "Cambia tema",
                     "toEnglish": "Cambia a Inglés",
@@ -6480,6 +6550,7 @@ exports[`Header should render properly 1`] = `
                     "internet": "Internet",
                     "me": "About me",
                   },
+                  "latestBlogPosts": "Latest blog posts",
                   "menu": Object {
                     "switchTheme": "Switch Theme",
                     "toEnglish": "Switch to English language",
@@ -6519,6 +6590,7 @@ exports[`Header should render properly 1`] = `
                     "internet": "Internet",
                     "me": "Sobre mí",
                   },
+                  "latestBlogPosts": "Últimos posts del blog",
                   "menu": Object {
                     "switchTheme": "Cambia tema",
                     "toEnglish": "Cambia a Inglés",
@@ -6612,6 +6684,7 @@ exports[`Header should render properly 1`] = `
                   "internet": "Internet",
                   "me": "About me",
                 },
+                "latestBlogPosts": "Latest blog posts",
                 "menu": Object {
                   "switchTheme": "Switch Theme",
                   "toEnglish": "Switch to English language",
@@ -6651,6 +6724,7 @@ exports[`Header should render properly 1`] = `
                   "internet": "Internet",
                   "me": "Sobre mí",
                 },
+                "latestBlogPosts": "Últimos posts del blog",
                 "menu": Object {
                   "switchTheme": "Cambia tema",
                   "toEnglish": "Cambia a Inglés",
@@ -6749,6 +6823,7 @@ exports[`Header should render properly 1`] = `
                         "internet": "Internet",
                         "me": "About me",
                       },
+                      "latestBlogPosts": "Latest blog posts",
                       "menu": Object {
                         "switchTheme": "Switch Theme",
                         "toEnglish": "Switch to English language",
@@ -6788,6 +6863,7 @@ exports[`Header should render properly 1`] = `
                         "internet": "Internet",
                         "me": "Sobre mí",
                       },
+                      "latestBlogPosts": "Últimos posts del blog",
                       "menu": Object {
                         "switchTheme": "Cambia tema",
                         "toEnglish": "Cambia a Inglés",
@@ -6876,6 +6952,7 @@ exports[`Header should render properly 1`] = `
                       "internet": "Internet",
                       "me": "About me",
                     },
+                    "latestBlogPosts": "Latest blog posts",
                     "menu": Object {
                       "switchTheme": "Switch Theme",
                       "toEnglish": "Switch to English language",
@@ -6915,6 +6992,7 @@ exports[`Header should render properly 1`] = `
                       "internet": "Internet",
                       "me": "Sobre mí",
                     },
+                    "latestBlogPosts": "Últimos posts del blog",
                     "menu": Object {
                       "switchTheme": "Cambia tema",
                       "toEnglish": "Cambia a Inglés",
@@ -7014,6 +7092,7 @@ exports[`Header should render properly 1`] = `
                       "internet": "Internet",
                       "me": "About me",
                     },
+                    "latestBlogPosts": "Latest blog posts",
                     "menu": Object {
                       "switchTheme": "Switch Theme",
                       "toEnglish": "Switch to English language",
@@ -7053,6 +7132,7 @@ exports[`Header should render properly 1`] = `
                       "internet": "Internet",
                       "me": "Sobre mí",
                     },
+                    "latestBlogPosts": "Últimos posts del blog",
                     "menu": Object {
                       "switchTheme": "Cambia tema",
                       "toEnglish": "Cambia a Inglés",
@@ -8068,6 +8148,7 @@ exports[`Header should render properly 1`] = `
                 "internet": "Internet",
                 "me": "About me",
               },
+              "latestBlogPosts": "Latest blog posts",
               "menu": Object {
                 "switchTheme": "Switch Theme",
                 "toEnglish": "Switch to English language",
@@ -8107,6 +8188,7 @@ exports[`Header should render properly 1`] = `
                 "internet": "Internet",
                 "me": "Sobre mí",
               },
+              "latestBlogPosts": "Últimos posts del blog",
               "menu": Object {
                 "switchTheme": "Cambia tema",
                 "toEnglish": "Cambia a Inglés",

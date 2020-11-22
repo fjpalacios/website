@@ -2,6 +2,9 @@
   grid-column: span 12;
 
   &__grid {
+    display: flex;
+    flex-direction: column;
+
     @include medium-and-up {
       display: grid;
       grid-template-areas:

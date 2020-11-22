@@ -13,8 +13,10 @@
   }
 
   h3 {
-    margin: 17px 0 13px;
-    font-weight: 100;
+    @include medium-and-up {
+      margin: 17px 0 13px;
+      font-weight: 100;
+    }
 
     @include print {
       margin: 10px 0 7px;
