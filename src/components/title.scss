@@ -12,7 +12,9 @@
     padding: 1px 10px;
   }
 
-  h3 {
+  h2 {
+    font-size: 1.17em;
+
     @include medium-and-up {
       margin: 17px 0 13px;
       font-weight: 100;

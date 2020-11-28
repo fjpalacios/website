@@ -1,6 +1,6 @@
 const defaultLanguage = 'es'
 const languages = [defaultLanguage, 'en']
-const postsPerPage = 4
+const postsPerPage = 10
 
 const path = require('path')
 const { locales } = require('./locales/locales')
@@ -31,10 +31,21 @@ function getPostsListPath(language, page, slug) {
   return slug ? path : `${prePath}${path}`
 }
 
+function getCategoryListPath(category, language, page, slug) {
+  const prePath = language === defaultLanguage ? '/' : '/en/'
+  const path =
+    page === 0
+      ? `category/${category}`
+      : `category/${category}/page/${page + 1}`
+
+  return slug ? path : `${prePath}${path}`
+}
+
 exports.createPages = ({ actions, graphql, reporter }) => {
   const { createPage } = actions
-  const post = require.resolve('./src/templates/post.tsx')
-  const posts = require.resolve('./src/templates/post-list.tsx')
+  const postTemplate = require.resolve('./src/templates/post.tsx')
+  const postsTemplate = require.resolve('./src/templates/post-list.tsx')
+  const categoryTemplate = require.resolve('./src/templates/category.tsx')
 
   return new Promise((resolve) => {
     resolve(
@@ -74,7 +85,7 @@ exports.createPages = ({ actions, graphql, reporter }) => {
             createPage({
               ...node,
               path,
-              component: post,
+              component: postTemplate,
               context: {
                 slug,
                 language,
@@ -99,7 +110,7 @@ exports.createPages = ({ actions, graphql, reporter }) => {
       resolve(
         graphql(`
           {
-            allMdx(
+            posts: allMdx(
               filter: { fields: { language: { eq: "${language}" } } }
               sort: { order: DESC, fields: [frontmatter___date] }
             ) {
@@ -114,11 +125,15 @@ exports.createPages = ({ actions, graphql, reporter }) => {
                 }
               }
             }
+            categories: allMdx(filter: {fields: {language: {eq: "${language}"}}}) {
+              group(field: frontmatter___categories) {
+                fieldValue
+                totalCount
+              }
+            }
           }
         `)
           .then((result) => {
-            const allPostsPerLanguage = result.data.allMdx.edges
-
             if (result.errors) {
               reporter.panicOnBuild(
                 `Error while running GraphQL query: ${result.errors}`
@@ -127,12 +142,17 @@ exports.createPages = ({ actions, graphql, reporter }) => {
               return
             }
 
-            const pages = Math.ceil(allPostsPerLanguage.length / postsPerPage)
+            const allPostsPerLanguage = result.data.posts.edges
+            const allCategoriesPerLanguage = result.data.categories.group
 
-            for (let index = 0; index < pages; index++) {
+            const postPages = Math.ceil(
+              allPostsPerLanguage.length / postsPerPage
+            )
+
+            for (let index = 0; index < postPages; index++) {
               createPage({
                 path: getPostsListPath(language, index, false),
-                component: posts,
+                component: postsTemplate,
                 context: {
                   slug: getPostsListPath(language, index, true),
                   language,
@@ -147,10 +167,60 @@ exports.createPages = ({ actions, graphql, reporter }) => {
                   limit: postsPerPage,
                   skip: index * postsPerPage,
                   page: index + 1,
-                  pages,
+                  pages: postPages,
                 },
               })
             }
+
+            allCategoriesPerLanguage.forEach((category) => {
+              const categoryPages = Math.ceil(
+                category.totalCount / postsPerPage
+              )
+              for (let index = 0; index < categoryPages; index++) {
+                createPage({
+                  path: getCategoryListPath(
+                    category.fieldValue,
+                    language,
+                    index,
+                    false
+                  ),
+                  component: categoryTemplate,
+                  context: {
+                    category: category.fieldValue,
+                    categories: allCategoriesPerLanguage,
+                    slug: getCategoryListPath(
+                      category.fieldValue,
+                      language,
+                      index,
+                      true
+                    ),
+                    language,
+                    i18n: {
+                      language,
+                      languages,
+                      defaultLanguage,
+                      resources: { [language]: locales[language] },
+                      path: `/${getCategoryListPath(
+                        category.fieldValue,
+                        language,
+                        index,
+                        true
+                      )}`,
+                      originalPath: `/${getCategoryListPath(
+                        category.fieldValue,
+                        language,
+                        index,
+                        true
+                      )}`,
+                    },
+                    limit: postsPerPage,
+                    skip: index * postsPerPage,
+                    page: index + 1,
+                    pages: categoryPages,
+                  },
+                })
+              }
+            })
           })
           .catch((error) =>
             reporter.panicOnBuild(`Error while running GraphQL query: ${error}`)

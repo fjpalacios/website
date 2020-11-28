@@ -12,7 +12,7 @@ export const Header: FunctionComponent = (): ReactElement => {
   return (
     <header className="header">
       <h1 className="header__title">{t('title')}</h1>
-      <h2 className="header__subtitle">{t('subtitle')}</h2>
+      <div className="header__subtitle">{t('subtitle')}</div>
       <div className="header__contact">
         {contact.map((item, key) => {
           return (

@@ -12,7 +12,7 @@ export const PostTitle: FunctionComponent<postTitleProps> = ({
 }): ReactElement => {
   return (
     <div className="post-title">
-      <h3>{title}</h3>
+      <h2>{title}</h2>
       <p>{date}</p>
     </div>
   )

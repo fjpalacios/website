@@ -2,9 +2,6 @@ import './latest-posts.scss'
 import { graphql, useStaticQuery } from 'gatsby'
 import { Link, useI18next, useTranslation } from 'gatsby-plugin-react-i18next'
 import React, { FunctionComponent, ReactElement } from 'react'
-import Img from 'gatsby-image'
-import { PostTitle } from './post-title'
-import { TextArea } from './text-area'
 import { Title } from './title'
 
 type latestPostsProps = {

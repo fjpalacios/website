@@ -29,13 +29,24 @@ export const LanguageSwitcher: FunctionComponent<languageSwitcherProps> = ({
     }
 
     return (
-      <Link to={to || originalPath} language={to ? '' : newLanguage}>
-        <img
-          src="/images/flags/uk.svg"
-          alt={t('menu.toEnglish')}
-          title={t('menu.toEnglish')}
-        />
-      </Link>
+      <>
+        {disabled && (
+          <img
+            src="/images/flags/uk.svg"
+            alt={t('menu.toEnglish')}
+            title={t('menu.toEnglish')}
+          />
+        )}
+        {!disabled && (
+          <Link to={to || originalPath} language={to ? '' : newLanguage}>
+            <img
+              src="/images/flags/uk.svg"
+              alt={t('menu.toEnglish')}
+              title={t('menu.toEnglish')}
+            />
+          </Link>
+        )}
+      </>
     )
   }
 
