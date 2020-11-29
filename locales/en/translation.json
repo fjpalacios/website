@@ -26,9 +26,11 @@
     "home": "Home",
     "about": "About me",
     "blog": "Blog",
-    "category": "Category"
+    "category": "Category",
+    "categories": "Categories"
   },
   "allCategories": "All categories",
+  "getInvolved": "Get involved!",
   "about": {
     "me": "About me",
     "internet": "Internet"

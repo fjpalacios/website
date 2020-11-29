@@ -68,6 +68,7 @@ exports[`Header should render properly 1`] = `
                   "me": "About me",
                 },
                 "allCategories": "All categories",
+                "getInvolved": "Get involved!",
                 "latestBlogPosts": "Latest blog posts",
                 "menu": Object {
                   "switchTheme": "Switch Theme",
@@ -83,6 +84,7 @@ exports[`Header should render properly 1`] = `
                 "pages": Object {
                   "about": "About me",
                   "blog": "Blog",
+                  "categories": "Categories",
                   "category": "Category",
                   "home": "Home",
                 },
@@ -110,6 +112,7 @@ exports[`Header should render properly 1`] = `
                   "me": "Sobre mí",
                 },
                 "allCategories": "Todas las categorías",
+                "getInvolved": "¡Colabora!",
                 "latestBlogPosts": "Últimos posts del blog",
                 "menu": Object {
                   "switchTheme": "Cambia tema",
@@ -125,6 +128,7 @@ exports[`Header should render properly 1`] = `
                 "pages": Object {
                   "about": "Sobre mí",
                   "blog": "Blog",
+                  "categories": "Categorías",
                   "category": "Categoría",
                   "home": "Inicio",
                 },
@@ -215,6 +219,7 @@ exports[`Header should render properly 1`] = `
                 "me": "About me",
               },
               "allCategories": "All categories",
+              "getInvolved": "Get involved!",
               "latestBlogPosts": "Latest blog posts",
               "menu": Object {
                 "switchTheme": "Switch Theme",
@@ -230,6 +235,7 @@ exports[`Header should render properly 1`] = `
               "pages": Object {
                 "about": "About me",
                 "blog": "Blog",
+                "categories": "Categories",
                 "category": "Category",
                 "home": "Home",
               },
@@ -257,6 +263,7 @@ exports[`Header should render properly 1`] = `
                 "me": "Sobre mí",
               },
               "allCategories": "Todas las categorías",
+              "getInvolved": "¡Colabora!",
               "latestBlogPosts": "Últimos posts del blog",
               "menu": Object {
                 "switchTheme": "Cambia tema",
@@ -272,6 +279,7 @@ exports[`Header should render properly 1`] = `
               "pages": Object {
                 "about": "Sobre mí",
                 "blog": "Blog",
+                "categories": "Categorías",
                 "category": "Categoría",
                 "home": "Inicio",
               },
@@ -366,6 +374,7 @@ exports[`Header should render properly 1`] = `
                         "me": "About me",
                       },
                       "allCategories": "All categories",
+                      "getInvolved": "Get involved!",
                       "latestBlogPosts": "Latest blog posts",
                       "menu": Object {
                         "switchTheme": "Switch Theme",
@@ -381,6 +390,7 @@ exports[`Header should render properly 1`] = `
                       "pages": Object {
                         "about": "About me",
                         "blog": "Blog",
+                        "categories": "Categories",
                         "category": "Category",
                         "home": "Home",
                       },
@@ -408,6 +418,7 @@ exports[`Header should render properly 1`] = `
                         "me": "Sobre mí",
                       },
                       "allCategories": "Todas las categorías",
+                      "getInvolved": "¡Colabora!",
                       "latestBlogPosts": "Últimos posts del blog",
                       "menu": Object {
                         "switchTheme": "Cambia tema",
@@ -423,6 +434,7 @@ exports[`Header should render properly 1`] = `
                       "pages": Object {
                         "about": "Sobre mí",
                         "blog": "Blog",
+                        "categories": "Categorías",
                         "category": "Categoría",
                         "home": "Inicio",
                       },
@@ -499,6 +511,7 @@ exports[`Header should render properly 1`] = `
                       "me": "About me",
                     },
                     "allCategories": "All categories",
+                    "getInvolved": "Get involved!",
                     "latestBlogPosts": "Latest blog posts",
                     "menu": Object {
                       "switchTheme": "Switch Theme",
@@ -514,6 +527,7 @@ exports[`Header should render properly 1`] = `
                     "pages": Object {
                       "about": "About me",
                       "blog": "Blog",
+                      "categories": "Categories",
                       "category": "Category",
                       "home": "Home",
                     },
@@ -541,6 +555,7 @@ exports[`Header should render properly 1`] = `
                       "me": "Sobre mí",
                     },
                     "allCategories": "Todas las categorías",
+                    "getInvolved": "¡Colabora!",
                     "latestBlogPosts": "Últimos posts del blog",
                     "menu": Object {
                       "switchTheme": "Cambia tema",
@@ -556,6 +571,7 @@ exports[`Header should render properly 1`] = `
                     "pages": Object {
                       "about": "Sobre mí",
                       "blog": "Blog",
+                      "categories": "Categorías",
                       "category": "Categoría",
                       "home": "Inicio",
                     },
@@ -643,6 +659,7 @@ exports[`Header should render properly 1`] = `
                       "me": "About me",
                     },
                     "allCategories": "All categories",
+                    "getInvolved": "Get involved!",
                     "latestBlogPosts": "Latest blog posts",
                     "menu": Object {
                       "switchTheme": "Switch Theme",
@@ -658,6 +675,7 @@ exports[`Header should render properly 1`] = `
                     "pages": Object {
                       "about": "About me",
                       "blog": "Blog",
+                      "categories": "Categories",
                       "category": "Category",
                       "home": "Home",
                     },
@@ -685,6 +703,7 @@ exports[`Header should render properly 1`] = `
                       "me": "Sobre mí",
                     },
                     "allCategories": "Todas las categorías",
+                    "getInvolved": "¡Colabora!",
                     "latestBlogPosts": "Últimos posts del blog",
                     "menu": Object {
                       "switchTheme": "Cambia tema",
@@ -700,6 +719,7 @@ exports[`Header should render properly 1`] = `
                     "pages": Object {
                       "about": "Sobre mí",
                       "blog": "Blog",
+                      "categories": "Categorías",
                       "category": "Categoría",
                       "home": "Inicio",
                     },
@@ -781,6 +801,7 @@ exports[`Header should render properly 1`] = `
                     "me": "About me",
                   },
                   "allCategories": "All categories",
+                  "getInvolved": "Get involved!",
                   "latestBlogPosts": "Latest blog posts",
                   "menu": Object {
                     "switchTheme": "Switch Theme",
@@ -796,6 +817,7 @@ exports[`Header should render properly 1`] = `
                   "pages": Object {
                     "about": "About me",
                     "blog": "Blog",
+                    "categories": "Categories",
                     "category": "Category",
                     "home": "Home",
                   },
@@ -823,6 +845,7 @@ exports[`Header should render properly 1`] = `
                     "me": "Sobre mí",
                   },
                   "allCategories": "Todas las categorías",
+                  "getInvolved": "¡Colabora!",
                   "latestBlogPosts": "Últimos posts del blog",
                   "menu": Object {
                     "switchTheme": "Cambia tema",
@@ -838,6 +861,7 @@ exports[`Header should render properly 1`] = `
                   "pages": Object {
                     "about": "Sobre mí",
                     "blog": "Blog",
+                    "categories": "Categorías",
                     "category": "Categoría",
                     "home": "Inicio",
                   },
@@ -882,6 +906,7 @@ exports[`Header should render properly 1`] = `
                   "me": "About me",
                 },
                 "allCategories": "All categories",
+                "getInvolved": "Get involved!",
                 "latestBlogPosts": "Latest blog posts",
                 "menu": Object {
                   "switchTheme": "Switch Theme",
@@ -897,6 +922,7 @@ exports[`Header should render properly 1`] = `
                 "pages": Object {
                   "about": "About me",
                   "blog": "Blog",
+                  "categories": "Categories",
                   "category": "Category",
                   "home": "Home",
                 },
@@ -924,6 +950,7 @@ exports[`Header should render properly 1`] = `
                   "me": "Sobre mí",
                 },
                 "allCategories": "Todas las categorías",
+                "getInvolved": "¡Colabora!",
                 "latestBlogPosts": "Últimos posts del blog",
                 "menu": Object {
                   "switchTheme": "Cambia tema",
@@ -939,6 +966,7 @@ exports[`Header should render properly 1`] = `
                 "pages": Object {
                   "about": "Sobre mí",
                   "blog": "Blog",
+                  "categories": "Categorías",
                   "category": "Categoría",
                   "home": "Inicio",
                 },
@@ -1018,6 +1046,7 @@ exports[`Header should render properly 1`] = `
                       "me": "About me",
                     },
                     "allCategories": "All categories",
+                    "getInvolved": "Get involved!",
                     "latestBlogPosts": "Latest blog posts",
                     "menu": Object {
                       "switchTheme": "Switch Theme",
@@ -1033,6 +1062,7 @@ exports[`Header should render properly 1`] = `
                     "pages": Object {
                       "about": "About me",
                       "blog": "Blog",
+                      "categories": "Categories",
                       "category": "Category",
                       "home": "Home",
                     },
@@ -1060,6 +1090,7 @@ exports[`Header should render properly 1`] = `
                       "me": "Sobre mí",
                     },
                     "allCategories": "Todas las categorías",
+                    "getInvolved": "¡Colabora!",
                     "latestBlogPosts": "Últimos posts del blog",
                     "menu": Object {
                       "switchTheme": "Cambia tema",
@@ -1075,6 +1106,7 @@ exports[`Header should render properly 1`] = `
                     "pages": Object {
                       "about": "Sobre mí",
                       "blog": "Blog",
+                      "categories": "Categorías",
                       "category": "Categoría",
                       "home": "Inicio",
                     },
@@ -1156,6 +1188,7 @@ exports[`Header should render properly 1`] = `
                     "me": "About me",
                   },
                   "allCategories": "All categories",
+                  "getInvolved": "Get involved!",
                   "latestBlogPosts": "Latest blog posts",
                   "menu": Object {
                     "switchTheme": "Switch Theme",
@@ -1171,6 +1204,7 @@ exports[`Header should render properly 1`] = `
                   "pages": Object {
                     "about": "About me",
                     "blog": "Blog",
+                    "categories": "Categories",
                     "category": "Category",
                     "home": "Home",
                   },
@@ -1198,6 +1232,7 @@ exports[`Header should render properly 1`] = `
                     "me": "Sobre mí",
                   },
                   "allCategories": "Todas las categorías",
+                  "getInvolved": "¡Colabora!",
                   "latestBlogPosts": "Últimos posts del blog",
                   "menu": Object {
                     "switchTheme": "Cambia tema",
@@ -1213,6 +1248,7 @@ exports[`Header should render properly 1`] = `
                   "pages": Object {
                     "about": "Sobre mí",
                     "blog": "Blog",
+                    "categories": "Categorías",
                     "category": "Categoría",
                     "home": "Inicio",
                   },
@@ -1306,6 +1342,7 @@ exports[`Header should render properly 1`] = `
                       "me": "About me",
                     },
                     "allCategories": "All categories",
+                    "getInvolved": "Get involved!",
                     "latestBlogPosts": "Latest blog posts",
                     "menu": Object {
                       "switchTheme": "Switch Theme",
@@ -1321,6 +1358,7 @@ exports[`Header should render properly 1`] = `
                     "pages": Object {
                       "about": "About me",
                       "blog": "Blog",
+                      "categories": "Categories",
                       "category": "Category",
                       "home": "Home",
                     },
@@ -1348,6 +1386,7 @@ exports[`Header should render properly 1`] = `
                       "me": "Sobre mí",
                     },
                     "allCategories": "Todas las categorías",
+                    "getInvolved": "¡Colabora!",
                     "latestBlogPosts": "Últimos posts del blog",
                     "menu": Object {
                       "switchTheme": "Cambia tema",
@@ -1363,6 +1402,7 @@ exports[`Header should render properly 1`] = `
                     "pages": Object {
                       "about": "Sobre mí",
                       "blog": "Blog",
+                      "categories": "Categorías",
                       "category": "Categoría",
                       "home": "Inicio",
                     },
@@ -1439,6 +1479,7 @@ exports[`Header should render properly 1`] = `
                     "me": "About me",
                   },
                   "allCategories": "All categories",
+                  "getInvolved": "Get involved!",
                   "latestBlogPosts": "Latest blog posts",
                   "menu": Object {
                     "switchTheme": "Switch Theme",
@@ -1454,6 +1495,7 @@ exports[`Header should render properly 1`] = `
                   "pages": Object {
                     "about": "About me",
                     "blog": "Blog",
+                    "categories": "Categories",
                     "category": "Category",
                     "home": "Home",
                   },
@@ -1481,6 +1523,7 @@ exports[`Header should render properly 1`] = `
                     "me": "Sobre mí",
                   },
                   "allCategories": "Todas las categorías",
+                  "getInvolved": "¡Colabora!",
                   "latestBlogPosts": "Últimos posts del blog",
                   "menu": Object {
                     "switchTheme": "Cambia tema",
@@ -1496,6 +1539,7 @@ exports[`Header should render properly 1`] = `
                   "pages": Object {
                     "about": "Sobre mí",
                     "blog": "Blog",
+                    "categories": "Categorías",
                     "category": "Categoría",
                     "home": "Inicio",
                   },
@@ -1582,6 +1626,7 @@ exports[`Header should render properly 1`] = `
                     "me": "About me",
                   },
                   "allCategories": "All categories",
+                  "getInvolved": "Get involved!",
                   "latestBlogPosts": "Latest blog posts",
                   "menu": Object {
                     "switchTheme": "Switch Theme",
@@ -1597,6 +1642,7 @@ exports[`Header should render properly 1`] = `
                   "pages": Object {
                     "about": "About me",
                     "blog": "Blog",
+                    "categories": "Categories",
                     "category": "Category",
                     "home": "Home",
                   },
@@ -1624,6 +1670,7 @@ exports[`Header should render properly 1`] = `
                     "me": "Sobre mí",
                   },
                   "allCategories": "Todas las categorías",
+                  "getInvolved": "¡Colabora!",
                   "latestBlogPosts": "Últimos posts del blog",
                   "menu": Object {
                     "switchTheme": "Cambia tema",
@@ -1639,6 +1686,7 @@ exports[`Header should render properly 1`] = `
                   "pages": Object {
                     "about": "Sobre mí",
                     "blog": "Blog",
+                    "categories": "Categorías",
                     "category": "Categoría",
                     "home": "Inicio",
                   },
@@ -1727,6 +1775,7 @@ exports[`Header should render properly 1`] = `
                         "me": "About me",
                       },
                       "allCategories": "All categories",
+                      "getInvolved": "Get involved!",
                       "latestBlogPosts": "Latest blog posts",
                       "menu": Object {
                         "switchTheme": "Switch Theme",
@@ -1742,6 +1791,7 @@ exports[`Header should render properly 1`] = `
                       "pages": Object {
                         "about": "About me",
                         "blog": "Blog",
+                        "categories": "Categories",
                         "category": "Category",
                         "home": "Home",
                       },
@@ -1769,6 +1819,7 @@ exports[`Header should render properly 1`] = `
                         "me": "Sobre mí",
                       },
                       "allCategories": "Todas las categorías",
+                      "getInvolved": "¡Colabora!",
                       "latestBlogPosts": "Últimos posts del blog",
                       "menu": Object {
                         "switchTheme": "Cambia tema",
@@ -1784,6 +1835,7 @@ exports[`Header should render properly 1`] = `
                       "pages": Object {
                         "about": "Sobre mí",
                         "blog": "Blog",
+                        "categories": "Categorías",
                         "category": "Categoría",
                         "home": "Inicio",
                       },
@@ -1860,6 +1912,7 @@ exports[`Header should render properly 1`] = `
                       "me": "About me",
                     },
                     "allCategories": "All categories",
+                    "getInvolved": "Get involved!",
                     "latestBlogPosts": "Latest blog posts",
                     "menu": Object {
                       "switchTheme": "Switch Theme",
@@ -1875,6 +1928,7 @@ exports[`Header should render properly 1`] = `
                     "pages": Object {
                       "about": "About me",
                       "blog": "Blog",
+                      "categories": "Categories",
                       "category": "Category",
                       "home": "Home",
                     },
@@ -1902,6 +1956,7 @@ exports[`Header should render properly 1`] = `
                       "me": "Sobre mí",
                     },
                     "allCategories": "Todas las categorías",
+                    "getInvolved": "¡Colabora!",
                     "latestBlogPosts": "Últimos posts del blog",
                     "menu": Object {
                       "switchTheme": "Cambia tema",
@@ -1917,6 +1972,7 @@ exports[`Header should render properly 1`] = `
                     "pages": Object {
                       "about": "Sobre mí",
                       "blog": "Blog",
+                      "categories": "Categorías",
                       "category": "Categoría",
                       "home": "Inicio",
                     },
@@ -2004,6 +2060,7 @@ exports[`Header should render properly 1`] = `
                       "me": "About me",
                     },
                     "allCategories": "All categories",
+                    "getInvolved": "Get involved!",
                     "latestBlogPosts": "Latest blog posts",
                     "menu": Object {
                       "switchTheme": "Switch Theme",
@@ -2019,6 +2076,7 @@ exports[`Header should render properly 1`] = `
                     "pages": Object {
                       "about": "About me",
                       "blog": "Blog",
+                      "categories": "Categories",
                       "category": "Category",
                       "home": "Home",
                     },
@@ -2046,6 +2104,7 @@ exports[`Header should render properly 1`] = `
                       "me": "Sobre mí",
                     },
                     "allCategories": "Todas las categorías",
+                    "getInvolved": "¡Colabora!",
                     "latestBlogPosts": "Últimos posts del blog",
                     "menu": Object {
                       "switchTheme": "Cambia tema",
@@ -2061,6 +2120,7 @@ exports[`Header should render properly 1`] = `
                     "pages": Object {
                       "about": "Sobre mí",
                       "blog": "Blog",
+                      "categories": "Categorías",
                       "category": "Categoría",
                       "home": "Inicio",
                     },
@@ -3064,6 +3124,7 @@ exports[`Header should render properly 1`] = `
                 "me": "About me",
               },
               "allCategories": "All categories",
+              "getInvolved": "Get involved!",
               "latestBlogPosts": "Latest blog posts",
               "menu": Object {
                 "switchTheme": "Switch Theme",
@@ -3079,6 +3140,7 @@ exports[`Header should render properly 1`] = `
               "pages": Object {
                 "about": "About me",
                 "blog": "Blog",
+                "categories": "Categories",
                 "category": "Category",
                 "home": "Home",
               },
@@ -3106,6 +3168,7 @@ exports[`Header should render properly 1`] = `
                 "me": "Sobre mí",
               },
               "allCategories": "Todas las categorías",
+              "getInvolved": "¡Colabora!",
               "latestBlogPosts": "Últimos posts del blog",
               "menu": Object {
                 "switchTheme": "Cambia tema",
@@ -3121,6 +3184,7 @@ exports[`Header should render properly 1`] = `
               "pages": Object {
                 "about": "Sobre mí",
                 "blog": "Blog",
+                "categories": "Categorías",
                 "category": "Categoría",
                 "home": "Inicio",
               },
@@ -3154,6 +3218,7 @@ exports[`Header should render properly 1`] = `
               "me": "About me",
             },
             "allCategories": "All categories",
+            "getInvolved": "Get involved!",
             "latestBlogPosts": "Latest blog posts",
             "menu": Object {
               "switchTheme": "Switch Theme",
@@ -3169,6 +3234,7 @@ exports[`Header should render properly 1`] = `
             "pages": Object {
               "about": "About me",
               "blog": "Blog",
+              "categories": "Categories",
               "category": "Category",
               "home": "Home",
             },
@@ -3196,6 +3262,7 @@ exports[`Header should render properly 1`] = `
               "me": "Sobre mí",
             },
             "allCategories": "Todas las categorías",
+            "getInvolved": "¡Colabora!",
             "latestBlogPosts": "Últimos posts del blog",
             "menu": Object {
               "switchTheme": "Cambia tema",
@@ -3211,6 +3278,7 @@ exports[`Header should render properly 1`] = `
             "pages": Object {
               "about": "Sobre mí",
               "blog": "Blog",
+              "categories": "Categorías",
               "category": "Categoría",
               "home": "Inicio",
             },
@@ -3287,6 +3355,7 @@ exports[`Header should render properly 1`] = `
                         "me": "About me",
                       },
                       "allCategories": "All categories",
+                      "getInvolved": "Get involved!",
                       "latestBlogPosts": "Latest blog posts",
                       "menu": Object {
                         "switchTheme": "Switch Theme",
@@ -3302,6 +3371,7 @@ exports[`Header should render properly 1`] = `
                       "pages": Object {
                         "about": "About me",
                         "blog": "Blog",
+                        "categories": "Categories",
                         "category": "Category",
                         "home": "Home",
                       },
@@ -3329,6 +3399,7 @@ exports[`Header should render properly 1`] = `
                         "me": "Sobre mí",
                       },
                       "allCategories": "Todas las categorías",
+                      "getInvolved": "¡Colabora!",
                       "latestBlogPosts": "Últimos posts del blog",
                       "menu": Object {
                         "switchTheme": "Cambia tema",
@@ -3344,6 +3415,7 @@ exports[`Header should render properly 1`] = `
                       "pages": Object {
                         "about": "Sobre mí",
                         "blog": "Blog",
+                        "categories": "Categorías",
                         "category": "Categoría",
                         "home": "Inicio",
                       },
@@ -3420,6 +3492,7 @@ exports[`Header should render properly 1`] = `
                       "me": "About me",
                     },
                     "allCategories": "All categories",
+                    "getInvolved": "Get involved!",
                     "latestBlogPosts": "Latest blog posts",
                     "menu": Object {
                       "switchTheme": "Switch Theme",
@@ -3435,6 +3508,7 @@ exports[`Header should render properly 1`] = `
                     "pages": Object {
                       "about": "About me",
                       "blog": "Blog",
+                      "categories": "Categories",
                       "category": "Category",
                       "home": "Home",
                     },
@@ -3462,6 +3536,7 @@ exports[`Header should render properly 1`] = `
                       "me": "Sobre mí",
                     },
                     "allCategories": "Todas las categorías",
+                    "getInvolved": "¡Colabora!",
                     "latestBlogPosts": "Últimos posts del blog",
                     "menu": Object {
                       "switchTheme": "Cambia tema",
@@ -3477,6 +3552,7 @@ exports[`Header should render properly 1`] = `
                     "pages": Object {
                       "about": "Sobre mí",
                       "blog": "Blog",
+                      "categories": "Categorías",
                       "category": "Categoría",
                       "home": "Inicio",
                     },
@@ -3564,6 +3640,7 @@ exports[`Header should render properly 1`] = `
                       "me": "About me",
                     },
                     "allCategories": "All categories",
+                    "getInvolved": "Get involved!",
                     "latestBlogPosts": "Latest blog posts",
                     "menu": Object {
                       "switchTheme": "Switch Theme",
@@ -3579,6 +3656,7 @@ exports[`Header should render properly 1`] = `
                     "pages": Object {
                       "about": "About me",
                       "blog": "Blog",
+                      "categories": "Categories",
                       "category": "Category",
                       "home": "Home",
                     },
@@ -3606,6 +3684,7 @@ exports[`Header should render properly 1`] = `
                       "me": "Sobre mí",
                     },
                     "allCategories": "Todas las categorías",
+                    "getInvolved": "¡Colabora!",
                     "latestBlogPosts": "Últimos posts del blog",
                     "menu": Object {
                       "switchTheme": "Cambia tema",
@@ -3621,6 +3700,7 @@ exports[`Header should render properly 1`] = `
                     "pages": Object {
                       "about": "Sobre mí",
                       "blog": "Blog",
+                      "categories": "Categorías",
                       "category": "Categoría",
                       "home": "Inicio",
                     },
@@ -3702,6 +3782,7 @@ exports[`Header should render properly 1`] = `
                     "me": "About me",
                   },
                   "allCategories": "All categories",
+                  "getInvolved": "Get involved!",
                   "latestBlogPosts": "Latest blog posts",
                   "menu": Object {
                     "switchTheme": "Switch Theme",
@@ -3717,6 +3798,7 @@ exports[`Header should render properly 1`] = `
                   "pages": Object {
                     "about": "About me",
                     "blog": "Blog",
+                    "categories": "Categories",
                     "category": "Category",
                     "home": "Home",
                   },
@@ -3744,6 +3826,7 @@ exports[`Header should render properly 1`] = `
                     "me": "Sobre mí",
                   },
                   "allCategories": "Todas las categorías",
+                  "getInvolved": "¡Colabora!",
                   "latestBlogPosts": "Últimos posts del blog",
                   "menu": Object {
                     "switchTheme": "Cambia tema",
@@ -3759,6 +3842,7 @@ exports[`Header should render properly 1`] = `
                   "pages": Object {
                     "about": "Sobre mí",
                     "blog": "Blog",
+                    "categories": "Categorías",
                     "category": "Categoría",
                     "home": "Inicio",
                   },
@@ -3852,6 +3936,7 @@ exports[`Header should render properly 1`] = `
                           "me": "About me",
                         },
                         "allCategories": "All categories",
+                        "getInvolved": "Get involved!",
                         "latestBlogPosts": "Latest blog posts",
                         "menu": Object {
                           "switchTheme": "Switch Theme",
@@ -3867,6 +3952,7 @@ exports[`Header should render properly 1`] = `
                         "pages": Object {
                           "about": "About me",
                           "blog": "Blog",
+                          "categories": "Categories",
                           "category": "Category",
                           "home": "Home",
                         },
@@ -3894,6 +3980,7 @@ exports[`Header should render properly 1`] = `
                           "me": "Sobre mí",
                         },
                         "allCategories": "Todas las categorías",
+                        "getInvolved": "¡Colabora!",
                         "latestBlogPosts": "Últimos posts del blog",
                         "menu": Object {
                           "switchTheme": "Cambia tema",
@@ -3909,6 +3996,7 @@ exports[`Header should render properly 1`] = `
                         "pages": Object {
                           "about": "Sobre mí",
                           "blog": "Blog",
+                          "categories": "Categorías",
                           "category": "Categoría",
                           "home": "Inicio",
                         },
@@ -3990,6 +4078,7 @@ exports[`Header should render properly 1`] = `
                         "me": "About me",
                       },
                       "allCategories": "All categories",
+                      "getInvolved": "Get involved!",
                       "latestBlogPosts": "Latest blog posts",
                       "menu": Object {
                         "switchTheme": "Switch Theme",
@@ -4005,6 +4094,7 @@ exports[`Header should render properly 1`] = `
                       "pages": Object {
                         "about": "About me",
                         "blog": "Blog",
+                        "categories": "Categories",
                         "category": "Category",
                         "home": "Home",
                       },
@@ -4032,6 +4122,7 @@ exports[`Header should render properly 1`] = `
                         "me": "Sobre mí",
                       },
                       "allCategories": "Todas las categorías",
+                      "getInvolved": "¡Colabora!",
                       "latestBlogPosts": "Últimos posts del blog",
                       "menu": Object {
                         "switchTheme": "Cambia tema",
@@ -4047,6 +4138,7 @@ exports[`Header should render properly 1`] = `
                       "pages": Object {
                         "about": "Sobre mí",
                         "blog": "Blog",
+                        "categories": "Categorías",
                         "category": "Categoría",
                         "home": "Inicio",
                       },
@@ -4140,6 +4232,7 @@ exports[`Header should render properly 1`] = `
                           "me": "About me",
                         },
                         "allCategories": "All categories",
+                        "getInvolved": "Get involved!",
                         "latestBlogPosts": "Latest blog posts",
                         "menu": Object {
                           "switchTheme": "Switch Theme",
@@ -4155,6 +4248,7 @@ exports[`Header should render properly 1`] = `
                         "pages": Object {
                           "about": "About me",
                           "blog": "Blog",
+                          "categories": "Categories",
                           "category": "Category",
                           "home": "Home",
                         },
@@ -4182,6 +4276,7 @@ exports[`Header should render properly 1`] = `
                           "me": "Sobre mí",
                         },
                         "allCategories": "Todas las categorías",
+                        "getInvolved": "¡Colabora!",
                         "latestBlogPosts": "Últimos posts del blog",
                         "menu": Object {
                           "switchTheme": "Cambia tema",
@@ -4197,6 +4292,7 @@ exports[`Header should render properly 1`] = `
                         "pages": Object {
                           "about": "Sobre mí",
                           "blog": "Blog",
+                          "categories": "Categorías",
                           "category": "Categoría",
                           "home": "Inicio",
                         },
@@ -4273,6 +4369,7 @@ exports[`Header should render properly 1`] = `
                         "me": "About me",
                       },
                       "allCategories": "All categories",
+                      "getInvolved": "Get involved!",
                       "latestBlogPosts": "Latest blog posts",
                       "menu": Object {
                         "switchTheme": "Switch Theme",
@@ -4288,6 +4385,7 @@ exports[`Header should render properly 1`] = `
                       "pages": Object {
                         "about": "About me",
                         "blog": "Blog",
+                        "categories": "Categories",
                         "category": "Category",
                         "home": "Home",
                       },
@@ -4315,6 +4413,7 @@ exports[`Header should render properly 1`] = `
                         "me": "Sobre mí",
                       },
                       "allCategories": "Todas las categorías",
+                      "getInvolved": "¡Colabora!",
                       "latestBlogPosts": "Últimos posts del blog",
                       "menu": Object {
                         "switchTheme": "Cambia tema",
@@ -4330,6 +4429,7 @@ exports[`Header should render properly 1`] = `
                       "pages": Object {
                         "about": "Sobre mí",
                         "blog": "Blog",
+                        "categories": "Categorías",
                         "category": "Categoría",
                         "home": "Inicio",
                       },
@@ -4416,6 +4516,7 @@ exports[`Header should render properly 1`] = `
                         "me": "About me",
                       },
                       "allCategories": "All categories",
+                      "getInvolved": "Get involved!",
                       "latestBlogPosts": "Latest blog posts",
                       "menu": Object {
                         "switchTheme": "Switch Theme",
@@ -4431,6 +4532,7 @@ exports[`Header should render properly 1`] = `
                       "pages": Object {
                         "about": "About me",
                         "blog": "Blog",
+                        "categories": "Categories",
                         "category": "Category",
                         "home": "Home",
                       },
@@ -4458,6 +4560,7 @@ exports[`Header should render properly 1`] = `
                         "me": "Sobre mí",
                       },
                       "allCategories": "Todas las categorías",
+                      "getInvolved": "¡Colabora!",
                       "latestBlogPosts": "Últimos posts del blog",
                       "menu": Object {
                         "switchTheme": "Cambia tema",
@@ -4473,6 +4576,7 @@ exports[`Header should render properly 1`] = `
                       "pages": Object {
                         "about": "Sobre mí",
                         "blog": "Blog",
+                        "categories": "Categorías",
                         "category": "Categoría",
                         "home": "Inicio",
                       },
@@ -4561,6 +4665,7 @@ exports[`Header should render properly 1`] = `
                             "me": "About me",
                           },
                           "allCategories": "All categories",
+                          "getInvolved": "Get involved!",
                           "latestBlogPosts": "Latest blog posts",
                           "menu": Object {
                             "switchTheme": "Switch Theme",
@@ -4576,6 +4681,7 @@ exports[`Header should render properly 1`] = `
                           "pages": Object {
                             "about": "About me",
                             "blog": "Blog",
+                            "categories": "Categories",
                             "category": "Category",
                             "home": "Home",
                           },
@@ -4603,6 +4709,7 @@ exports[`Header should render properly 1`] = `
                             "me": "Sobre mí",
                           },
                           "allCategories": "Todas las categorías",
+                          "getInvolved": "¡Colabora!",
                           "latestBlogPosts": "Últimos posts del blog",
                           "menu": Object {
                             "switchTheme": "Cambia tema",
@@ -4618,6 +4725,7 @@ exports[`Header should render properly 1`] = `
                           "pages": Object {
                             "about": "Sobre mí",
                             "blog": "Blog",
+                            "categories": "Categorías",
                             "category": "Categoría",
                             "home": "Inicio",
                           },
@@ -4694,6 +4802,7 @@ exports[`Header should render properly 1`] = `
                           "me": "About me",
                         },
                         "allCategories": "All categories",
+                        "getInvolved": "Get involved!",
                         "latestBlogPosts": "Latest blog posts",
                         "menu": Object {
                           "switchTheme": "Switch Theme",
@@ -4709,6 +4818,7 @@ exports[`Header should render properly 1`] = `
                         "pages": Object {
                           "about": "About me",
                           "blog": "Blog",
+                          "categories": "Categories",
                           "category": "Category",
                           "home": "Home",
                         },
@@ -4736,6 +4846,7 @@ exports[`Header should render properly 1`] = `
                           "me": "Sobre mí",
                         },
                         "allCategories": "Todas las categorías",
+                        "getInvolved": "¡Colabora!",
                         "latestBlogPosts": "Últimos posts del blog",
                         "menu": Object {
                           "switchTheme": "Cambia tema",
@@ -4751,6 +4862,7 @@ exports[`Header should render properly 1`] = `
                         "pages": Object {
                           "about": "Sobre mí",
                           "blog": "Blog",
+                          "categories": "Categorías",
                           "category": "Categoría",
                           "home": "Inicio",
                         },
@@ -4838,6 +4950,7 @@ exports[`Header should render properly 1`] = `
                           "me": "About me",
                         },
                         "allCategories": "All categories",
+                        "getInvolved": "Get involved!",
                         "latestBlogPosts": "Latest blog posts",
                         "menu": Object {
                           "switchTheme": "Switch Theme",
@@ -4853,6 +4966,7 @@ exports[`Header should render properly 1`] = `
                         "pages": Object {
                           "about": "About me",
                           "blog": "Blog",
+                          "categories": "Categories",
                           "category": "Category",
                           "home": "Home",
                         },
@@ -4880,6 +4994,7 @@ exports[`Header should render properly 1`] = `
                           "me": "Sobre mí",
                         },
                         "allCategories": "Todas las categorías",
+                        "getInvolved": "¡Colabora!",
                         "latestBlogPosts": "Últimos posts del blog",
                         "menu": Object {
                           "switchTheme": "Cambia tema",
@@ -4895,6 +5010,7 @@ exports[`Header should render properly 1`] = `
                         "pages": Object {
                           "about": "Sobre mí",
                           "blog": "Blog",
+                          "categories": "Categorías",
                           "category": "Categoría",
                           "home": "Inicio",
                         },
@@ -5898,6 +6014,7 @@ exports[`Header should render properly 1`] = `
                     "me": "About me",
                   },
                   "allCategories": "All categories",
+                  "getInvolved": "Get involved!",
                   "latestBlogPosts": "Latest blog posts",
                   "menu": Object {
                     "switchTheme": "Switch Theme",
@@ -5913,6 +6030,7 @@ exports[`Header should render properly 1`] = `
                   "pages": Object {
                     "about": "About me",
                     "blog": "Blog",
+                    "categories": "Categories",
                     "category": "Category",
                     "home": "Home",
                   },
@@ -5940,6 +6058,7 @@ exports[`Header should render properly 1`] = `
                     "me": "Sobre mí",
                   },
                   "allCategories": "Todas las categorías",
+                  "getInvolved": "¡Colabora!",
                   "latestBlogPosts": "Últimos posts del blog",
                   "menu": Object {
                     "switchTheme": "Cambia tema",
@@ -5955,6 +6074,7 @@ exports[`Header should render properly 1`] = `
                   "pages": Object {
                     "about": "Sobre mí",
                     "blog": "Blog",
+                    "categories": "Categorías",
                     "category": "Categoría",
                     "home": "Inicio",
                   },
@@ -5989,6 +6109,7 @@ exports[`Header should render properly 1`] = `
                   "me": "About me",
                 },
                 "allCategories": "All categories",
+                "getInvolved": "Get involved!",
                 "latestBlogPosts": "Latest blog posts",
                 "menu": Object {
                   "switchTheme": "Switch Theme",
@@ -6004,6 +6125,7 @@ exports[`Header should render properly 1`] = `
                 "pages": Object {
                   "about": "About me",
                   "blog": "Blog",
+                  "categories": "Categories",
                   "category": "Category",
                   "home": "Home",
                 },
@@ -6031,6 +6153,7 @@ exports[`Header should render properly 1`] = `
                   "me": "Sobre mí",
                 },
                 "allCategories": "Todas las categorías",
+                "getInvolved": "¡Colabora!",
                 "latestBlogPosts": "Últimos posts del blog",
                 "menu": Object {
                   "switchTheme": "Cambia tema",
@@ -6046,6 +6169,7 @@ exports[`Header should render properly 1`] = `
                 "pages": Object {
                   "about": "Sobre mí",
                   "blog": "Blog",
+                  "categories": "Categorías",
                   "category": "Categoría",
                   "home": "Inicio",
                 },
@@ -6125,6 +6249,7 @@ exports[`Header should render properly 1`] = `
                       "me": "About me",
                     },
                     "allCategories": "All categories",
+                    "getInvolved": "Get involved!",
                     "latestBlogPosts": "Latest blog posts",
                     "menu": Object {
                       "switchTheme": "Switch Theme",
@@ -6140,6 +6265,7 @@ exports[`Header should render properly 1`] = `
                     "pages": Object {
                       "about": "About me",
                       "blog": "Blog",
+                      "categories": "Categories",
                       "category": "Category",
                       "home": "Home",
                     },
@@ -6167,6 +6293,7 @@ exports[`Header should render properly 1`] = `
                       "me": "Sobre mí",
                     },
                     "allCategories": "Todas las categorías",
+                    "getInvolved": "¡Colabora!",
                     "latestBlogPosts": "Últimos posts del blog",
                     "menu": Object {
                       "switchTheme": "Cambia tema",
@@ -6182,6 +6309,7 @@ exports[`Header should render properly 1`] = `
                     "pages": Object {
                       "about": "Sobre mí",
                       "blog": "Blog",
+                      "categories": "Categorías",
                       "category": "Categoría",
                       "home": "Inicio",
                     },
@@ -6263,6 +6391,7 @@ exports[`Header should render properly 1`] = `
                     "me": "About me",
                   },
                   "allCategories": "All categories",
+                  "getInvolved": "Get involved!",
                   "latestBlogPosts": "Latest blog posts",
                   "menu": Object {
                     "switchTheme": "Switch Theme",
@@ -6278,6 +6407,7 @@ exports[`Header should render properly 1`] = `
                   "pages": Object {
                     "about": "About me",
                     "blog": "Blog",
+                    "categories": "Categories",
                     "category": "Category",
                     "home": "Home",
                   },
@@ -6305,6 +6435,7 @@ exports[`Header should render properly 1`] = `
                     "me": "Sobre mí",
                   },
                   "allCategories": "Todas las categorías",
+                  "getInvolved": "¡Colabora!",
                   "latestBlogPosts": "Últimos posts del blog",
                   "menu": Object {
                     "switchTheme": "Cambia tema",
@@ -6320,6 +6451,7 @@ exports[`Header should render properly 1`] = `
                   "pages": Object {
                     "about": "Sobre mí",
                     "blog": "Blog",
+                    "categories": "Categorías",
                     "category": "Categoría",
                     "home": "Inicio",
                   },
@@ -6414,6 +6546,7 @@ exports[`Header should render properly 1`] = `
                       "me": "About me",
                     },
                     "allCategories": "All categories",
+                    "getInvolved": "Get involved!",
                     "latestBlogPosts": "Latest blog posts",
                     "menu": Object {
                       "switchTheme": "Switch Theme",
@@ -6429,6 +6562,7 @@ exports[`Header should render properly 1`] = `
                     "pages": Object {
                       "about": "About me",
                       "blog": "Blog",
+                      "categories": "Categories",
                       "category": "Category",
                       "home": "Home",
                     },
@@ -6456,6 +6590,7 @@ exports[`Header should render properly 1`] = `
                       "me": "Sobre mí",
                     },
                     "allCategories": "Todas las categorías",
+                    "getInvolved": "¡Colabora!",
                     "latestBlogPosts": "Últimos posts del blog",
                     "menu": Object {
                       "switchTheme": "Cambia tema",
@@ -6471,6 +6606,7 @@ exports[`Header should render properly 1`] = `
                     "pages": Object {
                       "about": "Sobre mí",
                       "blog": "Blog",
+                      "categories": "Categorías",
                       "category": "Categoría",
                       "home": "Inicio",
                     },
@@ -6547,6 +6683,7 @@ exports[`Header should render properly 1`] = `
                     "me": "About me",
                   },
                   "allCategories": "All categories",
+                  "getInvolved": "Get involved!",
                   "latestBlogPosts": "Latest blog posts",
                   "menu": Object {
                     "switchTheme": "Switch Theme",
@@ -6562,6 +6699,7 @@ exports[`Header should render properly 1`] = `
                   "pages": Object {
                     "about": "About me",
                     "blog": "Blog",
+                    "categories": "Categories",
                     "category": "Category",
                     "home": "Home",
                   },
@@ -6589,6 +6727,7 @@ exports[`Header should render properly 1`] = `
                     "me": "Sobre mí",
                   },
                   "allCategories": "Todas las categorías",
+                  "getInvolved": "¡Colabora!",
                   "latestBlogPosts": "Últimos posts del blog",
                   "menu": Object {
                     "switchTheme": "Cambia tema",
@@ -6604,6 +6743,7 @@ exports[`Header should render properly 1`] = `
                   "pages": Object {
                     "about": "Sobre mí",
                     "blog": "Blog",
+                    "categories": "Categorías",
                     "category": "Categoría",
                     "home": "Inicio",
                   },
@@ -6691,6 +6831,7 @@ exports[`Header should render properly 1`] = `
                     "me": "About me",
                   },
                   "allCategories": "All categories",
+                  "getInvolved": "Get involved!",
                   "latestBlogPosts": "Latest blog posts",
                   "menu": Object {
                     "switchTheme": "Switch Theme",
@@ -6706,6 +6847,7 @@ exports[`Header should render properly 1`] = `
                   "pages": Object {
                     "about": "About me",
                     "blog": "Blog",
+                    "categories": "Categories",
                     "category": "Category",
                     "home": "Home",
                   },
@@ -6733,6 +6875,7 @@ exports[`Header should render properly 1`] = `
                     "me": "Sobre mí",
                   },
                   "allCategories": "Todas las categorías",
+                  "getInvolved": "¡Colabora!",
                   "latestBlogPosts": "Últimos posts del blog",
                   "menu": Object {
                     "switchTheme": "Cambia tema",
@@ -6748,6 +6891,7 @@ exports[`Header should render properly 1`] = `
                   "pages": Object {
                     "about": "Sobre mí",
                     "blog": "Blog",
+                    "categories": "Categorías",
                     "category": "Categoría",
                     "home": "Inicio",
                   },
@@ -6829,6 +6973,7 @@ exports[`Header should render properly 1`] = `
                   "me": "About me",
                 },
                 "allCategories": "All categories",
+                "getInvolved": "Get involved!",
                 "latestBlogPosts": "Latest blog posts",
                 "menu": Object {
                   "switchTheme": "Switch Theme",
@@ -6844,6 +6989,7 @@ exports[`Header should render properly 1`] = `
                 "pages": Object {
                   "about": "About me",
                   "blog": "Blog",
+                  "categories": "Categories",
                   "category": "Category",
                   "home": "Home",
                 },
@@ -6871,6 +7017,7 @@ exports[`Header should render properly 1`] = `
                   "me": "Sobre mí",
                 },
                 "allCategories": "Todas las categorías",
+                "getInvolved": "¡Colabora!",
                 "latestBlogPosts": "Últimos posts del blog",
                 "menu": Object {
                   "switchTheme": "Cambia tema",
@@ -6886,6 +7033,7 @@ exports[`Header should render properly 1`] = `
                 "pages": Object {
                   "about": "Sobre mí",
                   "blog": "Blog",
+                  "categories": "Categorías",
                   "category": "Categoría",
                   "home": "Inicio",
                 },
@@ -6972,6 +7120,7 @@ exports[`Header should render properly 1`] = `
                         "me": "About me",
                       },
                       "allCategories": "All categories",
+                      "getInvolved": "Get involved!",
                       "latestBlogPosts": "Latest blog posts",
                       "menu": Object {
                         "switchTheme": "Switch Theme",
@@ -6987,6 +7136,7 @@ exports[`Header should render properly 1`] = `
                       "pages": Object {
                         "about": "About me",
                         "blog": "Blog",
+                        "categories": "Categories",
                         "category": "Category",
                         "home": "Home",
                       },
@@ -7014,6 +7164,7 @@ exports[`Header should render properly 1`] = `
                         "me": "Sobre mí",
                       },
                       "allCategories": "Todas las categorías",
+                      "getInvolved": "¡Colabora!",
                       "latestBlogPosts": "Últimos posts del blog",
                       "menu": Object {
                         "switchTheme": "Cambia tema",
@@ -7029,6 +7180,7 @@ exports[`Header should render properly 1`] = `
                       "pages": Object {
                         "about": "Sobre mí",
                         "blog": "Blog",
+                        "categories": "Categorías",
                         "category": "Categoría",
                         "home": "Inicio",
                       },
@@ -7105,6 +7257,7 @@ exports[`Header should render properly 1`] = `
                       "me": "About me",
                     },
                     "allCategories": "All categories",
+                    "getInvolved": "Get involved!",
                     "latestBlogPosts": "Latest blog posts",
                     "menu": Object {
                       "switchTheme": "Switch Theme",
@@ -7120,6 +7273,7 @@ exports[`Header should render properly 1`] = `
                     "pages": Object {
                       "about": "About me",
                       "blog": "Blog",
+                      "categories": "Categories",
                       "category": "Category",
                       "home": "Home",
                     },
@@ -7147,6 +7301,7 @@ exports[`Header should render properly 1`] = `
                       "me": "Sobre mí",
                     },
                     "allCategories": "Todas las categorías",
+                    "getInvolved": "¡Colabora!",
                     "latestBlogPosts": "Últimos posts del blog",
                     "menu": Object {
                       "switchTheme": "Cambia tema",
@@ -7162,6 +7317,7 @@ exports[`Header should render properly 1`] = `
                     "pages": Object {
                       "about": "Sobre mí",
                       "blog": "Blog",
+                      "categories": "Categorías",
                       "category": "Categoría",
                       "home": "Inicio",
                     },
@@ -7249,6 +7405,7 @@ exports[`Header should render properly 1`] = `
                       "me": "About me",
                     },
                     "allCategories": "All categories",
+                    "getInvolved": "Get involved!",
                     "latestBlogPosts": "Latest blog posts",
                     "menu": Object {
                       "switchTheme": "Switch Theme",
@@ -7264,6 +7421,7 @@ exports[`Header should render properly 1`] = `
                     "pages": Object {
                       "about": "About me",
                       "blog": "Blog",
+                      "categories": "Categories",
                       "category": "Category",
                       "home": "Home",
                     },
@@ -7291,6 +7449,7 @@ exports[`Header should render properly 1`] = `
                       "me": "Sobre mí",
                     },
                     "allCategories": "Todas las categorías",
+                    "getInvolved": "¡Colabora!",
                     "latestBlogPosts": "Últimos posts del blog",
                     "menu": Object {
                       "switchTheme": "Cambia tema",
@@ -7306,6 +7465,7 @@ exports[`Header should render properly 1`] = `
                     "pages": Object {
                       "about": "Sobre mí",
                       "blog": "Blog",
+                      "categories": "Categorías",
                       "category": "Categoría",
                       "home": "Inicio",
                     },
@@ -8309,6 +8469,7 @@ exports[`Header should render properly 1`] = `
                 "me": "About me",
               },
               "allCategories": "All categories",
+              "getInvolved": "Get involved!",
               "latestBlogPosts": "Latest blog posts",
               "menu": Object {
                 "switchTheme": "Switch Theme",
@@ -8324,6 +8485,7 @@ exports[`Header should render properly 1`] = `
               "pages": Object {
                 "about": "About me",
                 "blog": "Blog",
+                "categories": "Categories",
                 "category": "Category",
                 "home": "Home",
               },
@@ -8351,6 +8513,7 @@ exports[`Header should render properly 1`] = `
                 "me": "Sobre mí",
               },
               "allCategories": "Todas las categorías",
+              "getInvolved": "¡Colabora!",
               "latestBlogPosts": "Últimos posts del blog",
               "menu": Object {
                 "switchTheme": "Cambia tema",
@@ -8366,6 +8529,7 @@ exports[`Header should render properly 1`] = `
               "pages": Object {
                 "about": "Sobre mí",
                 "blog": "Blog",
+                "categories": "Categorías",
                 "category": "Categoría",
                 "home": "Inicio",
               },

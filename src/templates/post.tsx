@@ -4,6 +4,8 @@ import { Layout } from '../components/layout'
 import { Post } from '../components/post'
 import React from 'react'
 import { Seo } from '../components/seo'
+import { Share } from '../components/share'
+import { useLocation } from '@reach/router'
 
 type postProps = {
   data: {
@@ -20,24 +22,24 @@ export default function ({ data }: postProps) {
   const { body, frontmatter, i18n } = mdx
   const { t } = useTranslation()
   const { defaultLanguage, language } = useI18next()
+  const { pathname } = useLocation()
   const i18nSlug =
     i18n?.find((x: any) => x !== undefined).frontmatter.slug || ''
   const i18nFormattedSlug =
     language === defaultLanguage ? `/en/${i18nSlug}` : `/${i18nSlug}`
   const hasi18n = i18nSlug.length
+  const cover = frontmatter.cover.childImageSharp.fluid
+  const url = `${t('metaData.url')}${pathname}`
+  const title = frontmatter.title
 
   return (
     <Layout
       languageSwitcherDisabled={!hasi18n}
       languageSwitcherTo={i18nFormattedSlug}
     >
-      <Seo title={`${frontmatter.title} - ${t('title')}`} />
-      <Post
-        title={frontmatter.title}
-        cover={frontmatter.cover.childImageSharp.fluid}
-        date={frontmatter.date}
-        text={body}
-      />
+      <Seo title={`${frontmatter.title} - ${t('title')}`} image={cover.src} />
+      <Post title={title} cover={cover} date={frontmatter.date} text={body} />
+      <Share title={title} url={url} />
     </Layout>
   )
 }

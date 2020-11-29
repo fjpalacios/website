@@ -6,17 +6,17 @@ import { Layout } from '../components/layout'
 import { Seo } from '../components/seo'
 
 export default (): ReactElement => {
-  const { defaultLanguage, language } = useI18next()
+  const { language } = useI18next()
   const { t } = useTranslation()
   const data = useStaticQuery(graphql`
     query {
-      spanish: allMdx(filter: { fields: { language: { eq: "es" } } }) {
+      es: allMdx(filter: { fields: { language: { eq: "es" } } }) {
         group(field: frontmatter___categories) {
           fieldValue
           totalCount
         }
       }
-      english: allMdx(filter: { fields: { language: { eq: "en" } } }) {
+      en: allMdx(filter: { fields: { language: { eq: "en" } } }) {
         group(field: frontmatter___categories) {
           fieldValue
           totalCount
@@ -25,13 +25,10 @@ export default (): ReactElement => {
     }
   `)
 
-  const categories =
-    language === defaultLanguage ? data.spanish.group : data.english.group
-
   return (
     <Layout>
       <Seo title={`${t('pages.categories')} - ${t('title')}`} />
-      <CategoryList categories={categories} />
+      <CategoryList categories={data[language].group} />
     </Layout>
   )
 }

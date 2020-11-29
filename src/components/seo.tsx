@@ -32,6 +32,9 @@ export const Seo: FunctionComponent<seoProps> = ({
         lang: language,
       }}
     >
+      <html lang={language} />
+      <title>{seo.title}</title>
+
       <meta property="og:locale" content={language} />
       <meta property="og:url" content={seo.url} />
       <meta property="og:type" content="website" />
