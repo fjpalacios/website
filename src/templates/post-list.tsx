@@ -33,7 +33,12 @@ export const query = graphql`
   query($limit: Int!, $skip: Int!, $language: String!) {
     allMdx(
       sort: { fields: [frontmatter___date], order: DESC }
-      filter: { fields: { language: { eq: $language } } }
+      filter: {
+        fields: {
+          language: { eq: $language }
+          type: { in: ["posts", "books"] }
+        }
+      }
       limit: $limit
       skip: $skip
     ) {
@@ -44,7 +49,7 @@ export const query = graphql`
           }
           frontmatter {
             date(formatString: "DD/MM/YY")
-            slug
+            post_slug
             title
             excerpt
             cover {

@@ -27,9 +27,14 @@
     "about": "Sobre mí",
     "blog": "Blog",
     "category": "Categoría",
-    "categories": "Categorías"
+    "categories": "Categorías",
+    "author": {
+      "male": "Autor",
+      "female": "Autora"
+    }
   },
   "allCategories": "Todas las categorías",
+  "allAuthors": "Todos los autores",
   "getInvolved": "¡Colabora!",
   "about": {
     "me": "Sobre mí",

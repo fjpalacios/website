@@ -1,26 +1,25 @@
 const defaultLanguage = 'es'
 const languages = [defaultLanguage, 'en']
 const postsPerPage = 10
+const typesOfPosts = ['posts', 'books']
 
 const path = require('path')
 const { locales } = require('./locales/locales')
+const { getTypeNames, mergeTypes } = require('./functions')
 
-exports.createSchemaCustomization = ({ actions }) => {
-  const { createTypes } = actions
-  const typeDefs = `
-    type Mdx implements Node {
-      i18n: [Mdx] @link(by: "frontmatter.slug", from: "frontmatter.i18n")
-    }`
-  createTypes(typeDefs)
-}
-
-exports.onCreateNode = ({ node, actions }) => {
+exports.onCreateNode = ({ node, getNode, actions }) => {
   const { createNodeField } = actions
 
   if (node.internal.type === 'Mdx') {
-    const name = path.basename(node.fileAbsolutePath, '.md')
-    const lang = name.split('.')[0]
-    createNodeField({ node, name: 'language', value: lang })
+    const parent = getNode(node.parent)
+    const type = parent.sourceInstanceName
+    createNodeField({ node, name: 'type', value: type })
+
+    if (typesOfPosts.includes(type) || type === 'categories') {
+      const name = path.basename(node.fileAbsolutePath, '.md')
+      const lang = name.split('.')[0]
+      createNodeField({ node, name: 'language', value: lang })
+    }
   }
 }
 
@@ -31,21 +30,22 @@ function getPostsListPath(language, page, slug) {
   return slug ? path : `${prePath}${path}`
 }
 
-function getCategoryListPath(category, language, page, slug) {
+function getListPath(type, category, language, page, slug) {
   const prePath = language === defaultLanguage ? '/' : '/en/'
   const path =
-    page === 0
-      ? `category/${category}`
-      : `category/${category}/page/${page + 1}`
+    page === 0 ? `${type}/${category}` : `${type}/${category}/page/${page + 1}`
 
   return slug ? path : `${prePath}${path}`
 }
 
 exports.createPages = ({ actions, graphql, reporter }) => {
   const { createPage } = actions
-  const postTemplate = require.resolve('./src/templates/post.tsx')
-  const postsTemplate = require.resolve('./src/templates/post-list.tsx')
-  const categoryTemplate = require.resolve('./src/templates/category.tsx')
+  const template = {
+    authors: require.resolve('./src/templates/author.tsx'),
+    categories: require.resolve('./src/templates/category.tsx'),
+    post: require.resolve('./src/templates/post.tsx'),
+    posts: require.resolve('./src/templates/post-list.tsx'),
+  }
 
   return new Promise((resolve) => {
     resolve(
@@ -56,9 +56,10 @@ exports.createPages = ({ actions, graphql, reporter }) => {
               node {
                 fields {
                   language
+                  type
                 }
                 frontmatter {
-                  slug
+                  post_slug
                 }
               }
             }
@@ -66,7 +67,9 @@ exports.createPages = ({ actions, graphql, reporter }) => {
         }
       `)
         .then((result) => {
-          const allPosts = result.data.allMdx.edges
+          const allPosts = result.data.allMdx.edges.filter(({ node }) =>
+            typesOfPosts.includes(node.fields.type)
+          )
 
           if (result.errors) {
             reporter.panicOnBuild(
@@ -78,14 +81,14 @@ exports.createPages = ({ actions, graphql, reporter }) => {
 
           allPosts.forEach(({ node }) => {
             const language = node.fields.language
-            const slug = node.frontmatter.slug
+            const slug = node.frontmatter.post_slug
             const path =
               language === defaultLanguage ? `/${slug}` : `/${language}/${slug}`
 
             createPage({
               ...node,
               path,
-              component: postTemplate,
+              component: template['post'],
               context: {
                 slug,
                 language,
@@ -111,7 +114,10 @@ exports.createPages = ({ actions, graphql, reporter }) => {
         graphql(`
           {
             posts: allMdx(
-              filter: { fields: { language: { eq: "${language}" } } }
+              filter: {
+                fields: { language: { eq: "${language}" } }
+                frontmatter: { post_slug: { ne: null } }
+              }
               sort: { order: DESC, fields: [frontmatter___date] }
             ) {
               edges {
@@ -120,15 +126,62 @@ exports.createPages = ({ actions, graphql, reporter }) => {
                     language
                   }
                   frontmatter {
-                    slug
+                    post_slug
                   }
                 }
               }
             }
-            categories: allMdx(filter: {fields: {language: {eq: "${language}"}}}) {
-              group(field: frontmatter___categories) {
+            categories: allMdx(
+              filter: { fields: { language: { eq: "${language}" } } }
+              sort: {
+                order: ASC
+                fields: [frontmatter___categories___frontmatter___category_slug]
+              }) {
+              group(field: frontmatter___categories___frontmatter___category_slug) {
                 fieldValue
                 totalCount
+              }
+            }
+            categoriesWithExtraInfo: allMdx(
+              filter: {
+                fields: { type: { eq: "categories" }, language: { eq: "${language}" } }
+              }
+              sort: { order: ASC, fields: [frontmatter___category_slug] }
+            ) {
+              edges {
+                node {
+                  frontmatter {
+                    fieldValue: category_slug
+                    name
+                  }
+                }
+              }
+            }
+            authors: allMdx(
+              sort: {
+                order: ASC,
+                fields: [frontmatter___author___frontmatter___author_slug]
+              }
+            ) {
+              group(field: frontmatter___author___frontmatter___author_slug) {
+                fieldValue
+                totalCount
+              }
+            }
+            authorsWithExtraInfo: allMdx(
+              filter: {
+                fields: { type: { eq: "authors" } }
+                frontmatter: { author_slug: { ne: null } }
+              }
+              sort: { order: ASC, fields: [frontmatter___author_slug] }
+            ) {
+              edges {
+                node {
+                  frontmatter {
+                    fieldValue: author_slug
+                    name
+                  }
+                }
               }
             }
           }
@@ -144,54 +197,66 @@ exports.createPages = ({ actions, graphql, reporter }) => {
 
             const allPostsPerLanguage = result.data.posts.edges
             const allCategoriesPerLanguage = result.data.categories.group
+            const allCategoriesWithExtraInfo =
+              result.data.categoriesWithExtraInfo.edges
+            const allAuthorsPerLanguage = result.data.authors.group
+            const allAuthorsWithExtraInfo =
+              result.data.authorsWithExtraInfo.edges
 
             const postPages = Math.ceil(
               allPostsPerLanguage.length / postsPerPage
             )
 
-            for (let index = 0; index < postPages; index++) {
+            for (let page = 0; page < postPages; page++) {
               createPage({
-                path: getPostsListPath(language, index, false),
-                component: postsTemplate,
+                path: getPostsListPath(language, page, false),
+                component: template['posts'],
                 context: {
-                  slug: getPostsListPath(language, index, true),
+                  slug: getPostsListPath(language, page, true),
                   language,
                   i18n: {
                     language,
                     languages,
                     defaultLanguage,
                     resources: { [language]: locales[language] },
-                    path: `/${getPostsListPath(language, index, true)}`,
-                    originalPath: `/${getPostsListPath(language, index, true)}`,
+                    path: `/${getPostsListPath(language, page, true)}`,
+                    originalPath: `/${getPostsListPath(language, page, true)}`,
                   },
                   limit: postsPerPage,
-                  skip: index * postsPerPage,
-                  page: index + 1,
+                  skip: page * postsPerPage,
+                  page: page + 1,
                   pages: postPages,
                 },
               })
             }
 
-            allCategoriesPerLanguage.forEach((category) => {
+            const mergedCategories = mergeTypes(
+              allCategoriesPerLanguage,
+              getTypeNames(allCategoriesWithExtraInfo)
+            )
+
+            allCategoriesPerLanguage.forEach((category, index) => {
               const categoryPages = Math.ceil(
                 category.totalCount / postsPerPage
               )
-              for (let index = 0; index < categoryPages; index++) {
+              for (let page = 0; page < categoryPages; page++) {
                 createPage({
-                  path: getCategoryListPath(
+                  path: getListPath(
+                    'category',
                     category.fieldValue,
                     language,
-                    index,
+                    page,
                     false
                   ),
-                  component: categoryTemplate,
+                  component: template['categories'],
                   context: {
                     category: category.fieldValue,
-                    categories: allCategoriesPerLanguage,
-                    slug: getCategoryListPath(
+                    categories: mergedCategories,
+                    slug: getListPath(
+                      'category',
                       category.fieldValue,
                       language,
-                      index,
+                      page,
                       true
                     ),
                     language,
@@ -200,23 +265,83 @@ exports.createPages = ({ actions, graphql, reporter }) => {
                       languages,
                       defaultLanguage,
                       resources: { [language]: locales[language] },
-                      path: `/${getCategoryListPath(
+                      path: `/${getListPath(
+                        'category',
                         category.fieldValue,
                         language,
-                        index,
+                        page,
                         true
                       )}`,
-                      originalPath: `/${getCategoryListPath(
+                      originalPath: `/${getListPath(
+                        'category',
                         category.fieldValue,
                         language,
-                        index,
+                        page,
                         true
                       )}`,
                     },
                     limit: postsPerPage,
-                    skip: index * postsPerPage,
-                    page: index + 1,
+                    skip: page * postsPerPage,
+                    page: page + 1,
                     pages: categoryPages,
+                  },
+                })
+              }
+            })
+
+            const mergedAuthors = mergeTypes(
+              allAuthorsPerLanguage,
+              getTypeNames(allAuthorsWithExtraInfo)
+            )
+
+            allAuthorsPerLanguage.forEach((author, index) => {
+              const authorPages = Math.ceil(author.totalCount / postsPerPage)
+
+              for (let page = 0; page < authorPages; page++) {
+                createPage({
+                  path: getListPath(
+                    'author',
+                    author.fieldValue,
+                    language,
+                    page,
+                    false
+                  ),
+                  component: template['authors'],
+                  context: {
+                    author: author.fieldValue,
+                    authors: mergedAuthors,
+                    slug: getListPath(
+                      'author',
+                      author.fieldValue,
+                      language,
+                      page,
+                      true
+                    ),
+                    language,
+                    i18n: {
+                      language,
+                      languages,
+                      defaultLanguage,
+                      resources: { [language]: locales[language] },
+                      path: `/${getListPath(
+                        'author',
+                        author.fieldValue,
+                        language,
+                        page,
+                        true
+                      )}`,
+                      originalPath: `/${getListPath(
+                        'author',
+                        author.fieldValue,
+                        language,
+                        page,
+                        true
+                      )}`,
+                    },
+                    limit: postsPerPage,
+                    skip: page * postsPerPage,
+                    page: page + 1,
+                    pages: authorPages,
                   },
                 })
               }

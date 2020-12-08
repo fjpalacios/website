@@ -20,7 +20,10 @@ export const LatestPosts: FunctionComponent<latestPostsProps> = ({
 }): ReactElement => {
   const data = useStaticQuery(graphql`
     query {
-      allMdx(sort: { fields: [frontmatter___date], order: DESC }) {
+      allMdx(
+        filter: { fields: { type: { in: ["posts", "books"] } } }
+        sort: { fields: [frontmatter___date], order: DESC }
+      ) {
         edges {
           node {
             fields {
@@ -28,7 +31,7 @@ export const LatestPosts: FunctionComponent<latestPostsProps> = ({
             }
             frontmatter {
               date(formatString: "DD/MM/YY")
-              slug
+              post_slug
               title
               excerpt
             }
@@ -53,8 +56,8 @@ export const LatestPosts: FunctionComponent<latestPostsProps> = ({
 
           return (
             <Link
-              to={`/${frontmatter.slug}`}
-              key={frontmatter.slug}
+              to={`/${frontmatter.post_slug}`}
+              key={frontmatter.post_slug}
               language={fields.language}
             >
               <section className="latest-posts__list__post">

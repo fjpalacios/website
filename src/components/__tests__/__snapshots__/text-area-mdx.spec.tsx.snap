@@ -67,6 +67,7 @@ exports[`TextAreaMdx should render properly 1`] = `
                   "internet": "Internet",
                   "me": "About me",
                 },
+                "allAuthors": "All authors",
                 "allCategories": "All categories",
                 "getInvolved": "Get involved!",
                 "latestBlogPosts": "Latest blog posts",
@@ -83,6 +84,10 @@ exports[`TextAreaMdx should render properly 1`] = `
                 },
                 "pages": Object {
                   "about": "About me",
+                  "author": Object {
+                    "female": "Author",
+                    "male": "Author",
+                  },
                   "blog": "Blog",
                   "categories": "Categories",
                   "category": "Category",
@@ -111,6 +116,7 @@ exports[`TextAreaMdx should render properly 1`] = `
                   "internet": "Internet",
                   "me": "Sobre mí",
                 },
+                "allAuthors": "Todos los autores",
                 "allCategories": "Todas las categorías",
                 "getInvolved": "¡Colabora!",
                 "latestBlogPosts": "Últimos posts del blog",
@@ -127,6 +133,10 @@ exports[`TextAreaMdx should render properly 1`] = `
                 },
                 "pages": Object {
                   "about": "Sobre mí",
+                  "author": Object {
+                    "female": "Autora",
+                    "male": "Autor",
+                  },
                   "blog": "Blog",
                   "categories": "Categorías",
                   "category": "Categoría",
@@ -213,6 +223,7 @@ exports[`TextAreaMdx should render properly 1`] = `
                 "internet": "Internet",
                 "me": "About me",
               },
+              "allAuthors": "All authors",
               "allCategories": "All categories",
               "getInvolved": "Get involved!",
               "latestBlogPosts": "Latest blog posts",
@@ -229,6 +240,10 @@ exports[`TextAreaMdx should render properly 1`] = `
               },
               "pages": Object {
                 "about": "About me",
+                "author": Object {
+                  "female": "Author",
+                  "male": "Author",
+                },
                 "blog": "Blog",
                 "categories": "Categories",
                 "category": "Category",
@@ -257,6 +272,7 @@ exports[`TextAreaMdx should render properly 1`] = `
                 "internet": "Internet",
                 "me": "Sobre mí",
               },
+              "allAuthors": "Todos los autores",
               "allCategories": "Todas las categorías",
               "getInvolved": "¡Colabora!",
               "latestBlogPosts": "Últimos posts del blog",
@@ -273,6 +289,10 @@ exports[`TextAreaMdx should render properly 1`] = `
               },
               "pages": Object {
                 "about": "Sobre mí",
+                "author": Object {
+                  "female": "Autora",
+                  "male": "Autor",
+                },
                 "blog": "Blog",
                 "categories": "Categorías",
                 "category": "Categoría",
@@ -363,6 +383,7 @@ exports[`TextAreaMdx should render properly 1`] = `
                         "internet": "Internet",
                         "me": "About me",
                       },
+                      "allAuthors": "All authors",
                       "allCategories": "All categories",
                       "getInvolved": "Get involved!",
                       "latestBlogPosts": "Latest blog posts",
@@ -379,6 +400,10 @@ exports[`TextAreaMdx should render properly 1`] = `
                       },
                       "pages": Object {
                         "about": "About me",
+                        "author": Object {
+                          "female": "Author",
+                          "male": "Author",
+                        },
                         "blog": "Blog",
                         "categories": "Categories",
                         "category": "Category",
@@ -407,6 +432,7 @@ exports[`TextAreaMdx should render properly 1`] = `
                         "internet": "Internet",
                         "me": "Sobre mí",
                       },
+                      "allAuthors": "Todos los autores",
                       "allCategories": "Todas las categorías",
                       "getInvolved": "¡Colabora!",
                       "latestBlogPosts": "Últimos posts del blog",
@@ -423,6 +449,10 @@ exports[`TextAreaMdx should render properly 1`] = `
                       },
                       "pages": Object {
                         "about": "Sobre mí",
+                        "author": Object {
+                          "female": "Autora",
+                          "male": "Autor",
+                        },
                         "blog": "Blog",
                         "categories": "Categorías",
                         "category": "Categoría",
@@ -500,6 +530,7 @@ exports[`TextAreaMdx should render properly 1`] = `
                       "internet": "Internet",
                       "me": "About me",
                     },
+                    "allAuthors": "All authors",
                     "allCategories": "All categories",
                     "getInvolved": "Get involved!",
                     "latestBlogPosts": "Latest blog posts",
@@ -516,6 +547,10 @@ exports[`TextAreaMdx should render properly 1`] = `
                     },
                     "pages": Object {
                       "about": "About me",
+                      "author": Object {
+                        "female": "Author",
+                        "male": "Author",
+                      },
                       "blog": "Blog",
                       "categories": "Categories",
                       "category": "Category",
@@ -544,6 +579,7 @@ exports[`TextAreaMdx should render properly 1`] = `
                       "internet": "Internet",
                       "me": "Sobre mí",
                     },
+                    "allAuthors": "Todos los autores",
                     "allCategories": "Todas las categorías",
                     "getInvolved": "¡Colabora!",
                     "latestBlogPosts": "Últimos posts del blog",
@@ -560,6 +596,10 @@ exports[`TextAreaMdx should render properly 1`] = `
                     },
                     "pages": Object {
                       "about": "Sobre mí",
+                      "author": Object {
+                        "female": "Autora",
+                        "male": "Autor",
+                      },
                       "blog": "Blog",
                       "categories": "Categorías",
                       "category": "Categoría",
@@ -648,6 +688,7 @@ exports[`TextAreaMdx should render properly 1`] = `
                       "internet": "Internet",
                       "me": "About me",
                     },
+                    "allAuthors": "All authors",
                     "allCategories": "All categories",
                     "getInvolved": "Get involved!",
                     "latestBlogPosts": "Latest blog posts",
@@ -664,6 +705,10 @@ exports[`TextAreaMdx should render properly 1`] = `
                     },
                     "pages": Object {
                       "about": "About me",
+                      "author": Object {
+                        "female": "Author",
+                        "male": "Author",
+                      },
                       "blog": "Blog",
                       "categories": "Categories",
                       "category": "Category",
@@ -692,6 +737,7 @@ exports[`TextAreaMdx should render properly 1`] = `
                       "internet": "Internet",
                       "me": "Sobre mí",
                     },
+                    "allAuthors": "Todos los autores",
                     "allCategories": "Todas las categorías",
                     "getInvolved": "¡Colabora!",
                     "latestBlogPosts": "Últimos posts del blog",
@@ -708,6 +754,10 @@ exports[`TextAreaMdx should render properly 1`] = `
                     },
                     "pages": Object {
                       "about": "Sobre mí",
+                      "author": Object {
+                        "female": "Autora",
+                        "male": "Autor",
+                      },
                       "blog": "Blog",
                       "categories": "Categorías",
                       "category": "Categoría",
@@ -790,6 +840,7 @@ exports[`TextAreaMdx should render properly 1`] = `
                     "internet": "Internet",
                     "me": "About me",
                   },
+                  "allAuthors": "All authors",
                   "allCategories": "All categories",
                   "getInvolved": "Get involved!",
                   "latestBlogPosts": "Latest blog posts",
@@ -806,6 +857,10 @@ exports[`TextAreaMdx should render properly 1`] = `
                   },
                   "pages": Object {
                     "about": "About me",
+                    "author": Object {
+                      "female": "Author",
+                      "male": "Author",
+                    },
                     "blog": "Blog",
                     "categories": "Categories",
                     "category": "Category",
@@ -834,6 +889,7 @@ exports[`TextAreaMdx should render properly 1`] = `
                     "internet": "Internet",
                     "me": "Sobre mí",
                   },
+                  "allAuthors": "Todos los autores",
                   "allCategories": "Todas las categorías",
                   "getInvolved": "¡Colabora!",
                   "latestBlogPosts": "Últimos posts del blog",
@@ -850,6 +906,10 @@ exports[`TextAreaMdx should render properly 1`] = `
                   },
                   "pages": Object {
                     "about": "Sobre mí",
+                    "author": Object {
+                      "female": "Autora",
+                      "male": "Autor",
+                    },
                     "blog": "Blog",
                     "categories": "Categorías",
                     "category": "Categoría",
@@ -895,6 +955,7 @@ exports[`TextAreaMdx should render properly 1`] = `
                   "internet": "Internet",
                   "me": "About me",
                 },
+                "allAuthors": "All authors",
                 "allCategories": "All categories",
                 "getInvolved": "Get involved!",
                 "latestBlogPosts": "Latest blog posts",
@@ -911,6 +972,10 @@ exports[`TextAreaMdx should render properly 1`] = `
                 },
                 "pages": Object {
                   "about": "About me",
+                  "author": Object {
+                    "female": "Author",
+                    "male": "Author",
+                  },
                   "blog": "Blog",
                   "categories": "Categories",
                   "category": "Category",
@@ -939,6 +1004,7 @@ exports[`TextAreaMdx should render properly 1`] = `
                   "internet": "Internet",
                   "me": "Sobre mí",
                 },
+                "allAuthors": "Todos los autores",
                 "allCategories": "Todas las categorías",
                 "getInvolved": "¡Colabora!",
                 "latestBlogPosts": "Últimos posts del blog",
@@ -955,6 +1021,10 @@ exports[`TextAreaMdx should render properly 1`] = `
                 },
                 "pages": Object {
                   "about": "Sobre mí",
+                  "author": Object {
+                    "female": "Autora",
+                    "male": "Autor",
+                  },
                   "blog": "Blog",
                   "categories": "Categorías",
                   "category": "Categoría",
@@ -1035,6 +1105,7 @@ exports[`TextAreaMdx should render properly 1`] = `
                       "internet": "Internet",
                       "me": "About me",
                     },
+                    "allAuthors": "All authors",
                     "allCategories": "All categories",
                     "getInvolved": "Get involved!",
                     "latestBlogPosts": "Latest blog posts",
@@ -1051,6 +1122,10 @@ exports[`TextAreaMdx should render properly 1`] = `
                     },
                     "pages": Object {
                       "about": "About me",
+                      "author": Object {
+                        "female": "Author",
+                        "male": "Author",
+                      },
                       "blog": "Blog",
                       "categories": "Categories",
                       "category": "Category",
@@ -1079,6 +1154,7 @@ exports[`TextAreaMdx should render properly 1`] = `
                       "internet": "Internet",
                       "me": "Sobre mí",
                     },
+                    "allAuthors": "Todos los autores",
                     "allCategories": "Todas las categorías",
                     "getInvolved": "¡Colabora!",
                     "latestBlogPosts": "Últimos posts del blog",
@@ -1095,6 +1171,10 @@ exports[`TextAreaMdx should render properly 1`] = `
                     },
                     "pages": Object {
                       "about": "Sobre mí",
+                      "author": Object {
+                        "female": "Autora",
+                        "male": "Autor",
+                      },
                       "blog": "Blog",
                       "categories": "Categorías",
                       "category": "Categoría",
@@ -1177,6 +1257,7 @@ exports[`TextAreaMdx should render properly 1`] = `
                     "internet": "Internet",
                     "me": "About me",
                   },
+                  "allAuthors": "All authors",
                   "allCategories": "All categories",
                   "getInvolved": "Get involved!",
                   "latestBlogPosts": "Latest blog posts",
@@ -1193,6 +1274,10 @@ exports[`TextAreaMdx should render properly 1`] = `
                   },
                   "pages": Object {
                     "about": "About me",
+                    "author": Object {
+                      "female": "Author",
+                      "male": "Author",
+                    },
                     "blog": "Blog",
                     "categories": "Categories",
                     "category": "Category",
@@ -1221,6 +1306,7 @@ exports[`TextAreaMdx should render properly 1`] = `
                     "internet": "Internet",
                     "me": "Sobre mí",
                   },
+                  "allAuthors": "Todos los autores",
                   "allCategories": "Todas las categorías",
                   "getInvolved": "¡Colabora!",
                   "latestBlogPosts": "Últimos posts del blog",
@@ -1237,6 +1323,10 @@ exports[`TextAreaMdx should render properly 1`] = `
                   },
                   "pages": Object {
                     "about": "Sobre mí",
+                    "author": Object {
+                      "female": "Autora",
+                      "male": "Autor",
+                    },
                     "blog": "Blog",
                     "categories": "Categorías",
                     "category": "Categoría",
@@ -1331,6 +1421,7 @@ exports[`TextAreaMdx should render properly 1`] = `
                       "internet": "Internet",
                       "me": "About me",
                     },
+                    "allAuthors": "All authors",
                     "allCategories": "All categories",
                     "getInvolved": "Get involved!",
                     "latestBlogPosts": "Latest blog posts",
@@ -1347,6 +1438,10 @@ exports[`TextAreaMdx should render properly 1`] = `
                     },
                     "pages": Object {
                       "about": "About me",
+                      "author": Object {
+                        "female": "Author",
+                        "male": "Author",
+                      },
                       "blog": "Blog",
                       "categories": "Categories",
                       "category": "Category",
@@ -1375,6 +1470,7 @@ exports[`TextAreaMdx should render properly 1`] = `
                       "internet": "Internet",
                       "me": "Sobre mí",
                     },
+                    "allAuthors": "Todos los autores",
                     "allCategories": "Todas las categorías",
                     "getInvolved": "¡Colabora!",
                     "latestBlogPosts": "Últimos posts del blog",
@@ -1391,6 +1487,10 @@ exports[`TextAreaMdx should render properly 1`] = `
                     },
                     "pages": Object {
                       "about": "Sobre mí",
+                      "author": Object {
+                        "female": "Autora",
+                        "male": "Autor",
+                      },
                       "blog": "Blog",
                       "categories": "Categorías",
                       "category": "Categoría",
@@ -1468,6 +1568,7 @@ exports[`TextAreaMdx should render properly 1`] = `
                     "internet": "Internet",
                     "me": "About me",
                   },
+                  "allAuthors": "All authors",
                   "allCategories": "All categories",
                   "getInvolved": "Get involved!",
                   "latestBlogPosts": "Latest blog posts",
@@ -1484,6 +1585,10 @@ exports[`TextAreaMdx should render properly 1`] = `
                   },
                   "pages": Object {
                     "about": "About me",
+                    "author": Object {
+                      "female": "Author",
+                      "male": "Author",
+                    },
                     "blog": "Blog",
                     "categories": "Categories",
                     "category": "Category",
@@ -1512,6 +1617,7 @@ exports[`TextAreaMdx should render properly 1`] = `
                     "internet": "Internet",
                     "me": "Sobre mí",
                   },
+                  "allAuthors": "Todos los autores",
                   "allCategories": "Todas las categorías",
                   "getInvolved": "¡Colabora!",
                   "latestBlogPosts": "Últimos posts del blog",
@@ -1528,6 +1634,10 @@ exports[`TextAreaMdx should render properly 1`] = `
                   },
                   "pages": Object {
                     "about": "Sobre mí",
+                    "author": Object {
+                      "female": "Autora",
+                      "male": "Autor",
+                    },
                     "blog": "Blog",
                     "categories": "Categorías",
                     "category": "Categoría",
@@ -1615,6 +1725,7 @@ exports[`TextAreaMdx should render properly 1`] = `
                     "internet": "Internet",
                     "me": "About me",
                   },
+                  "allAuthors": "All authors",
                   "allCategories": "All categories",
                   "getInvolved": "Get involved!",
                   "latestBlogPosts": "Latest blog posts",
@@ -1631,6 +1742,10 @@ exports[`TextAreaMdx should render properly 1`] = `
                   },
                   "pages": Object {
                     "about": "About me",
+                    "author": Object {
+                      "female": "Author",
+                      "male": "Author",
+                    },
                     "blog": "Blog",
                     "categories": "Categories",
                     "category": "Category",
@@ -1659,6 +1774,7 @@ exports[`TextAreaMdx should render properly 1`] = `
                     "internet": "Internet",
                     "me": "Sobre mí",
                   },
+                  "allAuthors": "Todos los autores",
                   "allCategories": "Todas las categorías",
                   "getInvolved": "¡Colabora!",
                   "latestBlogPosts": "Últimos posts del blog",
@@ -1675,6 +1791,10 @@ exports[`TextAreaMdx should render properly 1`] = `
                   },
                   "pages": Object {
                     "about": "Sobre mí",
+                    "author": Object {
+                      "female": "Autora",
+                      "male": "Autor",
+                    },
                     "blog": "Blog",
                     "categories": "Categorías",
                     "category": "Categoría",
@@ -1764,6 +1884,7 @@ exports[`TextAreaMdx should render properly 1`] = `
                         "internet": "Internet",
                         "me": "About me",
                       },
+                      "allAuthors": "All authors",
                       "allCategories": "All categories",
                       "getInvolved": "Get involved!",
                       "latestBlogPosts": "Latest blog posts",
@@ -1780,6 +1901,10 @@ exports[`TextAreaMdx should render properly 1`] = `
                       },
                       "pages": Object {
                         "about": "About me",
+                        "author": Object {
+                          "female": "Author",
+                          "male": "Author",
+                        },
                         "blog": "Blog",
                         "categories": "Categories",
                         "category": "Category",
@@ -1808,6 +1933,7 @@ exports[`TextAreaMdx should render properly 1`] = `
                         "internet": "Internet",
                         "me": "Sobre mí",
                       },
+                      "allAuthors": "Todos los autores",
                       "allCategories": "Todas las categorías",
                       "getInvolved": "¡Colabora!",
                       "latestBlogPosts": "Últimos posts del blog",
@@ -1824,6 +1950,10 @@ exports[`TextAreaMdx should render properly 1`] = `
                       },
                       "pages": Object {
                         "about": "Sobre mí",
+                        "author": Object {
+                          "female": "Autora",
+                          "male": "Autor",
+                        },
                         "blog": "Blog",
                         "categories": "Categorías",
                         "category": "Categoría",
@@ -1901,6 +2031,7 @@ exports[`TextAreaMdx should render properly 1`] = `
                       "internet": "Internet",
                       "me": "About me",
                     },
+                    "allAuthors": "All authors",
                     "allCategories": "All categories",
                     "getInvolved": "Get involved!",
                     "latestBlogPosts": "Latest blog posts",
@@ -1917,6 +2048,10 @@ exports[`TextAreaMdx should render properly 1`] = `
                     },
                     "pages": Object {
                       "about": "About me",
+                      "author": Object {
+                        "female": "Author",
+                        "male": "Author",
+                      },
                       "blog": "Blog",
                       "categories": "Categories",
                       "category": "Category",
@@ -1945,6 +2080,7 @@ exports[`TextAreaMdx should render properly 1`] = `
                       "internet": "Internet",
                       "me": "Sobre mí",
                     },
+                    "allAuthors": "Todos los autores",
                     "allCategories": "Todas las categorías",
                     "getInvolved": "¡Colabora!",
                     "latestBlogPosts": "Últimos posts del blog",
@@ -1961,6 +2097,10 @@ exports[`TextAreaMdx should render properly 1`] = `
                     },
                     "pages": Object {
                       "about": "Sobre mí",
+                      "author": Object {
+                        "female": "Autora",
+                        "male": "Autor",
+                      },
                       "blog": "Blog",
                       "categories": "Categorías",
                       "category": "Categoría",
@@ -2049,6 +2189,7 @@ exports[`TextAreaMdx should render properly 1`] = `
                       "internet": "Internet",
                       "me": "About me",
                     },
+                    "allAuthors": "All authors",
                     "allCategories": "All categories",
                     "getInvolved": "Get involved!",
                     "latestBlogPosts": "Latest blog posts",
@@ -2065,6 +2206,10 @@ exports[`TextAreaMdx should render properly 1`] = `
                     },
                     "pages": Object {
                       "about": "About me",
+                      "author": Object {
+                        "female": "Author",
+                        "male": "Author",
+                      },
                       "blog": "Blog",
                       "categories": "Categories",
                       "category": "Category",
@@ -2093,6 +2238,7 @@ exports[`TextAreaMdx should render properly 1`] = `
                       "internet": "Internet",
                       "me": "Sobre mí",
                     },
+                    "allAuthors": "Todos los autores",
                     "allCategories": "Todas las categorías",
                     "getInvolved": "¡Colabora!",
                     "latestBlogPosts": "Últimos posts del blog",
@@ -2109,6 +2255,10 @@ exports[`TextAreaMdx should render properly 1`] = `
                     },
                     "pages": Object {
                       "about": "Sobre mí",
+                      "author": Object {
+                        "female": "Autora",
+                        "male": "Autor",
+                      },
                       "blog": "Blog",
                       "categories": "Categorías",
                       "category": "Categoría",
@@ -3113,6 +3263,7 @@ exports[`TextAreaMdx should render properly 1`] = `
                 "internet": "Internet",
                 "me": "About me",
               },
+              "allAuthors": "All authors",
               "allCategories": "All categories",
               "getInvolved": "Get involved!",
               "latestBlogPosts": "Latest blog posts",
@@ -3129,6 +3280,10 @@ exports[`TextAreaMdx should render properly 1`] = `
               },
               "pages": Object {
                 "about": "About me",
+                "author": Object {
+                  "female": "Author",
+                  "male": "Author",
+                },
                 "blog": "Blog",
                 "categories": "Categories",
                 "category": "Category",
@@ -3157,6 +3312,7 @@ exports[`TextAreaMdx should render properly 1`] = `
                 "internet": "Internet",
                 "me": "Sobre mí",
               },
+              "allAuthors": "Todos los autores",
               "allCategories": "Todas las categorías",
               "getInvolved": "¡Colabora!",
               "latestBlogPosts": "Últimos posts del blog",
@@ -3173,6 +3329,10 @@ exports[`TextAreaMdx should render properly 1`] = `
               },
               "pages": Object {
                 "about": "Sobre mí",
+                "author": Object {
+                  "female": "Autora",
+                  "male": "Autor",
+                },
                 "blog": "Blog",
                 "categories": "Categorías",
                 "category": "Categoría",
@@ -3207,6 +3367,7 @@ exports[`TextAreaMdx should render properly 1`] = `
               "internet": "Internet",
               "me": "About me",
             },
+            "allAuthors": "All authors",
             "allCategories": "All categories",
             "getInvolved": "Get involved!",
             "latestBlogPosts": "Latest blog posts",
@@ -3223,6 +3384,10 @@ exports[`TextAreaMdx should render properly 1`] = `
             },
             "pages": Object {
               "about": "About me",
+              "author": Object {
+                "female": "Author",
+                "male": "Author",
+              },
               "blog": "Blog",
               "categories": "Categories",
               "category": "Category",
@@ -3251,6 +3416,7 @@ exports[`TextAreaMdx should render properly 1`] = `
               "internet": "Internet",
               "me": "Sobre mí",
             },
+            "allAuthors": "Todos los autores",
             "allCategories": "Todas las categorías",
             "getInvolved": "¡Colabora!",
             "latestBlogPosts": "Últimos posts del blog",
@@ -3267,6 +3433,10 @@ exports[`TextAreaMdx should render properly 1`] = `
             },
             "pages": Object {
               "about": "Sobre mí",
+              "author": Object {
+                "female": "Autora",
+                "male": "Autor",
+              },
               "blog": "Blog",
               "categories": "Categorías",
               "category": "Categoría",
@@ -3344,6 +3514,7 @@ exports[`TextAreaMdx should render properly 1`] = `
                         "internet": "Internet",
                         "me": "About me",
                       },
+                      "allAuthors": "All authors",
                       "allCategories": "All categories",
                       "getInvolved": "Get involved!",
                       "latestBlogPosts": "Latest blog posts",
@@ -3360,6 +3531,10 @@ exports[`TextAreaMdx should render properly 1`] = `
                       },
                       "pages": Object {
                         "about": "About me",
+                        "author": Object {
+                          "female": "Author",
+                          "male": "Author",
+                        },
                         "blog": "Blog",
                         "categories": "Categories",
                         "category": "Category",
@@ -3388,6 +3563,7 @@ exports[`TextAreaMdx should render properly 1`] = `
                         "internet": "Internet",
                         "me": "Sobre mí",
                       },
+                      "allAuthors": "Todos los autores",
                       "allCategories": "Todas las categorías",
                       "getInvolved": "¡Colabora!",
                       "latestBlogPosts": "Últimos posts del blog",
@@ -3404,6 +3580,10 @@ exports[`TextAreaMdx should render properly 1`] = `
                       },
                       "pages": Object {
                         "about": "Sobre mí",
+                        "author": Object {
+                          "female": "Autora",
+                          "male": "Autor",
+                        },
                         "blog": "Blog",
                         "categories": "Categorías",
                         "category": "Categoría",
@@ -3481,6 +3661,7 @@ exports[`TextAreaMdx should render properly 1`] = `
                       "internet": "Internet",
                       "me": "About me",
                     },
+                    "allAuthors": "All authors",
                     "allCategories": "All categories",
                     "getInvolved": "Get involved!",
                     "latestBlogPosts": "Latest blog posts",
@@ -3497,6 +3678,10 @@ exports[`TextAreaMdx should render properly 1`] = `
                     },
                     "pages": Object {
                       "about": "About me",
+                      "author": Object {
+                        "female": "Author",
+                        "male": "Author",
+                      },
                       "blog": "Blog",
                       "categories": "Categories",
                       "category": "Category",
@@ -3525,6 +3710,7 @@ exports[`TextAreaMdx should render properly 1`] = `
                       "internet": "Internet",
                       "me": "Sobre mí",
                     },
+                    "allAuthors": "Todos los autores",
                     "allCategories": "Todas las categorías",
                     "getInvolved": "¡Colabora!",
                     "latestBlogPosts": "Últimos posts del blog",
@@ -3541,6 +3727,10 @@ exports[`TextAreaMdx should render properly 1`] = `
                     },
                     "pages": Object {
                       "about": "Sobre mí",
+                      "author": Object {
+                        "female": "Autora",
+                        "male": "Autor",
+                      },
                       "blog": "Blog",
                       "categories": "Categorías",
                       "category": "Categoría",
@@ -3629,6 +3819,7 @@ exports[`TextAreaMdx should render properly 1`] = `
                       "internet": "Internet",
                       "me": "About me",
                     },
+                    "allAuthors": "All authors",
                     "allCategories": "All categories",
                     "getInvolved": "Get involved!",
                     "latestBlogPosts": "Latest blog posts",
@@ -3645,6 +3836,10 @@ exports[`TextAreaMdx should render properly 1`] = `
                     },
                     "pages": Object {
                       "about": "About me",
+                      "author": Object {
+                        "female": "Author",
+                        "male": "Author",
+                      },
                       "blog": "Blog",
                       "categories": "Categories",
                       "category": "Category",
@@ -3673,6 +3868,7 @@ exports[`TextAreaMdx should render properly 1`] = `
                       "internet": "Internet",
                       "me": "Sobre mí",
                     },
+                    "allAuthors": "Todos los autores",
                     "allCategories": "Todas las categorías",
                     "getInvolved": "¡Colabora!",
                     "latestBlogPosts": "Últimos posts del blog",
@@ -3689,6 +3885,10 @@ exports[`TextAreaMdx should render properly 1`] = `
                     },
                     "pages": Object {
                       "about": "Sobre mí",
+                      "author": Object {
+                        "female": "Autora",
+                        "male": "Autor",
+                      },
                       "blog": "Blog",
                       "categories": "Categorías",
                       "category": "Categoría",
@@ -3771,6 +3971,7 @@ exports[`TextAreaMdx should render properly 1`] = `
                     "internet": "Internet",
                     "me": "About me",
                   },
+                  "allAuthors": "All authors",
                   "allCategories": "All categories",
                   "getInvolved": "Get involved!",
                   "latestBlogPosts": "Latest blog posts",
@@ -3787,6 +3988,10 @@ exports[`TextAreaMdx should render properly 1`] = `
                   },
                   "pages": Object {
                     "about": "About me",
+                    "author": Object {
+                      "female": "Author",
+                      "male": "Author",
+                    },
                     "blog": "Blog",
                     "categories": "Categories",
                     "category": "Category",
@@ -3815,6 +4020,7 @@ exports[`TextAreaMdx should render properly 1`] = `
                     "internet": "Internet",
                     "me": "Sobre mí",
                   },
+                  "allAuthors": "Todos los autores",
                   "allCategories": "Todas las categorías",
                   "getInvolved": "¡Colabora!",
                   "latestBlogPosts": "Últimos posts del blog",
@@ -3831,6 +4037,10 @@ exports[`TextAreaMdx should render properly 1`] = `
                   },
                   "pages": Object {
                     "about": "Sobre mí",
+                    "author": Object {
+                      "female": "Autora",
+                      "male": "Autor",
+                    },
                     "blog": "Blog",
                     "categories": "Categorías",
                     "category": "Categoría",
@@ -3925,6 +4135,7 @@ exports[`TextAreaMdx should render properly 1`] = `
                           "internet": "Internet",
                           "me": "About me",
                         },
+                        "allAuthors": "All authors",
                         "allCategories": "All categories",
                         "getInvolved": "Get involved!",
                         "latestBlogPosts": "Latest blog posts",
@@ -3941,6 +4152,10 @@ exports[`TextAreaMdx should render properly 1`] = `
                         },
                         "pages": Object {
                           "about": "About me",
+                          "author": Object {
+                            "female": "Author",
+                            "male": "Author",
+                          },
                           "blog": "Blog",
                           "categories": "Categories",
                           "category": "Category",
@@ -3969,6 +4184,7 @@ exports[`TextAreaMdx should render properly 1`] = `
                           "internet": "Internet",
                           "me": "Sobre mí",
                         },
+                        "allAuthors": "Todos los autores",
                         "allCategories": "Todas las categorías",
                         "getInvolved": "¡Colabora!",
                         "latestBlogPosts": "Últimos posts del blog",
@@ -3985,6 +4201,10 @@ exports[`TextAreaMdx should render properly 1`] = `
                         },
                         "pages": Object {
                           "about": "Sobre mí",
+                          "author": Object {
+                            "female": "Autora",
+                            "male": "Autor",
+                          },
                           "blog": "Blog",
                           "categories": "Categorías",
                           "category": "Categoría",
@@ -4067,6 +4287,7 @@ exports[`TextAreaMdx should render properly 1`] = `
                         "internet": "Internet",
                         "me": "About me",
                       },
+                      "allAuthors": "All authors",
                       "allCategories": "All categories",
                       "getInvolved": "Get involved!",
                       "latestBlogPosts": "Latest blog posts",
@@ -4083,6 +4304,10 @@ exports[`TextAreaMdx should render properly 1`] = `
                       },
                       "pages": Object {
                         "about": "About me",
+                        "author": Object {
+                          "female": "Author",
+                          "male": "Author",
+                        },
                         "blog": "Blog",
                         "categories": "Categories",
                         "category": "Category",
@@ -4111,6 +4336,7 @@ exports[`TextAreaMdx should render properly 1`] = `
                         "internet": "Internet",
                         "me": "Sobre mí",
                       },
+                      "allAuthors": "Todos los autores",
                       "allCategories": "Todas las categorías",
                       "getInvolved": "¡Colabora!",
                       "latestBlogPosts": "Últimos posts del blog",
@@ -4127,6 +4353,10 @@ exports[`TextAreaMdx should render properly 1`] = `
                       },
                       "pages": Object {
                         "about": "Sobre mí",
+                        "author": Object {
+                          "female": "Autora",
+                          "male": "Autor",
+                        },
                         "blog": "Blog",
                         "categories": "Categorías",
                         "category": "Categoría",
@@ -4221,6 +4451,7 @@ exports[`TextAreaMdx should render properly 1`] = `
                           "internet": "Internet",
                           "me": "About me",
                         },
+                        "allAuthors": "All authors",
                         "allCategories": "All categories",
                         "getInvolved": "Get involved!",
                         "latestBlogPosts": "Latest blog posts",
@@ -4237,6 +4468,10 @@ exports[`TextAreaMdx should render properly 1`] = `
                         },
                         "pages": Object {
                           "about": "About me",
+                          "author": Object {
+                            "female": "Author",
+                            "male": "Author",
+                          },
                           "blog": "Blog",
                           "categories": "Categories",
                           "category": "Category",
@@ -4265,6 +4500,7 @@ exports[`TextAreaMdx should render properly 1`] = `
                           "internet": "Internet",
                           "me": "Sobre mí",
                         },
+                        "allAuthors": "Todos los autores",
                         "allCategories": "Todas las categorías",
                         "getInvolved": "¡Colabora!",
                         "latestBlogPosts": "Últimos posts del blog",
@@ -4281,6 +4517,10 @@ exports[`TextAreaMdx should render properly 1`] = `
                         },
                         "pages": Object {
                           "about": "Sobre mí",
+                          "author": Object {
+                            "female": "Autora",
+                            "male": "Autor",
+                          },
                           "blog": "Blog",
                           "categories": "Categorías",
                           "category": "Categoría",
@@ -4358,6 +4598,7 @@ exports[`TextAreaMdx should render properly 1`] = `
                         "internet": "Internet",
                         "me": "About me",
                       },
+                      "allAuthors": "All authors",
                       "allCategories": "All categories",
                       "getInvolved": "Get involved!",
                       "latestBlogPosts": "Latest blog posts",
@@ -4374,6 +4615,10 @@ exports[`TextAreaMdx should render properly 1`] = `
                       },
                       "pages": Object {
                         "about": "About me",
+                        "author": Object {
+                          "female": "Author",
+                          "male": "Author",
+                        },
                         "blog": "Blog",
                         "categories": "Categories",
                         "category": "Category",
@@ -4402,6 +4647,7 @@ exports[`TextAreaMdx should render properly 1`] = `
                         "internet": "Internet",
                         "me": "Sobre mí",
                       },
+                      "allAuthors": "Todos los autores",
                       "allCategories": "Todas las categorías",
                       "getInvolved": "¡Colabora!",
                       "latestBlogPosts": "Últimos posts del blog",
@@ -4418,6 +4664,10 @@ exports[`TextAreaMdx should render properly 1`] = `
                       },
                       "pages": Object {
                         "about": "Sobre mí",
+                        "author": Object {
+                          "female": "Autora",
+                          "male": "Autor",
+                        },
                         "blog": "Blog",
                         "categories": "Categorías",
                         "category": "Categoría",
@@ -4505,6 +4755,7 @@ exports[`TextAreaMdx should render properly 1`] = `
                         "internet": "Internet",
                         "me": "About me",
                       },
+                      "allAuthors": "All authors",
                       "allCategories": "All categories",
                       "getInvolved": "Get involved!",
                       "latestBlogPosts": "Latest blog posts",
@@ -4521,6 +4772,10 @@ exports[`TextAreaMdx should render properly 1`] = `
                       },
                       "pages": Object {
                         "about": "About me",
+                        "author": Object {
+                          "female": "Author",
+                          "male": "Author",
+                        },
                         "blog": "Blog",
                         "categories": "Categories",
                         "category": "Category",
@@ -4549,6 +4804,7 @@ exports[`TextAreaMdx should render properly 1`] = `
                         "internet": "Internet",
                         "me": "Sobre mí",
                       },
+                      "allAuthors": "Todos los autores",
                       "allCategories": "Todas las categorías",
                       "getInvolved": "¡Colabora!",
                       "latestBlogPosts": "Últimos posts del blog",
@@ -4565,6 +4821,10 @@ exports[`TextAreaMdx should render properly 1`] = `
                       },
                       "pages": Object {
                         "about": "Sobre mí",
+                        "author": Object {
+                          "female": "Autora",
+                          "male": "Autor",
+                        },
                         "blog": "Blog",
                         "categories": "Categorías",
                         "category": "Categoría",
@@ -4654,6 +4914,7 @@ exports[`TextAreaMdx should render properly 1`] = `
                             "internet": "Internet",
                             "me": "About me",
                           },
+                          "allAuthors": "All authors",
                           "allCategories": "All categories",
                           "getInvolved": "Get involved!",
                           "latestBlogPosts": "Latest blog posts",
@@ -4670,6 +4931,10 @@ exports[`TextAreaMdx should render properly 1`] = `
                           },
                           "pages": Object {
                             "about": "About me",
+                            "author": Object {
+                              "female": "Author",
+                              "male": "Author",
+                            },
                             "blog": "Blog",
                             "categories": "Categories",
                             "category": "Category",
@@ -4698,6 +4963,7 @@ exports[`TextAreaMdx should render properly 1`] = `
                             "internet": "Internet",
                             "me": "Sobre mí",
                           },
+                          "allAuthors": "Todos los autores",
                           "allCategories": "Todas las categorías",
                           "getInvolved": "¡Colabora!",
                           "latestBlogPosts": "Últimos posts del blog",
@@ -4714,6 +4980,10 @@ exports[`TextAreaMdx should render properly 1`] = `
                           },
                           "pages": Object {
                             "about": "Sobre mí",
+                            "author": Object {
+                              "female": "Autora",
+                              "male": "Autor",
+                            },
                             "blog": "Blog",
                             "categories": "Categorías",
                             "category": "Categoría",
@@ -4791,6 +5061,7 @@ exports[`TextAreaMdx should render properly 1`] = `
                           "internet": "Internet",
                           "me": "About me",
                         },
+                        "allAuthors": "All authors",
                         "allCategories": "All categories",
                         "getInvolved": "Get involved!",
                         "latestBlogPosts": "Latest blog posts",
@@ -4807,6 +5078,10 @@ exports[`TextAreaMdx should render properly 1`] = `
                         },
                         "pages": Object {
                           "about": "About me",
+                          "author": Object {
+                            "female": "Author",
+                            "male": "Author",
+                          },
                           "blog": "Blog",
                           "categories": "Categories",
                           "category": "Category",
@@ -4835,6 +5110,7 @@ exports[`TextAreaMdx should render properly 1`] = `
                           "internet": "Internet",
                           "me": "Sobre mí",
                         },
+                        "allAuthors": "Todos los autores",
                         "allCategories": "Todas las categorías",
                         "getInvolved": "¡Colabora!",
                         "latestBlogPosts": "Últimos posts del blog",
@@ -4851,6 +5127,10 @@ exports[`TextAreaMdx should render properly 1`] = `
                         },
                         "pages": Object {
                           "about": "Sobre mí",
+                          "author": Object {
+                            "female": "Autora",
+                            "male": "Autor",
+                          },
                           "blog": "Blog",
                           "categories": "Categorías",
                           "category": "Categoría",
@@ -4939,6 +5219,7 @@ exports[`TextAreaMdx should render properly 1`] = `
                           "internet": "Internet",
                           "me": "About me",
                         },
+                        "allAuthors": "All authors",
                         "allCategories": "All categories",
                         "getInvolved": "Get involved!",
                         "latestBlogPosts": "Latest blog posts",
@@ -4955,6 +5236,10 @@ exports[`TextAreaMdx should render properly 1`] = `
                         },
                         "pages": Object {
                           "about": "About me",
+                          "author": Object {
+                            "female": "Author",
+                            "male": "Author",
+                          },
                           "blog": "Blog",
                           "categories": "Categories",
                           "category": "Category",
@@ -4983,6 +5268,7 @@ exports[`TextAreaMdx should render properly 1`] = `
                           "internet": "Internet",
                           "me": "Sobre mí",
                         },
+                        "allAuthors": "Todos los autores",
                         "allCategories": "Todas las categorías",
                         "getInvolved": "¡Colabora!",
                         "latestBlogPosts": "Últimos posts del blog",
@@ -4999,6 +5285,10 @@ exports[`TextAreaMdx should render properly 1`] = `
                         },
                         "pages": Object {
                           "about": "Sobre mí",
+                          "author": Object {
+                            "female": "Autora",
+                            "male": "Autor",
+                          },
                           "blog": "Blog",
                           "categories": "Categorías",
                           "category": "Categoría",
@@ -6003,6 +6293,7 @@ exports[`TextAreaMdx should render properly 1`] = `
                     "internet": "Internet",
                     "me": "About me",
                   },
+                  "allAuthors": "All authors",
                   "allCategories": "All categories",
                   "getInvolved": "Get involved!",
                   "latestBlogPosts": "Latest blog posts",
@@ -6019,6 +6310,10 @@ exports[`TextAreaMdx should render properly 1`] = `
                   },
                   "pages": Object {
                     "about": "About me",
+                    "author": Object {
+                      "female": "Author",
+                      "male": "Author",
+                    },
                     "blog": "Blog",
                     "categories": "Categories",
                     "category": "Category",
@@ -6047,6 +6342,7 @@ exports[`TextAreaMdx should render properly 1`] = `
                     "internet": "Internet",
                     "me": "Sobre mí",
                   },
+                  "allAuthors": "Todos los autores",
                   "allCategories": "Todas las categorías",
                   "getInvolved": "¡Colabora!",
                   "latestBlogPosts": "Últimos posts del blog",
@@ -6063,6 +6359,10 @@ exports[`TextAreaMdx should render properly 1`] = `
                   },
                   "pages": Object {
                     "about": "Sobre mí",
+                    "author": Object {
+                      "female": "Autora",
+                      "male": "Autor",
+                    },
                     "blog": "Blog",
                     "categories": "Categorías",
                     "category": "Categoría",
@@ -6098,6 +6398,7 @@ exports[`TextAreaMdx should render properly 1`] = `
                   "internet": "Internet",
                   "me": "About me",
                 },
+                "allAuthors": "All authors",
                 "allCategories": "All categories",
                 "getInvolved": "Get involved!",
                 "latestBlogPosts": "Latest blog posts",
@@ -6114,6 +6415,10 @@ exports[`TextAreaMdx should render properly 1`] = `
                 },
                 "pages": Object {
                   "about": "About me",
+                  "author": Object {
+                    "female": "Author",
+                    "male": "Author",
+                  },
                   "blog": "Blog",
                   "categories": "Categories",
                   "category": "Category",
@@ -6142,6 +6447,7 @@ exports[`TextAreaMdx should render properly 1`] = `
                   "internet": "Internet",
                   "me": "Sobre mí",
                 },
+                "allAuthors": "Todos los autores",
                 "allCategories": "Todas las categorías",
                 "getInvolved": "¡Colabora!",
                 "latestBlogPosts": "Últimos posts del blog",
@@ -6158,6 +6464,10 @@ exports[`TextAreaMdx should render properly 1`] = `
                 },
                 "pages": Object {
                   "about": "Sobre mí",
+                  "author": Object {
+                    "female": "Autora",
+                    "male": "Autor",
+                  },
                   "blog": "Blog",
                   "categories": "Categorías",
                   "category": "Categoría",
@@ -6238,6 +6548,7 @@ exports[`TextAreaMdx should render properly 1`] = `
                       "internet": "Internet",
                       "me": "About me",
                     },
+                    "allAuthors": "All authors",
                     "allCategories": "All categories",
                     "getInvolved": "Get involved!",
                     "latestBlogPosts": "Latest blog posts",
@@ -6254,6 +6565,10 @@ exports[`TextAreaMdx should render properly 1`] = `
                     },
                     "pages": Object {
                       "about": "About me",
+                      "author": Object {
+                        "female": "Author",
+                        "male": "Author",
+                      },
                       "blog": "Blog",
                       "categories": "Categories",
                       "category": "Category",
@@ -6282,6 +6597,7 @@ exports[`TextAreaMdx should render properly 1`] = `
                       "internet": "Internet",
                       "me": "Sobre mí",
                     },
+                    "allAuthors": "Todos los autores",
                     "allCategories": "Todas las categorías",
                     "getInvolved": "¡Colabora!",
                     "latestBlogPosts": "Últimos posts del blog",
@@ -6298,6 +6614,10 @@ exports[`TextAreaMdx should render properly 1`] = `
                     },
                     "pages": Object {
                       "about": "Sobre mí",
+                      "author": Object {
+                        "female": "Autora",
+                        "male": "Autor",
+                      },
                       "blog": "Blog",
                       "categories": "Categorías",
                       "category": "Categoría",
@@ -6380,6 +6700,7 @@ exports[`TextAreaMdx should render properly 1`] = `
                     "internet": "Internet",
                     "me": "About me",
                   },
+                  "allAuthors": "All authors",
                   "allCategories": "All categories",
                   "getInvolved": "Get involved!",
                   "latestBlogPosts": "Latest blog posts",
@@ -6396,6 +6717,10 @@ exports[`TextAreaMdx should render properly 1`] = `
                   },
                   "pages": Object {
                     "about": "About me",
+                    "author": Object {
+                      "female": "Author",
+                      "male": "Author",
+                    },
                     "blog": "Blog",
                     "categories": "Categories",
                     "category": "Category",
@@ -6424,6 +6749,7 @@ exports[`TextAreaMdx should render properly 1`] = `
                     "internet": "Internet",
                     "me": "Sobre mí",
                   },
+                  "allAuthors": "Todos los autores",
                   "allCategories": "Todas las categorías",
                   "getInvolved": "¡Colabora!",
                   "latestBlogPosts": "Últimos posts del blog",
@@ -6440,6 +6766,10 @@ exports[`TextAreaMdx should render properly 1`] = `
                   },
                   "pages": Object {
                     "about": "Sobre mí",
+                    "author": Object {
+                      "female": "Autora",
+                      "male": "Autor",
+                    },
                     "blog": "Blog",
                     "categories": "Categorías",
                     "category": "Categoría",
@@ -6535,6 +6865,7 @@ exports[`TextAreaMdx should render properly 1`] = `
                       "internet": "Internet",
                       "me": "About me",
                     },
+                    "allAuthors": "All authors",
                     "allCategories": "All categories",
                     "getInvolved": "Get involved!",
                     "latestBlogPosts": "Latest blog posts",
@@ -6551,6 +6882,10 @@ exports[`TextAreaMdx should render properly 1`] = `
                     },
                     "pages": Object {
                       "about": "About me",
+                      "author": Object {
+                        "female": "Author",
+                        "male": "Author",
+                      },
                       "blog": "Blog",
                       "categories": "Categories",
                       "category": "Category",
@@ -6579,6 +6914,7 @@ exports[`TextAreaMdx should render properly 1`] = `
                       "internet": "Internet",
                       "me": "Sobre mí",
                     },
+                    "allAuthors": "Todos los autores",
                     "allCategories": "Todas las categorías",
                     "getInvolved": "¡Colabora!",
                     "latestBlogPosts": "Últimos posts del blog",
@@ -6595,6 +6931,10 @@ exports[`TextAreaMdx should render properly 1`] = `
                     },
                     "pages": Object {
                       "about": "Sobre mí",
+                      "author": Object {
+                        "female": "Autora",
+                        "male": "Autor",
+                      },
                       "blog": "Blog",
                       "categories": "Categorías",
                       "category": "Categoría",
@@ -6672,6 +7012,7 @@ exports[`TextAreaMdx should render properly 1`] = `
                     "internet": "Internet",
                     "me": "About me",
                   },
+                  "allAuthors": "All authors",
                   "allCategories": "All categories",
                   "getInvolved": "Get involved!",
                   "latestBlogPosts": "Latest blog posts",
@@ -6688,6 +7029,10 @@ exports[`TextAreaMdx should render properly 1`] = `
                   },
                   "pages": Object {
                     "about": "About me",
+                    "author": Object {
+                      "female": "Author",
+                      "male": "Author",
+                    },
                     "blog": "Blog",
                     "categories": "Categories",
                     "category": "Category",
@@ -6716,6 +7061,7 @@ exports[`TextAreaMdx should render properly 1`] = `
                     "internet": "Internet",
                     "me": "Sobre mí",
                   },
+                  "allAuthors": "Todos los autores",
                   "allCategories": "Todas las categorías",
                   "getInvolved": "¡Colabora!",
                   "latestBlogPosts": "Últimos posts del blog",
@@ -6732,6 +7078,10 @@ exports[`TextAreaMdx should render properly 1`] = `
                   },
                   "pages": Object {
                     "about": "Sobre mí",
+                    "author": Object {
+                      "female": "Autora",
+                      "male": "Autor",
+                    },
                     "blog": "Blog",
                     "categories": "Categorías",
                     "category": "Categoría",
@@ -6820,6 +7170,7 @@ exports[`TextAreaMdx should render properly 1`] = `
                     "internet": "Internet",
                     "me": "About me",
                   },
+                  "allAuthors": "All authors",
                   "allCategories": "All categories",
                   "getInvolved": "Get involved!",
                   "latestBlogPosts": "Latest blog posts",
@@ -6836,6 +7187,10 @@ exports[`TextAreaMdx should render properly 1`] = `
                   },
                   "pages": Object {
                     "about": "About me",
+                    "author": Object {
+                      "female": "Author",
+                      "male": "Author",
+                    },
                     "blog": "Blog",
                     "categories": "Categories",
                     "category": "Category",
@@ -6864,6 +7219,7 @@ exports[`TextAreaMdx should render properly 1`] = `
                     "internet": "Internet",
                     "me": "Sobre mí",
                   },
+                  "allAuthors": "Todos los autores",
                   "allCategories": "Todas las categorías",
                   "getInvolved": "¡Colabora!",
                   "latestBlogPosts": "Últimos posts del blog",
@@ -6880,6 +7236,10 @@ exports[`TextAreaMdx should render properly 1`] = `
                   },
                   "pages": Object {
                     "about": "Sobre mí",
+                    "author": Object {
+                      "female": "Autora",
+                      "male": "Autor",
+                    },
                     "blog": "Blog",
                     "categories": "Categorías",
                     "category": "Categoría",
@@ -6962,6 +7322,7 @@ exports[`TextAreaMdx should render properly 1`] = `
                   "internet": "Internet",
                   "me": "About me",
                 },
+                "allAuthors": "All authors",
                 "allCategories": "All categories",
                 "getInvolved": "Get involved!",
                 "latestBlogPosts": "Latest blog posts",
@@ -6978,6 +7339,10 @@ exports[`TextAreaMdx should render properly 1`] = `
                 },
                 "pages": Object {
                   "about": "About me",
+                  "author": Object {
+                    "female": "Author",
+                    "male": "Author",
+                  },
                   "blog": "Blog",
                   "categories": "Categories",
                   "category": "Category",
@@ -7006,6 +7371,7 @@ exports[`TextAreaMdx should render properly 1`] = `
                   "internet": "Internet",
                   "me": "Sobre mí",
                 },
+                "allAuthors": "Todos los autores",
                 "allCategories": "Todas las categorías",
                 "getInvolved": "¡Colabora!",
                 "latestBlogPosts": "Últimos posts del blog",
@@ -7022,6 +7388,10 @@ exports[`TextAreaMdx should render properly 1`] = `
                 },
                 "pages": Object {
                   "about": "Sobre mí",
+                  "author": Object {
+                    "female": "Autora",
+                    "male": "Autor",
+                  },
                   "blog": "Blog",
                   "categories": "Categorías",
                   "category": "Categoría",
@@ -7109,6 +7479,7 @@ exports[`TextAreaMdx should render properly 1`] = `
                         "internet": "Internet",
                         "me": "About me",
                       },
+                      "allAuthors": "All authors",
                       "allCategories": "All categories",
                       "getInvolved": "Get involved!",
                       "latestBlogPosts": "Latest blog posts",
@@ -7125,6 +7496,10 @@ exports[`TextAreaMdx should render properly 1`] = `
                       },
                       "pages": Object {
                         "about": "About me",
+                        "author": Object {
+                          "female": "Author",
+                          "male": "Author",
+                        },
                         "blog": "Blog",
                         "categories": "Categories",
                         "category": "Category",
@@ -7153,6 +7528,7 @@ exports[`TextAreaMdx should render properly 1`] = `
                         "internet": "Internet",
                         "me": "Sobre mí",
                       },
+                      "allAuthors": "Todos los autores",
                       "allCategories": "Todas las categorías",
                       "getInvolved": "¡Colabora!",
                       "latestBlogPosts": "Últimos posts del blog",
@@ -7169,6 +7545,10 @@ exports[`TextAreaMdx should render properly 1`] = `
                       },
                       "pages": Object {
                         "about": "Sobre mí",
+                        "author": Object {
+                          "female": "Autora",
+                          "male": "Autor",
+                        },
                         "blog": "Blog",
                         "categories": "Categorías",
                         "category": "Categoría",
@@ -7246,6 +7626,7 @@ exports[`TextAreaMdx should render properly 1`] = `
                       "internet": "Internet",
                       "me": "About me",
                     },
+                    "allAuthors": "All authors",
                     "allCategories": "All categories",
                     "getInvolved": "Get involved!",
                     "latestBlogPosts": "Latest blog posts",
@@ -7262,6 +7643,10 @@ exports[`TextAreaMdx should render properly 1`] = `
                     },
                     "pages": Object {
                       "about": "About me",
+                      "author": Object {
+                        "female": "Author",
+                        "male": "Author",
+                      },
                       "blog": "Blog",
                       "categories": "Categories",
                       "category": "Category",
@@ -7290,6 +7675,7 @@ exports[`TextAreaMdx should render properly 1`] = `
                       "internet": "Internet",
                       "me": "Sobre mí",
                     },
+                    "allAuthors": "Todos los autores",
                     "allCategories": "Todas las categorías",
                     "getInvolved": "¡Colabora!",
                     "latestBlogPosts": "Últimos posts del blog",
@@ -7306,6 +7692,10 @@ exports[`TextAreaMdx should render properly 1`] = `
                     },
                     "pages": Object {
                       "about": "Sobre mí",
+                      "author": Object {
+                        "female": "Autora",
+                        "male": "Autor",
+                      },
                       "blog": "Blog",
                       "categories": "Categorías",
                       "category": "Categoría",
@@ -7394,6 +7784,7 @@ exports[`TextAreaMdx should render properly 1`] = `
                       "internet": "Internet",
                       "me": "About me",
                     },
+                    "allAuthors": "All authors",
                     "allCategories": "All categories",
                     "getInvolved": "Get involved!",
                     "latestBlogPosts": "Latest blog posts",
@@ -7410,6 +7801,10 @@ exports[`TextAreaMdx should render properly 1`] = `
                     },
                     "pages": Object {
                       "about": "About me",
+                      "author": Object {
+                        "female": "Author",
+                        "male": "Author",
+                      },
                       "blog": "Blog",
                       "categories": "Categories",
                       "category": "Category",
@@ -7438,6 +7833,7 @@ exports[`TextAreaMdx should render properly 1`] = `
                       "internet": "Internet",
                       "me": "Sobre mí",
                     },
+                    "allAuthors": "Todos los autores",
                     "allCategories": "Todas las categorías",
                     "getInvolved": "¡Colabora!",
                     "latestBlogPosts": "Últimos posts del blog",
@@ -7454,6 +7850,10 @@ exports[`TextAreaMdx should render properly 1`] = `
                     },
                     "pages": Object {
                       "about": "Sobre mí",
+                      "author": Object {
+                        "female": "Autora",
+                        "male": "Autor",
+                      },
                       "blog": "Blog",
                       "categories": "Categorías",
                       "category": "Categoría",
@@ -8458,6 +8858,7 @@ exports[`TextAreaMdx should render properly 1`] = `
                 "internet": "Internet",
                 "me": "About me",
               },
+              "allAuthors": "All authors",
               "allCategories": "All categories",
               "getInvolved": "Get involved!",
               "latestBlogPosts": "Latest blog posts",
@@ -8474,6 +8875,10 @@ exports[`TextAreaMdx should render properly 1`] = `
               },
               "pages": Object {
                 "about": "About me",
+                "author": Object {
+                  "female": "Author",
+                  "male": "Author",
+                },
                 "blog": "Blog",
                 "categories": "Categories",
                 "category": "Category",
@@ -8502,6 +8907,7 @@ exports[`TextAreaMdx should render properly 1`] = `
                 "internet": "Internet",
                 "me": "Sobre mí",
               },
+              "allAuthors": "Todos los autores",
               "allCategories": "Todas las categorías",
               "getInvolved": "¡Colabora!",
               "latestBlogPosts": "Últimos posts del blog",
@@ -8518,6 +8924,10 @@ exports[`TextAreaMdx should render properly 1`] = `
               },
               "pages": Object {
                 "about": "Sobre mí",
+                "author": Object {
+                  "female": "Autora",
+                  "male": "Autor",
+                },
                 "blog": "Blog",
                 "categories": "Categorías",
                 "category": "Categoría",

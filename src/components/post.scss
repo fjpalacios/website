@@ -1,11 +1,10 @@
-.blog {
+.post {
   display: grid;
   grid-column: span 6;
 
-  &__post {
-    margin-bottom: 40px;
+  &__content {
+    margin-bottom: 20px;
     overflow: hidden;
-    transition: all .45s ease;
     border: 2px solid $primary;
 
     .text-area {
@@ -15,5 +14,36 @@
         margin: 0 -20px !important;
       }
     }
+  }
+
+  &__info {
+    display: grid;
+    grid-template-columns: 20px 1fr;
+    align-content: center;
+    padding: 0 20px;
+    column-gap: 1vw;
+
+    &__text {
+      margin: 0;
+      padding-left: 0;
+      list-style: none;
+
+      li {
+        display: inline-block;
+        padding-right: 1vw;
+      }
+
+      &__item {
+        text-transform: capitalize;
+      }
+    }
+  }
+}
+
+i {
+  font-size: 1em;
+
+  @include medium-and-up {
+    font-size: .8em;
   }
 }

@@ -27,9 +27,14 @@
     "about": "About me",
     "blog": "Blog",
     "category": "Category",
-    "categories": "Categories"
+    "categories": "Categories",
+    "author": {
+      "male": "Author",
+      "female": "Author"
+    }
   },
   "allCategories": "All categories",
+  "allAuthors": "All authors",
   "getInvolved": "Get involved!",
   "about": {
     "me": "About me",

@@ -27,8 +27,29 @@ module.exports = {
     {
       resolve: 'gatsby-source-filesystem',
       options: {
-        name: 'blog',
-        path: `${__dirname}/content/blog`,
+        name: 'posts',
+        path: `${__dirname}/content/posts`,
+      },
+    },
+    {
+      resolve: 'gatsby-source-filesystem',
+      options: {
+        name: 'books',
+        path: `${__dirname}/content/books`,
+      },
+    },
+    {
+      resolve: 'gatsby-source-filesystem',
+      options: {
+        name: 'authors',
+        path: `${__dirname}/content/authors`,
+      },
+    },
+    {
+      resolve: 'gatsby-source-filesystem',
+      options: {
+        name: 'categories',
+        path: `${__dirname}/content/categories`,
       },
     },
     'gatsby-transformer-sharp',
@@ -85,4 +106,10 @@ module.exports = {
       },
     },
   ],
+  mapping: {
+    'Mdx.frontmatter.i18n': 'Mdx.frontmatter.post_slug',
+    'Mdx.frontmatter.category_i18n': 'Mdx.frontmatter.category_slug',
+    'Mdx.frontmatter.author': 'Mdx.frontmatter.author_slug',
+    'Mdx.frontmatter.categories': 'Mdx.frontmatter.category_slug',
+  },
 }

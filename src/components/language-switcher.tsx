@@ -18,13 +18,24 @@ export const LanguageSwitcher: FunctionComponent<languageSwitcherProps> = ({
   const Flag = (): ReactElement => {
     if (language === 'en') {
       return (
-        <Link to={to || originalPath} language={newLanguage}>
-          <img
-            src="/images/flags/es.svg"
-            alt={t('menu.toSpanish')}
-            title={t('menu.toSpanish')}
-          />
-        </Link>
+        <>
+          {disabled && (
+            <img
+              src="/images/flags/es.svg"
+              alt={t('menu.toSpanish')}
+              title={t('menu.toSpanish')}
+            />
+          )}
+          {!disabled && (
+            <Link to={to || originalPath} language={newLanguage}>
+              <img
+                src="/images/flags/es.svg"
+                alt={t('menu.toSpanish')}
+                title={t('menu.toSpanish')}
+              />
+            </Link>
+          )}
+        </>
       )
     }
 
@@ -38,7 +49,7 @@ export const LanguageSwitcher: FunctionComponent<languageSwitcherProps> = ({
           />
         )}
         {!disabled && (
-          <Link to={to || originalPath} language={to ? '' : newLanguage}>
+          <Link to={to || originalPath} language={newLanguage}>
             <img
               src="/images/flags/uk.svg"
               alt={t('menu.toEnglish')}

@@ -27,8 +27,8 @@ export const PostList: FunctionComponent<postListProps> = ({
 
           return (
             <Link
-              to={`/${frontmatter.slug}`}
-              key={frontmatter.slug}
+              to={`/${frontmatter.post_slug}`}
+              key={frontmatter.post_slug}
               language={fields.language}
             >
               <section className="blog__grid__post">
