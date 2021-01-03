@@ -1,4 +1,5 @@
 import { useI18next, useTranslation } from 'gatsby-plugin-react-i18next'
+import { AuthorInfo } from '../components/author-info'
 import { graphql } from 'gatsby'
 import { Layout } from '../components/layout'
 import { Paginator } from '../components/paginator'
@@ -8,12 +9,12 @@ import { Seo } from '../components/seo'
 import { Title } from '../components/title'
 import { TypeList } from '../components/type-list'
 
-type postListProps = {
+type authorProps = {
   data: any
   pageContext: any
 }
 
-export default function ({ data, pageContext }: postListProps) {
+export default function ({ data, pageContext }: authorProps) {
   const {
     posts: { edges: posts },
     author: { frontmatter: author },
@@ -28,9 +29,17 @@ export default function ({ data, pageContext }: postListProps) {
     <Layout languageSwitcherTo={`/author/${author.author_slug}`}>
       <Seo title={`${authorWithGender}: ${author.name} - ${t('title')}`} />
       <Title title={`${authorWithGender}: ${author.name}`} />
+      <div className="space" style={{ marginBottom: '20px' }}>
+        <AuthorInfo author={author} />
+      </div>
       <PostList posts={posts} />
       <Paginator page={page} pages={pages} path={originalPath} />
-      <TypeList categories={authors} title={t('allAuthors')} />
+      <TypeList
+        array={authors}
+        title={t('allAuthors')}
+        type={'author'}
+        showCount={false}
+      />
     </Layout>
   )
 }

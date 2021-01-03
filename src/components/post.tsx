@@ -4,6 +4,7 @@ import Img from 'gatsby-image'
 import { Link } from 'gatsby-plugin-react-i18next'
 import { PostTitle } from './post-title'
 import { TextAreaMdx } from './text-area-mdx'
+import { useTranslation } from 'gatsby-plugin-react-i18next'
 
 type postProps = {
   body: any
@@ -22,6 +23,7 @@ export const Post: FunctionComponent<postProps> = ({
     date,
     categories,
   } = frontmatter
+  const { t } = useTranslation()
 
   return (
     <main className="post">
@@ -41,6 +43,7 @@ export const Post: FunctionComponent<postProps> = ({
                 <Link
                   to={`/category/${category.frontmatter.category_slug}`}
                   className="post__info__text__item"
+                  title={t('pages.category')}
                 >
                   {category.frontmatter.name}
                 </Link>

@@ -16,12 +16,10 @@ export default function ({ data, pageContext }: postListProps) {
   const { page, pages } = pageContext
   const posts = allMdx.edges
   const { t } = useTranslation()
-  const { defaultLanguage, language, originalPath } = useI18next()
+  const { originalPath } = useI18next()
 
   return (
-    <Layout
-      languageSwitcherTo={language === defaultLanguage ? '/en/blog' : '/blog'}
-    >
+    <Layout languageSwitcherTo={'/blog'}>
       <Seo title={`${t('pages.blog')} - ${t('title')}`} />
       <PostList posts={posts} />
       <Paginator page={page} pages={pages} path={originalPath} />

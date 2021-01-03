@@ -8,6 +8,7 @@ module.exports = {
     'gatsby-plugin-typescript',
     'gatsby-plugin-remove-trailing-slashes',
     'gatsby-plugin-react-helmet',
+    'gatsby-plugin-catch-links',
     {
       resolve: 'gatsby-plugin-react-i18next',
       options: {
@@ -50,6 +51,34 @@ module.exports = {
       options: {
         name: 'categories',
         path: `${__dirname}/content/categories`,
+      },
+    },
+    {
+      resolve: 'gatsby-source-filesystem',
+      options: {
+        name: 'publishers',
+        path: `${__dirname}/content/publishers`,
+      },
+    },
+    {
+      resolve: 'gatsby-source-filesystem',
+      options: {
+        name: 'genres',
+        path: `${__dirname}/content/genres`,
+      },
+    },
+    {
+      resolve: 'gatsby-source-filesystem',
+      options: {
+        name: 'series',
+        path: `${__dirname}/content/series`,
+      },
+    },
+    {
+      resolve: 'gatsby-source-filesystem',
+      options: {
+        name: 'challenges',
+        path: `${__dirname}/content/challenges`,
       },
     },
     'gatsby-transformer-sharp',
@@ -111,5 +140,9 @@ module.exports = {
     'Mdx.frontmatter.category_i18n': 'Mdx.frontmatter.category_slug',
     'Mdx.frontmatter.author': 'Mdx.frontmatter.author_slug',
     'Mdx.frontmatter.categories': 'Mdx.frontmatter.category_slug',
+    'Mdx.frontmatter.publisher': 'Mdx.frontmatter.publisher_slug',
+    'Mdx.frontmatter.genres': 'Mdx.frontmatter.genre_slug',
+    'Mdx.frontmatter.series.name': 'Mdx.frontmatter.serie_slug',
+    'Mdx.frontmatter.challenges': 'Mdx.frontmatter.challenge_slug',
   },
 }

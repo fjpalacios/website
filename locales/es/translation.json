@@ -31,10 +31,18 @@
     "author": {
       "male": "Autor",
       "female": "Autora"
-    }
+    },
+    "publisher": "Editorial",
+    "genre": "Género",
+    "serie": "Colección",
+    "score": "Puntuación"
   },
   "allCategories": "Todas las categorías",
   "allAuthors": "Todos los autores",
+  "allPublishers": "Todas las editoriales",
+  "allGenres": "Todos los géneros",
+  "allSeries": "Todas las colecciones",
+  "allScores": "Todas las puntuaciones",
   "getInvolved": "¡Colabora!",
   "about": {
     "me": "Sobre mí",
@@ -43,5 +51,20 @@
   "paginator": {
     "prev": "← página anterior",
     "next": "página siguiente →"
+  },
+  "book": {
+    "review": "Reseña",
+    "synopsis": "Sinopsis",
+    "pages": "Páginas",
+    "isbn": "ISBN",
+    "asin": "ASIN",
+    "buy": "Comprar",
+    "paper": "papel",
+    "ebook": "ebook",
+    "publisher": "Editorial",
+    "bookCard": "ficha del libro",
+    "spoilerAlert": "Atención, <em>spoiler</em>",
+    "by": "de",
+    "fav": "Favorito"
   }
 }

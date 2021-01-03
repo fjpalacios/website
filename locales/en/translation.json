@@ -31,10 +31,18 @@
     "author": {
       "male": "Author",
       "female": "Author"
-    }
+    },
+    "publisher": "Publisher",
+    "genre": "Genre",
+    "serie": "Serie",
+    "score": "Score"
   },
   "allCategories": "All categories",
   "allAuthors": "All authors",
+  "allPublishers": "All publishers",
+  "allGenres": "All genres",
+  "allSeries": "All series",
+  "allScores": "All scores",
   "getInvolved": "Get involved!",
   "about": {
     "me": "About me",
@@ -43,5 +51,20 @@
   "paginator": {
     "prev": "← previuos page",
     "next": "next page →"
+  },
+  "book": {
+    "review": "Review",
+    "synopsis": "Synopsis",
+    "pages": "Pages",
+    "isbn": "ISBN",
+    "asin": "ASIN",
+    "buy": "Buy",
+    "paper": "paper",
+    "ebook": "ebook",
+    "publisher": "Publisher",
+    "bookCard": "book card",
+    "spoilerAlert": "Spoiler alert",
+    "by": "by",
+    "fav": "Favourite"
   }
 }

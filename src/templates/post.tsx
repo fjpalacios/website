@@ -34,7 +34,7 @@ export default function ({ data }: postProps) {
       languageSwitcherDisabled={!hasi18n}
       languageSwitcherTo={`/${i18nSlug}`}
     >
-      <Seo title={`${frontmatter.title} - ${t('title')}`} image={cover.src} />
+      <Seo title={`${title} - ${t('title')}`} image={cover.src} />
       <FullPost frontmatter={frontmatter} type={type} body={body} />
       <Share title={title} url={url} />
     </Layout>
@@ -72,10 +72,61 @@ export const query = graphql`
           }
         }
         score
+        synopsis
+        pages
+        isbn
+        asin
+        buy {
+          link
+          type
+        }
+        book_card
+        publisher {
+          frontmatter {
+            publisher_slug
+            name
+          }
+        }
+        genres {
+          frontmatter {
+            genre_slug
+            url_slug
+            name
+          }
+        }
+        series {
+          book
+          name {
+            frontmatter {
+              name
+              serie_slug
+            }
+          }
+        }
         author {
           frontmatter {
             name
             author_slug
+            gender
+            picture {
+              childImageSharp {
+                fluid(maxWidth: 150) {
+                  ...GatsbyImageSharpFluid
+                }
+              }
+            }
+            bio {
+              en {
+                childMdx {
+                  body
+                }
+              }
+              es {
+                childMdx {
+                  body
+                }
+              }
+            }
           }
         }
         categories {

@@ -1,30 +1,58 @@
 ---
-title: "Apocalipsis, de Stephen King"
+title: "Reseña: Apocalipsis, de Stephen King"
 post_slug: "apocalipsis-stephen-king"
-date: "2017-05-02"
+date: "2017-05-02T10:57:27.000Z"
 excerpt: "Me ha encantado. Es un libro excelente, aunque no apto para gente que
 acaba de empezar a leer, ni tampoco para quienes pese a que haga tiempo que lean
 de forma regular no hayan leído todavía unos cuantos libros de este autor."
 categories:
   - "libros"
+  - "resenas"
+i18n: ""
+synopsis: "Esta narración cuenta cómo un virus gripal, creado artificialmente
+como posible arma bacteriológica, se extiende por Estados Unidos y provoca la
+muerte de millones de personas. Los supervivientes tienen sueños comunes, en los
+que aparecen una anciana y un hombre joven. La mujer anciana los incita a viajar
+a Nebraska para combatir a Randall Flagg, un abominable personaje que lidera las
+fuerzas del mal y busca su aniquilación definitiva mediante un temible arsenal
+nuclear."
 score: "5"
+pages: "1584"
+isbn: "9788497599412"
+asin: ""
 author: "stephen-king"
+buy:
+  - type: "paper"
+    link: "https://www.amazon.es/dp/8497599411/"
+  - type: "ebook"
+    link: "https://www.amazon.es/dp/B074CM34L6/"
+publisher: "debolsillo"
+book_card: "http://www.megustaleer.com/libro/apocalipsis/ES0003864"
+genres:
+  - "ficcion/terror"
+series: null
+challenges:
+  - "stephen-king"
 cover: "../../default-es.jpg"
 book_cover: "apocalipsis-g.jpg"
 ---
 
+import { BookLink } from '../../../../src/components/book-link'
+import { AuthorLink } from '../../../../src/components/author-link'
+import { Spoiler } from '../../../../src/components/spoiler'
+
 En mi reto de leer [todos los libros de Stephen
 King](/reto-literario-stephen-king) por orden de publicación (en lo posible al
 menos) el próximo en la lista era éste, **_Apocalipsis_**, y tenía ganas de
-leerlo. Es, en mi opinión, junto con \[libro titulo="It, de Stephen King"\]
-(1986), dos de los libros más emblemáticos y conocidos de \[autor name="Stephen
-King"\]. No obstante, el _miedo_ a leerlo era directamente proporcional a las
-ganas que tenía de leerlo, es de esos libros que reciben críticas de todo tipo,
-a la par buenas y malas, sobre todo en el final; y las malas suelen ser bastante
-duras… entiendo que después de leer casi 1600 páginas, si el final no te gusta,
-es como para poner a caldo tanto el libro como al autor… así que aunque las
-tenía en cuenta, no hice demasiado caso de ellas y, como se suele decir:
-_p'alante_.
+leerlo. Es, en mi opinión, junto con <BookLink title="It, de Stephen King" />
+(1986), dos de los libros más emblemáticos y conocidos de <AuthorLink
+name="Stephen King" />. No obstante, el _miedo_ a leerlo era directamente
+proporcional a las ganas que tenía de leerlo, es de esos libros que reciben
+críticas de todo tipo, a la par buenas y malas, sobre todo en el final; y las
+malas suelen ser bastante duras… entiendo que después de leer casi 1600 páginas,
+si el final no te gusta, es como para poner a caldo tanto el libro como al
+autor… así que aunque las tenía en cuenta, no hice demasiado caso de ellas y,
+como se suele decir: _p'alante_.
 
 Quiero dejar claro que el libro me ha gustado mucho… me ha encantado. Es un
 libro excelente, aunque no apto para gente que acaba de empezar a leer, ni
@@ -249,7 +277,7 @@ conocía ni podía predecir, para que mágicamente ocurra ese algo inesperado y
 salve la situación… de la forma que sea da igual, pero que la salve a fin de
 cuentas.
 
-Y sí, aquí tenemos un _deus ex machina_ de manual. \[spoiler\]tanto camino
+Y sí, aquí tenemos un _deus ex machina_ de manual. <Spoiler>tanto camino
 recorrido con los supervivientes del virus para que al final no sirva de nada;
 se salva momentáneamente a la parte del mundo que todavía sigue viva, la Zona
 Libre de Boulder puede seguir existiendo y ampliándose… pero al final ese mérito
@@ -257,7 +285,7 @@ lo consigue un error de Randall Flagg, _la mano de Dios_… o una mezcla de amba
 sin que ninguno de los personajes a los que hemos acompañado durante tan larga
 travesía _tenga voz ni voto_. Algo sumamente inesperado y que pienso que podría
 haberse solucionado de múltiples formas que podrían haber agradado más a los
-lectores\[/spoiler\].
+lectores</Spoiler>.
 
 Y ya que hago referencia a un final alternativo que se me ocurrió, que esperaba,
 pero que no sucedió, lo comentaré por si a alguien le interesa. En cierto modo
@@ -278,7 +306,7 @@ En cuanto al final tras el final que se añade en esta versión (que no final
 alternativo ya que sólo es un breve capítulo tras el final de siempre) he de
 decir que me gustó, aunque lo considero una metedura de pata y un engaño para
 quienes leyeron la primera versión de este libro… porque lo cambia todo.
-\[spoiler\]tras ese final, en el que todo parece indicar que Randall Flagg muere
+<Spoiler>tras ese final, en el que todo parece indicar que Randall Flagg muere
 (aunque no se dice explícitamente) en esta última versión se añade un capítulo
 en el que Randall Flagg aparece en otro punto distinto del mundo junto a unos
 aborígenes que ni le entienden ni saben quién es, pero él ya está proponiéndose
@@ -287,4 +315,4 @@ libro. Es decir: son unas cuantas líneas de texto tras el auténtico final pero
 que cambia por completo la historia; con el primer final queda la duda, no se
 sabe si Flagg está muerto o no y puede entenderse que el bando del bien ganó al
 del mal… con estas líneas finales añadidas quedan despejadas las dudas y queda
-patente que el mal siempre prevalece\[/spoiler\].
+patente que el mal siempre prevalece</Spoiler>.

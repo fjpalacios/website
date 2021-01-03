@@ -65,8 +65,12 @@ export const Paginator: FunctionComponent<paginatorProps> = ({
   }
 
   return (
-    <div className="paginator">
-      <PageSwitcher />
-    </div>
+    <>
+      {pages > 1 && (
+        <div className="paginator">
+          <PageSwitcher />
+        </div>
+      )}
+    </>
   )
 }

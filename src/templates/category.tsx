@@ -8,12 +8,12 @@ import { Seo } from '../components/seo'
 import { Title } from '../components/title'
 import { TypeList } from '../components/type-list'
 
-type postListProps = {
+type categoryProps = {
   data: any
   pageContext: any
 }
 
-export default function ({ data, pageContext }: postListProps) {
+export default function ({ data, pageContext }: categoryProps) {
   const {
     posts: { edges: posts },
     category: { frontmatter: category },
@@ -33,7 +33,11 @@ export default function ({ data, pageContext }: postListProps) {
       <Title title={`${t('pages.category')}: ${category.name}`} />
       <PostList posts={posts} />
       <Paginator page={page} pages={pages} path={originalPath} />
-      <TypeList categories={categories} title={t('allCategories')} />
+      <TypeList
+        array={categories}
+        title={t('allCategories')}
+        type={'category'}
+      />
     </Layout>
   )
 }

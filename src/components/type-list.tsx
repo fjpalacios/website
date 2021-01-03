@@ -4,31 +4,40 @@ import { Link } from 'gatsby-plugin-react-i18next'
 import { Title } from './title'
 
 type typeListProps = {
-  categories: typeProps[]
+  array: typeProps[]
   title: string
+  type: string
+  showCount: boolean
 }
 
 type typeProps = {
   fieldValue: string
+  urlSlug?: string
   name?: string
   totalCount: number
 }
 
 export const TypeList: FunctionComponent<typeListProps> = ({
-  categories,
+  array,
   title,
+  type,
+  showCount = true,
 }): ReactElement => {
   return (
-    <main className="categories">
+    <main className="types">
       <Title title={title} />
-      <ul className="categories__list">
-        {categories.map(({ fieldValue, name, totalCount }: typeProps) => {
+      <ul className="types__list">
+        {array.map(({ fieldValue, urlSlug, name, totalCount }: typeProps) => {
           return (
-            <li className="categories__list__item" key={fieldValue}>
-              <Link to={`/category/${fieldValue}`}>{name}</Link>
-              <span className="categories__list__item__number">
-                {`(${totalCount})`}
-              </span>
+            <li className="types__list__item" key={fieldValue}>
+              <Link to={`/${type}/${urlSlug ? urlSlug : fieldValue}`}>
+                {name}
+              </Link>
+              {showCount && (
+                <span className="types__list__item__number">
+                  {`(${totalCount})`}
+                </span>
+              )}
             </li>
           )
         })}

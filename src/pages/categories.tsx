@@ -76,7 +76,11 @@ export default (): ReactElement => {
   return (
     <Layout>
       <Seo title={`${t('pages.categories')} - ${t('title')}`} />
-      <TypeList categories={mergedCategories} title={t('allCategories')} />
+      <TypeList
+        array={mergedCategories}
+        title={t('allCategories')}
+        type={'category'}
+      />
     </Layout>
   )
 }
