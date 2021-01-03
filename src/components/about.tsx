@@ -1,14 +1,14 @@
 import './about.scss'
 import React, { FunctionComponent, ReactElement } from 'react'
-import aboutEn from '../../content/en/about'
-import aboutEs from '../../content/es/about'
+import { useI18next, useTranslation } from 'gatsby-plugin-react-i18next'
+import aboutEn from '../../content/static/about/en'
+import aboutEs from '../../content/static/about/es'
 import { TextArea } from './text-area'
 import { Title } from './title'
-import { useIntl } from 'gatsby-plugin-intl'
 
 export const About: FunctionComponent = (): ReactElement => {
-  const intl = useIntl()
-  const locale = intl.locale
+  const { t } = useTranslation()
+  const { language } = useI18next()
   const data: { [key: string]: { [key: string]: any } } = {
     me: {
       en: aboutEn.me,
@@ -24,12 +24,12 @@ export const About: FunctionComponent = (): ReactElement => {
     <main className="about">
       <section className="about__grid">
         <section className="about__grid__me">
-          <Title title={intl.formatMessage({ id: 'about.me' })} />
-          <TextArea text={data.me[locale]} />
+          <Title title={t('about.me')} />
+          <TextArea text={data.me[language]} />
         </section>
         <section className="about__grid__internet">
-          <Title title={intl.formatMessage({ id: 'about.internet' })} />
-          <TextArea text={data.internet[locale]} />
+          <Title title={t('about.internet')} />
+          <TextArea text={data.internet[language]} />
         </section>
       </section>
     </main>

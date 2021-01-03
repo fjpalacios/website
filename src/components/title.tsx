@@ -10,7 +10,7 @@ export const Title: FunctionComponent<titleProps> = ({
 }): ReactElement => {
   return (
     <div className="title">
-      <h3>{title}</h3>
+      <h2>{title}</h2>
     </div>
   )
 }

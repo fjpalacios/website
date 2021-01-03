@@ -10,7 +10,7 @@ describe('Title', () => {
 
   it('should show the passed prop as a title', () => {
     const titleComponent = createComponentWithIntl(<Title title="Foo" />)
-    const title = titleComponent.find('.title h3').text()
+    const title = titleComponent.find('.title h2').text()
     expect(title).toBe('Foo')
   })
 })

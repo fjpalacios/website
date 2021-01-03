@@ -1,0 +1,70 @@
+{
+  "title": "Francisco Javier Palacios Pérez",
+  "subtitle": "Desarrollador de software",
+  "metaData": {
+    "url": "https://fjp.es",
+    "description": "Página web personal de Francisco Javier Palacios Pérez, desarrollador de software de Valencia (España)",
+    "image": "https://fjp.es/logo.jpg",
+    "twitterUsername": "@fjpalacios"
+  },
+  "menu": {
+    "toEnglish": "Cambia a Inglés",
+    "toSpanish": "Cambia a español",
+    "switchTheme": "Cambia tema"
+  },
+  "latestBlogPosts": "Últimos posts del blog",
+  "resume": {
+    "me": "Sobre mí",
+    "experience": "Experiencia",
+    "education": "Educación",
+    "freelance": "Trabajos como freelance",
+    "projects": "Proyectos personales",
+    "volunteering": "Voluntariado",
+    "talks": "Charlas / talleres"
+  },
+  "pages": {
+    "home": "Inicio",
+    "about": "Sobre mí",
+    "blog": "Blog",
+    "category": "Categoría",
+    "categories": "Categorías",
+    "author": {
+      "male": "Autor",
+      "female": "Autora"
+    },
+    "publisher": "Editorial",
+    "genre": "Género",
+    "serie": "Colección",
+    "score": "Puntuación"
+  },
+  "allCategories": "Todas las categorías",
+  "allAuthors": "Todos los autores",
+  "allPublishers": "Todas las editoriales",
+  "allGenres": "Todos los géneros",
+  "allSeries": "Todas las colecciones",
+  "allScores": "Todas las puntuaciones",
+  "getInvolved": "¡Colabora!",
+  "about": {
+    "me": "Sobre mí",
+    "internet": "Internet"
+  },
+  "paginator": {
+    "prev": "← página anterior",
+    "next": "página siguiente →"
+  },
+  "book": {
+    "review": "Reseña",
+    "synopsis": "Sinopsis",
+    "pages": "Páginas",
+    "isbn": "ISBN",
+    "asin": "ASIN",
+    "buy": "Comprar",
+    "paper": "papel",
+    "ebook": "ebook",
+    "publisher": "Editorial",
+    "bookCard": "ficha del libro",
+    "spoilerAlert": "Atención, <em>spoiler</em>",
+    "by": "de",
+    "fav": "Favorito"
+  }
+}

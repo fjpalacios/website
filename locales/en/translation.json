@@ -1,0 +1,70 @@
+{
+  "title": "Francisco Javier Palacios Pérez",
+  "subtitle": "Software Developer",
+  "metaData": {
+    "url": "https://fjp.es",
+    "description": "Francisco Javier Palacios Pérez's personal website, Software Developer based in Valencia (Spain)",
+    "image": "https://fjp.es/logo.jpg",
+    "twitterUsername": "@fjpalacios"
+  },
+  "menu": {
+    "toEnglish": "Switch to English language",
+    "toSpanish": "Switch to Spanish language",
+    "switchTheme": "Switch Theme"
+  },
+  "latestBlogPosts": "Latest blog posts",
+  "resume": {
+    "me": "About me",
+    "experience": "Experience",
+    "education": "Education",
+    "freelance": "Freelance work",
+    "projects": "Side projects",
+    "volunteering": "Volunteering",
+    "talks": "Talks / workshops"
+  },
+  "pages": {
+    "home": "Home",
+    "about": "About me",
+    "blog": "Blog",
+    "category": "Category",
+    "categories": "Categories",
+    "author": {
+      "male": "Author",
+      "female": "Author"
+    },
+    "publisher": "Publisher",
+    "genre": "Genre",
+    "serie": "Serie",
+    "score": "Score"
+  },
+  "allCategories": "All categories",
+  "allAuthors": "All authors",
+  "allPublishers": "All publishers",
+  "allGenres": "All genres",
+  "allSeries": "All series",
+  "allScores": "All scores",
+  "getInvolved": "Get involved!",
+  "about": {
+    "me": "About me",
+    "internet": "Internet"
+  },
+  "paginator": {
+    "prev": "← previuos page",
+    "next": "next page →"
+  },
+  "book": {
+    "review": "Review",
+    "synopsis": "Synopsis",
+    "pages": "Pages",
+    "isbn": "ISBN",
+    "asin": "ASIN",
+    "buy": "Buy",
+    "paper": "paper",
+    "ebook": "ebook",
+    "publisher": "Publisher",
+    "bookCard": "book card",
+    "spoilerAlert": "Spoiler alert",
+    "by": "by",
+    "fav": "Favourite"
+  }
+}

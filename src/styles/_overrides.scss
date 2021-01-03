@@ -22,7 +22,16 @@ body {
   }
 }
 
-a {
+em {
+  color: var(--cursive-color);
+
+  @include print {
+    color: $text;
+  }
+}
+
+a,
+a em {
   transition: all .45s ease;
   color: $accent;
   text-decoration: none;

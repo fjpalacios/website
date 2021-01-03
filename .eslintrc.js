@@ -20,6 +20,7 @@ module.exports = {
     browser: true,
     'jest/globals': true,
     'cypress/globals': true,
+    es6: true,
   },
   plugins: ['@typescript-eslint', 'react', 'jest'],
   rules: {

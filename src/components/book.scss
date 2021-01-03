@@ -1,0 +1,142 @@
+.book {
+  grid-column: span 6;
+
+  &__content {
+    display: grid;
+    margin-bottom: 20px;
+    row-gap: 3vw;
+    justify-items: center;
+
+    @include small-and-up {
+      grid-template-columns: 120px 1fr;
+      align-content: center;
+      margin-bottom: 20px;
+      column-gap: 1vw;
+    }
+
+    &__cover {
+      width: 100px;
+      text-align: center;
+
+      @include small-and-up {
+        width: 120px;
+      }
+
+      img {
+        width: 100%;
+        margin: 0 auto;
+      }
+    }
+
+    &__content {
+      border: 2px solid $primary;
+
+      &__data {
+        padding: 0 20px 20px;
+
+        @include small-and-up {
+          display: grid;
+          grid-template-columns: 1fr 1fr;
+          justify-content: center;
+          margin-top: -20px;
+          padding: 0 20px 20px;
+          text-align: center;
+        }
+
+        &__buy,
+        &__publisher {
+          display: flex;
+
+          @include small-and-up {
+            align-items: center;
+            justify-content: center;
+          }
+        }
+
+        > * {
+          margin-top: 20px;
+        }
+      }
+
+      .text-area {
+        img,
+        span.gatsby-resp-image-background-image {
+          width: calc(100% + 40px) !important;
+          margin: 0 -20px !important;
+        }
+      }
+
+      h4 {
+        margin: 20px 0 20px -20px;
+        padding: 4px 11px 5px 20px;
+        background-image: linear-gradient(to right, $primary, $background);
+        color: $inverted-text;
+
+        @include medium-and-up {
+          padding: 4px 11px 2px 20px;
+          font-weight: 100;
+        }
+      }
+    }
+  }
+
+  &__info {
+    display: grid;
+    grid-template-columns: 20px 1fr;
+    align-content: center;
+    margin-bottom: 10px;
+    padding: 0 20px;
+    column-gap: 1vw;
+
+    @include small-and-up {
+      margin-left: 135px;
+    }
+
+    &__text {
+      &__item {
+        text-transform: capitalize;
+      }
+    }
+  }
+}
+
+i {
+  font-size: 1em;
+
+  @include medium-and-up {
+    font-size: .8em;
+  }
+}
+
+.score {
+  margin-top: 10px;
+}
+
+.book__content__content__data,
+.book__info {
+  ul {
+    margin: 0;
+    padding-left: 10px;
+    list-style: none;
+
+    @include small-and-up {
+      li {
+        display: inline-block;
+        padding-right: 1vw;
+
+        &::after {
+          content: '-';
+          padding-left: 1vw;
+        }
+
+        &:last-of-type {
+          padding-right: 0;
+
+          &::after {
+            content: '';
+          }
+        }
+      }
+    }
+  }
+}

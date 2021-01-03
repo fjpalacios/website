@@ -4,6 +4,13 @@
   img {
     width: 100%;
     max-width: 20px;
-    cursor: pointer;
+  }
+
+  &--disabled {
+    @extend .language-switcher;
+
+    img {
+      filter: grayscale(100%);
+    }
   }
 }

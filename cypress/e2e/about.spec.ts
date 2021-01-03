@@ -2,7 +2,7 @@
 
 describe('About', () => {
   beforeEach(() => {
-    cy.visit('/about/').get('main')
+    cy.visit('/en/about/').get('main')
   })
 
   it('should have valid English SEO properties', () => {
@@ -14,7 +14,7 @@ describe('About', () => {
     cy.get('head meta[property="og:url"]').should(
       'have.attr',
       'content',
-      'https://fjp.es/about/'
+      'https://fjp.es/en/about/'
     )
     cy.get('head meta[property="og:type"]').should(
       'have.attr',
@@ -35,7 +35,7 @@ describe('About', () => {
 
   it('should have valid Spanish SEO properties', () => {
     cy.get('.header__subtitle').should('have.text', 'Software Developer')
-    cy.get('.menu .menu__left .language-switcher img').click()
+    cy.get('.menu .menu__left .language-switcher a img').click()
     cy.get('html').should('have.attr', 'lang', 'es')
     cy.get('head title').should(
       'have.text',
@@ -44,7 +44,7 @@ describe('About', () => {
     cy.get('head meta[property="og:url"]').should(
       'have.attr',
       'content',
-      'https://fjp.es/es/about/'
+      'https://fjp.es/about'
     )
     cy.get('head meta[property="og:type"]').should(
       'have.attr',
