@@ -1,0 +1,79 @@
+version: 2
+updates:
+- package-ecosystem: npm
+  directory: "/"
+  schedule:
+    interval: weekly
+    time: "04:00"
+  open-pull-requests-limit: 10
+  reviewers:
+  - fjpalacios
+  labels:
+  - dependencies
+  ignore:
+  - dependency-name: eslint-plugin-jest
+    versions:
+    - 24.1.8
+    - 24.2.1
+    - 24.3.1
+    - 24.3.2
+    - 24.3.4
+    - 24.3.5
+  - dependency-name: cypress
+    versions:
+    - 6.3.0
+    - 6.6.0
+    - 6.7.0
+    - 6.7.1
+    - 6.8.0
+    - 7.0.0
+    - 7.0.1
+  - dependency-name: eslint-plugin-react
+    versions:
+    - 7.23.1
+  - dependency-name: "@testing-library/jest-dom"
+    versions:
+    - 5.11.10
+  - dependency-name: husky
+    versions:
+    - 5.1.2
+    - 5.2.0
+  - dependency-name: "@types/jest"
+    versions:
+    - 26.0.21
+  - dependency-name: gatsby
+    versions:
+    - 2.31.1
+    - 2.32.4
+    - 2.32.5
+    - 2.32.8
+    - 2.32.9
+  - dependency-name: typescript
+    versions:
+    - 4.1.5
+  - dependency-name: gatsby-plugin-typescript
+    versions:
+    - 2.11.0
+    - 2.12.0
+  - dependency-name: "@types/react"
+    versions:
+    - 17.0.1
+  - dependency-name: stylelint
+    versions:
+    - 13.9.0
+  commit-message:
+    prefix: chore
+    include: scope
+- package-ecosystem: docker
+  directory: "/"
+  schedule:
+    interval: weekly
+    time: "04:00"
+  open-pull-requests-limit: 10
+  reviewers:
+  - fjpalacios
+  labels:
+  - dependencies
+  commit-message:
+    prefix: chore
+    include: scope
