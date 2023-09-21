@@ -1,0 +1,25 @@
+---
+title: "¡Ha vuelto amuchamu!"
+post_slug: "%c2%a1ha-vuelto-amuchamu"
+date: "2007-11-07T17:32:46.000Z"
+excerpt: ""
+categories: "miniblog"
+tags: ""
+i18n: ""
+synopsis: ""
+score: ""
+pages: ""
+isbn: ""
+asin: ""
+author: ""
+paper: "https://www.amazon.es/dp/undefined/"
+ebook: "https://www.amazon.es/dp/undefined/"
+publisher: ""
+book_card: ""
+genres_fic: ""
+genres_nofic: ""
+serie: ""
+challenges: ""
+---
+
+Aunque no soy de hacer estas cosas, quiero escribir una "mini anotación" para expresar mi alegría por el regreso de [amuchamu](http://amuchamu.wordpress.com). Hace poco [Luisma](http://www.luisluque.es) puso un post donde comentaba algunos [desaparecidos en combate](http://www.luisluque.es/2007/10/15/aquellos-maravillosos-bloguers/), aparte de mí uno de los que también se veían listados era amuchamu... ¡y ya volvió! :D

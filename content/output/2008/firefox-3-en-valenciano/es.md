@@ -1,0 +1,30 @@
+---
+title: "Firefox 3 en valencià"
+post_slug: "firefox-3-en-valenciano"
+date: "2008-06-19T20:14:56.000Z"
+excerpt: ""
+categories: "miniblog"
+tags: 
+  - "firefox"
+  - "softwarevalencia"
+  - "traducciones"
+  - "valencia"
+  - "valenciano"
+i18n: ""
+synopsis: ""
+score: ""
+pages: ""
+isbn: ""
+asin: ""
+author: ""
+paper: "https://www.amazon.es/dp/undefined/"
+ebook: "https://www.amazon.es/dp/undefined/"
+publisher: ""
+book_card: ""
+genres_fic: ""
+genres_nofic: ""
+serie: ""
+challenges: ""
+---
+
+Gràcies als chicons de [SoftwareValencia](http://www.softwarevalencia.com/), ràpits com sempre, ya podem tindre la [versió 3.0 de Firefox traduïda al valencià ](http://www.softwarevalencia.com/mozilla/extensions/firefox-3.0.valencian.langpack.xpi) genuí. I quin gust que dona vore tots el menús en ma llengua materna. :D

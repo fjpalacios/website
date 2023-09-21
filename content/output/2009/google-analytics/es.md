@@ -1,0 +1,25 @@
+---
+title: "Google Analytics"
+post_slug: "google-analytics"
+date: "2009-04-18T15:30:54.000Z"
+excerpt: ""
+categories: "miniblog"
+tags: ""
+i18n: ""
+synopsis: ""
+score: ""
+pages: ""
+isbn: ""
+asin: ""
+author: ""
+paper: "https://www.amazon.es/dp/undefined/"
+ebook: "https://www.amazon.es/dp/undefined/"
+publisher: ""
+book_card: ""
+genres_fic: ""
+genres_nofic: ""
+serie: ""
+challenges: ""
+---
+
+A partir de hoy vuelvo a tener las estadísticas del blog en [Google Analytics](http://www.google.com/analytics/es-ES/). El servicio [AWStats](http://awstats.sourceforge.net/) que venía utilizando ha dejado de funcionar y creo que es la mejor opción. Está empezando a recopilar datos. A ver qué tal.

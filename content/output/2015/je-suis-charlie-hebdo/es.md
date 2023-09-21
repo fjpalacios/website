@@ -1,0 +1,26 @@
+---
+title: "Je suis Charlie Hebdo"
+post_slug: "je-suis-charlie-hebdo"
+date: "2015-01-08T16:34:55.000Z"
+excerpt: "A veces las palabras sobran. Je suis Charlie Hebdo."
+categories: "critica"
+tags: "charlie-hebdo"
+i18n: ""
+synopsis: ""
+score: ""
+pages: ""
+isbn: ""
+asin: ""
+author: ""
+paper: "https://www.amazon.es/dp/undefined/"
+ebook: "https://www.amazon.es/dp/undefined/"
+publisher: ""
+book_card: ""
+genres_fic: ""
+genres_nofic: ""
+serie: ""
+challenges: ""
+cover: "portadas-charlie-hebdo.jpg"
+---
+
+

@@ -81,6 +81,20 @@ module.exports = {
         path: `${__dirname}/content/challenges`,
       },
     },
+    {
+      resolve: 'gatsby-source-filesystem',
+      options: {
+        name: 'tutorials',
+        path: `${__dirname}/content/tutorials`,
+      },
+    },
+    {
+      resolve: 'gatsby-source-filesystem',
+      options: {
+        name: 'courses',
+        path: `${__dirname}/content/courses`,
+      },
+    },
     'gatsby-transformer-sharp',
     'gatsby-plugin-sharp',
     'gatsby-remark-images',
@@ -90,12 +104,26 @@ module.exports = {
         extensions: ['.md', '.mdx'],
         gatsbyRemarkPlugins: [
           {
-            resolve: `gatsby-remark-images`,
+            resolve: 'gatsby-remark-images',
             options: {
               maxWidth: 1400,
             },
           },
+          {
+            resolve: 'gatsby-remark-highlight-code',
+            options: {
+              terminal: 'none',
+              lineNumbers: true,
+            },
+          },
+          {
+            resolve: 'gatsby-remark-katex',
+            options: {
+              strict: 'ignore',
+            },
+          },
         ],
+        remarkPlugins: [require('remark-math'), require('remark-html-katex')],
       },
     },
     {
@@ -144,5 +172,6 @@ module.exports = {
     'Mdx.frontmatter.genres': 'Mdx.frontmatter.genre_slug',
     'Mdx.frontmatter.series.name': 'Mdx.frontmatter.serie_slug',
     'Mdx.frontmatter.challenges': 'Mdx.frontmatter.challenge_slug',
+    'Mdx.frontmatter.course': 'Mdx.frontmatter.course_slug',
   },
 }

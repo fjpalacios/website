@@ -1,0 +1,25 @@
+---
+title: "Häagen Dazs"
+post_slug: "haagen-dazs"
+date: "2008-07-04T20:02:39.000Z"
+excerpt: ""
+categories: "publicidad"
+tags: ""
+i18n: ""
+synopsis: ""
+score: ""
+pages: ""
+isbn: ""
+asin: ""
+author: ""
+paper: "https://www.amazon.es/dp/undefined/"
+ebook: "https://www.amazon.es/dp/undefined/"
+publisher: ""
+book_card: ""
+genres_fic: ""
+genres_nofic: ""
+serie: ""
+challenges: ""
+---
+
+Y yo que me tomaba un helado de esos ahora...

@@ -1,0 +1,25 @@
+---
+title: "Frases aleatorias"
+post_slug: "frases-aleatorias"
+date: "2007-05-30T13:31:22.000Z"
+excerpt: ""
+categories: "miniblog"
+tags: ""
+i18n: ""
+synopsis: ""
+score: ""
+pages: ""
+isbn: ""
+asin: ""
+author: ""
+paper: "https://www.amazon.es/dp/undefined/"
+ebook: "https://www.amazon.es/dp/undefined/"
+publisher: ""
+book_card: ""
+genres_fic: ""
+genres_nofic: ""
+serie: ""
+challenges: ""
+---
+
+En la parte superior del blog, en la cabecera, he dejado un hueco para ir poniendo en cada carga de la página una frase aleatoria de las que he ido definiendo yo mismo. Espero que os guste como queda. Si alguien quiere dejar alguna puede hacerlo en los comentarios y la añadiré.

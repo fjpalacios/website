@@ -49,7 +49,6 @@ export const BookLink: FunctionComponent<bookLinkProps> = ({
       (book) =>
         book.frontmatter.title.includes(title) && book.fields.language === lang
     ) || false
-  const removeReviewWord = (title: string) => title.match(/(?<= )(.*?)$/)[1]
   const data = (data: string) => {
     return {
       author: data.split(', ')[1].replace(t('book.by'), ''),
@@ -81,7 +80,7 @@ export const BookLink: FunctionComponent<bookLinkProps> = ({
       {book && (
         <Link to={`/${book.frontmatter?.post_slug}`}>
           <Title
-            title={removeReviewWord(book.frontmatter?.title)}
+            title={book.frontmatter?.title}
             serie={book.frontmatter.series}
           />
         </Link>

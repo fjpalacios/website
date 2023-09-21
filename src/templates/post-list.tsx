@@ -34,7 +34,7 @@ export const query = graphql`
       filter: {
         fields: {
           language: { eq: $language }
-          type: { in: ["posts", "books"] }
+          type: { in: ["books", "posts", "tutorials"] }
         }
       }
       limit: $limit

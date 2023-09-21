@@ -18,8 +18,8 @@ type postProps = {
 }
 
 export default function ({ data }: postProps) {
-  const { mdx } = data
-  const { body, fields, frontmatter } = mdx
+  const { post, course } = data
+  const { body, fields, frontmatter } = post
   const { type } = fields
   const { t } = useTranslation()
   const { pathname } = useLocation()
@@ -28,6 +28,19 @@ export default function ({ data }: postProps) {
   const cover = frontmatter.cover.childImageSharp.fluid
   const url = `${t('metaData.url')}${pathname}`
   const title = frontmatter.title
+  const rightCourse = course.edges.find(
+    (course) => course.current.frontmatter.post_slug === frontmatter.post_slug
+  )
+  const fullFrontmatter = rightCourse
+    ? {
+        ...frontmatter,
+        course: {
+          ...frontmatter.course,
+          next: rightCourse.next,
+          previous: rightCourse.previous,
+        },
+      }
+    : frontmatter
 
   return (
     <Layout
@@ -35,15 +48,15 @@ export default function ({ data }: postProps) {
       languageSwitcherTo={`/${i18nSlug}`}
     >
       <Seo title={`${title} - ${t('title')}`} image={cover.src} />
-      <FullPost frontmatter={frontmatter} type={type} body={body} />
+      <FullPost frontmatter={fullFrontmatter} type={type} body={body} />
       <Share title={title} url={url} />
     </Layout>
   )
 }
 
 export const query = graphql`
-  query($slug: String!) {
-    mdx(frontmatter: { post_slug: { eq: $slug } }) {
+  query($slug: String!, $course: String, $language: String!) {
+    post: mdx(frontmatter: { post_slug: { eq: $slug } }) {
       body
       fields {
         type
@@ -133,6 +146,42 @@ export const query = graphql`
           frontmatter {
             name
             category_slug
+          }
+        }
+        course {
+          frontmatter {
+            name
+            course_slug
+          }
+        }
+        tutorial
+      }
+    }
+    course: allMdx(
+      filter: {
+        fields: { language: { eq: $language }, type: { eq: "tutorials" } }
+        frontmatter: {
+          course: { frontmatter: { course_slug: { eq: $course } } }
+        }
+      }
+      sort: { order: ASC, fields: [frontmatter___date] }
+    ) {
+      edges {
+        current: node {
+          frontmatter {
+            post_slug
+          }
+        }
+        next {
+          frontmatter {
+            post_slug
+            title
+          }
+        }
+        previous {
+          frontmatter {
+            post_slug
+            title
           }
         }
       }

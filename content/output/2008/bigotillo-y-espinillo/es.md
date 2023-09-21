@@ -1,0 +1,25 @@
+---
+title: "Bigotillo y espinillo"
+post_slug: "bigotillo-y-espinillo"
+date: "2008-02-22T14:30:14.000Z"
+excerpt: ""
+categories: "publicidad"
+tags: ""
+i18n: ""
+synopsis: ""
+score: ""
+pages: ""
+isbn: ""
+asin: ""
+author: ""
+paper: "https://www.amazon.es/dp/undefined/"
+ebook: "https://www.amazon.es/dp/undefined/"
+publisher: ""
+book_card: ""
+genres_fic: ""
+genres_nofic: ""
+serie: ""
+challenges: ""
+---
+
+\[youtube FOt9-Dq5Evs\]Me encanta este anuncio, no lo puedo evitar, jajaja. xD

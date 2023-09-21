@@ -1,0 +1,26 @@
+---
+title: "This is the moment, THIS IS IT"
+post_slug: "this-is-it"
+date: "2009-10-28T10:46:48.000Z"
+excerpt: ""
+categories: "noticias"
+tags: "michael-jackson"
+i18n: ""
+synopsis: ""
+score: ""
+pages: ""
+isbn: ""
+asin: ""
+author: ""
+paper: "https://www.amazon.es/dp/undefined/"
+ebook: "https://www.amazon.es/dp/undefined/"
+publisher: ""
+book_card: ""
+genres_fic: ""
+genres_nofic: ""
+serie: ""
+challenges: ""
+cover: "../../default.jpg"
+---
+
+![this-is-it](images/this-is-it.jpg "this-is-it")(sigo vivo)

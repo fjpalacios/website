@@ -35,7 +35,8 @@
     "publisher": "Editorial",
     "genre": "Género",
     "serie": "Colección",
-    "score": "Puntuación"
+    "score": "Puntuación",
+    "course": "Curso"
   },
   "allCategories": "Todas las categorías",
   "allAuthors": "Todos los autores",
@@ -43,6 +44,7 @@
   "allGenres": "Todos los géneros",
   "allSeries": "Todas las colecciones",
   "allScores": "Todas las puntuaciones",
+  "allCourses": "Todos los cursos",
   "getInvolved": "¡Colabora!",
   "about": {
     "me": "Sobre mí",
@@ -66,5 +68,12 @@
     "spoilerAlert": "Atención, <em>spoiler</em>",
     "by": "de",
     "fav": "Favorito"
+  },
+  "courseInfo": {
+    "title": "¿Sed de conocimiento?",
+    "message": "Este artículo forma parte del curso <a href={{href}}>{{name}}</a>.",
+    "messagePrev": "El anterior artículo de este curso es <a href={{href}}>{{name}}</a>.",
+    "messageNext": "El próximo artículo de este curso es <a href={{href}}>{{name}}</a>.",
+    "messagePrevNext": "El anterior artículo de este curso es <a href={{hrefPrev}}>{{namePrev}}</a> y el próximo es <a href={{hrefNext}}>{{nameNext}}</a>."
   }
 }

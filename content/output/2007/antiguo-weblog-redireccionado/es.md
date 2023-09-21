@@ -1,0 +1,25 @@
+---
+title: "Antiguo weblog redireccionado"
+post_slug: "antiguo-weblog-redireccionado"
+date: "2007-05-24T09:13:30.000Z"
+excerpt: ""
+categories: "miniblog"
+tags: ""
+i18n: ""
+synopsis: ""
+score: ""
+pages: ""
+isbn: ""
+asin: ""
+author: ""
+paper: "https://www.amazon.es/dp/undefined/"
+ebook: "https://www.amazon.es/dp/undefined/"
+publisher: ""
+book_card: ""
+genres_fic: ""
+genres_nofic: ""
+serie: ""
+challenges: ""
+---
+
+La dirección del antiguo blog ya no está operativa. He añadido, como mencioné, un **redireccionamiento 301** (movida permanentemente) para que, tanto los que me visiten como los robots, puedan llegar a la nueva página. Creo que los feeds de todo el mundo habrán sido actualizados ya, y los que hayan tenido que ver mi entrada de _despedida_ lo habrán hecho ya.

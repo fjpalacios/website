@@ -5,6 +5,7 @@ $text: var(--text);
 $cursive-color: var(--cursive-color);
 $inverted-text: var(--inverted-text);
 $header-link: var(--header-link);
+$code: var(--code);
 
 %dark {
   --accent: #efbb35;
@@ -14,6 +15,7 @@ $header-link: var(--header-link);
   --cursive-color: #c8c8c8;
   --inverted-text: var(--text);
   --header-link: var(--text);
+  --code: #ff79c6;
 }
 
 %light {
@@ -24,10 +26,17 @@ $header-link: var(--header-link);
   --cursive-color: #636363;
   --inverted-text: var(--background);
   --header-link: var(--inverted-text);
+  --code: #e83e8c;
 }
 
 body {
   @extend %dark;
+
+  --deckgo-highlight-code-background: var(--primary);
+  --deckgo-highlight-code-padding: 20px;
+  --deckgo-highlight-code-color: #f8f8f8;
+  --deckgo-highlight-code-margin: 20px 0 20px -20px;
+  --deckgo-highlight-code-container-width: calc(100% + 40px);
 
   &.dark {
     @extend %dark;

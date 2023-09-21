@@ -1,0 +1,25 @@
+---
+title: "FJP.ES se hace \"multi-idioma\""
+post_slug: "fjpes-se-hace-multi-idioma"
+date: "2007-12-11T21:17:02.000Z"
+excerpt: ""
+categories: "miniblog"
+tags: ""
+i18n: ""
+synopsis: ""
+score: ""
+pages: ""
+isbn: ""
+asin: ""
+author: ""
+paper: "https://www.amazon.es/dp/undefined/"
+ebook: "https://www.amazon.es/dp/undefined/"
+publisher: ""
+book_card: ""
+genres_fic: ""
+genres_nofic: ""
+serie: ""
+challenges: ""
+---
+
+Parece que me ha dado fuerte con mi página personal. Si hace poco comentaba que le había hecho [un cambio de look](http://fjp.es/2007/12/09/cambio-de-look-en-fjpes/), hoy comento que bajo el mismo diseño, ahora se puede ver en tres idiomas distintos: [castellano](http://fjp.es/es), [inglés](http://fjp.es/en) y [valenciano](http://fjp.es/va). En la [página principal](http://fjp.es) ahora encontraremos un "selector de idioma". ¿Qué os parece?

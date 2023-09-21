@@ -1,0 +1,25 @@
+---
+title: "Recordad: actualizad enlaces"
+post_slug: "recordad-actualizad-enlaces"
+date: "2007-06-14T01:04:10.000Z"
+excerpt: ""
+categories: "miniblog"
+tags: ""
+i18n: ""
+synopsis: ""
+score: ""
+pages: ""
+isbn: ""
+asin: ""
+author: ""
+paper: "https://www.amazon.es/dp/undefined/"
+ebook: "https://www.amazon.es/dp/undefined/"
+publisher: ""
+book_card: ""
+genres_fic: ""
+genres_nofic: ""
+serie: ""
+challenges: ""
+---
+
+Básicamente ésto es para recordar a todos los que me tenéis en vuestro blogroll que cambié de dirección y que estaría genial que os acordaseis de actualizar vuestro blogroll a la nueva dirección para conseguir, más o menos, que ésto sea como lo que era antes. :D Si no me tenéis, pero queréis agregarme, yo igualmente encantado, ¿eh? Eso sí, ya a la nueva dirección. :P

@@ -1,10 +1,11 @@
 const defaultLanguage = 'es'
 const languages = [defaultLanguage, 'en']
 const postsPerPage = 10
-const typesOfPosts = ['posts', 'books']
+const typesOfPosts = ['books', 'posts', 'tutorials']
 const typesOfCategories = [
   'categories',
   'challenges',
+  'courses',
   'genres',
   'publishers',
   'series',
@@ -57,6 +58,7 @@ exports.createPages = ({ actions, graphql, reporter }) => {
     genres: require.resolve('./src/templates/genre.tsx'),
     series: require.resolve('./src/templates/serie.tsx'),
     scores: require.resolve('./src/templates/score.tsx'),
+    courses: require.resolve('./src/templates/course.tsx'),
   }
 
   return new Promise((resolve) => {
@@ -72,6 +74,11 @@ exports.createPages = ({ actions, graphql, reporter }) => {
                 }
                 frontmatter {
                   post_slug
+                  course {
+                    frontmatter {
+                      course_slug
+                    }
+                  }
                 }
               }
             }
@@ -94,6 +101,9 @@ exports.createPages = ({ actions, graphql, reporter }) => {
           allPosts.forEach(({ node }) => {
             const language = node.fields.language
             const slug = node.frontmatter.post_slug
+            const course = node.frontmatter.course
+              ? node.frontmatter.course.frontmatter.course_slug
+              : 'dummy'
             const path =
               language === defaultLanguage ? `/${slug}` : `/${language}/${slug}`
 
@@ -104,6 +114,7 @@ exports.createPages = ({ actions, graphql, reporter }) => {
               context: {
                 slug,
                 language,
+                course,
                 i18n: {
                   language,
                   languages,
@@ -289,6 +300,33 @@ exports.createPages = ({ actions, graphql, reporter }) => {
                 totalCount
               }
             }
+            courses: allMdx(
+              filter: { fields: { language: {eq: "${language}"}}}
+              sort: {
+                order: ASC,
+                fields: [frontmatter___course___frontmatter___course_slug]
+              }
+            ) {
+              group(field: frontmatter___course___frontmatter___course_slug) {
+                fieldValue
+                totalCount
+              }
+            }
+            coursesWithExtraInfo: allMdx(
+              filter: {
+                fields: { type: { eq: "courses"}, language: { eq: "${language}" } }
+              }
+              sort: { order: ASC, fields: [frontmatter___course_slug] }
+            ) {
+              edges {
+                node {
+                  frontmatter {
+                    fieldValue: course_slug
+                    name
+                  }
+                }
+              }
+            }
           }
         `)
           .then((result) => {
@@ -319,6 +357,9 @@ exports.createPages = ({ actions, graphql, reporter }) => {
             )
             const allSeriesWithExtraInfo = result.data.seriesWithExtraInfo.edges
             const allScoresPerLanguage = result.data.scores.group
+            const allCoursesWithExtraInfo =
+              result.data.coursesWithExtraInfo.edges
+            const allCoursesPerLanguage = result.data.courses.group
 
             const postPages = Math.ceil(
               allPostsPerLanguage.length / postsPerPage
@@ -688,6 +729,64 @@ exports.createPages = ({ actions, graphql, reporter }) => {
                     skip: page * postsPerPage,
                     page: page + 1,
                     pages: scorePages,
+                  },
+                })
+              }
+            })
+
+            const mergedCourses = mergeTypes(
+              allCoursesPerLanguage,
+              getTypeNames(allCoursesWithExtraInfo)
+            )
+
+            allCoursesPerLanguage.forEach((course) => {
+              const coursePages = Math.ceil(course.totalCount / postsPerPage)
+
+              for (let page = 0; page < coursePages; page++) {
+                createPage({
+                  path: getListPath(
+                    'course',
+                    course.fieldValue,
+                    language,
+                    page,
+                    false
+                  ),
+                  component: template['courses'],
+                  context: {
+                    course: course.fieldValue,
+                    courses: mergedCourses,
+                    slug: getListPath(
+                      'course',
+                      course.fieldValue,
+                      language,
+                      page,
+                      true
+                    ),
+                    language,
+                    i18n: {
+                      language,
+                      languages,
+                      defaultLanguage,
+                      resources: { [language]: locales[language] },
+                      path: `/${getListPath(
+                        'course',
+                        course.fieldValue,
+                        language,
+                        page,
+                        true
+                      )}`,
+                      originalPath: `/${getListPath(
+                        'course',
+                        course.fieldValue,
+                        language,
+                        page,
+                        true
+                      )}`,
+                    },
+                    limit: postsPerPage,
+                    skip: page * postsPerPage,
+                    page: page + 1,
+                    pages: coursePages,
                   },
                 })
               }

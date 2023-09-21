@@ -1,0 +1,25 @@
+---
+title: "Separación por sílabas en los artículos"
+post_slug: "separacion-por-silabas-en-los-articulos"
+date: "2009-05-29T15:30:11.000Z"
+excerpt: ""
+categories: "miniblog"
+tags: ""
+i18n: ""
+synopsis: ""
+score: ""
+pages: ""
+isbn: ""
+asin: ""
+author: ""
+paper: "https://www.amazon.es/dp/undefined/"
+ebook: "https://www.amazon.es/dp/undefined/"
+publisher: ""
+book_card: ""
+genres_fic: ""
+genres_nofic: ""
+serie: ""
+challenges: ""
+---
+
+Si hay algo que siempre me ha gustado y que en cada blog que he tenido he puesto es el texto justificado. Creo que hace mil veces más bonito que todo empiece y acabe en el mismo sitio, que cada frase por un lado haciendo una especie de escalera. Lo malo que tiene es que para justificar si la siguiente palabra es muy larga y no coge, la baja un renglón y el hueco que sobra lo completa con espacios de más. Gracias al plugin [Hyphenator](http://www.bebl.eu/zeug/hyphenator) he conseguido que las palabras se separen por sílabas con un guión al final, como en la prensa tradicional ocurre, por ejemplo. A mí me gusta, pero sois vosotros quienes decidís si es cómodo de leer o no, que sois quienes me leéis. ¿Cómo lo veis?, ¿os gusta? Opinad, por favor.

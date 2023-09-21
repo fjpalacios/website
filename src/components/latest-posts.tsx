@@ -21,7 +21,7 @@ export const LatestPosts: FunctionComponent<latestPostsProps> = ({
   const data = useStaticQuery(graphql`
     query {
       allMdx(
-        filter: { fields: { type: { in: ["posts", "books"] } } }
+        filter: { fields: { type: { in: ["books", "posts", "tutorials"] } } }
         sort: { fields: [frontmatter___date], order: DESC }
       ) {
         edges {

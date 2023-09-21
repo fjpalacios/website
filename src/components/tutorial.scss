@@ -1,0 +1,57 @@
+.tutorial {
+  display: grid;
+  grid-column: span 6;
+
+  &__content {
+    margin-bottom: 20px;
+    overflow: hidden;
+    border: 2px solid $primary;
+
+    .text-area {
+      img,
+      span.gatsby-resp-image-background-image {
+        width: calc(100% + 40px) !important;
+        margin: 0 -20px !important;
+      }
+
+      // h3 {
+      //   margin: 2em 0 .7em;
+      //   padding-bottom: .3em;
+      //   border-bottom: 1px solid $text;
+      //   font-size: 1em;
+      // }
+    }
+  }
+
+  &__info {
+    display: grid;
+    grid-template-columns: 20px 1fr;
+    align-content: center;
+    margin-bottom: 10px;
+    padding: 0 20px;
+    column-gap: 1vw;
+
+    &__text {
+      margin: 0;
+      padding-left: 0;
+      list-style: none;
+
+      li {
+        display: inline-block;
+        padding-right: 1vw;
+      }
+
+      &__item {
+        text-transform: capitalize;
+      }
+    }
+  }
+}
+
+i {
+  font-size: 1em;
+
+  @include medium-and-up {
+    font-size: .8em;
+  }
+}

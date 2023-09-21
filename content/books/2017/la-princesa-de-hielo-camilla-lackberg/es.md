@@ -1,5 +1,5 @@
 ---
-title: "Reseña: La princesa de hielo, de Camilla Läckberg"
+title: "La princesa de hielo, de Camilla Läckberg"
 post_slug: "la-princesa-de-hielo-camilla-lackberg"
 date: "2017-08-10T14:43:38.000Z"
 excerpt: "Un libro para pasar el rato… un poco ni fu ni fa. Novela policíaca con

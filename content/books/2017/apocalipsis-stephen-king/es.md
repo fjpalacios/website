@@ -1,5 +1,5 @@
 ---
-title: "Reseña: Apocalipsis, de Stephen King"
+title: "Apocalipsis, de Stephen King"
 post_slug: "apocalipsis-stephen-king"
 date: "2017-05-02T10:57:27.000Z"
 excerpt: "Me ha encantado. Es un libro excelente, aunque no apto para gente que

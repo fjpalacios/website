@@ -1,0 +1,25 @@
+---
+title: "Jonas Salk"
+post_slug: "cita-jonas-salk"
+date: "2013-03-11T00:33:56.000Z"
+excerpt: ""
+categories: "citas"
+tags: "jonas-salk"
+i18n: ""
+synopsis: ""
+score: ""
+pages: ""
+isbn: ""
+asin: ""
+author: ""
+paper: "https://www.amazon.es/dp/undefined/"
+ebook: "https://www.amazon.es/dp/undefined/"
+publisher: ""
+book_card: ""
+genres_fic: ""
+genres_nofic: ""
+serie: ""
+challenges: ""
+---
+
+Si desaparecieran todos los insectos de la tierra, en menos de 50 años desaparecería toda la vida. Si todos los seres humanos desaparecieran de la tierra, en menos de 50 años todas las formas de vida florecerían.

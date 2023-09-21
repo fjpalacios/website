@@ -1,0 +1,25 @@
+---
+title: "Más cambios"
+post_slug: "mas-cambios"
+date: "2009-04-18T03:43:16.000Z"
+excerpt: ""
+categories: "miniblog"
+tags: ""
+i18n: ""
+synopsis: ""
+score: ""
+pages: ""
+isbn: ""
+asin: ""
+author: ""
+paper: "https://www.amazon.es/dp/undefined/"
+ebook: "https://www.amazon.es/dp/undefined/"
+publisher: ""
+book_card: ""
+genres_fic: ""
+genres_nofic: ""
+serie: ""
+challenges: ""
+---
+
+Acabo de crear los miniblogs, siguiendo las instrucciones de mi viejo tutorial sobre [cómo añadir un "miniblog" a WordPress](http://fjp.es/2007/07/02/anadir-un-miniblog-a-wordpress/). Además he hecho que el enlace del autor de cada comentario identificado por **Facebook Connect** lleve a su página y no a su perfil aquí. Menos mal que estaba harto de código hace un rato...

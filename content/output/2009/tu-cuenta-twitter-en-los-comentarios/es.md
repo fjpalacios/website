@@ -1,0 +1,25 @@
+---
+title: "Tu cuenta Twitter en los comentarios"
+post_slug: "tu-cuenta-twitter-en-los-comentarios"
+date: "2009-05-07T03:54:41.000Z"
+excerpt: ""
+categories: "miniblog"
+tags: "twitter"
+i18n: ""
+synopsis: ""
+score: ""
+pages: ""
+isbn: ""
+asin: ""
+author: ""
+paper: "https://www.amazon.es/dp/undefined/"
+ebook: "https://www.amazon.es/dp/undefined/"
+publisher: ""
+book_card: ""
+genres_fic: ""
+genres_nofic: ""
+serie: ""
+challenges: ""
+---
+
+Gracias al plugin [WP Twitip ID](http://www.fiddyp.co.uk/wp-twitip-id-plugin-add-a-twitter-field-to-your-comment-form-easily/) ahora en los comentarios podremos, si queremos, añadir nuestra cuenta de Twitter. Mola, ¿no? :D

@@ -1,0 +1,25 @@
+---
+title: "De invitado en el blog de @LoviMac"
+post_slug: "de-invitado-en-el-blog-de-lovimac"
+date: "2010-01-31T13:01:27.000Z"
+excerpt: ""
+categories: "miniblog"
+tags: ""
+i18n: ""
+synopsis: ""
+score: ""
+pages: ""
+isbn: ""
+asin: ""
+author: ""
+paper: "https://www.amazon.es/dp/undefined/"
+ebook: "https://www.amazon.es/dp/undefined/"
+publisher: ""
+book_card: ""
+genres_fic: ""
+genres_nofic: ""
+serie: ""
+challenges: ""
+---
+
+Hoy he tenido el honor de participar como invitado en el blog de @LoviMac asaltándole con [un artículo de opinión sobre el iPad](http://findyourgeek.wordpress.com/2010/01/31/untitled-wizard/). ¿A qué esperáis para leerlo? ¡Venga, vamos!

@@ -49,10 +49,7 @@ export const query = graphql`
     posts: allMdx(
       sort: { fields: [frontmatter___date], order: DESC }
       filter: {
-        fields: {
-          language: { eq: $language }
-          type: { in: ["posts", "books"] }
-        }
+        fields: { language: { eq: $language }, type: { eq: "books" } }
         frontmatter: {
           author: { frontmatter: { author_slug: { in: [$author] } } }
         }

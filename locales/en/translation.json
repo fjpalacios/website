@@ -35,7 +35,8 @@
     "publisher": "Publisher",
     "genre": "Genre",
     "serie": "Serie",
-    "score": "Score"
+    "score": "Score",
+    "course": "Course"
   },
   "allCategories": "All categories",
   "allAuthors": "All authors",
@@ -43,6 +44,7 @@
   "allGenres": "All genres",
   "allSeries": "All series",
   "allScores": "All scores",
+  "allCourses": "All courses",
   "getInvolved": "Get involved!",
   "about": {
     "me": "About me",
@@ -66,5 +68,12 @@
     "spoilerAlert": "Spoiler alert",
     "by": "by",
     "fav": "Favourite"
+  },
+  "courseInfo": {
+    "title": "Starving for knowledge?",
+    "message": "This post is part of the <a href={{href}}>{{name}}</a> course.",
+    "messagePrev": "The previous post of this course is <a href={{href}}>{{name}}</a>.",
+    "messageNext": "The next post of this course is <a href={{href}}>{{name}}</a>.",
+    "messagePrevNext": "The previous post of this course is <a href={{hrefPrev}}>{{namePrev}}</a> and the next one is <a href={{hrefNext}}>{{nameNext}}</a>."
   }
 }

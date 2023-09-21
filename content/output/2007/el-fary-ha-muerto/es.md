@@ -1,0 +1,25 @@
+---
+title: "El Fary ha muerto"
+post_slug: "el-fary-ha-muerto"
+date: "2007-06-19T10:23:27.000Z"
+excerpt: ""
+categories: "miniblog"
+tags: ""
+i18n: ""
+synopsis: ""
+score: ""
+pages: ""
+isbn: ""
+asin: ""
+author: ""
+paper: "https://www.amazon.es/dp/undefined/"
+ebook: "https://www.amazon.es/dp/undefined/"
+publisher: ""
+book_card: ""
+genres_fic: ""
+genres_nofic: ""
+serie: ""
+challenges: ""
+---
+
+Me uno al homenaje de Andrés para este gran hombre... [Requiécast in pace](http://www.andresmilleiro.info/blog/el-fary-ha-muerto).

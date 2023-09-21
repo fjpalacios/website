@@ -1,0 +1,26 @@
+---
+title: "Dani Jarque"
+post_slug: "dani-jarque"
+date: "2009-08-08T22:13:43.000Z"
+excerpt: ""
+categories: "deporte"
+tags: "futbol"
+i18n: ""
+synopsis: ""
+score: ""
+pages: ""
+isbn: ""
+asin: ""
+author: ""
+paper: "https://www.amazon.es/dp/undefined/"
+ebook: "https://www.amazon.es/dp/undefined/"
+publisher: ""
+book_card: ""
+genres_fic: ""
+genres_nofic: ""
+serie: ""
+challenges: ""
+cover: "../../default.jpg"
+---
+
+![dani-jarque-dep](images/dani-jarque-dep.png "dani-jarque-dep")
