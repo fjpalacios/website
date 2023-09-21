@@ -15,8 +15,9 @@ module.exports = {
     {
       resolve: 'gatsby-plugin-sass',
       options: {
-        data: `@import "${__dirname}/src/styles/main";`,
+        additionalData: `@import "${__dirname}/src/styles/main";`,
         postCssPlugins: [autoprefixer({ grid: 'autoplace' })],
+        implementation: require('node-sass'),
       },
     },
   ],

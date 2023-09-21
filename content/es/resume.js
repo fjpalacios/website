@@ -33,8 +33,7 @@ export default {
       name: 'CP San Luis',
       location: 'Buñol',
       dates: 'Sep 2008 - Jun 2009',
-      desc:
-        'Profesor de informática para niños de todos los cursos de primaria',
+      desc: 'Profesor de informática para niños de todos los cursos de primaria',
     },
     {
       name: 'Jepsi',
@@ -75,8 +74,7 @@ export default {
       url: 'http://www.fpcheste.com',
       location: 'Cheste',
       dates: '2017 - 2019',
-      desc:
-        'Técnico superior, Desarrollo de aplicaciones multiplataforma (EQF 5)',
+      desc: 'Técnico superior, Desarrollo de aplicaciones multiplataforma (EQF 5)',
     },
   ],
   freelance: [
@@ -88,8 +86,7 @@ export default {
     {
       name: 'profesionaldelapsicologia.es',
       url: 'http://www.profesionaldelapsicologia.es',
-      desc:
-        'Página web de presentación del gabinete psicológico y sus servicios',
+      desc: 'Página web de presentación del gabinete psicológico y sus servicios',
       languages: ['css3', 'html5', 'wordpress'],
     },
     {

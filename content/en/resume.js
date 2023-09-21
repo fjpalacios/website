@@ -71,8 +71,7 @@ export default {
       url: 'http://www.fpcheste.com',
       location: 'Cheste',
       dates: '2017 - 2019',
-      desc:
-        'Higher National Diploma, Multi-platform Applications Development (EQF 5)',
+      desc: 'Higher National Diploma, Multi-platform Applications Development (EQF 5)',
     },
   ],
   freelance: [
