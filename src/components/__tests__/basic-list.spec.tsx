@@ -18,34 +18,38 @@ describe('BasicList', () => {
   })
 
   it('should show the name', () => {
-    const basicList = createComponentWithIntl(<BasicList data={data} />)
-    const name = basicList.find('.basic-list__name span').text()
+    const { container } = createComponentWithIntl(<BasicList data={data} />)
+    const name = container.querySelectorAll('.basic-list__name span')[0]
+      .textContent
     expect(name).toBe(data[0].name)
   })
 
   it('should show a url if it exists', () => {
     data[0].url = 'https://duckduckgo.com'
-    const basicList = createComponentWithIntl(<BasicList data={data} />)
-    const name = basicList.find('.basic-list__name a').text()
+    const { container } = createComponentWithIntl(<BasicList data={data} />)
+    const name = container.querySelectorAll('.basic-list__name a')[0]
+      .textContent
     expect(name).toBe(data[0].name)
     data[0].url = undefined
   })
 
   it('should show the location', () => {
-    const basicList = createComponentWithIntl(<BasicList data={data} />)
-    const location = basicList.find('.basic-list__location').text()
+    const { container } = createComponentWithIntl(<BasicList data={data} />)
+    const location = container.querySelectorAll('.basic-list__location')[0]
+      .textContent
     expect(location).toBe(data[0].location)
   })
 
   it('should show the dates', () => {
-    const basicList = createComponentWithIntl(<BasicList data={data} />)
-    const dates = basicList.find('.basic-list__dates').text()
+    const { container } = createComponentWithIntl(<BasicList data={data} />)
+    const dates =
+      container.querySelectorAll('.basic-list__dates')[0].textContent
     expect(dates).toBe(data[0].dates)
   })
 
   it('should show the description', () => {
-    const basicList = createComponentWithIntl(<BasicList data={data} />)
-    const desc = basicList.find('.basic-list__desc').text()
+    const { container } = createComponentWithIntl(<BasicList data={data} />)
+    const desc = container.querySelectorAll('.basic-list__desc')[0].textContent
     expect(desc).toBe(data[0].desc)
   })
 })

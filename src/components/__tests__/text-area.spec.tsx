@@ -9,8 +9,9 @@ describe('TextArea', () => {
   })
 
   it('should show the passed prop as HTML content', () => {
-    const textArea = createComponentWithIntl(<TextArea text="Foo" />)
-    const title = textArea.find('.text-area__content').text()
+    const { container } = createComponentWithIntl(<TextArea text="Foo" />)
+    const title =
+      container.getElementsByClassName('text-area__content')[0].textContent
     expect(title).toBe('Foo')
   })
 })

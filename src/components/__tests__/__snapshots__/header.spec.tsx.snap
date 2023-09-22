@@ -1,68 +1,161 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`Header should render properly 1`] = `
-<IntlProvider
-  defaultFormats={Object {}}
-  defaultLocale="en"
-  formats={Object {}}
-  locale="en"
-  messages={
-    Object {
-      "about": Object {
-        "internet": "Internet",
-        "me": "About me",
-      },
-      "menu": Object {
-        "switchTheme": "Switch Theme",
-        "toEnglish": "Switch to English language",
-        "toSpanish": "Switch to Spanish language",
-      },
-      "metaData": Object {
-        "description": "Francisco Javier Palacios Pérez's personal website, Software Developer based in Valencia (Spain)",
-        "image": "https://fjp.es/logo.jpg",
-        "twitterUsername": "@fjpalacios",
-        "url": "https://fjp.es",
-      },
-      "pages": Object {
-        "about": "About me",
-        "home": "Home",
-      },
-      "resume": Object {
-        "education": "Education",
-        "experience": "Experience",
-        "freelance": "Freelance work",
-        "me": "About me",
-        "projects": "Side projects",
-        "talks": "Talks / workshops",
-        "volunteering": "Volunteering",
-      },
-      "subtitle": "Software Developer",
-      "title": "Francisco Javier Palacios Pérez",
-    }
-  }
-  onError={[Function]}
-  textComponent={Symbol(react.fragment)}
->
-  <Header>
+{
+  "asFragment": [Function],
+  "baseElement": <body>
+    <div>
+      <header
+        class="header"
+      >
+        <h1
+          class="header__title"
+        >
+          Francisco Javier Palacios Pérez
+        </h1>
+        <h2
+          class="header__subtitle"
+        >
+          Software Developer
+        </h2>
+        <div
+          class="header__contact"
+        >
+          <div
+            class="header__contact__item linkedin"
+          >
+            <a
+              href="https://www.linkedin.com/in/fjpalacios/"
+              rel="noreferer"
+              target="_blank"
+            >
+              <i
+                class="icon-linkedin"
+              />
+              <p>
+                fjpalacios
+              </p>
+            </a>
+          </div>
+          <div
+            class="header__contact__item mail"
+          >
+            <a
+              href="mailto:javi@fjp.es"
+              rel="noreferer"
+              target="_blank"
+            >
+              <i
+                class="icon-mail"
+              />
+              <p>
+                javi@fjp.es
+              </p>
+            </a>
+          </div>
+          <div
+            class="header__contact__item github-circled"
+          >
+            <a
+              href="https://github.com/fjpalacios"
+              rel="noreferer"
+              target="_blank"
+            >
+              <i
+                class="icon-github-circled"
+              />
+              <p>
+                fjpalacios
+              </p>
+            </a>
+          </div>
+          <div
+            class="header__contact__item globe"
+          >
+            <a
+              href="https://fjp.es"
+              rel="noreferer"
+              target="_blank"
+            >
+              <i
+                class="icon-globe"
+              />
+              <p>
+                fjp.es
+              </p>
+            </a>
+          </div>
+          <div
+            class="header__contact__item twitter"
+          >
+            <a
+              href="https://twitter.com/fjpalacios"
+              rel="noreferer"
+              target="_blank"
+            >
+              <i
+                class="icon-twitter"
+              />
+              <p>
+                fjpalacios
+              </p>
+            </a>
+          </div>
+          <div
+            class="header__contact__item location"
+          >
+            <a
+              href="https://osm.org/go/b_qODpV--"
+              rel="noreferer"
+              target="_blank"
+            >
+              <i
+                class="icon-location"
+              />
+              <p>
+                Valencia, ES
+              </p>
+            </a>
+          </div>
+          <div
+            class="header__contact__item phone"
+          >
+            <a
+              href="tel:0034671995762"
+              rel="noreferer"
+              target="_blank"
+            >
+              <i
+                class="icon-phone"
+              />
+              <p>
+                671995762
+              </p>
+            </a>
+          </div>
+        </div>
+      </header>
+    </div>
+  </body>,
+  "container": <div>
     <header
-      className="header"
+      class="header"
     >
       <h1
-        className="header__title"
+        class="header__title"
       >
         Francisco Javier Palacios Pérez
       </h1>
       <h2
-        className="header__subtitle"
+        class="header__subtitle"
       >
         Software Developer
       </h2>
       <div
-        className="header__contact"
+        class="header__contact"
       >
         <div
-          className="header__contact__item linkedin"
-          key="0"
+          class="header__contact__item linkedin"
         >
           <a
             href="https://www.linkedin.com/in/fjpalacios/"
@@ -70,7 +163,7 @@ exports[`Header should render properly 1`] = `
             target="_blank"
           >
             <i
-              className="icon-linkedin"
+              class="icon-linkedin"
             />
             <p>
               fjpalacios
@@ -78,8 +171,7 @@ exports[`Header should render properly 1`] = `
           </a>
         </div>
         <div
-          className="header__contact__item mail"
-          key="1"
+          class="header__contact__item mail"
         >
           <a
             href="mailto:javi@fjp.es"
@@ -87,7 +179,7 @@ exports[`Header should render properly 1`] = `
             target="_blank"
           >
             <i
-              className="icon-mail"
+              class="icon-mail"
             />
             <p>
               javi@fjp.es
@@ -95,8 +187,7 @@ exports[`Header should render properly 1`] = `
           </a>
         </div>
         <div
-          className="header__contact__item github-circled"
-          key="2"
+          class="header__contact__item github-circled"
         >
           <a
             href="https://github.com/fjpalacios"
@@ -104,7 +195,7 @@ exports[`Header should render properly 1`] = `
             target="_blank"
           >
             <i
-              className="icon-github-circled"
+              class="icon-github-circled"
             />
             <p>
               fjpalacios
@@ -112,8 +203,7 @@ exports[`Header should render properly 1`] = `
           </a>
         </div>
         <div
-          className="header__contact__item globe"
-          key="3"
+          class="header__contact__item globe"
         >
           <a
             href="https://fjp.es"
@@ -121,7 +211,7 @@ exports[`Header should render properly 1`] = `
             target="_blank"
           >
             <i
-              className="icon-globe"
+              class="icon-globe"
             />
             <p>
               fjp.es
@@ -129,8 +219,7 @@ exports[`Header should render properly 1`] = `
           </a>
         </div>
         <div
-          className="header__contact__item twitter"
-          key="4"
+          class="header__contact__item twitter"
         >
           <a
             href="https://twitter.com/fjpalacios"
@@ -138,7 +227,7 @@ exports[`Header should render properly 1`] = `
             target="_blank"
           >
             <i
-              className="icon-twitter"
+              class="icon-twitter"
             />
             <p>
               fjpalacios
@@ -146,8 +235,7 @@ exports[`Header should render properly 1`] = `
           </a>
         </div>
         <div
-          className="header__contact__item location"
-          key="5"
+          class="header__contact__item location"
         >
           <a
             href="https://osm.org/go/b_qODpV--"
@@ -155,7 +243,7 @@ exports[`Header should render properly 1`] = `
             target="_blank"
           >
             <i
-              className="icon-location"
+              class="icon-location"
             />
             <p>
               Valencia, ES
@@ -163,8 +251,7 @@ exports[`Header should render properly 1`] = `
           </a>
         </div>
         <div
-          className="header__contact__item phone"
-          key="6"
+          class="header__contact__item phone"
         >
           <a
             href="tel:0034671995762"
@@ -172,7 +259,7 @@ exports[`Header should render properly 1`] = `
             target="_blank"
           >
             <i
-              className="icon-phone"
+              class="icon-phone"
             />
             <p>
               671995762
@@ -181,6 +268,57 @@ exports[`Header should render properly 1`] = `
         </div>
       </div>
     </header>
-  </Header>
-</IntlProvider>
+  </div>,
+  "debug": [Function],
+  "findAllByAltText": [Function],
+  "findAllByDisplayValue": [Function],
+  "findAllByLabelText": [Function],
+  "findAllByPlaceholderText": [Function],
+  "findAllByRole": [Function],
+  "findAllByTestId": [Function],
+  "findAllByText": [Function],
+  "findAllByTitle": [Function],
+  "findByAltText": [Function],
+  "findByDisplayValue": [Function],
+  "findByLabelText": [Function],
+  "findByPlaceholderText": [Function],
+  "findByRole": [Function],
+  "findByTestId": [Function],
+  "findByText": [Function],
+  "findByTitle": [Function],
+  "getAllByAltText": [Function],
+  "getAllByDisplayValue": [Function],
+  "getAllByLabelText": [Function],
+  "getAllByPlaceholderText": [Function],
+  "getAllByRole": [Function],
+  "getAllByTestId": [Function],
+  "getAllByText": [Function],
+  "getAllByTitle": [Function],
+  "getByAltText": [Function],
+  "getByDisplayValue": [Function],
+  "getByLabelText": [Function],
+  "getByPlaceholderText": [Function],
+  "getByRole": [Function],
+  "getByTestId": [Function],
+  "getByText": [Function],
+  "getByTitle": [Function],
+  "queryAllByAltText": [Function],
+  "queryAllByDisplayValue": [Function],
+  "queryAllByLabelText": [Function],
+  "queryAllByPlaceholderText": [Function],
+  "queryAllByRole": [Function],
+  "queryAllByTestId": [Function],
+  "queryAllByText": [Function],
+  "queryAllByTitle": [Function],
+  "queryByAltText": [Function],
+  "queryByDisplayValue": [Function],
+  "queryByLabelText": [Function],
+  "queryByPlaceholderText": [Function],
+  "queryByRole": [Function],
+  "queryByTestId": [Function],
+  "queryByText": [Function],
+  "queryByTitle": [Function],
+  "rerender": [Function],
+  "unmount": [Function],
+}
 `;

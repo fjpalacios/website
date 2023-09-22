@@ -16,10 +16,12 @@ module.exports = {
   globals: {
     __PATH_PREFIX__: ``,
   },
-  testURL: `http://localhost`,
-  setupFiles: [`<rootDir>/loadershim.js`],
+  verbose: true,
+  testEnvironment: 'jsdom',
+  testEnvironmentOptions: {
+    url: `http://localhost`,
+  },
   moduleFileExtensions: ['ts', 'tsx', 'js'],
   coverageReporters: ['lcov', 'text', 'html'],
-  snapshotSerializers: ['enzyme-to-json/serializer'],
-  setupFilesAfterEnv: ['<rootDir>/src/setup-enzyme.ts'],
+  setupFilesAfterEnv: ['@testing-library/jest-dom'],
 }

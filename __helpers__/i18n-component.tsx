@@ -1,13 +1,13 @@
-import React, { ReactChild } from 'react'
+import React, { ReactNode } from 'react'
 import { IntlProvider } from 'gatsby-plugin-intl'
 import locales from '../locales'
-import { mount } from 'enzyme'
+import { render } from '@testing-library/react'
 
 const createComponentWithIntl = (
-  children: ReactChild,
+  children: ReactNode,
   locale: 'en' | 'es' = 'en'
 ) => {
-  return mount(
+  return render(
     <IntlProvider locale={locale} messages={locales[locale]}>
       {children}
     </IntlProvider>

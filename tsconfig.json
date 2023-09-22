@@ -15,5 +15,10 @@
     "removeComments": false,
     "preserveConstEnums": true
   },
-  "exclude": ["node_modules", "public", ".cache"]
+  "exclude": [
+    "node_modules",
+    "public",
+    ".cache",
+    "src/components/__tests__/*.tsx"
+  ]
 }

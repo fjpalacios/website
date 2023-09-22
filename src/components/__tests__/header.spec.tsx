@@ -9,14 +9,16 @@ describe('Header', () => {
   })
 
   it('should show English language by default', () => {
-    const header = createComponentWithIntl(<Header />)
-    const subTitle = header.find('.header__subtitle').text()
+    const { container } = createComponentWithIntl(<Header />)
+    const subTitle =
+      container.querySelectorAll('.header__subtitle')[0].textContent
     expect(subTitle).toBe('Software Developer')
   })
 
   it('should show Spanish language if required', () => {
-    const header = createComponentWithIntl(<Header />, 'es')
-    const subTitle = header.find('.header__subtitle').text()
+    const { container } = createComponentWithIntl(<Header />, 'es')
+    const subTitle =
+      container.querySelectorAll('.header__subtitle')[0].textContent
     expect(subTitle).toBe('Desarrollador de software')
   })
 })

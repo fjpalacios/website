@@ -1,4 +1,4 @@
-name: Run Test Suites
+name: Run Test Suite
 on:
   push:
     branches-ignore:

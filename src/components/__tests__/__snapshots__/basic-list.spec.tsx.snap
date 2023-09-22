@@ -1,92 +1,116 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`BasicList should render properly 1`] = `
-<IntlProvider
-  defaultFormats={Object {}}
-  defaultLocale="en"
-  formats={Object {}}
-  locale="en"
-  messages={
-    Object {
-      "about": Object {
-        "internet": "Internet",
-        "me": "About me",
-      },
-      "menu": Object {
-        "switchTheme": "Switch Theme",
-        "toEnglish": "Switch to English language",
-        "toSpanish": "Switch to Spanish language",
-      },
-      "metaData": Object {
-        "description": "Francisco Javier Palacios Pérez's personal website, Software Developer based in Valencia (Spain)",
-        "image": "https://fjp.es/logo.jpg",
-        "twitterUsername": "@fjpalacios",
-        "url": "https://fjp.es",
-      },
-      "pages": Object {
-        "about": "About me",
-        "home": "Home",
-      },
-      "resume": Object {
-        "education": "Education",
-        "experience": "Experience",
-        "freelance": "Freelance work",
-        "me": "About me",
-        "projects": "Side projects",
-        "talks": "Talks / workshops",
-        "volunteering": "Volunteering",
-      },
-      "subtitle": "Software Developer",
-      "title": "Francisco Javier Palacios Pérez",
-    }
-  }
-  onError={[Function]}
-  textComponent={Symbol(react.fragment)}
->
-  <BasicList
-    data={
-      Array [
-        Object {
-          "dates": "10/07/1856",
-          "desc": "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
-          "location": "Location",
-          "name": "Lorem ipsum",
-        },
-      ]
-    }
-  >
-    <div
-      className="basic-list"
-      key="0"
-    >
+{
+  "asFragment": [Function],
+  "baseElement": <body>
+    <div>
       <div
-        className="basic-list__name"
+        class="basic-list"
       >
-        <Name>
+        <div
+          class="basic-list__name"
+        >
           <span>
             Lorem ipsum
           </span>
-        </Name>
+        </div>
+        <div
+          class="basic-list__dates"
+        >
+          10/07/1856
+        </div>
+        <div
+          class="basic-list__location"
+        >
+          Location
+        </div>
+        <div
+          class="basic-list__desc"
+        >
+          Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+        </div>
+      </div>
+    </div>
+  </body>,
+  "container": <div>
+    <div
+      class="basic-list"
+    >
+      <div
+        class="basic-list__name"
+      >
+        <span>
+          Lorem ipsum
+        </span>
       </div>
       <div
-        className="basic-list__dates"
+        class="basic-list__dates"
       >
         10/07/1856
       </div>
       <div
-        className="basic-list__location"
+        class="basic-list__location"
       >
         Location
       </div>
       <div
-        className="basic-list__desc"
-        dangerouslySetInnerHTML={
-          Object {
-            "__html": "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
-          }
-        }
-      />
+        class="basic-list__desc"
+      >
+        Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+      </div>
     </div>
-  </BasicList>
-</IntlProvider>
+  </div>,
+  "debug": [Function],
+  "findAllByAltText": [Function],
+  "findAllByDisplayValue": [Function],
+  "findAllByLabelText": [Function],
+  "findAllByPlaceholderText": [Function],
+  "findAllByRole": [Function],
+  "findAllByTestId": [Function],
+  "findAllByText": [Function],
+  "findAllByTitle": [Function],
+  "findByAltText": [Function],
+  "findByDisplayValue": [Function],
+  "findByLabelText": [Function],
+  "findByPlaceholderText": [Function],
+  "findByRole": [Function],
+  "findByTestId": [Function],
+  "findByText": [Function],
+  "findByTitle": [Function],
+  "getAllByAltText": [Function],
+  "getAllByDisplayValue": [Function],
+  "getAllByLabelText": [Function],
+  "getAllByPlaceholderText": [Function],
+  "getAllByRole": [Function],
+  "getAllByTestId": [Function],
+  "getAllByText": [Function],
+  "getAllByTitle": [Function],
+  "getByAltText": [Function],
+  "getByDisplayValue": [Function],
+  "getByLabelText": [Function],
+  "getByPlaceholderText": [Function],
+  "getByRole": [Function],
+  "getByTestId": [Function],
+  "getByText": [Function],
+  "getByTitle": [Function],
+  "queryAllByAltText": [Function],
+  "queryAllByDisplayValue": [Function],
+  "queryAllByLabelText": [Function],
+  "queryAllByPlaceholderText": [Function],
+  "queryAllByRole": [Function],
+  "queryAllByTestId": [Function],
+  "queryAllByText": [Function],
+  "queryAllByTitle": [Function],
+  "queryByAltText": [Function],
+  "queryByDisplayValue": [Function],
+  "queryByLabelText": [Function],
+  "queryByPlaceholderText": [Function],
+  "queryByRole": [Function],
+  "queryByTestId": [Function],
+  "queryByText": [Function],
+  "queryByTitle": [Function],
+  "rerender": [Function],
+  "unmount": [Function],
+}
 `;
