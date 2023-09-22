@@ -17,44 +17,49 @@ describe('LanguagesList', () => {
   })
 
   it('should show the name', () => {
-    const languagesList = createComponentWithIntl(<LanguagesList data={data} />)
-    const name = languagesList.find('.languages-list__name span').text()
+    const { container } = createComponentWithIntl(<LanguagesList data={data} />)
+    const name = container.querySelectorAll('.languages-list__name span')[0]
+      .textContent
     expect(name).toBe(data[0].name)
   })
 
   it('should show a url if it exists', () => {
     data[0].url = 'https://duckduckgo.com'
-    const languagesList = createComponentWithIntl(<LanguagesList data={data} />)
-    const name = languagesList.find('.languages-list__name a').text()
+    const { container } = createComponentWithIntl(<LanguagesList data={data} />)
+    const name = container.querySelectorAll('.languages-list__name a')[0]
+      .textContent
     expect(name).toBe(data[0].name)
     data[0].url = undefined
   })
 
   it('should show a list of languages', () => {
-    const languagesList = createComponentWithIntl(<LanguagesList data={data} />)
-    const location = languagesList
-      .find('.languages-list__languages li a')
-      .text()
+    const { container } = createComponentWithIntl(<LanguagesList data={data} />)
+    const location = container.querySelectorAll(
+      '.languages-list__languages li a'
+    )[0].textContent
     expect(location).toBe(`#${data[0].languages[0]}`)
   })
 
   it('should not show the dates if they are not defined', () => {
-    const languagesList = createComponentWithIntl(<LanguagesList data={data} />)
-    const dates = languagesList.find('.languages-list__dates')
+    const { container } = createComponentWithIntl(<LanguagesList data={data} />)
+    const dates = container.querySelectorAll('.languages-list__dates')[0]
+      ?.textContent
     expect(dates).toBeEmpty
   })
 
   it('should show the dates if they are defined', () => {
     data[0].dates = '10/07/1856'
-    const languagesList = createComponentWithIntl(<LanguagesList data={data} />)
-    const dates = languagesList.find('.languages-list__dates').text()
+    const { container } = createComponentWithIntl(<LanguagesList data={data} />)
+    const dates = container.querySelectorAll('.languages-list__dates')[0]
+      .textContent
     expect(dates).toBe(data[0].dates)
     data[0].dates = undefined
   })
 
   it('should show the description', () => {
-    const languagesList = createComponentWithIntl(<LanguagesList data={data} />)
-    const desc = languagesList.find('.languages-list__desc').text()
+    const { container } = createComponentWithIntl(<LanguagesList data={data} />)
+    const desc = container.querySelectorAll('.languages-list__desc')[0]
+      .textContent
     expect(desc).toBe(data[0].desc)
   })
 })
