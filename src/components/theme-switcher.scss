@@ -7,7 +7,6 @@
     &__image {
       width: 15px;
       height: 15px;
-      transition: all .45s ease;
       border-radius: 50%;
       background-color: transparent;
       box-shadow: inset 6px -5px 0 0 $text;
@@ -15,11 +14,13 @@
     }
 
     &:checked {
-      + label {
-        > .theme-switcher__selector__image {
+      +label {
+
+        /* stylelint-disable selector-class-pattern */
+        >.theme-switcher__selector__image {
+          /* stylelint-enable selector-class-pattern */
           width: 10px;
           height: 10px;
-          transition: all .45s ease;
           border-radius: 50%;
           background-color: $text;
           box-shadow:

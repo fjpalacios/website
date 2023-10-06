@@ -1,4 +1,4 @@
-export default {
+const data = {
   experience: [
     {
       name: 'Onestic',
@@ -85,13 +85,11 @@ export default {
     },
     {
       name: 'profesionaldelapsicologia.es',
-      url: 'http://www.profesionaldelapsicologia.es',
       desc: 'Página web de presentación del gabinete psicológico y sus servicios',
       languages: ['css3', 'html5', 'wordpress'],
     },
     {
       name: 'numismaticallamas.es',
-      url: 'https://numismaticallamas.es',
       desc: 'Tienda online de venta de monedas, billetes y medallas',
       languages: ['php', 'zencart'],
     },
@@ -99,15 +97,15 @@ export default {
   projects: [
     {
       name: 'sargantanacode.es',
-      url: 'https://sargantanacode.es',
-      desc: `Aplicación web desde donde enseño a programar<br />
-      Es además una aplicación de código abierto; código disponible en GitHub`,
+      desc: `Aplicación web para enseñar a programar<br />
+      Actualmente todo el contenido de esa web ha sido migrado al blog de esta página`,
       languages: ['html5', 'scss', 'rubyonrails'],
     },
     {
       name: 'fjp.es',
       url: 'https://fjp.es',
-      desc: 'Página web personal y blog',
+      desc: `Página web personal y blog<br />
+      Es además una aplicación de código abierto; código disponible en GitHub`,
       languages: ['gatsbyjs', 'html5', 'scss'],
     },
   ],
@@ -128,3 +126,5 @@ export default {
     },
   ],
 }
+
+export default data

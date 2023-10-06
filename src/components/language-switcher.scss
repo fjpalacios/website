@@ -1,9 +1,16 @@
 .language-switcher {
   line-height: 0;
 
-  img {
-    width: 100%;
-    max-width: 20px;
-    cursor: pointer;
+  button {
+    padding: 0;
+    border: 0;
+    background: transparent;
+    line-height: 0;
+
+    img {
+      width: 100%;
+      max-width: 20px;
+      cursor: pointer;
+    }
   }
 }

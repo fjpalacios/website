@@ -1,25 +1,11 @@
+import * as React from 'react'
 import './basic-list.scss'
-import React, { FunctionComponent, ReactElement } from 'react'
 
-export type basicList = {
-  name: string
-  url?: string
-  location: string
-  dates: string
-  desc: string
-}
-
-type basicListProps = {
-  data: basicList[]
-}
-
-export const BasicList: FunctionComponent<basicListProps> = ({
-  data,
-}): ReactElement => {
+const BasicList = ({ data }) => {
   return (
     <>
       {data.map((item, key) => {
-        const Name = (): ReactElement => {
+        const Name = () => {
           if (item.url) {
             return <a href={item.url}>{item.name}</a>
           }
@@ -34,13 +20,12 @@ export const BasicList: FunctionComponent<basicListProps> = ({
             </div>
             <div className="basic-list__dates">{item.dates}</div>
             <div className="basic-list__location">{item.location}</div>
-            <div
-              className="basic-list__desc"
-              dangerouslySetInnerHTML={{ __html: item.desc }}
-            ></div>
+            <div className="basic-list__desc" dangerouslySetInnerHTML={{ __html: item.desc }}></div>
           </div>
         )
       })}
     </>
   )
 }
+
+export default BasicList

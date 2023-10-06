@@ -1,4 +1,4 @@
-export default [
+const data = [
   {
     name: 'LinkedIn',
     link: 'https://www.linkedin.com/in/fjpalacios/',
@@ -42,3 +42,5 @@ export default [
     text: '671995762',
   },
 ]
+
+export default data

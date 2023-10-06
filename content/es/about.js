@@ -1,4 +1,4 @@
-export default {
+const data = {
   me: `
   <p>
     Mi nombre es Francisco Javier, aunque todo el mundo me conoce como Javi.
@@ -48,3 +48,5 @@ export default {
   </p>
   `,
 }
+
+export default data

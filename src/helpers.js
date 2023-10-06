@@ -1,18 +1,18 @@
-const getTheme = (): string => {
+const getTheme = () => {
   return document.body.classList.contains('dark') ? 'dark' : 'light'
 }
 
-const invertTheme = (): string => {
+const invertTheme = () => {
   return getTheme() === 'dark' ? 'light' : 'dark'
 }
 
-const saveTheme = (theme: string): void => {
+const saveTheme = (theme) => {
   if (typeof window !== 'undefined') {
     localStorage.setItem('theme', theme)
   }
 }
 
-export const getSavedTheme = (): string => {
+export const getSavedTheme = () => {
   if (typeof window !== 'undefined') {
     const savedTheme = localStorage.getItem('theme')
 
@@ -22,7 +22,7 @@ export const getSavedTheme = (): string => {
   return 'dark'
 }
 
-export const switchTheme = (): void => {
+export const switchTheme = () => {
   const currentTheme = getTheme()
   const newTheme = invertTheme()
 

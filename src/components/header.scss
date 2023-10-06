@@ -7,7 +7,6 @@
     'contact';
   margin-bottom: 40px;
   padding: 20px;
-  transition: all .45s ease;
   background-color: $primary;
   color: $inverted-text;
 
@@ -84,7 +83,6 @@
 
       a {
         display: flex;
-        transition: all .45s ease;
         color: $header-link;
 
         i {
