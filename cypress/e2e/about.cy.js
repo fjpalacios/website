@@ -10,7 +10,7 @@ describe('About', () => {
     cy.get('.menu .menu__left .language-switcher img').click()
     cy.get('html').should('have.attr', 'lang', 'en')
     cy.get('head title').should('have.text', 'About me - Francisco Javier Palacios Pérez')
-    cy.get('head meta[property="og:url"]').should('have.attr', 'content', 'http://localhost:8000/en/about/')
+    cy.get('head meta[property="og:url"]').should('have.attr', 'content', 'https://fjp.es/en/about/')
     cy.get('head meta[property="og:type"]').should('have.attr', 'content', 'website')
     cy.get('head meta[name="description"]').should(
       'have.attr',
@@ -23,7 +23,7 @@ describe('About', () => {
   it('should have valid Spanish SEO properties', () => {
     cy.get('html').should('have.attr', 'lang', 'es')
     cy.get('head title').should('have.text', 'Sobre mí - Francisco Javier Palacios Pérez')
-    cy.get('head meta[property="og:url"]').should('have.attr', 'content', 'http://localhost:8000/about/')
+    cy.get('head meta[property="og:url"]').should('have.attr', 'content', 'https://fjp.es/about/')
     cy.get('head meta[property="og:type"]').should('have.attr', 'content', 'website')
     cy.get('head meta[name="description"]').should(
       'have.attr',
