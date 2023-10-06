@@ -4,7 +4,6 @@
   &__main-block {
     margin-bottom: 40px;
     overflow: hidden;
-    transition: all .45s ease;
     border: 2px solid $primary;
 
     @include print {
@@ -25,10 +24,9 @@
       column-gap: 20px;
     }
 
-    > * {
+    >* {
       margin-bottom: 40px;
       overflow: hidden;
-      transition: all .45s ease;
       border: 2px solid $primary;
       break-inside: avoid;
 

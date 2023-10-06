@@ -1,23 +1,30 @@
-const autoprefixer = require('autoprefixer')
+const { languages, defaultLanguage } = require('./languages')
 
 module.exports = {
   plugins: [
-    'gatsby-plugin-typescript',
-    {
-      resolve: 'gatsby-plugin-intl',
-      options: {
-        path: `${__dirname}/locales`,
-        languages: ['en', 'es'],
-        defaultLanguage: 'en',
-        redirect: false,
-      },
-    },
     {
       resolve: 'gatsby-plugin-sass',
       options: {
         additionalData: `@import "${__dirname}/src/styles/main";`,
-        postCssPlugins: [autoprefixer({ grid: 'autoplace' })],
-        implementation: require('node-sass'),
+      },
+    },
+    {
+      resolve: 'gatsby-source-filesystem',
+      options: {
+        path: `${__dirname}/locales`,
+        name: 'locale',
+      },
+    },
+    {
+      resolve: 'gatsby-plugin-react-i18next',
+      options: {
+        languages,
+        defaultLanguage,
+        redirect: false,
+        i18nextOptions: {
+          fallbackLng: defaultLanguage,
+          supportedLngs: languages,
+        },
       },
     },
   ],

@@ -1,25 +1,11 @@
+import * as React from 'react'
 import './languages-list.scss'
-import React, { FunctionComponent, ReactElement } from 'react'
 
-export type languagesList = {
-  name: string
-  url?: string
-  dates?: string
-  desc: string
-  languages: string[]
-}
-
-type languagesListProps = {
-  data: languagesList[]
-}
-
-export const LanguagesList: FunctionComponent<languagesListProps> = ({
-  data,
-}): ReactElement => {
+const LanguagesList = ({ data }) => {
   return (
     <>
       {data.map((item, key) => {
-        const Name = (): ReactElement => {
+        const Name = () => {
           if (item.url) {
             return <a href={item.url}>{item.name}</a>
           }
@@ -27,7 +13,7 @@ export const LanguagesList: FunctionComponent<languagesListProps> = ({
           return <span>{item.name}</span>
         }
 
-        const Dates = (): ReactElement => {
+        const Dates = () => {
           if (item.dates) {
             return <div className="languages-list__dates">{item.dates}</div>
           }
@@ -45,20 +31,17 @@ export const LanguagesList: FunctionComponent<languagesListProps> = ({
               {item.languages.map((language, key) => {
                 return (
                   <li key={key}>
-                    <a
-                      href={`https://ddg.gg/?q=${language}`}
-                    >{`#${language}`}</a>
+                    <a href={`https://ddg.gg/?q=${language}`}>{`#${language}`}</a>
                   </li>
                 )
               })}
             </ul>
-            <div
-              className="languages-list__desc"
-              dangerouslySetInnerHTML={{ __html: item.desc }}
-            ></div>
+            <div className="languages-list__desc" dangerouslySetInnerHTML={{ __html: item.desc }}></div>
           </div>
         )
       })}
     </>
   )
 }
+
+export default LanguagesList

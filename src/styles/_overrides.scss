@@ -3,7 +3,6 @@
 }
 
 body {
-  transition: all .45s ease;
   background-color: $background;
   color: $text;
   font-family: Helvetica, Arial, sans-serif;
@@ -23,7 +22,6 @@ body {
 }
 
 a {
-  transition: all .45s ease;
   color: $accent;
   text-decoration: none;
 

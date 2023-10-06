@@ -16,7 +16,7 @@ exports[`Header should render properly 1`] = `
         <h2
           class="header__subtitle"
         >
-          Software Developer
+          Desarrollador de software
         </h2>
         <div
           class="header__contact"
@@ -26,7 +26,7 @@ exports[`Header should render properly 1`] = `
           >
             <a
               href="https://www.linkedin.com/in/fjpalacios/"
-              rel="noreferer"
+              rel="noreferrer"
               target="_blank"
             >
               <i
@@ -42,7 +42,7 @@ exports[`Header should render properly 1`] = `
           >
             <a
               href="mailto:javi@fjp.es"
-              rel="noreferer"
+              rel="noreferrer"
               target="_blank"
             >
               <i
@@ -58,7 +58,7 @@ exports[`Header should render properly 1`] = `
           >
             <a
               href="https://github.com/fjpalacios"
-              rel="noreferer"
+              rel="noreferrer"
               target="_blank"
             >
               <i
@@ -74,7 +74,7 @@ exports[`Header should render properly 1`] = `
           >
             <a
               href="https://fjp.es"
-              rel="noreferer"
+              rel="noreferrer"
               target="_blank"
             >
               <i
@@ -90,7 +90,7 @@ exports[`Header should render properly 1`] = `
           >
             <a
               href="https://twitter.com/fjpalacios"
-              rel="noreferer"
+              rel="noreferrer"
               target="_blank"
             >
               <i
@@ -106,7 +106,7 @@ exports[`Header should render properly 1`] = `
           >
             <a
               href="https://osm.org/go/b_qODpV--"
-              rel="noreferer"
+              rel="noreferrer"
               target="_blank"
             >
               <i
@@ -122,7 +122,7 @@ exports[`Header should render properly 1`] = `
           >
             <a
               href="tel:0034671995762"
-              rel="noreferer"
+              rel="noreferrer"
               target="_blank"
             >
               <i
@@ -149,7 +149,7 @@ exports[`Header should render properly 1`] = `
       <h2
         class="header__subtitle"
       >
-        Software Developer
+        Desarrollador de software
       </h2>
       <div
         class="header__contact"
@@ -159,7 +159,7 @@ exports[`Header should render properly 1`] = `
         >
           <a
             href="https://www.linkedin.com/in/fjpalacios/"
-            rel="noreferer"
+            rel="noreferrer"
             target="_blank"
           >
             <i
@@ -175,7 +175,7 @@ exports[`Header should render properly 1`] = `
         >
           <a
             href="mailto:javi@fjp.es"
-            rel="noreferer"
+            rel="noreferrer"
             target="_blank"
           >
             <i
@@ -191,7 +191,7 @@ exports[`Header should render properly 1`] = `
         >
           <a
             href="https://github.com/fjpalacios"
-            rel="noreferer"
+            rel="noreferrer"
             target="_blank"
           >
             <i
@@ -207,7 +207,7 @@ exports[`Header should render properly 1`] = `
         >
           <a
             href="https://fjp.es"
-            rel="noreferer"
+            rel="noreferrer"
             target="_blank"
           >
             <i
@@ -223,7 +223,7 @@ exports[`Header should render properly 1`] = `
         >
           <a
             href="https://twitter.com/fjpalacios"
-            rel="noreferer"
+            rel="noreferrer"
             target="_blank"
           >
             <i
@@ -239,7 +239,7 @@ exports[`Header should render properly 1`] = `
         >
           <a
             href="https://osm.org/go/b_qODpV--"
-            rel="noreferer"
+            rel="noreferrer"
             target="_blank"
           >
             <i
@@ -255,7 +255,7 @@ exports[`Header should render properly 1`] = `
         >
           <a
             href="tel:0034671995762"
-            rel="noreferer"
+            rel="noreferrer"
             target="_blank"
           >
             <i

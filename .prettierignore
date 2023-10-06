@@ -1,3 +1,5 @@
 .cache
 package.json
 public
+coverage
+static

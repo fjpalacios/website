@@ -1,7 +1,6 @@
-import '@testing-library/jest-dom'
+import * as React from 'react'
+import Title from '../title'
 import createComponentWithIntl from '../../../__helpers__/i18n-component'
-import React from 'react'
-import { Title } from '../title'
 
 describe('Title', () => {
   it('should render properly', () => {
