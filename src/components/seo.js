@@ -1,15 +1,17 @@
 import * as React from 'react'
 import { useI18next } from 'gatsby-plugin-react-i18next'
+import { useLocation } from '@reach/router'
 import Helmet from 'react-helmet'
 
 function Seo({ title, description, image }) {
   const { t, language } = useI18next()
+  const { pathname } = useLocation()
 
   const site = {
     title: title ? `${title} - ${t('title')}` : t('title'),
     description: description || t('metaData.description'),
     image: image || t('metaData.image'),
-    url: window.location.href,
+    url: `${t('metaData.url')}${pathname}`,
     twitterUsername: t('metaData.twitterUsername'),
   }
 
