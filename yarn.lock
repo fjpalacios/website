@@ -6705,10 +6705,10 @@ gatsby-plugin-react-i18next@^3.0.1:
     outdent "^0.8.0"
     path-to-regexp "^6.2.1"
 
-gatsby-plugin-sass@^6.12.0:
-  version "6.12.0"
-  resolved "https://registry.yarnpkg.com/gatsby-plugin-sass/-/gatsby-plugin-sass-6.12.0.tgz#994f1cbe501e3c61fc869eedd387d73cf7a0c258"
-  integrity sha512-nAQ5Y0zLSxoexXmWCNo6AzTbCTJ8GTMtdCRF379dCnssUh3bFewdnaGraN8z7mTVb1Q12TfcRF+D4VGvVm/oig==
+gatsby-plugin-sass@^6.13.0:
+  version "6.13.0"
+  resolved "https://registry.yarnpkg.com/gatsby-plugin-sass/-/gatsby-plugin-sass-6.13.0.tgz#a39d5a56bd64998226889ce88828e4832b70db68"
+  integrity sha512-AgOJsLeqpgaJUt6gTLrM28yg67jV0KPD3z27zGtSjL8KTFO4DLYDc8Ldd91vU6onk91mmiJsBy84Cy3fs3/6Ng==
   dependencies:
     "@babel/runtime" "^7.20.13"
     resolve-url-loader "^3.1.5"
