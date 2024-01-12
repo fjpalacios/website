@@ -98,7 +98,7 @@ const data = {
     {
       name: 'sargantanacode.es',
       desc: `Aplicación web para enseñar a programar<br />
-      Actualmente todo el contenido de esa web ha sido migrado al blog de esta página`,
+      Actualmente todo el contenido de esa web ha sido migrado al blog de fjp.es`,
       languages: ['html5', 'scss', 'rubyonrails'],
     },
     {
