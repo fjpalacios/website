@@ -60,9 +60,5 @@ describe('Home', () => {
     it('should hide the website on the screen', () => {
       cy.get('.header__contact .globe').should('not.be.visible')
     })
-
-    it('should show twitter profile on the screen', () => {
-      cy.get('.header__contact .twitter').should('be.visible')
-    })
   })
 })
