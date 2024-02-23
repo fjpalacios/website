@@ -21,6 +21,7 @@ const BasicList = ({ data }) => {
             <div className="basic-list__dates">{item.dates}</div>
             <div className="basic-list__location">{item.location}</div>
             <div className="basic-list__desc" dangerouslySetInnerHTML={{ __html: item.desc }}></div>
+            <div className="basic-list__extendedDesc" dangerouslySetInnerHTML={{ __html: item.extendedDesc }}></div>
           </div>
         )
       })}

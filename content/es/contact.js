@@ -24,12 +24,6 @@ const data = [
     text: 'fjp.es',
   },
   {
-    name: 'Twitter',
-    link: 'https://twitter.com/fjpalacios',
-    icon: 'twitter',
-    text: 'fjpalacios',
-  },
-  {
     name: 'Ubicación',
     link: 'https://osm.org/go/b_qODpV--',
     icon: 'location',
