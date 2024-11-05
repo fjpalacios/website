@@ -1,7 +1,7 @@
 FROM node:lts-buster-slim AS build
 WORKDIR /app
 COPY package.json yarn.lock ./
-RUN yarn install --pure-lockfile
+RUN yarn install
 COPY . .
 
 FROM build as static
