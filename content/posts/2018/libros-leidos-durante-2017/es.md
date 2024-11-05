@@ -36,28 +36,34 @@ también un ojo a la web: [sargantanacode.es](https://sargantanacode.es), que no
 tengo constancia de que haya mordido a nadie. 😛
 
 ### Enero
+
 1. <BookLink title="Cuentos de Navidad, de Charles Dickens" full="true" />.
 2. <BookLink title="Harry Potter y el cáliz de fuego, de J. K. Rowling" full="true" />.
 3. <BookLink title="El misterioso caso de Styles, de Agatha Christie" full="true" />.
 4. <BookLink title="Todo esto te daré, de Dolores Redondo" full="true" />.
 
 ### Abril
+
 5. <BookLink title="Apocalipsis, de Stephen King" full="true" />.
 
 ### Mayo
+
 6. <BookLink title="Frankenstein, de Mary Shelley" full="true" />.
 7. <BookLink title="Harry Potter y la Orden del Fénix, de J. K. Rowling" full="true" />.
 
 ### Julio
+
 8. <BookLink title="Kallocaína, de Karin Boye" full="true" />.
 9. <BookLink title="Introducción a la programación con Python, de Andrés Marzal" full="true" />.
 
 ### Agosto
+
 10. <BookLink title="Los ritos del agua, de Eva García Sáenz de Urturi" full="true" />.
 11. <BookLink title="La princesa de hielo, de Camilla Läckberg" full="true" />.
 12. <BookLink title="Código limpio, de Robert C. Martin" full="true" />.
 
 ### Noviembre
+
 13. <BookLink title="El amante japonés, de Isabel Allende" full="true" />.
 
 <SkillBarYear year="2017" />
