@@ -2,6 +2,7 @@
   display: grid;
   grid-template-areas:
     'name dates'
+    'role location-role'
     'location .'
     'desc desc'
     'extendedDesc extendedDesc';
@@ -18,8 +19,20 @@
     text-transform: uppercase;
   }
 
+  &__role {
+    grid-area: role;
+    font-weight: bold;
+    text-transform: uppercase;
+  }
+
   &__location {
     grid-area: location;
+
+    &--with-role {
+      display: grid;
+      grid-area: location-role;
+      justify-content: end;
+    }
   }
 
   &__dates {
@@ -30,6 +43,7 @@
 
   &__desc {
     grid-area: desc;
+
     @include screen {
       display: none;
     }
@@ -37,6 +51,7 @@
 
   &__extendedDesc {
     grid-area: extendedDesc;
+
     @include print {
       display: none;
     }
