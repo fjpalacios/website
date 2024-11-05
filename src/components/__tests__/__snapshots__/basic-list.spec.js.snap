@@ -30,6 +30,9 @@ exports[`BasicList should render properly 1`] = `
         >
           Lorem ipsum dolor sit amet, consectetur adipiscing elit.
         </div>
+        <div
+          class="basic-list__extendedDesc"
+        />
       </div>
     </div>
   </body>,
@@ -59,6 +62,9 @@ exports[`BasicList should render properly 1`] = `
       >
         Lorem ipsum dolor sit amet, consectetur adipiscing elit.
       </div>
+      <div
+        class="basic-list__extendedDesc"
+      />
     </div>
   </div>,
   "debug": [Function],
