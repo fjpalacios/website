@@ -119,7 +119,7 @@ const data = {
     {
       name: 'sargantanacode.es',
       desc: `Web application to teach programming<br />
-      Currently all the content of that website has been moved to the blog of this page.`,
+      Currently all the content of that website has been moved to the blog of fjp.es.`,
       languages: ['html5', 'scss', 'rubyonrails'],
     },
     {

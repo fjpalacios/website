@@ -80,6 +80,9 @@
 
     &__item {
       cursor: pointer;
+      display: grid;
+      justify-content: start;
+      align-content: center;
 
       a {
         display: flex;
