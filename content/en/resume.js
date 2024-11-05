@@ -4,8 +4,15 @@ const data = {
       name: 'Onestic',
       url: 'https://onestic.com',
       location: 'Valencia',
-      dates: 'Mar 2020 - Present',
-      desc: 'DevOps Engineer',
+      dates: 'Mar 2020 - Jan 2024',
+      desc: 'Creation of tools (Python, Bash Scripting) and automation (Concourse, GitHub Actions) for developers. Dockerisation of projects. Code standardisation and a lot of testing (Python, JavaScript, Typescript) to ensure the best possible quality. Mentoring of newcomers during the onboarding process and beyond. Creation of a centralised log viewer (Promtail, Loki, Grafana). Creation of tools (Django, django_rest_framework, celery) to automate and speed up the creation of machines. Creation, configuration and maintenance (SaltStack, Terraform) of machines in Linux environment (CentOS, Ubuntu)',
+      extendedDesc: `Facilitate synergies and work between development and systems teams through automation, testing (TDD and BDD) and dockerisation of projects to ensure everyone works efficiently and minimising the appearance of errors. Standardisation of code to ensure its quality and homogeneity. Testing, testing and more testing; the core of it all. Mentoring of newcomers, supervising PRs, teaching the company's philosophy and acting as a guide both during the onboarding process and afterwards.<br/><br/>
+      Centralised log viewer of all the company's machines, using the Promtail, Loki and Grafana services, which not only made it possible to monitor the services of the machines without accessing the machine itself, but also to create panels and alerts that can warn through a communication channel if something is detected as not working properly.<br/><br/>
+      Tool created in Django with django_rest_framework (api), celery (queue management) and gui (JS, HTML and CSS) to automate and speed up the process of creating machines for clients.<br/><br/>
+      Main programming languages: Python ( typed), Bash Scripting and JavaScript/Typescript.<br/>
+      Main system tools used: Terraform (HCL) and SaltStack (yaml, jinja).<br/>
+      Main orchestration tools: Concourse and GitHub Actions.<br/><br/>
+      Configuration and management of services in Linux environments (CentOS and Ubuntu).`,
     },
     {
       name: 'Avantio',
@@ -13,6 +20,7 @@ const data = {
       location: 'Paterna',
       dates: 'Sep 2019 - Feb 2020',
       desc: 'Full Stack Developer (MEAN Stack)',
+      extendedDesc: 'Full Stack Developer (MEAN Stack)',
     },
     {
       name: 'Avantio',
@@ -20,26 +28,30 @@ const data = {
       location: 'Paterna',
       dates: 'Mar 2019 - Sep 2019',
       desc: 'Frontend Web Developer',
+      extendedDesc: 'Frontend Web Developer',
     },
     {
       name: 'Churba & Portillo',
       url: 'https://www.churbayportillo.com/',
       location: 'Murcia',
       dates: 'Jan 2010 - Jun 2010',
-      desc: `Graphic Designer and Web Developer<br />
-        Maintenance and management of a VPS`,
+      desc: `Graphic Designer and Web Developer. Maintenance and management of a VPS`,
+      extendedDesc: `Graphic Designer and Web Developer. Maintenance and management of a VPS`,
     },
     {
       name: 'CP San Luis',
       location: 'Buñol',
       dates: 'Sep 2008 - Jun 2009',
       desc: 'Computer teacher for students of all primary education courses',
+      extendedDesc: 'Computer teacher for students of all primary education courses',
     },
     {
       name: 'Jepsi',
       location: 'Castellón',
       dates: 'Aug 2004 - Jan 2007',
       desc: `Customer service, technical troubleshooting and software
+        installation in Linux environments`,
+      extendedDesc: `Customer service, technical troubleshooting and software
         installation in Linux environments`,
     },
   ],
@@ -72,6 +84,7 @@ const data = {
       location: 'Cheste',
       dates: '2017 - 2019',
       desc: 'Higher National Diploma, Multi-platform Applications Development (EQF 5)',
+      extendedDesc: 'Higher National Diploma, Multi-platform Applications Development (EQF 5)',
     },
   ],
   freelance: [
@@ -119,6 +132,7 @@ const data = {
       location: 'Cheste',
       dates: '14 Dec 2018',
       desc: 'Workshop at The Hour of Code',
+      extendedDesc: 'Workshop at The Hour of Code',
     },
   ],
 }

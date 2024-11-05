@@ -4,8 +4,15 @@ const data = {
       name: 'Onestic',
       url: 'https://onestic.com',
       location: 'Valencia',
-      dates: 'Mar 2020 - Actualidad',
-      desc: 'Ingeniero DevOps',
+      dates: 'Mar 2020 - Ene 2024',
+      desc: 'Creación de herramientas (Python, Bash Scripting) de automatización (Concourse, GitHub Actions) para los desarrolladores. <em>Dockerización</em> de  proyectos. Estandarización de código y muchisimo testing (Python, JavaScript, Typescript) para asegurar la mejor calidad posible.  Mentorizacion a compañeros recién llegados durante el proceso de onboarding y más allá. Creador de un visualizador de logs centralizado (Promtail, Loki, Grafana). Creación de herramienta (Django, django_rest_framework, celery) para automatizar y agilizar la creación de máquinas. Creación, configuración y mantenimiento (SaltStack, Terraform) de máquinas en entorno Linux (CentOS, Ubuntu)',
+      extendedDesc: `Facilitar sinergias y trabajo entre equipos de desarrollo y de sistemas mediante la automatización, pruebas (TDD y BDD) y <em>dockerización</em> de proyectos para que todo el mundo trabaje de forma eficiente y minimizando la aparición de errores. Estandarizaciones de código para asegurar la calidad y homogeneidad del mismo. Testing, testing y más testing; la clave de todo. Mentorización a recién llegados, supervisando PRs, enseñando la filosofía de la empresa y haciendo de guía tanto durante el proceso de onboarding como posteriormente.<br/><br/>
+      Visualizador centralizado de logs de todas las máquinas de la empresa, mediante el uso de los servicios Promtail, Loki y Grafana, a través del cual no sólo se podían monitorizar los servicios de las máquinas sin entrar a la propia máquina en sí sino también crear paneles y alertas que puedan avisar mediante un canal de comunicación si se detecta que algo no funciona bien.<br/><br/>
+      Herramienta creada en Django con django_rest_framework (api), celery (gestión de colas) y gui (JS, HTML y CSS) para automatizar y agilizar el proceso de creación de máquinas para clientes.<br/><br/>
+      Principales lenguajes de programación: Python (tipado), Bash Scripting y JavaScript/Typescript.<br/>
+      Principales herramientas de sistemas utilizadas: Terraform (HCL) y SaltStack (yaml, jinja).<br/>
+      Principales herramientas de orquestación: Concourse y GitHub Actions.<br/><br/>
+      Configuración y gestión de servicios en entornos Linux (CentOS y Ubuntu)`,
     },
     {
       name: 'Avantio',
@@ -13,6 +20,7 @@ const data = {
       location: 'Paterna',
       dates: 'Sep 2019 - Feb 2020',
       desc: 'Desarrollador web full-stack (MEAN Stack)',
+      extendedDesc: 'Desarrollador web full-stack (MEAN Stack)',
     },
     {
       name: 'Avantio',
@@ -20,26 +28,30 @@ const data = {
       location: 'Paterna',
       dates: 'Mar 2019 - Sep 2019',
       desc: 'Desarrollador web frontend',
+      extendedDesc: 'Desarrollador web frontend',
     },
     {
       name: 'Churba & Portillo',
       url: 'https://www.churbayportillo.com/',
       location: 'Murcia',
       dates: 'Ene 2010 - Jun 2010',
-      desc: `Diseñador gráfico y desarrollador web<br />
-        Mantenimiento y administración de un VPS`,
+      desc: `Diseñador gráfico y desarrollador web. Mantenimiento y administración de un VPS`,
+      extendedDesc: `Diseñador gráfico y desarrollador web. Mantenimiento y administración de un VPS`,
     },
     {
       name: 'CP San Luis',
       location: 'Buñol',
       dates: 'Sep 2008 - Jun 2009',
       desc: 'Profesor de informática para niños de todos los cursos de primaria',
+      extendedDesc: 'Profesor de informática para niños de todos los cursos de primaria',
     },
     {
       name: 'Jepsi',
       location: 'Castellón',
       dates: 'Ago 2004 - Ene 2007',
       desc: `Atención al cliente, resolución de problemas técnicos e instalación
+        de software en entornos Linux `,
+      extendedDesc: `Atención al cliente, resolución de problemas técnicos e instalación
         de software en entornos Linux `,
     },
   ],
@@ -75,6 +87,7 @@ const data = {
       location: 'Cheste',
       dates: '2017 - 2019',
       desc: 'Técnico superior, Desarrollo de aplicaciones multiplataforma (EQF 5)',
+      extendedDesc: 'Técnico superior, Desarrollo de aplicaciones multiplataforma (EQF 5)',
     },
   ],
   freelance: [
@@ -123,6 +136,7 @@ const data = {
       location: 'Cheste',
       dates: '14 Dic 2018',
       desc: 'Taller en La hora del código',
+      extendedDesc: 'Taller en La hora del código',
     },
   ],
 }
