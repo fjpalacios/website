@@ -86,22 +86,6 @@ exports[`Header should render properly 1`] = `
             </a>
           </div>
           <div
-            class="header__contact__item twitter"
-          >
-            <a
-              href="https://twitter.com/fjpalacios"
-              rel="noreferrer"
-              target="_blank"
-            >
-              <i
-                class="icon-twitter"
-              />
-              <p>
-                fjpalacios
-              </p>
-            </a>
-          </div>
-          <div
             class="header__contact__item location"
           >
             <a
@@ -215,22 +199,6 @@ exports[`Header should render properly 1`] = `
             />
             <p>
               fjp.es
-            </p>
-          </a>
-        </div>
-        <div
-          class="header__contact__item twitter"
-        >
-          <a
-            href="https://twitter.com/fjpalacios"
-            rel="noreferrer"
-            target="_blank"
-          >
-            <i
-              class="icon-twitter"
-            />
-            <p>
-              fjpalacios
             </p>
           </a>
         </div>
