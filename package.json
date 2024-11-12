@@ -45,7 +45,7 @@
     "@commitlint/cli": "^18.4.3",
     "@testing-library/cypress": "^10.0.1",
     "@testing-library/jest-dom": "^6.6.3",
-    "@testing-library/react": "^14.0.0",
+    "@testing-library/react": "^15.0.5",
     "axe-core": "^4.10.2",
     "babel-jest": "^29.7.0",
     "babel-preset-gatsby": "^3.12.0",
