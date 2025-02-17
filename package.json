@@ -41,7 +41,7 @@
     "sass": "^1.85.0"
   },
   "devDependencies": {
-    "@commitlint/config-conventional": "^19.6.0",
+    "@commitlint/config-conventional": "^19.7.1",
     "@commitlint/cli": "^19.7.1",
     "@testing-library/cypress": "^10.0.3",
     "@testing-library/jest-dom": "^6.6.3",
