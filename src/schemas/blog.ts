@@ -102,3 +102,32 @@ export const tutorialsSchema = z.object({
 });
 
 export type Tutorial = z.infer<typeof tutorialsSchema>;
+
+// Authors collection schema (taxonomy)
+export const authorsSchema = z.object({
+  // Basic metadata
+  name: z.string().min(1),
+  author_slug: z.string().min(1),
+  bio: z.string().min(1),
+  language: z.enum(["es", "en"]),
+
+  // Optional personal information
+  gender: z.enum(["male", "female", "other"]).optional(),
+  birth_year: z.number().int().positive().max(new Date().getFullYear()).optional(),
+  death_year: z.number().int().positive().optional(),
+  nationality: z.string().optional(),
+
+  // Media
+  picture: z.string().optional(), // Relative path to author picture
+
+  // Social links
+  website: z.string().url().optional(),
+  twitter: z.string().optional(), // Twitter handle (with or without @)
+  goodreads: z.string().url().optional(),
+  wikipedia: z.string().url().optional(),
+
+  // i18n
+  i18n: z.string().optional(), // Slug of translated version
+});
+
+export type Author = z.infer<typeof authorsSchema>;
