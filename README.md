@@ -272,11 +272,29 @@ Automated dependency management configured in `.github/dependabot.yml`:
 
 ## 📝 Contributing
 
-While this is a personal website, feel free to:
+This is a personal website, but contributions are welcome! Please see [CONTRIBUTING.md](.github/CONTRIBUTING.md) for details on:
 
-- Report bugs or accessibility issues
-- Suggest improvements
-- Use the project structure and setup as a reference for your own projects
+- Development workflow (feature branches, PRs)
+- Branch naming conventions
+- Commit message format (Conventional Commits)
+- Testing requirements
+- Code review process
+
+### Quick Start for Contributors:
+
+```bash
+# 1. Create a feature branch
+git checkout -b feature/your-feature
+
+# 2. Make changes and commit
+git commit -m "feat: add new feature"
+
+# 3. Push and create PR
+git push -u origin feature/your-feature
+gh pr create --title "feat: add new feature"
+```
+
+**Note**: The `master` branch is protected. All changes must go through pull requests and pass CI/CD checks.
 
 ## 📄 License
 
