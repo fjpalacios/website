@@ -2,230 +2,144 @@
 @use "../variables" as *;
 
 .book {
-  &__header {
-    background: $primary;
-    border-radius: 12px;
-    padding: 2rem;
-    margin-bottom: 2rem;
-    border-left: 4px solid $accent;
-  }
+  grid-column: span 6;
 
-  &__title {
-    font-size: 2.5rem;
-    color: $accent;
-    margin-bottom: 0.5rem;
-    font-weight: 700;
+  &__content {
+    display: grid;
+    margin-bottom: 20px;
+    row-gap: 3vw;
+    justify-items: center;
 
     @include small-and-up {
-      font-size: 3rem;
+      grid-template-columns: 120px 1fr;
+      align-content: center;
+      margin-bottom: 20px;
+      column-gap: 1vw;
     }
-  }
 
-  &__meta {
-    color: $text;
-    font-size: 0.95rem;
-    margin-bottom: 1rem;
-    opacity: 0.8;
+    &__cover {
+      width: 100px;
+      text-align: center;
+
+      @include small-and-up {
+        width: 120px;
+      }
+
+      img {
+        width: 100%;
+        margin: 0 auto;
+      }
+    }
+
+    &__content {
+      border: 2px solid $primary;
+
+      &__data {
+        padding: 0 20px 20px;
+
+        @include small-and-up {
+          display: grid;
+          grid-template-columns: 1fr 1fr;
+          justify-content: center;
+          margin-top: -20px;
+          padding: 0 20px 20px;
+          text-align: center;
+        }
+
+        &__buy,
+        &__publisher {
+          display: flex;
+
+          @include small-and-up {
+            align-items: center;
+            justify-content: center;
+          }
+        }
+
+        > * {
+          margin-top: 20px;
+        }
+      }
+
+      .text-area {
+        img,
+        span.gatsby-resp-image-background-image {
+          width: calc(100% + 40px) !important;
+          margin: 0 -20px !important;
+        }
+      }
+
+      h4 {
+        margin: 20px 0 20px -20px;
+        padding: 4px 11px 5px 20px;
+        background-image: linear-gradient(to right, $primary, $background);
+        color: $inverted-text;
+
+        @include medium-and-up {
+          padding: 4px 11px 2px 20px;
+          font-weight: 100;
+        }
+      }
+    }
   }
 
   &__info {
     display: grid;
-    grid-template-columns: 1fr;
-    gap: 1rem;
-    margin-top: 1.5rem;
+    grid-template-columns: 20px 1fr;
+    align-content: center;
+    margin-bottom: 10px;
+    padding: 0 20px;
+    column-gap: 1vw;
 
     @include small-and-up {
-      grid-template-columns: repeat(2, 1fr);
+      margin-left: 135px;
     }
 
-    @include medium-and-up {
-      grid-template-columns: repeat(3, 1fr);
-    }
-  }
-
-  &__info-item {
-    background: $background;
-    padding: 1rem;
-    border-radius: 8px;
-  }
-
-  &__info-label {
-    color: $text;
-    font-size: 0.85rem;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-    margin-bottom: 0.25rem;
-    opacity: 0.6;
-  }
-
-  &__info-value {
-    color: $text;
-    font-size: 1.1rem;
-    font-weight: 500;
-
-    a {
-      color: $accent;
-      text-decoration: none;
-
-      &:hover {
-        text-decoration: underline;
+    &__text {
+      &__item {
+        text-transform: capitalize;
       }
     }
   }
+}
 
-  &__score {
-    color: $accent;
-    font-size: 1.5rem;
+i {
+  font-size: 1em;
 
-    &--fav {
-      color: #ef4444;
-    }
+  @include medium-and-up {
+    font-size: 0.8em;
   }
+}
 
-  &__genres {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.5rem;
-    margin-top: 0.5rem;
-  }
+.score {
+  margin-top: 10px;
+}
 
-  &__genre-tag {
-    background: $background;
-    color: $accent;
-    padding: 0.25rem 0.75rem;
-    border-radius: 20px;
-    font-size: 0.85rem;
-    border: 1px solid $accent;
-  }
+.book__content__content__data,
+.book__info {
+  ul {
+    margin: 0;
+    padding-left: 10px;
+    list-style: none;
 
-  &__synopsis {
-    background: $primary;
-    padding: 1.5rem;
-    border-radius: 8px;
-    margin-bottom: 2rem;
-    border-left: 3px solid $accent;
+    @include small-and-up {
+      li {
+        display: inline-block;
+        padding-right: 1vw;
 
-    &-title {
-      color: $accent;
-      font-size: 1.2rem;
-      margin-bottom: 1rem;
-      font-weight: 600;
-    }
+        &::after {
+          content: "-";
+          padding-left: 1vw;
+        }
 
-    &-text {
-      color: $text;
-      font-style: italic;
-      line-height: 1.8;
-      opacity: 0.9;
-    }
-  }
+        &:last-of-type {
+          padding-right: 0;
 
-  &__content {
-    background: $primary;
-    padding: 2rem;
-    border-radius: 8px;
-    margin-bottom: 2rem;
-    line-height: 1.8;
-
-    :global(h1),
-    :global(h2),
-    :global(h3) {
-      color: $accent;
-      margin-top: 2rem;
-      margin-bottom: 1rem;
-      font-weight: 600;
-    }
-
-    :global(h1) {
-      font-size: 2rem;
-    }
-
-    :global(h2) {
-      font-size: 1.5rem;
-    }
-
-    :global(h3) {
-      font-size: 1.2rem;
-    }
-
-    :global(p) {
-      margin-bottom: 1rem;
-      color: $text;
-    }
-
-    :global(ul),
-    :global(ol) {
-      margin-left: 1.5rem;
-      margin-bottom: 1rem;
-      color: $text;
-    }
-
-    :global(li) {
-      margin-bottom: 0.5rem;
-    }
-
-    :global(strong) {
-      color: $text;
-      font-weight: 600;
-    }
-
-    :global(code) {
-      background: $background;
-      padding: 0.2rem 0.4rem;
-      border-radius: 4px;
-      font-family: "Courier New", monospace;
-      font-size: 0.9rem;
-      color: $code;
-    }
-
-    :global(pre) {
-      background: $background;
-      padding: 1rem;
-      border-radius: 8px;
-      overflow-x: auto;
-      margin-bottom: 1rem;
-
-      code {
-        background: none;
-        padding: 0;
+          &::after {
+            content: "";
+          }
+        }
       }
-    }
-  }
-
-  &__buy-links {
-    background: $primary;
-    padding: 1.5rem;
-    border-radius: 8px;
-    border-left: 3px solid $accent;
-
-    &-title {
-      color: $accent;
-      font-size: 1.2rem;
-      margin-bottom: 1rem;
-      font-weight: 600;
-    }
-
-    &-list {
-      display: flex;
-      gap: 1rem;
-      flex-wrap: wrap;
-    }
-  }
-
-  &__buy-link {
-    background: $background;
-    color: $text;
-    padding: 0.75rem 1.5rem;
-    border-radius: 8px;
-    text-decoration: none;
-    transition: all 0.2s;
-    border: 2px solid $accent;
-    font-weight: 500;
-
-    &:hover {
-      background: $accent;
-      color: $background;
-      transform: translateY(-2px);
     }
   }
 }
