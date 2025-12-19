@@ -1,0 +1,23 @@
+# Code Owners
+# These users will be automatically requested for review when someone opens a PR
+
+# Default owner for everything
+* @fjpalacios
+
+# Workflows and CI/CD
+/.github/workflows/ @fjpalacios
+
+# Documentation
+*.md @fjpalacios
+# /docs/ @fjpalacios  # reserved for future documentation directory
+
+# Tests
+/e2e/ @fjpalacios
+/src/__tests__/ @fjpalacios
+*.test.ts @fjpalacios
+*.spec.ts @fjpalacios
+
+# Configuration files
+package.json @fjpalacios
+tsconfig.json @fjpalacios
+*.config.* @fjpalacios
