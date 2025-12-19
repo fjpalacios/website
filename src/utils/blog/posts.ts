@@ -15,6 +15,7 @@ export interface PostSummary {
   category: string;
   tags: string[];
   draft: boolean;
+  cover?: string;
   featuredImage?: string;
   updateDate?: Date;
   canonicalUrl?: string;
@@ -35,6 +36,7 @@ export function preparePostSummary(post: CollectionEntry<"posts">): PostSummary 
     category: post.data.category,
     tags: post.data.tags,
     draft: post.data.draft,
+    cover: post.data.cover || post.data.featured_image,
     featuredImage: post.data.featured_image,
     updateDate: post.data.update_date,
     canonicalUrl: post.data.canonical_url,

@@ -1,21 +1,94 @@
 @use "../mixins" as *;
 @use "../variables" as *;
 
-.post-list {
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: 2rem;
-  margin-bottom: 2rem;
+.blog {
+  grid-column: span 12;
 
-  @include small-and-up {
-    grid-template-columns: repeat(2, 1fr);
-  }
+  &__grid {
+    display: flex;
+    flex-direction: column;
 
-  @include medium-and-up {
-    grid-template-columns: repeat(2, 1fr);
-  }
+    @include medium-and-up {
+      display: grid;
+      grid-template-areas:
+        "post-1 post-2"
+        "post-3 post-4"
+        "post-5 post-6"
+        "post-7 post-8"
+        "post-9 post-10";
+      grid-template-columns: repeat(auto-fit, calc(50% - 20px));
+      column-gap: 40px;
+    }
 
-  @include large {
-    grid-template-columns: repeat(3, 1fr);
+    > a {
+      transition: all 0.5s ease;
+    }
+
+    > * {
+      margin-bottom: 40px;
+      overflow: hidden;
+      transition: all 0.45s ease;
+      border: 2px solid $primary;
+      color: $text;
+      break-inside: avoid;
+
+      @include medium-and-up {
+        .text-area {
+          min-height: 65px;
+        }
+      }
+
+      &:nth-child(1) {
+        grid-area: post-1;
+      }
+
+      &:nth-child(2) {
+        grid-area: post-2;
+      }
+
+      &:nth-child(3) {
+        grid-area: post-3;
+      }
+
+      &:nth-child(4) {
+        grid-area: post-4;
+      }
+
+      &:nth-child(5) {
+        grid-area: post-5;
+      }
+
+      &:nth-child(6) {
+        grid-area: post-6;
+      }
+
+      &:nth-child(7) {
+        grid-area: post-7;
+      }
+
+      &:nth-child(8) {
+        grid-area: post-8;
+      }
+
+      &:nth-child(9) {
+        grid-area: post-9;
+      }
+
+      &:nth-child(10) {
+        grid-area: post-10;
+      }
+    }
   }
+}
+
+.dark .blog__grid > a:hover {
+  box-shadow:
+    8px 14px 8px rgba(139, 144, 149, 0.08),
+    1px 3px 8px rgba(139, 144, 149, 0.08);
+}
+
+.light .blog__grid > a:hover {
+  box-shadow:
+    8px 14px 8px rgba(39, 44, 49, 0.08),
+    1px 3px 8px rgba(39, 44, 49, 0.08);
 }

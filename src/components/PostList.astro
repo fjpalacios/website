@@ -1,16 +1,33 @@
 ---
-import PostCard from "@components/PostCard.astro";
+import PostTitle from "@components/PostTitle.astro";
+import { Image } from "astro:assets";
 
 import type { PostSummary } from "@/utils/blog";
 
 interface Props {
   posts: PostSummary[];
-  lang?: string;
 }
 
-const { posts, lang = "es" } = Astro.props;
+const { posts } = Astro.props;
+
+// Default cover image fallback
+const defaultCover = "/images/defaults/post-default.jpg";
 ---
 
-<section class="post-list">
-  {posts.map((post) => <PostCard post={post} lang={lang} />)}
-</section>
+<main class="blog">
+  <section class="blog__grid">
+    {
+      posts.map((post) => (
+        <a href={`/blog/${post.slug}`}>
+          <section class="blog__grid__post">
+            <Image src={post.cover || defaultCover} alt={post.title} width={800} height={400} format="webp" />
+            <PostTitle title={post.title} date={post.date} />
+            <div class="text-area">
+              <p>{post.excerpt}</p>
+            </div>
+          </section>
+        </a>
+      ))
+    }
+  </section>
+</main>

@@ -12,13 +12,17 @@ export interface TutorialSummary {
   excerpt: string;
   language: "es" | "en";
   date: Date;
-  difficulty: "beginner" | "intermediate" | "advanced";
-  estimatedTime: number;
+  category: string;
   tags: string[];
+  draft: boolean;
+  difficulty?: "beginner" | "intermediate" | "advanced";
+  estimatedTime?: number;
+  course?: string;
   githubRepo?: string;
   demoUrl?: string;
-  course?: string;
+  cover?: string;
   featuredImage?: string;
+  updateDate?: Date;
 }
 
 /**
@@ -33,12 +37,16 @@ export function prepareTutorialSummary(tutorial: CollectionEntry<"tutorials">): 
     excerpt: tutorial.data.excerpt,
     language: tutorial.data.language,
     date: tutorial.data.date,
+    category: tutorial.data.category,
+    tags: tutorial.data.tags,
+    draft: tutorial.data.draft,
     difficulty: tutorial.data.difficulty,
     estimatedTime: tutorial.data.estimated_time,
-    tags: tutorial.data.tags,
+    course: tutorial.data.course,
     githubRepo: tutorial.data.github_repo,
     demoUrl: tutorial.data.demo_url,
-    course: tutorial.data.course,
+    cover: tutorial.data.cover || tutorial.data.featured_image,
     featuredImage: tutorial.data.featured_image,
+    updateDate: tutorial.data.update_date,
   };
 }

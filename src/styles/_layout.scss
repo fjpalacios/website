@@ -1,8 +1,26 @@
 @use "./mixins" as *;
-@use "./variables" as *;
 
 html {
   overflow-y: scroll;
+}
+
+.container {
+  display: grid;
+  grid-template-columns: repeat(12, 1fr);
+  align-items: initial;
+  width: calc(100vw - 40px);
+  max-width: 1400px;
+  padding: 20px;
+  margin: 0 auto;
+
+  @include print {
+    width: 90vw;
+    padding: 0;
+  }
+}
+
+.content {
+  grid-column: span 12;
 }
 
 .container {

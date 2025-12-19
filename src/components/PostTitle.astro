@@ -1,0 +1,19 @@
+---
+interface Props {
+  title: string;
+  date: Date;
+}
+
+const { title, date } = Astro.props;
+
+const formattedDate = date.toLocaleDateString("es-ES", {
+  year: "numeric",
+  month: "long",
+  day: "numeric",
+});
+---
+
+<div class="post-title">
+  <h2>{title}</h2>
+  <p>{formattedDate}</p>
+</div>
