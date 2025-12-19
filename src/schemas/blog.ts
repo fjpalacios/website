@@ -152,3 +152,72 @@ export const categoriesSchema = z.object({
 });
 
 export type Category = z.infer<typeof categoriesSchema>;
+
+// Publishers collection schema (taxonomy)
+export const publishersSchema = z.object({
+  // Basic metadata
+  name: z.string().min(1),
+  publisher_slug: z.string().min(1),
+  language: z.enum(["es", "en"]),
+
+  // Optional metadata
+  description: z.string().optional(),
+  website: z.string().url().optional(),
+  country: z.string().optional(),
+
+  // i18n
+  i18n: z.string().optional(),
+});
+
+export type Publisher = z.infer<typeof publishersSchema>;
+
+// Series collection schema (taxonomy)
+export const seriesSchema = z.object({
+  name: z.string().min(1),
+  series_slug: z.string().min(1),
+  language: z.enum(["es", "en"]),
+  description: z.string().optional(),
+  author: z.string().optional(), // reference to authors collection
+  i18n: z.string().optional(),
+});
+
+export type Series = z.infer<typeof seriesSchema>;
+
+// Challenges collection schema (taxonomy)
+export const challengesSchema = z.object({
+  name: z.string().min(1),
+  challenge_slug: z.string().min(1),
+  language: z.enum(["es", "en"]),
+  description: z.string().optional(),
+  start_date: z.coerce.date().optional(),
+  end_date: z.coerce.date().optional(),
+  goal: z.number().int().positive().optional(), // Number of books to read
+  i18n: z.string().optional(),
+});
+
+export type Challenge = z.infer<typeof challengesSchema>;
+
+// Courses collection schema (taxonomy)
+export const coursesSchema = z.object({
+  name: z.string().min(1),
+  course_slug: z.string().min(1),
+  language: z.enum(["es", "en"]),
+  description: z.string().optional(),
+  difficulty: z.enum(["beginner", "intermediate", "advanced"]).optional(),
+  duration: z.number().positive().optional(), // Duration in minutes
+  i18n: z.string().optional(),
+});
+
+export type Course = z.infer<typeof coursesSchema>;
+
+// Genres collection schema (taxonomy)
+export const genresSchema = z.object({
+  name: z.string().min(1),
+  genre_slug: z.string().min(1),
+  language: z.enum(["es", "en"]),
+  description: z.string().optional(),
+  parent: z.string().optional(), // Parent genre slug for hierarchical structure
+  i18n: z.string().optional(),
+});
+
+export type Genre = z.infer<typeof genresSchema>;
