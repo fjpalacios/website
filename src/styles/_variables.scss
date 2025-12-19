@@ -4,16 +4,20 @@ $accent: var(--accent);
 $background: var(--background);
 $primary: var(--primary);
 $text: var(--text);
+$cursive-color: var(--cursive-color);
 $inverted-text: var(--inverted-text);
 $header-link: var(--header-link);
+$code: var(--code);
 
 %dark {
   --accent: #efbb35;
   --background: #11151c;
   --primary: #192734;
   --text: #f8f8f8;
+  --cursive-color: #c8c8c8;
   --inverted-text: var(--text);
   --header-link: var(--text);
+  --code: #ff79c6;
 }
 
 %light {
@@ -21,12 +25,21 @@ $header-link: var(--header-link);
   --background: #fbfef9;
   --primary: #071013;
   --text: #284b63;
+  --cursive-color: #636363;
   --inverted-text: var(--background);
   --header-link: var(--inverted-text);
+  --code: #e83e8c;
 }
 
 body {
   @extend %dark;
+
+  // Code syntax highlighting variables
+  --deckgo-highlight-code-background: var(--primary);
+  --deckgo-highlight-code-padding: 20px;
+  --deckgo-highlight-code-color: #f8f8f8;
+  --deckgo-highlight-code-margin: 20px 0 20px -20px;
+  --deckgo-highlight-code-container-width: calc(100% + 40px);
 
   &.dark {
     @extend %dark;

@@ -12,6 +12,7 @@ html {
 }
 
 body {
+  transition: all 0.45s ease;
   background-color: $background;
   color: $text;
   font-family: Helvetica, Arial, sans-serif;
@@ -30,11 +31,26 @@ body {
   }
 }
 
-a {
+em {
+  color: $cursive-color;
+
+  @include print {
+    color: $text;
+  }
+}
+
+a,
+a em {
+  transition: all 0.45s ease;
   color: $accent;
   text-decoration: none;
 
   @include print {
     color: $text;
   }
+}
+
+code {
+  color: $code;
+  font-size: 0.94em;
 }

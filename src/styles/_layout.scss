@@ -1,4 +1,9 @@
 @use "./mixins" as *;
+@use "./variables" as *;
+
+html {
+  overflow-y: scroll;
+}
 
 .container {
   display: grid;
@@ -12,4 +17,15 @@
     width: 90vw;
     padding: 0;
   }
+}
+
+#gatsby-focus-wrapper,
+#app-wrapper {
+  display: grid;
+  align-items: center;
+  justify-content: center;
+}
+
+.content {
+  grid-column: span 12;
 }
