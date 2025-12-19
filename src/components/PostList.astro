@@ -1,0 +1,16 @@
+---
+import PostCard from "@components/PostCard.astro";
+
+import type { PostSummary } from "@/utils/blog";
+
+interface Props {
+  posts: PostSummary[];
+  lang?: string;
+}
+
+const { posts, lang = "es" } = Astro.props;
+---
+
+<section class="post-list">
+  {posts.map((post) => <PostCard post={post} lang={lang} />)}
+</section>
