@@ -32,6 +32,13 @@
       color: $text;
       break-inside: avoid;
 
+      img {
+        width: 100%;
+        height: auto;
+        display: block;
+        object-fit: cover;
+      }
+
       @include medium-and-up {
         .text-area {
           min-height: 65px;
