@@ -1,0 +1,123 @@
+@use "../mixins" as *;
+@use "../variables" as *;
+
+.tutorial-card {
+  display: flex;
+  flex-direction: column;
+  padding: 1.5rem;
+  border: 2px solid $primary;
+  background: $background;
+  transition: all 0.3s ease;
+
+  &:hover {
+    border-color: $accent;
+    transform: translateY(-2px);
+  }
+
+  &__header {
+    margin-bottom: 1rem;
+  }
+
+  &__badges {
+    display: flex;
+    gap: 0.5rem;
+    margin-bottom: 0.75rem;
+    flex-wrap: wrap;
+  }
+
+  &__difficulty {
+    padding: 0.25rem 0.75rem;
+    border-radius: 3px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: #fff;
+
+    &--beginner {
+      background: #22c55e;
+    }
+
+    &--intermediate {
+      background: #f59e0b;
+    }
+
+    &--advanced {
+      background: #ef4444;
+    }
+  }
+
+  &__time {
+    padding: 0.25rem 0.75rem;
+    border-radius: 3px;
+    font-size: 0.75rem;
+    background: $primary;
+    color: $text;
+  }
+
+  &__title {
+    display: block;
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: $text;
+    text-decoration: none;
+    margin-bottom: 0.5rem;
+    transition: color 0.2s ease;
+
+    &:hover {
+      color: $accent;
+    }
+  }
+
+  &__date {
+    display: block;
+    font-size: 0.9rem;
+    color: $cursive-color;
+  }
+
+  &__excerpt {
+    flex-grow: 1;
+    margin-bottom: 1rem;
+    color: $text;
+    line-height: 1.6;
+  }
+
+  &__tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-bottom: 1rem;
+
+    .tag {
+      font-size: 0.85rem;
+      padding: 0.25rem 0.75rem;
+      background: $primary;
+      color: $accent;
+      border-radius: 3px;
+      text-transform: lowercase;
+    }
+  }
+
+  &__footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-top: 1rem;
+    border-top: 1px solid $primary;
+  }
+
+  &__links {
+    display: flex;
+    gap: 0.75rem;
+
+    a {
+      color: $accent;
+      font-size: 1.2rem;
+      transition: transform 0.2s ease;
+
+      &:hover {
+        transform: scale(1.1);
+      }
+    }
+  }
+}

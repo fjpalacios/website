@@ -1,6 +1,10 @@
 ---
+import Title from "@components/Title.astro";
+import TutorialList from "@components/TutorialList.astro";
+import Layout from "@layouts/Layout.astro";
 import { getCollection } from "astro:content";
 
+import contactEs from "@/content/static/contact/es.json";
 import {
   sortByDate,
   filterByLanguage,
@@ -11,12 +15,13 @@ import {
 } from "@/utils/blog";
 
 const TUTORIALS_PER_PAGE = 12;
+const lang = "es";
 
 // Get all tutorials
 const allTutorials = await getCollection("tutorials");
 
-// Filter by Spanish language (default for the site)
-const spanishTutorials = filterByLanguage(allTutorials, "es");
+// Filter by Spanish language
+const spanishTutorials = filterByLanguage(allTutorials, lang);
 
 // Sort by date (newest first)
 const sortedTutorials = sortByDate(spanishTutorials, "desc");
@@ -29,378 +34,103 @@ const currentPage = 1;
 const totalPages = getPageCount(tutorialSummaries.length, TUTORIALS_PER_PAGE);
 const paginatedTutorials = paginateItems(tutorialSummaries, currentPage, TUTORIALS_PER_PAGE);
 
-// Helper function to get difficulty badge color
-function getDifficultyColor(difficulty: string): string {
-  const colors = {
-    beginner: "#22c55e",
-    intermediate: "#f59e0b",
-    advanced: "#ef4444",
-  };
-  return colors[difficulty as keyof typeof colors] || "#64748b";
-}
-
-// Helper function to format estimated time
-function formatEstimatedTime(minutes: number): string {
-  if (minutes < 60) {
-    return `${minutes} min`;
-  }
-  const hours = Math.floor(minutes / 60);
-  const remainingMinutes = minutes % 60;
-  return remainingMinutes > 0 ? `${hours}h ${remainingMinutes}min` : `${hours}h`;
-}
+const pageTitle = "Tutoriales";
+const pageDescription = "Web development tutorials and guides";
 ---
 
-<!doctype html>
-<html lang="es">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="description" content="Web development tutorials and guides" />
-    <title>Tutoriales - Development Guides</title>
-    <style>
-      * {
-        margin: 0;
-        padding: 0;
-        box-sizing: border-box;
+<Layout lang={lang} title={pageTitle} description={pageDescription} contact={contactEs}>
+  <Title title={pageTitle} />
+
+  <div class="tutorial-stats">
+    Showing <strong>{paginatedTutorials.length}</strong> of
+    <strong>{tutorialSummaries.length}</strong> tutorials
+    {
+      totalPages > 1 && (
+        <span>
+          {" "}
+          (page {currentPage} of {totalPages})
+        </span>
+      )
+    }
+  </div>
+
+  {
+    paginatedTutorials.length > 0 ? (
+      <TutorialList tutorials={paginatedTutorials} lang={lang} />
+    ) : (
+      <div class="empty-state">
+        <p>No tutorials found. Check back soon!</p>
+      </div>
+    )
+  }
+
+  {
+    totalPages > 1 && (
+      <nav class="pagination">
+        {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+          <a
+            href={page === 1 ? "/tutoriales" : `/tutoriales/page/${page}`}
+            class:list={["page-link", { active: page === currentPage }]}
+          >
+            {page}
+          </a>
+        ))}
+      </nav>
+    )
+  }
+</Layout>
+
+<style lang="scss">
+  @use "@/styles/mixins" as *;
+  @use "@/styles/variables" as *;
+
+  .tutorial-stats {
+    grid-column: span 12;
+    margin-bottom: 2rem;
+    padding: 1rem;
+    background: $primary;
+    color: $text;
+    border-radius: 4px;
+
+    strong {
+      color: $accent;
+      font-weight: bold;
+    }
+  }
+
+  .empty-state {
+    grid-column: span 12;
+    text-align: center;
+    padding: 4rem 2rem;
+    color: $cursive-color;
+  }
+
+  .pagination {
+    grid-column: span 12;
+    display: flex;
+    justify-content: center;
+    gap: 0.5rem;
+    margin-top: 2rem;
+
+    .page-link {
+      padding: 0.5rem 1rem;
+      background: $primary;
+      color: $text;
+      border: 1px solid $primary;
+      text-decoration: none;
+      transition: all 0.2s ease;
+
+      &:hover {
+        background: $accent;
+        color: $background;
+        border-color: $accent;
       }
 
-      body {
-        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-        line-height: 1.6;
-        color: #e2e8f0;
-        background: #0f172a;
-        padding: 2rem;
-      }
-
-      .container {
-        max-width: 1200px;
-        margin: 0 auto;
-      }
-
-      .header {
-        margin-bottom: 3rem;
-      }
-
-      .title {
-        font-size: 3rem;
-        color: #a78bfa;
-        margin-bottom: 0.5rem;
-      }
-
-      .subtitle {
-        color: #94a3b8;
-        font-size: 1.1rem;
-      }
-
-      .stats {
-        background: #1e293b;
-        padding: 1rem 1.5rem;
-        border-radius: 8px;
-        margin-bottom: 2rem;
-        display: inline-block;
-      }
-
-      .stats-text {
-        color: #cbd5e1;
-      }
-
-      .stats-number {
-        color: #a78bfa;
-        font-weight: bold;
-        font-size: 1.2rem;
-      }
-
-      .tutorials-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
-        gap: 2rem;
-        margin-bottom: 3rem;
-      }
-
-      .tutorial-card {
-        background: linear-gradient(135deg, #1e293b 0%, #334155 100%);
-        border-radius: 12px;
-        padding: 1.5rem;
-        transition: all 0.3s ease;
-        border: 2px solid transparent;
-        cursor: pointer;
-        display: flex;
-        flex-direction: column;
-      }
-
-      .tutorial-card:hover {
-        transform: translateY(-4px);
-        border-color: #a78bfa;
-        box-shadow: 0 8px 24px rgba(167, 139, 250, 0.2);
-      }
-
-      .tutorial-header {
-        margin-bottom: 1rem;
-      }
-
-      .tutorial-badges {
-        display: flex;
-        gap: 0.5rem;
-        margin-bottom: 0.75rem;
-        flex-wrap: wrap;
-      }
-
-      .difficulty-badge {
-        padding: 0.25rem 0.75rem;
-        border-radius: 6px;
-        font-size: 0.75rem;
-        font-weight: 600;
-        text-transform: uppercase;
-        letter-spacing: 0.5px;
-      }
-
-      .time-badge {
-        padding: 0.25rem 0.75rem;
-        border-radius: 6px;
-        font-size: 0.75rem;
-        background: #475569;
-        color: #e2e8f0;
-      }
-
-      .tutorial-title {
-        font-size: 1.5rem;
-        color: #a78bfa;
-        margin-bottom: 0.5rem;
-        text-decoration: none;
-        display: block;
-      }
-
-      .tutorial-title:hover {
-        text-decoration: underline;
-      }
-
-      .tutorial-excerpt {
-        color: #cbd5e1;
-        font-size: 0.95rem;
-        margin-bottom: 1rem;
-        line-height: 1.6;
-        flex-grow: 1;
-      }
-
-      .tutorial-tags {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 0.5rem;
-        margin-bottom: 1rem;
-      }
-
-      .tag {
-        background: #1e293b;
-        color: #94a3b8;
-        padding: 0.25rem 0.75rem;
-        border-radius: 4px;
-        font-size: 0.8rem;
-        border: 1px solid #334155;
-      }
-
-      .tutorial-meta {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        padding-top: 1rem;
-        border-top: 1px solid #334155;
-      }
-
-      .tutorial-date {
-        color: #64748b;
-        font-size: 0.85rem;
-      }
-
-      .tutorial-links {
-        display: flex;
-        gap: 0.75rem;
-      }
-
-      .link-icon {
-        color: #64748b;
-        font-size: 1.2rem;
-        text-decoration: none;
-        transition: all 0.2s;
-      }
-
-      .link-icon:hover {
-        color: #a78bfa;
-        transform: scale(1.1);
-      }
-
-      .pagination {
-        display: flex;
-        justify-content: center;
-        gap: 0.5rem;
-        margin-top: 3rem;
-      }
-
-      .page-link {
-        background: #1e293b;
-        color: #e2e8f0;
-        padding: 0.5rem 1rem;
-        border-radius: 6px;
-        text-decoration: none;
-        transition: all 0.2s;
-      }
-
-      .page-link:hover {
-        background: #a78bfa;
-        color: #0f172a;
-      }
-
-      .page-link.active {
-        background: #a78bfa;
-        color: #0f172a;
+      &.active {
+        background: $accent;
+        color: $background;
         font-weight: bold;
       }
-
-      .empty-state {
-        text-align: center;
-        padding: 4rem 2rem;
-        background: #1e293b;
-        border-radius: 12px;
-      }
-
-      .empty-state-title {
-        color: #64748b;
-        font-size: 1.5rem;
-        margin-bottom: 1rem;
-      }
-
-      .empty-state-text {
-        color: #475569;
-      }
-
-      @media (max-width: 768px) {
-        body {
-          padding: 1rem;
-        }
-
-        .title {
-          font-size: 2rem;
-        }
-
-        .tutorials-grid {
-          grid-template-columns: 1fr;
-        }
-      }
-    </style>
-  </head>
-  <body>
-    <div class="container">
-      <div class="header">
-        <h1 class="title">💻 Tutoriales</h1>
-        <p class="subtitle">Web development tutorials and guides</p>
-      </div>
-
-      <div class="stats">
-        <span class="stats-text">Showing </span>
-        <span class="stats-number">{paginatedTutorials.length}</span>
-        <span class="stats-text"> of </span>
-        <span class="stats-number">{tutorialSummaries.length}</span>
-        <span class="stats-text"> tutorials</span>
-        {
-          totalPages > 1 && (
-            <span class="stats-text">
-              {" "}
-              (page {currentPage} of {totalPages})
-            </span>
-          )
-        }
-      </div>
-
-      {
-        paginatedTutorials.length > 0 ? (
-          <div class="tutorials-grid">
-            {paginatedTutorials.map((tutorial) => (
-              <article class="tutorial-card">
-                <div class="tutorial-header">
-                  <div class="tutorial-badges">
-                    <span
-                      class="difficulty-badge"
-                      style={`background: ${getDifficultyColor(tutorial.difficulty)}; color: #fff;`}
-                    >
-                      {tutorial.difficulty}
-                    </span>
-                    <span class="time-badge">⏱️ {formatEstimatedTime(tutorial.estimatedTime)}</span>
-                  </div>
-
-                  <a href={`/tutoriales/${tutorial.slug}`} class="tutorial-title">
-                    {tutorial.title}
-                  </a>
-                </div>
-
-                <p class="tutorial-excerpt">{tutorial.excerpt}</p>
-
-                {tutorial.tags.length > 0 && (
-                  <div class="tutorial-tags">
-                    {tutorial.tags.slice(0, 4).map((tag) => (
-                      <span class="tag">{tag}</span>
-                    ))}
-                    {tutorial.tags.length > 4 && <span class="tag">+{tutorial.tags.length - 4} more</span>}
-                  </div>
-                )}
-
-                <div class="tutorial-meta">
-                  <div class="tutorial-date">
-                    {tutorial.date.toLocaleDateString("es-ES", {
-                      year: "numeric",
-                      month: "short",
-                      day: "numeric",
-                    })}
-                  </div>
-
-                  <div class="tutorial-links">
-                    {tutorial.githubRepo && (
-                      <a
-                        href={tutorial.githubRepo}
-                        class="link-icon"
-                        title="View on GitHub"
-                        target="_blank"
-                        rel="noopener noreferrer"
-                      >
-                        <span>🔗</span>
-                      </a>
-                    )}
-                    {tutorial.demoUrl && (
-                      <a
-                        href={tutorial.demoUrl}
-                        class="link-icon"
-                        title="View demo"
-                        target="_blank"
-                        rel="noopener noreferrer"
-                      >
-                        <span>🚀</span>
-                      </a>
-                    )}
-                  </div>
-                </div>
-              </article>
-            ))}
-          </div>
-        ) : (
-          <div class="empty-state">
-            <h2 class="empty-state-title">No tutorials found</h2>
-            <p class="empty-state-text">Check back soon for new development guides!</p>
-          </div>
-        )
-      }
-
-      {
-        totalPages > 1 && (
-          <div class="pagination">
-            {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
-              <a
-                href={page === 1 ? "/tutoriales" : `/tutoriales/page/${page}`}
-                class:list={["page-link", { active: page === currentPage }]}
-              >
-                {page}
-              </a>
-            ))}
-          </div>
-        )
-      }
-    </div>
-  </body>
-</html>
+    }
+  }
+</style>

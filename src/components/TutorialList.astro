@@ -1,0 +1,16 @@
+---
+import TutorialCard from "@components/TutorialCard.astro";
+
+import type { TutorialSummary } from "@/utils/blog";
+
+interface Props {
+  tutorials: TutorialSummary[];
+  lang?: string;
+}
+
+const { tutorials, lang = "es" } = Astro.props;
+---
+
+<section class="tutorial-list">
+  {tutorials.map((tutorial) => <TutorialCard tutorial={tutorial} lang={lang} />)}
+</section>

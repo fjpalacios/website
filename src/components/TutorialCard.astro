@@ -1,0 +1,90 @@
+---
+import type { TutorialSummary } from "@/utils/blog";
+
+interface Props {
+  tutorial: TutorialSummary;
+  lang?: string;
+}
+
+const { tutorial, lang = "es" } = Astro.props;
+
+const formattedDate = tutorial.date.toLocaleDateString(lang === "es" ? "es-ES" : "en-US", {
+  year: "numeric",
+  month: "long",
+  day: "numeric",
+});
+
+const formatTime = (minutes: number): string => {
+  if (minutes < 60) return `${minutes} min`;
+  const hours = Math.floor(minutes / 60);
+  const remainingMinutes = minutes % 60;
+  return remainingMinutes > 0 ? `${hours}h ${remainingMinutes}min` : `${hours}h`;
+};
+
+const difficultyLabels = {
+  es: {
+    beginner: "Principiante",
+    intermediate: "Intermedio",
+    advanced: "Avanzado",
+  },
+  en: {
+    beginner: "Beginner",
+    intermediate: "Intermediate",
+    advanced: "Advanced",
+  },
+};
+
+const difficultyLabel = difficultyLabels[lang][tutorial.difficulty];
+---
+
+<article class="tutorial-card">
+  <div class="tutorial-card__header">
+    <div class="tutorial-card__badges">
+      <span class={`tutorial-card__difficulty tutorial-card__difficulty--${tutorial.difficulty}`}>
+        {difficultyLabel}
+      </span>
+      <span class="tutorial-card__time">
+        ⏱️ {formatTime(tutorial.estimatedTime)}
+      </span>
+    </div>
+
+    <a href={`/tutoriales/${tutorial.slug}`} class="tutorial-card__title">
+      {tutorial.title}
+    </a>
+    <time class="tutorial-card__date" datetime={tutorial.date.toISOString()}>
+      {formattedDate}
+    </time>
+  </div>
+
+  <p class="tutorial-card__excerpt">{tutorial.excerpt}</p>
+
+  {
+    tutorial.tags.length > 0 && (
+      <div class="tutorial-card__tags">
+        {tutorial.tags.slice(0, 4).map((tag) => (
+          <span class="tag">{tag}</span>
+        ))}
+        {tutorial.tags.length > 4 && <span class="tag">+{tutorial.tags.length - 4} more</span>}
+      </div>
+    )
+  }
+
+  <div class="tutorial-card__footer">
+    <div class="tutorial-card__links">
+      {
+        tutorial.githubRepo && (
+          <a href={tutorial.githubRepo} title="View on GitHub" target="_blank" rel="noopener noreferrer">
+            🔗
+          </a>
+        )
+      }
+      {
+        tutorial.demoUrl && (
+          <a href={tutorial.demoUrl} title="View demo" target="_blank" rel="noopener noreferrer">
+            🚀
+          </a>
+        )
+      }
+    </div>
+  </div>
+</article>
