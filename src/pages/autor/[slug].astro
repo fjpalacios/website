@@ -1,6 +1,9 @@
 ---
+import BookList from "@components/BookList.astro";
+import Layout from "@layouts/Layout.astro";
 import { getCollection } from "astro:content";
 
+import contactEs from "@/content/static/contact/es.json";
 import { getBooksByAuthor, prepareAuthorSummary, prepareBookSummary, sortByDate } from "@/utils/blog";
 
 export async function getStaticPaths() {
@@ -35,360 +38,111 @@ const currentYear = new Date().getFullYear();
 const authorAge = author.birthYear ? currentYear - author.birthYear : null;
 ---
 
-<!doctype html>
-<html lang={author.language}>
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="description" content={author.bio} />
-    <title>{author.name} - Author Page</title>
-    <style>
-      * {
-        margin: 0;
-        padding: 0;
-        box-sizing: border-box;
-      }
+<Layout lang={author.language} title={`${author.name} - Author Page`} contact={contactEs}>
+  <a href="/libros" class="back-link">← Back to books</a>
 
-      body {
-        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-        line-height: 1.6;
-        color: #e2e8f0;
-        background: #0f172a;
-        padding: 2rem;
-      }
+  <div class="author__header">
+    <h1 class="author__name">{author.name}</h1>
 
-      .container {
-        max-width: 1200px;
-        margin: 0 auto;
-      }
-
-      .back-link {
-        display: inline-block;
-        color: #38bdf8;
-        text-decoration: none;
-        margin-bottom: 2rem;
-        font-size: 0.95rem;
-      }
-
-      .back-link:hover {
-        text-decoration: underline;
-      }
-
-      .author-header {
-        background: linear-gradient(135deg, #1e293b 0%, #334155 100%);
-        border-radius: 12px;
-        padding: 2rem;
-        margin-bottom: 2rem;
-        border-left: 4px solid #22d3ee;
-      }
-
-      .author-name {
-        font-size: 2.5rem;
-        color: #22d3ee;
-        margin-bottom: 1rem;
-      }
-
-      .author-meta {
-        display: flex;
-        gap: 2rem;
-        color: #94a3b8;
-        font-size: 0.95rem;
-        margin-bottom: 1.5rem;
-        flex-wrap: wrap;
-      }
-
-      .author-meta-item {
-        display: flex;
-        align-items: center;
-        gap: 0.5rem;
-      }
-
-      .author-bio {
-        color: #cbd5e1;
-        font-size: 1.1rem;
-        line-height: 1.8;
-        margin-bottom: 1.5rem;
-      }
-
-      .author-links {
-        display: flex;
-        gap: 1rem;
-        flex-wrap: wrap;
-      }
-
-      .author-link {
-        background: #334155;
-        color: #22d3ee;
-        padding: 0.5rem 1rem;
-        border-radius: 6px;
-        text-decoration: none;
-        font-size: 0.9rem;
-        transition: all 0.2s;
-      }
-
-      .author-link:hover {
-        background: #22d3ee;
-        color: #0f172a;
-        transform: translateY(-2px);
-      }
-
-      .stats-section {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-        gap: 1rem;
-        margin-bottom: 3rem;
-      }
-
-      .stat-card {
-        background: #1e293b;
-        padding: 1.5rem;
-        border-radius: 8px;
-        text-align: center;
-        border: 2px solid #334155;
-      }
-
-      .stat-value {
-        font-size: 2rem;
-        color: #22d3ee;
-        font-weight: bold;
-        display: block;
-        margin-bottom: 0.5rem;
-      }
-
-      .stat-label {
-        color: #64748b;
-        font-size: 0.9rem;
-        text-transform: uppercase;
-        letter-spacing: 0.5px;
-      }
-
-      .section-title {
-        font-size: 2rem;
-        color: #38bdf8;
-        margin-bottom: 1.5rem;
-        padding-bottom: 0.5rem;
-        border-bottom: 2px solid #334155;
-      }
-
-      .books-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-        gap: 2rem;
-        margin-bottom: 3rem;
-      }
-
-      .book-card {
-        background: linear-gradient(135deg, #1e293b 0%, #334155 100%);
-        border-radius: 12px;
-        padding: 1.5rem;
-        transition: all 0.3s ease;
-        border: 2px solid transparent;
-      }
-
-      .book-card:hover {
-        transform: translateY(-4px);
-        border-color: #38bdf8;
-        box-shadow: 0 8px 24px rgba(56, 189, 248, 0.2);
-      }
-
-      .book-title {
-        font-size: 1.5rem;
-        color: #38bdf8;
-        margin-bottom: 0.5rem;
-        text-decoration: none;
-        display: block;
-      }
-
-      .book-title:hover {
-        text-decoration: underline;
-      }
-
-      .book-excerpt {
-        color: #cbd5e1;
-        font-size: 0.95rem;
-        margin-bottom: 1rem;
-        line-height: 1.6;
-      }
-
-      .book-meta {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        padding-top: 1rem;
-        border-top: 1px solid #334155;
-      }
-
-      .book-date {
-        color: #64748b;
-        font-size: 0.85rem;
-      }
-
-      .book-rating {
-        color: #fbbf24;
-        font-size: 1.1rem;
-      }
-
-      .book-pages {
-        color: #64748b;
-        font-size: 0.85rem;
-        margin-top: 0.5rem;
-      }
-
-      .empty-state {
-        text-align: center;
-        padding: 4rem 2rem;
-        background: #1e293b;
-        border-radius: 12px;
-      }
-
-      .empty-state-icon {
-        font-size: 4rem;
-        margin-bottom: 1rem;
-      }
-
-      .empty-state-title {
-        color: #64748b;
-        font-size: 1.5rem;
-        margin-bottom: 1rem;
-      }
-
-      .empty-state-text {
-        color: #475569;
-      }
-    </style>
-  </head>
-  <body>
-    <div class="container">
-      <a href="/libros" class="back-link">← Back to books</a>
-
-      <div class="author-header">
-        <h1 class="author-name">{author.name}</h1>
-
-        <div class="author-meta">
-          {
-            author.nationality && (
-              <div class="author-meta-item">
-                <span>🌍</span>
-                <span>{author.nationality}</span>
-              </div>
-            )
-          }
-
-          {
-            author.birthYear && (
-              <div class="author-meta-item">
-                <span>📅</span>
-                <span>
-                  Born {author.birthYear}
-                  {authorAge && !author.deathYear && ` (${authorAge} years old)`}
-                </span>
-              </div>
-            )
-          }
-
-          {
-            author.deathYear && (
-              <div class="author-meta-item">
-                <span>†</span>
-                <span>Died {author.deathYear}</span>
-              </div>
-            )
-          }
-        </div>
-
-        <p class="author-bio">{author.bio}</p>
-
-        {
-          (author.website || author.twitter || author.goodreads || author.wikipedia) && (
-            <div class="author-links">
-              {author.website && (
-                <a href={author.website} target="_blank" rel="noopener noreferrer" class="author-link">
-                  🌐 Website
-                </a>
-              )}
-              {author.twitter && (
-                <a
-                  href={`https://twitter.com/${author.twitter.replace("@", "")}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  class="author-link"
-                >
-                  🐦 Twitter
-                </a>
-              )}
-              {author.goodreads && (
-                <a href={author.goodreads} target="_blank" rel="noopener noreferrer" class="author-link">
-                  📚 Goodreads
-                </a>
-              )}
-              {author.wikipedia && (
-                <a href={author.wikipedia} target="_blank" rel="noopener noreferrer" class="author-link">
-                  📖 Wikipedia
-                </a>
-              )}
-            </div>
-          )
-        }
-      </div>
-
+    <div class="author__meta">
       {
-        totalBooks > 0 && (
-          <div class="stats-section">
-            <div class="stat-card">
-              <span class="stat-value">{totalBooks}</span>
-              <span class="stat-label">Books Reviewed</span>
-            </div>
-
-            <div class="stat-card">
-              <span class="stat-value">{averageRating}⭐</span>
-              <span class="stat-label">Average Rating</span>
-            </div>
-
-            <div class="stat-card">
-              <span class="stat-value">{totalPages.toLocaleString()}</span>
-              <span class="stat-label">Total Pages</span>
-            </div>
+        author.nationality && (
+          <div class="author__meta-item">
+            <span>🌍</span>
+            <span>{author.nationality}</span>
           </div>
         )
       }
 
-      <h2 class="section-title">Books by {author.name}</h2>
+      {
+        author.birthYear && (
+          <div class="author__meta-item">
+            <span>📅</span>
+            <span>
+              Born {author.birthYear}
+              {authorAge && !author.deathYear && ` (${authorAge} years old)`}
+            </span>
+          </div>
+        )
+      }
 
       {
-        bookSummaries.length > 0 ? (
-          <div class="books-grid">
-            {bookSummaries.map((book) => (
-              <article class="book-card">
-                <a href={`/libros/${book.slug}`} class="book-title">
-                  {book.title}
-                </a>
-
-                <p class="book-excerpt">{book.excerpt}</p>
-
-                <div class="book-meta">
-                  <div>
-                    <div class="book-date">
-                      {book.date.toLocaleDateString(book.language === "es" ? "es-ES" : "en-US", {
-                        year: "numeric",
-                        month: "short",
-                        day: "numeric",
-                      })}
-                    </div>
-                    <div class="book-pages">{book.pages} pages</div>
-                  </div>
-                  <div class="book-rating">{"⭐".repeat(book.score)}</div>
-                </div>
-              </article>
-            ))}
-          </div>
-        ) : (
-          <div class="empty-state">
-            <div class="empty-state-icon">📚</div>
-            <h3 class="empty-state-title">No books reviewed yet</h3>
-            <p class="empty-state-text">We haven't reviewed any books by {author.name} yet. Check back soon!</p>
+        author.deathYear && (
+          <div class="author__meta-item">
+            <span>†</span>
+            <span>Died {author.deathYear}</span>
           </div>
         )
       }
     </div>
-  </body>
-</html>
+
+    <p class="author__bio">{author.bio}</p>
+
+    {
+      (author.website || author.twitter || author.goodreads || author.wikipedia) && (
+        <div class="author__links">
+          {author.website && (
+            <a href={author.website} target="_blank" rel="noopener noreferrer" class="author__link">
+              🌐 Website
+            </a>
+          )}
+          {author.twitter && (
+            <a
+              href={`https://twitter.com/${author.twitter.replace("@", "")}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              class="author__link"
+            >
+              🐦 Twitter
+            </a>
+          )}
+          {author.goodreads && (
+            <a href={author.goodreads} target="_blank" rel="noopener noreferrer" class="author__link">
+              📚 Goodreads
+            </a>
+          )}
+          {author.wikipedia && (
+            <a href={author.wikipedia} target="_blank" rel="noopener noreferrer" class="author__link">
+              📖 Wikipedia
+            </a>
+          )}
+        </div>
+      )
+    }
+  </div>
+
+  {
+    totalBooks > 0 && (
+      <div class="stats-section">
+        <div class="stat-card">
+          <span class="stat-card__value">{totalBooks}</span>
+          <span class="stat-card__label">Books Reviewed</span>
+        </div>
+
+        <div class="stat-card">
+          <span class="stat-card__value">{averageRating}⭐</span>
+          <span class="stat-card__label">Average Rating</span>
+        </div>
+
+        <div class="stat-card">
+          <span class="stat-card__value">{totalPages.toLocaleString()}</span>
+          <span class="stat-card__label">Total Pages</span>
+        </div>
+      </div>
+    )
+  }
+
+  <h2 class="section-title">Books by {author.name}</h2>
+
+  {
+    bookSummaries.length > 0 ? (
+      <BookList books={bookSummaries} totalBooks={totalBooks} />
+    ) : (
+      <div class="empty-state">
+        <div class="empty-state__icon">📚</div>
+        <h3 class="empty-state__title">No books reviewed yet</h3>
+        <p class="empty-state__text">We haven't reviewed any books by {author.name} yet. Check back soon!</p>
+      </div>
+    )
+  }
+</Layout>
