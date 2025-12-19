@@ -47,5 +47,29 @@ export const booksSchema = z.object({
   i18n: z.string().optional(), // Slug of translated version
 });
 
-// Export type for TypeScript
+// Posts collection schema
+export const postsSchema = z.object({
+  // Basic metadata
+  title: z.string().min(1),
+  post_slug: z.string().min(1),
+  date: z.coerce.date(),
+  excerpt: z.string().min(1),
+  language: z.enum(["es", "en"]),
+
+  // Post-specific metadata
+  category: z.string().min(1), // reference to categories collection
+  tags: z.array(z.string()).default([]),
+  draft: z.boolean().default(false),
+
+  // Optional metadata
+  featured_image: z.string().optional(), // Relative path to featured image
+  update_date: z.coerce.date().optional(), // When the post was last updated
+  canonical_url: z.string().url().optional(), // For republished content
+
+  // i18n
+  i18n: z.string().optional(), // Slug of translated version
+});
+
+// Export types for TypeScript
 export type Book = z.infer<typeof booksSchema>;
+export type Post = z.infer<typeof postsSchema>;
