@@ -196,6 +196,17 @@ Husky + lint-staged automatically run before every commit:
 - Lints and formats staged files
 - Runs unit tests to catch regressions early
 
+### Dependabot
+
+Automated dependency management configured in `.github/dependabot.yml`:
+
+- **Weekly updates**: Runs every Monday at 09:00 (Europe/Madrid)
+- **NPM dependencies**: Grouped by type (dev/prod) for minor and patch updates
+- **GitHub Actions**: Keeps workflow dependencies up-to-date
+- **Auto-merge**: Minor and patch updates are automatically merged after CI passes
+- **Manual review**: Major updates are flagged and require manual approval
+- **Ignored majors**: Core packages (Astro, TypeScript, Playwright, Vitest) require manual major updates
+
 ## 📊 Code Quality Metrics
 
 - **Unit Test Coverage**: 97.43% lines, 100% functions
