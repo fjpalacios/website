@@ -2,6 +2,7 @@
 import path from "path";
 import { fileURLToPath } from "url";
 
+import mdx from "@astrojs/mdx";
 import sitemap from "@astrojs/sitemap";
 import { defineConfig } from "astro/config";
 
@@ -10,7 +11,7 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 // https://astro.build/config
 export default defineConfig({
   site: "https://fjp.es",
-  integrations: [sitemap()],
+  integrations: [mdx(), sitemap()],
   i18n: {
     defaultLocale: "es",
     locales: ["es", "en"],

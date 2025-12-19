@@ -2,6 +2,7 @@
 // This file defines schemas for blog content collections (books, posts, tutorials)
 // and taxonomies (authors, publishers, genres, series, challenges, courses, categories)
 
+import { glob } from "astro/loaders";
 import { defineCollection, z } from "astro:content";
 
 import {
@@ -33,19 +34,19 @@ const emptyCollection = defineCollection({
 
 // Books collection (blog book reviews)
 const booksCollection = defineCollection({
-  type: "content",
+  loader: glob({ pattern: "**/*.{md,mdx}", base: "./src/content/books", type: "content" }),
   schema: booksSchema,
 });
 
 // Posts collection (general blog posts)
 const postsCollection = defineCollection({
-  type: "content",
+  loader: glob({ pattern: "**/*.{md,mdx}", base: "./src/content/posts", type: "content" }),
   schema: postsSchema,
 });
 
 // Tutorials collection (programming tutorials)
 const tutorialsCollection = defineCollection({
-  type: "content",
+  loader: glob({ pattern: "**/*.{md,mdx}", base: "./src/content/tutorials", type: "content" }),
   schema: tutorialsSchema,
 });
 
@@ -55,43 +56,43 @@ const tutorialsCollection = defineCollection({
 
 // Authors collection
 const authorsCollection = defineCollection({
-  type: "data",
+  loader: glob({ pattern: "**/*.json", base: "./src/content/authors" }),
   schema: authorsSchema,
 });
 
 // Categories collection
 const categoriesCollection = defineCollection({
-  type: "data",
+  loader: glob({ pattern: "**/*.json", base: "./src/content/categories" }),
   schema: categoriesSchema,
 });
 
 // Publishers collection
 const publishersCollection = defineCollection({
-  type: "data",
+  loader: glob({ pattern: "**/*.json", base: "./src/content/publishers" }),
   schema: publishersSchema,
 });
 
 // Series collection
 const seriesCollection = defineCollection({
-  type: "data",
+  loader: glob({ pattern: "**/*.json", base: "./src/content/series" }),
   schema: seriesSchema,
 });
 
 // Challenges collection
 const challengesCollection = defineCollection({
-  type: "data",
+  loader: glob({ pattern: "**/*.json", base: "./src/content/challenges" }),
   schema: challengesSchema,
 });
 
 // Courses collection
 const coursesCollection = defineCollection({
-  type: "data",
+  loader: glob({ pattern: "**/*.json", base: "./src/content/courses" }),
   schema: coursesSchema,
 });
 
 // Genres collection
 const genresCollection = defineCollection({
-  type: "data",
+  loader: glob({ pattern: "**/*.json", base: "./src/content/genres" }),
   schema: genresSchema,
 });
 

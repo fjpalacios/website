@@ -4,7 +4,7 @@
     "": {
       "name": "website",
       "dependencies": {
-        "@astrojs/mdx": "4.3.13",
+        "@astrojs/mdx": "^4.3.13",
         "@astrojs/rss": "4.0.14",
         "@astrojs/sitemap": "3.6.0",
         "astro": "5.16.5",
