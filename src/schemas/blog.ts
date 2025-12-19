@@ -73,3 +73,32 @@ export const postsSchema = z.object({
 // Export types for TypeScript
 export type Book = z.infer<typeof booksSchema>;
 export type Post = z.infer<typeof postsSchema>;
+
+// Tutorials collection schema
+export const tutorialsSchema = z.object({
+  // Basic metadata
+  title: z.string().min(1),
+  post_slug: z.string().min(1),
+  date: z.coerce.date(),
+  excerpt: z.string().min(1),
+  language: z.enum(["es", "en"]),
+
+  // Tutorial-specific metadata
+  category: z.string().min(1), // reference to categories collection
+  tags: z.array(z.string()).default([]),
+  draft: z.boolean().default(false),
+  difficulty: z.enum(["beginner", "intermediate", "advanced"]).optional(),
+  estimated_time: z.number().positive().optional(), // Time in minutes
+
+  // Optional metadata
+  course: z.string().optional(), // reference to courses collection
+  github_repo: z.string().url().optional(), // Repository URL
+  demo_url: z.string().url().optional(), // Live demo URL
+  featured_image: z.string().optional(), // Relative path to featured image
+  update_date: z.coerce.date().optional(), // When the tutorial was last updated
+
+  // i18n
+  i18n: z.string().optional(), // Slug of translated version
+});
+
+export type Tutorial = z.infer<typeof tutorialsSchema>;
