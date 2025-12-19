@@ -1,0 +1,231 @@
+@use "../mixins" as *;
+@use "../variables" as *;
+
+.book {
+  &__header {
+    background: $primary;
+    border-radius: 12px;
+    padding: 2rem;
+    margin-bottom: 2rem;
+    border-left: 4px solid $accent;
+  }
+
+  &__title {
+    font-size: 2.5rem;
+    color: $accent;
+    margin-bottom: 0.5rem;
+    font-weight: 700;
+
+    @include small-and-up {
+      font-size: 3rem;
+    }
+  }
+
+  &__meta {
+    color: $text;
+    font-size: 0.95rem;
+    margin-bottom: 1rem;
+    opacity: 0.8;
+  }
+
+  &__info {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 1rem;
+    margin-top: 1.5rem;
+
+    @include small-and-up {
+      grid-template-columns: repeat(2, 1fr);
+    }
+
+    @include medium-and-up {
+      grid-template-columns: repeat(3, 1fr);
+    }
+  }
+
+  &__info-item {
+    background: $background;
+    padding: 1rem;
+    border-radius: 8px;
+  }
+
+  &__info-label {
+    color: $text;
+    font-size: 0.85rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 0.25rem;
+    opacity: 0.6;
+  }
+
+  &__info-value {
+    color: $text;
+    font-size: 1.1rem;
+    font-weight: 500;
+
+    a {
+      color: $accent;
+      text-decoration: none;
+
+      &:hover {
+        text-decoration: underline;
+      }
+    }
+  }
+
+  &__score {
+    color: $accent;
+    font-size: 1.5rem;
+
+    &--fav {
+      color: #ef4444;
+    }
+  }
+
+  &__genres {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-top: 0.5rem;
+  }
+
+  &__genre-tag {
+    background: $background;
+    color: $accent;
+    padding: 0.25rem 0.75rem;
+    border-radius: 20px;
+    font-size: 0.85rem;
+    border: 1px solid $accent;
+  }
+
+  &__synopsis {
+    background: $primary;
+    padding: 1.5rem;
+    border-radius: 8px;
+    margin-bottom: 2rem;
+    border-left: 3px solid $accent;
+
+    &-title {
+      color: $accent;
+      font-size: 1.2rem;
+      margin-bottom: 1rem;
+      font-weight: 600;
+    }
+
+    &-text {
+      color: $text;
+      font-style: italic;
+      line-height: 1.8;
+      opacity: 0.9;
+    }
+  }
+
+  &__content {
+    background: $primary;
+    padding: 2rem;
+    border-radius: 8px;
+    margin-bottom: 2rem;
+    line-height: 1.8;
+
+    :global(h1),
+    :global(h2),
+    :global(h3) {
+      color: $accent;
+      margin-top: 2rem;
+      margin-bottom: 1rem;
+      font-weight: 600;
+    }
+
+    :global(h1) {
+      font-size: 2rem;
+    }
+
+    :global(h2) {
+      font-size: 1.5rem;
+    }
+
+    :global(h3) {
+      font-size: 1.2rem;
+    }
+
+    :global(p) {
+      margin-bottom: 1rem;
+      color: $text;
+    }
+
+    :global(ul),
+    :global(ol) {
+      margin-left: 1.5rem;
+      margin-bottom: 1rem;
+      color: $text;
+    }
+
+    :global(li) {
+      margin-bottom: 0.5rem;
+    }
+
+    :global(strong) {
+      color: $text;
+      font-weight: 600;
+    }
+
+    :global(code) {
+      background: $background;
+      padding: 0.2rem 0.4rem;
+      border-radius: 4px;
+      font-family: "Courier New", monospace;
+      font-size: 0.9rem;
+      color: $code;
+    }
+
+    :global(pre) {
+      background: $background;
+      padding: 1rem;
+      border-radius: 8px;
+      overflow-x: auto;
+      margin-bottom: 1rem;
+
+      code {
+        background: none;
+        padding: 0;
+      }
+    }
+  }
+
+  &__buy-links {
+    background: $primary;
+    padding: 1.5rem;
+    border-radius: 8px;
+    border-left: 3px solid $accent;
+
+    &-title {
+      color: $accent;
+      font-size: 1.2rem;
+      margin-bottom: 1rem;
+      font-weight: 600;
+    }
+
+    &-list {
+      display: flex;
+      gap: 1rem;
+      flex-wrap: wrap;
+    }
+  }
+
+  &__buy-link {
+    background: $background;
+    color: $text;
+    padding: 0.75rem 1.5rem;
+    border-radius: 8px;
+    text-decoration: none;
+    transition: all 0.2s;
+    border: 2px solid $accent;
+    font-weight: 500;
+
+    &:hover {
+      background: $accent;
+      color: $background;
+      transform: translateY(-2px);
+    }
+  }
+}

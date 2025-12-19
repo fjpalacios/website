@@ -1,0 +1,42 @@
+---
+import type { BookSummary } from "@/utils/blog";
+
+interface Props {
+  book: BookSummary;
+}
+
+const { book } = Astro.props;
+
+const formattedDate = book.date.toLocaleDateString(book.language === "es" ? "es-ES" : "en-US", {
+  year: "numeric",
+  month: "short",
+  day: "numeric",
+});
+
+const displayRating = book.score === "fav" ? "❤️" : "⭐".repeat(book.score);
+const ratingClass = book.score === "fav" ? "book-card__rating--fav" : "";
+---
+
+<article class="book-card">
+  <a href={`/libros/${book.slug}`} class="book-card__title">
+    {book.title}
+  </a>
+
+  {
+    book.authorName && (
+      <div class="book-card__author">
+        by {book.authorSlug ? <a href={`/autor/${book.authorSlug}`}>{book.authorName}</a> : book.authorName}
+      </div>
+    )
+  }
+
+  <p class="book-card__excerpt">{book.excerpt}</p>
+
+  <div class="book-card__meta">
+    <div class="book-card__info">
+      <div class="book-card__date">{formattedDate}</div>
+      <div class="book-card__pages">{book.pages} pages</div>
+    </div>
+    <div class:list={["book-card__rating", ratingClass]}>{displayRating}</div>
+  </div>
+</article>

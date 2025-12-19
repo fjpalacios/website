@@ -1,0 +1,47 @@
+---
+import BookCard from "@components/BookCard.astro";
+
+import type { BookSummary } from "@/utils/blog";
+
+interface Props {
+  books: BookSummary[];
+  totalBooks?: number;
+  currentPage?: number;
+  totalPages?: number;
+}
+
+const { books, totalBooks = books.length, currentPage = 1, totalPages = 1 } = Astro.props;
+---
+
+<div class="book-list">
+  <div class="book-list__stats">
+    <span class="book-list__stats-text">Showing </span>
+    <span class="book-list__stats-number">{books.length}</span>
+    <span class="book-list__stats-text"> of </span>
+    <span class="book-list__stats-number">{totalBooks}</span>
+    <span class="book-list__stats-text"> books</span>
+    {
+      totalPages > 1 && (
+        <span class="book-list__stats-text">
+          {" "}
+          (page {currentPage} of {totalPages})
+        </span>
+      )
+    }
+  </div>
+
+  {
+    books.length > 0 ? (
+      <div class="book-list__grid">
+        {books.map((book) => (
+          <BookCard book={book} />
+        ))}
+      </div>
+    ) : (
+      <div class="book-list__empty">
+        <h2 class="book-list__empty-title">No books found</h2>
+        <p class="book-list__empty-text">Check back soon for new reviews!</p>
+      </div>
+    )
+  }
+</div>
