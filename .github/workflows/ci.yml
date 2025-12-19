@@ -157,6 +157,6 @@ jobs:
             http://localhost:4321/en/
             http://localhost:4321/es/about/
             http://localhost:4321/en/about/
-          uploadArtifacts: true
+          uploadArtifacts: false
           temporaryPublicStorage: true
           runs: 3
