@@ -9,9 +9,7 @@ const config = {
   arrowParens: "always",
   jsxSingleQuote: false,
   printWidth: 120,
-  tailwindStylesheet: "./src/styles/global.css",
-  tailwindFunctions: ["class", "class:list"],
-  plugins: ["prettier-plugin-astro", "prettier-plugin-tailwindcss"],
+  plugins: ["prettier-plugin-astro"],
   overrides: [{ files: "*.astro", options: { parser: "astro" } }],
 };
 
