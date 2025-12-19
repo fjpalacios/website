@@ -22,3 +22,6 @@ export {
 // Book utilities
 export { findBookBySlug, findAuthorBySlug, findPublisherBySlug, findGenresBySlug } from "./books";
 export { prepareBookSummary, type BookSummary } from "./book-listing";
+
+// Author utilities
+export { getBooksByAuthor, prepareAuthorSummary, type AuthorSummary } from "./authors";
