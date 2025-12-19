@@ -1,0 +1,11 @@
+{
+  "name": "Camilla Läckberg",
+  "author_slug": "camilla-lackberg",
+  "bio": "Camilla Läckberg es una escritora sueca de novelas policíacas, especialmente conocida por su serie de novelas ambientadas en Fjällbacka. Sus libros han sido traducidos a más de 40 idiomas y ha vendido más de 26 millones de ejemplares en todo el mundo.",
+  "language": "es",
+  "gender": "female",
+  "birth_year": 1974,
+  "nationality": "Swedish",
+  "picture": "./camilla-lackberg.jpg",
+  "website": "https://camillalackberg.com"
+}

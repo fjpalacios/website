@@ -1,0 +1,12 @@
+{
+  "name": "Stephen King",
+  "author_slug": "stephen-king",
+  "bio": "Stephen King is an American author of horror, supernatural fiction, suspense, crime, science-fiction, and fantasy novels. Described as the 'King of Horror', a play on his surname and a reference to his high standing in pop culture, his books have sold more than 350 million copies, and many have been adapted into films, television series, miniseries, and comic books.",
+  "language": "en",
+  "gender": "male",
+  "birth_year": 1947,
+  "nationality": "American",
+  "picture": "./stephen-king.jpg",
+  "website": "https://stephenking.com",
+  "twitter": "@StephenKing"
+}

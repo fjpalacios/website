@@ -1,0 +1,9 @@
+{
+  "name": "Book Reviews",
+  "category_slug": "book-reviews",
+  "language": "en",
+  "description": "Reviews and thoughts about books I've read",
+  "icon": "book",
+  "color": "#8B4513",
+  "order": 1
+}

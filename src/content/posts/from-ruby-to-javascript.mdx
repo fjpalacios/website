@@ -1,0 +1,112 @@
+---
+title: "Why I Switched from Ruby to JavaScript"
+post_slug: "from-ruby-to-javascript"
+date: 2024-12-01
+excerpt: "After years of working with Ruby and Rails, I made the switch to JavaScript full-time. Here's why I did it and what I learned along the way."
+language: "en"
+categories: ["tutorials"]
+tags: ["javascript", "ruby", "career", "programming"]
+draft: false
+featured_image: "./images/ruby-to-javascript.png"
+canonical_url: null
+---
+
+# Why I Switched from Ruby to JavaScript
+
+For years, I was a dedicated Ruby developer. I loved Rails, the elegant syntax, and the vibrant community. But in 2020, I made a decision that changed my career: I switched to JavaScript full-time.
+
+## The Ruby Years
+
+I started with Ruby on Rails in 2014. It was magical. The convention-over-configuration philosophy, the amazing gems, and the focus on developer happiness made building web applications a joy.
+
+```ruby
+# Ruby was so elegant
+class User < ApplicationRecord
+  has_many :posts
+  validates :email, presence: true, uniqueness: true
+  
+  def full_name
+    "#{first_name} #{last_name}"
+  end
+end
+```
+
+But as I worked on more projects, I started noticing patterns:
+- Most of my work was frontend-heavy
+- APIs were becoming more important than server-rendered views
+- The JavaScript ecosystem was exploding with innovation
+- Node.js was maturing rapidly
+
+## The Transition
+
+The switch wasn't easy. JavaScript felt messy compared to Ruby's elegance. But modern JavaScript (ES6+) changed everything:
+
+```javascript
+// Modern JavaScript is pretty elegant too
+class User {
+  constructor(firstName, lastName, email) {
+    this.firstName = firstName;
+    this.lastName = lastName;
+    this.email = email;
+  }
+  
+  get fullName() {
+    return `${this.firstName} ${this.lastName}`;
+  }
+}
+```
+
+## What I Gained
+
+### 1. Full-Stack JavaScript
+
+Being able to use the same language on frontend and backend was a game-changer. No more context-switching between Ruby and JavaScript.
+
+### 2. Better Job Opportunities
+
+The demand for JavaScript developers was (and is) enormous. The job market opened up significantly.
+
+### 3. Modern Tooling
+
+The JavaScript ecosystem has incredible tooling:
+- **Vite** - Lightning-fast development
+- **TypeScript** - Type safety without sacrificing flexibility
+- **Vitest** - Fast, modern testing
+- **ESLint/Prettier** - Consistent code formatting
+
+### 4. Performance at Scale
+
+Node.js handles concurrent connections incredibly well. For API-heavy applications, it's hard to beat.
+
+## What I Miss About Ruby
+
+Let's be honest - Ruby has some things JavaScript still can't match:
+
+1. **Syntax elegance** - Ruby's syntax is more readable
+2. **Rails magic** - Nothing quite matches Rails for rapid prototyping
+3. **Community culture** - Ruby has a special focus on developer happiness
+4. **Testing culture** - RSpec is still the gold standard for readable tests
+
+## The Verdict
+
+Was it worth it? **Absolutely.** 
+
+I don't regret my Ruby years - they made me a better developer. But JavaScript opened doors I didn't know existed. Now I'm exploring TypeScript, learning Rust, and considering Go for my next adventure.
+
+## Advice for Others Considering the Switch
+
+1. **Learn modern JavaScript first** - ES6+ is crucial. Don't judge JavaScript by ES5 standards.
+2. **Pick up TypeScript early** - It makes JavaScript feel more structured and catches errors before runtime.
+3. **Choose a framework** - React, Vue, or Svelte. Don't try to learn everything at once.
+4. **Build real projects** - The best way to learn is by doing.
+5. **Don't burn bridges** - Ruby is still great for many projects. Keep your skills fresh.
+
+## Final Thoughts
+
+Programming languages are tools. Ruby is a beautiful tool that I still use occasionally. JavaScript is now my primary tool because it fits my career goals and the problems I'm solving.
+
+Your mileage may vary. Choose what works for you, not what's trendy.
+
+---
+
+*What about you? Have you switched languages in your career? Let me know on [Twitter](https://twitter.com/fjpalacios)!*

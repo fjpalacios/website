@@ -1,0 +1,7 @@
+{
+  "name": "Crime",
+  "genre_slug": "crime",
+  "language": "en",
+  "description": "Fiction focused on criminal activities and investigations",
+  "parent": "fiction"
+}

@@ -1,0 +1,10 @@
+{
+  "name": "Tutorials",
+  "category_slug": "tutorials",
+  "language": "en",
+  "i18n": "tutoriales",
+  "description": "Programming and web development tutorials",
+  "icon": "code",
+  "color": "#2563eb",
+  "order": 2
+}
