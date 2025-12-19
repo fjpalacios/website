@@ -1,11 +1,13 @@
 ---
 import PostTitle from "@components/PostTitle.astro";
-import { Image } from "astro:assets";
 
-import type { PostSummary } from "@/utils/blog";
+import type { PostSummary, TutorialSummary, BookSummary } from "@/utils/blog";
+
+// Generic item type that works for posts, tutorials, and books
+type ListItem = PostSummary | TutorialSummary | BookSummary;
 
 interface Props {
-  posts: PostSummary[];
+  posts: ListItem[];
 }
 
 const { posts } = Astro.props;
@@ -20,7 +22,7 @@ const defaultCover = "/images/defaults/post-default.jpg";
       posts.map((post) => (
         <a href={`/blog/${post.slug}`}>
           <section class="blog__grid__post">
-            <Image src={post.cover || defaultCover} alt={post.title} width={800} height={400} format="webp" />
+            <img src={post.cover || defaultCover} alt={post.title} width="800" height="400" loading="lazy" />
             <PostTitle title={post.title} date={post.date} />
             <div class="text-area">
               <p>{post.excerpt}</p>

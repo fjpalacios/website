@@ -70,7 +70,7 @@ describe("prepareBookSummary", () => {
   it("should include cover path", () => {
     const summary = prepareBookSummary(mockBook);
 
-    expect(summary.cover).toBe("./covers/test.jpg");
+    expect(summary.cover).toBe("/images/books/test.jpg");
   });
 
   it("should include pages count", () => {

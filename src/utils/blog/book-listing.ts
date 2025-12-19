@@ -20,6 +20,19 @@ export interface BookSummary {
 }
 
 /**
+ * Normalize cover path to absolute URL
+ * Converts relative paths like "./covers/book.jpg" to "/images/books/book.jpg"
+ */
+function normalizeCoverPath(cover: string): string {
+  if (cover.startsWith("http") || cover.startsWith("/")) {
+    return cover;
+  }
+  // Remove ./ prefix and covers/ directory, then build absolute path
+  const filename = cover.replace("./covers/", "").replace("covers/", "");
+  return `/images/books/${filename}`;
+}
+
+/**
  * Prepare a book summary for listing pages
  * @param book - Book entry
  * @param author - Optional author entry
@@ -33,7 +46,7 @@ export function prepareBookSummary(book: CollectionEntry<"books">, author?: Coll
     score: book.data.score,
     language: book.data.language,
     date: book.data.date,
-    cover: book.data.cover,
+    cover: normalizeCoverPath(book.data.cover),
     pages: book.data.pages,
     authorName: author?.data.name,
     authorSlug: author?.data.author_slug,

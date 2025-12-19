@@ -1,5 +1,5 @@
 ---
-import BookList from "@components/BookList.astro";
+import PostList from "@components/PostList.astro";
 import Title from "@components/Title.astro";
 import Layout from "@layouts/Layout.astro";
 import { getCollection } from "astro:content";
@@ -42,12 +42,7 @@ const paginatedBooks = paginateItems(bookSummaries, currentPage, BOOKS_PER_PAGE)
 <Layout lang="es" title="Libros - Book Reviews" contact={contactEs}>
   <Title title="📚 Libros" />
 
-  <BookList
-    books={paginatedBooks}
-    totalBooks={bookSummaries.length}
-    currentPage={currentPage}
-    totalPages={totalPages}
-  />
+  <PostList posts={paginatedBooks} />
 
   {
     totalPages > 1 && (

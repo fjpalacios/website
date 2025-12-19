@@ -1,5 +1,5 @@
 ---
-import BookList from "@components/BookList.astro";
+import PostList from "@components/PostList.astro";
 import Layout from "@layouts/Layout.astro";
 import { getCollection } from "astro:content";
 
@@ -136,7 +136,7 @@ const authorAge = author.birthYear ? currentYear - author.birthYear : null;
 
   {
     bookSummaries.length > 0 ? (
-      <BookList books={bookSummaries} totalBooks={totalBooks} />
+      <PostList posts={bookSummaries} />
     ) : (
       <div class="empty-state">
         <div class="empty-state__icon">📚</div>

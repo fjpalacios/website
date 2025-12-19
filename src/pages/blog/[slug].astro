@@ -1,4 +1,5 @@
 ---
+import PostTitle from "@components/PostTitle.astro";
 import Layout from "@layouts/Layout.astro";
 import { getCollection, render } from "astro:content";
 
@@ -21,65 +22,30 @@ const { Content } = await render(postEntry);
 const lang = post.language;
 const contact = lang === "es" ? contactEs : contactEn;
 
-const formattedDate = post.date.toLocaleDateString(lang === "es" ? "es-ES" : "en-US", {
-  year: "numeric",
-  month: "long",
-  day: "numeric",
-});
-
-const formattedUpdateDate = post.update_date
-  ? post.update_date.toLocaleDateString(lang === "es" ? "es-ES" : "en-US", {
-      year: "numeric",
-      month: "long",
-      day: "numeric",
-    })
-  : null;
+// Cover image with fallback
+const coverImage = post.cover || `/images/defaults/post-default.jpg`;
 ---
 
 <Layout lang={lang} title={post.title} description={post.excerpt} contact={contact}>
-  <article class="post">
-    <header class="post__header">
-      <h1 class="post__title">{post.title}</h1>
-      <div class="post__meta">
-        <time datetime={post.date.toISOString()}>{formattedDate}</time>
-        {formattedUpdateDate && <span class="post__updated">Updated: {formattedUpdateDate}</span>}
+  <main class="post">
+    <section class="post__content">
+      <img src={coverImage} alt={post.title} width="1400" height="700" loading="lazy" />
+      <PostTitle title={post.title} date={post.date} />
+      <div class="text-area">
+        <Content />
       </div>
-      <div class="post__category">
-        <span>{post.category}</span>
+    </section>
+    <section class="post__info">
+      <div class="post__info__icon">
+        <i class="icon-tag"></i>
       </div>
-      {
-        post.canonical_url && (
-          <div class="post__canonical">
-            <p>
-              Originally published at{" "}
-              <a href={post.canonical_url} target="_blank" rel="noopener">
-                {new URL(post.canonical_url).hostname}
-              </a>
-            </p>
-          </div>
-        )
-      }
-    </header>
-
-    <div class="post__content">
-      <Content />
-    </div>
-
-    {
-      post.tags.length > 0 && (
-        <footer class="post__footer">
-          <div class="post__tags">
-            <i class="icon-tag" />
-            <ul class="post__tags-list">
-              {post.tags.map((tag) => (
-                <li>
-                  <span class="tag">{tag}</span>
-                </li>
-              ))}
-            </ul>
-          </div>
-        </footer>
-      )
-    }
-  </article>
+      <ul class="post__info__text">
+        <li>
+          <a href={`/category/${post.category}`} class="post__info__text__item" title="Category">
+            {post.category}
+          </a>
+        </li>
+      </ul>
+    </section>
+  </main>
 </Layout>
