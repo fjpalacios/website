@@ -293,5 +293,3 @@ This project structure and code are available for reference under MIT License. C
 ---
 
 Built with ❤️ using Astro, TypeScript, and modern web development best practices.
-
-# Test protection
