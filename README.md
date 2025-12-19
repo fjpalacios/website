@@ -1,5 +1,8 @@
 # Personal Website
 
+[![CI/CD](https://github.com/USUARIO/REPO/actions/workflows/ci.yml/badge.svg)](https://github.com/USUARIO/REPO/actions/workflows/ci.yml)
+[![codecov](https://codecov.io/gh/USUARIO/REPO/branch/main/graph/badge.svg)](https://codecov.io/gh/USUARIO/REPO)
+
 Personal website and resume built with [Astro](https://astro.build/). Featuring comprehensive testing, CI/CD, and modern web development best practices.
 
 ## ✨ Features
