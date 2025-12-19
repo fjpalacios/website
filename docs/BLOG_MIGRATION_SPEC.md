@@ -440,6 +440,46 @@ src/
 - `/en/author/stephen-king`
 - etc.
 
+#### ⚠️ IMPORTANT: Slug Consistency Across Site
+
+**ACTION REQUIRED**: When implementing blog routes, existing pages must be updated to maintain slug consistency across languages.
+
+**Current Issue**: The "About" page currently uses `/about` for both Spanish and English versions, which breaks i18n consistency.
+
+**Required Changes** (to be implemented in Phase 2 or 3):
+
+**Spanish routes:**
+
+- `/sobre-mi` (currently `/about`) - About page
+- `/contacto` (currently `/contact`) - Contact page
+- `/blog` - Blog home
+- `/libros` - Books listing
+- `/tutoriales` - Tutorials listing
+
+**English routes:**
+
+- `/en/about` - About page
+- `/en/contact` - Contact page
+- `/en/blog` - Blog home
+- `/en/books` - Books listing
+- `/en/tutorials` - Tutorials listing
+
+**Migration Strategy:**
+
+1. Update Astro routing structure to support language-specific slugs
+2. Update existing pages (`about.astro`, `contact.astro`) to use proper i18n slugs
+3. Implement redirects from old URLs (`/about` → `/sobre-mi` or `/en/about` based on language detection)
+4. Update navigation components to use correct language-specific routes
+5. Test all internal links and update documentation
+
+**Files to modify:**
+
+- `src/pages/about.astro` → split into `src/pages/sobre-mi.astro` + `src/pages/en/about.astro`
+- `src/pages/contact.astro` → split into `src/pages/contacto.astro` + `src/pages/en/contact.astro`
+- Navigation components (header, footer)
+- Sitemap generation
+- Any hardcoded links in content
+
 ### MDX Components Migration
 
 All Gatsby MDX components will be migrated to Astro components:
