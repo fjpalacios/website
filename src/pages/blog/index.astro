@@ -1,0 +1,335 @@
+---
+import { getCollection } from "astro:content";
+
+import {
+  sortByDate,
+  filterByLanguage,
+  paginateItems,
+  getPageCount,
+  preparePostSummary,
+  type PostSummary,
+} from "@/utils/blog";
+
+const POSTS_PER_PAGE = 12;
+
+// Get all posts
+const allPosts = await getCollection("posts");
+
+// Filter by Spanish language (default for the site) and exclude drafts
+const spanishPosts = filterByLanguage(allPosts, "es").filter((post) => !post.data.draft);
+
+// Sort by date (newest first)
+const sortedPosts = sortByDate(spanishPosts, "desc");
+
+// Prepare post summaries
+const postSummaries: PostSummary[] = sortedPosts.map((post) => preparePostSummary(post));
+
+// Paginate
+const currentPage = 1;
+const totalPages = getPageCount(postSummaries.length, POSTS_PER_PAGE);
+const paginatedPosts = paginateItems(postSummaries, currentPage, POSTS_PER_PAGE);
+---
+
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="Blog posts about web development" />
+    <title>Blog - Development Articles</title>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+        line-height: 1.6;
+        color: #e2e8f0;
+        background: #0f172a;
+        padding: 2rem;
+      }
+
+      .container {
+        max-width: 1200px;
+        margin: 0 auto;
+      }
+
+      .header {
+        margin-bottom: 3rem;
+      }
+
+      .title {
+        font-size: 3rem;
+        color: #f87171;
+        margin-bottom: 0.5rem;
+      }
+
+      .subtitle {
+        color: #94a3b8;
+        font-size: 1.1rem;
+      }
+
+      .stats {
+        background: #1e293b;
+        padding: 1rem 1.5rem;
+        border-radius: 8px;
+        margin-bottom: 2rem;
+        display: inline-block;
+      }
+
+      .stats-text {
+        color: #cbd5e1;
+      }
+
+      .stats-number {
+        color: #f87171;
+        font-weight: bold;
+        font-size: 1.2rem;
+      }
+
+      .posts-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+        gap: 2rem;
+        margin-bottom: 3rem;
+      }
+
+      .post-card {
+        background: linear-gradient(135deg, #1e293b 0%, #334155 100%);
+        border-radius: 12px;
+        padding: 1.5rem;
+        transition: all 0.3s ease;
+        border: 2px solid transparent;
+        cursor: pointer;
+        display: flex;
+        flex-direction: column;
+      }
+
+      .post-card:hover {
+        transform: translateY(-4px);
+        border-color: #f87171;
+        box-shadow: 0 8px 24px rgba(248, 113, 113, 0.2);
+      }
+
+      .post-header {
+        margin-bottom: 1rem;
+      }
+
+      .post-category {
+        display: inline-block;
+        background: #f87171;
+        color: #fff;
+        padding: 0.25rem 0.75rem;
+        border-radius: 6px;
+        font-size: 0.75rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        margin-bottom: 0.75rem;
+      }
+
+      .post-title {
+        font-size: 1.5rem;
+        color: #f87171;
+        margin-bottom: 0.5rem;
+        text-decoration: none;
+        display: block;
+      }
+
+      .post-title:hover {
+        text-decoration: underline;
+      }
+
+      .post-excerpt {
+        color: #cbd5e1;
+        font-size: 0.95rem;
+        margin-bottom: 1rem;
+        line-height: 1.6;
+        flex-grow: 1;
+      }
+
+      .post-tags {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+        margin-bottom: 1rem;
+      }
+
+      .tag {
+        background: #1e293b;
+        color: #94a3b8;
+        padding: 0.25rem 0.75rem;
+        border-radius: 4px;
+        font-size: 0.8rem;
+        border: 1px solid #334155;
+      }
+
+      .post-meta {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding-top: 1rem;
+        border-top: 1px solid #334155;
+      }
+
+      .post-date {
+        color: #64748b;
+        font-size: 0.85rem;
+      }
+
+      .update-badge {
+        background: #475569;
+        color: #e2e8f0;
+        padding: 0.25rem 0.5rem;
+        border-radius: 4px;
+        font-size: 0.75rem;
+      }
+
+      .pagination {
+        display: flex;
+        justify-content: center;
+        gap: 0.5rem;
+        margin-top: 3rem;
+      }
+
+      .page-link {
+        background: #1e293b;
+        color: #e2e8f0;
+        padding: 0.5rem 1rem;
+        border-radius: 6px;
+        text-decoration: none;
+        transition: all 0.2s;
+      }
+
+      .page-link:hover {
+        background: #f87171;
+        color: #0f172a;
+      }
+
+      .page-link.active {
+        background: #f87171;
+        color: #0f172a;
+        font-weight: bold;
+      }
+
+      .empty-state {
+        text-align: center;
+        padding: 4rem 2rem;
+        background: #1e293b;
+        border-radius: 12px;
+      }
+
+      .empty-state-title {
+        color: #64748b;
+        font-size: 1.5rem;
+        margin-bottom: 1rem;
+      }
+
+      .empty-state-text {
+        color: #475569;
+      }
+
+      @media (max-width: 768px) {
+        body {
+          padding: 1rem;
+        }
+
+        .title {
+          font-size: 2rem;
+        }
+
+        .posts-grid {
+          grid-template-columns: 1fr;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <div class="header">
+        <h1 class="title">📝 Blog</h1>
+        <p class="subtitle">Development articles and insights</p>
+      </div>
+
+      <div class="stats">
+        <span class="stats-text">Showing </span>
+        <span class="stats-number">{paginatedPosts.length}</span>
+        <span class="stats-text"> of </span>
+        <span class="stats-number">{postSummaries.length}</span>
+        <span class="stats-text"> posts</span>
+        {
+          totalPages > 1 && (
+            <span class="stats-text">
+              {" "}
+              (page {currentPage} of {totalPages})
+            </span>
+          )
+        }
+      </div>
+
+      {
+        paginatedPosts.length > 0 ? (
+          <div class="posts-grid">
+            {paginatedPosts.map((post) => (
+              <article class="post-card">
+                <div class="post-header">
+                  <span class="post-category">{post.category}</span>
+
+                  <a href={`/blog/${post.slug}`} class="post-title">
+                    {post.title}
+                  </a>
+                </div>
+
+                <p class="post-excerpt">{post.excerpt}</p>
+
+                {post.tags.length > 0 && (
+                  <div class="post-tags">
+                    {post.tags.slice(0, 4).map((tag) => (
+                      <span class="tag">{tag}</span>
+                    ))}
+                    {post.tags.length > 4 && <span class="tag">+{post.tags.length - 4} more</span>}
+                  </div>
+                )}
+
+                <div class="post-meta">
+                  <div class="post-date">
+                    {post.date.toLocaleDateString("es-ES", {
+                      year: "numeric",
+                      month: "short",
+                      day: "numeric",
+                    })}
+                  </div>
+
+                  {post.updateDate && <span class="update-badge">Updated</span>}
+                </div>
+              </article>
+            ))}
+          </div>
+        ) : (
+          <div class="empty-state">
+            <h2 class="empty-state-title">No posts found</h2>
+            <p class="empty-state-text">Check back soon for new articles!</p>
+          </div>
+        )
+      }
+
+      {
+        totalPages > 1 && (
+          <div class="pagination">
+            {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+              <a
+                href={page === 1 ? "/blog" : `/blog/page/${page}`}
+                class:list={["page-link", { active: page === currentPage }]}
+              >
+                {page}
+              </a>
+            ))}
+          </div>
+        )
+      }
+    </div>
+  </body>
+</html>

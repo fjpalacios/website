@@ -28,3 +28,6 @@ export { getBooksByAuthor, prepareAuthorSummary, type AuthorSummary } from "./au
 
 // Tutorial utilities
 export { prepareTutorialSummary, type TutorialSummary } from "./tutorials";
+
+// Post utilities
+export { preparePostSummary, type PostSummary } from "./posts";
