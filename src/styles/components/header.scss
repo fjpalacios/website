@@ -1,0 +1,132 @@
+@use "../variables" as *;
+@use "../mixins" as *;
+
+.header {
+  display: grid;
+  grid-column: span 12;
+  grid-template-areas:
+    "title"
+    "subtitle"
+    "contact";
+  margin-bottom: 40px;
+  padding: 20px;
+  background-color: $primary;
+  color: $inverted-text;
+
+  @include medium-and-up {
+    grid-template-areas:
+      "title contact"
+      "subtitle contact";
+  }
+
+  @include print {
+    grid-template-areas:
+      "title contact"
+      "subtitle contact";
+    margin-bottom: 20px;
+    padding: 10px;
+  }
+
+  &__title {
+    grid-area: title;
+    margin: 0;
+    font-size: 1.2em;
+    font-weight: bold;
+    text-transform: uppercase;
+
+    @include small-and-up {
+      font-size: 2em;
+    }
+
+    @include print {
+      font-size: 1.7em;
+    }
+  }
+
+  &__subtitle {
+    grid-area: subtitle;
+    margin: 5px 0 0;
+    font-size: 1em;
+    font-weight: 100;
+    text-transform: uppercase;
+
+    @include small-and-up {
+      margin: 0;
+      font-size: 1.5em;
+    }
+
+    @include print {
+      margin: 0;
+      font-size: 1.2em;
+    }
+  }
+
+  &__contact {
+    display: grid;
+    grid-area: contact;
+    grid-template-columns: repeat(auto-fit, 20px);
+    justify-content: space-between;
+    align-content: space-around;
+    margin-top: 20px;
+    font-size: 0.8em;
+
+    @include medium-and-up {
+      grid-template-columns: repeat(2, 150px);
+      justify-content: end;
+      margin-top: 0;
+    }
+
+    @include print {
+      grid-template-columns: repeat(2, 120px);
+      margin-top: 0;
+    }
+
+    &__item {
+      cursor: pointer;
+
+      a {
+        display: flex;
+        color: $header-link;
+
+        i {
+          margin-right: 0.5em;
+          font-size: 1.5em;
+
+          @include medium-and-up {
+            font-size: 1em;
+          }
+
+          @include print {
+            font-size: 1em;
+          }
+        }
+
+        p {
+          display: none;
+
+          @include medium-and-up {
+            display: block;
+            margin: 0;
+            padding: 0;
+          }
+
+          @include print {
+            display: block;
+            margin: 0;
+            padding: 0;
+          }
+        }
+      }
+    }
+  }
+}
+
+@include screen {
+  .phone {
+    display: none;
+  }
+
+  .globe {
+    display: none;
+  }
+}

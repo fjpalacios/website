@@ -1,0 +1,81 @@
+@use "../variables" as *;
+@use "../mixins" as *;
+
+.basic-list {
+  display: grid;
+  grid-template-areas:
+    "name dates"
+    "role location-role"
+    "location ."
+    "desc desc"
+    "extendedDesc extendedDesc";
+  @include print {
+    grid-template-areas:
+      "name dates"
+      "location"
+      "desc desc"
+      "extendedDesc extendedDesc";
+  }
+  margin-bottom: 20px;
+  padding: 0 20px;
+
+  @include print {
+    margin-bottom: 10px;
+    padding: 0 10px;
+  }
+
+  &__name {
+    grid-area: name;
+    text-transform: uppercase;
+  }
+
+  &__role {
+    grid-area: role;
+    font-weight: bold;
+    text-transform: uppercase;
+  }
+
+  &__location {
+    grid-area: location;
+
+    &--with-role {
+      display: grid;
+      grid-area: location-role;
+      justify-content: end;
+
+      @include print {
+        display: grid;
+        grid-area: location;
+        justify-content: start;
+      }
+    }
+  }
+
+  &__dates {
+    display: grid;
+    grid-area: dates;
+    justify-content: end;
+  }
+
+  &__desc {
+    grid-area: desc;
+
+    @include screen {
+      display: none;
+    }
+  }
+
+  &__extendedDesc {
+    grid-area: extendedDesc;
+
+    @include print {
+      display: none;
+    }
+  }
+}
+
+@include print {
+  .hide-print {
+    display: none !important;
+  }
+}

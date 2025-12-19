@@ -1,0 +1,88 @@
+---
+import Header from "@components/Header.astro";
+import Menu from "@components/Menu.astro";
+import { t } from "@locales";
+import type { ContactItem } from "@types/content";
+import { ViewTransitions } from "astro:transitions";
+
+interface Props {
+  lang: string;
+  title?: string;
+  description?: string;
+  contact: ContactItem[];
+}
+
+const { lang, title, description, contact } = Astro.props;
+const currentPath = Astro.url.pathname;
+
+// Build full title: "Page Title - Name" or just "Name" for home
+const fullName = t(lang, "title");
+const metaTitle = title ? `${title} - ${fullName}` : fullName;
+const metaDescription = description || t(lang, "metaData.description");
+const metaImage = t(lang, "metaData.image");
+// Build full URL with current path
+const baseUrl = t(lang, "metaData.url");
+const metaUrl = new URL(currentPath, baseUrl).href;
+---
+
+<!doctype html>
+<html lang={lang}>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content={metaDescription} />
+    <meta property="og:title" content={metaTitle} />
+    <meta property="og:description" content={metaDescription} />
+    <meta property="og:image" content={metaImage} />
+    <meta property="og:url" content={metaUrl} />
+    <meta property="og:type" content="website" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={metaTitle} />
+    <meta name="twitter:description" content={metaDescription} />
+    <meta name="twitter:image" content={metaImage} />
+    <link rel="icon" type="image/x-icon" href="/favicon.ico" />
+    <link rel="stylesheet" href="/fontello/css/fontello.css" />
+    <ViewTransitions />
+    <title>{metaTitle}</title>
+    <script is:inline>
+      // Prevent FOUC (Flash of Unstyled Content) by applying theme before render
+      (function () {
+        const theme = localStorage.getItem("theme") || "dark";
+        document.documentElement.classList.add(theme);
+        if (document.body) {
+          document.body.classList.add(theme);
+        }
+      })();
+    </script>
+    <script
+      type="application/ld+json"
+      set:html={JSON.stringify({
+        "@context": "https://schema.org",
+        "@type": "Person",
+        name: t(lang, "title"),
+        jobTitle: t(lang, "subtitle"),
+        url: baseUrl,
+        sameAs: ["https://www.linkedin.com/in/fjpalacios/", "https://github.com/fjpalacios"],
+        address: {
+          "@type": "PostalAddress",
+          addressLocality: "Valencia",
+          addressCountry: "ES",
+        },
+      })}
+    />
+    <style is:global lang="scss">
+      @use "../styles/main";
+    </style>
+  </head>
+  <body>
+    <div class="layout-wrapper">
+      <div class="container">
+        <Menu lang={lang} currentPath={currentPath} />
+        <Header lang={lang} contact={contact} />
+        <div class="content">
+          <slot />
+        </div>
+      </div>
+    </div>
+  </body>
+</html>

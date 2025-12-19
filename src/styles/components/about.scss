@@ -1,0 +1,32 @@
+@use "../variables" as *;
+@use "../mixins" as *;
+
+.about {
+  grid-column: span 12;
+
+  &__grid {
+    columns: 1;
+
+    @include medium-and-up {
+      columns: 2;
+      column-gap: 40px;
+    }
+
+    @include print {
+      columns: 2;
+      column-gap: 20px;
+    }
+
+    > * {
+      margin-bottom: 40px;
+      overflow: hidden;
+      transition: all 0.45s ease;
+      border: 2px solid $primary;
+      break-inside: avoid;
+
+      @include print {
+        margin-bottom: 10px;
+      }
+    }
+  }
+}

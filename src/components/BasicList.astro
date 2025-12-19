@@ -1,0 +1,27 @@
+---
+import type { BasicListItem } from "@types/content";
+
+interface Props {
+  data: BasicListItem[];
+}
+
+const { data } = Astro.props;
+---
+
+{
+  data.map((item) => (
+    <div class:list={["basic-list", { "hide-print": item.hideOnPrint }]}>
+      <div class="basic-list__name">{item.url ? <a href={item.url}>{item.name}</a> : <span>{item.name}</span>}</div>
+      <div class="basic-list__dates">{item.dates}</div>
+      {item.role && (
+        <>
+          <div class="basic-list__role hide-print">{item.role}</div>
+          <div class="basic-list__location--with-role">{item.location}</div>
+        </>
+      )}
+      {!item.role && <div class="basic-list__location">{item.location}</div>}
+      <div class="basic-list__desc" set:html={item.desc} />
+      {item.extendedDesc && <div class="basic-list__extendedDesc" set:html={item.extendedDesc} />}
+    </div>
+  ))
+}

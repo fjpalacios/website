@@ -1,0 +1,25 @@
+---
+import TextArea from "@components/TextArea.astro";
+import Title from "@components/Title.astro";
+import { about } from "@content/en/about";
+import { contact } from "@content/en/contact";
+import Layout from "@layouts/Layout.astro";
+import { t } from "@locales";
+
+const lang = "en";
+---
+
+<Layout lang={lang} contact={contact} title={t(lang, "pages.about")}>
+  <main class="about">
+    <section class="about__grid">
+      <section class="about__grid__me">
+        <Title title={t(lang, "about.me")} />
+        <TextArea text={about.me} />
+      </section>
+      <section class="about__grid__internet">
+        <Title title={t(lang, "about.internet")} />
+        <TextArea text={about.internet} />
+      </section>
+    </section>
+  </main>
+</Layout>

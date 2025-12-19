@@ -1,0 +1,21 @@
+@use "../variables" as *;
+@use "../mixins" as *;
+
+.language-switcher {
+  line-height: 0;
+
+  a,
+  button {
+    padding: 0;
+    border: 0;
+    background: transparent;
+    line-height: 0;
+    display: inline-block;
+
+    img {
+      width: 100%;
+      max-width: 20px;
+      cursor: pointer;
+    }
+  }
+}

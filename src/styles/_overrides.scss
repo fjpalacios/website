@@ -1,0 +1,40 @@
+@use "./variables" as *;
+@use "./mixins" as *;
+
+* {
+  outline: 0;
+}
+
+html {
+  // Prevent layout shift when scrollbar appears/disappears
+  // This reserves space for the scrollbar even when content doesn't overflow
+  scrollbar-gutter: stable;
+}
+
+body {
+  background-color: $background;
+  color: $text;
+  font-family: Helvetica, Arial, sans-serif;
+  font-size: 12px;
+
+  @include small {
+    font-size: 14px;
+  }
+
+  @include medium {
+    font-size: 16px;
+  }
+
+  @include large {
+    font-size: 18px;
+  }
+}
+
+a {
+  color: $accent;
+  text-decoration: none;
+
+  @include print {
+    color: $text;
+  }
+}

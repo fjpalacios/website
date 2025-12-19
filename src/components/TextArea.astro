@@ -1,0 +1,11 @@
+---
+interface Props {
+  text: string;
+}
+
+const { text } = Astro.props;
+---
+
+<div class="text-area">
+  <div class="text-area__content" set:html={text} />
+</div>

@@ -1,0 +1,18 @@
+@use "normalize.css";
+@use "./variables";
+@use "./mixins";
+@use "./layout";
+@use "./overrides";
+
+// Component styles
+@use "./components/layout" as component-layout;
+@use "./components/header";
+@use "./components/menu";
+@use "./components/language-switcher";
+@use "./components/theme-switcher";
+@use "./components/title";
+@use "./components/text-area";
+@use "./components/basic-list";
+@use "./components/languages-list";
+@use "./components/resume";
+@use "./components/about";

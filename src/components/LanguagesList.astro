@@ -1,0 +1,26 @@
+---
+import type { LanguagesListItem } from "@types/content";
+
+interface Props {
+  data: LanguagesListItem[];
+}
+
+const { data } = Astro.props;
+---
+
+{
+  data.map((item) => (
+    <div class="languages-list">
+      <div class="languages-list__name">{item.url ? <a href={item.url}>{item.name}</a> : <span>{item.name}</span>}</div>
+      {item.dates && <div class="languages-list__dates">{item.dates}</div>}
+      <ul class="languages-list__languages">
+        {item.languages.map((language) => (
+          <li>
+            <a href={`https://ddg.gg/?q=${language}`}>#{language}</a>
+          </li>
+        ))}
+      </ul>
+      <div class="languages-list__desc" set:html={item.desc} />
+    </div>
+  ))
+}

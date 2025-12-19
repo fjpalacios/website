@@ -1,0 +1,18 @@
+@use "../variables" as *;
+@use "../mixins" as *;
+
+.layout-wrapper {
+  display: grid;
+  align-items: center;
+  justify-content: center;
+}
+
+#gatsby-focus-wrapper {
+  display: grid;
+  align-items: center;
+  justify-content: center;
+}
+
+.content {
+  grid-column: span 12;
+}

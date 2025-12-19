@@ -1,0 +1,15 @@
+@use "./mixins" as *;
+
+.container {
+  display: grid;
+  grid-template-columns: repeat(12, 1fr);
+  align-items: initial;
+  width: calc(100vw - 40px);
+  max-width: 1400px;
+  padding: 20px;
+
+  @include print {
+    width: 90vw;
+    padding: 0;
+  }
+}

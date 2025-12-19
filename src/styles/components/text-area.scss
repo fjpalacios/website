@@ -1,0 +1,19 @@
+@use "../variables" as *;
+@use "../mixins" as *;
+
+.text-area {
+  margin-bottom: 20px;
+  padding: 0 20px;
+
+  @include print {
+    margin-bottom: 10px;
+    padding: 0 10px;
+  }
+
+  &__content {
+    p {
+      text-align: justify;
+      text-justify: inter-word;
+    }
+  }
+}

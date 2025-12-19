@@ -1,0 +1,28 @@
+---
+import { t } from "@locales";
+import type { ContactItem } from "@types/content";
+
+interface Props {
+  lang: string;
+  contact: ContactItem[];
+}
+
+const { lang, contact } = Astro.props;
+---
+
+<header class="header">
+  <h1 class="header__title">{t(lang, "title")}</h1>
+  <h2 class="header__subtitle">{t(lang, "subtitle")}</h2>
+  <div class="header__contact">
+    {
+      contact.map((item) => (
+        <div class={`header__contact__item ${item.icon}`}>
+          <a href={item.link} target="_blank" rel="noreferrer">
+            <i class={`icon-${item.icon}`} />
+            <p>{item.text}</p>
+          </a>
+        </div>
+      ))
+    }
+  </div>
+</header>

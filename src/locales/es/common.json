@@ -1,0 +1,32 @@
+{
+  "title": "Francisco Javier Palacios Pérez",
+  "subtitle": "Desarrollador de software",
+  "metaData": {
+    "url": "https://fjp.es",
+    "description": "Página web personal de Francisco Javier Palacios Pérez, desarrollador de software de Valencia (España)",
+    "image": "https://fjp.es/logo.jpg",
+    "twitterUsername": "@fjpalacios"
+  },
+  "menu": {
+    "toEnglish": "Cambia a Inglés",
+    "toSpanish": "Cambia a español",
+    "switchTheme": "Cambia tema"
+  },
+  "resume": {
+    "me": "Sobre mí",
+    "experience": "Experiencia",
+    "education": "Educación",
+    "freelance": "Trabajos como freelance",
+    "projects": "Proyectos personales",
+    "volunteering": "Voluntariado",
+    "talks": "Charlas / talleres"
+  },
+  "pages": {
+    "home": "Inicio",
+    "about": "Sobre mí"
+  },
+  "about": {
+    "me": "Sobre mí",
+    "internet": "Internet"
+  }
+}

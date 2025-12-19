@@ -1,0 +1,47 @@
+---
+import BasicList from "@components/BasicList.astro";
+import LanguagesList from "@components/LanguagesList.astro";
+import TextArea from "@components/TextArea.astro";
+import Title from "@components/Title.astro";
+import { contact } from "@content/es/contact";
+import { resume } from "@content/es/resume";
+import Layout from "@layouts/Layout.astro";
+import { t } from "@locales";
+
+const lang = "es";
+---
+
+<Layout lang={lang} contact={contact}>
+  <main class="resume">
+    <section class="resume__main-block">
+      <Title title={t(lang, "resume.me")} />
+      <TextArea text={resume.me} />
+    </section>
+    <section class="resume__grid">
+      <section class="resume__grid__experience">
+        <Title title={t(lang, "resume.experience")} />
+        <BasicList data={resume.experience} />
+      </section>
+      <section class="resume__grid__education">
+        <Title title={t(lang, "resume.education")} />
+        <BasicList data={resume.education} />
+      </section>
+      <section class="resume__grid__freelance">
+        <Title title={t(lang, "resume.freelance")} />
+        <LanguagesList data={resume.freelance} />
+      </section>
+      <section class="resume__grid__projects">
+        <Title title={t(lang, "resume.projects")} />
+        <LanguagesList data={resume.projects} />
+      </section>
+      <section class="resume__grid__volunteering">
+        <Title title={t(lang, "resume.volunteering")} />
+        <LanguagesList data={resume.volunteering} />
+      </section>
+      <section class="resume__grid__talks">
+        <Title title={t(lang, "resume.talks")} />
+        <BasicList data={resume.talks} />
+      </section>
+    </section>
+  </main>
+</Layout>

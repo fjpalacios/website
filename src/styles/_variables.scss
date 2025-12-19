@@ -1,0 +1,45 @@
+@use "./mixins" as *;
+
+$accent: var(--accent);
+$background: var(--background);
+$primary: var(--primary);
+$text: var(--text);
+$inverted-text: var(--inverted-text);
+$header-link: var(--header-link);
+
+%dark {
+  --accent: #efbb35;
+  --background: #11151c;
+  --primary: #192734;
+  --text: #f8f8f8;
+  --inverted-text: var(--text);
+  --header-link: var(--text);
+}
+
+%light {
+  --accent: #23b5d3;
+  --background: #fbfef9;
+  --primary: #071013;
+  --text: #284b63;
+  --inverted-text: var(--background);
+  --header-link: var(--inverted-text);
+}
+
+body {
+  @extend %dark;
+
+  &.dark {
+    @extend %dark;
+  }
+
+  &.light {
+    @extend %light;
+
+    @include print {
+      --background: #fff;
+      --primary: #000;
+      --text: var(--primary);
+      --inverted-text: var(--background);
+    }
+  }
+}

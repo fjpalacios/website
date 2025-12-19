@@ -1,0 +1,53 @@
+@use "../variables" as *;
+@use "../mixins" as *;
+
+.menu {
+  display: flex;
+  grid-column: span 12;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 20px 10px;
+
+  &__left {
+    display: flex;
+    align-items: center;
+
+    > * {
+      margin-right: 20px;
+
+      &:last-child {
+        margin-right: 0;
+      }
+    }
+  }
+
+  &__right {
+    .navigation {
+      margin: 0;
+      list-style: none;
+
+      &__link {
+        display: inline-block;
+        margin-right: 20px;
+
+        &:last-child {
+          margin-right: 0;
+        }
+
+        &--active {
+          color: $text;
+        }
+      }
+    }
+  }
+}
+
+@include print {
+  .menu {
+    display: none;
+  }
+
+  .resume__main-block {
+    display: none;
+  }
+}
