@@ -1,0 +1,303 @@
+---
+import { getCollection } from "astro:content";
+
+import {
+  sortByDate,
+  filterByLanguage,
+  paginateItems,
+  getPageCount,
+  findAuthorBySlug,
+  prepareBookSummary,
+  type BookSummary,
+} from "@/utils/blog";
+
+const BOOKS_PER_PAGE = 12;
+
+// Get all books and authors
+const allBooks = await getCollection("books");
+const allAuthors = await getCollection("authors");
+
+// Filter by Spanish language (default for the site)
+const spanishBooks = filterByLanguage(allBooks, "es");
+
+// Sort by date (newest first)
+const sortedBooks = sortByDate(spanishBooks, "desc");
+
+// Prepare book summaries with author info
+const bookSummaries: BookSummary[] = sortedBooks.map((book) => {
+  const author = findAuthorBySlug(allAuthors, book.data.author);
+  return prepareBookSummary(book, author);
+});
+
+// Paginate
+const currentPage = 1;
+const totalPages = getPageCount(bookSummaries.length, BOOKS_PER_PAGE);
+const paginatedBooks = paginateItems(bookSummaries, currentPage, BOOKS_PER_PAGE);
+---
+
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="Book reviews and recommendations" />
+    <title>Libros - Book Reviews</title>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+        line-height: 1.6;
+        color: #e2e8f0;
+        background: #0f172a;
+        padding: 2rem;
+      }
+
+      .container {
+        max-width: 1200px;
+        margin: 0 auto;
+      }
+
+      .header {
+        margin-bottom: 3rem;
+      }
+
+      .title {
+        font-size: 3rem;
+        color: #38bdf8;
+        margin-bottom: 0.5rem;
+      }
+
+      .subtitle {
+        color: #94a3b8;
+        font-size: 1.1rem;
+      }
+
+      .stats {
+        background: #1e293b;
+        padding: 1rem 1.5rem;
+        border-radius: 8px;
+        margin-bottom: 2rem;
+        display: inline-block;
+      }
+
+      .stats-text {
+        color: #cbd5e1;
+      }
+
+      .stats-number {
+        color: #38bdf8;
+        font-weight: bold;
+        font-size: 1.2rem;
+      }
+
+      .books-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+        gap: 2rem;
+        margin-bottom: 3rem;
+      }
+
+      .book-card {
+        background: linear-gradient(135deg, #1e293b 0%, #334155 100%);
+        border-radius: 12px;
+        padding: 1.5rem;
+        transition: all 0.3s ease;
+        border: 2px solid transparent;
+        cursor: pointer;
+      }
+
+      .book-card:hover {
+        transform: translateY(-4px);
+        border-color: #38bdf8;
+        box-shadow: 0 8px 24px rgba(56, 189, 248, 0.2);
+      }
+
+      .book-title {
+        font-size: 1.5rem;
+        color: #38bdf8;
+        margin-bottom: 0.5rem;
+        text-decoration: none;
+        display: block;
+      }
+
+      .book-title:hover {
+        text-decoration: underline;
+      }
+
+      .book-author {
+        color: #94a3b8;
+        font-size: 0.95rem;
+        margin-bottom: 1rem;
+      }
+
+      .book-author a {
+        color: #22d3ee;
+        text-decoration: none;
+      }
+
+      .book-author a:hover {
+        text-decoration: underline;
+      }
+
+      .book-excerpt {
+        color: #cbd5e1;
+        font-size: 0.95rem;
+        margin-bottom: 1rem;
+        line-height: 1.6;
+      }
+
+      .book-meta {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding-top: 1rem;
+        border-top: 1px solid #334155;
+      }
+
+      .book-date {
+        color: #64748b;
+        font-size: 0.85rem;
+      }
+
+      .book-rating {
+        color: #fbbf24;
+        font-size: 1.1rem;
+      }
+
+      .book-pages {
+        color: #64748b;
+        font-size: 0.85rem;
+        margin-top: 0.5rem;
+      }
+
+      .pagination {
+        display: flex;
+        justify-content: center;
+        gap: 0.5rem;
+        margin-top: 3rem;
+      }
+
+      .page-link {
+        background: #1e293b;
+        color: #e2e8f0;
+        padding: 0.5rem 1rem;
+        border-radius: 6px;
+        text-decoration: none;
+        transition: all 0.2s;
+      }
+
+      .page-link:hover {
+        background: #38bdf8;
+        color: #0f172a;
+      }
+
+      .page-link.active {
+        background: #38bdf8;
+        color: #0f172a;
+        font-weight: bold;
+      }
+
+      .empty-state {
+        text-align: center;
+        padding: 4rem 2rem;
+        background: #1e293b;
+        border-radius: 12px;
+      }
+
+      .empty-state-title {
+        color: #64748b;
+        font-size: 1.5rem;
+        margin-bottom: 1rem;
+      }
+
+      .empty-state-text {
+        color: #475569;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <div class="header">
+        <h1 class="title">📚 Libros</h1>
+        <p class="subtitle">Book reviews and recommendations</p>
+      </div>
+
+      <div class="stats">
+        <span class="stats-text">Showing </span>
+        <span class="stats-number">{paginatedBooks.length}</span>
+        <span class="stats-text"> of </span>
+        <span class="stats-number">{bookSummaries.length}</span>
+        <span class="stats-text"> books</span>
+        {
+          totalPages > 1 && (
+            <span class="stats-text">
+              {" "}
+              (page {currentPage} of {totalPages})
+            </span>
+          )
+        }
+      </div>
+
+      {
+        paginatedBooks.length > 0 ? (
+          <div class="books-grid">
+            {paginatedBooks.map((book) => (
+              <article class="book-card">
+                <a href={`/libros/${book.slug}`} class="book-title">
+                  {book.title}
+                </a>
+
+                {book.authorName && (
+                  <div class="book-author">
+                    by {book.authorSlug ? <a href={`/autor/${book.authorSlug}`}>{book.authorName}</a> : book.authorName}
+                  </div>
+                )}
+
+                <p class="book-excerpt">{book.excerpt}</p>
+
+                <div class="book-meta">
+                  <div>
+                    <div class="book-date">
+                      {book.date.toLocaleDateString("es-ES", {
+                        year: "numeric",
+                        month: "short",
+                        day: "numeric",
+                      })}
+                    </div>
+                    <div class="book-pages">{book.pages} pages</div>
+                  </div>
+                  <div class="book-rating">{"⭐".repeat(book.score)}</div>
+                </div>
+              </article>
+            ))}
+          </div>
+        ) : (
+          <div class="empty-state">
+            <h2 class="empty-state-title">No books found</h2>
+            <p class="empty-state-text">Check back soon for new reviews!</p>
+          </div>
+        )
+      }
+
+      {
+        totalPages > 1 && (
+          <div class="pagination">
+            {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+              <a
+                href={page === 1 ? "/libros" : `/libros/page/${page}`}
+                class:list={["page-link", { active: page === currentPage }]}
+              >
+                {page}
+              </a>
+            ))}
+          </div>
+        )
+      }
+    </div>
+  </body>
+</html>
