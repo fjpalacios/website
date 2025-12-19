@@ -1,0 +1,310 @@
+---
+import { getCollection, render } from "astro:content";
+
+export async function getStaticPaths() {
+  const tutorials = await getCollection("tutorials");
+
+  return tutorials.map((tutorial) => ({
+    params: { slug: tutorial.data.post_slug },
+    props: { tutorialEntry: tutorial },
+  }));
+}
+
+const { tutorialEntry } = Astro.props;
+const tutorial = tutorialEntry.data;
+const { Content } = await render(tutorialEntry);
+
+const formattedDate = tutorial.date.toLocaleDateString(tutorial.language === "es" ? "es-ES" : "en-US", {
+  year: "numeric",
+  month: "long",
+  day: "numeric",
+});
+
+// Difficulty labels and colors
+const difficultyConfig = {
+  beginner: { label: tutorial.language === "es" ? "Principiante" : "Beginner", color: "#4ade80" },
+  intermediate: { label: tutorial.language === "es" ? "Intermedio" : "Intermediate", color: "#fbbf24" },
+  advanced: { label: tutorial.language === "es" ? "Avanzado" : "Advanced", color: "#f87171" },
+};
+
+const difficulty = difficultyConfig[tutorial.difficulty];
+---
+
+<!doctype html>
+<html lang={tutorial.language}>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content={tutorial.excerpt} />
+    <title>{tutorial.title} - Tutorial</title>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+        line-height: 1.6;
+        color: #e2e8f0;
+        background: #0f172a;
+        padding: 2rem;
+      }
+
+      .container {
+        max-width: 900px;
+        margin: 0 auto;
+      }
+
+      .back-link {
+        display: inline-block;
+        color: #38bdf8;
+        text-decoration: none;
+        margin-bottom: 2rem;
+        font-size: 0.95rem;
+      }
+
+      .back-link:hover {
+        text-decoration: underline;
+      }
+
+      .tutorial-header {
+        background: linear-gradient(135deg, #1e293b 0%, #334155 100%);
+        border-radius: 12px;
+        padding: 2rem;
+        margin-bottom: 2rem;
+        border-left: 4px solid #a78bfa;
+      }
+
+      .tutorial-title {
+        font-size: 2.5rem;
+        color: #a78bfa;
+        margin-bottom: 0.5rem;
+      }
+
+      .tutorial-meta {
+        color: #94a3b8;
+        font-size: 0.95rem;
+        margin-bottom: 1.5rem;
+      }
+
+      .tutorial-info {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 1rem;
+      }
+
+      .info-item {
+        background: #1e293b;
+        padding: 1rem;
+        border-radius: 8px;
+      }
+
+      .info-label {
+        color: #64748b;
+        font-size: 0.85rem;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        margin-bottom: 0.25rem;
+      }
+
+      .info-value {
+        color: #e2e8f0;
+        font-size: 1.1rem;
+        font-weight: 500;
+      }
+
+      .difficulty-badge {
+        display: inline-block;
+        padding: 0.5rem 1rem;
+        border-radius: 20px;
+        font-weight: 600;
+        font-size: 0.9rem;
+      }
+
+      .tags {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+        margin-top: 1.5rem;
+      }
+
+      .tag {
+        background: #334155;
+        color: #a78bfa;
+        padding: 0.25rem 0.75rem;
+        border-radius: 20px;
+        font-size: 0.85rem;
+      }
+
+      .links-section {
+        display: flex;
+        gap: 1rem;
+        margin-top: 1.5rem;
+        flex-wrap: wrap;
+      }
+
+      .external-link {
+        background: #334155;
+        color: #e2e8f0;
+        padding: 0.75rem 1.5rem;
+        border-radius: 8px;
+        text-decoration: none;
+        transition: all 0.2s;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+      }
+
+      .external-link:hover {
+        background: #a78bfa;
+        color: #0f172a;
+        transform: translateY(-2px);
+      }
+
+      .content {
+        background: #1e293b;
+        padding: 2rem;
+        border-radius: 8px;
+      }
+
+      .content :global(h1),
+      .content :global(h2),
+      .content :global(h3) {
+        color: #a78bfa;
+        margin-top: 2rem;
+        margin-bottom: 1rem;
+      }
+
+      .content :global(h1) {
+        font-size: 2rem;
+      }
+
+      .content :global(h2) {
+        font-size: 1.5rem;
+      }
+
+      .content :global(h3) {
+        font-size: 1.2rem;
+      }
+
+      .content :global(p) {
+        margin-bottom: 1rem;
+        color: #cbd5e1;
+      }
+
+      .content :global(ul),
+      .content :global(ol) {
+        margin-left: 1.5rem;
+        margin-bottom: 1rem;
+        color: #cbd5e1;
+      }
+
+      .content :global(li) {
+        margin-bottom: 0.5rem;
+      }
+
+      .content :global(strong) {
+        color: #e2e8f0;
+        font-weight: 600;
+      }
+
+      .content :global(code) {
+        background: #334155;
+        padding: 0.2rem 0.4rem;
+        border-radius: 4px;
+        font-family: "Courier New", monospace;
+        font-size: 0.9rem;
+        color: #a78bfa;
+      }
+
+      .content :global(pre) {
+        background: #1e293b;
+        padding: 1rem;
+        border-radius: 8px;
+        overflow-x: auto;
+        margin-bottom: 1rem;
+        border-left: 3px solid #a78bfa;
+      }
+
+      .content :global(pre code) {
+        background: transparent;
+        padding: 0;
+      }
+
+      .content :global(a) {
+        color: #38bdf8;
+        text-decoration: none;
+      }
+
+      .content :global(a:hover) {
+        text-decoration: underline;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <a href="/tutoriales" class="back-link">← Back to tutorials</a>
+
+      <div class="tutorial-header">
+        <h1 class="tutorial-title">{tutorial.title}</h1>
+        <div class="tutorial-meta">
+          Published on {formattedDate}
+        </div>
+
+        <div class="tutorial-info">
+          <div class="info-item">
+            <div class="info-label">Difficulty</div>
+            <div class="info-value">
+              <span
+                class="difficulty-badge"
+                style={`background: ${difficulty.color}20; color: ${difficulty.color}; border: 1px solid ${difficulty.color}`}
+              >
+                {difficulty.label}
+              </span>
+            </div>
+          </div>
+
+          <div class="info-item">
+            <div class="info-label">Estimated Time</div>
+            <div class="info-value">{tutorial.estimated_time} minutes</div>
+          </div>
+        </div>
+
+        {
+          tutorial.tags.length > 0 && (
+            <div class="tags">
+              {tutorial.tags.map((tag: string) => (
+                <span class="tag">#{tag}</span>
+              ))}
+            </div>
+          )
+        }
+
+        {
+          (tutorial.github_repo || tutorial.demo_url) && (
+            <div class="links-section">
+              {tutorial.github_repo && (
+                <a href={tutorial.github_repo} target="_blank" rel="noopener noreferrer" class="external-link">
+                  <span>💻</span>
+                  <span>View Code</span>
+                </a>
+              )}
+              {tutorial.demo_url && (
+                <a href={tutorial.demo_url} target="_blank" rel="noopener noreferrer" class="external-link">
+                  <span>🚀</span>
+                  <span>Live Demo</span>
+                </a>
+              )}
+            </div>
+          )
+        }
+      </div>
+
+      <div class="content">
+        <Content />
+      </div>
+    </div>
+  </body>
+</html>

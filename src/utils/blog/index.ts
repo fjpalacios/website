@@ -25,3 +25,6 @@ export { prepareBookSummary, type BookSummary } from "./book-listing";
 
 // Author utilities
 export { getBooksByAuthor, prepareAuthorSummary, type AuthorSummary } from "./authors";
+
+// Tutorial utilities
+export { prepareTutorialSummary, type TutorialSummary } from "./tutorials";
