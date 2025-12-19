@@ -18,3 +18,6 @@ export {
   type CollectionItem,
   type GroupedByYear,
 } from "./collections";
+
+// Book utilities
+export { findBookBySlug, findAuthorBySlug, findPublisherBySlug, findGenresBySlug } from "./books";
