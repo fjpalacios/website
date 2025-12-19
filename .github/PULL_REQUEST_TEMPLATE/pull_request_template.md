@@ -20,18 +20,15 @@
 ## Related Issues
 
 <!-- Link related issues here using #issue_number -->
-
-Closes #
-Fixes #
-Related to #
+<!-- Example: Closes #123, Fixes #456, Related to #789 -->
 
 ## Changes Made
 
 <!-- List the main changes made in this PR -->
 
--
--
--
+- Updated [component/module] to [brief description of change]
+- Fixed bug where [brief description of issue and fix]
+- Added [new feature or capability]
 
 ## Testing
 
@@ -44,9 +41,9 @@ Related to #
 
 ### Manual Testing Steps:
 
-1.
-2.
-3.
+1. Describe the first manual test step (e.g., "Open the application and navigate to the updated page").
+2. Describe the second manual test step (e.g., "Perform the action being changed, such as submitting the form").
+3. Describe the expected result and how you verified it (e.g., "Verify the success message and that data is stored correctly").
 
 ## Screenshots (if applicable)
 

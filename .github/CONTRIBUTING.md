@@ -9,7 +9,7 @@ The `master` branch is protected with the following rules:
 All PRs must pass these checks before merging:
 
 - ✅ Lint & Format Check
-- ✅ Unit Tests (97%+ coverage required)
+- ✅ Unit Tests (95%+ coverage required)
 - ✅ E2E Tests
 - ✅ Build Check
 

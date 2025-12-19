@@ -9,7 +9,7 @@
 
 # Documentation
 *.md @fjpalacios
-/docs/ @fjpalacios
+# /docs/ @fjpalacios  # reserved for future documentation directory
 
 # Tests
 /e2e/ @fjpalacios
