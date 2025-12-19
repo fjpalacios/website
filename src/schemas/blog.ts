@@ -131,3 +131,24 @@ export const authorsSchema = z.object({
 });
 
 export type Author = z.infer<typeof authorsSchema>;
+
+// Categories collection schema (taxonomy)
+export const categoriesSchema = z.object({
+  // Basic metadata
+  name: z.string().min(1),
+  category_slug: z.string().min(1),
+  language: z.enum(["es", "en"]),
+
+  // Optional metadata
+  description: z.string().optional(),
+
+  // UI metadata
+  icon: z.string().optional(), // Icon name for visual representation
+  color: z.string().optional(), // Hex color for category styling
+  order: z.number().int().nonnegative().optional(), // Sort order in lists
+
+  // i18n
+  i18n: z.string().optional(), // Slug of translated version
+});
+
+export type Category = z.infer<typeof categoriesSchema>;
