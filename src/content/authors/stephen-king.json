@@ -6,7 +6,7 @@
   "gender": "male",
   "birth_year": 1947,
   "nationality": "American",
-  "picture": "./stephen-king/stephen-king.jpg",
+  "picture": "/images/authors/stephen-king.jpg",
   "website": "https://stephenking.com",
   "twitter": "@StephenKing",
   "goodreads": "https://www.goodreads.com/author/show/3389.Stephen_King",
