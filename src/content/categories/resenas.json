@@ -2,8 +2,9 @@
   "name": "Reseñas",
   "category_slug": "resenas",
   "language": "es",
+  "i18n": "reviews",
   "description": "Reseñas de libros, películas y más",
   "icon": "review",
   "color": "#FF6B6B",
-  "order": 2
+  "order": 3
 }

@@ -1,0 +1,27 @@
+@use "../variables" as *;
+@use "../mixins" as *;
+
+.types {
+  grid-column: span 12;
+  margin-bottom: 40px;
+  border: 2px solid $primary;
+
+  &__list {
+    padding-left: 20px;
+    list-style: none;
+
+    &__item {
+      display: inline-block;
+      padding-right: 1vw;
+      text-transform: uppercase;
+
+      &:last-child {
+        padding-right: 0;
+      }
+
+      &__number {
+        padding-left: 5px;
+      }
+    }
+  }
+}

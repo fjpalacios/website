@@ -1,0 +1,8 @@
+@use "../variables" as *;
+@use "../mixins" as *;
+
+.paginator {
+  display: flex;
+  justify-content: space-around;
+  margin-bottom: 40px;
+}

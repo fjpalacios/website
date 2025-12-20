@@ -1,0 +1,39 @@
+---
+import { t } from "@locales";
+
+interface Props {
+  currentPage: number;
+  totalPages: number;
+  basePath: string;
+  lang?: "es" | "en";
+}
+
+const { currentPage, totalPages, basePath, lang = "es" } = Astro.props;
+
+// Build URLs for prev/next pages
+// Always use /page/N format for consistency, except for page 1 which is the base path
+const prevUrl = currentPage === 2 ? basePath : `${basePath}/page/${currentPage - 1}`;
+
+const nextUrl = `${basePath}/page/${currentPage + 1}`;
+
+const showPrev = currentPage > 1;
+const showNext = currentPage < totalPages;
+const showPaginator = totalPages > 1;
+---
+
+{
+  showPaginator && (
+    <div class="paginator">
+      {showPrev && (
+        <p class="paginator__prev">
+          <a href={prevUrl}>{t(lang, "paginator.prev")}</a>
+        </p>
+      )}
+      {showNext && (
+        <p class="paginator__next">
+          <a href={nextUrl}>{t(lang, "paginator.next")}</a>
+        </p>
+      )}
+    </div>
+  )
+}

@@ -24,10 +24,16 @@
   "pages": {
     "home": "Inicio",
     "about": "Sobre mí",
-    "blog": "Blog"
+    "blog": "Blog",
+    "category": "Categoría"
   },
   "about": {
     "me": "Sobre mí",
     "internet": "Internet"
-  }
+  },
+  "paginator": {
+    "prev": "« Anterior",
+    "next": "Siguiente »"
+  },
+  "allCategories": "Todas las categorías"
 }
