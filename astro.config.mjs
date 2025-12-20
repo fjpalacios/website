@@ -12,6 +12,21 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 export default defineConfig({
   site: "https://fjp.es",
   integrations: [mdx(), sitemap()],
+  markdown: {
+    shikiConfig: {
+      theme: "one-dark-pro",
+      wrap: false,
+      transformers: [
+        {
+          name: "line-numbers",
+          pre(node) {
+            // Add line-numbers class to pre tag
+            this.addClassToHast(node, "line-numbers");
+          },
+        },
+      ],
+    },
+  },
   i18n: {
     defaultLocale: "es",
     locales: ["es", "en"],

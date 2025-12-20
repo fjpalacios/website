@@ -1,0 +1,84 @@
+@use "../variables" as *;
+
+// Code block styles for syntax highlighting
+// Applies to MDX code blocks rendered by Shiki
+// Mimics the style from Gatsby site
+
+// Base styles for code blocks
+.astro-code {
+  position: relative;
+  padding: 1.5rem 2rem 1.5rem 1rem;
+  margin: 1.5rem 0;
+  padding-left: calc(3.5rem + 1rem); // Space for line numbers + content padding
+  border-radius: 4px;
+  overflow-x: auto;
+  font-size: 15px;
+  line-height: 1.75;
+  counter-reset: line;
+  background-color: $primary !important; // Use same background as titles
+  border: 1px solid rgba(255, 255, 255, 0.05);
+
+  // Line wrapper
+  .line {
+    display: block;
+    position: relative;
+
+    // Line number using CSS counter
+    &::before {
+      counter-increment: line;
+      content: counter(line);
+      position: absolute;
+      left: calc(-3.5rem - 1rem); // Align with left edge
+      width: 3rem;
+      text-align: right;
+      padding-right: 1.25rem;
+      color: #636d83;
+      font-variant-numeric: tabular-nums;
+      user-select: none;
+      font-weight: 400;
+    }
+
+    // Ensure empty lines show line number
+    &:empty {
+      min-height: 1.75em;
+
+      &::before {
+        content: counter(line);
+      }
+    }
+  }
+
+  // Code element
+  code {
+    display: block;
+    font-family: "Fira Code", "SF Mono", "Consolas", "Monaco", "Courier New", monospace;
+    font-feature-settings:
+      "liga" 1,
+      "calt" 1;
+  }
+}
+
+// Light theme adjustments
+body.light .astro-code {
+  background-color: $primary !important;
+  border: 1px solid rgba(0, 0, 0, 0.1);
+
+  .line::before {
+    color: #9ca3af;
+  }
+}
+
+// Inline code (not in pre blocks)
+:not(pre) > code {
+  background-color: $primary;
+  color: $code;
+  padding: 0.2em 0.5em;
+  border-radius: 4px;
+  font-family: "Fira Code", "Consolas", "Monaco", "Courier New", monospace;
+  font-size: 0.9em;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+body.light :not(pre) > code {
+  border: 1px solid rgba(0, 0, 0, 0.1);
+}
