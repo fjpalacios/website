@@ -20,7 +20,7 @@ export {
 } from "./collections";
 
 // Book utilities
-export { findBookBySlug, findAuthorBySlug, findPublisherBySlug, findGenresBySlug } from "./books";
+export { findBookBySlug, findAuthorBySlug, findPublisherBySlug, findGenresBySlug, findCategoriesBySlug } from "./books";
 export { prepareBookSummary, type BookSummary } from "./book-listing";
 
 // Author utilities

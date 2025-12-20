@@ -1,0 +1,34 @@
+@use "../variables" as *;
+@use "../mixins" as *;
+
+.section-title {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 20px;
+  padding: 0 20px;
+  transition: all 0.45s ease;
+  background-color: $primary;
+  color: $inverted-text;
+
+  h3 {
+    margin: 17px 20px 13px 0;
+    font-size: 12px;
+
+    @include small {
+      font-size: 14px;
+    }
+
+    @include medium {
+      font-size: 16px;
+    }
+
+    @include medium-and-up {
+      font-weight: 100;
+    }
+
+    @include large {
+      font-size: 18px;
+    }
+  }
+}

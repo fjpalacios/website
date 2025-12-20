@@ -1,9 +1,12 @@
 ---
+import AuthorInfo from "@components/AuthorInfo.astro";
+import PostTitle from "@components/PostTitle.astro";
+import SectionTitle from "@components/SectionTitle.astro";
 import Layout from "@layouts/Layout.astro";
 import { getCollection, render } from "astro:content";
 
 import contactEs from "@/content/static/contact/es.json";
-import { findAuthorBySlug, findPublisherBySlug, findGenresBySlug } from "@/utils/blog";
+import { findAuthorBySlug, findPublisherBySlug, findGenresBySlug, findCategoriesBySlug } from "@/utils/blog";
 
 export async function getStaticPaths() {
   const books = await getCollection("books");
@@ -22,132 +25,159 @@ const { Content } = await render(bookEntry);
 const allAuthors = await getCollection("authors");
 const allPublishers = await getCollection("publishers");
 const allGenres = await getCollection("genres");
+const allCategories = await getCollection("categories");
 
 const author = findAuthorBySlug(allAuthors, book.author);
-const publisher = findPublisherBySlug(allPublishers, book.publisher);
+const publisher = book.publisher ? findPublisherBySlug(allPublishers, book.publisher) : null;
 const genres = findGenresBySlug(allGenres, book.genres);
+const categories = findCategoriesBySlug(allCategories, book.categories);
 
-const formattedDate = book.date.toLocaleDateString(book.language === "es" ? "es-ES" : "en-US", {
-  year: "numeric",
-  month: "long",
-  day: "numeric",
-});
+const authorWithGender = author?.data.gender === "male" ? "El autor" : "La autora";
 
-const displayRating = book.score === "fav" ? "❤️❤️❤️❤️❤️" : "⭐".repeat(book.score);
-const ratingClass = book.score === "fav" ? "book__score--fav" : "";
-const ratingText = book.score === "fav" ? "Favorite" : `${book.score}/5`;
+// Score component (stars or heart)
+const renderScore = () => {
+  const items = new Array(5).fill(null);
+  return items.map((_, index) => ({
+    filled: index < book.score || book.score === "fav",
+    isFav: book.score === "fav",
+  }));
+};
+
+const scoreItems = renderScore();
 ---
 
 <Layout lang={book.language} title={`${book.title} - Book Review`} contact={contactEs}>
-  <a href="/libros" class="back-link">← Back to books</a>
-
-  <div class="book__header">
-    <h1 class="book__title">{book.title}</h1>
-    <div class="book__meta">Published on {formattedDate}</div>
-
-    <div class="book__info">
-      {
-        author && (
-          <div class="book__info-item">
-            <div class="book__info-label">Author</div>
-            <div class="book__info-value">
-              <a href={`/autor/${author.data.author_slug}`}>{author.data.name}</a>
-            </div>
-          </div>
-        )
-      }
-
-      {
-        publisher && (
-          <div class="book__info-item">
-            <div class="book__info-label">Publisher</div>
-            <div class="book__info-value">{publisher.data.name}</div>
-          </div>
-        )
-      }
-
-      <div class="book__info-item">
-        <div class="book__info-label">Pages</div>
-        <div class="book__info-value">{book.pages}</div>
-      </div>
-
-      <div class="book__info-item">
-        <div class="book__info-label">Rating</div>
-        <div class:list={["book__info-value", "book__score", ratingClass]}>
-          {displayRating}
-          {ratingText}
+  <main class="book">
+    <section class="book__content">
+      <div class="book__content__cover">
+        <img src={book.book_cover || book.cover} alt={book.title} />
+        <div class="score">
+          {
+            scoreItems.map((item) => (
+              <i class:list={[item.filled ? "icon-star" : "icon-star-empty"]} style={item.isFav ? "color: red;" : ""} />
+            ))
+          }
         </div>
       </div>
-
-      {
-        book.isbn && (
-          <div class="book__info-item">
-            <div class="book__info-label">ISBN</div>
-            <div class="book__info-value">{book.isbn}</div>
+      <div class="book__content__content">
+        <PostTitle title={book.title} date={book.date} />
+        <div class="book__content__content__data">
+          <div class="book__content__content__data_pages">
+            <strong>Páginas</strong>: {book.pages}
           </div>
-        )
-      }
-
-      {
-        book.asin && !book.isbn && (
-          <div class="book__info-item">
-            <div class="book__info-label">ASIN</div>
-            <div class="book__info-value">{book.asin}</div>
+          <div class="book__content__content__data__isbn">
+            {
+              book.isbn ? (
+                <>
+                  <strong>ISBN</strong>: {book.isbn}
+                </>
+              ) : book.asin ? (
+                <>
+                  <strong>ASIN</strong>: {book.asin}
+                </>
+              ) : null
+            }
           </div>
-        )
-      }
-    </div>
-
-    {
-      genres.length > 0 && (
-        <div class="book__genres">
-          {genres.map((genre) => (
-            <span class="book__genre-tag">{genre.data.name}</span>
-          ))}
+          {
+            book.buy && book.buy.length > 0 && (
+              <div class="book__content__content__data__buy">
+                <strong>Comprar</strong>:
+                <ul>
+                  {book.buy.map((buyLink) => (
+                    <li>
+                      <a href={buyLink.link} target="_blank" rel="nofollow">
+                        {buyLink.type === "paper" ? "Papel" : buyLink.type === "ebook" ? "eBook" : "Audiolibro"}
+                      </a>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )
+          }
+          {
+            publisher && (
+              <div class="book__content__content__data__publisher">
+                <strong>Editorial</strong>:
+                <ul>
+                  <li>
+                    <a href={`/publisher/${publisher.data.publisher_slug}`}>{publisher.data.name}</a>
+                  </li>
+                  {book.book_card && (
+                    <li>
+                      <a href={book.book_card} target="_blank" rel="nofollow">
+                        Ficha del libro
+                      </a>
+                    </li>
+                  )}
+                </ul>
+              </div>
+            )
+          }
         </div>
-      )
-    }
-  </div>
-
-  {
-    book.synopsis && (
-      <div class="book__synopsis">
-        <h2 class="book__synopsis-title">Synopsis</h2>
-        <p class="book__synopsis-text">{book.synopsis}</p>
-      </div>
-    )
-  }
-
-  <div class="book__content">
-    <Content />
-  </div>
-
-  {
-    book.buy_links && book.buy_links.length > 0 && (
-      <div class="book__buy-links">
-        <h2 class="book__buy-links-title">Buy this book</h2>
-        <div class="book__buy-links-list">
-          {book.buy_links.map((link) => (
-            <a href={link.url} target="_blank" rel="noopener noreferrer" class="book__buy-link">
-              {link.name}
-            </a>
-          ))}
+        <SectionTitle title="Sinopsis" />
+        <div class="text-area">
+          <p>{book.synopsis}</p>
+        </div>
+        {author && <SectionTitle title={authorWithGender} />}
+        {author && <AuthorInfo author={author} border={false} />}
+        <SectionTitle title="Reseña" />
+        <div class="text-area">
+          <Content />
         </div>
       </div>
-    )
-  }
+    </section>
+    <section class="book__info">
+      <div class="book__info__icon">
+        <i class="icon-book"></i>
+      </div>
+      <ul class="book__info__text">
+        {
+          author && (
+            <li>
+              <a href={`/autor/${author.data.author_slug}`} title={authorWithGender}>
+                {author.data.name}
+              </a>
+            </li>
+          )
+        }
+        {
+          publisher && (
+            <li>
+              <a href={`/publisher/${publisher.data.publisher_slug}`}>{publisher.data.name}</a>
+            </li>
+          )
+        }
+        {
+          genres.map((genre) => (
+            <li>
+              <a href={`/genre/${genre.data.url_slug}`} title="Género">
+                {genre.data.name}
+              </a>
+            </li>
+          ))
+        }
+        <li>
+          <a href={`/score/${book.score}`} title="Puntuación">
+            {book.score === "fav" ? "Favorito" : `${book.score}/5`}
+          </a>
+        </li>
+      </ul>
+    </section>
+    <section class="book__info">
+      <div class="book__info__icon">
+        <i class="icon-tag"></i>
+      </div>
+      <ul class="book__info__text">
+        {
+          categories.map((category) => (
+            <li>
+              <a href={`/category/${category.data.category_slug}`} class="book__info__text__item" title="Categoría">
+                {category.data.name}
+              </a>
+            </li>
+          ))
+        }
+      </ul>
+    </section>
+  </main>
 </Layout>
-
-<style>
-  .back-link {
-    display: inline-block;
-    color: var(--accent);
-    text-decoration: none;
-    margin-bottom: 2rem;
-    font-size: 0.95rem;
-  }
-
-  .back-link:hover {
-    text-decoration: underline;
-  }
-</style>

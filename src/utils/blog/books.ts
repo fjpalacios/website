@@ -55,3 +55,20 @@ export function findGenresBySlug(
     .map((slug) => genres.find((genre) => genre.data.genre_slug === slug))
     .filter((genre): genre is CollectionEntry<"genres"> => genre !== undefined);
 }
+
+/**
+ * Find multiple categories by their slugs
+ * @param categories - Array of category entries
+ * @param categorySlugs - Array of category_slug references
+ * @returns Array of category entries (filters out invalid references)
+ */
+export function findCategoriesBySlug(
+  categories: CollectionEntry<"categories">[],
+  categorySlugs: string[],
+): CollectionEntry<"categories">[] {
+  if (categorySlugs.length === 0) return [];
+
+  return categorySlugs
+    .map((slug) => categories.find((category) => category.data.category_slug === slug))
+    .filter((category): category is CollectionEntry<"categories"> => category !== undefined);
+}

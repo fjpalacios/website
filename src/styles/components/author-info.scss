@@ -1,0 +1,51 @@
+@use "../variables" as *;
+@use "../mixins" as *;
+
+.author-info--border {
+  border: 2px solid $primary;
+}
+
+.author-info,
+.author-info--border {
+  display: grid;
+  grid-column: span 12;
+  grid-template-areas:
+    "image"
+    "text";
+  margin: -20px 0 0;
+
+  @include medium-and-up {
+    grid-template-areas: "text image";
+  }
+
+  &__image {
+    grid-area: image;
+    width: 150px;
+    margin: 0 auto;
+    padding-top: 20px;
+
+    @include medium-and-up {
+      margin: -4vh -1vw 0 0.5vw;
+    }
+
+    &__border {
+      @include medium-and-up {
+        padding: 5px 5px 25px;
+        transform: rotate(7deg);
+        border: solid #ddd 1px;
+        border-radius: 3px;
+        background-color: #fff;
+        box-shadow: 2px 2px 10px #333;
+      }
+    }
+
+    img {
+      width: 100%;
+      margin: 0 auto;
+    }
+  }
+
+  &__text {
+    grid-area: text;
+  }
+}

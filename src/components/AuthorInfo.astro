@@ -1,0 +1,23 @@
+---
+import type { CollectionEntry } from "astro:content";
+
+interface Props {
+  author: CollectionEntry<"authors">;
+  border?: boolean;
+}
+
+const { author, border = true } = Astro.props;
+---
+
+<main class:list={[border ? "author-info--border" : "author-info"]}>
+  <div class="author-info__image">
+    <div class="author-info__image__border">
+      <img src={author.data.picture} alt={author.data.name} />
+    </div>
+  </div>
+  <div class="author-info__text">
+    <div class="text-area">
+      <p>{author.data.bio}</p>
+    </div>
+  </div>
+</main>
