@@ -86,20 +86,9 @@
 
       a {
         display: flex;
+        align-items: center;
         color: $header-link;
-
-        i {
-          margin-right: 0.5em;
-          font-size: 1.5em;
-
-          @include medium-and-up {
-            font-size: 1em;
-          }
-
-          @include print {
-            font-size: 1em;
-          }
-        }
+        text-decoration: none;
 
         p {
           display: none;
@@ -118,15 +107,20 @@
         }
       }
     }
-  }
-}
 
-@include screen {
-  .phone {
-    display: none;
-  }
+    &__icon {
+      font-size: 18px;
+      margin-right: 0.5em;
+      line-height: 1;
+      display: block;
 
-  .globe {
-    display: none;
+      @include medium-and-up {
+        font-size: 16px;
+      }
+
+      @include print {
+        font-size: 16px;
+      }
+    }
   }
 }

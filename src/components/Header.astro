@@ -16,9 +16,11 @@ const { lang, contact } = Astro.props;
   <div class="header__contact">
     {
       contact.map((item) => (
-        <div class={`header__contact__item ${item.icon}`}>
+        <div class="header__contact__item">
           <a href={item.link} target="_blank" rel="noreferrer">
-            <i class={`icon-${item.icon}`} />
+            <span class="header__contact__icon" aria-hidden="true">
+              {item.icon}
+            </span>
             <p>{item.text}</p>
           </a>
         </div>
