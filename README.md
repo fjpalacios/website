@@ -7,14 +7,16 @@ Personal website and resume built with [Astro](https://astro.build/). Featuring 
 
 ## ✨ Features
 
-- 🌍 **Multi-language support**: Spanish (default) and English with native Astro i18n
+- 🌍 **Multi-language support**: Spanish (default) and English with native Astro i18n and translated URL paths
+- 📝 **Blog functionality**: Posts, tutorials, and book reviews with full taxonomy system
+- 🏷️ **Rich taxonomy**: Categories, genres, publishers, authors with multilingual support
 - 🎨 **Theme switcher**: Dark and light themes with localStorage persistence and FOUC prevention
 - 📱 **Responsive design**: Mobile-first approach, tested across multiple devices
 - ♿ **Accessible**: WCAG 2.1 AA compliant with comprehensive accessibility testing
 - 🚀 **Fast**: Static site generation with Astro and View Transitions for SPA-like navigation
 - 🎯 **SEO optimized**: Complete meta tags, JSON-LD structured data, sitemap, and Open Graph support
 - 💅 **SCSS styling**: Modular and maintainable styles with CSS variables
-- 🧪 **Fully tested**: 97%+ unit test coverage + comprehensive E2E tests
+- 🧪 **Fully tested**: 438 tests with 97.72% coverage
 - 🔄 **CI/CD**: Automated testing, linting, and Lighthouse performance checks
 - 🪝 **Pre-commit hooks**: Automatic linting and testing before commits
 
@@ -30,10 +32,16 @@ Personal website and resume built with [Astro](https://astro.build/). Featuring 
 
 ### Testing
 
-- **Unit Tests**: Vitest + Testing Library (41 tests, 97%+ coverage)
+- **Unit Tests**: Vitest + Testing Library (438 tests, 97.72% coverage)
 - **E2E Tests**: Playwright (69+ tests across multiple viewports)
 - **Accessibility**: Axe-core with WCAG 2.1 AA compliance
 - **Performance**: Lighthouse CI integration
+
+### Content
+
+- **Content Collections**: Astro's native content collections for type-safe blog content
+- **MDX Support**: Enhanced markdown with React-like components
+- **Frontmatter Validation**: Zod schemas for content type safety
 
 ### Development Tools
 
@@ -50,9 +58,13 @@ Personal website and resume built with [Astro](https://astro.build/). Featuring 
 │   └── workflows/
 │       └── ci.yml         # CI/CD pipeline configuration
 ├── .husky/                # Git hooks configuration
+├── docs/                  # Project documentation
+│   ├── BLOG_MIGRATION_SPEC.md
+│   └── BLOG_MIGRATION_PROGRESS.md
 ├── e2e/                   # End-to-end tests (Playwright)
 │   ├── about.spec.ts
 │   ├── accessibility-comprehensive.spec.ts
+│   ├── blog.spec.ts
 │   ├── home.spec.ts
 │   ├── navigation.spec.ts
 │   ├── responsive.spec.ts
@@ -60,16 +72,39 @@ Personal website and resume built with [Astro](https://astro.build/). Featuring 
 │   └── state-performance.spec.ts
 ├── public/                # Static assets (images, fonts, favicon)
 ├── src/
-│   ├── __tests__/         # Unit tests (Vitest)
+│   ├── __tests__/         # Unit tests (Vitest) - 438 tests
 │   │   ├── content.test.ts
 │   │   ├── locales.test.ts
 │   │   ├── setup.ts
-│   │   └── theme.test.ts
+│   │   ├── theme.test.ts
+│   │   └── utils/
+│   │       └── blog/      # Blog utility tests
+│   │           ├── categories.test.ts
+│   │           ├── genres.test.ts
+│   │           ├── publishers.test.ts
+│   │           └── ...
 │   ├── components/        # Reusable Astro components
-│   ├── content/           # Content in TypeScript (resume, about, contact)
+│   │   ├── BaseHead.astro
+│   │   ├── CategoryList.astro
+│   │   ├── GenreList.astro
+│   │   ├── LanguageSwitcher.astro
+│   │   ├── Paginator.astro
+│   │   ├── PostList.astro
+│   │   ├── PublisherList.astro
+│   │   └── ...
+│   ├── content/           # Content collections
 │   │   ├── config.ts      # Content collections configuration
-│   │   ├── es/            # Spanish content
-│   │   └── en/            # English content
+│   │   ├── authors/       # Author profiles (JSON)
+│   │   ├── categories/    # Blog categories (JSON)
+│   │   ├── challenges/    # Reading challenges (JSON)
+│   │   ├── genres/        # Book genres (JSON)
+│   │   ├── posts/         # Blog posts (MDX)
+│   │   ├── publishers/    # Book publishers (JSON)
+│   │   ├── series/        # Book series (JSON)
+│   │   ├── tutorials/     # Tutorial content (MDX)
+│   │   ├── books/         # Book reviews (MDX)
+│   │   ├── es/            # Spanish static content
+│   │   └── en/            # English static content
 │   ├── layouts/           # Page layouts with View Transitions
 │   ├── locales/           # Translations (JSON)
 │   │   ├── index.ts       # Translation helper functions
@@ -77,16 +112,150 @@ Personal website and resume built with [Astro](https://astro.build/). Featuring 
 │   │   └── en/
 │   ├── pages/             # Routes and pages
 │   │   ├── es/            # Spanish pages
+│   │   │   ├── blog/
+│   │   │   ├── tutoriales/
+│   │   │   ├── libros/
+│   │   │   ├── categoria/
+│   │   │   ├── genero/
+│   │   │   └── editorial/
 │   │   ├── en/            # English pages
+│   │   │   ├── blog/
+│   │   │   ├── tutorials/
+│   │   │   ├── books/
+│   │   │   ├── category/
+│   │   │   ├── genre/
+│   │   │   └── publisher/
 │   │   └── index.astro    # Root redirect to /es/
 │   ├── scripts/           # Client-side TypeScript modules
 │   │   └── theme.ts       # Theme management logic
 │   ├── styles/            # Global and component SCSS
-│   └── types/             # TypeScript type definitions
+│   ├── types/             # TypeScript type definitions
+│   └── utils/             # Utility functions
+│       └── blog/          # Blog-specific utilities
 ├── astro.config.mjs       # Astro configuration
 ├── vitest.config.ts       # Unit test configuration
 ├── playwright.config.ts   # E2E test configuration
 └── package.json
+```
+
+## 📝 Blog System
+
+The website features a comprehensive blog system with three content types and a rich taxonomy structure, all fully multilingual.
+
+### Content Types
+
+- **Posts** (`/blog/`): Regular blog articles
+- **Tutorials** (`/tutoriales/` | `/tutorials/`): Technical how-to guides and tutorials
+- **Books** (`/libros/` | `/books/`): Book reviews and reading notes
+
+All content is written in **MDX** (Markdown + JSX) with frontmatter validation using Zod schemas.
+
+### Taxonomy System
+
+The blog uses a multi-dimensional taxonomy system for content organization:
+
+| Taxonomy       | Spanish Path        | English Path        | Applies To              | i18n Support |
+| -------------- | ------------------- | ------------------- | ----------------------- | ------------ |
+| **Categories** | `/categoria/[slug]` | `/category/[slug]`  | Posts, Tutorials, Books | ✅ Yes       |
+| **Genres**     | `/genero/[slug]`    | `/genre/[slug]`     | Books                   | ✅ Yes       |
+| **Publishers** | `/editorial/[slug]` | `/publisher/[slug]` | Books                   | ❌ No\*      |
+| **Authors**    | `/autor/[slug]`     | `/author/[slug]`    | Books                   | ❌ No\*      |
+| **Series**     | `/serie/[slug]`     | `/series/[slug]`    | Books                   | 🚧 Planned   |
+| **Challenges** | `/reto/[slug]`      | `/challenge/[slug]` | Books                   | 🚧 Planned   |
+
+**\* Publishers and Authors are independent entities per language**, not translations. For example, "Debolsillo" (ES) and "Penguin Random House" (EN) are different publishers.
+
+### URL Structure Examples
+
+```
+Spanish:
+/es/blog/                          # All posts
+/es/blog/page/2/                   # Posts pagination
+/es/blog/mi-articulo/              # Individual post
+/es/tutoriales/                    # All tutorials
+/es/tutoriales/como-hacer-x/       # Individual tutorial
+/es/libros/                        # All book reviews
+/es/libros/el-nombre-del-viento/   # Individual book review
+/es/categoria/libros/              # Category: books
+/es/categoria/libros/page/2/       # Category pagination
+/es/genero/terror/                 # Genre: horror
+/es/editorial/debolsillo/          # Publisher: Debolsillo
+
+English:
+/en/blog/                          # All posts
+/en/blog/my-article/               # Individual post
+/en/tutorials/                     # All tutorials
+/en/tutorials/how-to-do-x/         # Individual tutorial
+/en/books/                         # All book reviews
+/en/books/the-name-of-the-wind/    # Individual book review
+/en/category/books/                # Category: books
+/en/genre/horror/                  # Genre: horror
+/en/publisher/penguin-random-house/ # Publisher: Penguin Random House
+```
+
+### i18n Translation Strategy
+
+**Categories and Genres** have bidirectional i18n mappings:
+
+```json
+// Spanish category: /src/content/categories/tutoriales.json
+{
+  "slug": "tutoriales",
+  "name": "Tutoriales",
+  "i18n": "tutorials"  // Maps to English version
+}
+
+// English category: /src/content/categories/tutorials.json
+{
+  "slug": "tutorials",
+  "name": "Tutorials",
+  "i18n": "tutoriales"  // Maps back to Spanish
+}
+```
+
+**Publishers and Authors** don't have i18n fields because they represent different entities per language, not translations.
+
+### Content Collections
+
+All blog content uses Astro's Content Collections with Zod schema validation:
+
+```typescript
+// Example: Posts collection schema
+const posts = defineCollection({
+  type: "content",
+  schema: z.object({
+    title: z.string(),
+    description: z.string(),
+    date: z.date(),
+    slug: z.string(),
+    lang: z.enum(["es", "en"]),
+    categories: z.array(z.string()),
+    image: z.string().optional(),
+    // ... more fields
+  }),
+});
+```
+
+This provides:
+
+- **Type safety**: TypeScript types auto-generated from schemas
+- **Validation**: Content validated at build time
+- **Autocomplete**: Full IDE support for frontmatter fields
+- **Refactoring**: Safe renames and structure changes
+
+### Blog-Specific Commands
+
+```bash
+# Run blog-specific tests
+bun run test -- blog
+
+# Run taxonomy tests
+bun run test -- categories
+bun run test -- genres
+bun run test -- publishers
+
+# Build and check generated pages (currently 35 pages)
+bun run build
 ```
 
 ## 🧞 Commands
@@ -111,15 +280,15 @@ All commands are run from the root of the project, from a terminal:
 
 ### Testing
 
-| Command                  | Action                                   |
-| :----------------------- | :--------------------------------------- |
-| `bun run test`           | Run unit tests in watch mode             |
-| `bun run test:run`       | Run unit tests once                      |
-| `bun run test:ui`        | Open Vitest UI                           |
-| `bun run test:coverage`  | Generate coverage report (97%+ coverage) |
-| `bun run test:e2e`       | Run E2E tests with Playwright            |
-| `bun run test:e2e:ui`    | Run E2E tests in interactive mode        |
-| `bun run test:e2e:debug` | Debug E2E tests                          |
+| Command                  | Action                                     |
+| :----------------------- | :----------------------------------------- |
+| `bun run test`           | Run unit tests in watch mode               |
+| `bun run test:run`       | Run unit tests once                        |
+| `bun run test:ui`        | Open Vitest UI                             |
+| `bun run test:coverage`  | Generate coverage report (97.72% coverage) |
+| `bun run test:e2e`       | Run E2E tests with Playwright              |
+| `bun run test:e2e:ui`    | Run E2E tests in interactive mode          |
+| `bun run test:e2e:debug` | Debug E2E tests                            |
 
 ## 🧪 Testing Strategy
 
@@ -130,8 +299,15 @@ Located in `src/__tests__/`, covering:
 - **Theme system** (18 tests): Dark/light switching, localStorage persistence, View Transitions compatibility
 - **Locales** (9 tests): Translation functions, language switching logic
 - **Content** (14 tests): Data structure validation for resume, about, and contact content
+- **Blog utilities** (397 tests): Content collections, taxonomy, frontmatter validation
+  - Categories (13 tests): Structure, i18n mappings, content references
+  - Genres (14 tests): Structure, i18n mappings, hierarchy validation
+  - Publishers (13 tests): Structure, language independence
+  - Posts, Tutorials, Books: Frontmatter validation, slug uniqueness, date formats
+  - Pagination, filtering, sorting logic
 
-**Coverage**: 97.43% lines, 92.68% statements, 100% functions
+**Total**: 438 tests  
+**Coverage**: 97.72% statements, 98.74% lines, 100% functions
 
 ### E2E Tests (Playwright)
 
@@ -149,7 +325,9 @@ Located in `e2e/`, covering:
 
 ## 🏗️ Content Management
 
-Content is organized in TypeScript files for type safety:
+### Static Content
+
+Type-safe content in TypeScript files:
 
 - **Resume data**: `src/content/{lang}/resume.ts`
 - **About page**: `src/content/{lang}/about.ts`
@@ -157,6 +335,20 @@ Content is organized in TypeScript files for type safety:
 - **UI translations**: `src/locales/{lang}/common.json`
 
 All content follows TypeScript interfaces defined in `src/types/content.ts`.
+
+### Blog Content (Content Collections)
+
+Dynamic content using Astro Content Collections with MDX and JSON:
+
+- **Posts**: `src/content/posts/{lang}/[slug].mdx`
+- **Tutorials**: `src/content/tutorials/{lang}/[slug].mdx`
+- **Books**: `src/content/books/{lang}/[slug].mdx`
+- **Categories**: `src/content/categories/[slug].json`
+- **Genres**: `src/content/genres/[slug].json`
+- **Publishers**: `src/content/publishers/[slug].json`
+- **Authors**: `src/content/authors/[slug].json`
+
+All collections are validated with Zod schemas defined in `src/content/config.ts`.
 
 ## 🎨 Theme System
 
@@ -209,11 +401,13 @@ Automated dependency management configured in `.github/dependabot.yml`:
 
 ## 📊 Code Quality Metrics
 
-- **Unit Test Coverage**: 97.43% lines, 100% functions
+- **Unit Tests**: 438 tests across all features
+- **Unit Test Coverage**: 97.72% statements, 98.74% lines, 100% functions
 - **E2E Test Coverage**: 69+ tests covering all critical user flows
 - **Accessibility**: WCAG 2.1 Level AA compliant
 - **Performance**: Optimized for Core Web Vitals
 - **SEO**: Complete metadata, structured data, sitemap
+- **Build Output**: 35 pages generated (resume, blog, taxonomy pages)
 
 ## 🚀 Performance Features
 
@@ -272,7 +466,17 @@ Automated dependency management configured in `.github/dependabot.yml`:
 
 ## 📝 Contributing
 
-This is a personal website, but contributions are welcome! Please see [CONTRIBUTING.md](.github/CONTRIBUTING.md) for details on:
+This is a personal website, but contributions are welcome!
+
+### Documentation
+
+- **[CONTRIBUTING.md](.github/CONTRIBUTING.md)**: Development workflow, branch naming, commit format
+- **[docs/BLOG_MIGRATION_SPEC.md](docs/BLOG_MIGRATION_SPEC.md)**: Blog system architecture and migration plan
+- **[docs/BLOG_MIGRATION_PROGRESS.md](docs/BLOG_MIGRATION_PROGRESS.md)**: Current implementation status and progress
+
+### Contribution Guidelines
+
+Please see [CONTRIBUTING.md](.github/CONTRIBUTING.md) for details on:
 
 - Development workflow (feature branches, PRs)
 - Branch naming conventions
