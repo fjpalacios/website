@@ -8,23 +8,26 @@ type ListItem = PostSummary | TutorialSummary | BookSummary;
 
 interface Props {
   posts: ListItem[];
+  lang: "es" | "en";
 }
 
-const { posts } = Astro.props;
+const { posts, lang } = Astro.props;
 
 // Default cover image fallback
 const defaultCover = "/images/defaults/post-default.jpg";
 
-// Get the correct URL path based on the item type
+// Get the correct URL path based on the item type and language
 function getItemUrl(item: ListItem): string {
+  const itemLang = item.language;
+
   switch (item.type) {
     case "book":
-      return `/libros/${item.slug}`;
+      return itemLang === "es" ? `/${itemLang}/libros/${item.slug}` : `/${itemLang}/books/${item.slug}`;
     case "tutorial":
-      return `/tutoriales/${item.slug}`;
+      return itemLang === "es" ? `/${itemLang}/tutoriales/${item.slug}` : `/${itemLang}/tutorials/${item.slug}`;
     case "post":
     default:
-      return `/blog/${item.slug}`;
+      return `/${itemLang}/blog/${item.slug}`;
   }
 }
 ---
