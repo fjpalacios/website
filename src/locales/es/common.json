@@ -23,7 +23,8 @@
   },
   "pages": {
     "home": "Inicio",
-    "about": "Sobre mí"
+    "about": "Sobre mí",
+    "blog": "Blog"
   },
   "about": {
     "me": "Sobre mí",

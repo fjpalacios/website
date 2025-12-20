@@ -35,7 +35,7 @@ const totalPages = getPageCount(tutorialSummaries.length, TUTORIALS_PER_PAGE);
 const paginatedTutorials = paginateItems(tutorialSummaries, currentPage, TUTORIALS_PER_PAGE);
 
 const pageTitle = "Tutoriales";
-const pageDescription = "Web development tutorials and guides";
+const pageDescription = "Tutoriales y guías de desarrollo web";
 ---
 
 <Layout lang={lang} title={pageTitle} description={pageDescription} contact={contactEs}>
@@ -56,7 +56,7 @@ const pageDescription = "Web development tutorials and guides";
 
   {
     paginatedTutorials.length > 0 ? (
-      <PostList posts={paginatedTutorials} />
+      <PostList posts={paginatedTutorials} lang={lang} />
     ) : (
       <div class="empty-state">
         <p>No tutorials found. Check back soon!</p>
@@ -69,7 +69,7 @@ const pageDescription = "Web development tutorials and guides";
       <nav class="pagination">
         {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
           <a
-            href={page === 1 ? "/tutoriales" : `/tutoriales/page/${page}`}
+            href={page === 1 ? "/es/tutoriales" : `/es/tutoriales/page/${page}`}
             class:list={["page-link", { active: page === currentPage }]}
           >
             {page}

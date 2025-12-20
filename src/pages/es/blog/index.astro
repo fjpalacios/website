@@ -1,0 +1,136 @@
+---
+import PostList from "@components/PostList.astro";
+import Title from "@components/Title.astro";
+import Layout from "@layouts/Layout.astro";
+import { getCollection } from "astro:content";
+
+import contactEs from "@/content/static/contact/es.json";
+import {
+  sortByDate,
+  filterByLanguage,
+  paginateItems,
+  getPageCount,
+  preparePostSummary,
+  type PostSummary,
+} from "@/utils/blog";
+
+const POSTS_PER_PAGE = 12;
+const lang = "es";
+
+// Get all posts
+const allPosts = await getCollection("posts");
+
+// Filter by Spanish language and exclude drafts
+const spanishPosts = filterByLanguage(allPosts, lang).filter((post) => !post.data.draft);
+
+// Sort by date (newest first)
+const sortedPosts = sortByDate(spanishPosts, "desc");
+
+// Prepare post summaries
+const postSummaries: PostSummary[] = sortedPosts.map((post) => preparePostSummary(post));
+
+// Paginate
+const currentPage = 1;
+const totalPages = getPageCount(postSummaries.length, POSTS_PER_PAGE);
+const paginatedPosts = paginateItems(postSummaries, currentPage, POSTS_PER_PAGE);
+
+const pageTitle = "Blog";
+const pageDescription = "Artículos y tutoriales sobre desarrollo web";
+---
+
+<Layout lang={lang} title={pageTitle} description={pageDescription} contact={contactEs}>
+  <Title title={pageTitle} />
+
+  <div class="blog-stats">
+    Showing <strong>{paginatedPosts.length}</strong> of
+    <strong>{postSummaries.length}</strong> posts
+    {
+      totalPages > 1 && (
+        <span>
+          {" "}
+          (page {currentPage} of {totalPages})
+        </span>
+      )
+    }
+  </div>
+
+  {
+    paginatedPosts.length > 0 ? (
+      <PostList posts={paginatedPosts} lang={lang} />
+    ) : (
+      <div class="empty-state">
+        <p>No posts found. Check back soon!</p>
+      </div>
+    )
+  }
+
+  {
+    totalPages > 1 && (
+      <nav class="pagination">
+        {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+          <a
+            href={page === 1 ? "/es/blog" : `/es/blog/page/${page}`}
+            class:list={["page-link", { active: page === currentPage }]}
+          >
+            {page}
+          </a>
+        ))}
+      </nav>
+    )
+  }
+</Layout>
+
+<style lang="scss">
+  @use "@/styles/mixins" as *;
+  @use "@/styles/variables" as *;
+
+  .blog-stats {
+    grid-column: span 12;
+    margin-bottom: 2rem;
+    padding: 1rem;
+    background: $primary;
+    color: $text;
+    border-radius: 4px;
+
+    strong {
+      color: $accent;
+      font-weight: bold;
+    }
+  }
+
+  .empty-state {
+    grid-column: span 12;
+    text-align: center;
+    padding: 4rem 2rem;
+    color: $cursive-color;
+  }
+
+  .pagination {
+    grid-column: span 12;
+    display: flex;
+    justify-content: center;
+    gap: 0.5rem;
+    margin-top: 2rem;
+
+    .page-link {
+      padding: 0.5rem 1rem;
+      background: $primary;
+      color: $text;
+      border: 1px solid $primary;
+      text-decoration: none;
+      transition: all 0.2s ease;
+
+      &:hover {
+        background: $accent;
+        color: $background;
+        border-color: $accent;
+      }
+
+      &.active {
+        background: $accent;
+        color: $background;
+        font-weight: bold;
+      }
+    }
+  }
+</style>

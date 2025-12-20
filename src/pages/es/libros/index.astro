@@ -1,0 +1,99 @@
+---
+import PostList from "@components/PostList.astro";
+import Title from "@components/Title.astro";
+import Layout from "@layouts/Layout.astro";
+import { getCollection } from "astro:content";
+
+import contactEs from "@/content/static/contact/es.json";
+import {
+  sortByDate,
+  filterByLanguage,
+  paginateItems,
+  getPageCount,
+  findAuthorBySlug,
+  prepareBookSummary,
+  type BookSummary,
+} from "@/utils/blog";
+
+const BOOKS_PER_PAGE = 12;
+const lang = "es";
+
+// Get all books and authors
+const allBooks = await getCollection("books");
+const allAuthors = await getCollection("authors");
+
+// Filter by Spanish language
+const spanishBooks = filterByLanguage(allBooks, lang);
+
+// Sort by date (newest first)
+const sortedBooks = sortByDate(spanishBooks, "desc");
+
+// Prepare book summaries with author info
+const bookSummaries: BookSummary[] = sortedBooks.map((book) => {
+  const author = findAuthorBySlug(allAuthors, book.data.author);
+  return prepareBookSummary(book, author);
+});
+
+// Paginate
+const currentPage = 1;
+const totalPages = getPageCount(bookSummaries.length, BOOKS_PER_PAGE);
+const paginatedBooks = paginateItems(bookSummaries, currentPage, BOOKS_PER_PAGE);
+
+const pageTitle = "📚 Libros";
+const pageDescription = "Reseñas de libros";
+---
+
+<Layout lang={lang} title={pageTitle} description={pageDescription} contact={contactEs}>
+  <Title title={pageTitle} />
+
+  <PostList posts={paginatedBooks} lang={lang} />
+
+  {
+    totalPages > 1 && (
+      <div class="pagination">
+        {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+          <a
+            href={page === 1 ? "/es/libros" : `/es/libros/page/${page}`}
+            class:list={["page-link", { active: page === currentPage }]}
+          >
+            {page}
+          </a>
+        ))}
+      </div>
+    )
+  }
+</Layout>
+
+<style lang="scss">
+  @use "@/styles/mixins" as *;
+  @use "@/styles/variables" as *;
+
+  .pagination {
+    grid-column: span 12;
+    display: flex;
+    justify-content: center;
+    gap: 0.5rem;
+    margin-top: 2rem;
+
+    .page-link {
+      padding: 0.5rem 1rem;
+      background: $primary;
+      color: $text;
+      border: 1px solid $primary;
+      text-decoration: none;
+      transition: all 0.2s ease;
+
+      &:hover {
+        background: $accent;
+        color: $background;
+        border-color: $accent;
+      }
+
+      &.active {
+        background: $accent;
+        color: $background;
+        font-weight: bold;
+      }
+    }
+  }
+</style>
