@@ -124,3 +124,21 @@
     }
   }
 }
+
+// Hide phone and website on screen, show only on print
+@include screen {
+  .header__contact__item:has(a[href^="tel:"]) {
+    display: none;
+  }
+
+  .header__contact__item:has(a[href*="fjp.es"]) {
+    display: none;
+  }
+}
+
+// Hide Twitter on print
+@include print {
+  .header__contact__item:has(a[href*="twitter.com"]) {
+    display: none;
+  }
+}
