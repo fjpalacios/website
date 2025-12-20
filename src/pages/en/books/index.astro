@@ -2,6 +2,7 @@
 import PostList from "@components/PostList.astro";
 import Title from "@components/Title.astro";
 import Layout from "@layouts/Layout.astro";
+import { buildBooksIndexUrl } from "@utils/routes";
 import { getCollection } from "astro:content";
 
 import contactEn from "@/content/static/contact/en.json";
@@ -52,10 +53,7 @@ const pageDescription = "Book reviews";
     totalPages > 1 && (
       <div class="pagination">
         {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
-          <a
-            href={page === 1 ? "/en/books" : `/en/books/page/${page}`}
-            class:list={["page-link", { active: page === currentPage }]}
-          >
+          <a href={buildBooksIndexUrl(lang, page)} class:list={["page-link", { active: page === currentPage }]}>
             {page}
           </a>
         ))}

@@ -1,5 +1,6 @@
 ---
 import { t } from "@locales";
+import { getCanonicalSegment, getLocalizedRoute, type RouteSegment } from "@utils/routes";
 
 interface Props {
   lang: "es" | "en";
@@ -15,64 +16,54 @@ const currentPath = Astro.url.pathname;
 
 // Build translated URL using the translationSlug if provided
 function getTranslatedUrl(): string {
-  if (!translationSlug) {
-    // No translation slug provided, just change language prefix (for static pages like home, about)
-    const pathParts = currentPath.split("/").filter(Boolean);
+  const pathParts = currentPath.split("/").filter(Boolean);
 
-    if (pathParts.length === 0) {
+  if (pathParts.length === 0) {
+    return `/${targetLang}`;
+  }
+
+  // pathParts: ["es", "libros", "slug"] or ["en", "books", "slug"]
+  const currentLang = pathParts[0];
+  const localizedSegment = pathParts[1];
+
+  if (!translationSlug) {
+    // No translation slug = static page or listing page
+    // Static pages (home, about) and listing pages (books index, tutorials index) always have translations
+
+    if (pathParts.length === 1) {
+      // Home page: /es → /en
       return `/${targetLang}`;
     }
 
-    // Replace language prefix
-    pathParts[0] = targetLang;
+    // Get canonical segment from localized path
+    const canonicalSegment = getCanonicalSegment(localizedSegment, currentLang);
 
-    // Translate content type paths if needed
-    if (pathParts.length >= 2) {
-      const contentType = pathParts[1];
-
-      // Map content types between languages (all plural now)
-      const contentTypeMap: Record<string, string> = {
-        posts: "posts",
-        tutorials: "tutorials",
-        books: "books",
-        categories: "categories",
-        genres: "genres",
-        publishers: "publishers",
-        series: "series",
-        challenges: "challenges",
-      };
-
-      pathParts[1] = contentTypeMap[contentType] || contentType;
+    if (!canonicalSegment) {
+      // Unknown segment, just swap language
+      return `/${targetLang}/${localizedSegment}`;
     }
 
-    return `/${pathParts.join("/")}`;
+    // Translate to target language
+    const translatedSegment = getLocalizedRoute(canonicalSegment as RouteSegment, targetLang);
+
+    // Rebuild path with remaining segments
+    const remainingParts = pathParts.slice(2);
+    return `/${targetLang}/${translatedSegment}${remainingParts.length ? "/" + remainingParts.join("/") : ""}`;
   }
 
-  // We have a translation slug, build the proper URL
-  const pathParts = currentPath.split("/").filter(Boolean);
+  // We have a translation slug = detail page (post, tutorial, book)
+  // Get canonical segment from current localized path
+  const canonicalSegment = getCanonicalSegment(localizedSegment, currentLang);
 
-  // pathParts: ["es", "blog", "slug"] or ["en", "tutorials", "slug"]
-  if (pathParts.length >= 2) {
-    const contentType = pathParts[1];
-
-    // Map content types to translated paths (all plural, same in both languages)
-    const contentTypeMap: Record<string, Record<string, string>> = {
-      posts: { es: "posts", en: "posts" },
-      tutorials: { es: "tutorials", en: "tutorials" },
-      books: { es: "books", en: "books" },
-      categories: { es: "categories", en: "categories" },
-      genres: { es: "genres", en: "genres" },
-      publishers: { es: "publishers", en: "publishers" },
-      series: { es: "series", en: "series" },
-      challenges: { es: "challenges", en: "challenges" },
-    };
-
-    const translatedType = contentTypeMap[contentType]?.[targetLang] || contentType;
-    return `/${targetLang}/${translatedType}/${translationSlug}`;
+  if (!canonicalSegment) {
+    // Fallback if we can't determine the content type
+    return `/${targetLang}`;
   }
 
-  // Fallback
-  return `/${targetLang}`;
+  // Translate to target language
+  const translatedSegment = getLocalizedRoute(canonicalSegment as RouteSegment, targetLang);
+
+  return `/${targetLang}/${translatedSegment}/${translationSlug}`;
 }
 
 const translatedUrl = disabled ? "#" : getTranslatedUrl();

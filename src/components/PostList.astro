@@ -1,5 +1,6 @@
 ---
 import PostTitle from "@components/PostTitle.astro";
+import { buildBookUrl, buildTutorialUrl, buildPostUrl } from "@utils/routes";
 
 import type { PostSummary, TutorialSummary, BookSummary } from "@/utils/blog";
 
@@ -22,12 +23,12 @@ function getItemUrl(item: ListItem): string {
 
   switch (item.type) {
     case "book":
-      return `/${itemLang}/books/${item.slug}`;
+      return buildBookUrl(itemLang, item.slug);
     case "tutorial":
-      return `/${itemLang}/tutorials/${item.slug}`;
+      return buildTutorialUrl(itemLang, item.slug);
     case "post":
     default:
-      return `/${itemLang}/posts/${item.slug}`;
+      return buildPostUrl(itemLang, item.slug);
   }
 }
 ---

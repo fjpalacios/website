@@ -148,3 +148,22 @@ export function buildAuthorUrl(lang: string, slug: string): string {
 export function buildAboutUrl(lang: string): string {
   return buildLocalizedPath(lang, "about");
 }
+
+/**
+ * Helper functions for pagination URLs
+ */
+
+export function buildPostsIndexUrl(lang: string, page?: number): string {
+  const base = buildLocalizedPath(lang, "posts");
+  return page && page > 1 ? `${base}/page/${page}` : base;
+}
+
+export function buildTutorialsIndexUrl(lang: string, page?: number): string {
+  const base = buildLocalizedPath(lang, "tutorials");
+  return page && page > 1 ? `${base}/page/${page}` : base;
+}
+
+export function buildBooksIndexUrl(lang: string, page?: number): string {
+  const base = buildLocalizedPath(lang, "books");
+  return page && page > 1 ? `${base}/page/${page}` : base;
+}

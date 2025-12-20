@@ -2,6 +2,7 @@
 import PostList from "@components/PostList.astro";
 import Title from "@components/Title.astro";
 import Layout from "@layouts/Layout.astro";
+import { buildTutorialsIndexUrl } from "@utils/routes";
 import { getCollection } from "astro:content";
 
 import contactEn from "@/content/static/contact/en.json";
@@ -68,10 +69,7 @@ const pageDescription = "Web development tutorials and guides";
     totalPages > 1 && (
       <nav class="pagination">
         {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
-          <a
-            href={page === 1 ? "/en/tutorials" : `/en/tutorials/page/${page}`}
-            class:list={["page-link", { active: page === currentPage }]}
-          >
+          <a href={buildTutorialsIndexUrl(lang, page)} class:list={["page-link", { active: page === currentPage }]}>
             {page}
           </a>
         ))}
