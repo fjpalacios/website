@@ -40,5 +40,23 @@ const pageDescription = t(lang, "allCourses");
 >
   <Title title={pageTitle} />
 
-  <CourseList courses={coursesWithCount} title={t(lang, "allCourses")} lang={lang} showCount={false} />
+  {
+    englishCourses.length > 0 ? (
+      <CourseList courses={coursesWithCount} title={t(lang, "allCourses")} lang={lang} showCount={false} />
+    ) : (
+      <div class="empty-state">
+        <p>{t(lang, "emptyState.courses")}</p>
+      </div>
+    )
+  }
 </Layout>
+
+<style lang="scss">
+  @use "@/styles/variables" as *;
+
+  .empty-state {
+    text-align: center;
+    padding: 4rem 2rem;
+    color: $cursive-color;
+  }
+</style>

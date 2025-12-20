@@ -33,8 +33,11 @@ const challengesWithCount = spanishChallenges.map((challenge) => {
   return { challenge, count };
 });
 
+// Filter challenges with content
+const challengesWithContent = challengesWithCount.filter(({ count }) => count > 0);
+
 // Sort by name
-challengesWithCount.sort((a, b) => a.challenge.data.name.localeCompare(b.challenge.data.name));
+challengesWithContent.sort((a, b) => a.challenge.data.name.localeCompare(b.challenge.data.name));
 
 const pageTitle = `🎯 ${t(lang, "pages.challenges")}`;
 const pageDescription = t(lang, "allChallenges");
@@ -49,5 +52,23 @@ const pageDescription = t(lang, "allChallenges");
 >
   <Title title={pageTitle} />
 
-  <ChallengeList challenges={challengesWithCount} title={t(lang, "allChallenges")} lang={lang} showCount={true} />
+  {
+    challengesWithContent.length > 0 ? (
+      <ChallengeList challenges={challengesWithContent} title={t(lang, "allChallenges")} lang={lang} showCount={true} />
+    ) : (
+      <div class="empty-state">
+        <p>{t(lang, "emptyState.challenges")}</p>
+      </div>
+    )
+  }
 </Layout>
+
+<style lang="scss">
+  @use "@/styles/variables" as *;
+
+  .empty-state {
+    text-align: center;
+    padding: 4rem 2rem;
+    color: $cursive-color;
+  }
+</style>

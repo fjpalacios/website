@@ -73,6 +73,18 @@
   "allChallenges": "All challenges",
   "allAuthors": "All authors",
   "allCourses": "All courses",
+  "emptyState": {
+    "books": "No books available at the moment. Check back soon!",
+    "posts": "No posts available at the moment. Check back soon!",
+    "tutorials": "No tutorials available at the moment. Check back soon!",
+    "categories": "No categories available at the moment.",
+    "genres": "No genres available at the moment.",
+    "publishers": "No publishers available at the moment.",
+    "series": "No series available at the moment.",
+    "challenges": "No challenges available at the moment.",
+    "authors": "No authors available at the moment.",
+    "courses": "No courses available at the moment."
+  },
   "codeBlock": {
     "copy": "Copy code",
     "copied": "Copied"

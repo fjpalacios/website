@@ -33,8 +33,11 @@ const authorsWithCount = englishAuthors.map((author) => {
   return { author, count };
 });
 
+// Filter authors with content
+const authorsWithContent = authorsWithCount.filter(({ count }) => count > 0);
+
 // Sort by name
-authorsWithCount.sort((a, b) => a.author.data.name.localeCompare(b.author.data.name));
+authorsWithContent.sort((a, b) => a.author.data.name.localeCompare(b.author.data.name));
 
 const pageTitle = `✍️ ${t(lang, "pages.authors")}`;
 const pageDescription = t(lang, "allAuthors");
@@ -49,5 +52,23 @@ const pageDescription = t(lang, "allAuthors");
 >
   <Title title={pageTitle} />
 
-  <AuthorList authors={authorsWithCount} title={t(lang, "allAuthors")} lang={lang} showCount={true} />
+  {
+    authorsWithContent.length > 0 ? (
+      <AuthorList authors={authorsWithContent} title={t(lang, "allAuthors")} lang={lang} showCount={true} />
+    ) : (
+      <div class="empty-state">
+        <p>{t(lang, "emptyState.authors")}</p>
+      </div>
+    )
+  }
 </Layout>
+
+<style lang="scss">
+  @use "@/styles/variables" as *;
+
+  .empty-state {
+    text-align: center;
+    padding: 4rem 2rem;
+    color: $cursive-color;
+  }
+</style>

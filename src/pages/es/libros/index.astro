@@ -2,6 +2,7 @@
 import PostList from "@components/PostList.astro";
 import Title from "@components/Title.astro";
 import Layout from "@layouts/Layout.astro";
+import { t } from "@locales";
 import { buildBooksIndexUrl } from "@utils/routes";
 import { getCollection } from "astro:content";
 
@@ -58,7 +59,15 @@ const pageDescription = "Reseñas de libros";
 >
   <Title title={pageTitle} />
 
-  <PostList posts={paginatedBooks} lang={lang} />
+  {
+    paginatedBooks.length > 0 ? (
+      <PostList posts={paginatedBooks} lang={lang} />
+    ) : (
+      <div class="empty-state">
+        <p>{t(lang, "emptyState.books")}</p>
+      </div>
+    )
+  }
 
   {
     totalPages > 1 && (
@@ -76,6 +85,13 @@ const pageDescription = "Reseñas de libros";
 <style lang="scss">
   @use "@/styles/mixins" as *;
   @use "@/styles/variables" as *;
+
+  .empty-state {
+    grid-column: span 12;
+    text-align: center;
+    padding: 4rem 2rem;
+    color: $cursive-color;
+  }
 
   .pagination {
     grid-column: span 12;

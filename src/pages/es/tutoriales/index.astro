@@ -2,6 +2,7 @@
 import PostList from "@components/PostList.astro";
 import Title from "@components/Title.astro";
 import Layout from "@layouts/Layout.astro";
+import { t } from "@locales";
 import { buildTutorialsIndexUrl } from "@utils/routes";
 import { getCollection } from "astro:content";
 
@@ -58,7 +59,7 @@ const pageDescription = "Tutoriales y guías de desarrollo web";
       <PostList posts={paginatedTutorials} lang={lang} />
     ) : (
       <div class="empty-state">
-        <p>No se encontraron tutoriales. ¡Vuelve pronto!</p>
+        <p>{t(lang, "emptyState.tutorials")}</p>
       </div>
     )
   }

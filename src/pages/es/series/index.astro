@@ -33,8 +33,11 @@ const seriesWithCount = spanishSeries.map((serie) => {
   return { serie, count };
 });
 
+// Filter series with content
+const seriesWithContent = seriesWithCount.filter(({ count }) => count > 0);
+
 // Sort by name
-seriesWithCount.sort((a, b) => a.serie.data.name.localeCompare(b.serie.data.name));
+seriesWithContent.sort((a, b) => a.serie.data.name.localeCompare(b.serie.data.name));
 
 const pageTitle = `📚 ${t(lang, "pages.series")}`;
 const pageDescription = t(lang, "allSeries");
@@ -49,5 +52,23 @@ const pageDescription = t(lang, "allSeries");
 >
   <Title title={pageTitle} />
 
-  <SeriesList series={seriesWithCount} title={t(lang, "allSeries")} lang={lang} showCount={true} />
+  {
+    seriesWithContent.length > 0 ? (
+      <SeriesList series={seriesWithContent} title={t(lang, "allSeries")} lang={lang} showCount={true} />
+    ) : (
+      <div class="empty-state">
+        <p>{t(lang, "emptyState.series")}</p>
+      </div>
+    )
+  }
 </Layout>
+
+<style lang="scss">
+  @use "@/styles/variables" as *;
+
+  .empty-state {
+    text-align: center;
+    padding: 4rem 2rem;
+    color: $cursive-color;
+  }
+</style>

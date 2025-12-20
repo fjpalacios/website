@@ -33,8 +33,11 @@ const publishersWithCount = spanishPublishers.map((publisher) => {
   return { publisher, count };
 });
 
+// Filter publishers with content
+const publishersWithContent = publishersWithCount.filter(({ count }) => count > 0);
+
 // Sort by name
-publishersWithCount.sort((a, b) => a.publisher.data.name.localeCompare(b.publisher.data.name));
+publishersWithContent.sort((a, b) => a.publisher.data.name.localeCompare(b.publisher.data.name));
 
 const pageTitle = `🏢 ${t(lang, "pages.publishers")}`;
 const pageDescription = t(lang, "allPublishers");
@@ -49,5 +52,23 @@ const pageDescription = t(lang, "allPublishers");
 >
   <Title title={pageTitle} />
 
-  <PublisherList publishers={publishersWithCount} title={t(lang, "allPublishers")} lang={lang} showCount={true} />
+  {
+    publishersWithContent.length > 0 ? (
+      <PublisherList publishers={publishersWithContent} title={t(lang, "allPublishers")} lang={lang} showCount={true} />
+    ) : (
+      <div class="empty-state">
+        <p>{t(lang, "emptyState.publishers")}</p>
+      </div>
+    )
+  }
 </Layout>
+
+<style lang="scss">
+  @use "@/styles/variables" as *;
+
+  .empty-state {
+    text-align: center;
+    padding: 4rem 2rem;
+    color: $cursive-color;
+  }
+</style>

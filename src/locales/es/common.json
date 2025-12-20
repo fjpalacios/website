@@ -73,6 +73,18 @@
   "allChallenges": "Todos los retos",
   "allAuthors": "Todos los autores",
   "allCourses": "Todos los cursos",
+  "emptyState": {
+    "books": "No hay libros disponibles en este momento. ¡Vuelve pronto!",
+    "posts": "No hay publicaciones disponibles en este momento. ¡Vuelve pronto!",
+    "tutorials": "No hay tutoriales disponibles en este momento. ¡Vuelve pronto!",
+    "categories": "No hay categorías disponibles en este momento.",
+    "genres": "No hay géneros disponibles en este momento.",
+    "publishers": "No hay editoriales disponibles en este momento.",
+    "series": "No hay series disponibles en este momento.",
+    "challenges": "No hay retos disponibles en este momento.",
+    "authors": "No hay autores disponibles en este momento.",
+    "courses": "No hay cursos disponibles en este momento."
+  },
   "codeBlock": {
     "copy": "Copiar código",
     "copied": "Copiado"

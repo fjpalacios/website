@@ -48,8 +48,11 @@ const categoriesWithCount = spanishCategories.map((category) => {
   return { category, count };
 });
 
+// Filter categories with content
+const categoriesWithContent = categoriesWithCount.filter(({ count }) => count > 0);
+
 // Sort by name
-categoriesWithCount.sort((a, b) => a.category.data.name.localeCompare(b.category.data.name));
+categoriesWithContent.sort((a, b) => a.category.data.name.localeCompare(b.category.data.name));
 
 const pageTitle = `📂 ${t(lang, "pages.categories")}`;
 const pageDescription = t(lang, "allCategories");
@@ -64,5 +67,23 @@ const pageDescription = t(lang, "allCategories");
 >
   <Title title={pageTitle} />
 
-  <CategoryList categories={categoriesWithCount} title={t(lang, "allCategories")} lang={lang} showCount={true} />
+  {
+    categoriesWithContent.length > 0 ? (
+      <CategoryList categories={categoriesWithContent} title={t(lang, "allCategories")} lang={lang} showCount={true} />
+    ) : (
+      <div class="empty-state">
+        <p>{t(lang, "emptyState.categories")}</p>
+      </div>
+    )
+  }
 </Layout>
+
+<style lang="scss">
+  @use "@/styles/variables" as *;
+
+  .empty-state {
+    text-align: center;
+    padding: 4rem 2rem;
+    color: $cursive-color;
+  }
+</style>
