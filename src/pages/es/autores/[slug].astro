@@ -84,7 +84,7 @@ const authorTitle = author.data.gender === "male" ? t(lang, "pages.authorMale") 
 const pageTitle = `${authorTitle}: ${author.data.name}`;
 ---
 
-<Layout lang={lang} title={pageTitle} description={author.data.bio} contact={contactEs} translationSlug="">
+<Layout lang={lang} title={pageTitle} description={author.data.bio} contact={contactEs}>
   <Title title={pageTitle} />
 
   <div class="space" style="margin-bottom: 20px;">

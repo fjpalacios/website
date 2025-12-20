@@ -12,25 +12,35 @@ interface Props {
 const { lang, currentPath, translationSlug } = Astro.props;
 
 // Determine if translation exists
-// Static pages (home, about, etc.) always have translation
-// Detail pages depend on the i18n field (translationSlug)
-// Listing pages (posts index, tutorials index, books index) don't have translation
-const localizedPostsRoute = t(lang, "routes.posts");
-const localizedTutorialsRoute = t(lang, "routes.tutorials");
-const localizedBooksRoute = t(lang, "routes.books");
-const localizedAboutRoute = t(lang, "routes.about");
+// Rules:
+// 1. Static pages (home, about) always have translation
+// 2. Index/listing pages always have translation
+// 3. Content detail pages (posts, tutorials, books) depend on i18n field (translationSlug)
+// 4. Taxonomy pages (authors, genres, categories, etc) will receive translationSlug if translation exists
 
-const isStaticPage =
-  !currentPath.includes(`/${localizedPostsRoute}/`) &&
-  !currentPath.includes(`/${localizedTutorialsRoute}/`) &&
-  !currentPath.includes(`/${localizedBooksRoute}/`);
+// Get all localized route segments for content detail pages
+const contentRoutes = [
+  t(lang, "routes.posts"),
+  t(lang, "routes.tutorials"),
+  t(lang, "routes.books"),
+  t(lang, "routes.authors"),
+  t(lang, "routes.categories"),
+  t(lang, "routes.genres"),
+  t(lang, "routes.publishers"),
+  t(lang, "routes.series"),
+  t(lang, "routes.challenges"),
+  t(lang, "routes.courses"),
+];
 
-const isListingPage =
-  currentPath.endsWith(`/${localizedPostsRoute}`) ||
-  currentPath.endsWith(`/${localizedTutorialsRoute}`) ||
-  currentPath.endsWith(`/${localizedBooksRoute}`);
+// Check if it's a content detail page (has a slug after the content type)
+const isContentDetailPage = contentRoutes.some((route) => {
+  const pattern = new RegExp(`/${route}/[^/]+`);
+  return pattern.test(currentPath);
+});
 
-const hasTranslation = isStaticPage && !isListingPage ? true : translationSlug !== undefined;
+// For content detail pages, translation depends on translationSlug being provided
+// For static and listing pages, translation is always available
+const hasTranslation = isContentDetailPage ? translationSlug !== undefined : true;
 
 const homeUrl = `/${lang}`;
 const aboutUrl = buildLocalizedPath(lang, "about");
