@@ -6,7 +6,7 @@ export interface CollectionItem {
   slug: string;
   data: {
     title: string;
-    publishDate: Date;
+    date: Date;
     language: "es" | "en";
     tags?: string[];
   };
@@ -37,8 +37,8 @@ export function sortByDate(items: CollectionItem[], order: "asc" | "desc" = "des
   const sorted = [...items];
 
   return sorted.sort((a, b) => {
-    const dateA = a.data.publishDate.getTime();
-    const dateB = b.data.publishDate.getTime();
+    const dateA = a.data.date.getTime();
+    const dateB = b.data.date.getTime();
 
     if (order === "desc") {
       return dateB - dateA; // Newest first
@@ -115,7 +115,7 @@ export function groupByYear(items: CollectionItem[]): GroupedByYear[] {
   const grouped = new Map<number, CollectionItem[]>();
 
   for (const item of sortedItems) {
-    const year = item.data.publishDate.getFullYear();
+    const year = item.data.date.getFullYear();
 
     if (!grouped.has(year)) {
       grouped.set(year, []);

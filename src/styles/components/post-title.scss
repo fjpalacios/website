@@ -3,49 +3,62 @@
 
 .post-title {
   display: flex;
-  align-items: center;
+  align-items: flex-start; // Align items to top instead of center
   justify-content: space-between;
+  gap: 1.5rem; // Increased gap for better separation
   margin-bottom: 20px;
   padding: 10px 20px;
   transition: all 0.45s ease;
   background-color: $primary;
   color: $inverted-text;
 
-  // h2 {
-  //   margin: 17px 20px 13px 0;
-  //   font-size: 12px;
+  h2 {
+    margin: 17px 0 13px;
+    font-size: 14px;
+    line-height: 1.4;
+    flex: 1 1 auto; // Allow to grow and shrink
+    min-width: 0; // Allow text to shrink below content size
+    word-wrap: break-word; // Break long words if needed
 
-  //   @include small {
-  //     font-size: 14px;
-  //   }
+    @include small {
+      font-size: 15px;
+    }
 
-  //   @include medium {
-  //     font-size: 16px;
-  //   }
+    @include medium {
+      font-size: 16px;
+    }
 
-  //   @include medium-and-up {
-  //     font-weight: 100;
-  //   }
+    @include medium-and-up {
+      font-weight: 300;
+    }
 
-  //   @include large {
-  //     font-size: 18px;
-  //   }
-  // }
+    @include large {
+      font-size: 17px;
+    }
+  }
 
   time {
     margin: 17px 0 13px;
     font-family: "Courier New", monospace;
+    font-size: 14px; // Explicit size for consistency
     font-weight: 600;
     letter-spacing: 0.5px;
+    white-space: nowrap; // Prevent date from wrapping
+    flex: 0 0 auto; // Don't grow or shrink, stay at content size
+    min-width: fit-content; // Ensure it never gets smaller than content
 
     @include medium-and-up {
       font-weight: 400;
+      font-size: 15px;
     }
   }
 
   // Legacy support for old <p> dates
   p {
     margin: 17px 0 13px;
+    white-space: nowrap;
+    flex: 0 0 auto;
+    min-width: fit-content;
 
     @include medium-and-up {
       font-weight: 100;

@@ -14,7 +14,7 @@ const createMockItem = (id: number, date: Date, language: "es" | "en", tags: str
   slug: `item-${id}`,
   data: {
     title: `Item ${id}`,
-    publishDate: date,
+    date: date,
     language,
     tags,
   },
@@ -197,7 +197,7 @@ describe("filterByTag", () => {
           slug: "item-1",
           data: {
             title: "Item 1",
-            publishDate: new Date(),
+            date: new Date(),
             language: "es",
             // tags is undefined
           },
