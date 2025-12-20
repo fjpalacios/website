@@ -1,4 +1,5 @@
 ---
+import PostTitle from "@components/PostTitle.astro";
 import Layout from "@layouts/Layout.astro";
 import { getCollection, render } from "astro:content";
 
@@ -21,90 +22,66 @@ const { Content } = await render(tutorialEntry);
 const lang = tutorial.language;
 const contact = lang === "es" ? contactEs : contactEn;
 
-const formattedDate = tutorial.date.toLocaleDateString(lang === "es" ? "es-ES" : "en-US", {
-  year: "numeric",
-  month: "long",
-  day: "numeric",
-});
+// Cover image with fallback
+const coverImage = tutorial.cover || `/images/defaults/tutorial-default.jpg`;
 
-const formatTime = (minutes: number): string => {
-  if (minutes < 60) return `${minutes} min`;
-  const hours = Math.floor(minutes / 60);
-  const remainingMinutes = minutes % 60;
-  return remainingMinutes > 0 ? `${hours}h ${remainingMinutes}min` : `${hours}h`;
-};
+// Get course info if exists
+const allCourses = tutorial.course ? await getCollection("courses") : [];
+const course = tutorial.course ? allCourses.find((c) => c.data.course_slug === tutorial.course) : null;
 
-const difficultyLabels = {
-  es: {
-    beginner: "Principiante",
-    intermediate: "Intermedio",
-    advanced: "Avanzado",
-  },
-  en: {
-    beginner: "Beginner",
-    intermediate: "Intermediate",
-    advanced: "Advanced",
-  },
-};
-
-const difficultyLabel = difficultyLabels[lang][tutorial.difficulty];
+// Get categories
+const allCategories = await getCollection("categories");
+const categories = allCategories.filter((cat) => tutorial.categories?.includes(cat.data.category_slug));
 ---
 
 <Layout lang={lang} title={tutorial.title} description={tutorial.excerpt} contact={contact}>
-  <article class="tutorial">
-    <header class="tutorial__header">
-      <div class="tutorial__badges">
-        <span class={`tutorial__difficulty tutorial__difficulty--${tutorial.difficulty}`}>
-          {difficultyLabel}
-        </span>
-        <span class="tutorial__time">
-          ⏱️ {formatTime(tutorial.estimated_time)}
-        </span>
+  <main class="tutorial">
+    <section class="tutorial__content">
+      <img src={coverImage} alt={tutorial.title} width="1400" height="700" loading="lazy" />
+      <PostTitle title={tutorial.title} date={tutorial.date} />
+      <div class="text-area">
+        <Content />
       </div>
-
-      <h1 class="tutorial__title">{tutorial.title}</h1>
-
-      <div class="tutorial__meta">
-        <time datetime={tutorial.date.toISOString()}>{formattedDate}</time>
-      </div>
-
-      {
-        (tutorial.github_repo || tutorial.demo_url) && (
-          <div class="tutorial__links">
-            {tutorial.github_repo && (
-              <a href={tutorial.github_repo} target="_blank" rel="noopener noreferrer">
-                <span>🔗</span> View on GitHub
-              </a>
-            )}
-            {tutorial.demo_url && (
-              <a href={tutorial.demo_url} target="_blank" rel="noopener noreferrer">
-                <span>🚀</span> View Demo
-              </a>
-            )}
-          </div>
-        )
-      }
-    </header>
-
-    <div class="tutorial__content">
-      <Content />
-    </div>
+    </section>
 
     {
-      tutorial.tags.length > 0 && (
-        <footer class="tutorial__footer">
-          <div class="tutorial__tags">
-            <i class="icon-tag" />
-            <ul class="tutorial__tags-list">
-              {tutorial.tags.map((tag) => (
-                <li>
-                  <span class="tag">{tag}</span>
-                </li>
-              ))}
-            </ul>
+      course && (
+        <section class="tutorial__info">
+          <div class="tutorial__info__icon">
+            <i class="icon-course" />
           </div>
-        </footer>
+          <ul class="tutorial__info__text">
+            <li>
+              <a href={`/course/${course.data.course_slug}`} title="Course">
+                {course.data.name}
+              </a>
+            </li>
+          </ul>
+        </section>
       )
     }
-  </article>
+
+    {
+      categories.length > 0 && (
+        <section class="tutorial__info">
+          <div class="tutorial__info__icon">
+            <i class="icon-tag" />
+          </div>
+          <ul class="tutorial__info__text">
+            {categories.map((category) => (
+              <li>
+                <a
+                  href={`/category/${category.data.category_slug}`}
+                  class="tutorial__info__text__item"
+                  title="Category"
+                >
+                  {category.data.name}
+                </a>
+              </li>
+            ))}
+          </ul>
+        </section>
+      )
+    }
+  </main>
 </Layout>
