@@ -69,7 +69,7 @@ const pageDescription = "Tutoriales y guías de desarrollo web";
       <nav class="pagination">
         {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
           <a
-            href={page === 1 ? "/es/tutorials" : `/es/tutorials/page/${page}`}
+            href={page === 1 ? "/es/tutoriales" : `/es/tutoriales/page/${page}`}
             class:list={["page-link", { active: page === currentPage }]}
           >
             {page}

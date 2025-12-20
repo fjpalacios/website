@@ -1,7 +1,7 @@
 ---
 import LanguageSwitcher from "@components/LanguageSwitcher.astro";
 import { t } from "@locales";
-import { getRelativeLocaleUrl } from "astro:i18n";
+import { buildLocalizedPath } from "@utils/routes";
 
 interface Props {
   lang: string;
@@ -15,17 +15,26 @@ const { lang, currentPath, translationSlug } = Astro.props;
 // Static pages (home, about, etc.) always have translation
 // Detail pages depend on the i18n field (translationSlug)
 // Listing pages (posts index, tutorials index, books index) don't have translation
+const localizedPostsRoute = t(lang, "routes.posts");
+const localizedTutorialsRoute = t(lang, "routes.tutorials");
+const localizedBooksRoute = t(lang, "routes.books");
+const localizedAboutRoute = t(lang, "routes.about");
+
 const isStaticPage =
-  !currentPath.includes("/posts/") && !currentPath.includes("/tutorials/") && !currentPath.includes("/books/");
+  !currentPath.includes(`/${localizedPostsRoute}/`) &&
+  !currentPath.includes(`/${localizedTutorialsRoute}/`) &&
+  !currentPath.includes(`/${localizedBooksRoute}/`);
 
 const isListingPage =
-  currentPath.endsWith("/posts") || currentPath.endsWith("/tutorials") || currentPath.endsWith("/books");
+  currentPath.endsWith(`/${localizedPostsRoute}`) ||
+  currentPath.endsWith(`/${localizedTutorialsRoute}`) ||
+  currentPath.endsWith(`/${localizedBooksRoute}`);
 
 const hasTranslation = isStaticPage && !isListingPage ? true : translationSlug !== undefined;
 
-const homeUrl = getRelativeLocaleUrl(lang, "");
-const aboutUrl = getRelativeLocaleUrl(lang, "about");
-const postsUrl = getRelativeLocaleUrl(lang, "posts");
+const homeUrl = `/${lang}`;
+const aboutUrl = buildLocalizedPath(lang, "about");
+const postsUrl = buildLocalizedPath(lang, "posts");
 ---
 
 <nav class="menu">

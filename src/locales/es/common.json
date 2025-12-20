@@ -33,6 +33,18 @@
     "series": "Series",
     "challenges": "Retos"
   },
+  "routes": {
+    "posts": "publicaciones",
+    "tutorials": "tutoriales",
+    "books": "libros",
+    "categories": "categorias",
+    "genres": "generos",
+    "publishers": "editoriales",
+    "series": "series",
+    "challenges": "retos",
+    "author": "autor",
+    "about": "acerca-de"
+  },
   "about": {
     "me": "Sobre mí",
     "internet": "Internet"

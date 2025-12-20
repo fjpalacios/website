@@ -130,7 +130,7 @@ const categoriesWithCounts = await Promise.all(
 categoriesWithCounts.sort((a, b) => (a.category.data.order || 999) - (b.category.data.order || 999));
 
 const pageTitle = `${t(lang, "pages.categories")}: ${category.data.name}`;
-const basePath = `/es/categories/${category.data.category_slug}`;
+const basePath = `/es/categorias/${category.data.category_slug}`;
 ---
 
 <Layout lang={lang} title={pageTitle} contact={contact} translationSlug={category.data.i18n}>
