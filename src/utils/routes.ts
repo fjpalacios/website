@@ -12,7 +12,9 @@ export type RouteSegment =
   | "publishers"
   | "series"
   | "challenges"
+  | "authors"
   | "author"
+  | "courses"
   | "about";
 
 /**
@@ -53,9 +55,17 @@ export const routeTranslations: Record<RouteSegment, Record<string, string>> = {
     en: "challenges",
     es: "retos",
   },
+  authors: {
+    en: "authors",
+    es: "autores",
+  },
   author: {
     en: "author",
     es: "autor",
+  },
+  courses: {
+    en: "courses",
+    es: "cursos",
   },
   about: {
     en: "about",

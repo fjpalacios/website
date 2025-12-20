@@ -1,5 +1,6 @@
 ---
 import SectionTitle from "@components/SectionTitle.astro";
+import { t } from "@locales";
 import type { CollectionEntry } from "astro:content";
 
 interface Props {
@@ -17,8 +18,8 @@ const { authors, title, lang, showCount = true } = Astro.props;
 // Filter authors with at least one item
 const authorsWithContent = authors.filter(({ count }) => count > 0);
 
-// Get base path for author URLs (now plural in both languages)
-const authorBasePath = lang === "es" ? "autores" : "authors";
+// Get base path for author URLs using localized routes
+const authorBasePath = t(lang, "routes.authors");
 ---
 
 <main class="types">
