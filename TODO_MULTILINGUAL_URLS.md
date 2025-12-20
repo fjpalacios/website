@@ -121,6 +121,34 @@ Once URLs are properly structured, add language switcher in header:
 - Detect current language from URL
 - Provide link to same content in other language (if exists)
 - Use i18n frontmatter field to link between translations
+- **If translation doesn't exist**: Show flag in grayscale and disable link (like Gatsby)
+- **No automatic fallback**: If user requests `/en/slug` and it doesn't exist → 404
+
+Reference: `/home/fjpalacios/Code/website-gatsby/src/components/language-switcher.tsx`
+
+**Gatsby behavior (to replicate):**
+
+```typescript
+const i18nSlug = frontmatter.i18n?.frontmatter.post_slug || '';
+const hasi18n = i18nSlug.length;
+
+// In Layout component:
+<Layout
+  languageSwitcherDisabled={!hasi18n}
+  languageSwitcherTo={`/${i18nSlug}`}
+>
+```
+
+**CSS for disabled state:**
+
+```scss
+.language-switcher--disabled {
+  img {
+    filter: grayscale(100%);
+    cursor: not-allowed; // Add this
+  }
+}
+```
 
 ## Testing Checklist
 
@@ -129,9 +157,13 @@ Once URLs are properly structured, add language switcher in header:
 - [ ] URLs in PostList component generate correctly
 - [ ] Internal links work across languages
 - [ ] Taxonomy pages respect language prefixes
-- [ ] Language switcher works (when implemented)
+- [ ] Language switcher appears in header
+- [ ] Language switcher disabled (grayscale) when translation doesn't exist
+- [ ] Language switcher clickable when translation exists
+- [ ] Clicking language switcher navigates to correct URL
+- [ ] No 404s for existing language-specific URLs
+- [ ] Proper 404s for non-existing language URLs (no fallback)
 - [ ] Sitemap includes both language versions
-- [ ] No 404s for language-specific URLs
 
 ## Priority
 
