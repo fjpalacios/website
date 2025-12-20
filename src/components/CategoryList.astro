@@ -14,8 +14,8 @@ interface Props {
 
 const { categories, title, lang, showCount = true } = Astro.props;
 
-// Get base path for category URLs based on language
-const categoryBasePath = lang === "es" ? "categoria" : "category";
+// Get base path for category URLs (now plural in both languages)
+const categoryBasePath = "categories";
 ---
 
 <main class="types">

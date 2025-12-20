@@ -24,10 +24,14 @@
   "pages": {
     "home": "Inicio",
     "about": "Sobre mí",
-    "blog": "Blog",
-    "category": "Categoría",
-    "genre": "Género",
-    "publisher": "Editorial"
+    "posts": "Posts",
+    "tutorials": "Tutoriales",
+    "books": "Libros",
+    "categories": "Categorías",
+    "genres": "Géneros",
+    "publishers": "Editoriales",
+    "series": "Series",
+    "challenges": "Retos"
   },
   "about": {
     "me": "Sobre mí",
@@ -39,5 +43,7 @@
   },
   "allCategories": "Todas las categorías",
   "allGenres": "Todos los géneros",
-  "allPublishers": "Todas las editoriales"
+  "allPublishers": "Todas las editoriales",
+  "allSeries": "Todas las series",
+  "allChallenges": "Todos los retos"
 }

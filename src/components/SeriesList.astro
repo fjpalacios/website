@@ -3,8 +3,8 @@ import SectionTitle from "@components/SectionTitle.astro";
 import type { CollectionEntry } from "astro:content";
 
 interface Props {
-  genres: Array<{
-    genre: CollectionEntry<"genres">;
+  series: Array<{
+    serie: CollectionEntry<"series">;
     count: number;
   }>;
   title: string;
@@ -12,19 +12,19 @@ interface Props {
   showCount?: boolean;
 }
 
-const { genres, title, lang, showCount = true } = Astro.props;
+const { series, title, lang, showCount = true } = Astro.props;
 
-// Get base path for genre URLs (now plural in both languages)
-const genreBasePath = "genres";
+// Get base path for series URLs (now plural in both languages)
+const seriesBasePath = "series";
 ---
 
 <main class="types">
   <SectionTitle title={title} />
   <ul class="types__list">
     {
-      genres.map(({ genre, count }) => (
+      series.map(({ serie, count }) => (
         <li class="types__list__item">
-          <a href={`/${lang}/${genreBasePath}/${genre.data.genre_slug}`}>{genre.data.name}</a>
+          <a href={`/${lang}/${seriesBasePath}/${serie.data.series_slug}`}>{serie.data.name}</a>
           {showCount && <span class="types__list__item__number">({count})</span>}
         </li>
       ))

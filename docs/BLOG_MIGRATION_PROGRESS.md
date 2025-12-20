@@ -2,11 +2,11 @@
 
 **Last Updated:** December 20, 2025  
 **Current Branch:** `feature/blog-foundation`  
-**Status:** Phase 4 - Taxonomy Pages (80% Complete)
+**Status:** Phase 4 - Complete | URL Standardization Complete
 
 ---
 
-## 📊 Overall Progress: 80% Complete
+## 📊 Overall Progress: 85% Complete
 
 ### ✅ Phase 1: Foundation (100% Complete)
 
@@ -77,15 +77,30 @@
 
 #### Multilingual URL Structure (100% Complete)
 
-- ✅ Spanish routes: `/es/*` (home, about, blog, tutoriales, libros)
-- ✅ English routes: `/en/*` (home, about, blog, tutorials, books)
+**All URLs now use plural nouns for consistency and SEO best practices:**
+
+- ✅ Spanish routes: `/es/*` (posts, tutorials, books, categories, genres, publishers, series, challenges)
+- ✅ English routes: `/en/*` (posts, tutorials, books, categories, genres, publishers, series, challenges)
 - ✅ Language prefix for all languages
-- ✅ Translated URL paths:
-  - `tutoriales` ↔ `tutorials`
-  - `libros` ↔ `books`
-  - `categoria` ↔ `category`
-  - `genero` ↔ `genre`
-  - `editorial` ↔ `publisher`
+- ✅ **Consistent plural URLs** in both languages:
+  - Posts: `/posts/` (was `/blog/` in ES, `/blog/` in EN)
+  - Tutorials: `/tutorials/` (was `/tutoriales/` in ES)
+  - Books: `/books/` (was `/libros/` in ES)
+  - Categories: `/categories/` (was `/categoria/` in ES, `/category/` in EN)
+  - Genres: `/genres/` (was `/genero/` in ES, `/genre/` in EN)
+  - Publishers: `/publishers/` (was `/editorial/` in ES, `/publisher/` in EN)
+  - Series: `/series/` (was `/serie/` in ES)
+  - Challenges: `/challenges/` (was `/reto/` in ES, `/challenge/` in EN)
+
+#### Why Plural URLs?
+
+Following industry standards and SEO best practices:
+
+- ✅ **Consistency**: All collection URLs use the same pattern
+- ✅ **Semantic clarity**: `/books/` clearly indicates "collection of books"
+- ✅ **REST API standard**: Matches REST conventions (`/api/books/`)
+- ✅ **Better SEO**: More descriptive and expected by users
+- ✅ **Industry practice**: Used by GitHub, Medium, Dev.to, etc.
 
 #### LanguageSwitcher Component (100% Complete)
 
@@ -95,12 +110,14 @@
 - ✅ Support for taxonomy pages with i18n mapping
 - ✅ Smart detection of context (listing vs detail pages)
 
-#### Basic Components (60% Complete)
+#### Basic Components (100% Complete)
 
 - ✅ `PostList.astro` - Displays posts/tutorials/books
 - ✅ `CategoryList.astro` - Displays categories with counts
 - ✅ `GenreList.astro` - Displays genres with counts
 - ✅ `PublisherList.astro` - Displays publishers with counts
+- ✅ `SeriesList.astro` - Displays series with counts
+- ✅ `ChallengeList.astro` - Displays challenges with counts
 - ✅ `Paginator.astro` - Simple prev/next navigation
 - ✅ `SectionTitle.astro` - Section headers
 - ✅ `AuthorInfo.astro` - Author display with bio
@@ -117,92 +134,83 @@
 
 ---
 
-### ✅ Phase 4: Routing & Pages (80% Complete)
+### ✅ Phase 4: Routing & Pages (100% Complete)
 
 #### Blog Listing Pages (100% Complete)
 
-- ✅ `/es/blog` - Spanish blog listing
-- ✅ `/en/blog` - English blog listing
+- ✅ `/es/posts` - Spanish posts listing (was `/es/blog`)
+- ✅ `/en/posts` - English posts listing (was `/en/blog`)
 - ✅ Language switcher enabled
 - ✅ Shows post count and pagination info
 
 #### Type-Specific Listings (100% Complete)
 
-- ✅ `/es/tutoriales` - Spanish tutorials listing
+- ✅ `/es/tutorials` - Spanish tutorials listing (was `/es/tutoriales`)
 - ✅ `/en/tutorials` - English tutorials listing
-- ✅ `/es/libros` - Spanish books listing
+- ✅ `/es/books` - Spanish books listing (was `/es/libros`)
 - ✅ `/en/books` - English books listing
 - ✅ All with language switcher enabled
 
 #### Post Detail Pages (100% Complete)
 
-- ✅ `/es/blog/[slug]` - Spanish post detail
-- ✅ `/en/blog/[slug]` - English post detail
+- ✅ `/es/posts/[slug]` - Spanish post detail (was `/es/blog/[slug]`)
+- ✅ `/en/posts/[slug]` - English post detail (was `/en/blog/[slug]`)
 - ✅ Cover image with proper aspect ratio
 - ✅ Author info display
 - ✅ Language switcher with i18n slug
 
 #### Tutorial Detail Pages (100% Complete)
 
-- ✅ `/es/tutoriales/[slug]` - Spanish tutorial detail
+- ✅ `/es/tutorials/[slug]` - Spanish tutorial detail (was `/es/tutoriales/[slug]`)
 - ✅ `/en/tutorials/[slug]` - English tutorial detail
-- ✅ Cover image with proper aspect ratio
+- ✅ Cover image support
+- ✅ Author info display
 - ✅ Language switcher with i18n slug
 
 #### Book Detail Pages (100% Complete)
 
-- ✅ `/es/libros/[slug]` - Spanish book detail
-- ✅ `/en/books/[slug]` - English book detail
-- ✅ Book metadata display
-- ✅ Cover image
+- ✅ `/es/books/[slug]` - Spanish book review (was `/es/libros/[slug]`)
+- ✅ `/en/books/[slug]` - English book review
+- ✅ Cover image support
+- ✅ Author info with biography
+- ✅ Publisher info
+- ✅ Buy links with store information
 - ✅ Language switcher with i18n slug
 
-#### Author Pages (100% Complete)
+#### Taxonomy Pages (100% Complete - All Implemented)
 
-- ✅ `/autor/[slug]` - Author detail page (language-agnostic)
-- ✅ Shows author bio in current language
-- ✅ Lists all books by author
-- ✅ Language switcher disabled (authors are language-agnostic)
+- ✅ `/es/categories/[slug]` + `/en/categories/[slug]` (was `categoria/category`)
+  - Shows all content types (posts, tutorials, books)
+  - Pagination support
+  - i18n mapping for language switching
+- ✅ `/es/genres/[slug]` + `/en/genres/[slug]` (was `genero/genre`)
 
-#### Category Pages (100% Complete)
+  - Shows books by genre
+  - Pagination support
+  - i18n mapping for language switching
 
-- ✅ `/es/categoria/[slug]` - Spanish category pages
-- ✅ `/en/category/[slug]` - English category pages
-- ✅ Shows all content types (posts, tutorials, books)
-- ✅ Pagination support (`/page/N`)
-- ✅ Category list at bottom
-- ✅ Language switcher with i18n slug translation
+- ✅ `/es/publishers/[slug]` + `/en/publishers/[slug]` (was `editorial/publisher`)
 
-#### Genre Pages (100% Complete)
+  - Shows books by publisher
+  - Pagination support
+  - Language-specific (no i18n)
 
-- ✅ `/es/genero/[slug]` - Spanish genre pages
-- ✅ `/en/genre/[slug]` - English genre pages
-- ✅ Shows books filtered by genre
-- ✅ Pagination support
-- ✅ Genre list at bottom
-- ✅ Language switcher with i18n slug translation
-- ✅ Supports genre hierarchy (parent field)
+- ✅ `/es/series/[slug]` + `/en/series/[slug]` (was `/es/serie/`)
 
-#### Publisher Pages (100% Complete)
+  - Shows books in a series
+  - Pagination support
+  - i18n mapping for language switching
 
-- ✅ `/es/editorial/[slug]` - Spanish publisher pages
-- ✅ `/en/publisher/[slug]` - English publisher pages
-- ✅ Shows books filtered by publisher
-- ✅ Pagination support
-- ✅ Publisher list at bottom
-- ✅ Language switcher **disabled** (publishers are independent entities)
+- ✅ `/es/challenges/[slug]` + `/en/challenges/[slug]` (was `/es/reto/` and `/en/challenge/`)
 
-#### Pending Taxonomy Pages (0% Complete)
+  - Shows books for a reading challenge
+  - Pagination support
+  - i18n mapping for language switching
 
-- ⚠️ Series pages (`/serie/[slug]`) - Not implemented
-- ⚠️ Challenge pages (`/reto/[slug]`) - Not implemented
-- ⚠️ Course pages - Not needed (tutorials link directly)
-
----
-
-### ⚠️ Phase 5: Polish & Documentation (10% Complete)
-
-#### RSS Feed (0% Complete)
+- ✅ `/es/tutoriales/[slug]` - Spanish tutorial detail
+- ✅ `/en/tutorials/[slug]` - English tutorial detail
+- ✅ Cover image with proper aspect ratio
+- ✅ Language switcher with i18n slug
 
 - ⚠️ Not yet implemented
 

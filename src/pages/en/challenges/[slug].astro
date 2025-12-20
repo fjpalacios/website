@@ -1,7 +1,7 @@
 ---
+import ChallengeList from "@components/ChallengeList.astro";
 import Paginator from "@components/Paginator.astro";
 import PostList from "@components/PostList.astro";
-import PublisherList from "@components/PublisherList.astro";
 import SectionTitle from "@components/SectionTitle.astro";
 import Layout from "@layouts/Layout.astro";
 import { t } from "@locales";
@@ -13,54 +13,54 @@ import { prepareBookSummary } from "@/utils/blog";
 export async function getStaticPaths() {
   const BOOKS_PER_PAGE = 10;
 
-  // Get all publishers in English
-  const allPublishers = await getCollection("publishers");
-  const englishPublishers = allPublishers.filter((publisher) => publisher.data.language === "en");
+  // Get all challenges in English
+  const allChallenges = await getCollection("challenges");
+  const englishChallenges = allChallenges.filter((challenge) => challenge.data.language === "en");
 
   // Get all books in English
   const allBooks = await getCollection("books");
   const englishBooks = allBooks.filter((book) => book.data.language === "en");
 
-  // Generate paths for each publisher
+  // Generate paths for each challenge
   const paths = [];
 
-  for (const publisher of englishPublishers) {
-    const publisherSlug = publisher.data.publisher_slug;
+  for (const challenge of englishChallenges) {
+    const challengeSlug = challenge.data.challenge_slug;
 
-    // Filter books by publisher
-    const publisherBooks = englishBooks.filter((book) => {
-      return book.data.publisher === publisherSlug;
+    // Filter books by challenge
+    const challengeBooks = englishBooks.filter((book) => {
+      return book.data.challenges?.includes(challengeSlug);
     });
 
     // Sort by date descending
-    publisherBooks.sort((a, b) => {
+    challengeBooks.sort((a, b) => {
       const dateA = new Date(a.data.read_start_date || 0);
       const dateB = new Date(b.data.read_start_date || 0);
       return dateB.getTime() - dateA.getTime();
     });
 
     // Calculate total pages
-    const totalPages = Math.ceil(publisherBooks.length / BOOKS_PER_PAGE);
+    const totalPages = Math.ceil(challengeBooks.length / BOOKS_PER_PAGE);
 
     // Generate path for each page
     for (let page = 1; page <= Math.max(1, totalPages); page++) {
       const startIndex = (page - 1) * BOOKS_PER_PAGE;
-      const paginatedBooks = publisherBooks.slice(startIndex, startIndex + BOOKS_PER_PAGE);
+      const paginatedBooks = challengeBooks.slice(startIndex, startIndex + BOOKS_PER_PAGE);
 
       // Transform to summary format
       const transformedBooks = paginatedBooks.map((book) => prepareBookSummary(book));
 
       paths.push({
         params: {
-          slug: publisherSlug,
+          slug: challengeSlug,
           page: page === 1 ? undefined : page.toString(),
         },
         props: {
-          publisher,
+          challenge,
           books: transformedBooks,
           currentPage: page,
           totalPages: Math.max(1, totalPages),
-          allPublishers: englishPublishers,
+          allChallenges: englishChallenges,
         },
       });
     }
@@ -69,30 +69,30 @@ export async function getStaticPaths() {
   return paths;
 }
 
-const { publisher, books, currentPage, totalPages, allPublishers } = Astro.props;
+const { challenge, books, currentPage, totalPages, allChallenges } = Astro.props;
 const lang = "en";
 const contact = contactEn;
 
-// Get publisher counts for the publisher list
-const publishersWithCounts = await Promise.all(
-  allPublishers.map(async (p) => {
+// Get challenge counts for the challenge list
+const challengesWithCounts = await Promise.all(
+  allChallenges.map(async (c) => {
     const allBooks = await getCollection("books");
     const englishBooks = allBooks.filter((b) => b.data.language === "en");
-    const count = englishBooks.filter((book) => book.data.publisher === p.data.publisher_slug).length;
-    return { publisher: p, count };
+    const count = englishBooks.filter((book) => book.data.challenges?.includes(c.data.challenge_slug)).length;
+    return { challenge: c, count };
   }),
 );
 
 // Sort by name
-publishersWithCounts.sort((a, b) => a.publisher.data.name.localeCompare(b.publisher.data.name));
+challengesWithCounts.sort((a, b) => a.challenge.data.name.localeCompare(b.challenge.data.name));
 
-const pageTitle = `${t(lang, "pages.publisher")}: ${publisher.data.name}`;
-const basePath = `/en/publisher/${publisher.data.publisher_slug}`;
+const pageTitle = `${t(lang, "pages.challenges")}: ${challenge.data.name}`;
+const basePath = `/en/challenges/${challenge.data.challenge_slug}`;
 ---
 
-<Layout lang={lang} title={pageTitle} contact={contact}>
+<Layout lang={lang} title={pageTitle} contact={contact} translationSlug={challenge.data.i18n}>
   <SectionTitle title={pageTitle} />
   <PostList posts={books} lang={lang} />
   <Paginator currentPage={currentPage} totalPages={totalPages} basePath={basePath} lang={lang} />
-  <PublisherList publishers={publishersWithCounts} title={t(lang, "allPublishers")} lang={lang} />
+  <ChallengeList challenges={challengesWithCounts} title={t(lang, "allChallenges")} lang={lang} />
 </Layout>

@@ -1,0 +1,98 @@
+---
+import Paginator from "@components/Paginator.astro";
+import PostList from "@components/PostList.astro";
+import PublisherList from "@components/PublisherList.astro";
+import SectionTitle from "@components/SectionTitle.astro";
+import Layout from "@layouts/Layout.astro";
+import { t } from "@locales";
+import { getCollection } from "astro:content";
+
+import contactEs from "@/content/static/contact/es.json";
+import { prepareBookSummary } from "@/utils/blog";
+
+export async function getStaticPaths() {
+  const BOOKS_PER_PAGE = 10;
+
+  // Get all publishers in Spanish
+  const allPublishers = await getCollection("publishers");
+  const spanishPublishers = allPublishers.filter((publisher) => publisher.data.language === "es");
+
+  // Get all books in Spanish
+  const allBooks = await getCollection("books");
+  const spanishBooks = allBooks.filter((book) => book.data.language === "es");
+
+  // Generate paths for each publisher
+  const paths = [];
+
+  for (const publisher of spanishPublishers) {
+    const publisherSlug = publisher.data.publisher_slug;
+
+    // Filter books by publisher
+    const publisherBooks = spanishBooks.filter((book) => {
+      return book.data.publisher === publisherSlug;
+    });
+
+    // Sort by date descending
+    publisherBooks.sort((a, b) => {
+      const dateA = new Date(a.data.read_start_date || 0);
+      const dateB = new Date(b.data.read_start_date || 0);
+      return dateB.getTime() - dateA.getTime();
+    });
+
+    // Calculate total pages
+    const totalPages = Math.ceil(publisherBooks.length / BOOKS_PER_PAGE);
+
+    // Generate path for each page
+    for (let page = 1; page <= Math.max(1, totalPages); page++) {
+      const startIndex = (page - 1) * BOOKS_PER_PAGE;
+      const paginatedBooks = publisherBooks.slice(startIndex, startIndex + BOOKS_PER_PAGE);
+
+      // Transform to summary format
+      const transformedBooks = paginatedBooks.map((book) => prepareBookSummary(book));
+
+      paths.push({
+        params: {
+          slug: publisherSlug,
+          page: page === 1 ? undefined : page.toString(),
+        },
+        props: {
+          publisher,
+          books: transformedBooks,
+          currentPage: page,
+          totalPages: Math.max(1, totalPages),
+          allPublishers: spanishPublishers,
+        },
+      });
+    }
+  }
+
+  return paths;
+}
+
+const { publisher, books, currentPage, totalPages, allPublishers } = Astro.props;
+const lang = "es";
+const contact = contactEs;
+
+// Get publisher counts for the publisher list
+const publishersWithCounts = await Promise.all(
+  allPublishers.map(async (p) => {
+    const allBooks = await getCollection("books");
+    const spanishBooks = allBooks.filter((b) => b.data.language === "es");
+    const count = spanishBooks.filter((book) => book.data.publisher === p.data.publisher_slug).length;
+    return { publisher: p, count };
+  }),
+);
+
+// Sort by name
+publishersWithCounts.sort((a, b) => a.publisher.data.name.localeCompare(b.publisher.data.name));
+
+const pageTitle = `${t(lang, "pages.publishers")}: ${publisher.data.name}`;
+const basePath = `/es/publishers/${publisher.data.publisher_slug}`;
+---
+
+<Layout lang={lang} title={pageTitle} contact={contact}>
+  <SectionTitle title={pageTitle} />
+  <PostList posts={books} lang={lang} />
+  <Paginator currentPage={currentPage} totalPages={totalPages} basePath={basePath} lang={lang} />
+  <PublisherList publishers={publishersWithCounts} title={t(lang, "allPublishers")} lang={lang} />
+</Layout>

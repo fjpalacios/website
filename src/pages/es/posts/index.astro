@@ -4,7 +4,7 @@ import Title from "@components/Title.astro";
 import Layout from "@layouts/Layout.astro";
 import { getCollection } from "astro:content";
 
-import contactEn from "@/content/static/contact/en.json";
+import contactEs from "@/content/static/contact/es.json";
 import {
   sortByDate,
   filterByLanguage,
@@ -15,16 +15,16 @@ import {
 } from "@/utils/blog";
 
 const POSTS_PER_PAGE = 12;
-const lang = "en";
+const lang = "es";
 
 // Get all posts
 const allPosts = await getCollection("posts");
 
-// Filter by English language and exclude drafts
-const englishPosts = filterByLanguage(allPosts, lang).filter((post) => !post.data.draft);
+// Filter by Spanish language and exclude drafts
+const spanishPosts = filterByLanguage(allPosts, lang).filter((post) => !post.data.draft);
 
 // Sort by date (newest first)
-const sortedPosts = sortByDate(englishPosts, "desc");
+const sortedPosts = sortByDate(spanishPosts, "desc");
 
 // Prepare post summaries
 const postSummaries: PostSummary[] = sortedPosts.map((post) => preparePostSummary(post));
@@ -35,10 +35,10 @@ const totalPages = getPageCount(postSummaries.length, POSTS_PER_PAGE);
 const paginatedPosts = paginateItems(postSummaries, currentPage, POSTS_PER_PAGE);
 
 const pageTitle = "Blog";
-const pageDescription = "Web development articles and tutorials";
+const pageDescription = "Artículos y tutoriales sobre desarrollo web";
 ---
 
-<Layout lang={lang} title={pageTitle} description={pageDescription} contact={contactEn} translationSlug="">
+<Layout lang={lang} title={pageTitle} description={pageDescription} contact={contactEs} translationSlug="">
   <Title title={pageTitle} />
 
   <div class="blog-stats">
@@ -69,7 +69,7 @@ const pageDescription = "Web development articles and tutorials";
       <nav class="pagination">
         {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
           <a
-            href={page === 1 ? "/en/blog" : `/en/blog/page/${page}`}
+            href={page === 1 ? "/es/posts" : `/es/posts/page/${page}`}
             class:list={["page-link", { active: page === currentPage }]}
           >
             {page}

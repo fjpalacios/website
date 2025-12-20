@@ -24,10 +24,14 @@
   "pages": {
     "home": "Home",
     "about": "About me",
-    "blog": "Blog",
-    "category": "Category",
-    "genre": "Genre",
-    "publisher": "Publisher"
+    "posts": "Posts",
+    "tutorials": "Tutorials",
+    "books": "Books",
+    "categories": "Categories",
+    "genres": "Genres",
+    "publishers": "Publishers",
+    "series": "Series",
+    "challenges": "Challenges"
   },
   "about": {
     "me": "About me",
@@ -39,5 +43,7 @@
   },
   "allCategories": "All categories",
   "allGenres": "All genres",
-  "allPublishers": "All publishers"
+  "allPublishers": "All publishers",
+  "allSeries": "All series",
+  "allChallenges": "All challenges"
 }

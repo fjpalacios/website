@@ -10,40 +10,40 @@ import {
   filterByLanguage,
   paginateItems,
   getPageCount,
-  preparePostSummary,
-  type PostSummary,
+  prepareTutorialSummary,
+  type TutorialSummary,
 } from "@/utils/blog";
 
-const POSTS_PER_PAGE = 12;
+const TUTORIALS_PER_PAGE = 12;
 const lang = "es";
 
-// Get all posts
-const allPosts = await getCollection("posts");
+// Get all tutorials
+const allTutorials = await getCollection("tutorials");
 
-// Filter by Spanish language and exclude drafts
-const spanishPosts = filterByLanguage(allPosts, lang).filter((post) => !post.data.draft);
+// Filter by Spanish language
+const spanishTutorials = filterByLanguage(allTutorials, lang);
 
 // Sort by date (newest first)
-const sortedPosts = sortByDate(spanishPosts, "desc");
+const sortedTutorials = sortByDate(spanishTutorials, "desc");
 
-// Prepare post summaries
-const postSummaries: PostSummary[] = sortedPosts.map((post) => preparePostSummary(post));
+// Prepare tutorial summaries
+const tutorialSummaries: TutorialSummary[] = sortedTutorials.map((tutorial) => prepareTutorialSummary(tutorial));
 
 // Paginate
 const currentPage = 1;
-const totalPages = getPageCount(postSummaries.length, POSTS_PER_PAGE);
-const paginatedPosts = paginateItems(postSummaries, currentPage, POSTS_PER_PAGE);
+const totalPages = getPageCount(tutorialSummaries.length, TUTORIALS_PER_PAGE);
+const paginatedTutorials = paginateItems(tutorialSummaries, currentPage, TUTORIALS_PER_PAGE);
 
-const pageTitle = "Blog";
-const pageDescription = "Artículos y tutoriales sobre desarrollo web";
+const pageTitle = "Tutoriales";
+const pageDescription = "Tutoriales y guías de desarrollo web";
 ---
 
 <Layout lang={lang} title={pageTitle} description={pageDescription} contact={contactEs} translationSlug="">
   <Title title={pageTitle} />
 
-  <div class="blog-stats">
-    Showing <strong>{paginatedPosts.length}</strong> of
-    <strong>{postSummaries.length}</strong> posts
+  <div class="tutorial-stats">
+    Showing <strong>{paginatedTutorials.length}</strong> of
+    <strong>{tutorialSummaries.length}</strong> tutorials
     {
       totalPages > 1 && (
         <span>
@@ -55,11 +55,11 @@ const pageDescription = "Artículos y tutoriales sobre desarrollo web";
   </div>
 
   {
-    paginatedPosts.length > 0 ? (
-      <PostList posts={paginatedPosts} lang={lang} />
+    paginatedTutorials.length > 0 ? (
+      <PostList posts={paginatedTutorials} lang={lang} />
     ) : (
       <div class="empty-state">
-        <p>No posts found. Check back soon!</p>
+        <p>No tutorials found. Check back soon!</p>
       </div>
     )
   }
@@ -69,7 +69,7 @@ const pageDescription = "Artículos y tutoriales sobre desarrollo web";
       <nav class="pagination">
         {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
           <a
-            href={page === 1 ? "/es/blog" : `/es/blog/page/${page}`}
+            href={page === 1 ? "/es/tutorials" : `/es/tutorials/page/${page}`}
             class:list={["page-link", { active: page === currentPage }]}
           >
             {page}
@@ -84,7 +84,7 @@ const pageDescription = "Artículos y tutoriales sobre desarrollo web";
   @use "@/styles/mixins" as *;
   @use "@/styles/variables" as *;
 
-  .blog-stats {
+  .tutorial-stats {
     grid-column: span 12;
     margin-bottom: 2rem;
     padding: 1rem;

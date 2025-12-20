@@ -14,8 +14,8 @@ interface Props {
 
 const { publishers, title, lang, showCount = true } = Astro.props;
 
-// Get base path for publisher URLs based on language
-const publisherBasePath = lang === "es" ? "editorial" : "publisher";
+// Get base path for publisher URLs (now plural in both languages)
+const publisherBasePath = "publishers";
 ---
 
 <main class="types">

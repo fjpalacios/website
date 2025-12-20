@@ -144,54 +144,70 @@ The website features a comprehensive blog system with three content types and a 
 
 ### Content Types
 
-- **Posts** (`/blog/`): Regular blog articles
-- **Tutorials** (`/tutoriales/` | `/tutorials/`): Technical how-to guides and tutorials
-- **Books** (`/libros/` | `/books/`): Book reviews and reading notes
+- **Posts** (`/posts/`): Regular blog articles
+- **Tutorials** (`/tutorials/`): Technical how-to guides and tutorials
+- **Books** (`/books/`): Book reviews and reading notes
 
 All content is written in **MDX** (Markdown + JSX) with frontmatter validation using Zod schemas.
 
 ### Taxonomy System
 
-The blog uses a multi-dimensional taxonomy system for content organization:
+The blog uses a multi-dimensional taxonomy system for content organization. **All URLs use plural nouns** for consistency and SEO best practices:
 
-| Taxonomy       | Spanish Path        | English Path        | Applies To              | i18n Support |
-| -------------- | ------------------- | ------------------- | ----------------------- | ------------ |
-| **Categories** | `/categoria/[slug]` | `/category/[slug]`  | Posts, Tutorials, Books | ✅ Yes       |
-| **Genres**     | `/genero/[slug]`    | `/genre/[slug]`     | Books                   | ✅ Yes       |
-| **Publishers** | `/editorial/[slug]` | `/publisher/[slug]` | Books                   | ❌ No\*      |
-| **Authors**    | `/autor/[slug]`     | `/author/[slug]`    | Books                   | ❌ No\*      |
-| **Series**     | `/serie/[slug]`     | `/series/[slug]`    | Books                   | 🚧 Planned   |
-| **Challenges** | `/reto/[slug]`      | `/challenge/[slug]` | Books                   | 🚧 Planned   |
+| Taxonomy       | URL Path             | Applies To              | i18n Support |
+| -------------- | -------------------- | ----------------------- | ------------ |
+| **Categories** | `/categories/[slug]` | Posts, Tutorials, Books | ✅ Yes       |
+| **Genres**     | `/genres/[slug]`     | Books                   | ✅ Yes       |
+| **Publishers** | `/publishers/[slug]` | Books                   | ❌ No\*      |
+| **Authors**    | `/authors/[slug]`    | Books                   | ❌ No\*      |
+| **Series**     | `/series/[slug]`     | Books                   | ✅ Yes       |
+| **Challenges** | `/challenges/[slug]` | Books                   | ✅ Yes       |
 
 **\* Publishers and Authors are independent entities per language**, not translations. For example, "Debolsillo" (ES) and "Penguin Random House" (EN) are different publishers.
 
 ### URL Structure Examples
 
+**Note:** All URLs use plural nouns in both languages for consistency, following SEO best practices and REST API conventions.
+
 ```
 Spanish:
-/es/blog/                          # All posts
-/es/blog/page/2/                   # Posts pagination
-/es/blog/mi-articulo/              # Individual post
-/es/tutoriales/                    # All tutorials
-/es/tutoriales/como-hacer-x/       # Individual tutorial
-/es/libros/                        # All book reviews
-/es/libros/el-nombre-del-viento/   # Individual book review
-/es/categoria/libros/              # Category: books
-/es/categoria/libros/page/2/       # Category pagination
-/es/genero/terror/                 # Genre: horror
-/es/editorial/debolsillo/          # Publisher: Debolsillo
+/es/posts/                            # All posts
+/es/posts/page/2/                     # Posts pagination
+/es/posts/mi-articulo/                # Individual post
+/es/tutorials/                        # All tutorials
+/es/tutorials/como-hacer-x/           # Individual tutorial
+/es/books/                            # All book reviews
+/es/books/el-nombre-del-viento/       # Individual book review
+/es/categories/libros/                # Category: books
+/es/categories/libros/page/2/         # Category pagination
+/es/genres/terror/                    # Genre: horror
+/es/publishers/debolsillo/            # Publisher: Debolsillo
+/es/series/fjallbacka/                # Series: Fjällbacka
+/es/challenges/reto-lectura-2017/     # Challenge: 2017 Reading Challenge
 
 English:
-/en/blog/                          # All posts
-/en/blog/my-article/               # Individual post
-/en/tutorials/                     # All tutorials
-/en/tutorials/how-to-do-x/         # Individual tutorial
-/en/books/                         # All book reviews
-/en/books/the-name-of-the-wind/    # Individual book review
-/en/category/books/                # Category: books
-/en/genre/horror/                  # Genre: horror
-/en/publisher/penguin-random-house/ # Publisher: Penguin Random House
+/en/posts/                            # All posts
+/en/posts/my-article/                 # Individual post
+/en/tutorials/                        # All tutorials
+/en/tutorials/how-to-do-x/            # Individual tutorial
+/en/books/                            # All book reviews
+/en/books/the-name-of-the-wind/       # Individual book review
+/en/categories/books/                 # Category: books
+/en/genres/horror/                    # Genre: horror
+/en/publishers/penguin-random-house/  # Publisher: Penguin Random House
+/en/series/fjallbacka/                # Series: Fjällbacka
+/en/challenges/2017-reading-challenge/ # Challenge: 2017 Reading Challenge
 ```
+
+### Why Plural URLs?
+
+Following industry standards and SEO best practices:
+
+- ✅ **Consistency**: All collection URLs use the same pattern
+- ✅ **Semantic clarity**: `/books/` clearly indicates "collection of books"
+- ✅ **REST API standard**: Matches REST conventions (`/api/books/`)
+- ✅ **Better SEO**: More descriptive and expected by users
+- ✅ **Industry practice**: Used by GitHub, Medium, Dev.to, etc.
 
 ### i18n Translation Strategy
 

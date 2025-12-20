@@ -8,7 +8,7 @@ import { t } from "@locales";
 import type { CollectionEntry } from "astro:content";
 import { getCollection } from "astro:content";
 
-import contactEn from "@/content/static/contact/en.json";
+import contactEs from "@/content/static/contact/es.json";
 import { preparePostSummary, prepareBookSummary, type PostSummary, type BookSummary } from "@/utils/blog";
 
 export async function getStaticPaths() {
@@ -40,25 +40,25 @@ export async function getStaticPaths() {
     }
   }
 
-  // Get all categories in English
+  // Get all categories in Spanish
   const allCategories = await getCollection("categories");
-  const englishCategories = allCategories.filter((cat) => cat.data.language === "en");
+  const spanishCategories = allCategories.filter((cat) => cat.data.language === "es");
 
-  // Get all content (posts, tutorials, books) in English
+  // Get all content (posts, tutorials, books) in Spanish
   const allPosts = await getCollection("posts");
   const allTutorials = await getCollection("tutorials");
   const allBooks = await getCollection("books");
 
-  const englishPosts = allPosts.filter((post) => post.data.language === "en");
-  const englishTutorials = allTutorials.filter((tutorial) => tutorial.data.language === "en");
-  const englishBooks = allBooks.filter((book) => book.data.language === "en");
+  const spanishPosts = allPosts.filter((post) => post.data.language === "es");
+  const spanishTutorials = allTutorials.filter((tutorial) => tutorial.data.language === "es");
+  const spanishBooks = allBooks.filter((book) => book.data.language === "es");
 
-  const allContent = [...englishPosts, ...englishTutorials, ...englishBooks];
+  const allContent = [...spanishPosts, ...spanishTutorials, ...spanishBooks];
 
   // Generate paths for each category
   const paths = [];
 
-  for (const category of englishCategories) {
+  for (const category of spanishCategories) {
     const categorySlug = category.data.category_slug;
 
     // Filter content by category
@@ -94,7 +94,7 @@ export async function getStaticPaths() {
           content: transformedContent,
           currentPage: page,
           totalPages: Math.max(1, totalPages),
-          allCategories: englishCategories,
+          allCategories: spanishCategories,
         },
       });
     }
@@ -104,8 +104,8 @@ export async function getStaticPaths() {
 }
 
 const { category, content, currentPage, totalPages, allCategories } = Astro.props;
-const lang = "en";
-const contact = contactEn;
+const lang = "es";
+const contact = contactEs;
 
 // Get category counts for the category list
 const categoriesWithCounts = await Promise.all(
@@ -114,13 +114,13 @@ const categoriesWithCounts = await Promise.all(
     const allTutorials = await getCollection("tutorials");
     const allBooks = await getCollection("books");
 
-    const englishContent = [
-      ...allPosts.filter((p) => p.data.language === "en"),
-      ...allTutorials.filter((t) => t.data.language === "en"),
-      ...allBooks.filter((b) => b.data.language === "en"),
+    const spanishContent = [
+      ...allPosts.filter((p) => p.data.language === "es"),
+      ...allTutorials.filter((t) => t.data.language === "es"),
+      ...allBooks.filter((b) => b.data.language === "es"),
     ];
 
-    const count = englishContent.filter((item) => item.data.categories?.includes(cat.data.category_slug)).length;
+    const count = spanishContent.filter((item) => item.data.categories?.includes(cat.data.category_slug)).length;
 
     return { category: cat, count };
   }),
@@ -129,8 +129,8 @@ const categoriesWithCounts = await Promise.all(
 // Sort by order field
 categoriesWithCounts.sort((a, b) => (a.category.data.order || 999) - (b.category.data.order || 999));
 
-const pageTitle = `${t(lang, "pages.category")}: ${category.data.name}`;
-const basePath = `/en/category/${category.data.category_slug}`;
+const pageTitle = `${t(lang, "pages.categories")}: ${category.data.name}`;
+const basePath = `/es/categories/${category.data.category_slug}`;
 ---
 
 <Layout lang={lang} title={pageTitle} contact={contact} translationSlug={category.data.i18n}>

@@ -30,19 +30,16 @@ function getTranslatedUrl(): string {
     if (pathParts.length >= 2) {
       const contentType = pathParts[1];
 
-      // Map content types between languages
+      // Map content types between languages (all plural now)
       const contentTypeMap: Record<string, string> = {
-        tutoriales: "tutorials",
-        tutorials: "tutoriales",
-        libros: "books",
-        books: "libros",
-        categoria: "category",
-        category: "categoria",
-        genero: "genre",
-        genre: "genero",
-        editorial: "publisher",
-        publisher: "editorial",
-        // blog remains the same
+        posts: "posts",
+        tutorials: "tutorials",
+        books: "books",
+        categories: "categories",
+        genres: "genres",
+        publishers: "publishers",
+        series: "series",
+        challenges: "challenges",
       };
 
       pathParts[1] = contentTypeMap[contentType] || contentType;
@@ -58,19 +55,16 @@ function getTranslatedUrl(): string {
   if (pathParts.length >= 2) {
     const contentType = pathParts[1];
 
-    // Map content types to translated paths
+    // Map content types to translated paths (all plural, same in both languages)
     const contentTypeMap: Record<string, Record<string, string>> = {
-      blog: { es: "blog", en: "blog" },
-      tutoriales: { es: "tutoriales", en: "tutorials" },
-      tutorials: { es: "tutoriales", en: "tutorials" },
-      libros: { es: "libros", en: "books" },
-      books: { es: "libros", en: "books" },
-      categoria: { es: "categoria", en: "category" },
-      category: { es: "categoria", en: "category" },
-      genero: { es: "genero", en: "genre" },
-      genre: { es: "genero", en: "genre" },
-      editorial: { es: "editorial", en: "publisher" },
-      publisher: { es: "editorial", en: "publisher" },
+      posts: { es: "posts", en: "posts" },
+      tutorials: { es: "tutorials", en: "tutorials" },
+      books: { es: "books", en: "books" },
+      categories: { es: "categories", en: "categories" },
+      genres: { es: "genres", en: "genres" },
+      publishers: { es: "publishers", en: "publishers" },
+      series: { es: "series", en: "series" },
+      challenges: { es: "challenges", en: "challenges" },
     };
 
     const translatedType = contentTypeMap[contentType]?.[targetLang] || contentType;
