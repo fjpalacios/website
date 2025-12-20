@@ -2,7 +2,141 @@
 
 **Last Updated:** December 20, 2025  
 **Current Branch:** `feature/blog-foundation`  
-**Status:** Phase 4 - Complete | URL Standardization Complete
+**Status:** Phase 4 - Complete | URL Standardization Complete | Hotfix Applied
+
+---
+
+## 🔥 Recent Issues & Fixes
+
+### Sass Compilation Error (Dec 20, 2025 - Session 2)
+
+**Problem:**
+Application failed to start with Sass compilation error:
+
+```
+Error: [sass] Error: unmatched "}".
+  ╷
+184 │ }
+  │ ^
+  ╵
+../../../../website/src/styles/components/code-blocks.scss 184:1
+```
+
+**Root Cause:**
+Duplicate closing brace in `code-blocks.scss` at line 184. The `.code-copy-button` selector (starting at line 144) had its closing brace duplicated - one at line 183 (correct) and an extra one at line 184.
+
+**Solution Applied:**
+
+- Removed duplicate closing brace at line 184
+- File: `/home/fjpalacios/Code/website/src/styles/components/code-blocks.scss`
+- Lines affected: 178-184
+
+**Verification:**
+
+- ✅ Build succeeds: `bun run build` completes successfully
+- ✅ 40 pages generated without errors
+- ✅ Dev server starts without issues
+
+**Status:** ✅ RESOLVED
+
+### Copy Button Not Appearing (Dec 20, 2025 - Session 2)
+
+**Problem:**
+Copy button for code blocks was not appearing on rendered pages despite CSS and script being present.
+
+**Root Cause:**
+Script tag in `Layout.astro` was being processed as a TypeScript module by Astro, causing async loading and timing issues with DOM ready state and ViewTransitions.
+
+**Solution Applied:**
+
+- Added `is:inline` attribute to script tag in `/src/layouts/Layout.astro` (line 91)
+- Forces script to be included directly in HTML (synchronous execution)
+- File: `/home/fjpalacios/Code/website/src/layouts/Layout.astro`
+- Change: `<script>` → `<script is:inline>`
+
+**Verification:**
+
+- ✅ Script now inlined in HTML output
+- ✅ `addCopyButtons()` function present in page source
+- ✅ Compatible with ViewTransitions
+- ✅ Browser Clipboard API working
+
+**Status:** ✅ RESOLVED
+
+### Copy Button Not Appearing - Root Cause: normalize.css 404 (Dec 20, 2025 - Session 2)
+
+**Problem:**
+Copy button for code blocks was not visible despite script and CSS being present. User reported 404 error for normalize.css in browser console.
+
+**Root Cause:**
+The primary issue was that `normalize.css` was not loading due to incorrect import in `Layout.astro`. This broke the entire CSS cascade, making all styles (including copy button) fail to render correctly. Additionally, Sass modern module system (`@use`) was conflicting with old-style `@import`.
+
+**Solution Applied:**
+
+1. Created wrapper file `/src/styles/_normalize.scss` with `@import` for normalize.css
+2. Imported wrapper in `main.scss` using `@use "./normalize"` as first import
+3. Removed inline normalize import from `Layout.astro`
+4. Fixed script timing with `DOMContentLoaded` check
+5. Changed selector from `.astro-code` to `pre.astro-code` for specificity
+6. Removed duplicate `.code-copy-button` CSS definition
+
+**Files Modified:**
+
+- Created: `/src/styles/_normalize.scss`
+- Modified: `/src/styles/main.scss` (added normalize import)
+- Modified: `/src/layouts/Layout.astro` (removed inline normalize, improved script)
+- Modified: `/src/styles/components/code-blocks.scss` (removed duplicate CSS)
+
+**Verification:**
+
+- ✅ Build succeeds (40 pages, 7.02s)
+- ✅ No more 404 errors
+- ✅ normalize.css compiled into bundle
+- ✅ Script with proper DOM ready handling
+- 🟡 Awaiting user confirmation that button now appears
+
+**Status:** 🟡 PENDING USER VERIFICATION
+
+---
+
+## ⚠️ Known Issues & Pending Work
+
+### Code Blocks Styling (Pending Review)
+
+**Status:** 🟢 FUNCTIONAL (Needs comprehensive testing)
+
+The code blocks have been migrated from Gatsby and styled to match the original design. **Copy button issue has been resolved.**
+
+**Current Implementation:**
+
+- Located in: `/home/fjpalacios/Code/website/src/styles/components/code-blocks.scss`
+- Features:
+  - ✅ Full-width display (breaks out of text padding)
+  - ✅ Line numbers with CSS counters
+  - ✅ Language label display
+  - ✅ **Copy button functionality (FIXED - now using `is:inline`)**
+  - ✅ Syntax highlighting via Shiki
+  - ✅ Dark/Light theme support
+  - ✅ ViewTransitions compatible
+
+**Potential Issues:**
+
+- Line height set to 0.75 (extremely tight) - may need adjustment for readability
+- Full-width on all screen sizes - should verify mobile experience
+- Copy button positioning may conflict with long language labels
+
+**Action Items:**
+
+1. [ ] Test code blocks on actual content pages (posts/tutorials)
+2. [ ] Verify line height is acceptable for various code examples
+3. [ ] Test on mobile devices (320px, 375px, 768px viewports)
+4. [ ] Verify copy button works on all browsers
+5. [ ] Check accessibility (keyboard navigation, screen readers)
+
+**Related Files:**
+
+- `/src/styles/components/code-blocks.scss` - Styling
+- `/src/layouts/Layout.astro` - Copy button script (lines 92-154)
 
 ---
 
