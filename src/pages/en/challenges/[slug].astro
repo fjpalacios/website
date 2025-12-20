@@ -86,7 +86,7 @@ const challengesWithCounts = await Promise.all(
 // Sort by name
 challengesWithCounts.sort((a, b) => a.challenge.data.name.localeCompare(b.challenge.data.name));
 
-const pageTitle = `${t(lang, "pages.challenges")}: ${challenge.data.name}`;
+const pageTitle = `${t(lang, "pages.challenge")}: ${challenge.data.name}`;
 const basePath = `/en/challenges/${challenge.data.challenge_slug}`;
 ---
 

@@ -14,6 +14,9 @@ interface Props {
 
 const { series, title, lang, showCount = true } = Astro.props;
 
+// Filter series with at least one item
+const seriesWithContent = series.filter(({ count }) => count > 0);
+
 // Get base path for series URLs (now plural in both languages)
 const seriesBasePath = "series";
 ---
@@ -22,7 +25,7 @@ const seriesBasePath = "series";
   <SectionTitle title={title} />
   <ul class="types__list">
     {
-      series.map(({ serie, count }) => (
+      seriesWithContent.map(({ serie, count }) => (
         <li class="types__list__item">
           <a href={`/${lang}/${seriesBasePath}/${serie.data.series_slug}`}>{serie.data.name}</a>
           {showCount && <span class="types__list__item__number">({count})</span>}

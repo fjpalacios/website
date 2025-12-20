@@ -86,7 +86,7 @@ const genresWithCounts = await Promise.all(
 // Sort by name
 genresWithCounts.sort((a, b) => a.genre.data.name.localeCompare(b.genre.data.name));
 
-const pageTitle = `${t(lang, "pages.genres")}: ${genre.data.name}`;
+const pageTitle = `${t(lang, "pages.genre")}: ${genre.data.name}`;
 const basePath = `/es/generos/${genre.data.genre_slug}`;
 ---
 

@@ -14,6 +14,9 @@ interface Props {
 
 const { publishers, title, lang, showCount = true } = Astro.props;
 
+// Filter publishers with at least one item
+const publishersWithContent = publishers.filter(({ count }) => count > 0);
+
 // Get base path for publisher URLs (now plural in both languages)
 const publisherBasePath = "publishers";
 ---
@@ -22,7 +25,7 @@ const publisherBasePath = "publishers";
   <SectionTitle title={title} />
   <ul class="types__list">
     {
-      publishers.map(({ publisher, count }) => (
+      publishersWithContent.map(({ publisher, count }) => (
         <li class="types__list__item">
           <a href={`/${lang}/${publisherBasePath}/${publisher.data.publisher_slug}`}>{publisher.data.name}</a>
           {showCount && <span class="types__list__item__number">({count})</span>}

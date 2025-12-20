@@ -14,6 +14,9 @@ interface Props {
 
 const { challenges, title, lang, showCount = true } = Astro.props;
 
+// Filter challenges with at least one item
+const challengesWithContent = challenges.filter(({ count }) => count > 0);
+
 // Get base path for challenge URLs (now plural in both languages)
 const challengeBasePath = "challenges";
 ---
@@ -22,7 +25,7 @@ const challengeBasePath = "challenges";
   <SectionTitle title={title} />
   <ul class="types__list">
     {
-      challenges.map(({ challenge, count }) => (
+      challengesWithContent.map(({ challenge, count }) => (
         <li class="types__list__item">
           <a href={`/${lang}/${challengeBasePath}/${challenge.data.challenge_slug}`}>{challenge.data.name}</a>
           {showCount && <span class="types__list__item__number">({count})</span>}

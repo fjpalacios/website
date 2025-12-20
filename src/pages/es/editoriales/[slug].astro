@@ -86,7 +86,7 @@ const publishersWithCounts = await Promise.all(
 // Sort by name
 publishersWithCounts.sort((a, b) => a.publisher.data.name.localeCompare(b.publisher.data.name));
 
-const pageTitle = `${t(lang, "pages.publishers")}: ${publisher.data.name}`;
+const pageTitle = `${t(lang, "pages.publisher")}: ${publisher.data.name}`;
 const basePath = `/es/editoriales/${publisher.data.publisher_slug}`;
 ---
 

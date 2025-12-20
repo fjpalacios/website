@@ -86,7 +86,7 @@ const seriesWithCounts = await Promise.all(
 // Sort by name
 seriesWithCounts.sort((a, b) => a.serie.data.name.localeCompare(b.serie.data.name));
 
-const pageTitle = `${t(lang, "pages.series")}: ${serie.data.name}`;
+const pageTitle = `${t(lang, "pages.serie")}: ${serie.data.name}`;
 const basePath = `/en/series/${serie.data.series_slug}`;
 ---
 

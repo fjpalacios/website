@@ -28,10 +28,15 @@
     "tutorials": "Tutorials",
     "books": "Books",
     "categories": "Categories",
+    "category": "Category",
     "genres": "Genres",
+    "genre": "Genre",
     "publishers": "Publishers",
+    "publisher": "Publisher",
     "series": "Series",
-    "challenges": "Challenges"
+    "serie": "Serie",
+    "challenges": "Challenges",
+    "challenge": "Challenge"
   },
   "routes": {
     "posts": "posts",

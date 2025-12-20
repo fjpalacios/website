@@ -28,10 +28,15 @@
     "tutorials": "Tutoriales",
     "books": "Libros",
     "categories": "Categorías",
+    "category": "Categoría",
     "genres": "Géneros",
+    "genre": "Género",
     "publishers": "Editoriales",
+    "publisher": "Editorial",
     "series": "Series",
-    "challenges": "Retos"
+    "serie": "Serie",
+    "challenges": "Retos",
+    "challenge": "Reto"
   },
   "routes": {
     "posts": "publicaciones",
