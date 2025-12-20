@@ -1,19 +1,20 @@
 ---
+import { formatVintageDate } from "@/utils/dateFormat";
+
 interface Props {
   title: string;
   date: Date;
+  lang?: "es" | "en";
 }
 
-const { title, date } = Astro.props;
+const { title, date, lang = "es" } = Astro.props;
 
-const formattedDate = date.toLocaleDateString("es-ES", {
-  year: "numeric",
-  month: "long",
-  day: "numeric",
-});
+const formattedDate = formatVintageDate(date, lang);
 ---
 
 <div class="post-title">
   <h2>{title}</h2>
-  <p>{formattedDate}</p>
+  <time datetime={formattedDate.datetime} aria-label={formattedDate.aria}>
+    {formattedDate.visual}
+  </time>
 </div>

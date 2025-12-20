@@ -32,6 +32,18 @@
   //   }
   // }
 
+  time {
+    margin: 17px 0 13px;
+    font-family: "Courier New", monospace;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+
+    @include medium-and-up {
+      font-weight: 400;
+    }
+  }
+
+  // Legacy support for old <p> dates
   p {
     margin: 17px 0 13px;
 
