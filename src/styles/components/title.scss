@@ -4,6 +4,7 @@
 .title {
   margin-bottom: 20px;
   padding: 10px 20px;
+  transition: all 0.45s ease;
   background-color: $primary;
   color: $inverted-text;
   line-height: 0;
@@ -14,11 +15,16 @@
     padding: 1px 10px;
   }
 
-  h3 {
-    font-weight: 100;
+  h2 {
+    font-size: 1.17em;
+
+    @include medium-and-up {
+      margin: 17px 0 13px;
+      font-weight: 100;
+    }
 
     @include print {
-      margin: 10px 0;
+      margin: 10px 0 7px;
     }
   }
 }
