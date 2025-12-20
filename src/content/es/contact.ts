@@ -20,6 +20,12 @@ export const contact: ContactItem[] = [
     text: "fjpalacios",
   },
   {
+    name: "Twitter",
+    link: "https://twitter.com/fjpalacios",
+    icon: "🐦", // bird
+    text: "fjpalacios",
+  },
+  {
     name: "Página web",
     link: "https://fjp.es",
     icon: "🌐", // globe
