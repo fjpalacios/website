@@ -14,26 +14,18 @@ const { lang, currentPath, translationSlug } = Astro.props;
 // Determine if translation exists
 // Static pages (home, about, etc.) always have translation
 // Detail pages depend on the i18n field (translationSlug)
-// Listing pages (blog index, tutorials index, books index) don't have translation
+// Listing pages (posts index, tutorials index, books index) don't have translation
 const isStaticPage =
-  !currentPath.includes("/blog/") &&
-  !currentPath.includes("/tutoriales/") &&
-  !currentPath.includes("/tutorials/") &&
-  !currentPath.includes("/libros/") &&
-  !currentPath.includes("/books/");
+  !currentPath.includes("/posts/") && !currentPath.includes("/tutorials/") && !currentPath.includes("/books/");
 
 const isListingPage =
-  currentPath.endsWith("/blog") ||
-  currentPath.endsWith("/tutoriales") ||
-  currentPath.endsWith("/tutorials") ||
-  currentPath.endsWith("/libros") ||
-  currentPath.endsWith("/books");
+  currentPath.endsWith("/posts") || currentPath.endsWith("/tutorials") || currentPath.endsWith("/books");
 
 const hasTranslation = isStaticPage && !isListingPage ? true : translationSlug !== undefined;
 
 const homeUrl = getRelativeLocaleUrl(lang, "");
 const aboutUrl = getRelativeLocaleUrl(lang, "about");
-const blogUrl = getRelativeLocaleUrl(lang, "blog");
+const postsUrl = getRelativeLocaleUrl(lang, "posts");
 ---
 
 <nav class="menu">
@@ -65,8 +57,8 @@ const blogUrl = getRelativeLocaleUrl(lang, "blog");
         </a>
       </li>
       <li class="navigation__link">
-        <a href={blogUrl} class:list={[{ "navigation__link--active": currentPath.startsWith(blogUrl) }]}>
-          {t(lang, "pages.blog")}
+        <a href={postsUrl} class:list={[{ "navigation__link--active": currentPath.startsWith(postsUrl) }]}>
+          {t(lang, "pages.posts")}
         </a>
       </li>
     </ul>
