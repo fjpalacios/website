@@ -74,7 +74,7 @@ const pageDescription = "Web development articles and tutorials";
     paginatedPosts.length > 0 ? (
       <PostList posts={paginatedPosts} lang={lang} />
     ) : (
-      <div class="empty-state">
+      <div class="empty-state" style="grid-column: span 12;">
         <p>{t(lang, "emptyState.posts")}</p>
       </div>
     )
@@ -98,27 +98,6 @@ const pageDescription = "Web development articles and tutorials";
   @use "@/styles/variables" as *;
 
   .blog-stats {
-    grid-column: span 12;
-    margin-bottom: 2rem;
-    padding: 1rem;
-    background: $primary;
-    color: $text;
-    border-radius: 4px;
-
-    strong {
-      color: $accent;
-      font-weight: bold;
-    }
-  }
-
-  .empty-state {
-    grid-column: span 12;
-    text-align: center;
-    padding: 4rem 2rem;
-    color: $cursive-color;
-  }
-
-  .pagination {
     grid-column: span 12;
     display: flex;
     justify-content: center;

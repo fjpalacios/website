@@ -58,7 +58,7 @@ const pageDescription = "Tutoriales y guías de desarrollo web";
     paginatedTutorials.length > 0 ? (
       <PostList posts={paginatedTutorials} lang={lang} />
     ) : (
-      <div class="empty-state">
+      <div class="empty-state" style="grid-column: span 12;">
         <p>{t(lang, "emptyState.tutorials")}</p>
       </div>
     )
@@ -93,13 +93,6 @@ const pageDescription = "Tutoriales y guías de desarrollo web";
       color: $accent;
       font-weight: bold;
     }
-  }
-
-  .empty-state {
-    grid-column: span 12;
-    text-align: center;
-    padding: 4rem 2rem;
-    color: $cursive-color;
   }
 
   .pagination {

@@ -63,7 +63,7 @@ const pageDescription = "Book reviews";
     paginatedBooks.length > 0 ? (
       <PostList posts={paginatedBooks} lang={lang} />
     ) : (
-      <div class="empty-state">
+      <div class="empty-state" style="grid-column: span 12;">
         <p>{t(lang, "emptyState.books")}</p>
       </div>
     )
@@ -85,13 +85,6 @@ const pageDescription = "Book reviews";
 <style lang="scss">
   @use "@/styles/mixins" as *;
   @use "@/styles/variables" as *;
-
-  .empty-state {
-    grid-column: span 12;
-    text-align: center;
-    padding: 4rem 2rem;
-    color: $cursive-color;
-  }
 
   .pagination {
     grid-column: span 12;
