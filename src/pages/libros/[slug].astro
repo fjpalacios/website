@@ -2,7 +2,9 @@
 import AuthorInfo from "@components/AuthorInfo.astro";
 import PostTitle from "@components/PostTitle.astro";
 import SectionTitle from "@components/SectionTitle.astro";
+import Share from "@components/Share.astro";
 import Layout from "@layouts/Layout.astro";
+import { t } from "@locales";
 import { getCollection, render } from "astro:content";
 
 import contactEs from "@/content/static/contact/es.json";
@@ -45,6 +47,12 @@ const renderScoreEmoji = () => {
 };
 
 const scoreEmoji = renderScoreEmoji();
+
+// Share component data
+const lang = book.language;
+const baseUrl = t(lang, "metaData.url");
+const currentUrl = new URL(Astro.url.pathname, baseUrl).href;
+const twitterUsername = t(lang, "metaData.twitterUsername");
 ---
 
 <Layout lang={book.language} title={`${book.title} - Book Review`} contact={contactEs}>
@@ -171,4 +179,5 @@ const scoreEmoji = renderScoreEmoji();
       </ul>
     </section>
   </main>
+  <Share title={book.title} url={currentUrl} lang={lang} twitterUsername={twitterUsername} />
 </Layout>

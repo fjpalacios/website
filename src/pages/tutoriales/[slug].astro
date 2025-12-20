@@ -1,6 +1,8 @@
 ---
 import PostTitle from "@components/PostTitle.astro";
+import Share from "@components/Share.astro";
 import Layout from "@layouts/Layout.astro";
+import { t } from "@locales";
 import { getCollection, render } from "astro:content";
 
 import contactEn from "@/content/static/contact/en.json";
@@ -32,6 +34,11 @@ const course = tutorial.course ? allCourses.find((c) => c.data.course_slug === t
 // Get categories
 const allCategories = await getCollection("categories");
 const categories = allCategories.filter((cat) => tutorial.categories?.includes(cat.data.category_slug));
+
+// Share component data
+const baseUrl = t(lang, "metaData.url");
+const currentUrl = new URL(Astro.url.pathname, baseUrl).href;
+const twitterUsername = t(lang, "metaData.twitterUsername");
 ---
 
 <Layout lang={lang} title={tutorial.title} description={tutorial.excerpt} contact={contact}>
@@ -80,4 +87,5 @@ const categories = allCategories.filter((cat) => tutorial.categories?.includes(c
       )
     }
   </main>
+  <Share title={tutorial.title} url={currentUrl} lang={lang} twitterUsername={twitterUsername} />
 </Layout>

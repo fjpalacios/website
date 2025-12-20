@@ -1,0 +1,31 @@
+---
+import Title from "@components/Title.astro";
+
+import shareEn from "@/content/static/share/en.js";
+import shareEs from "@/content/static/share/es.js";
+
+interface Props {
+  title: string;
+  url: string;
+  lang: string;
+  twitterUsername: string;
+}
+
+const { title, url, lang, twitterUsername } = Astro.props;
+
+// Get share content based on language
+const shareContent = lang === "es" ? shareEs : shareEn;
+
+// Replace placeholders
+const message = shareContent
+  .replace(/%TITLE%/g, title)
+  .replace(/%URL%/g, url)
+  .replace(/%TWITTER%/g, twitterUsername.replace("@", ""));
+
+const titleText = lang === "es" ? "Colabora" : "Get Involved";
+---
+
+<section class="share">
+  <Title title={titleText} />
+  <div class="text-area" set:html={message} />
+</section>

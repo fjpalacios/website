@@ -1,0 +1,9 @@
+{
+  "name": "Libros",
+  "category_slug": "libros",
+  "language": "es",
+  "description": "Contenido relacionado con libros",
+  "icon": "book",
+  "color": "#8B4513",
+  "order": 1
+}
