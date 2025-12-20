@@ -1,0 +1,148 @@
+---
+title: "Guía de Variables en JavaScript"
+post_slug: "guia-variables-javascript"
+date: 2024-01-15
+excerpt: "Aprende los fundamentos de las variables en JavaScript: var, let y const. Entiende el scope, hoisting y las mejores prácticas para declarar variables en JavaScript moderno."
+language: "es"
+i18n: "javascript-variables-guide"
+category: "tutoriales"
+tags: ["javascript", "basicos", "variables", "es6"]
+difficulty: "beginner"
+estimated_time: 20
+github_repo: "https://github.com/fjpalacios/js-variables-tutorial"
+demo_url: "https://codesandbox.io/s/js-variables-demo"
+course: "javascript-fundamentals"
+featured_image: "./images/javascript-variables-cover.png"
+draft: false
+---
+
+# Guía de Variables en JavaScript
+
+Las variables son uno de los conceptos fundamentales en la programación con JavaScript. Te permiten almacenar, recuperar y manipular datos a lo largo de tu código.
+
+## ¿Qué es una Variable?
+
+Una variable es un contenedor con nombre que almacena un valor. Piensa en ella como una caja etiquetada donde puedes poner cosas y recuperarlas más tarde.
+
+```javascript
+let userName = "Juan";
+let userAge = 30;
+let isActive = true;
+```
+
+## Tres formas de declarar variables
+
+JavaScript proporciona tres palabras clave para declarar variables: `var`, `let` y `const`.
+
+### 1. let - Variable de ámbito de bloque
+
+`let` es la forma moderna de declarar variables que pueden cambiar su valor:
+
+```javascript
+let score = 0;
+score = 10; // ✅ Esto funciona
+score = 20; // ✅ Esto también funciona
+
+if (true) {
+  let innerScore = 5;
+  console.log(innerScore); // ✅ 5
+}
+console.log(innerScore); // ❌ ReferenceError: innerScore is not defined
+```
+
+**Usa `let` cuando:**
+- El valor cambiará con el tiempo
+- La variable solo se necesita en un bloque específico de código
+
+### 2. const - Variable constante
+
+`const` declara una variable cuyo valor no puede ser reasignado:
+
+```javascript
+const API_KEY = "abc123";
+API_KEY = "xyz789"; // ❌ TypeError: Assignment to constant variable
+
+const user = { name: "Juan" };
+user.name = "María"; // ✅ Esto funciona! Los objetos pueden ser mutados
+user = { name: "Bob" }; // ❌ Pero no puedes reasignar la variable
+```
+
+**Usa `const` cuando:**
+- El valor no debería cambiar (opción por defecto)
+- Quieres prevenir reasignaciones accidentales
+
+### 3. var - Variable legacy (Evitar)
+
+`var` es la forma antigua de declarar variables. Tiene reglas de scope confusas:
+
+```javascript
+var globalVar = "Soy global";
+
+if (true) {
+  var globalVar = "Sigo siendo global"; // ¡La misma variable!
+}
+
+console.log(globalVar); // "Sigo siendo global"
+```
+
+**⚠️ Evita usar `var` en JavaScript moderno.** Usa `let` o `const` en su lugar.
+
+## Mejores prácticas
+
+1. **Usa `const` por defecto** - Solo usa `let` cuando sepas que el valor cambiará
+2. **Usa nombres descriptivos** - `userName` es mejor que `un` o `x`
+3. **Sigue convenciones de nombrado** - Usa camelCase para variables: `firstName`, `totalPrice`
+4. **Declara variables al principio** - Hace tu código más fácil de leer
+5. **Una variable por línea** - Evita `let a = 1, b = 2, c = 3;`
+
+## Errores comunes
+
+### Olvidar declarar
+
+```javascript
+score = 100; // ❌ Crea una variable global implícita (strict mode lanza error)
+let score = 100; // ✅ Declarada apropiadamente
+```
+
+### Usar variables antes de la declaración
+
+```javascript
+console.log(myVar); // ❌ ReferenceError con let/const
+let myVar = "Hola";
+
+console.log(myVar2); // undefined con var (hoisting)
+var myVar2 = "Hola";
+```
+
+## Ejercicio de práctica
+
+Intenta crear variables para un perfil de usuario simple:
+
+```javascript
+const firstName = "Juan";
+const lastName = "Pérez";
+let age = 30;
+let isLoggedIn = false;
+
+// Ahora intenta:
+// 1. Crear un nombre completo combinando firstName y lastName
+// 2. Incrementar la edad en 1
+// 3. Cambiar el estado de isLoggedIn
+```
+
+## Resumen
+
+- Usa **`const`** para valores que no cambiarán
+- Usa **`let`** para valores que cambiarán
+- Evita **`var`** en JavaScript moderno
+- Siempre declara tus variables
+- Usa nombres significativos y descriptivos
+
+## Próximos pasos
+
+Ahora que entiendes las variables, estás listo para aprender sobre:
+- Tipos de datos en JavaScript
+- Operadores y expresiones
+- Control de flujo (declaraciones if/else)
+
+¡Revisa el [repositorio de GitHub](https://github.com/fjpalacios/js-variables-tutorial) para ver ejemplos de código completos y ejercicios!
