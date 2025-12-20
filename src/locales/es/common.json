@@ -45,5 +45,9 @@
   "allGenres": "Todos los géneros",
   "allPublishers": "Todas las editoriales",
   "allSeries": "Todas las series",
-  "allChallenges": "Todos los retos"
+  "allChallenges": "Todos los retos",
+  "codeBlock": {
+    "copy": "Copiar código",
+    "copied": "Copiado"
+  }
 }

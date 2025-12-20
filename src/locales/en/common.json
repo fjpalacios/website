@@ -45,5 +45,9 @@
   "allGenres": "All genres",
   "allPublishers": "All publishers",
   "allSeries": "All series",
-  "allChallenges": "All challenges"
+  "allChallenges": "All challenges",
+  "codeBlock": {
+    "copy": "Copy code",
+    "copied": "Copied"
+  }
 }

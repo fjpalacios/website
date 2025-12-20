@@ -1,3 +1,7 @@
+// Import normalize.css via wrapper (must be first)
+@use "./normalize";
+
+// SCSS modules
 @use "./variables";
 @use "./mixins";
 @use "./layout";
@@ -7,7 +11,6 @@
 @use "./components/layout" as component-layout;
 @use "./components/header";
 @use "./components/menu";
-@use "./components/language-switcher";
 @use "./components/theme-switcher";
 @use "./components/title";
 @use "./components/post-title";

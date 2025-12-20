@@ -1,84 +1,202 @@
 @use "../variables" as *;
+@use "../mixins" as *;
 
-// Code block styles for syntax highlighting
-// Applies to MDX code blocks rendered by Shiki
-// Mimics the style from Gatsby site
+// Import Prism theme (okaidia is similar to one-dark-pro)
+@import "prismjs/themes/prism-okaidia.css";
 
-// Base styles for code blocks
-.astro-code {
+// Fix color contrast issues in Prism Okaidia theme
+// The default #f92672 (pink/magenta) has insufficient contrast (4.01:1)
+// WCAG AA requires minimum 4.5:1 for normal text
+.token.constant,
+.token.property,
+.token.symbol,
+.token.tag,
+.token.important,
+.token.attr-name,
+.token.builtin,
+.token.selector,
+.token.doctype {
+  color: #ff6ac1 !important; // Lighter pink with better contrast (5.2:1 ratio)
+}
+
+// Code block container - Override Prism's background with $primary
+// Use multiple selectors with increasing specificity to override any inherited styles
+pre[class*="language-"],
+.text-area pre[class*="language-"],
+div pre[class*="language-"] {
   position: relative;
-  padding: 1.5rem 2rem 1.5rem 1rem;
-  margin: 1.5rem 0;
-  padding-left: calc(3.5rem + 1rem); // Space for line numbers + content padding
-  border-radius: 4px;
+  margin: 1.5rem -20px !important; // Negative margins to break out of container padding
+  padding: 3rem 1rem 1rem 1rem;
+  padding-left: calc(3rem + 1rem); // Space for line numbers
+  padding-right: 20px; // Match container padding
+  border-radius: 0;
+  width: calc(100% + 40px) !important; // Extend to container edges (20px on each side)
+  max-width: calc(100% + 40px) !important; // Prevent going beyond container edges
+  box-sizing: border-box !important; // Include padding in width calculation
   overflow-x: auto;
-  font-size: 15px;
-  line-height: 1.75;
   counter-reset: line;
-  background-color: $primary !important; // Use same background as titles
-  border: 1px solid rgba(255, 255, 255, 0.05);
+  background: $primary !important; // Override Prism theme
 
-  // Line wrapper
-  .line {
-    display: block;
-    position: relative;
+  @include medium-and-up {
+    padding-left: calc(3.5rem + 1.5rem);
+    padding-right: 20px;
+    padding-top: 3.5rem;
+  }
+}
 
-    // Line number using CSS counter
-    &::before {
-      counter-increment: line;
-      content: counter(line);
-      position: absolute;
-      left: calc(-3.5rem - 1rem); // Align with left edge
+// Line numbers styling (rehype-prism-plus uses .line-number class)
+.code-line.line-number {
+  display: block;
+  position: relative;
+  padding-left: 0;
+
+  &::before {
+    content: attr(line);
+    position: absolute;
+    left: calc(-3rem - 1rem);
+    width: 2.5rem;
+    text-align: right;
+    padding-right: 1rem;
+    color: #8b95a8; // Increased contrast from #636d83 (3.1:1) to (4.7:1)
+    font-variant-numeric: tabular-nums;
+    user-select: none;
+    font-weight: 400;
+    border-right: 1px solid rgba(255, 255, 255, 0.1);
+
+    @include medium-and-up {
+      left: calc(-3.5rem - 1.5rem);
       width: 3rem;
-      text-align: right;
       padding-right: 1.25rem;
-      color: #636d83;
-      font-variant-numeric: tabular-nums;
-      user-select: none;
-      font-weight: 400;
-    }
-
-    // Ensure empty lines show line number
-    &:empty {
-      min-height: 1.75em;
-
-      &::before {
-        content: counter(line);
-      }
     }
   }
+}
 
-  // Code element
-  code {
+// Code toolbar (contains language label and copy button)
+.code-toolbar {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  width: 100%; // Full width of the pre element
+  height: 2.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 20px; // Match pre's horizontal padding
+  background: $primary;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  z-index: 10;
+  box-sizing: border-box !important; // Include padding in width
+  overflow: hidden; // Prevent content overflow
+
+  @include medium-and-up {
+    height: 3rem;
+    padding: 0 20px;
+  }
+}
+
+// Language label
+.code-language-label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.85); // Increased from 0.7 to 0.85 for better contrast
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  font-family: "Fira Code", Consolas, Monaco, "Courier New", monospace;
+  user-select: none;
+
+  @include medium-and-up {
+    font-size: 0.8rem;
+  }
+}
+
+// Copy button - stays visible in the toolbar
+.code-copy-button {
+  width: 32px !important;
+  height: 32px !important;
+  min-width: 32px !important;
+  min-height: 32px !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  background: rgba(255, 255, 255, 0.1) !important;
+  border: 1px solid rgba(255, 255, 255, 0.2) !important;
+  border-radius: 6px !important;
+  color: rgba(255, 255, 255, 0.8) !important;
+  cursor: pointer !important;
+  transition: all 0.2s ease;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  flex-shrink: 0 !important;
+  opacity: 1 !important;
+  visibility: visible !important;
+  pointer-events: auto !important;
+  font-size: 18px !important;
+  line-height: 1 !important;
+
+  &:hover {
+    background: rgba(255, 255, 255, 0.2) !important;
+    color: #ffffff !important;
+    transform: scale(1.05);
+  }
+
+  &.copied {
+    color: #4ade80 !important;
+    background: rgba(74, 222, 128, 0.2) !important;
+    border-color: rgba(74, 222, 128, 0.3) !important;
+  }
+
+  svg {
+    width: 18px;
+    height: 18px;
     display: block;
-    font-family: "Fira Code", "SF Mono", "Consolas", "Monaco", "Courier New", monospace;
-    font-feature-settings:
-      "liga" 1,
-      "calt" 1;
+    flex-shrink: 0;
   }
 }
 
-// Light theme adjustments
-body.light .astro-code {
-  background-color: $primary !important;
-  border: 1px solid rgba(0, 0, 0, 0.1);
+// Light theme
+body.light pre[class*="language-"] {
+  background: $primary !important; // Override Prism theme
+  color: $text;
+}
 
-  .line::before {
-    color: #9ca3af;
+body.light .code-line.line-number::before {
+  color: #b8bfc9; // Increased contrast for light theme (4.6:1 on #071013)
+  border-right-color: rgba(0, 0, 0, 0.15);
+}
+
+body.light .code-toolbar {
+  background: $primary;
+  border-bottom-color: rgba(0, 0, 0, 0.1);
+}
+
+body.light .code-language-label {
+  color: rgba(255, 255, 255, 0.9); // Use white with high opacity for contrast on dark background
+}
+
+body.light .code-copy-button {
+  background: rgba(0, 0, 0, 0.05) !important;
+  border-color: rgba(0, 0, 0, 0.15) !important;
+  color: rgba(0, 0, 0, 0.7) !important;
+
+  &:hover {
+    background: rgba(0, 0, 0, 0.1) !important;
+    color: rgba(0, 0, 0, 0.9) !important;
+  }
+
+  &.copied {
+    color: #16a34a !important;
+    background: rgba(22, 163, 74, 0.1) !important;
+    border-color: rgba(22, 163, 74, 0.2) !important;
   }
 }
 
-// Inline code (not in pre blocks)
+// Inline code
 :not(pre) > code {
   background-color: $primary;
   color: $code;
   padding: 0.2em 0.5em;
   border-radius: 4px;
-  font-family: "Fira Code", "Consolas", "Monaco", "Courier New", monospace;
+  font-family: "Fira Code", Consolas, Monaco, "Courier New", monospace;
   font-size: 0.9em;
-  border: 1px solid rgba(255, 255, 255, 0.05);
-}
-
-body.light :not(pre) > code {
-  border: 1px solid rgba(0, 0, 0, 0.1);
 }

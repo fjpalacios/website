@@ -35,6 +35,8 @@
     "@astrojs/sitemap": "3.6.0",
     "astro": "5.16.5",
     "normalize.css": "^8.0.1",
+    "prismjs": "^1.30.0",
+    "rehype-prism-plus": "^2.0.1",
     "sass": "^1.97.1"
   },
   "devDependencies": {

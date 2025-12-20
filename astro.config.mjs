@@ -5,6 +5,7 @@ import { fileURLToPath } from "url";
 import mdx from "@astrojs/mdx";
 import sitemap from "@astrojs/sitemap";
 import { defineConfig } from "astro/config";
+import rehypePrism from "rehype-prism-plus";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
@@ -13,19 +14,16 @@ export default defineConfig({
   site: "https://fjp.es",
   integrations: [mdx(), sitemap()],
   markdown: {
-    shikiConfig: {
-      theme: "one-dark-pro",
-      wrap: false,
-      transformers: [
+    syntaxHighlight: false, // Disable Shiki
+    rehypePlugins: [
+      [
+        rehypePrism,
         {
-          name: "line-numbers",
-          pre(node) {
-            // Add line-numbers class to pre tag
-            this.addClassToHast(node, "line-numbers");
-          },
+          showLineNumbers: true,
+          ignoreMissing: true,
         },
       ],
-    },
+    ],
   },
   i18n: {
     defaultLocale: "es",

@@ -42,20 +42,18 @@ const metaUrl = new URL(currentPath, baseUrl).href;
     <meta name="twitter:description" content={metaDescription} />
     <meta name="twitter:image" content={metaImage} />
     <link rel="icon" type="image/x-icon" href="/favicon.ico" />
-    <link rel="stylesheet" href="/fontello/css/fontello.css" />
     <ViewTransitions />
-    <style is:inline>
-      @import "normalize.css/normalize.css";
+    <style is:global lang="scss">
+      @use "../styles/main";
     </style>
     <title>{metaTitle}</title>
     <script is:inline>
       // Prevent FOUC (Flash of Unstyled Content) by applying theme before render
+      // This must execute synchronously before body rendering
       (function () {
         const theme = localStorage.getItem("theme") || "dark";
+        // Apply to html immediately (already available)
         document.documentElement.classList.add(theme);
-        if (document.body) {
-          document.body.classList.add(theme);
-        }
       })();
     </script>
     <script
@@ -74,11 +72,24 @@ const metaUrl = new URL(currentPath, baseUrl).href;
         },
       })}
     />
-    <style is:global lang="scss">
-      @use "../styles/main";
-    </style>
   </head>
-  <body>
+  <body data-lang={lang}>
+    <script is:inline>
+      // Apply theme to body as soon as it's available (prevents FOUC)
+      (function () {
+        const theme = localStorage.getItem("theme") || "dark";
+        document.body.classList.add(theme);
+      })();
+    </script>
+    <!-- Screen reader announcements for code copy actions -->
+    <div
+      id="code-copy-status"
+      role="status"
+      aria-live="polite"
+      aria-atomic="true"
+      style="position: absolute; left: -10000px; width: 1px; height: 1px; overflow: hidden;"
+    >
+    </div>
     <div class="layout-wrapper">
       <div class="container">
         <Menu lang={lang} currentPath={currentPath} translationSlug={translationSlug} />
@@ -88,5 +99,96 @@ const metaUrl = new URL(currentPath, baseUrl).href;
         </div>
       </div>
     </div>
+    <script is:inline define:vars={{ copyText: t(lang, "codeBlock.copy"), copiedText: t(lang, "codeBlock.copied") }}>
+      // Store translations in global scope
+      window.__CODE_BLOCK_I18N__ = { copyText, copiedText };
+    </script>
+    <script is:inline>
+      // Add copy buttons and language labels to Prism code blocks
+      (function () {
+        function setupCodeBlocks() {
+          const codeBlocks = document.querySelectorAll('pre[class*="language-"]');
+
+          // Get translations from global scope
+          const i18n = window.__CODE_BLOCK_I18N__ || { copyText: "Copy code", copiedText: "Copied" };
+
+          codeBlocks.forEach((pre) => {
+            // Skip if already setup
+            if (pre.querySelector(".code-toolbar")) {
+              return;
+            }
+
+            try {
+              // Extract language from class
+              const languageClass = Array.from(pre.classList).find((cls) => cls.startsWith("language-"));
+              const language = languageClass ? languageClass.replace("language-", "") : "text";
+
+              // Create language label
+              const langLabel = document.createElement("span");
+              langLabel.className = "code-language-label";
+              langLabel.textContent = language;
+
+              // Create copy button
+              const button = document.createElement("button");
+              button.className = "code-copy-button";
+              button.setAttribute("aria-label", i18n.copyText);
+              button.setAttribute("type", "button");
+              button.textContent = "📋";
+
+              button.addEventListener("click", async () => {
+                const code = pre.querySelector("code");
+                if (!code) return;
+
+                try {
+                  await navigator.clipboard.writeText(code.textContent || "");
+                  button.textContent = "✓";
+                  button.classList.add("copied");
+
+                  // Announce to screen readers
+                  const statusEl = document.getElementById("code-copy-status");
+                  if (statusEl) {
+                    statusEl.textContent = i18n.copiedText;
+                  }
+
+                  setTimeout(() => {
+                    button.textContent = "📋";
+                    button.classList.remove("copied");
+                    if (statusEl) {
+                      statusEl.textContent = "";
+                    }
+                  }, 2000);
+                } catch (err) {
+                  console.error("Failed to copy code:", err);
+                }
+              });
+
+              // Create toolbar container
+              const toolbar = document.createElement("div");
+              toolbar.className = "code-toolbar";
+
+              // Add elements to toolbar
+              toolbar.appendChild(langLabel);
+              toolbar.appendChild(button);
+
+              // Add toolbar to pre element
+              pre.style.position = "relative";
+              pre.appendChild(toolbar);
+            } catch (error) {
+              console.error("Error setting up code block:", error);
+            }
+          });
+        }
+
+        // Run setup
+        if (document.readyState === "loading") {
+          document.addEventListener("DOMContentLoaded", setupCodeBlocks);
+        } else {
+          setupCodeBlocks();
+        }
+
+        // Run on Astro page transitions
+        document.addEventListener("astro:page-load", setupCodeBlocks);
+      })();
+    </script>
   </body>
 </html>

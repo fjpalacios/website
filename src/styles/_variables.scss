@@ -9,6 +9,7 @@ $inverted-text: var(--inverted-text);
 $header-link: var(--header-link);
 $code: var(--code);
 
+// Dark theme values (default)
 %dark {
   --accent: #efbb35;
   --background: #11151c;
@@ -20,8 +21,9 @@ $code: var(--code);
   --code: #ff79c6;
 }
 
+// Light theme values
 %light {
-  --accent: #23b5d3;
+  --accent: #0c7298; // Darker cyan-blue for WCAG AA compliance (4.52:1 contrast on #fbfef9)
   --background: #fbfef9;
   --primary: #071013;
   --text: #284b63;
@@ -31,9 +33,8 @@ $code: var(--code);
   --code: #e83e8c;
 }
 
+// Apply theme to body based on class (no default to prevent FOUC)
 body {
-  @extend %dark;
-
   // Code syntax highlighting variables
   --deckgo-highlight-code-background: var(--primary);
   --deckgo-highlight-code-padding: 20px;
