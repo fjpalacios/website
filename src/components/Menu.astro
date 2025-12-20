@@ -31,12 +31,15 @@ const postsUrl = getRelativeLocaleUrl(lang, "posts");
 <nav class="menu">
   <div class="menu__left">
     <LanguageSwitcher lang={lang} translationSlug={translationSlug} disabled={!hasTranslation} />
-    <div class="theme-switcher">
-      <input type="checkbox" class="theme-switcher__selector" id="selector" />
-      <label for="selector">
-        <div class="theme-switcher__selector__image" title={t(lang, "menu.switchTheme")}></div>
-      </label>
-    </div>
+    <button
+      type="button"
+      class="theme-switcher"
+      id="theme-toggle"
+      aria-label={t(lang, "menu.switchTheme")}
+      title={t(lang, "menu.switchTheme")}
+    >
+      <span class="theme-switcher__icon" aria-hidden="true"></span>
+    </button>
   </div>
   <div class="menu__right">
     <ul class="navigation">

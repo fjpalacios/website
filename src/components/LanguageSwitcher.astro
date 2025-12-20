@@ -77,18 +77,20 @@ function getTranslatedUrl(): string {
 
 const translatedUrl = disabled ? "#" : getTranslatedUrl();
 
-// Flag properties
-const flagSrc = targetLang === "es" ? "/images/flags/es.svg" : "/images/flags/uk.svg";
-const flagAlt = t(lang, targetLang === "es" ? "menu.toSpanish" : "menu.toEnglish");
+// Flag emoji and alt text
+const flagEmoji = targetLang === "es" ? "🇪🇸" : "🇬🇧";
+const flagLabel = t(lang, targetLang === "es" ? "menu.toSpanish" : "menu.toEnglish");
 ---
 
 <div class:list={["language-switcher", { "language-switcher--disabled": disabled }]}>
   {
     disabled ? (
-      <img src={flagSrc} alt={flagAlt} title={flagAlt} />
+      <span class="language-switcher__flag" title={flagLabel} aria-label={flagLabel}>
+        {flagEmoji}
+      </span>
     ) : (
-      <a href={translatedUrl}>
-        <img src={flagSrc} alt={flagAlt} title={flagAlt} />
+      <a href={translatedUrl} class="language-switcher__link" title={flagLabel} aria-label={flagLabel}>
+        <span class="language-switcher__flag">{flagEmoji}</span>
       </a>
     )
   }
@@ -96,16 +98,28 @@ const flagAlt = t(lang, targetLang === "es" ? "menu.toSpanish" : "menu.toEnglish
 
 <style lang="scss">
   .language-switcher {
-    line-height: 0;
+    line-height: 1;
+    display: inline-flex;
+    align-items: center;
 
-    img {
-      width: 100%;
-      max-width: 20px;
+    &__flag {
+      font-size: 16px;
+      display: block;
+      user-select: none;
+    }
+
+    &__link {
+      text-decoration: none;
+      transition: transform 0.2s ease;
+
+      &:hover {
+        transform: scale(1.15);
+      }
     }
 
     &--disabled {
-      img {
-        filter: grayscale(100%);
+      .language-switcher__flag {
+        filter: grayscale(100%) opacity(0.5);
         cursor: not-allowed;
       }
     }

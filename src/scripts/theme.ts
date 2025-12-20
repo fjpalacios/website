@@ -26,12 +26,34 @@ export function getSavedTheme(): Theme {
   return DEFAULT_THEME;
 }
 
+export function updateThemeIcon(): void {
+  if (typeof document === "undefined") return;
+
+  const icon = document.querySelector(".theme-switcher__icon");
+  if (!icon) return;
+
+  const currentTheme = getTheme();
+  // Show sun emoji when in dark mode (clicking will switch to light)
+  // Show moon emoji when in light mode (clicking will switch to dark)
+  // Using specific emojis for better contrast:
+  // - ☀️ sun (yellow) shows well on dark backgrounds
+  // - 🌑 new moon (dark) shows well on light backgrounds
+  icon.textContent = currentTheme === "dark" ? "☀️" : "🌑";
+}
+
 export function applyTheme(theme: Theme): void {
   if (typeof document === "undefined") return;
 
   const oldTheme = invertTheme(theme);
+
+  // Apply to both html and body to prevent FOUC
+  document.documentElement.classList.remove(oldTheme);
+  document.documentElement.classList.add(theme);
+
   document.body.classList.remove(oldTheme);
   document.body.classList.add(theme);
+
+  updateThemeIcon();
 }
 
 export function switchTheme(): void {
@@ -51,9 +73,8 @@ export function initTheme(): void {
     saveTheme(theme);
   }
 
-  const selector = document.getElementById("selector") as HTMLInputElement;
-  if (selector) {
-    selector.checked = theme === "dark";
-    selector.addEventListener("click", switchTheme);
+  const button = document.getElementById("theme-toggle");
+  if (button) {
+    button.addEventListener("click", switchTheme);
   }
 }
