@@ -1,0 +1,107 @@
+---
+import { t } from "@locales";
+
+interface Props {
+  lang: "es" | "en";
+  translationSlug?: string; // Slug of the translated version (from i18n field)
+  disabled?: boolean; // True if translation doesn't exist
+}
+
+const { lang, translationSlug, disabled = false } = Astro.props;
+
+// Determine target language
+const targetLang = lang === "es" ? "en" : "es";
+const currentPath = Astro.url.pathname;
+
+// Build translated URL using the translationSlug if provided
+function getTranslatedUrl(): string {
+  if (!translationSlug) {
+    // No translation slug provided, just change language prefix (for static pages like home, about)
+    const pathParts = currentPath.split("/").filter(Boolean);
+
+    if (pathParts.length === 0) {
+      return `/${targetLang}`;
+    }
+
+    // Replace language prefix
+    pathParts[0] = targetLang;
+
+    // Translate content type paths if needed
+    if (pathParts.length >= 2) {
+      const contentType = pathParts[1];
+
+      // Map content types between languages
+      const contentTypeMap: Record<string, string> = {
+        tutoriales: "tutorials",
+        tutorials: "tutoriales",
+        libros: "books",
+        books: "libros",
+        // blog remains the same
+      };
+
+      pathParts[1] = contentTypeMap[contentType] || contentType;
+    }
+
+    return `/${pathParts.join("/")}`;
+  }
+
+  // We have a translation slug, build the proper URL
+  const pathParts = currentPath.split("/").filter(Boolean);
+
+  // pathParts: ["es", "blog", "slug"] or ["en", "tutorials", "slug"]
+  if (pathParts.length >= 2) {
+    const contentType = pathParts[1];
+
+    // Map content types to translated paths
+    const contentTypeMap: Record<string, Record<string, string>> = {
+      blog: { es: "blog", en: "blog" },
+      tutoriales: { es: "tutoriales", en: "tutorials" },
+      tutorials: { es: "tutoriales", en: "tutorials" },
+      libros: { es: "libros", en: "books" },
+      books: { es: "libros", en: "books" },
+    };
+
+    const translatedType = contentTypeMap[contentType]?.[targetLang] || contentType;
+    return `/${targetLang}/${translatedType}/${translationSlug}`;
+  }
+
+  // Fallback
+  return `/${targetLang}`;
+}
+
+const translatedUrl = disabled ? "#" : getTranslatedUrl();
+
+// Flag properties
+const flagSrc = targetLang === "es" ? "/images/flags/es.svg" : "/images/flags/uk.svg";
+const flagAlt = t(lang, targetLang === "es" ? "menu.toSpanish" : "menu.toEnglish");
+---
+
+<div class:list={["language-switcher", { "language-switcher--disabled": disabled }]}>
+  {
+    disabled ? (
+      <img src={flagSrc} alt={flagAlt} title={flagAlt} />
+    ) : (
+      <a href={translatedUrl}>
+        <img src={flagSrc} alt={flagAlt} title={flagAlt} />
+      </a>
+    )
+  }
+</div>
+
+<style lang="scss">
+  .language-switcher {
+    line-height: 0;
+
+    img {
+      width: 100%;
+      max-width: 20px;
+    }
+
+    &--disabled {
+      img {
+        filter: grayscale(100%);
+        cursor: not-allowed;
+      }
+    }
+  }
+</style>
