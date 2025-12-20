@@ -5,7 +5,13 @@ import type { CollectionEntry } from "astro:content";
 import type { CollectionEntry } from "astro:content";
 import { describe, it, expect } from "vitest";
 
-import { findBookBySlug, findAuthorBySlug, findPublisherBySlug, findGenresBySlug } from "@/utils/blog/books";
+import {
+  findBookBySlug,
+  findAuthorBySlug,
+  findPublisherBySlug,
+  findGenresBySlug,
+  findCategoriesBySlug,
+} from "@/utils/blog/books";
 
 // Mock book data for testing
 const mockBooks: CollectionEntry<"books">[] = [
@@ -93,6 +99,28 @@ const mockGenres: CollectionEntry<"genres">[] = [
   },
 ] as CollectionEntry<"genres">[];
 
+// Mock category data
+const mockCategories: CollectionEntry<"categories">[] = [
+  {
+    id: "book-reviews.json",
+    collection: "categories",
+    data: {
+      name: "Book Reviews",
+      category_slug: "book-reviews",
+      language: "en" as const,
+    },
+  },
+  {
+    id: "tutorials.json",
+    collection: "categories",
+    data: {
+      name: "Tutorials",
+      category_slug: "tutorials",
+      language: "en" as const,
+    },
+  },
+] as CollectionEntry<"categories">[];
+
 describe("findBookBySlug", () => {
   it("should return a book when slug matches", () => {
     const book = findBookBySlug(mockBooks, "apocalipsis-stephen-king");
@@ -156,5 +184,25 @@ describe("findGenresBySlug", () => {
     expect(genres).toHaveLength(2);
     expect(genres.map((g) => g.data.name)).toContain("Fiction");
     expect(genres.map((g) => g.data.name)).toContain("Horror");
+  });
+});
+
+describe("findCategoriesBySlug", () => {
+  it("should return all categories for given slugs", () => {
+    const categories = findCategoriesBySlug(mockCategories, ["book-reviews", "tutorials"]);
+    expect(categories).toHaveLength(2);
+    expect(categories.map((c) => c.data.name)).toContain("Book Reviews");
+    expect(categories.map((c) => c.data.name)).toContain("Tutorials");
+  });
+
+  it("should return empty array when no categories", () => {
+    const categories = findCategoriesBySlug(mockCategories, []);
+    expect(categories).toEqual([]);
+  });
+
+  it("should filter out invalid category references", () => {
+    const categories = findCategoriesBySlug(mockCategories, ["book-reviews", "non-existent-category"]);
+    expect(categories).toHaveLength(1);
+    expect(categories.map((c) => c.data.name)).toContain("Book Reviews");
   });
 });
