@@ -1,0 +1,103 @@
+---
+import AuthorInfo from "@components/AuthorInfo.astro";
+import AuthorList from "@components/AuthorList.astro";
+import Paginator from "@components/Paginator.astro";
+import PostList from "@components/PostList.astro";
+import Title from "@components/Title.astro";
+import Layout from "@layouts/Layout.astro";
+import { t } from "@locales";
+import { getCollection } from "astro:content";
+
+import contactEn from "@/content/static/contact/en.json";
+import { prepareBookSummary } from "@/utils/blog";
+
+export async function getStaticPaths() {
+  const BOOKS_PER_PAGE = 10;
+
+  // Get all authors in English
+  const allAuthors = await getCollection("authors");
+  const englishAuthors = allAuthors.filter((author) => author.data.language === "en");
+
+  // Get all books in English
+  const allBooks = await getCollection("books");
+  const englishBooks = allBooks.filter((book) => book.data.language === "en");
+
+  // Generate paths for each author
+  const paths = [];
+
+  for (const author of englishAuthors) {
+    const authorSlug = author.data.author_slug;
+
+    // Filter books by author
+    const authorBooks = englishBooks.filter((book) => {
+      return book.data.author === authorSlug;
+    });
+
+    // Sort by date descending
+    authorBooks.sort((a, b) => {
+      const dateA = new Date(a.data.read_start_date || 0);
+      const dateB = new Date(b.data.read_start_date || 0);
+      return dateB.getTime() - dateA.getTime();
+    });
+
+    // Calculate total pages
+    const totalPages = Math.ceil(authorBooks.length / BOOKS_PER_PAGE);
+
+    // Generate path for each page
+    for (let page = 1; page <= Math.max(1, totalPages); page++) {
+      const startIndex = (page - 1) * BOOKS_PER_PAGE;
+      const paginatedBooks = authorBooks.slice(startIndex, startIndex + BOOKS_PER_PAGE);
+
+      // Transform to summary format
+      const bookSummaries = paginatedBooks.map((book) => prepareBookSummary(book, author));
+
+      // Count books per author for the author list
+      const authorsWithCount = englishAuthors.map((a) => {
+        const count = englishBooks.filter((book) => book.data.author === a.data.author_slug).length;
+        return { author: a, count };
+      });
+
+      paths.push({
+        params: { slug: authorSlug },
+        props: {
+          author,
+          books: bookSummaries,
+          currentPage: page,
+          totalPages,
+          authors: authorsWithCount,
+        },
+      });
+    }
+  }
+
+  return paths;
+}
+
+const { author, books, currentPage, totalPages, authors } = Astro.props;
+const lang = "en";
+
+// Sort authors by name for the list
+authors.sort((a, b) => a.author.data.name.localeCompare(b.author.data.name));
+
+// Get gender-specific title
+const authorTitle = author.data.gender === "male" ? t(lang, "pages.authorMale") : t(lang, "pages.authorFemale");
+const pageTitle = `${authorTitle}: ${author.data.name}`;
+---
+
+<Layout lang={lang} title={pageTitle} description={author.data.bio} contact={contactEn} translationSlug="">
+  <Title title={pageTitle} />
+
+  <div class="space" style="margin-bottom: 20px;">
+    <AuthorInfo author={author} border={true} />
+  </div>
+
+  <PostList posts={books} lang={lang} />
+
+  <Paginator
+    currentPage={currentPage}
+    totalPages={totalPages}
+    baseUrl={`/${lang}/${t(lang, "routes.authors")}/${author.data.author_slug}`}
+  />
+
+  <AuthorList authors={authors} title={t(lang, "allAuthors")} lang={lang} showCount={false} />
+</Layout>

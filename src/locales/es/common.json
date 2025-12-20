@@ -39,6 +39,8 @@
     "challenge": "Reto",
     "authors": "Autores",
     "author": "Autor",
+    "authorMale": "Autor",
+    "authorFemale": "Autora",
     "courses": "Cursos",
     "course": "Curso"
   },

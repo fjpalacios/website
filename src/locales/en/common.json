@@ -39,6 +39,8 @@
     "challenge": "Challenge",
     "authors": "Authors",
     "author": "Author",
+    "authorMale": "Author",
+    "authorFemale": "Author",
     "courses": "Courses",
     "course": "Course"
   },
