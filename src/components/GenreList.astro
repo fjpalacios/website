@@ -1,0 +1,33 @@
+---
+import SectionTitle from "@components/SectionTitle.astro";
+import type { CollectionEntry } from "astro:content";
+
+interface Props {
+  genres: Array<{
+    genre: CollectionEntry<"genres">;
+    count: number;
+  }>;
+  title: string;
+  lang: string;
+  showCount?: boolean;
+}
+
+const { genres, title, lang, showCount = true } = Astro.props;
+
+// Get base path for genre URLs based on language
+const genreBasePath = lang === "es" ? "genero" : "genre";
+---
+
+<main class="types">
+  <SectionTitle title={title} />
+  <ul class="types__list">
+    {
+      genres.map(({ genre, count }) => (
+        <li class="types__list__item">
+          <a href={`/${lang}/${genreBasePath}/${genre.data.genre_slug}`}>{genre.data.name}</a>
+          {showCount && <span class="types__list__item__number">({count})</span>}
+        </li>
+      ))
+    }
+  </ul>
+</main>

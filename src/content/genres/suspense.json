@@ -1,0 +1,8 @@
+{
+  "name": "Suspense",
+  "genre_slug": "suspense",
+  "language": "es",
+  "description": "Ficción de ritmo rápido que presenta tensión, suspense y emoción",
+  "parent": "ficcion",
+  "i18n": "thriller"
+}

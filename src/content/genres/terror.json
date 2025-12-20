@@ -1,0 +1,8 @@
+{
+  "name": "Terror",
+  "genre_slug": "terror",
+  "language": "es",
+  "description": "Ficción destinada a asustar, inquietar o horrorizar al lector",
+  "parent": "ficcion",
+  "i18n": "horror"
+}

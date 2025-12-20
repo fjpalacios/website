@@ -1,0 +1,7 @@
+{
+  "name": "Ficción",
+  "genre_slug": "ficcion",
+  "language": "es",
+  "description": "Obras literarias basadas en la imaginación",
+  "i18n": "fiction"
+}

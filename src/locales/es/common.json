@@ -25,7 +25,9 @@
     "home": "Inicio",
     "about": "Sobre mí",
     "blog": "Blog",
-    "category": "Categoría"
+    "category": "Categoría",
+    "genre": "Género",
+    "publisher": "Editorial"
   },
   "about": {
     "me": "Sobre mí",
@@ -35,5 +37,7 @@
     "prev": "« Anterior",
     "next": "Siguiente »"
   },
-  "allCategories": "Todas las categorías"
+  "allCategories": "Todas las categorías",
+  "allGenres": "Todos los géneros",
+  "allPublishers": "Todas las editoriales"
 }

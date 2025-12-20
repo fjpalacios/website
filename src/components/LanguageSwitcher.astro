@@ -38,6 +38,10 @@ function getTranslatedUrl(): string {
         books: "libros",
         categoria: "category",
         category: "categoria",
+        genero: "genre",
+        genre: "genero",
+        editorial: "publisher",
+        publisher: "editorial",
         // blog remains the same
       };
 
@@ -63,6 +67,10 @@ function getTranslatedUrl(): string {
       books: { es: "libros", en: "books" },
       categoria: { es: "categoria", en: "category" },
       category: { es: "categoria", en: "category" },
+      genero: { es: "genero", en: "genre" },
+      genre: { es: "genero", en: "genre" },
+      editorial: { es: "editorial", en: "publisher" },
+      publisher: { es: "editorial", en: "publisher" },
     };
 
     const translatedType = contentTypeMap[contentType]?.[targetLang] || contentType;

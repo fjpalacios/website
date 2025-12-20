@@ -25,7 +25,9 @@
     "home": "Home",
     "about": "About me",
     "blog": "Blog",
-    "category": "Category"
+    "category": "Category",
+    "genre": "Genre",
+    "publisher": "Publisher"
   },
   "about": {
     "me": "About me",
@@ -35,5 +37,7 @@
     "prev": "« Previous",
     "next": "Next »"
   },
-  "allCategories": "All categories"
+  "allCategories": "All categories",
+  "allGenres": "All genres",
+  "allPublishers": "All publishers"
 }

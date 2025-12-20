@@ -1,0 +1,98 @@
+---
+import GenreList from "@components/GenreList.astro";
+import Paginator from "@components/Paginator.astro";
+import PostList from "@components/PostList.astro";
+import SectionTitle from "@components/SectionTitle.astro";
+import Layout from "@layouts/Layout.astro";
+import { t } from "@locales";
+import { getCollection } from "astro:content";
+
+import contactEn from "@/content/static/contact/en.json";
+import { prepareBookSummary } from "@/utils/blog";
+
+export async function getStaticPaths() {
+  const BOOKS_PER_PAGE = 10;
+
+  // Get all genres in English
+  const allGenres = await getCollection("genres");
+  const englishGenres = allGenres.filter((genre) => genre.data.language === "en");
+
+  // Get all books in English
+  const allBooks = await getCollection("books");
+  const englishBooks = allBooks.filter((book) => book.data.language === "en");
+
+  // Generate paths for each genre
+  const paths = [];
+
+  for (const genre of englishGenres) {
+    const genreSlug = genre.data.genre_slug;
+
+    // Filter books by genre
+    const genreBooks = englishBooks.filter((book) => {
+      return book.data.genres?.includes(genreSlug);
+    });
+
+    // Sort by date descending
+    genreBooks.sort((a, b) => {
+      const dateA = new Date(a.data.read_start_date || 0);
+      const dateB = new Date(b.data.read_start_date || 0);
+      return dateB.getTime() - dateA.getTime();
+    });
+
+    // Calculate total pages
+    const totalPages = Math.ceil(genreBooks.length / BOOKS_PER_PAGE);
+
+    // Generate path for each page
+    for (let page = 1; page <= Math.max(1, totalPages); page++) {
+      const startIndex = (page - 1) * BOOKS_PER_PAGE;
+      const paginatedBooks = genreBooks.slice(startIndex, startIndex + BOOKS_PER_PAGE);
+
+      // Transform to summary format
+      const transformedBooks = paginatedBooks.map((book) => prepareBookSummary(book));
+
+      paths.push({
+        params: {
+          slug: genreSlug,
+          page: page === 1 ? undefined : page.toString(),
+        },
+        props: {
+          genre,
+          books: transformedBooks,
+          currentPage: page,
+          totalPages: Math.max(1, totalPages),
+          allGenres: englishGenres,
+        },
+      });
+    }
+  }
+
+  return paths;
+}
+
+const { genre, books, currentPage, totalPages, allGenres } = Astro.props;
+const lang = "en";
+const contact = contactEn;
+
+// Get genre counts for the genre list
+const genresWithCounts = await Promise.all(
+  allGenres.map(async (g) => {
+    const allBooks = await getCollection("books");
+    const englishBooks = allBooks.filter((b) => b.data.language === "en");
+    const count = englishBooks.filter((book) => book.data.genres?.includes(g.data.genre_slug)).length;
+    return { genre: g, count };
+  }),
+);
+
+// Sort by name
+genresWithCounts.sort((a, b) => a.genre.data.name.localeCompare(b.genre.data.name));
+
+const pageTitle = `${t(lang, "pages.genre")}: ${genre.data.name}`;
+const basePath = `/en/genre/${genre.data.genre_slug}`;
+---
+
+<Layout lang={lang} title={pageTitle} contact={contact} translationSlug={genre.data.i18n}>
+  <SectionTitle title={pageTitle} />
+  <PostList posts={books} lang={lang} />
+  <Paginator currentPage={currentPage} totalPages={totalPages} basePath={basePath} lang={lang} />
+  <GenreList genres={genresWithCounts} title={t(lang, "allGenres")} lang={lang} />
+</Layout>

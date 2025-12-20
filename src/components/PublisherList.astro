@@ -1,0 +1,33 @@
+---
+import SectionTitle from "@components/SectionTitle.astro";
+import type { CollectionEntry } from "astro:content";
+
+interface Props {
+  publishers: Array<{
+    publisher: CollectionEntry<"publishers">;
+    count: number;
+  }>;
+  title: string;
+  lang: string;
+  showCount?: boolean;
+}
+
+const { publishers, title, lang, showCount = true } = Astro.props;
+
+// Get base path for publisher URLs based on language
+const publisherBasePath = lang === "es" ? "editorial" : "publisher";
+---
+
+<main class="types">
+  <SectionTitle title={title} />
+  <ul class="types__list">
+    {
+      publishers.map(({ publisher, count }) => (
+        <li class="types__list__item">
+          <a href={`/${lang}/${publisherBasePath}/${publisher.data.publisher_slug}`}>{publisher.data.name}</a>
+          {showCount && <span class="types__list__item__number">({count})</span>}
+        </li>
+      ))
+    }
+  </ul>
+</main>
