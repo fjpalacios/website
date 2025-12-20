@@ -49,6 +49,7 @@ describe("prepareTutorialSummary", () => {
   it("should create tutorial summary with basic fields", () => {
     const summary = prepareTutorialSummary(mockTutorial);
 
+    expect(summary.type).toBe("tutorial");
     expect(summary.title).toBe("Test Tutorial");
     expect(summary.slug).toBe("test-tutorial");
     expect(summary.excerpt).toBe("Learn how to test");

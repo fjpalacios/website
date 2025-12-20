@@ -45,6 +45,7 @@ describe("prepareBookSummary", () => {
   it("should create a book summary with basic fields", () => {
     const summary = prepareBookSummary(mockBook);
 
+    expect(summary.type).toBe("book");
     expect(summary.title).toBe("Test Book");
     expect(summary.slug).toBe("test-book");
     expect(summary.excerpt).toBe("This is a test book excerpt");

@@ -23,6 +23,7 @@ describe("preparePostSummary", () => {
 
     const summary = preparePostSummary(mockPost);
 
+    expect(summary.type).toBe("post");
     expect(summary.title).toBe("Test Post");
     expect(summary.slug).toBe("test-post");
     expect(summary.excerpt).toBe("This is a test post excerpt");

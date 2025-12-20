@@ -7,6 +7,7 @@ import type { CollectionEntry } from "astro:content";
  * Post summary for listing pages
  */
 export interface PostSummary {
+  type: "post";
   title: string;
   slug: string;
   excerpt: string;
@@ -28,6 +29,7 @@ export interface PostSummary {
  */
 export function preparePostSummary(post: CollectionEntry<"posts">): PostSummary {
   return {
+    type: "post",
     title: post.data.title,
     slug: post.data.post_slug,
     excerpt: post.data.excerpt,

@@ -7,6 +7,7 @@ import type { CollectionEntry } from "astro:content";
  * Tutorial summary for listing pages
  */
 export interface TutorialSummary {
+  type: "tutorial";
   title: string;
   slug: string;
   excerpt: string;
@@ -32,6 +33,7 @@ export interface TutorialSummary {
  */
 export function prepareTutorialSummary(tutorial: CollectionEntry<"tutorials">): TutorialSummary {
   return {
+    type: "tutorial",
     title: tutorial.data.title,
     slug: tutorial.data.post_slug,
     excerpt: tutorial.data.excerpt,

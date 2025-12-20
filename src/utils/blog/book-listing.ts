@@ -7,6 +7,7 @@ import type { CollectionEntry } from "astro:content";
  * Book summary for listing pages
  */
 export interface BookSummary {
+  type: "book";
   title: string;
   slug: string;
   excerpt: string;
@@ -40,6 +41,7 @@ function normalizeCoverPath(cover: string): string {
  */
 export function prepareBookSummary(book: CollectionEntry<"books">, author?: CollectionEntry<"authors">): BookSummary {
   return {
+    type: "book",
     title: book.data.title,
     slug: book.data.post_slug,
     excerpt: book.data.excerpt,
