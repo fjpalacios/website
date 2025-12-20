@@ -1,0 +1,100 @@
+---
+import Paginator from "@components/Paginator.astro";
+import PostList from "@components/PostList.astro";
+import Title from "@components/Title.astro";
+import Layout from "@layouts/Layout.astro";
+import { getCollection } from "astro:content";
+
+import contactEs from "@/content/static/contact/es.json";
+import {
+  filterByLanguage,
+  getPageCount,
+  prepareBookSummary,
+  preparePostSummary,
+  prepareTutorialSummary,
+  type PostSummary,
+} from "@/utils/blog";
+
+export async function getStaticPaths() {
+  const POSTS_PER_PAGE = 12;
+  const lang = "es";
+
+  // Get all content types
+  const allPosts = await getCollection("posts");
+  const allTutorials = await getCollection("tutorials");
+  const allBooks = await getCollection("books");
+
+  // Filter by Spanish language and exclude drafts
+  const spanishPosts = filterByLanguage(allPosts, lang).filter((post) => !post.data.draft);
+  const spanishTutorials = filterByLanguage(allTutorials, lang).filter((tutorial) => !tutorial.data.draft);
+  const spanishBooks = filterByLanguage(allBooks, lang);
+
+  // Prepare summaries
+  const postSummaries: PostSummary[] = spanishPosts.map((post) => preparePostSummary(post));
+  const tutorialSummaries: PostSummary[] = spanishTutorials.map((tutorial) => prepareTutorialSummary(tutorial));
+  const bookSummaries: PostSummary[] = spanishBooks.map((book) => prepareBookSummary(book));
+
+  // Combine all content
+  const allContent = [...postSummaries, ...tutorialSummaries, ...bookSummaries];
+
+  // Sort by date (newest first)
+  const sortedContent = allContent.sort((a, b) => {
+    const dateA = new Date(a.date);
+    const dateB = new Date(b.date);
+    return dateB.getTime() - dateA.getTime();
+  });
+
+  // Calculate pagination
+  const totalPages = getPageCount(sortedContent.length, POSTS_PER_PAGE);
+
+  // Generate paths for each page
+  return Array.from({ length: totalPages }, (_, i) => {
+    const page = i + 1;
+    const start = i * POSTS_PER_PAGE;
+    const end = start + POSTS_PER_PAGE;
+
+    return {
+      params: { page: page.toString() },
+      props: {
+        posts: sortedContent.slice(start, end),
+        currentPage: page,
+        totalPages,
+      },
+    };
+  });
+}
+
+const { posts, currentPage, totalPages } = Astro.props;
+const lang = "es";
+
+const pageTitle = "📝 Publicaciones";
+const pageDescription = "Artículos y tutoriales sobre desarrollo web";
+---
+
+<Layout lang={lang} title={pageTitle} description={pageDescription} contact={contactEs}>
+  <Title title={pageTitle} />
+
+  {
+    posts.length > 0 ? (
+      <PostList posts={posts} lang={lang} />
+    ) : (
+      <div class="empty-state">
+        <p>No se encontraron publicaciones. ¡Vuelve pronto!</p>
+      </div>
+    )
+  }
+
+  <Paginator currentPage={currentPage} totalPages={totalPages} baseUrl="/es/publicaciones" />
+</Layout>
+
+<style lang="scss">
+  @use "@/styles/mixins" as *;
+  @use "@/styles/variables" as *;
+
+  .empty-state {
+    grid-column: span 12;
+    text-align: center;
+    padding: 4rem 2rem;
+    color: $cursive-color;
+  }
+</style>

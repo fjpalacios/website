@@ -11,9 +11,10 @@ interface Props {
   description?: string;
   contact: ContactItem[];
   translationSlug?: string; // Slug of the translated version (from i18n field)
+  hasTargetContent?: boolean; // Whether target language has content (for index pages)
 }
 
-const { lang, title, description, contact, translationSlug } = Astro.props;
+const { lang, title, description, contact, translationSlug, hasTargetContent } = Astro.props;
 const currentPath = Astro.url.pathname;
 
 // Build full title: "Page Title - Name" or just "Name" for home
@@ -92,7 +93,12 @@ const metaUrl = new URL(currentPath, baseUrl).href;
     </div>
     <div class="layout-wrapper">
       <div class="container">
-        <Menu lang={lang} currentPath={currentPath} translationSlug={translationSlug} />
+        <Menu
+          lang={lang}
+          currentPath={currentPath}
+          translationSlug={translationSlug}
+          hasTargetContent={hasTargetContent}
+        />
         <Header lang={lang} contact={contact} />
         <div class="content">
           <slot />

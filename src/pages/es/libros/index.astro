@@ -26,6 +26,11 @@ const allAuthors = await getCollection("authors");
 // Filter by Spanish language
 const spanishBooks = filterByLanguage(allBooks, lang);
 
+// Check if target language (English) has books
+const targetLang = "en";
+const targetBooks = filterByLanguage(allBooks, targetLang);
+const hasTargetContent = targetBooks.length > 0;
+
 // Sort by date (newest first)
 const sortedBooks = sortByDate(spanishBooks, "desc");
 
@@ -44,7 +49,13 @@ const pageTitle = "📚 Libros";
 const pageDescription = "Reseñas de libros";
 ---
 
-<Layout lang={lang} title={pageTitle} description={pageDescription} contact={contactEs} translationSlug="">
+<Layout
+  lang={lang}
+  title={pageTitle}
+  description={pageDescription}
+  contact={contactEs}
+  hasTargetContent={hasTargetContent}
+>
   <Title title={pageTitle} />
 
   <PostList posts={paginatedBooks} lang={lang} />
