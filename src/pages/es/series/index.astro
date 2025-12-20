@@ -1,0 +1,37 @@
+---
+import SeriesList from "@components/SeriesList.astro";
+import Title from "@components/Title.astro";
+import Layout from "@layouts/Layout.astro";
+import { t } from "@locales";
+import { getCollection } from "astro:content";
+
+import contactEs from "@/content/static/contact/es.json";
+
+const lang = "es";
+
+// Get all series in Spanish
+const allSeries = await getCollection("series");
+const spanishSeries = allSeries.filter((serie) => serie.data.language === lang);
+
+// Get all books in Spanish to count items per serie
+const allBooks = await getCollection("books");
+const spanishBooks = allBooks.filter((book) => book.data.language === lang);
+
+// Count books per serie
+const seriesWithCount = spanishSeries.map((serie) => {
+  const count = spanishBooks.filter((book) => book.data.serie === serie.data.serie_slug).length;
+  return { serie, count };
+});
+
+// Sort by name
+seriesWithCount.sort((a, b) => a.serie.data.name.localeCompare(b.serie.data.name));
+
+const pageTitle = `📚 ${t(lang, "pages.series")}`;
+const pageDescription = t(lang, "allSeries");
+---
+
+<Layout lang={lang} title={pageTitle} description={pageDescription} contact={contactEs} translationSlug="">
+  <Title title={pageTitle} />
+
+  <SeriesList series={seriesWithCount} title={t(lang, "allSeries")} lang={lang} showCount={true} />
+</Layout>

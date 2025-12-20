@@ -1,0 +1,37 @@
+---
+import PublisherList from "@components/PublisherList.astro";
+import Title from "@components/Title.astro";
+import Layout from "@layouts/Layout.astro";
+import { t } from "@locales";
+import { getCollection } from "astro:content";
+
+import contactEs from "@/content/static/contact/es.json";
+
+const lang = "es";
+
+// Get all publishers in Spanish
+const allPublishers = await getCollection("publishers");
+const spanishPublishers = allPublishers.filter((publisher) => publisher.data.language === lang);
+
+// Get all books in Spanish to count items per publisher
+const allBooks = await getCollection("books");
+const spanishBooks = allBooks.filter((book) => book.data.language === lang);
+
+// Count books per publisher
+const publishersWithCount = spanishPublishers.map((publisher) => {
+  const count = spanishBooks.filter((book) => book.data.publisher === publisher.data.publisher_slug).length;
+  return { publisher, count };
+});
+
+// Sort by name
+publishersWithCount.sort((a, b) => a.publisher.data.name.localeCompare(b.publisher.data.name));
+
+const pageTitle = `🏢 ${t(lang, "pages.publishers")}`;
+const pageDescription = t(lang, "allPublishers");
+---
+
+<Layout lang={lang} title={pageTitle} description={pageDescription} contact={contactEs} translationSlug="">
+  <Title title={pageTitle} />
+
+  <PublisherList publishers={publishersWithCount} title={t(lang, "allPublishers")} lang={lang} showCount={true} />
+</Layout>

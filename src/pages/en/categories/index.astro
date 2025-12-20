@@ -1,0 +1,46 @@
+---
+import CategoryList from "@components/CategoryList.astro";
+import Title from "@components/Title.astro";
+import Layout from "@layouts/Layout.astro";
+import { t } from "@locales";
+import { getCollection } from "astro:content";
+
+import contactEn from "@/content/static/contact/en.json";
+
+const lang = "en";
+
+// Get all categories in English
+const allCategories = await getCollection("categories");
+const englishCategories = allCategories.filter((category) => category.data.language === lang);
+
+// Get all content to count items per category
+const allPosts = await getCollection("posts");
+const allTutorials = await getCollection("tutorials");
+const allBooks = await getCollection("books");
+
+const englishPosts = allPosts.filter((post) => post.data.language === lang);
+const englishTutorials = allTutorials.filter((tutorial) => tutorial.data.language === lang);
+const englishBooks = allBooks.filter((book) => book.data.language === lang);
+
+// Count items per category
+const categoriesWithCount = englishCategories.map((category) => {
+  const slug = category.data.category_slug;
+  const postCount = englishPosts.filter((post) => post.data.categories?.includes(slug)).length;
+  const tutorialCount = englishTutorials.filter((tutorial) => tutorial.data.categories?.includes(slug)).length;
+  const bookCount = englishBooks.filter((book) => book.data.categories?.includes(slug)).length;
+  const count = postCount + tutorialCount + bookCount;
+  return { category, count };
+});
+
+// Sort by name
+categoriesWithCount.sort((a, b) => a.category.data.name.localeCompare(b.category.data.name));
+
+const pageTitle = `📂 ${t(lang, "pages.categories")}`;
+const pageDescription = t(lang, "allCategories");
+---
+
+<Layout lang={lang} title={pageTitle} description={pageDescription} contact={contactEn} translationSlug="">
+  <Title title={pageTitle} />
+
+  <CategoryList categories={categoriesWithCount} title={t(lang, "allCategories")} lang={lang} showCount={true} />
+</Layout>

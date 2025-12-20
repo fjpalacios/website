@@ -36,7 +36,11 @@
     "series": "Series",
     "serie": "Serie",
     "challenges": "Retos",
-    "challenge": "Reto"
+    "challenge": "Reto",
+    "authors": "Autores",
+    "author": "Autor",
+    "courses": "Cursos",
+    "course": "Curso"
   },
   "routes": {
     "posts": "publicaciones",
@@ -47,7 +51,9 @@
     "publishers": "editoriales",
     "series": "series",
     "challenges": "retos",
+    "authors": "autores",
     "author": "autor",
+    "courses": "cursos",
     "about": "acerca-de"
   },
   "about": {
@@ -63,6 +69,7 @@
   "allPublishers": "Todas las editoriales",
   "allSeries": "Todas las series",
   "allChallenges": "Todos los retos",
+  "allAuthors": "Todos los autores",
   "codeBlock": {
     "copy": "Copiar código",
     "copied": "Copiado"

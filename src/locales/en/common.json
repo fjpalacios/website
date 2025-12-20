@@ -36,7 +36,11 @@
     "series": "Series",
     "serie": "Serie",
     "challenges": "Challenges",
-    "challenge": "Challenge"
+    "challenge": "Challenge",
+    "authors": "Authors",
+    "author": "Author",
+    "courses": "Courses",
+    "course": "Course"
   },
   "routes": {
     "posts": "posts",
@@ -47,7 +51,9 @@
     "publishers": "publishers",
     "series": "series",
     "challenges": "challenges",
+    "authors": "authors",
     "author": "author",
+    "courses": "courses",
     "about": "about"
   },
   "about": {
@@ -63,6 +69,7 @@
   "allPublishers": "All publishers",
   "allSeries": "All series",
   "allChallenges": "All challenges",
+  "allAuthors": "All authors",
   "codeBlock": {
     "copy": "Copy code",
     "copied": "Copied"

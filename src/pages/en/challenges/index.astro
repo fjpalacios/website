@@ -1,0 +1,37 @@
+---
+import ChallengeList from "@components/ChallengeList.astro";
+import Title from "@components/Title.astro";
+import Layout from "@layouts/Layout.astro";
+import { t } from "@locales";
+import { getCollection } from "astro:content";
+
+import contactEn from "@/content/static/contact/en.json";
+
+const lang = "en";
+
+// Get all challenges in English
+const allChallenges = await getCollection("challenges");
+const englishChallenges = allChallenges.filter((challenge) => challenge.data.language === lang);
+
+// Get all books in English to count items per challenge
+const allBooks = await getCollection("books");
+const englishBooks = allBooks.filter((book) => book.data.language === lang);
+
+// Count books per challenge
+const challengesWithCount = englishChallenges.map((challenge) => {
+  const count = englishBooks.filter((book) => book.data.challenge === challenge.data.challenge_slug).length;
+  return { challenge, count };
+});
+
+// Sort by name
+challengesWithCount.sort((a, b) => a.challenge.data.name.localeCompare(b.challenge.data.name));
+
+const pageTitle = `🎯 ${t(lang, "pages.challenges")}`;
+const pageDescription = t(lang, "allChallenges");
+---
+
+<Layout lang={lang} title={pageTitle} description={pageDescription} contact={contactEn} translationSlug="">
+  <Title title={pageTitle} />
+
+  <ChallengeList challenges={challengesWithCount} title={t(lang, "allChallenges")} lang={lang} showCount={true} />
+</Layout>

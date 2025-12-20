@@ -35,6 +35,13 @@ const hasTranslation = isStaticPage && !isListingPage ? true : translationSlug !
 const homeUrl = `/${lang}`;
 const aboutUrl = buildLocalizedPath(lang, "about");
 const postsUrl = buildLocalizedPath(lang, "posts");
+const tutorialsUrl = buildLocalizedPath(lang, "tutorials");
+const booksUrl = buildLocalizedPath(lang, "books");
+const categoriesUrl = buildLocalizedPath(lang, "categories");
+const genresUrl = buildLocalizedPath(lang, "genres");
+const publishersUrl = buildLocalizedPath(lang, "publishers");
+const seriesUrl = buildLocalizedPath(lang, "series");
+const challengesUrl = buildLocalizedPath(lang, "challenges");
 ---
 
 <nav class="menu">
@@ -71,6 +78,41 @@ const postsUrl = buildLocalizedPath(lang, "posts");
       <li class="navigation__link">
         <a href={postsUrl} class:list={[{ "navigation__link--active": currentPath.startsWith(postsUrl) }]}>
           {t(lang, "pages.posts")}
+        </a>
+      </li>
+      <li class="navigation__link">
+        <a href={tutorialsUrl} class:list={[{ "navigation__link--active": currentPath.startsWith(tutorialsUrl) }]}>
+          {t(lang, "pages.tutorials")}
+        </a>
+      </li>
+      <li class="navigation__link">
+        <a href={booksUrl} class:list={[{ "navigation__link--active": currentPath.startsWith(booksUrl) }]}>
+          {t(lang, "pages.books")}
+        </a>
+      </li>
+      <li class="navigation__link">
+        <a href={categoriesUrl} class:list={[{ "navigation__link--active": currentPath.startsWith(categoriesUrl) }]}>
+          {t(lang, "pages.categories")}
+        </a>
+      </li>
+      <li class="navigation__link">
+        <a href={genresUrl} class:list={[{ "navigation__link--active": currentPath.startsWith(genresUrl) }]}>
+          {t(lang, "pages.genres")}
+        </a>
+      </li>
+      <li class="navigation__link">
+        <a href={publishersUrl} class:list={[{ "navigation__link--active": currentPath.startsWith(publishersUrl) }]}>
+          {t(lang, "pages.publishers")}
+        </a>
+      </li>
+      <li class="navigation__link">
+        <a href={seriesUrl} class:list={[{ "navigation__link--active": currentPath.startsWith(seriesUrl) }]}>
+          {t(lang, "pages.series")}
+        </a>
+      </li>
+      <li class="navigation__link">
+        <a href={challengesUrl} class:list={[{ "navigation__link--active": currentPath.startsWith(challengesUrl) }]}>
+          {t(lang, "pages.challenges")}
         </a>
       </li>
     </ul>
