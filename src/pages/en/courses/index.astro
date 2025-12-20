@@ -13,6 +13,11 @@ const lang = "en";
 const allCourses = await getCollection("courses");
 const englishCourses = allCourses.filter((course) => course.data.language === lang);
 
+// Check if target language (Spanish) has courses
+const targetLang = "es";
+const targetCourses = allCourses.filter((course) => course.data.language === targetLang);
+const hasTargetContent = targetCourses.length > 0;
+
 // For now, courses don't have related content, so count is always 1
 // In the future, this could count lessons or modules
 const coursesWithCount = englishCourses.map((course) => {
@@ -26,7 +31,13 @@ const pageTitle = `🎓 ${t(lang, "pages.courses")}`;
 const pageDescription = t(lang, "allCourses");
 ---
 
-<Layout lang={lang} title={pageTitle} description={pageDescription} contact={contactEn} translationSlug="">
+<Layout
+  lang={lang}
+  title={pageTitle}
+  description={pageDescription}
+  contact={contactEn}
+  hasTargetContent={hasTargetContent}
+>
   <Title title={pageTitle} />
 
   <CourseList courses={coursesWithCount} title={t(lang, "allCourses")} lang={lang} showCount={false} />

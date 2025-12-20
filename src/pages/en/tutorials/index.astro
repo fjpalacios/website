@@ -24,6 +24,11 @@ const allTutorials = await getCollection("tutorials");
 // Filter by English language
 const englishTutorials = filterByLanguage(allTutorials, lang);
 
+// Check if target language (Spanish) has tutorials
+const targetLang = "es";
+const targetTutorials = filterByLanguage(allTutorials, targetLang);
+const hasTargetContent = targetTutorials.length > 0;
+
 // Sort by date (newest first)
 const sortedTutorials = sortByDate(englishTutorials, "desc");
 
@@ -39,7 +44,13 @@ const pageTitle = "📚 Tutorials";
 const pageDescription = "Web development tutorials and guides";
 ---
 
-<Layout lang={lang} title={pageTitle} description={pageDescription} contact={contactEn} translationSlug="">
+<Layout
+  lang={lang}
+  title={pageTitle}
+  description={pageDescription}
+  contact={contactEn}
+  hasTargetContent={hasTargetContent}
+>
   <Title title={pageTitle} />
 
   {

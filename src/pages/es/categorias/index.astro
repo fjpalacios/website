@@ -22,6 +22,22 @@ const spanishPosts = allPosts.filter((post) => post.data.language === lang);
 const spanishTutorials = allTutorials.filter((tutorial) => tutorial.data.language === lang);
 const spanishBooks = allBooks.filter((book) => book.data.language === lang);
 
+// Check if target language (English) has categories with content
+const targetLang = "en";
+const targetCategories = allCategories.filter((category) => category.data.language === targetLang);
+const targetPosts = allPosts.filter((post) => post.data.language === targetLang);
+const targetTutorials = allTutorials.filter((tutorial) => tutorial.data.language === targetLang);
+const targetBooks = allBooks.filter((book) => book.data.language === targetLang);
+
+// Check if any target category has content
+const hasTargetContent = targetCategories.some((category) => {
+  const slug = category.data.category_slug;
+  const postCount = targetPosts.filter((post) => post.data.categories?.includes(slug)).length;
+  const tutorialCount = targetTutorials.filter((tutorial) => tutorial.data.categories?.includes(slug)).length;
+  const bookCount = targetBooks.filter((book) => book.data.categories?.includes(slug)).length;
+  return postCount + tutorialCount + bookCount > 0;
+});
+
 // Count items per category
 const categoriesWithCount = spanishCategories.map((category) => {
   const slug = category.data.category_slug;
@@ -39,7 +55,13 @@ const pageTitle = `📂 ${t(lang, "pages.categories")}`;
 const pageDescription = t(lang, "allCategories");
 ---
 
-<Layout lang={lang} title={pageTitle} description={pageDescription} contact={contactEs} translationSlug="">
+<Layout
+  lang={lang}
+  title={pageTitle}
+  description={pageDescription}
+  contact={contactEs}
+  hasTargetContent={hasTargetContent}
+>
   <Title title={pageTitle} />
 
   <CategoryList categories={categoriesWithCount} title={t(lang, "allCategories")} lang={lang} showCount={true} />

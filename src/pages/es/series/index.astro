@@ -17,6 +17,16 @@ const spanishSeries = allSeries.filter((serie) => serie.data.language === lang);
 const allBooks = await getCollection("books");
 const spanishBooks = allBooks.filter((book) => book.data.language === lang);
 
+// Check if target language (English) has series with books
+const targetLang = "en";
+const targetSeries = allSeries.filter((serie) => serie.data.language === targetLang);
+const targetBooks = allBooks.filter((book) => book.data.language === targetLang);
+
+const hasTargetContent = targetSeries.some((serie) => {
+  const count = targetBooks.filter((book) => book.data.serie === serie.data.serie_slug).length;
+  return count > 0;
+});
+
 // Count books per serie
 const seriesWithCount = spanishSeries.map((serie) => {
   const count = spanishBooks.filter((book) => book.data.serie === serie.data.serie_slug).length;
@@ -30,7 +40,13 @@ const pageTitle = `📚 ${t(lang, "pages.series")}`;
 const pageDescription = t(lang, "allSeries");
 ---
 
-<Layout lang={lang} title={pageTitle} description={pageDescription} contact={contactEs} translationSlug="">
+<Layout
+  lang={lang}
+  title={pageTitle}
+  description={pageDescription}
+  contact={contactEs}
+  hasTargetContent={hasTargetContent}
+>
   <Title title={pageTitle} />
 
   <SeriesList series={seriesWithCount} title={t(lang, "allSeries")} lang={lang} showCount={true} />

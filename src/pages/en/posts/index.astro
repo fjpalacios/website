@@ -29,6 +29,13 @@ const englishPosts = filterByLanguage(allPosts, lang).filter((post) => !post.dat
 const englishTutorials = filterByLanguage(allTutorials, lang).filter((tutorial) => !tutorial.data.draft);
 const englishBooks = filterByLanguage(allBooks, lang);
 
+// Check if target language (Spanish) has content
+const targetLang = "es";
+const targetPosts = filterByLanguage(allPosts, targetLang).filter((post) => !post.data.draft);
+const targetTutorials = filterByLanguage(allTutorials, targetLang).filter((tutorial) => !tutorial.data.draft);
+const targetBooks = filterByLanguage(allBooks, targetLang);
+const hasTargetContent = targetPosts.length + targetTutorials.length + targetBooks.length > 0;
+
 // Prepare summaries
 const postSummaries: PostSummary[] = englishPosts.map((post) => preparePostSummary(post));
 const tutorialSummaries: PostSummary[] = englishTutorials.map((tutorial) => prepareTutorialSummary(tutorial));
@@ -53,7 +60,13 @@ const pageTitle = "📝 Posts";
 const pageDescription = "Web development articles and tutorials";
 ---
 
-<Layout lang={lang} title={pageTitle} description={pageDescription} contact={contactEn} translationSlug="">
+<Layout
+  lang={lang}
+  title={pageTitle}
+  description={pageDescription}
+  contact={contactEn}
+  hasTargetContent={hasTargetContent}
+>
   <Title title={pageTitle} />
 
   {

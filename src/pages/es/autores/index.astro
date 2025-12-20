@@ -17,6 +17,16 @@ const spanishAuthors = allAuthors.filter((author) => author.data.language === la
 const allBooks = await getCollection("books");
 const spanishBooks = allBooks.filter((book) => book.data.language === lang);
 
+// Check if target language (English) has authors with books
+const targetLang = "en";
+const targetAuthors = allAuthors.filter((author) => author.data.language === targetLang);
+const targetBooks = allBooks.filter((book) => book.data.language === targetLang);
+
+const hasTargetContent = targetAuthors.some((author) => {
+  const count = targetBooks.filter((book) => book.data.author === author.data.author_slug).length;
+  return count > 0;
+});
+
 // Count books per author
 const authorsWithCount = spanishAuthors.map((author) => {
   const count = spanishBooks.filter((book) => book.data.author === author.data.author_slug).length;
@@ -30,7 +40,13 @@ const pageTitle = `✍️ ${t(lang, "pages.authors")}`;
 const pageDescription = t(lang, "allAuthors");
 ---
 
-<Layout lang={lang} title={pageTitle} description={pageDescription} contact={contactEs} translationSlug="">
+<Layout
+  lang={lang}
+  title={pageTitle}
+  description={pageDescription}
+  contact={contactEs}
+  hasTargetContent={hasTargetContent}
+>
   <Title title={pageTitle} />
 
   <AuthorList authors={authorsWithCount} title={t(lang, "allAuthors")} lang={lang} showCount={true} />

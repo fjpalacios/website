@@ -17,6 +17,16 @@ const englishGenres = allGenres.filter((genre) => genre.data.language === lang);
 const allBooks = await getCollection("books");
 const englishBooks = allBooks.filter((book) => book.data.language === lang);
 
+// Check if target language (Spanish) has genres with books
+const targetLang = "es";
+const targetGenres = allGenres.filter((genre) => genre.data.language === targetLang);
+const targetBooks = allBooks.filter((book) => book.data.language === targetLang);
+
+const hasTargetContent = targetGenres.some((genre) => {
+  const count = targetBooks.filter((book) => book.data.genres?.includes(genre.data.genre_slug)).length;
+  return count > 0;
+});
+
 // Count books per genre
 const genresWithCount = englishGenres.map((genre) => {
   const count = englishBooks.filter((book) => book.data.genres?.includes(genre.data.genre_slug)).length;
@@ -30,7 +40,13 @@ const pageTitle = `📚 ${t(lang, "pages.genres")}`;
 const pageDescription = t(lang, "allGenres");
 ---
 
-<Layout lang={lang} title={pageTitle} description={pageDescription} contact={contactEn} translationSlug="">
+<Layout
+  lang={lang}
+  title={pageTitle}
+  description={pageDescription}
+  contact={contactEn}
+  hasTargetContent={hasTargetContent}
+>
   <Title title={pageTitle} />
 
   <GenreList genres={genresWithCount} title={t(lang, "allGenres")} lang={lang} showCount={true} />
