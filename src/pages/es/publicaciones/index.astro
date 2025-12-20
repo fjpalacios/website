@@ -49,32 +49,19 @@ const currentPage = 1;
 const totalPages = getPageCount(sortedContent.length, POSTS_PER_PAGE);
 const paginatedPosts = paginateItems(sortedContent, currentPage, POSTS_PER_PAGE);
 
-const pageTitle = "Blog";
+const pageTitle = "📝 Publicaciones";
 const pageDescription = "Artículos y tutoriales sobre desarrollo web";
 ---
 
 <Layout lang={lang} title={pageTitle} description={pageDescription} contact={contactEs} translationSlug="">
   <Title title={pageTitle} />
 
-  <div class="blog-stats">
-    Showing <strong>{paginatedPosts.length}</strong> of
-    <strong>{sortedContent.length}</strong> posts
-    {
-      totalPages > 1 && (
-        <span>
-          {" "}
-          (page {currentPage} of {totalPages})
-        </span>
-      )
-    }
-  </div>
-
   {
     paginatedPosts.length > 0 ? (
       <PostList posts={paginatedPosts} lang={lang} />
     ) : (
       <div class="empty-state">
-        <p>No posts found. Check back soon!</p>
+        <p>No se encontraron publicaciones. ¡Vuelve pronto!</p>
       </div>
     )
   }

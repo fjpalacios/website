@@ -1,0 +1,36 @@
+---
+import SectionTitle from "@components/SectionTitle.astro";
+import type { CollectionEntry } from "astro:content";
+
+interface Props {
+  authors: Array<{
+    author: CollectionEntry<"authors">;
+    count: number;
+  }>;
+  title: string;
+  lang: string;
+  showCount?: boolean;
+}
+
+const { authors, title, lang, showCount = true } = Astro.props;
+
+// Filter authors with at least one item
+const authorsWithContent = authors.filter(({ count }) => count > 0);
+
+// Get base path for author URLs (now plural in both languages)
+const authorBasePath = lang === "es" ? "autores" : "authors";
+---
+
+<main class="types">
+  <SectionTitle title={title} />
+  <ul class="types__list">
+    {
+      authorsWithContent.map(({ author, count }) => (
+        <li class="types__list__item">
+          <a href={`/${lang}/${authorBasePath}/${author.data.author_slug}`}>{author.data.name}</a>
+          {showCount && <span class="types__list__item__number">({count})</span>}
+        </li>
+      ))
+    }
+  </ul>
+</main>

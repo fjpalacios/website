@@ -35,25 +35,12 @@ const currentPage = 1;
 const totalPages = getPageCount(tutorialSummaries.length, TUTORIALS_PER_PAGE);
 const paginatedTutorials = paginateItems(tutorialSummaries, currentPage, TUTORIALS_PER_PAGE);
 
-const pageTitle = "Tutorials";
+const pageTitle = "📚 Tutorials";
 const pageDescription = "Web development tutorials and guides";
 ---
 
 <Layout lang={lang} title={pageTitle} description={pageDescription} contact={contactEn} translationSlug="">
   <Title title={pageTitle} />
-
-  <div class="tutorial-stats">
-    Showing <strong>{paginatedTutorials.length}</strong> of
-    <strong>{tutorialSummaries.length}</strong> tutorials
-    {
-      totalPages > 1 && (
-        <span>
-          {" "}
-          (page {currentPage} of {totalPages})
-        </span>
-      )
-    }
-  </div>
 
   {
     paginatedTutorials.length > 0 ? (

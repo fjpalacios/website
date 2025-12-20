@@ -1,0 +1,36 @@
+---
+import SectionTitle from "@components/SectionTitle.astro";
+import type { CollectionEntry } from "astro:content";
+
+interface Props {
+  courses: Array<{
+    course: CollectionEntry<"courses">;
+    count: number;
+  }>;
+  title: string;
+  lang: string;
+  showCount?: boolean;
+}
+
+const { courses, title, lang, showCount = true } = Astro.props;
+
+// Filter courses with at least one item
+const coursesWithContent = courses.filter(({ count }) => count > 0);
+
+// Get base path for course URLs (now plural in both languages)
+const courseBasePath = lang === "es" ? "cursos" : "courses";
+---
+
+<main class="types">
+  <SectionTitle title={title} />
+  <ul class="types__list">
+    {
+      coursesWithContent.map(({ course, count }) => (
+        <li class="types__list__item">
+          <a href={`/${lang}/${courseBasePath}/${course.data.course_slug}`}>{course.data.name}</a>
+          {showCount && <span class="types__list__item__number">({count})</span>}
+        </li>
+      ))
+    }
+  </ul>
+</main>

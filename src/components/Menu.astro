@@ -42,6 +42,8 @@ const genresUrl = buildLocalizedPath(lang, "genres");
 const publishersUrl = buildLocalizedPath(lang, "publishers");
 const seriesUrl = buildLocalizedPath(lang, "series");
 const challengesUrl = buildLocalizedPath(lang, "challenges");
+const authorsUrl = buildLocalizedPath(lang, "authors");
+const coursesUrl = buildLocalizedPath(lang, "courses");
 ---
 
 <nav class="menu">
@@ -113,6 +115,16 @@ const challengesUrl = buildLocalizedPath(lang, "challenges");
       <li class="navigation__link">
         <a href={challengesUrl} class:list={[{ "navigation__link--active": currentPath.startsWith(challengesUrl) }]}>
           {t(lang, "pages.challenges")}
+        </a>
+      </li>
+      <li class="navigation__link">
+        <a href={authorsUrl} class:list={[{ "navigation__link--active": currentPath.startsWith(authorsUrl) }]}>
+          {t(lang, "pages.authors")}
+        </a>
+      </li>
+      <li class="navigation__link">
+        <a href={coursesUrl} class:list={[{ "navigation__link--active": currentPath.startsWith(coursesUrl) }]}>
+          {t(lang, "pages.courses")}
         </a>
       </li>
     </ul>

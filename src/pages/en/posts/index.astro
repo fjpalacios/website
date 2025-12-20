@@ -49,25 +49,12 @@ const currentPage = 1;
 const totalPages = getPageCount(sortedContent.length, POSTS_PER_PAGE);
 const paginatedPosts = paginateItems(sortedContent, currentPage, POSTS_PER_PAGE);
 
-const pageTitle = "Blog";
+const pageTitle = "📝 Posts";
 const pageDescription = "Web development articles and tutorials";
 ---
 
 <Layout lang={lang} title={pageTitle} description={pageDescription} contact={contactEn} translationSlug="">
   <Title title={pageTitle} />
-
-  <div class="blog-stats">
-    Showing <strong>{paginatedPosts.length}</strong> of
-    <strong>{sortedContent.length}</strong> posts
-    {
-      totalPages > 1 && (
-        <span>
-          {" "}
-          (page {currentPage} of {totalPages})
-        </span>
-      )
-    }
-  </div>
 
   {
     paginatedPosts.length > 0 ? (

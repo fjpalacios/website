@@ -1,0 +1,37 @@
+---
+import AuthorList from "@components/AuthorList.astro";
+import Title from "@components/Title.astro";
+import Layout from "@layouts/Layout.astro";
+import { t } from "@locales";
+import { getCollection } from "astro:content";
+
+import contactEn from "@/content/static/contact/en.json";
+
+const lang = "en";
+
+// Get all authors in English
+const allAuthors = await getCollection("authors");
+const englishAuthors = allAuthors.filter((author) => author.data.language === lang);
+
+// Get all books in English to count items per author
+const allBooks = await getCollection("books");
+const englishBooks = allBooks.filter((book) => book.data.language === lang);
+
+// Count books per author
+const authorsWithCount = englishAuthors.map((author) => {
+  const count = englishBooks.filter((book) => book.data.author === author.data.author_slug).length;
+  return { author, count };
+});
+
+// Sort by name
+authorsWithCount.sort((a, b) => a.author.data.name.localeCompare(b.author.data.name));
+
+const pageTitle = `✍️ ${t(lang, "pages.authors")}`;
+const pageDescription = t(lang, "allAuthors");
+---
+
+<Layout lang={lang} title={pageTitle} description={pageDescription} contact={contactEn} translationSlug="">
+  <Title title={pageTitle} />
+
+  <AuthorList authors={authorsWithCount} title={t(lang, "allAuthors")} lang={lang} showCount={true} />
+</Layout>

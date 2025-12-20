@@ -1,0 +1,33 @@
+---
+import CourseList from "@components/CourseList.astro";
+import Title from "@components/Title.astro";
+import Layout from "@layouts/Layout.astro";
+import { t } from "@locales";
+import { getCollection } from "astro:content";
+
+import contactEn from "@/content/static/contact/en.json";
+
+const lang = "en";
+
+// Get all courses in English
+const allCourses = await getCollection("courses");
+const englishCourses = allCourses.filter((course) => course.data.language === lang);
+
+// For now, courses don't have related content, so count is always 1
+// In the future, this could count lessons or modules
+const coursesWithCount = englishCourses.map((course) => {
+  return { course, count: 1 };
+});
+
+// Sort by name
+coursesWithCount.sort((a, b) => a.course.data.name.localeCompare(b.course.data.name));
+
+const pageTitle = `🎓 ${t(lang, "pages.courses")}`;
+const pageDescription = t(lang, "allCourses");
+---
+
+<Layout lang={lang} title={pageTitle} description={pageDescription} contact={contactEn} translationSlug="">
+  <Title title={pageTitle} />
+
+  <CourseList courses={coursesWithCount} title={t(lang, "allCourses")} lang={lang} showCount={false} />
+</Layout>
