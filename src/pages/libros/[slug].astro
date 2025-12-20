@@ -34,16 +34,17 @@ const categories = findCategoriesBySlug(allCategories, book.categories);
 
 const authorWithGender = author?.data.gender === "male" ? "El autor" : "La autora";
 
-// Score component (stars or heart)
-const renderScore = () => {
-  const items = new Array(5).fill(null);
-  return items.map((_, index) => ({
-    filled: index < book.score || book.score === "fav",
-    isFav: book.score === "fav",
-  }));
+// Score rendering with emojis
+const renderScoreEmoji = () => {
+  if (book.score === "fav") {
+    return "❤️❤️❤️❤️❤️";
+  }
+  const stars = "⭐".repeat(book.score);
+  const emptyStars = "☆".repeat(5 - book.score);
+  return stars + emptyStars;
 };
 
-const scoreItems = renderScore();
+const scoreEmoji = renderScoreEmoji();
 ---
 
 <Layout lang={book.language} title={`${book.title} - Book Review`} contact={contactEs}>
@@ -51,13 +52,7 @@ const scoreItems = renderScore();
     <section class="book__content">
       <div class="book__content__cover">
         <img src={book.book_cover || book.cover} alt={book.title} />
-        <div class="score">
-          {
-            scoreItems.map((item) => (
-              <i class:list={[item.filled ? "icon-star" : "icon-star-empty"]} style={item.isFav ? "color: red;" : ""} />
-            ))
-          }
-        </div>
+        <div class="score">{scoreEmoji}</div>
       </div>
       <div class="book__content__content">
         <PostTitle title={book.title} date={book.date} />
@@ -127,9 +122,7 @@ const scoreItems = renderScore();
       </div>
     </section>
     <section class="book__info">
-      <div class="book__info__icon">
-        <i class="icon-book"></i>
-      </div>
+      <div class="book__info__icon">📚</div>
       <ul class="book__info__text">
         {
           author && (
@@ -164,9 +157,7 @@ const scoreItems = renderScore();
       </ul>
     </section>
     <section class="book__info">
-      <div class="book__info__icon">
-        <i class="icon-tag"></i>
-      </div>
+      <div class="book__info__icon">🏷️</div>
       <ul class="book__info__text">
         {
           categories.map((category) => (

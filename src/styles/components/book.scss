@@ -95,6 +95,14 @@
       margin-left: 135px;
     }
 
+    &__icon {
+      font-size: 1em;
+
+      @include medium-and-up {
+        font-size: 0.8em;
+      }
+    }
+
     &__text {
       &__item {
         text-transform: capitalize;
@@ -103,16 +111,15 @@
   }
 }
 
-i {
-  font-size: 1em;
-
-  @include medium-and-up {
-    font-size: 0.8em;
-  }
-}
-
 .score {
   margin-top: 10px;
+  font-size: 1em;
+  text-align: center;
+  width: 100%;
+
+  @include small-and-up {
+    font-size: 0.9em;
+  }
 }
 
 .book__content__content__data,

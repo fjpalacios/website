@@ -47,9 +47,7 @@ const categories = allCategories.filter((cat) => tutorial.categories?.includes(c
     {
       course && (
         <section class="tutorial__info">
-          <div class="tutorial__info__icon">
-            <i class="icon-course" />
-          </div>
+          <div class="tutorial__info__icon">🎓</div>
           <ul class="tutorial__info__text">
             <li>
               <a href={`/course/${course.data.course_slug}`} title="Course">
@@ -64,9 +62,7 @@ const categories = allCategories.filter((cat) => tutorial.categories?.includes(c
     {
       categories.length > 0 && (
         <section class="tutorial__info">
-          <div class="tutorial__info__icon">
-            <i class="icon-tag" />
-          </div>
+          <div class="tutorial__info__icon">🏷️</div>
           <ul class="tutorial__info__text">
             {categories.map((category) => (
               <li>
