@@ -7,33 +7,47 @@ import { getCollection } from "astro:content";
 
 import contactEs from "@/content/static/contact/es.json";
 import {
-  sortByDate,
   filterByLanguage,
   paginateItems,
   getPageCount,
   preparePostSummary,
+  prepareTutorialSummary,
+  prepareBookSummary,
   type PostSummary,
 } from "@/utils/blog";
 
 const POSTS_PER_PAGE = 12;
 const lang = "es";
 
-// Get all posts
+// Get all content types
 const allPosts = await getCollection("posts");
+const allTutorials = await getCollection("tutorials");
+const allBooks = await getCollection("books");
 
 // Filter by Spanish language and exclude drafts
 const spanishPosts = filterByLanguage(allPosts, lang).filter((post) => !post.data.draft);
+const spanishTutorials = filterByLanguage(allTutorials, lang).filter((tutorial) => !tutorial.data.draft);
+const spanishBooks = filterByLanguage(allBooks, lang);
+
+// Prepare summaries
+const postSummaries: PostSummary[] = spanishPosts.map((post) => preparePostSummary(post));
+const tutorialSummaries: PostSummary[] = spanishTutorials.map((tutorial) => prepareTutorialSummary(tutorial));
+const bookSummaries: PostSummary[] = spanishBooks.map((book) => prepareBookSummary(book));
+
+// Combine all content
+const allContent = [...postSummaries, ...tutorialSummaries, ...bookSummaries];
 
 // Sort by date (newest first)
-const sortedPosts = sortByDate(spanishPosts, "desc");
-
-// Prepare post summaries
-const postSummaries: PostSummary[] = sortedPosts.map((post) => preparePostSummary(post));
+const sortedContent = allContent.sort((a, b) => {
+  const dateA = new Date(a.date);
+  const dateB = new Date(b.date);
+  return dateB.getTime() - dateA.getTime();
+});
 
 // Paginate
 const currentPage = 1;
-const totalPages = getPageCount(postSummaries.length, POSTS_PER_PAGE);
-const paginatedPosts = paginateItems(postSummaries, currentPage, POSTS_PER_PAGE);
+const totalPages = getPageCount(sortedContent.length, POSTS_PER_PAGE);
+const paginatedPosts = paginateItems(sortedContent, currentPage, POSTS_PER_PAGE);
 
 const pageTitle = "Blog";
 const pageDescription = "Artículos y tutoriales sobre desarrollo web";
@@ -44,7 +58,7 @@ const pageDescription = "Artículos y tutoriales sobre desarrollo web";
 
   <div class="blog-stats">
     Showing <strong>{paginatedPosts.length}</strong> of
-    <strong>{postSummaries.length}</strong> posts
+    <strong>{sortedContent.length}</strong> posts
     {
       totalPages > 1 && (
         <span>
