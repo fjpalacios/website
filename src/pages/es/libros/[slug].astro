@@ -5,29 +5,24 @@ import SectionTitle from "@components/SectionTitle.astro";
 import Share from "@components/Share.astro";
 import Layout from "@layouts/Layout.astro";
 import { t } from "@locales";
+import { buildAuthorUrl, buildPublisherUrl, buildGenreUrl, buildCategoryUrl, buildScoreUrl } from "@utils/routes";
 import { getCollection, render } from "astro:content";
 
 import contactEs from "@/content/static/contact/es.json";
 import { findAuthorBySlug, findPublisherBySlug, findGenresBySlug, findCategoriesBySlug } from "@/utils/blog";
+import { generateBookDetailPaths } from "@/utils/booksPages";
 
 export async function getStaticPaths() {
-  const books = await getCollection("books");
-
-  // Filter only Spanish books
-  const spanishBooks = books.filter((book) => book.data.language === "es");
-
-  return spanishBooks.map((book) => ({
-    params: { slug: book.data.post_slug },
-    props: { bookEntry: book },
+  const paths = await generateBookDetailPaths("es", contactEs);
+  return paths.map(({ slug, props }) => ({
+    params: { slug },
+    props,
   }));
 }
 
-const { bookEntry } = Astro.props;
+const { bookEntry, lang, contact } = Astro.props;
 const book = bookEntry.data;
 const { Content } = await render(bookEntry);
-
-const lang = "es";
-const contact = contactEs;
 
 // Get related data
 const allAuthors = await getCollection("authors");
@@ -68,7 +63,7 @@ const twitterUsername = t(lang, "metaData.twitterUsername");
         <div class="score">{scoreEmoji}</div>
       </div>
       <div class="book__content__content">
-        <PostTitle title={book.title} date={book.date} lang="es" />
+        <PostTitle title={book.title} date={book.date} lang={lang} />
         <div class="book__content__content__data">
           <div class="book__content__content__data_pages">
             <strong>Páginas</strong>: {book.pages}
@@ -108,7 +103,7 @@ const twitterUsername = t(lang, "metaData.twitterUsername");
                 <strong>Editorial</strong>:
                 <ul>
                   <li>
-                    <a href={`/es/editoriales/${publisher.data.publisher_slug}`}>{publisher.data.name}</a>
+                    <a href={buildPublisherUrl(lang, publisher.data.publisher_slug)}>{publisher.data.name}</a>
                   </li>
                   {book.book_card && (
                     <li>
@@ -140,7 +135,7 @@ const twitterUsername = t(lang, "metaData.twitterUsername");
         {
           author && (
             <li>
-              <a href={`/es/autor/${author.data.author_slug}`} title={authorWithGender}>
+              <a href={buildAuthorUrl(lang, author.data.author_slug)} title={authorWithGender}>
                 {author.data.name}
               </a>
             </li>
@@ -149,12 +144,12 @@ const twitterUsername = t(lang, "metaData.twitterUsername");
         {
           publisher && (
             <li>
-              <a href={`/es/editoriales/${publisher.data.publisher_slug}`}>{publisher.data.name}</a>
+              <a href={buildPublisherUrl(lang, publisher.data.publisher_slug)}>{publisher.data.name}</a>
             </li>
           )
         }
         <li>
-          <a href={`/es/score/${book.score}`} title="Puntuación">
+          <a href={buildScoreUrl(lang, book.score)} title="Puntuación">
             {book.score === "fav" ? "Favorito" : `${book.score}/5`}
           </a>
         </li>
@@ -167,7 +162,7 @@ const twitterUsername = t(lang, "metaData.twitterUsername");
           categories.map((category) => (
             <li>
               <a
-                href={`/es/categorias/${category.data.category_slug}`}
+                href={buildCategoryUrl(lang, category.data.category_slug)}
                 class="book__info__text__item"
                 title="Categoría"
               >
@@ -185,7 +180,7 @@ const twitterUsername = t(lang, "metaData.twitterUsername");
           <ul class="book__info__text">
             {genres.map((genre) => (
               <li>
-                <a href={`/es/generos/${genre.data.genre_slug}`} title="Género">
+                <a href={buildGenreUrl(lang, genre.data.genre_slug)} title="Género">
                   {genre.data.name}
                 </a>
               </li>

@@ -4,49 +4,23 @@ import Title from "@components/Title.astro";
 import Layout from "@layouts/Layout.astro";
 import { t } from "@locales";
 import { buildBooksIndexUrl } from "@utils/routes";
-import { getCollection } from "astro:content";
 
 import contactEn from "@/content/static/contact/en.json";
-import {
-  sortByDate,
-  filterByLanguage,
-  paginateItems,
-  getPageCount,
-  findAuthorBySlug,
-  prepareBookSummary,
-  type BookSummary,
-} from "@/utils/blog";
+import { paginateItems, getPageCount } from "@/utils/blog";
+import { getAllBooksForLanguage, BOOKS_PER_PAGE } from "@/utils/booksPages";
 
-const BOOKS_PER_PAGE = 12;
 const lang = "en";
+const currentPage = 1;
+const sortedBooks = await getAllBooksForLanguage(lang);
+const totalPages = getPageCount(sortedBooks.length, BOOKS_PER_PAGE);
+const books = paginateItems(sortedBooks, currentPage, BOOKS_PER_PAGE);
 
-// Get all books and authors
-const allBooks = await getCollection("books");
-const allAuthors = await getCollection("authors");
-
-// Filter by English language
-const englishBooks = filterByLanguage(allBooks, lang);
-
-// Check if target language (Spanish) has books
+// Check if alternate language version has content (for language switcher)
 const targetLang = "es";
-const targetBooks = filterByLanguage(allBooks, targetLang);
+const targetBooks = await getAllBooksForLanguage(targetLang);
 const hasTargetContent = targetBooks.length > 0;
 
-// Sort by date (newest first)
-const sortedBooks = sortByDate(englishBooks, "desc");
-
-// Prepare book summaries with author info
-const bookSummaries: BookSummary[] = sortedBooks.map((book) => {
-  const author = findAuthorBySlug(allAuthors, book.data.author);
-  return prepareBookSummary(book, author);
-});
-
-// Paginate
-const currentPage = 1;
-const totalPages = getPageCount(bookSummaries.length, BOOKS_PER_PAGE);
-const paginatedBooks = paginateItems(bookSummaries, currentPage, BOOKS_PER_PAGE);
-
-const pageTitle = "📚 Books";
+const pageTitle = "📚 " + t(lang, "pages.books");
 const pageDescription = "Book reviews";
 ---
 
@@ -60,10 +34,10 @@ const pageDescription = "Book reviews";
   <Title title={pageTitle} />
 
   {
-    paginatedBooks.length > 0 ? (
-      <PostList posts={paginatedBooks} lang={lang} />
+    books.length > 0 ? (
+      <PostList posts={books} lang={lang} />
     ) : (
-      <div class="empty-state" style="grid-column: span 12;">
+      <div class="empty-state">
         <p>{t(lang, "emptyState.books")}</p>
       </div>
     )
