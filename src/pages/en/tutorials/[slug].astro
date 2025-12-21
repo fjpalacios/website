@@ -3,28 +3,23 @@ import PostTitle from "@components/PostTitle.astro";
 import Share from "@components/Share.astro";
 import Layout from "@layouts/Layout.astro";
 import { t } from "@locales";
+import { buildCategoryUrl, buildTagUrl, buildCourseUrl } from "@utils/routes";
 import { getCollection, render } from "astro:content";
 
 import contactEn from "@/content/static/contact/en.json";
+import { generateTutorialDetailPaths } from "@/utils/tutorialsPages";
 
 export async function getStaticPaths() {
-  const tutorials = await getCollection("tutorials");
-
-  // Filter only English tutorials
-  const englishTutorials = tutorials.filter((tutorial) => tutorial.data.language === "en");
-
-  return englishTutorials.map((tutorial) => ({
-    params: { slug: tutorial.data.post_slug },
-    props: { tutorialEntry: tutorial },
+  const paths = await generateTutorialDetailPaths("en", contactEn);
+  return paths.map(({ slug, props }) => ({
+    params: { slug },
+    props,
   }));
 }
 
-const { tutorialEntry } = Astro.props;
+const { tutorialEntry, lang, contact } = Astro.props;
 const tutorial = tutorialEntry.data;
 const { Content } = await render(tutorialEntry);
-
-const lang = "en";
-const contact = contactEn;
 
 // Cover image with fallback
 const coverImage = tutorial.cover || `/images/defaults/tutorial-default.jpg`;
@@ -51,7 +46,7 @@ const twitterUsername = t(lang, "metaData.twitterUsername");
       <div class="cover-image-wrapper">
         <img src={coverImage} alt={tutorial.title} loading="lazy" />
       </div>
-      <PostTitle title={tutorial.title} date={tutorial.date} lang="en" />
+      <PostTitle title={tutorial.title} date={tutorial.date} lang={lang} />
       <div class="text-area">
         <Content />
       </div>
@@ -63,7 +58,7 @@ const twitterUsername = t(lang, "metaData.twitterUsername");
           <div class="tutorial__info__icon">🎓</div>
           <ul class="tutorial__info__text">
             <li>
-              <a href={`/en/course/${course.data.course_slug}`} title="Course">
+              <a href={buildCourseUrl(lang, course.data.course_slug)} title="Course">
                 {course.data.name}
               </a>
             </li>
@@ -76,7 +71,7 @@ const twitterUsername = t(lang, "metaData.twitterUsername");
       <div class="tutorial__info__icon">🏷️</div>
       <ul class="tutorial__info__text">
         <li>
-          <a href={`/en/category/${tutorial.category}`} class="tutorial__info__text__item" title="Category">
+          <a href={buildCategoryUrl(lang, tutorial.category)} class="tutorial__info__text__item" title="Category">
             {tutorial.category}
           </a>
         </li>
@@ -90,7 +85,7 @@ const twitterUsername = t(lang, "metaData.twitterUsername");
           <ul class="tutorial__info__text">
             {tutorial.tags.map((tag) => (
               <li>
-                <a href={`/en/tag/${tag}`} class="tutorial__info__text__item" title="Tag">
+                <a href={buildTagUrl(lang, tag)} class="tutorial__info__text__item" title="Tag">
                   {tag}
                 </a>
               </li>

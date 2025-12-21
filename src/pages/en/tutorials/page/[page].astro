@@ -1,0 +1,50 @@
+---
+import Paginator from "@components/Paginator.astro";
+import PostList from "@components/PostList.astro";
+import Title from "@components/Title.astro";
+import Layout from "@layouts/Layout.astro";
+import { t } from "@locales";
+
+import contactEn from "@/content/static/contact/en.json";
+import { generateTutorialsPaginationPaths } from "@/utils/tutorialsPages";
+
+export async function getStaticPaths() {
+  const paths = await generateTutorialsPaginationPaths("en", contactEn);
+  return paths.map(({ page, props }) => ({
+    params: { page },
+    props,
+  }));
+}
+
+const { lang, tutorials, currentPage, totalPages, contact } = Astro.props;
+const pageTitle = "📚 " + t(lang, "pages.tutorials");
+const pageDescription = "Web development tutorials and guides";
+---
+
+<Layout lang={lang} title={pageTitle} description={pageDescription} contact={contact}>
+  <Title title={pageTitle} />
+
+  {
+    tutorials.length > 0 ? (
+      <PostList posts={tutorials} lang={lang} />
+    ) : (
+      <div class="empty-state">
+        <p>{t(lang, "emptyState.tutorials")}</p>
+      </div>
+    )
+  }
+
+  <Paginator currentPage={currentPage} totalPages={totalPages} basePath="/en/tutorials" lang={lang} />
+</Layout>
+
+<style lang="scss">
+  @use "@/styles/mixins" as *;
+  @use "@/styles/variables" as *;
+
+  .empty-state {
+    grid-column: span 12;
+    text-align: center;
+    padding: 4rem 2rem;
+    color: $cursive-color;
+  }
+</style>

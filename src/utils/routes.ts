@@ -165,6 +165,10 @@ export function buildChallengeUrl(lang: string, slug: string): string {
   return buildLocalizedPath(lang, "challenges", slug);
 }
 
+export function buildCourseUrl(lang: string, slug: string): string {
+  return buildLocalizedPath(lang, "courses", slug);
+}
+
 export function buildAuthorUrl(lang: string, slug: string): string {
   return buildLocalizedPath(lang, "author", slug);
 }

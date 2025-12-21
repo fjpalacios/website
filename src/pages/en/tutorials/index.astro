@@ -4,44 +4,23 @@ import Title from "@components/Title.astro";
 import Layout from "@layouts/Layout.astro";
 import { t } from "@locales";
 import { buildTutorialsIndexUrl } from "@utils/routes";
-import { getCollection } from "astro:content";
 
 import contactEn from "@/content/static/contact/en.json";
-import {
-  sortByDate,
-  filterByLanguage,
-  paginateItems,
-  getPageCount,
-  prepareTutorialSummary,
-  type TutorialSummary,
-} from "@/utils/blog";
+import { paginateItems, getPageCount } from "@/utils/blog";
+import { getAllTutorialsForLanguage, TUTORIALS_PER_PAGE } from "@/utils/tutorialsPages";
 
-const TUTORIALS_PER_PAGE = 12;
 const lang = "en";
+const currentPage = 1;
+const sortedTutorials = await getAllTutorialsForLanguage(lang);
+const totalPages = getPageCount(sortedTutorials.length, TUTORIALS_PER_PAGE);
+const tutorials = paginateItems(sortedTutorials, currentPage, TUTORIALS_PER_PAGE);
 
-// Get all tutorials
-const allTutorials = await getCollection("tutorials");
-
-// Filter by English language
-const englishTutorials = filterByLanguage(allTutorials, lang);
-
-// Check if target language (Spanish) has tutorials
+// Check if alternate language version has content (for language switcher)
 const targetLang = "es";
-const targetTutorials = filterByLanguage(allTutorials, targetLang);
+const targetTutorials = await getAllTutorialsForLanguage(targetLang);
 const hasTargetContent = targetTutorials.length > 0;
 
-// Sort by date (newest first)
-const sortedTutorials = sortByDate(englishTutorials, "desc");
-
-// Prepare tutorial summaries
-const tutorialSummaries: TutorialSummary[] = sortedTutorials.map((tutorial) => prepareTutorialSummary(tutorial));
-
-// Paginate
-const currentPage = 1;
-const totalPages = getPageCount(tutorialSummaries.length, TUTORIALS_PER_PAGE);
-const paginatedTutorials = paginateItems(tutorialSummaries, currentPage, TUTORIALS_PER_PAGE);
-
-const pageTitle = "📚 Tutorials";
+const pageTitle = "📚 " + t(lang, "pages.tutorials");
 const pageDescription = "Web development tutorials and guides";
 ---
 
@@ -55,10 +34,10 @@ const pageDescription = "Web development tutorials and guides";
   <Title title={pageTitle} />
 
   {
-    paginatedTutorials.length > 0 ? (
-      <PostList posts={paginatedTutorials} lang={lang} />
+    tutorials.length > 0 ? (
+      <PostList posts={tutorials} lang={lang} />
     ) : (
-      <div class="empty-state" style="grid-column: span 12;">
+      <div class="empty-state">
         <p>{t(lang, "emptyState.tutorials")}</p>
       </div>
     )
