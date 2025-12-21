@@ -10,7 +10,7 @@ export default defineConfig({
     setupFiles: ["./src/__tests__/setup.ts"],
     exclude: ["**/node_modules/**", "**/dist/**", "**/e2e/**", "**/*.config.*", "**/__tests__/archived/**"],
     coverage: {
-      provider: "v8",
+      provider: "istanbul",
       reporter: ["text", "html", "lcov"],
       exclude: ["node_modules/", "dist/", "e2e/", "**/*.config.*", "**/*.d.ts", "**/__tests__/**"],
     },
