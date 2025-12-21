@@ -1,0 +1,107 @@
+---
+import CourseList from "@components/CourseList.astro";
+import Paginator from "@components/Paginator.astro";
+import PostList from "@components/PostList.astro";
+import SectionTitle from "@components/SectionTitle.astro";
+import Layout from "@layouts/Layout.astro";
+import { t } from "@locales";
+import { getCollection } from "astro:content";
+
+import contactEn from "@/content/static/contact/en.json";
+import { prepareTutorialSummary } from "@/utils/blog";
+
+export async function getStaticPaths() {
+  const TUTORIALS_PER_PAGE = 10;
+
+  // Get all courses in English
+  const allCourses = await getCollection("courses");
+  const englishCourses = allCourses.filter((course) => course.data.language === "en");
+
+  // Get all tutorials in English
+  const allTutorials = await getCollection("tutorials");
+  const englishTutorials = allTutorials.filter((tutorial) => tutorial.data.language === "en");
+
+  // Generate paths for each course
+  const paths = [];
+
+  for (const course of englishCourses) {
+    const courseSlug = course.data.course_slug;
+
+    // Filter tutorials by course
+    const courseTutorials = englishTutorials.filter((tutorial) => {
+      return tutorial.data.course === courseSlug;
+    });
+
+    // Sort by date descending
+    courseTutorials.sort((a, b) => {
+      const dateA = new Date(a.data.date || 0);
+      const dateB = new Date(b.data.date || 0);
+      return dateB.getTime() - dateA.getTime();
+    });
+
+    // Calculate total pages
+    const totalPages = Math.ceil(courseTutorials.length / TUTORIALS_PER_PAGE);
+
+    // Generate path for each page
+    for (let page = 1; page <= Math.max(1, totalPages); page++) {
+      const startIndex = (page - 1) * TUTORIALS_PER_PAGE;
+      const paginatedTutorials = courseTutorials.slice(startIndex, startIndex + TUTORIALS_PER_PAGE);
+
+      // Transform to summary format
+      const transformedTutorials = paginatedTutorials.map((tutorial) => prepareTutorialSummary(tutorial));
+
+      paths.push({
+        params: {
+          slug: courseSlug,
+          page: page === 1 ? undefined : page.toString(),
+        },
+        props: {
+          course,
+          tutorials: transformedTutorials,
+          currentPage: page,
+          totalPages: Math.max(1, totalPages),
+          allCourses: englishCourses,
+        },
+      });
+    }
+  }
+
+  return paths;
+}
+
+const { course, tutorials, currentPage, totalPages, allCourses } = Astro.props;
+const lang = "en";
+const contact = contactEn;
+
+// Get course counts for the course list
+const coursesWithCounts = await Promise.all(
+  allCourses.map(async (c) => {
+    const allTutorials = await getCollection("tutorials");
+    const englishTutorials = allTutorials.filter((t) => t.data.language === "en");
+    const count = englishTutorials.filter((tutorial) => tutorial.data.course === c.data.course_slug).length;
+    return { course: c, count };
+  }),
+);
+
+// Sort by name
+coursesWithCounts.sort((a, b) => a.course.data.name.localeCompare(b.course.data.name));
+
+const pageTitle = `${t(lang, "pages.course")}: ${course.data.name}`;
+const basePath = `/en/courses/${course.data.course_slug}`;
+---
+
+<Layout lang={lang} title={pageTitle} contact={contact} translationSlug={course.data.i18n}>
+  <SectionTitle title={pageTitle} />
+
+  {
+    course.data.description && (
+      <div class="course-description">
+        <p>{course.data.description}</p>
+      </div>
+    )
+  }
+
+  <PostList posts={tutorials} lang={lang} />
+  <Paginator currentPage={currentPage} totalPages={totalPages} basePath={basePath} lang={lang} />
+  <CourseList courses={coursesWithCounts} title={t(lang, "allCourses")} lang={lang} />
+</Layout>
