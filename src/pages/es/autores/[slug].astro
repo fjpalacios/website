@@ -6,98 +6,47 @@ import PostList from "@components/PostList.astro";
 import Title from "@components/Title.astro";
 import Layout from "@layouts/Layout.astro";
 import { t } from "@locales";
-import { getCollection } from "astro:content";
+import { buildAuthorUrl } from "@utils/routes";
 
 import contactEs from "@/content/static/contact/es.json";
-import { prepareBookSummary } from "@/utils/blog";
+import { TAXONOMY_CONFIGS, generateTaxonomyDetailPaths, getTaxonomyItemsWithCount } from "@/utils/taxonomyPages";
 
 export async function getStaticPaths() {
-  const BOOKS_PER_PAGE = 10;
+  const config = TAXONOMY_CONFIGS.authors;
+  const paths = await generateTaxonomyDetailPaths(config, "es", contactEs);
 
-  // Get all authors in Spanish
-  const allAuthors = await getCollection("authors");
-  const spanishAuthors = allAuthors.filter((author) => author.data.language === "es");
-
-  // Get all books in Spanish
-  const allBooks = await getCollection("books");
-  const spanishBooks = allBooks.filter((book) => book.data.language === "es");
-
-  // Generate paths for each author
-  const paths = [];
-
-  for (const author of spanishAuthors) {
-    const authorSlug = author.data.author_slug;
-
-    // Filter books by author
-    const authorBooks = spanishBooks.filter((book) => {
-      return book.data.author === authorSlug;
-    });
-
-    // Sort by date descending
-    authorBooks.sort((a, b) => {
-      const dateA = new Date(a.data.read_start_date || 0);
-      const dateB = new Date(b.data.read_start_date || 0);
-      return dateB.getTime() - dateA.getTime();
-    });
-
-    // Calculate total pages
-    const totalPages = Math.ceil(authorBooks.length / BOOKS_PER_PAGE);
-
-    // Generate path for each page
-    for (let page = 1; page <= Math.max(1, totalPages); page++) {
-      const startIndex = (page - 1) * BOOKS_PER_PAGE;
-      const paginatedBooks = authorBooks.slice(startIndex, startIndex + BOOKS_PER_PAGE);
-
-      // Transform to summary format
-      const bookSummaries = paginatedBooks.map((book) => prepareBookSummary(book, author));
-
-      // Count books per author for the author list
-      const authorsWithCount = spanishAuthors.map((a) => {
-        const count = spanishBooks.filter((book) => book.data.author === a.data.author_slug).length;
-        return { author: a, count };
-      });
-
-      paths.push({
-        params: { slug: authorSlug },
-        props: {
-          author,
-          books: bookSummaries,
-          currentPage: page,
-          totalPages,
-          authors: authorsWithCount,
-        },
-      });
-    }
-  }
-
-  return paths;
+  return paths.map(({ slug, page, props }) => ({
+    params: { slug, page },
+    props,
+  }));
 }
 
-const { author, books, currentPage, totalPages, authors } = Astro.props;
-const lang = "es";
+const { taxonomyItem: author, content, currentPage, totalPages, lang, contact } = Astro.props;
 
-// Sort authors by name for the list
-authors.sort((a, b) => a.author.data.name.localeCompare(b.author.data.name));
+// Get all authors with counts for sidebar
+const config = TAXONOMY_CONFIGS.authors;
+const authorsData = await getTaxonomyItemsWithCount(config, lang);
+const authorsWithCounts = authorsData
+  .filter(({ count }) => count > 0)
+  .sort((a, b) => a.item.data.name.localeCompare(b.item.data.name))
+  .map(({ item, count }) => ({ author: item, count }));
 
 // Get gender-specific title
 const authorTitle = author.data.gender === "male" ? t(lang, "pages.authorMale") : t(lang, "pages.authorFemale");
 const pageTitle = `${authorTitle}: ${author.data.name}`;
+const basePath = buildAuthorUrl(lang, author.data.author_slug);
 ---
 
-<Layout lang={lang} title={pageTitle} description={author.data.bio} contact={contactEs}>
+<Layout lang={lang} title={pageTitle} description={author.data.bio} contact={contact}>
   <Title title={pageTitle} />
 
   <div class="space" style="margin-bottom: 20px;">
     <AuthorInfo author={author} border={true} />
   </div>
 
-  <PostList posts={books} lang={lang} />
+  <PostList posts={content} lang={lang} />
 
-  <Paginator
-    currentPage={currentPage}
-    totalPages={totalPages}
-    baseUrl={`/${lang}/${t(lang, "routes.authors")}/${author.data.author_slug}`}
-  />
+  <Paginator currentPage={currentPage} totalPages={totalPages} basePath={basePath} lang={lang} />
 
-  <AuthorList authors={authors} title={t(lang, "allAuthors")} lang={lang} showCount={false} />
+  <AuthorList authors={authorsWithCounts} title={t(lang, "allAuthors")} lang={lang} showCount={false} />
 </Layout>
