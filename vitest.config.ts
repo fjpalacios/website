@@ -5,9 +5,10 @@ import { defineConfig } from "vitest/config";
 export default defineConfig({
   test: {
     globals: true,
-    environment: "jsdom",
+    environment: "happy-dom",
+    pool: "forks",
     setupFiles: ["./src/__tests__/setup.ts"],
-    exclude: ["**/node_modules/**", "**/dist/**", "**/e2e/**", "**/*.config.*"],
+    exclude: ["**/node_modules/**", "**/dist/**", "**/e2e/**", "**/*.config.*", "**/__tests__/archived/**"],
     coverage: {
       provider: "v8",
       reporter: ["text", "html", "lcov"],
