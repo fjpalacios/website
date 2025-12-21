@@ -3,28 +3,22 @@ import PostTitle from "@components/PostTitle.astro";
 import Share from "@components/Share.astro";
 import Layout from "@layouts/Layout.astro";
 import { t } from "@locales";
-import { getCollection, render } from "astro:content";
-
+import { render } from "astro:content";
+import { buildCategoryUrl, buildTagUrl } from "@utils/routes";
 import contactEn from "@/content/static/contact/en.json";
+import { generatePostDetailPaths } from "@/utils/postsPages";
 
 export async function getStaticPaths() {
-  const posts = await getCollection("posts");
-
-  // Filter only English posts
-  const englishPosts = posts.filter((post) => post.data.language === "en");
-
-  return englishPosts.map((post) => ({
-    params: { slug: post.data.post_slug },
-    props: { postEntry: post },
+  const paths = await generatePostDetailPaths("en", contactEn);
+  return paths.map(({ slug, props }) => ({
+    params: { slug },
+    props,
   }));
 }
 
-const { postEntry } = Astro.props;
+const { postEntry, lang, contact } = Astro.props;
 const post = postEntry.data;
 const { Content } = await render(postEntry);
-
-const lang = "en";
-const contact = contactEn;
 
 // Cover image with fallback
 const coverImage = post.cover || `/images/defaults/post-default.jpg`;
@@ -41,7 +35,7 @@ const twitterUsername = t(lang, "metaData.twitterUsername");
       <div class="cover-image-wrapper">
         <img src={coverImage} alt={post.title} loading="lazy" />
       </div>
-      <PostTitle title={post.title} date={post.date} lang="en" />
+      <PostTitle title={post.title} date={post.date} lang={lang} />
       <div class="text-area">
         <Content />
       </div>
@@ -50,7 +44,7 @@ const twitterUsername = t(lang, "metaData.twitterUsername");
       <div class="post__info__icon">🏷️</div>
       <ul class="post__info__text">
         <li>
-          <a href={`/en/category/${post.category}`} class="post__info__text__item" title="Category">
+          <a href={buildCategoryUrl(lang, post.category)} class="post__info__text__item" title="Category">
             {post.category}
           </a>
         </li>
@@ -63,7 +57,7 @@ const twitterUsername = t(lang, "metaData.twitterUsername");
           <ul class="post__info__text">
             {post.tags.map((tag) => (
               <li>
-                <a href={`/en/tag/${tag}`} class="post__info__text__item" title="Tag">
+                <a href={buildTagUrl(lang, tag)} class="post__info__text__item" title="Tag">
                   {tag}
                 </a>
               </li>

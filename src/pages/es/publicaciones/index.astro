@@ -4,77 +4,34 @@ import Title from "@components/Title.astro";
 import Layout from "@layouts/Layout.astro";
 import { t } from "@locales";
 import { buildPostsIndexUrl } from "@utils/routes";
-import { getCollection } from "astro:content";
-
 import contactEs from "@/content/static/contact/es.json";
-import {
-  filterByLanguage,
-  paginateItems,
-  getPageCount,
-  preparePostSummary,
-  prepareTutorialSummary,
-  prepareBookSummary,
-  type PostSummary,
-} from "@/utils/blog";
+import { getAllContentForLanguage, POSTS_PER_PAGE } from "@/utils/postsPages";
+import { paginateItems, getPageCount } from "@/utils/blog";
 
-const POSTS_PER_PAGE = 12;
 const lang = "es";
-
-// Get all content types
-const allPosts = await getCollection("posts");
-const allTutorials = await getCollection("tutorials");
-const allBooks = await getCollection("books");
-
-// Filter by Spanish language and exclude drafts
-const spanishPosts = filterByLanguage(allPosts, lang).filter((post) => !post.data.draft);
-const spanishTutorials = filterByLanguage(allTutorials, lang).filter((tutorial) => !tutorial.data.draft);
-const spanishBooks = filterByLanguage(allBooks, lang);
-
-// Check if target language (English) has content
-const targetLang = "en";
-const targetPosts = filterByLanguage(allPosts, targetLang).filter((post) => !post.data.draft);
-const targetTutorials = filterByLanguage(allTutorials, targetLang).filter((tutorial) => !tutorial.data.draft);
-const targetBooks = filterByLanguage(allBooks, targetLang);
-const hasTargetContent = targetPosts.length + targetTutorials.length + targetBooks.length > 0;
-
-// Prepare summaries
-const postSummaries: PostSummary[] = spanishPosts.map((post) => preparePostSummary(post));
-const tutorialSummaries: PostSummary[] = spanishTutorials.map((tutorial) => prepareTutorialSummary(tutorial));
-const bookSummaries: PostSummary[] = spanishBooks.map((book) => prepareBookSummary(book));
-
-// Combine all content
-const allContent = [...postSummaries, ...tutorialSummaries, ...bookSummaries];
-
-// Sort by date (newest first)
-const sortedContent = allContent.sort((a, b) => {
-  const dateA = new Date(a.date);
-  const dateB = new Date(b.date);
-  return dateB.getTime() - dateA.getTime();
-});
-
-// Paginate
 const currentPage = 1;
+const sortedContent = await getAllContentForLanguage(lang);
 const totalPages = getPageCount(sortedContent.length, POSTS_PER_PAGE);
-const paginatedPosts = paginateItems(sortedContent, currentPage, POSTS_PER_PAGE);
+const posts = paginateItems(sortedContent, currentPage, POSTS_PER_PAGE);
 
-const pageTitle = "📝 Publicaciones";
-const pageDescription = "Artículos y tutoriales sobre desarrollo web";
+// Check if alternate language version has content (for language switcher)
+const targetLang = "en";
+const targetContent = await getAllContentForLanguage(targetLang);
+const hasTargetContent = targetContent.length > 0;
+
+const pageTitle = "📝 " + t(lang, "pages.posts");
+const pageDescription = "Artículos, tutoriales y reseñas de libros";
+const baseUrl = buildPostsIndexUrl(lang);
 ---
 
-<Layout
-  lang={lang}
-  title={pageTitle}
-  description={pageDescription}
-  contact={contactEs}
-  hasTargetContent={hasTargetContent}
->
+<Layout lang={lang} title={pageTitle} description={pageDescription} contact={contactEs} hasTargetContent={hasTargetContent}>
   <Title title={pageTitle} />
 
   {
-    paginatedPosts.length > 0 ? (
-      <PostList posts={paginatedPosts} lang={lang} />
+    posts.length > 0 ? (
+      <PostList posts={posts} lang={lang} />
     ) : (
-      <div class="empty-state" style="grid-column: span 12;">
+      <div class="empty-state">
         <p>{t(lang, "emptyState.posts")}</p>
       </div>
     )
@@ -82,61 +39,12 @@ const pageDescription = "Artículos y tutoriales sobre desarrollo web";
 
   {
     totalPages > 1 && (
-      <nav class="pagination">
-        {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
-          <a href={buildPostsIndexUrl(lang, page)} class:list={["page-link", { active: page === currentPage }]}>
-            {page}
-          </a>
-        ))}
-      </nav>
+      <div class="pagination-info">
+        <p>
+          {t(lang, "pagination.page")} {currentPage} {t(lang, "pagination.of")} {totalPages} •{" "}
+          <a href={buildPostsIndexUrl(lang, 2)}>{t(lang, "pagination.next")}</a>
+        </p>
+      </div>
     )
   }
 </Layout>
-
-<style lang="scss">
-  @use "@/styles/mixins" as *;
-  @use "@/styles/variables" as *;
-
-  .blog-stats {
-    grid-column: span 12;
-    margin-bottom: 2rem;
-    padding: 1rem;
-    background: $primary;
-    color: $text;
-    border-radius: 4px;
-
-    strong {
-      color: $accent;
-      font-weight: bold;
-    }
-  }
-
-  .pagination {
-    grid-column: span 12;
-    display: flex;
-    justify-content: center;
-    gap: 0.5rem;
-    margin-top: 2rem;
-
-    .page-link {
-      padding: 0.5rem 1rem;
-      background: $primary;
-      color: $text;
-      border: 1px solid $primary;
-      text-decoration: none;
-      transition: all 0.2s ease;
-
-      &:hover {
-        background: $accent;
-        color: $background;
-        border-color: $accent;
-      }
-
-      &.active {
-        background: $accent;
-        color: $background;
-        font-weight: bold;
-      }
-    }
-  }
-</style>

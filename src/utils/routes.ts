@@ -8,6 +8,7 @@ export type RouteSegment =
   | "tutorials"
   | "books"
   | "categories"
+  | "tags"
   | "genres"
   | "publishers"
   | "series"
@@ -15,7 +16,8 @@ export type RouteSegment =
   | "authors"
   | "author"
   | "courses"
-  | "about";
+  | "about"
+  | "page";
 
 /**
  * Route translations map
@@ -38,6 +40,10 @@ export const routeTranslations: Record<RouteSegment, Record<string, string>> = {
   categories: {
     en: "categories",
     es: "categorias",
+  },
+  tags: {
+    en: "tag",
+    es: "etiqueta",
   },
   genres: {
     en: "genres",
@@ -70,6 +76,10 @@ export const routeTranslations: Record<RouteSegment, Record<string, string>> = {
   about: {
     en: "about",
     es: "acerca-de",
+  },
+  page: {
+    en: "page",
+    es: "pagina",
   },
 };
 
@@ -135,6 +145,10 @@ export function buildCategoryUrl(lang: string, slug: string): string {
   return buildLocalizedPath(lang, "categories", slug);
 }
 
+export function buildTagUrl(lang: string, slug: string): string {
+  return buildLocalizedPath(lang, "tags", slug);
+}
+
 export function buildGenreUrl(lang: string, slug: string): string {
   return buildLocalizedPath(lang, "genres", slug);
 }
@@ -165,15 +179,54 @@ export function buildAboutUrl(lang: string): string {
 
 export function buildPostsIndexUrl(lang: string, page?: number): string {
   const base = buildLocalizedPath(lang, "posts");
-  return page && page > 1 ? `${base}/page/${page}` : base;
+  if (page && page > 1) {
+    const pageSegment = getLocalizedRoute("page", lang);
+    return `${base}/${pageSegment}/${page}`;
+  }
+  return base;
 }
 
 export function buildTutorialsIndexUrl(lang: string, page?: number): string {
   const base = buildLocalizedPath(lang, "tutorials");
-  return page && page > 1 ? `${base}/page/${page}` : base;
+  if (page && page > 1) {
+    const pageSegment = getLocalizedRoute("page", lang);
+    return `${base}/${pageSegment}/${page}`;
+  }
+  return base;
 }
 
 export function buildBooksIndexUrl(lang: string, page?: number): string {
   const base = buildLocalizedPath(lang, "books");
-  return page && page > 1 ? `${base}/page/${page}` : base;
+  if (page && page > 1) {
+    const pageSegment = getLocalizedRoute("page", lang);
+    return `${base}/${pageSegment}/${page}`;
+  }
+  return base;
+}
+
+/**
+ * Language utilities for dynamic routes
+ */
+
+export type Language = "es" | "en";
+
+/**
+ * Get all supported languages
+ */
+export function getLanguages(): Language[] {
+  return ["es", "en"];
+}
+
+/**
+ * Get default language
+ */
+export function getDefaultLanguage(): Language {
+  return "es";
+}
+
+/**
+ * Validate if a language code is supported
+ */
+export function isValidLanguage(lang: string): lang is Language {
+  return getLanguages().includes(lang as Language);
 }

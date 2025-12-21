@@ -1,5 +1,6 @@
 ---
 import { t } from "@locales";
+import { getLocalizedRoute } from "@utils/routes";
 
 interface Props {
   currentPage: number;
@@ -10,12 +11,15 @@ interface Props {
 
 const { currentPage, totalPages, basePath, lang = "es" } = Astro.props;
 
+// Get localized "page" segment
+const pageSegment = getLocalizedRoute("page", lang);
+
 // Build URLs for prev/next pages
-// Always use /page/N format for consistency, except for page 1 which is the base path
-const prevUrl = currentPage === 2 ? basePath : `${basePath}/page/${currentPage - 1}`;
-const nextUrl = `${basePath}/page/${currentPage + 1}`;
+// Always use /{pageSegment}/N format for consistency, except for page 1 which is the base path
+const prevUrl = currentPage === 2 ? basePath : `${basePath}/${pageSegment}/${currentPage - 1}`;
+const nextUrl = `${basePath}/${pageSegment}/${currentPage + 1}`;
 const firstUrl = basePath;
-const lastUrl = `${basePath}/page/${totalPages}`;
+const lastUrl = `${basePath}/${pageSegment}/${totalPages}`;
 
 const showPrev = currentPage > 1;
 const showNext = currentPage < totalPages;
@@ -67,7 +71,7 @@ const pageNumbers = getPageNumbers();
 
 // Helper to build page URL
 function getPageUrl(page: number): string {
-  return page === 1 ? basePath : `${basePath}/page/${page}`;
+  return page === 1 ? basePath : `${basePath}/${pageSegment}/${page}`;
 }
 ---
 
