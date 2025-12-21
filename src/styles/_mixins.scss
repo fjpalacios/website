@@ -1,32 +1,33 @@
 // Responsive breakpoint mixins
 // Mobile-first approach with breakpoints matching the original design
+@use "./variables" as *;
 
 @mixin small {
-  @media only screen and (min-width: 768px) and (max-width: 991px) {
+  @media only screen and (min-width: $breakpoint-small) and (max-width: $breakpoint-small-max) {
     @content;
   }
 }
 
 @mixin small-and-up {
-  @media only screen and (min-width: 768px) {
+  @media only screen and (min-width: $breakpoint-small) {
     @content;
   }
 }
 
 @mixin medium {
-  @media only screen and (min-width: 992px) and (max-width: 1199px) {
+  @media only screen and (min-width: $breakpoint-medium) and (max-width: $breakpoint-medium-max) {
     @content;
   }
 }
 
 @mixin medium-and-up {
-  @media only screen and (min-width: 992px) {
+  @media only screen and (min-width: $breakpoint-medium) {
     @content;
   }
 }
 
 @mixin large {
-  @media only screen and (min-width: 1200px) {
+  @media only screen and (min-width: $breakpoint-large) {
     @content;
   }
 }

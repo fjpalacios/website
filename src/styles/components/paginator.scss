@@ -111,7 +111,7 @@
   }
 
   // Responsive adjustments
-  @media (max-width: 767px) {
+  @media (max-width: $breakpoint-mobile-max) {
     padding: 0.5rem;
 
     &__controls {
