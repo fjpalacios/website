@@ -3,43 +3,21 @@ import PublisherList from "@components/PublisherList.astro";
 import Title from "@components/Title.astro";
 import Layout from "@layouts/Layout.astro";
 import { t } from "@locales";
-import { getCollection } from "astro:content";
 
 import contactEs from "@/content/static/contact/es.json";
+import { TAXONOMY_CONFIGS, getTaxonomyItemsWithCount, hasTargetContent } from "@/utils/taxonomyPages";
 
 const lang = "es";
+const config = TAXONOMY_CONFIGS.publishers;
 
-// Get all publishers in Spanish
-const allPublishers = await getCollection("publishers");
-const spanishPublishers = allPublishers.filter((publisher) => publisher.data.language === lang);
+const publishersData = await getTaxonomyItemsWithCount(config, lang);
+const publishersWithContent = publishersData
+  .filter(({ count }) => count > 0)
+  .sort((a, b) => a.item.data.name.localeCompare(b.item.data.name))
+  .map(({ item, count }) => ({ publisher: item, count }));
 
-// Get all books in Spanish to count items per publisher
-const allBooks = await getCollection("books");
-const spanishBooks = allBooks.filter((book) => book.data.language === lang);
-
-// Check if target language (English) has publishers with books
-const targetLang = "en";
-const targetPublishers = allPublishers.filter((publisher) => publisher.data.language === targetLang);
-const targetBooks = allBooks.filter((book) => book.data.language === targetLang);
-
-const hasTargetContent = targetPublishers.some((publisher) => {
-  const count = targetBooks.filter((book) => book.data.publisher === publisher.data.publisher_slug).length;
-  return count > 0;
-});
-
-// Count books per publisher
-const publishersWithCount = spanishPublishers.map((publisher) => {
-  const count = spanishBooks.filter((book) => book.data.publisher === publisher.data.publisher_slug).length;
-  return { publisher, count };
-});
-
-// Filter publishers with content
-const publishersWithContent = publishersWithCount.filter(({ count }) => count > 0);
-
-// Sort by name
-publishersWithContent.sort((a, b) => a.publisher.data.name.localeCompare(b.publisher.data.name));
-
-const pageTitle = `🏢 ${t(lang, "pages.publishers")}`;
+const hasTargetLangContent = await hasTargetContent(config, "en");
+const pageTitle = `📚 ${t(lang, "pages.publishers")}`;
 const pageDescription = t(lang, "allPublishers");
 ---
 
@@ -48,10 +26,9 @@ const pageDescription = t(lang, "allPublishers");
   title={pageTitle}
   description={pageDescription}
   contact={contactEs}
-  hasTargetContent={hasTargetContent}
+  hasTargetContent={hasTargetLangContent}
 >
   <Title title={pageTitle} />
-
   {
     publishersWithContent.length > 0 ? (
       <PublisherList publishers={publishersWithContent} title={t(lang, "allPublishers")} lang={lang} showCount={true} />
