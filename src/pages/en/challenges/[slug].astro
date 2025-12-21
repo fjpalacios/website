@@ -5,94 +5,38 @@ import PostList from "@components/PostList.astro";
 import SectionTitle from "@components/SectionTitle.astro";
 import Layout from "@layouts/Layout.astro";
 import { t } from "@locales";
-import { getCollection } from "astro:content";
+import { buildChallengeUrl } from "@utils/routes";
 
 import contactEn from "@/content/static/contact/en.json";
-import { prepareBookSummary } from "@/utils/blog";
+import { TAXONOMY_CONFIGS, generateTaxonomyDetailPaths, getTaxonomyItemsWithCount } from "@/utils/taxonomyPages";
 
 export async function getStaticPaths() {
-  const BOOKS_PER_PAGE = 10;
+  const config = TAXONOMY_CONFIGS.challenges;
+  const paths = await generateTaxonomyDetailPaths(config, "en", contactEn);
 
-  // Get all challenges in English
-  const allChallenges = await getCollection("challenges");
-  const englishChallenges = allChallenges.filter((challenge) => challenge.data.language === "en");
-
-  // Get all books in English
-  const allBooks = await getCollection("books");
-  const englishBooks = allBooks.filter((book) => book.data.language === "en");
-
-  // Generate paths for each challenge
-  const paths = [];
-
-  for (const challenge of englishChallenges) {
-    const challengeSlug = challenge.data.challenge_slug;
-
-    // Filter books by challenge
-    const challengeBooks = englishBooks.filter((book) => {
-      return book.data.challenges?.includes(challengeSlug);
-    });
-
-    // Sort by date descending
-    challengeBooks.sort((a, b) => {
-      const dateA = new Date(a.data.read_start_date || 0);
-      const dateB = new Date(b.data.read_start_date || 0);
-      return dateB.getTime() - dateA.getTime();
-    });
-
-    // Calculate total pages
-    const totalPages = Math.ceil(challengeBooks.length / BOOKS_PER_PAGE);
-
-    // Generate path for each page
-    for (let page = 1; page <= Math.max(1, totalPages); page++) {
-      const startIndex = (page - 1) * BOOKS_PER_PAGE;
-      const paginatedBooks = challengeBooks.slice(startIndex, startIndex + BOOKS_PER_PAGE);
-
-      // Transform to summary format
-      const transformedBooks = paginatedBooks.map((book) => prepareBookSummary(book));
-
-      paths.push({
-        params: {
-          slug: challengeSlug,
-          page: page === 1 ? undefined : page.toString(),
-        },
-        props: {
-          challenge,
-          books: transformedBooks,
-          currentPage: page,
-          totalPages: Math.max(1, totalPages),
-          allChallenges: englishChallenges,
-        },
-      });
-    }
-  }
-
-  return paths;
+  return paths.map(({ slug, page, props }) => ({
+    params: { slug, page },
+    props,
+  }));
 }
 
-const { challenge, books, currentPage, totalPages, allChallenges } = Astro.props;
-const lang = "en";
-const contact = contactEn;
+const { taxonomyItem: challenge, content, currentPage, totalPages, lang, contact } = Astro.props;
 
-// Get challenge counts for the challenge list
-const challengesWithCounts = await Promise.all(
-  allChallenges.map(async (c) => {
-    const allBooks = await getCollection("books");
-    const englishBooks = allBooks.filter((b) => b.data.language === "en");
-    const count = englishBooks.filter((book) => book.data.challenges?.includes(c.data.challenge_slug)).length;
-    return { challenge: c, count };
-  }),
-);
-
-// Sort by name
-challengesWithCounts.sort((a, b) => a.challenge.data.name.localeCompare(b.challenge.data.name));
+// Get all challenges with counts for sidebar
+const config = TAXONOMY_CONFIGS.challenges;
+const challengesData = await getTaxonomyItemsWithCount(config, lang);
+const challengesWithCounts = challengesData
+  .filter(({ count }) => count > 0)
+  .sort((a, b) => a.item.data.name.localeCompare(b.item.data.name))
+  .map(({ item, count }) => ({ challenge: item, count }));
 
 const pageTitle = `${t(lang, "pages.challenge")}: ${challenge.data.name}`;
-const basePath = `/en/challenges/${challenge.data.challenge_slug}`;
+const basePath = buildChallengeUrl(lang, challenge.data.challenge_slug);
 ---
 
 <Layout lang={lang} title={pageTitle} contact={contact} translationSlug={challenge.data.i18n}>
   <SectionTitle title={pageTitle} />
-  <PostList posts={books} lang={lang} />
+  <PostList posts={content} lang={lang} />
   <Paginator currentPage={currentPage} totalPages={totalPages} basePath={basePath} lang={lang} />
   <ChallengeList challenges={challengesWithCounts} title={t(lang, "allChallenges")} lang={lang} />
 </Layout>

@@ -3,42 +3,20 @@ import ChallengeList from "@components/ChallengeList.astro";
 import Title from "@components/Title.astro";
 import Layout from "@layouts/Layout.astro";
 import { t } from "@locales";
-import { getCollection } from "astro:content";
 
 import contactEs from "@/content/static/contact/es.json";
+import { TAXONOMY_CONFIGS, getTaxonomyItemsWithCount, hasTargetContent } from "@/utils/taxonomyPages";
 
 const lang = "es";
+const config = TAXONOMY_CONFIGS.challenges;
 
-// Get all challenges in Spanish
-const allChallenges = await getCollection("challenges");
-const spanishChallenges = allChallenges.filter((challenge) => challenge.data.language === lang);
+const itemsData = await getTaxonomyItemsWithCount(config, lang);
+const itemsWithContent = itemsData
+  .filter(({ count }) => count > 0)
+  .sort((a, b) => a.item.data.name.localeCompare(b.item.data.name))
+  .map(({ item, count }) => ({ challenge: item, count }));
 
-// Get all books in Spanish to count items per challenge
-const allBooks = await getCollection("books");
-const spanishBooks = allBooks.filter((book) => book.data.language === lang);
-
-// Check if target language (English) has challenges with books
-const targetLang = "en";
-const targetChallenges = allChallenges.filter((challenge) => challenge.data.language === targetLang);
-const targetBooks = allBooks.filter((book) => book.data.language === targetLang);
-
-const hasTargetContent = targetChallenges.some((challenge) => {
-  const count = targetBooks.filter((book) => book.data.challenges?.includes(challenge.data.challenge_slug)).length;
-  return count > 0;
-});
-
-// Count books per challenge
-const challengesWithCount = spanishChallenges.map((challenge) => {
-  const count = spanishBooks.filter((book) => book.data.challenges?.includes(challenge.data.challenge_slug)).length;
-  return { challenge, count };
-});
-
-// Filter challenges with content
-const challengesWithContent = challengesWithCount.filter(({ count }) => count > 0);
-
-// Sort by name
-challengesWithContent.sort((a, b) => a.challenge.data.name.localeCompare(b.challenge.data.name));
-
+const hasTargetLangContent = await hasTargetContent(config, "en");
 const pageTitle = `🎯 ${t(lang, "pages.challenges")}`;
 const pageDescription = t(lang, "allChallenges");
 ---
@@ -48,13 +26,13 @@ const pageDescription = t(lang, "allChallenges");
   title={pageTitle}
   description={pageDescription}
   contact={contactEs}
-  hasTargetContent={hasTargetContent}
+  hasTargetContent={hasTargetLangContent}
 >
   <Title title={pageTitle} />
 
   {
-    challengesWithContent.length > 0 ? (
-      <ChallengeList challenges={challengesWithContent} title={t(lang, "allChallenges")} lang={lang} showCount={true} />
+    itemsWithContent.length > 0 ? (
+      <ChallengeList challenges={itemsWithContent} title={t(lang, "allChallenges")} lang={lang} showCount={true} />
     ) : (
       <div class="empty-state">
         <p>{t(lang, "emptyState.challenges")}</p>
