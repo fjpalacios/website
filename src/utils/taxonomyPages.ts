@@ -64,8 +64,8 @@ export const TAXONOMY_CONFIGS: Record<string, TaxonomyConfig> = {
     collection: "challenges",
     slugField: "challenge_slug",
     contentCollections: ["books"],
-    contentField: "challenge",
-    isSingular: true,
+    contentField: "challenges",
+    isSingular: false,
   },
   courses: {
     collection: "courses",
