@@ -5,102 +5,38 @@ import SectionTitle from "@components/SectionTitle.astro";
 import SeriesList from "@components/SeriesList.astro";
 import Layout from "@layouts/Layout.astro";
 import { t } from "@locales";
-import { getCollection } from "astro:content";
+import { buildSeriesUrl } from "@utils/routes";
 
 import contactEs from "@/content/static/contact/es.json";
-import { prepareBookSummary } from "@/utils/blog";
+import { TAXONOMY_CONFIGS, generateTaxonomyDetailPaths, getTaxonomyItemsWithCount } from "@/utils/taxonomyPages";
 
 export async function getStaticPaths() {
-  const BOOKS_PER_PAGE = 10;
+  const config = TAXONOMY_CONFIGS.series;
+  const paths = await generateTaxonomyDetailPaths(config, "es", contactEs);
 
-  // Get all series in Spanish
-  const allSeries = await getCollection("series");
-  const spanishSeries = allSeries.filter((serie) => serie.data.language === "es");
-
-  // Get all books in Spanish
-  const allBooks = await getCollection("books");
-  const spanishBooks = allBooks.filter((book) => book.data.language === "es");
-
-  // Generate paths for each series
-  const paths = [];
-
-  for (const serie of spanishSeries) {
-    const seriesSlug = serie.data.series_slug;
-
-    // Filter books by series
-    const seriesBooks = spanishBooks.filter((book) => {
-      return book.data.series === seriesSlug;
-    });
-
-    // Sort by series_order if available, otherwise by date descending
-    seriesBooks.sort((a, b) => {
-      // If both have series_order, sort by it ascending (Book 1, 2, 3...)
-      if (a.data.series_order !== undefined && b.data.series_order !== undefined) {
-        return a.data.series_order - b.data.series_order;
-      }
-      // If only one has series_order, prioritize it
-      if (a.data.series_order !== undefined) return -1;
-      if (b.data.series_order !== undefined) return 1;
-      // If neither has series_order, sort by date descending
-      const dateA = new Date(a.data.date || 0);
-      const dateB = new Date(b.data.date || 0);
-      return dateB.getTime() - dateA.getTime();
-    });
-
-    // Calculate total pages
-    const totalPages = Math.ceil(seriesBooks.length / BOOKS_PER_PAGE);
-
-    // Generate path for each page
-    for (let page = 1; page <= Math.max(1, totalPages); page++) {
-      const startIndex = (page - 1) * BOOKS_PER_PAGE;
-      const paginatedBooks = seriesBooks.slice(startIndex, startIndex + BOOKS_PER_PAGE);
-
-      // Transform to summary format
-      const transformedBooks = paginatedBooks.map((book) => prepareBookSummary(book));
-
-      paths.push({
-        params: {
-          slug: seriesSlug,
-          page: page === 1 ? undefined : page.toString(),
-        },
-        props: {
-          serie,
-          books: transformedBooks,
-          currentPage: page,
-          totalPages: Math.max(1, totalPages),
-          allSeries: spanishSeries,
-        },
-      });
-    }
-  }
-
-  return paths;
+  return paths.map(({ slug, page, props }) => ({
+    params: { slug, page },
+    props,
+  }));
 }
 
-const { serie, books, currentPage, totalPages, allSeries } = Astro.props;
-const lang = "es";
-const contact = contactEs;
+const { taxonomyItem: serie, content, currentPage, totalPages, lang, contact } = Astro.props;
 
-// Get series counts for the series list
-const seriesWithCounts = await Promise.all(
-  allSeries.map(async (s) => {
-    const allBooks = await getCollection("books");
-    const spanishBooks = allBooks.filter((b) => b.data.language === "es");
-    const count = spanishBooks.filter((book) => book.data.series === s.data.series_slug).length;
-    return { serie: s, count };
-  }),
-);
-
-// Sort by name
-seriesWithCounts.sort((a, b) => a.serie.data.name.localeCompare(b.serie.data.name));
+// Get all series with counts for sidebar
+const config = TAXONOMY_CONFIGS.series;
+const seriesData = await getTaxonomyItemsWithCount(config, lang);
+const seriesWithCounts = seriesData
+  .filter(({ count }) => count > 0)
+  .sort((a, b) => a.item.data.name.localeCompare(b.item.data.name))
+  .map(({ item, count }) => ({ serie: item, count }));
 
 const pageTitle = `${t(lang, "pages.serie")}: ${serie.data.name}`;
-const basePath = `/es/series/${serie.data.series_slug}`;
+const basePath = buildSeriesUrl(lang, serie.data.series_slug);
 ---
 
 <Layout lang={lang} title={pageTitle} contact={contact} translationSlug={serie.data.i18n}>
   <SectionTitle title={pageTitle} />
-  <PostList posts={books} lang={lang} />
+  <PostList posts={content} lang={lang} />
   <Paginator currentPage={currentPage} totalPages={totalPages} basePath={basePath} lang={lang} />
   <SeriesList series={seriesWithCounts} title={t(lang, "allSeries")} lang={lang} />
 </Layout>
