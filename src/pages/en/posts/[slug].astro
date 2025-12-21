@@ -47,9 +47,7 @@ const twitterUsername = t(lang, "metaData.twitterUsername");
       </div>
     </section>
     <section class="post__info">
-      <div class="post__info__icon">
-        <i class="icon-tag"></i>
-      </div>
+      <div class="post__info__icon">🏷️</div>
       <ul class="post__info__text">
         <li>
           <a href={`/en/category/${post.category}`} class="post__info__text__item" title="Category">
@@ -58,6 +56,22 @@ const twitterUsername = t(lang, "metaData.twitterUsername");
         </li>
       </ul>
     </section>
+    {
+      post.tags && post.tags.length > 0 && (
+        <section class="post__info">
+          <div class="post__info__icon">🔖</div>
+          <ul class="post__info__text">
+            {post.tags.map((tag) => (
+              <li>
+                <a href={`/en/tag/${tag}`} class="post__info__text__item" title="Tag">
+                  {tag}
+                </a>
+              </li>
+            ))}
+          </ul>
+        </section>
+      )
+    }
   </main>
   <Share title={post.title} url={currentUrl} lang={lang} twitterUsername={twitterUsername} />
 </Layout>

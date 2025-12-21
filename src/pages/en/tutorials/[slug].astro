@@ -33,10 +33,6 @@ const coverImage = tutorial.cover || `/images/defaults/tutorial-default.jpg`;
 const allCourses = tutorial.course ? await getCollection("courses") : [];
 const course = tutorial.course ? allCourses.find((c) => c.data.course_slug === tutorial.course) : null;
 
-// Get categories
-const allCategories = await getCollection("categories");
-const categories = allCategories.filter((cat) => tutorial.categories?.includes(cat.data.category_slug));
-
 // Share component data
 const baseUrl = t(lang, "metaData.url");
 const currentUrl = new URL(Astro.url.pathname, baseUrl).href;
@@ -76,19 +72,26 @@ const twitterUsername = t(lang, "metaData.twitterUsername");
       )
     }
 
+    <section class="tutorial__info">
+      <div class="tutorial__info__icon">🏷️</div>
+      <ul class="tutorial__info__text">
+        <li>
+          <a href={`/en/category/${tutorial.category}`} class="tutorial__info__text__item" title="Category">
+            {tutorial.category}
+          </a>
+        </li>
+      </ul>
+    </section>
+
     {
-      categories.length > 0 && (
+      tutorial.tags && tutorial.tags.length > 0 && (
         <section class="tutorial__info">
-          <div class="tutorial__info__icon">🏷️</div>
+          <div class="tutorial__info__icon">🔖</div>
           <ul class="tutorial__info__text">
-            {categories.map((category) => (
+            {tutorial.tags.map((tag) => (
               <li>
-                <a
-                  href={`/en/category/${category.data.category_slug}`}
-                  class="tutorial__info__text__item"
-                  title="Category"
-                >
-                  {category.data.name}
+                <a href={`/en/tag/${tag}`} class="tutorial__info__text__item" title="Tag">
+                  {tag}
                 </a>
               </li>
             ))}

@@ -153,15 +153,6 @@ const twitterUsername = t(lang, "metaData.twitterUsername");
             </li>
           )
         }
-        {
-          genres.map((genre) => (
-            <li>
-              <a href={`/en/genre/${genre.data.url_slug}`} title="Genre">
-                {genre.data.name}
-              </a>
-            </li>
-          ))
-        }
         <li>
           <a href={`/en/score/${book.score}`} title="Score">
             {book.score === "fav" ? "Favorite" : `${book.score}/5`}
@@ -183,6 +174,22 @@ const twitterUsername = t(lang, "metaData.twitterUsername");
         }
       </ul>
     </section>
+    {
+      genres.length > 0 && (
+        <section class="book__info">
+          <div class="book__info__icon">🔖</div>
+          <ul class="book__info__text">
+            {genres.map((genre) => (
+              <li>
+                <a href={`/en/genre/${genre.data.genre_slug}`} title="Genre">
+                  {genre.data.name}
+                </a>
+              </li>
+            ))}
+          </ul>
+        </section>
+      )
+    }
   </main>
   <Share title={book.title} url={currentUrl} lang={lang} twitterUsername={twitterUsername} />
 </Layout>
