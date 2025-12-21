@@ -489,6 +489,10 @@ This is a personal website, but contributions are welcome!
 - **[CONTRIBUTING.md](.github/CONTRIBUTING.md)**: Development workflow, branch naming, commit format
 - **[docs/BLOG_MIGRATION_SPEC.md](docs/BLOG_MIGRATION_SPEC.md)**: Blog system architecture and migration plan
 - **[docs/BLOG_MIGRATION_PROGRESS.md](docs/BLOG_MIGRATION_PROGRESS.md)**: Current implementation status and progress
+- **[docs/SESSION_2025-12-21_CONTEXT.md](docs/SESSION_2025-12-21_CONTEXT.md)**: Project context and URL structure ⭐ **READ THIS FIRST!**
+- **[docs/TAXONOMY_DETAIL_PAGES_ANALYSIS.md](docs/TAXONOMY_DETAIL_PAGES_ANALYSIS.md)**: Technical analysis of taxonomy pages
+- **[docs/DEVELOPMENT_GUIDELINES.md](docs/DEVELOPMENT_GUIDELINES.md)**: Development best practices and patterns
+- **[docs/SESSION_*.md](docs/)**: Session reports documenting decisions and fixes
 
 ### Contribution Guidelines
 
