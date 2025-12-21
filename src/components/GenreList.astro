@@ -1,5 +1,6 @@
 ---
 import SectionTitle from "@components/SectionTitle.astro";
+import { t } from "@locales";
 import type { CollectionEntry } from "astro:content";
 
 interface Props {
@@ -17,8 +18,8 @@ const { genres, title, lang, showCount = true } = Astro.props;
 // Filter genres with at least one item
 const genresWithContent = genres.filter(({ count }) => count > 0);
 
-// Get base path for genre URLs (now plural in both languages)
-const genreBasePath = "genres";
+// Get base path for genre URLs using localized routes
+const genreBasePath = t(lang, "routes.genres");
 ---
 
 <main class="types">

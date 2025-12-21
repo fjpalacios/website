@@ -1,5 +1,6 @@
 ---
 import SectionTitle from "@components/SectionTitle.astro";
+import { t } from "@locales";
 import type { CollectionEntry } from "astro:content";
 
 interface Props {
@@ -17,8 +18,8 @@ const { series, title, lang, showCount = true } = Astro.props;
 // Filter series with at least one item
 const seriesWithContent = series.filter(({ count }) => count > 0);
 
-// Get base path for series URLs (now plural in both languages)
-const seriesBasePath = "series";
+// Get base path for series URLs using localized routes
+const seriesBasePath = t(lang, "routes.series");
 ---
 
 <main class="types">

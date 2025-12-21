@@ -1,5 +1,6 @@
 ---
 import SectionTitle from "@components/SectionTitle.astro";
+import { t } from "@locales";
 import type { CollectionEntry } from "astro:content";
 
 interface Props {
@@ -17,8 +18,8 @@ const { challenges, title, lang, showCount = true } = Astro.props;
 // Filter challenges with at least one item
 const challengesWithContent = challenges.filter(({ count }) => count > 0);
 
-// Get base path for challenge URLs (now plural in both languages)
-const challengeBasePath = "challenges";
+// Get base path for challenge URLs using localized routes
+const challengeBasePath = t(lang, "routes.challenges");
 ---
 
 <main class="types">
