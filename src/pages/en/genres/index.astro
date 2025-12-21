@@ -3,41 +3,24 @@ import GenreList from "@components/GenreList.astro";
 import Title from "@components/Title.astro";
 import Layout from "@layouts/Layout.astro";
 import { t } from "@locales";
-import { getCollection } from "astro:content";
 
 import contactEn from "@/content/static/contact/en.json";
+import { TAXONOMY_CONFIGS, getTaxonomyItemsWithCount, hasTargetContent } from "@/utils/taxonomyPages";
 
 const lang = "en";
+const config = TAXONOMY_CONFIGS.genres;
 
-// Get all genres in English
-const allGenres = await getCollection("genres");
-const englishGenres = allGenres.filter((genre) => genre.data.language === lang);
+// Get genres with count
+const genresData = await getTaxonomyItemsWithCount(config, lang);
 
-// Get all books in English to count items per genre
-const allBooks = await getCollection("books");
-const englishBooks = allBooks.filter((book) => book.data.language === lang);
+// Filter genres with content and sort by name
+const genresWithContent = genresData
+  .filter(({ count }) => count > 0)
+  .sort((a, b) => a.item.data.name.localeCompare(b.item.data.name))
+  .map(({ item, count }) => ({ genre: item, count }));
 
-// Check if target language (Spanish) has genres with books
-const targetLang = "es";
-const targetGenres = allGenres.filter((genre) => genre.data.language === targetLang);
-const targetBooks = allBooks.filter((book) => book.data.language === targetLang);
-
-const hasTargetContent = targetGenres.some((genre) => {
-  const count = targetBooks.filter((book) => book.data.genres?.includes(genre.data.genre_slug)).length;
-  return count > 0;
-});
-
-// Count books per genre
-const genresWithCount = englishGenres.map((genre) => {
-  const count = englishBooks.filter((book) => book.data.genres?.includes(genre.data.genre_slug)).length;
-  return { genre, count };
-});
-
-// Filter genres with content
-const genresWithContent = genresWithCount.filter(({ count }) => count > 0);
-
-// Sort by name
-genresWithContent.sort((a, b) => a.genre.data.name.localeCompare(b.genre.data.name));
+// Check if target language has content
+const hasTargetLangContent = await hasTargetContent(config, "es");
 
 const pageTitle = `📚 ${t(lang, "pages.genres")}`;
 const pageDescription = t(lang, "allGenres");
@@ -48,7 +31,7 @@ const pageDescription = t(lang, "allGenres");
   title={pageTitle}
   description={pageDescription}
   contact={contactEn}
-  hasTargetContent={hasTargetContent}
+  hasTargetContent={hasTargetLangContent}
 >
   <Title title={pageTitle} />
 

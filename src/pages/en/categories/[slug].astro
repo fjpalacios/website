@@ -5,132 +5,33 @@ import PostList from "@components/PostList.astro";
 import SectionTitle from "@components/SectionTitle.astro";
 import Layout from "@layouts/Layout.astro";
 import { t } from "@locales";
-import type { CollectionEntry } from "astro:content";
-import { getCollection } from "astro:content";
+import { buildCategoryUrl } from "@utils/routes";
 
 import contactEn from "@/content/static/contact/en.json";
-import { preparePostSummary, prepareBookSummary, type PostSummary, type BookSummary } from "@/utils/blog";
+import { TAXONOMY_CONFIGS, generateTaxonomyDetailPaths, getTaxonomyItemsWithCount } from "@/utils/taxonomyPages";
 
 export async function getStaticPaths() {
-  const POSTS_PER_PAGE = 10;
+  const config = TAXONOMY_CONFIGS.categories;
+  const paths = await generateTaxonomyDetailPaths(config, "en", contactEn);
 
-  // Helper to transform any content type to the summary format
-  function prepareContentSummary(
-    item: CollectionEntry<"posts"> | CollectionEntry<"tutorials"> | CollectionEntry<"books">,
-  ): PostSummary | BookSummary {
-    if (item.collection === "posts") {
-      return preparePostSummary(item as CollectionEntry<"posts">);
-    } else if (item.collection === "tutorials") {
-      // Tutorials use the same format as posts
-      return {
-        type: "tutorial" as const,
-        title: item.data.title,
-        slug: item.data.post_slug,
-        excerpt: item.data.excerpt,
-        language: item.data.language,
-        date: item.data.date,
-        category: item.data.category,
-        tags: item.data.tags || [],
-        draft: item.data.draft,
-        cover: item.data.cover,
-      };
-    } else {
-      // Books
-      return prepareBookSummary(item as CollectionEntry<"books">);
-    }
-  }
-
-  // Get all categories in English
-  const allCategories = await getCollection("categories");
-  const englishCategories = allCategories.filter((cat) => cat.data.language === "en");
-
-  // Get all content (posts, tutorials, books) in English
-  const allPosts = await getCollection("posts");
-  const allTutorials = await getCollection("tutorials");
-  const allBooks = await getCollection("books");
-
-  const englishPosts = allPosts.filter((post) => post.data.language === "en");
-  const englishTutorials = allTutorials.filter((tutorial) => tutorial.data.language === "en");
-  const englishBooks = allBooks.filter((book) => book.data.language === "en");
-
-  const allContent = [...englishPosts, ...englishTutorials, ...englishBooks];
-
-  // Generate paths for each category
-  const paths = [];
-
-  for (const category of englishCategories) {
-    const categorySlug = category.data.category_slug;
-
-    // Filter content by category
-    const categoryContent = allContent.filter((item) => {
-      return item.data.categories?.includes(categorySlug);
-    });
-
-    // Sort by date descending
-    categoryContent.sort((a, b) => {
-      const dateA = new Date(a.data.date || a.data.read_start_date || 0);
-      const dateB = new Date(b.data.date || b.data.read_start_date || 0);
-      return dateB.getTime() - dateA.getTime();
-    });
-
-    // Calculate total pages
-    const totalPages = Math.ceil(categoryContent.length / POSTS_PER_PAGE);
-
-    // Generate path for each page
-    for (let page = 1; page <= Math.max(1, totalPages); page++) {
-      const startIndex = (page - 1) * POSTS_PER_PAGE;
-      const paginatedContent = categoryContent.slice(startIndex, startIndex + POSTS_PER_PAGE);
-
-      // Transform to summary format
-      const transformedContent = paginatedContent.map(prepareContentSummary);
-
-      paths.push({
-        params: {
-          slug: categorySlug,
-          page: page === 1 ? undefined : page.toString(),
-        },
-        props: {
-          category,
-          content: transformedContent,
-          currentPage: page,
-          totalPages: Math.max(1, totalPages),
-          allCategories: englishCategories,
-        },
-      });
-    }
-  }
-
-  return paths;
+  return paths.map(({ slug, page, props }) => ({
+    params: { slug, page },
+    props,
+  }));
 }
 
-const { category, content, currentPage, totalPages, allCategories } = Astro.props;
-const lang = "en";
-const contact = contactEn;
+const { taxonomyItem: category, content, currentPage, totalPages, lang, contact } = Astro.props;
 
-// Get category counts for the category list
-const categoriesWithCounts = await Promise.all(
-  allCategories.map(async (cat) => {
-    const allPosts = await getCollection("posts");
-    const allTutorials = await getCollection("tutorials");
-    const allBooks = await getCollection("books");
-
-    const englishContent = [
-      ...allPosts.filter((p) => p.data.language === "en"),
-      ...allTutorials.filter((t) => t.data.language === "en"),
-      ...allBooks.filter((b) => b.data.language === "en"),
-    ];
-
-    const count = englishContent.filter((item) => item.data.categories?.includes(cat.data.category_slug)).length;
-
-    return { category: cat, count };
-  }),
-);
-
-// Sort by order field
-categoriesWithCounts.sort((a, b) => (a.category.data.order || 999) - (b.category.data.order || 999));
+// Get all categories with counts for sidebar
+const config = TAXONOMY_CONFIGS.categories;
+const categoriesData = await getTaxonomyItemsWithCount(config, lang);
+const categoriesWithCounts = categoriesData
+  .filter(({ count }) => count > 0)
+  .sort((a, b) => (a.item.data.order || 999) - (b.item.data.order || 999))
+  .map(({ item, count }) => ({ category: item, count }));
 
 const pageTitle = `${t(lang, "pages.category")}: ${category.data.name}`;
-const basePath = `/en/categories/${category.data.category_slug}`;
+const basePath = buildCategoryUrl(lang, category.data.category_slug);
 ---
 
 <Layout lang={lang} title={pageTitle} contact={contact} translationSlug={category.data.i18n}>
