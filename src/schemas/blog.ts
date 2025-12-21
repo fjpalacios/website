@@ -24,6 +24,7 @@ export const booksSchema = z.object({
   publisher: z.string().optional(), // reference to publishers collection
   genres: z.array(z.string()).default([]), // references to genres collection
   series: z.string().nullable().optional(), // reference to series collection
+  series_order: z.number().positive().optional(), // Order within the series (Book 1, 2, 3...)
   challenges: z.array(z.string()).default([]), // references to challenges collection
   categories: z.array(z.string()).default([]), // references to categories collection
 
