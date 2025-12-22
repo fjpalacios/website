@@ -25,7 +25,10 @@ export const findBook = (
   title: string,
   lang: "es" | "en",
 ): CollectionEntry<"books"> | undefined => {
-  return books.find((b) => b.data.title.includes(title) && b.data.language === lang);
+  // Parse the search title to extract just the book name (without author)
+  const searchTitle = parseTitle(title).bookTitle;
+
+  return books.find((b) => b.data.title.includes(searchTitle) && b.data.language === lang);
 };
 
 /**
