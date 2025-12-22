@@ -103,6 +103,7 @@
     "copied": "Copied"
   },
   "book": {
-    "spoilerAlert": "Spoiler alert"
+    "spoilerAlert": "Spoiler alert",
+    "review": "Book Review"
   }
 }

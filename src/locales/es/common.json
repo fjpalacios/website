@@ -103,6 +103,7 @@
     "copied": "Copiado"
   },
   "book": {
-    "spoilerAlert": "Atención, <em>spoiler</em>"
+    "spoilerAlert": "Atención, <em>spoiler</em>",
+    "review": "Reseña de libro"
   }
 }

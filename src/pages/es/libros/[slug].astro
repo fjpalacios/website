@@ -55,7 +55,7 @@ const currentUrl = new URL(Astro.url.pathname, baseUrl).href;
 const twitterUsername = t(lang, "metaData.twitterUsername");
 ---
 
-<Layout lang={lang} title={`${book.title} - Book Review`} contact={contact} translationSlug={book.i18n}>
+<Layout lang={lang} title={`${book.title} - ${t(lang, "book.review")}`} contact={contact} translationSlug={book.i18n}>
   <main class="book">
     <section class="book__content">
       <div class="book__content__cover">
