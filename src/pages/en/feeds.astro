@@ -1,4 +1,5 @@
 ---
+import TextArea from "@components/TextArea.astro";
 import Title from "@components/Title.astro";
 import { contact } from "@content/en/contact";
 import Layout from "@layouts/Layout.astro";
@@ -28,54 +29,43 @@ const feeds = [
     icon: "💻",
   },
 ];
+
+// Build HTML content for each feed
+const feedsContent = feeds
+  .map(
+    (feed) => `
+  <div class="feed-item">
+    <div class="feed-item__header">
+      <span class="feed-item__icon">${feed.icon}</span>
+      <h3 class="feed-item__title">${feed.title}</h3>
+    </div>
+    <p class="feed-item__description">${feed.description}</p>
+    <a href="${feed.url}" class="feed-item__link" type="application/rss+xml" aria-label="${t(lang, "feeds.subscribeButton")} - ${feed.title}">
+      <svg class="feed-item__icon-rss" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+        <path d="M6.503 20.752c0 1.794-1.456 3.248-3.251 3.248-1.796 0-3.252-1.454-3.252-3.248 0-1.794 1.456-3.248 3.252-3.248 1.795.001 3.251 1.454 3.251 3.248zm-6.503-12.572v4.811c6.05.062 10.96 4.966 11.022 11.009h4.817c-.062-8.71-7.118-15.758-15.839-15.82zm0-3.368c10.58.046 19.152 8.594 19.183 19.188h4.817c-.03-13.231-10.755-23.954-24-24v4.812z" />
+      </svg>
+      ${t(lang, "feeds.subscribeButton")}
+    </a>
+  </div>
+`,
+  )
+  .join("");
+
+const rssInfoContent = `<p>${t(lang, "feeds.whatIsRssDescription")}</p>`;
 ---
 
 <Layout title={pageTitle} description={pageDescription} lang={lang} contact={contact} translationSlug="/es/feeds">
-  <Title title={pageTitle} />
+  <main class="feeds-page">
+    <section class="feeds-page__section">
+      <Title title={pageTitle} />
+      <TextArea text={`<p>${pageDescription}</p>${feedsContent}`} />
+    </section>
 
-  <div class="feeds-page">
-    <div class="feeds-page__intro">
-      <p>{pageDescription}</p>
-    </div>
-
-    <div class="feeds-page__list">
-      {
-        feeds.map((feed) => (
-          <article class="feed-item">
-            <div class="feed-item__header">
-              <span class="feed-item__icon" aria-hidden="true">
-                {feed.icon}
-              </span>
-              <h3 class="feed-item__title">{feed.title}</h3>
-            </div>
-            <p class="feed-item__description">{feed.description}</p>
-            <a
-              href={feed.url}
-              class="feed-item__link"
-              type="application/rss+xml"
-              aria-label={`${t(lang, "feeds.subscribeButton")} - ${feed.title}`}
-            >
-              <svg
-                class="feed-item__icon-rss"
-                xmlns="http://www.w3.org/2000/svg"
-                viewBox="0 0 24 24"
-                fill="currentColor"
-                aria-hidden="true"
-              >
-                <path d="M6.503 20.752c0 1.794-1.456 3.248-3.251 3.248-1.796 0-3.252-1.454-3.252-3.248 0-1.794 1.456-3.248 3.252-3.248 1.795.001 3.251 1.454 3.251 3.248zm-6.503-12.572v4.811c6.05.062 10.96 4.966 11.022 11.009h4.817c-.062-8.71-7.118-15.758-15.839-15.82zm0-3.368c10.58.046 19.152 8.594 19.183 19.188h4.817c-.03-13.231-10.755-23.954-24-24v4.812z" />
-              </svg>
-              {t(lang, "feeds.subscribeButton")}
-            </a>
-          </article>
-        ))
-      }
-    </div>
-
-    <div class="feeds-page__info">
-      <h3 class="feeds-page__info-title">{t(lang, "feeds.whatIsRss")}</h3>
-      <p class="feeds-page__info-content">{t(lang, "feeds.whatIsRssDescription")}</p>
-    </div>
-  </div>
+    <section class="feeds-page__section">
+      <Title title={t(lang, "feeds.whatIsRss")} />
+      <TextArea text={rssInfoContent} />
+    </section>
+  </main>
 </Layout>
 
 <style lang="scss">
@@ -84,137 +74,113 @@ const feeds = [
 
   .feeds-page {
     grid-column: span 12;
-    margin-bottom: 40px;
 
-    &__intro {
-      padding: 0 20px;
-      margin-bottom: 30px;
+    &__section {
+      margin-bottom: 40px;
+      overflow: hidden;
+      transition: all 0.45s ease;
+      border: 2px solid $primary;
+      break-inside: avoid;
 
-      p {
-        color: $cursive-color;
-        font-size: 1.1em;
-        line-height: 1.6;
+      @include print {
+        margin-bottom: 10px;
       }
     }
+  }
 
-    &__list {
-      display: flex;
-      flex-direction: column;
-      gap: 20px;
-      margin-bottom: 40px;
-    }
+  // Global styles for feed items inside TextArea
+  :global(.text-area) {
+    :global(.feed-item) {
+      padding-bottom: 20px;
+      margin-bottom: 20px;
+      border-bottom: 1px solid $primary;
 
-    &__info {
-      padding: 20px;
-      border: 2px solid $primary;
-      background-color: $background;
-      transition: all 0.45s ease;
+      &:last-child {
+        border-bottom: none;
+        margin-bottom: 0;
+        padding-bottom: 0;
+      }
 
-      &-title {
-        margin: 0 0 15px 0;
+      :global(.feed-item__header) {
+        display: flex;
+        align-items: center;
+        gap: 15px;
+        margin-bottom: 15px;
+      }
+
+      :global(.feed-item__icon) {
+        font-size: 2.5em;
+        line-height: 1;
+      }
+
+      :global(.feed-item__title) {
+        margin: 0;
         padding: 0;
         color: $accent;
         font-size: 1.3em;
+        font-weight: 600;
         text-transform: uppercase;
       }
 
-      &-content {
-        margin: 0;
+      :global(.feed-item__description) {
+        margin: 0 0 15px 0;
+        padding: 0;
         color: $cursive-color;
         line-height: 1.7;
         text-align: justify;
         text-justify: inter-word;
       }
-    }
-  }
 
-  .feed-item {
-    padding: 20px;
-    border: 2px solid $primary;
-    background-color: $background;
-    transition: all 0.45s ease;
+      :global(.feed-item__link) {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 10px 20px;
+        background-color: $primary;
+        color: $text;
+        text-decoration: none;
+        text-transform: uppercase;
+        font-size: 0.9em;
+        font-weight: 600;
+        letter-spacing: 0.5px;
+        transition: all 0.3s ease;
+        border: 2px solid $primary;
 
-    &:hover {
-      border-color: $accent;
-      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
-    }
+        &:hover {
+          background-color: $accent;
+          border-color: $accent;
+          color: $background;
+        }
 
-    &__header {
-      display: flex;
-      align-items: center;
-      gap: 15px;
-      margin-bottom: 15px;
-    }
-
-    &__icon {
-      font-size: 2.5em;
-      line-height: 1;
-    }
-
-    &__title {
-      margin: 0;
-      padding: 0;
-      color: $text;
-      font-size: 1.5em;
-      font-weight: 400;
-    }
-
-    &__description {
-      margin: 0 0 20px 0;
-      padding: 0;
-      color: $cursive-color;
-      line-height: 1.7;
-      text-align: justify;
-      text-justify: inter-word;
-    }
-
-    &__link {
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      padding: 10px 20px;
-      background-color: $primary;
-      color: $text;
-      text-decoration: none;
-      text-transform: uppercase;
-      font-size: 0.9em;
-      font-weight: 600;
-      letter-spacing: 0.5px;
-      transition: all 0.3s ease;
-      border: 2px solid $primary;
-
-      &:hover {
-        background-color: $accent;
-        border-color: $accent;
-        color: $background;
+        &:focus {
+          outline: 2px solid $accent;
+          outline-offset: 2px;
+        }
       }
 
-      &:focus {
-        outline: 2px solid $accent;
-        outline-offset: 2px;
+      :global(.feed-item__icon-rss) {
+        width: 14px;
+        height: 14px;
       }
-    }
-
-    &__icon-rss {
-      width: 14px;
-      height: 14px;
     }
   }
 
   @media (max-width: 768px) {
-    .feed-item {
-      &__header {
-        flex-direction: column;
-        text-align: center;
-        gap: 10px;
-      }
+    :global(.text-area) {
+      :global(.feed-item) {
+        :global(.feed-item__header) {
+          flex-direction: column;
+          text-align: center;
+          gap: 10px;
+        }
 
-      &__icon {
-        font-size: 2em;
-      }
+        :global(.feed-item__icon) {
+          font-size: 2em;
+        }
 
-      &__title {
-        font-size: 1.3em;
+        :global(.feed-item__title) {
+          font-size: 1.2em;
+        }
       }
     }
   }
