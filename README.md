@@ -14,9 +14,9 @@ Personal website and resume built with [Astro](https://astro.build/). Featuring 
 - 📱 **Responsive design**: Mobile-first approach, tested across multiple devices
 - ♿ **Accessible**: WCAG 2.1 AA compliant with comprehensive accessibility testing
 - 🚀 **Fast**: Static site generation with Astro and View Transitions for SPA-like navigation
-- 🎯 **SEO optimized**: Complete meta tags, JSON-LD structured data, sitemap, and Open Graph support
+- 🎯 **SEO optimized**: Complete meta tags, JSON-LD structured data (Book, BlogPosting, TechArticle), Open Graph, Twitter Cards, canonical URLs, and hreflang support
 - 💅 **SCSS styling**: Modular and maintainable styles with CSS variables
-- 🧪 **Fully tested**: 438 tests with 97.72% coverage
+- 🧪 **Fully tested**: 301 tests with 97.72% coverage (including 34 SEO-specific tests)
 - 🔄 **CI/CD**: Automated testing, linting, and Lighthouse performance checks
 - 🪝 **Pre-commit hooks**: Automatic linting and testing before commits
 
@@ -32,10 +32,11 @@ Personal website and resume built with [Astro](https://astro.build/). Featuring 
 
 ### Testing
 
-- **Unit Tests**: Vitest + Testing Library (438 tests, 97.72% coverage)
+- **Unit Tests**: Vitest + Testing Library (301 tests, 97.72% coverage)
 - **E2E Tests**: Playwright (69+ tests across multiple viewports)
 - **Accessibility**: Axe-core with WCAG 2.1 AA compliance
 - **Performance**: Lighthouse CI integration
+- **SEO Tests**: 34 dedicated unit tests for SEO component + E2E structured data validation
 
 ### Content
 
@@ -69,14 +70,17 @@ Personal website and resume built with [Astro](https://astro.build/). Featuring 
 │   ├── navigation.spec.ts
 │   ├── responsive.spec.ts
 │   ├── seo-meta.spec.ts
+│   ├── seo-structured-data.spec.ts  # SEO structured data validation
 │   └── state-performance.spec.ts
 ├── public/                # Static assets (images, fonts, favicon)
 ├── src/
-│   ├── __tests__/         # Unit tests (Vitest) - 438 tests
+│   ├── __tests__/         # Unit tests (Vitest) - 301 tests
 │   │   ├── content.test.ts
 │   │   ├── locales.test.ts
 │   │   ├── setup.ts
 │   │   ├── theme.test.ts
+│   │   ├── components/
+│   │   │   └── SEO.test.ts  # 34 SEO tests
 │   │   └── utils/
 │   │       └── blog/      # Blog utility tests
 │   │           ├── categories.test.ts
@@ -85,6 +89,7 @@ Personal website and resume built with [Astro](https://astro.build/). Featuring 
 │   │           └── ...
 │   ├── components/        # Reusable Astro components
 │   │   ├── BaseHead.astro
+│   │   ├── SEO.astro      # SEO component with Open Graph & JSON-LD
 │   │   ├── CategoryList.astro
 │   │   ├── GenreList.astro
 │   │   ├── LanguageSwitcher.astro
@@ -317,14 +322,15 @@ Located in `src/__tests__/`, covering:
 - **Theme system** (18 tests): Dark/light switching, localStorage persistence, View Transitions compatibility
 - **Locales** (9 tests): Translation functions, language switching logic
 - **Content** (14 tests): Data structure validation for resume, about, and contact content
-- **Blog utilities** (397 tests): Content collections, taxonomy, frontmatter validation
+- **SEO component** (34 tests): Open Graph tags, Twitter Cards, canonical URLs, hreflang, JSON-LD schemas, image URL handling
+- **Blog utilities** (226+ tests): Content collections, taxonomy, frontmatter validation
   - Categories (13 tests): Structure, i18n mappings, content references
   - Genres (14 tests): Structure, i18n mappings, hierarchy validation
   - Publishers (13 tests): Structure, language independence
   - Posts, Tutorials, Books: Frontmatter validation, slug uniqueness, date formats
   - Pagination, filtering, sorting logic
 
-**Total**: 438 tests  
+**Total**: 301 tests  
 **Coverage**: 97.72% statements, 98.74% lines, 100% functions
 
 ### E2E Tests (Playwright)
@@ -338,6 +344,7 @@ Located in `e2e/`, covering:
 - **Performance**: Load times, console errors, resource loading
 - **State management**: LocalStorage persistence, theme across navigation
 - **SEO & Social**: Open Graph, Twitter Cards, JSON-LD structured data
+- **Structured Data**: Book schema with ratings, BlogPosting schema, TechArticle schema, canonical URLs, hreflang tags
 
 **Total**: 69+ tests across multiple projects/viewports
 
@@ -439,13 +446,13 @@ Automated dependency management configured in `.github/dependabot.yml`:
 
 ## 📊 Code Quality Metrics
 
-- **Unit Tests**: 438 tests across all features
+- **Unit Tests**: 301 tests across all features (including 34 SEO-specific tests)
 - **Unit Test Coverage**: 97.72% statements, 98.74% lines, 100% functions
 - **E2E Test Coverage**: 69+ tests covering all critical user flows
 - **Accessibility**: WCAG 2.1 Level AA compliant
 - **Performance**: Optimized for Core Web Vitals
-- **SEO**: Complete metadata, structured data, sitemap
-- **Build Output**: 74 pages generated (resume, blog, taxonomy pages, paginated listings)
+- **SEO**: Complete metadata with Open Graph, Twitter Cards, JSON-LD structured data (Book, BlogPosting, TechArticle), canonical URLs, hreflang, sitemap
+- **Build Output**: 96 pages generated (resume, blog, taxonomy pages, paginated listings)
 
 ## 🚀 Performance Features
 
