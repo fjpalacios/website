@@ -10,7 +10,7 @@ Personal website and resume built with [Astro](https://astro.build/). Featuring 
 - 🌍 **Multi-language support**: Spanish (default) and English with native Astro i18n and translated URL paths
 - 📝 **Blog functionality**: Posts, tutorials, and book reviews with full taxonomy system
 - 🏷️ **Rich taxonomy**: Categories, genres, publishers, authors with multilingual support
-- 🎨 **Theme switcher**: Dark and light themes with localStorage persistence and FOUC prevention
+- 🎨 **Theme switcher**: Dark and light themes with localStorage persistence and FOUC prevention (multi-layer approach)
 - 📱 **Responsive design**: Mobile-first approach, tested across multiple devices
 - ♿ **Accessible**: WCAG 2.1 AA compliant with comprehensive accessibility testing
 - 🚀 **Fast**: Static site generation with Astro and View Transitions for SPA-like navigation
@@ -171,32 +171,34 @@ The blog uses a multi-dimensional taxonomy system for content organization. **Al
 
 ```
 Spanish:
-/es/posts/                            # All posts
-/es/posts/page/2/                     # Posts pagination
-/es/posts/mi-articulo/                # Individual post
-/es/tutorials/                        # All tutorials
-/es/tutorials/como-hacer-x/           # Individual tutorial
-/es/books/                            # All book reviews
-/es/books/el-nombre-del-viento/       # Individual book review
-/es/categories/libros/                # Category: books
-/es/categories/libros/page/2/         # Category pagination
-/es/genres/terror/                    # Genre: horror
-/es/publishers/debolsillo/            # Publisher: Debolsillo
-/es/series/fjallbacka/                # Series: Fjällbacka
-/es/challenges/reto-lectura-2017/     # Challenge: 2017 Reading Challenge
+/es/publicaciones/                        # All posts (was /es/posts/)
+/es/publicaciones/pagina/2/               # Posts pagination (was /es/posts/page/2/)
+/es/publicaciones/mi-articulo/            # Individual post
+/es/tutoriales/                           # All tutorials
+/es/tutoriales/como-hacer-x/              # Individual tutorial
+/es/libros/                               # All book reviews
+/es/libros/el-nombre-del-viento/          # Individual book review
+/es/categorias/libros/                    # Category: books
+/es/categorias/libros/pagina/2/           # Category pagination
+/es/generos/terror/                       # Genre: horror
+/es/editoriales/debolsillo/               # Publisher: Debolsillo
+/es/series/fjallbacka/                    # Series: Fjällbacka
+/es/retos/reto-lectura-2017/              # Challenge: 2017 Reading Challenge
 
 English:
-/en/posts/                            # All posts
-/en/posts/my-article/                 # Individual post
-/en/tutorials/                        # All tutorials
-/en/tutorials/how-to-do-x/            # Individual tutorial
-/en/books/                            # All book reviews
-/en/books/the-name-of-the-wind/       # Individual book review
-/en/categories/books/                 # Category: books
-/en/genres/horror/                    # Genre: horror
-/en/publishers/penguin-random-house/  # Publisher: Penguin Random House
-/en/series/fjallbacka/                # Series: Fjällbacka
-/en/challenges/2017-reading-challenge/ # Challenge: 2017 Reading Challenge
+/en/posts/                                # All posts
+/en/posts/page/2/                         # Posts pagination
+/en/posts/my-article/                     # Individual post
+/en/tutorials/                            # All tutorials
+/en/tutorials/how-to-do-x/                # Individual tutorial
+/en/books/                                # All book reviews
+/en/books/the-name-of-the-wind/           # Individual book review
+/en/categories/books/                     # Category: books
+/en/categories/books/page/2/              # Category pagination
+/en/genres/horror/                        # Genre: horror
+/en/publishers/penguin-random-house/      # Publisher: Penguin Random House
+/en/series/fjallbacka/                    # Series: Fjällbacka
+/en/challenges/2017-reading-challenge/    # Challenge: 2017 Reading Challenge
 ```
 
 ### Why Plural URLs?
@@ -368,14 +370,34 @@ All collections are validated with Zod schemas defined in `src/content/config.ts
 
 ## 🎨 Theme System
 
-The theme switcher features:
+The theme switcher features a **multi-layer FOUC prevention approach** ensuring zero visual flash on page load:
 
-- **CSS variables** for colors
-- **SCSS placeholders** for theme definitions
+### Theme Features
+
+- **CSS variables** for colors with dark theme as default
+- **SCSS modules** for theme definitions on `html` and `html.light`
 - **localStorage** for persistence across sessions
-- **FOUC prevention**: Inline script applies theme before page render
 - **View Transitions compatible**: Theme persists during SPA-like navigation
 - **Keyboard accessible**: Full support for keyboard-only users
+
+### FOUC Prevention Strategy (3 Layers)
+
+1. **CSS Layer (Primary)**: Dark theme variables set directly on `html` element
+
+   - No JavaScript required for default theme
+   - Instant theme application on page load
+   - Light theme applied via `html.light` class
+
+2. **JavaScript Layer (Head)**: Blocking script applies saved theme
+
+   - Runs before page render
+   - Applies `.dark` or `.light` class to `<html>` and `<body>`
+   - Updates `data-theme` attribute for CSS hooks
+
+3. **Icon Update Layer (Inline)**: Immediate theme icon update
+   - Inline script after Menu component
+   - Updates icon without waiting for DOMContentLoaded
+   - Prevents icon flash from showing wrong emoji
 
 Theme logic is extracted to `src/scripts/theme.ts` for reusability and testing.
 
@@ -423,7 +445,7 @@ Automated dependency management configured in `.github/dependabot.yml`:
 - **Accessibility**: WCAG 2.1 Level AA compliant
 - **Performance**: Optimized for Core Web Vitals
 - **SEO**: Complete metadata, structured data, sitemap
-- **Build Output**: 35 pages generated (resume, blog, taxonomy pages)
+- **Build Output**: 74 pages generated (resume, blog, taxonomy pages, paginated listings)
 
 ## 🚀 Performance Features
 
@@ -492,7 +514,7 @@ This is a personal website, but contributions are welcome!
 - **[docs/SESSION_2025-12-21_CONTEXT.md](docs/SESSION_2025-12-21_CONTEXT.md)**: Project context and URL structure ⭐ **READ THIS FIRST!**
 - **[docs/TAXONOMY_DETAIL_PAGES_ANALYSIS.md](docs/TAXONOMY_DETAIL_PAGES_ANALYSIS.md)**: Technical analysis of taxonomy pages
 - **[docs/DEVELOPMENT_GUIDELINES.md](docs/DEVELOPMENT_GUIDELINES.md)**: Development best practices and patterns
-- **[docs/SESSION_*.md](docs/)**: Session reports documenting decisions and fixes
+- **[docs/SESSION\_\*.md](docs/)**: Session reports documenting decisions and fixes
 
 ### Contribution Guidelines
 

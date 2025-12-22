@@ -1,8 +1,79 @@
 # Blog Migration Progress Report
 
-**Last Updated:** December 21, 2025 - 23:10  
+**Last Updated:** December 22, 2025 - 03:15  
 **Current Branch:** `feature/blog-foundation`  
-**Status:** Phase 4 - 98% Complete | Major Issues Resolved
+**Status:** Phase 4 - 100% Complete | All Major Issues Resolved
+
+---
+
+## 🎉 Recent Progress (Dec 22, 2025 - Session 5)
+
+### ✅ Completed Tasks
+
+#### 1. Fixed i18n Translation Issues (RESOLVED)
+
+**Status:** ✅ FIXED  
+**Commits:** `ec6e9f8`, `94cc9b8`
+
+**Problems Fixed:**
+
+1. Category names not translated (showing "books" instead of "libros" in Spanish)
+2. Pagination text showing translation keys (`pagination.page 1 pagination.of 2`)
+3. Paginator showing hardcoded English text with no spacing (`Page2of2`)
+
+**Solutions:**
+
+- Added `categories.*` translation keys to both locale files
+- Added `pagination.*` and `paginator.*` translation keys
+- Updated 4 detail page templates to use `t(lang, \`categories.${category}\`)`
+- Updated `Paginator.astro` to use template literals for proper spacing
+
+**Impact:** All UI text now properly translated in both languages
+
+---
+
+#### 2. Unified Paginator Component (REFACTORED)
+
+**Status:** ✅ COMPLETE  
+**Commits:** `34a5a35`
+
+**Problem:** Page 1 (`index.astro`) and pages 2+ used different pagination UI
+
+**Solution:**
+
+- Replaced custom `<div class="pagination-info">` in index pages with `<Paginator>` component
+- Applied to both ES and EN post/tutorial listings
+- Removed 35 lines of duplicate custom styles
+
+**Impact:** Consistent pagination UI across all pages, easier to maintain
+
+---
+
+#### 3. FOUC Prevention - Theme Flash (RESOLVED)
+
+**Status:** ✅ FIXED  
+**Commits:** `c822c79`, `fa97fc7`
+
+**Problem:** Page flashed from light → dark theme on reload despite dark theme being saved in localStorage
+
+**Root Cause:** CSS custom properties had no default values until JavaScript applied `.dark` class to body
+
+**Solution (Multi-layer approach):**
+
+**Layer 1: CSS-level (primary fix)**
+
+- Set dark theme variables directly on `html` element (not using @extend)
+- Light theme applied via `html.light` class
+- File: `src/styles/_variables.scss`
+
+**Layer 2: JavaScript enhancements**
+
+- Added `data-theme` attribute to `<html>` for CSS hooks
+- Added inline script after Menu to update theme icon immediately
+- Made `initTheme()` idempotent (only updates if needed)
+- Files: `src/layouts/Layout.astro`, `src/components/Menu.astro`, `src/scripts/theme.ts`
+
+**Impact:** Zero FOUC, instant theme application, no icon flash
 
 ---
 
@@ -90,11 +161,9 @@
 
 ## 📊 Build Statistics
 
-- **Total pages:** 62 (was 57, added 5 new pages)
-- **New pages added:**
-  - 3 book detail pages (Fjällbacka series)
-  - 2 course detail pages (ES + EN)
-- **Build time:** ~6 seconds
+- **Total pages:** 74 (was 62 in last session)
+- **New pages added:** 12 paginated pages (posts and tutorials pagination)
+- **Build time:** ~7 seconds
 - **No errors or warnings**
 
 ---
@@ -121,6 +190,9 @@
 2. ✅ ~~Series detail pages show generic list instead of series-specific UX~~ **FIXED**
 3. ✅ ~~Course detail pages not implemented (only listing exists)~~ **IMPLEMENTED**
 4. ✅ ~~Basic paginator (only Prev/Next buttons)~~ **ENHANCED**
+5. ✅ ~~Category names not translated in post/tutorial pages~~ **FIXED**
+6. ✅ ~~Pagination text showing translation keys~~ **FIXED**
+7. ✅ ~~FOUC (Flash of Unstyled Content) on theme load~~ **FIXED**
 
 **Development Workflow:**
 
@@ -335,6 +407,12 @@ The primary issue was that `normalize.css` was not loading due to incorrect impo
 
 ## ⚠️ Known Issues & Pending Work
 
+### Theme System - FOUC Issue (RESOLVED)
+
+**Status:** ✅ FIXED (Dec 22, 2025)
+
+The FOUC (Flash of Unstyled Content) issue has been completely resolved using a multi-layer approach. See "Recent Progress (Dec 22, 2025 - Session 5)" above for details.
+
 ### Code Blocks Styling (Pending Review)
 
 **Status:** 🟢 FUNCTIONAL (Needs comprehensive testing)
@@ -374,7 +452,7 @@ The code blocks have been migrated from Gatsby and styled to match the original 
 
 ---
 
-## 📊 Overall Progress: 85% Complete
+## 📊 Overall Progress: 90% Complete
 
 ### ✅ Phase 1: Foundation (100% Complete)
 
@@ -441,24 +519,25 @@ The code blocks have been migrated from Gatsby and styled to match the original 
 
 ---
 
-### ✅ Phase 3: i18n & Components (90% Complete)
+### ✅ Phase 3: i18n & Components (100% Complete)
 
 #### Multilingual URL Structure (100% Complete)
 
 **All URLs now use plural nouns for consistency and SEO best practices:**
 
-- ✅ Spanish routes: `/es/*` (posts, tutorials, books, categories, genres, publishers, series, challenges)
+- ✅ Spanish routes: `/es/*` (publicaciones, tutoriales, libros, categorias, generos, editoriales, series, retos)
 - ✅ English routes: `/en/*` (posts, tutorials, books, categories, genres, publishers, series, challenges)
 - ✅ Language prefix for all languages
 - ✅ **Consistent plural URLs** in both languages:
-  - Posts: `/posts/` (was `/blog/` in ES, `/blog/` in EN)
-  - Tutorials: `/tutorials/` (was `/tutoriales/` in ES)
-  - Books: `/books/` (was `/libros/` in ES)
-  - Categories: `/categories/` (was `/categoria/` in ES, `/category/` in EN)
-  - Genres: `/genres/` (was `/genero/` in ES, `/genre/` in EN)
-  - Publishers: `/publishers/` (was `/editorial/` in ES, `/publisher/` in EN)
-  - Series: `/series/` (was `/serie/` in ES)
-  - Challenges: `/challenges/` (was `/reto/` in ES, `/challenge/` in EN)
+  - Posts: `/publicaciones/` (ES), `/posts/` (EN)
+  - Tutorials: `/tutoriales/` (ES), `/tutorials/` (EN)
+  - Books: `/libros/` (ES), `/books/` (EN)
+  - Categories: `/categorias/` (ES), `/categories/` (EN)
+  - Genres: `/generos/` (ES), `/genres/` (EN)
+  - Publishers: `/editoriales/` (ES), `/publishers/` (EN)
+  - Series: `/series/` (both)
+  - Challenges: `/retos/` (ES), `/challenges/` (EN)
+  - Pagination: `/pagina/N` (ES), `/page/N` (EN)
 
 #### Why Plural URLs?
 
@@ -469,6 +548,20 @@ Following industry standards and SEO best practices:
 - ✅ **REST API standard**: Matches REST conventions (`/api/books/`)
 - ✅ **Better SEO**: More descriptive and expected by users
 - ✅ **Industry practice**: Used by GitHub, Medium, Dev.to, etc.
+
+#### Translation System (100% Complete)
+
+- ✅ `t()` function for translations
+- ✅ `getTranslations()` for bulk translations
+- ✅ All UI text translated (pages, pagination, categories, etc.)
+- ✅ Locale files: `src/locales/es/common.json` and `src/locales/en/common.json`
+- ✅ Translation keys:
+  - `pages.*` - Page titles
+  - `routes.*` - URL routes
+  - `pagination.*` - Pagination UI ("Page", "of", "Next", "Previous")
+  - `paginator.*` - Paginator component text
+  - `categories.*` - Category names ("books", "tutorials", "development")
+  - `ui.*` - Generic UI text
 
 #### LanguageSwitcher Component (100% Complete)
 
@@ -486,13 +579,14 @@ Following industry standards and SEO best practices:
 - ✅ `PublisherList.astro` - Displays publishers with counts
 - ✅ `SeriesList.astro` - Displays series with counts
 - ✅ `ChallengeList.astro` - Displays challenges with counts
-- ✅ `Paginator.astro` - Simple prev/next navigation
+- ✅ `Paginator.astro` - Complete pagination with page numbers, ellipsis, i18n
 - ✅ `SectionTitle.astro` - Section headers
 - ✅ `AuthorInfo.astro` - Author display with bio
-- ⚠️ `BookLink.astro` - MDX component pending
-- ⚠️ `AuthorLink.astro` - MDX component pending
-- ⚠️ `Spoiler.astro` - MDX component pending
-- ⚠️ `SkillBarYear.astro` - MDX component pending
+- ✅ `BookLink.astro` - MDX component for linking to book reviews
+- ✅ `AuthorLink.astro` - MDX component for linking to author pages
+- ✅ `Spoiler.astro` - MDX component for spoiler content with blur effect
+- ✅ `SkillBar.astro` - Generic progress bar component
+- ✅ `SkillBarYear.astro` - Reading challenge progress bar
 
 #### Image Handling (100% Complete)
 
@@ -506,38 +600,42 @@ Following industry standards and SEO best practices:
 
 #### Blog Listing Pages (100% Complete)
 
-- ✅ `/es/posts` - Spanish posts listing (was `/es/blog`)
-- ✅ `/en/posts` - English posts listing (was `/en/blog`)
+- ✅ `/es/publicaciones` - Spanish posts listing with pagination
+- ✅ `/en/posts` - English posts listing with pagination
 - ✅ Language switcher enabled
 - ✅ Shows post count and pagination info
+- ✅ Unified paginator component across all pages
 
 #### Type-Specific Listings (100% Complete)
 
-- ✅ `/es/tutorials` - Spanish tutorials listing (was `/es/tutoriales`)
-- ✅ `/en/tutorials` - English tutorials listing
-- ✅ `/es/books` - Spanish books listing (was `/es/libros`)
+- ✅ `/es/tutoriales` - Spanish tutorials listing with pagination
+- ✅ `/en/tutorials` - English tutorials listing with pagination
+- ✅ `/es/libros` - Spanish books listing
 - ✅ `/en/books` - English books listing
 - ✅ All with language switcher enabled
+- ✅ All with unified paginator component
 
 #### Post Detail Pages (100% Complete)
 
-- ✅ `/es/posts/[slug]` - Spanish post detail (was `/es/blog/[slug]`)
-- ✅ `/en/posts/[slug]` - English post detail (was `/en/blog/[slug]`)
+- ✅ `/es/publicaciones/[slug]` - Spanish post detail
+- ✅ `/en/posts/[slug]` - English post detail
 - ✅ Cover image with proper aspect ratio
 - ✅ Author info display
+- ✅ Category names translated
 - ✅ Language switcher with i18n slug
 
 #### Tutorial Detail Pages (100% Complete)
 
-- ✅ `/es/tutorials/[slug]` - Spanish tutorial detail (was `/es/tutoriales/[slug]`)
+- ✅ `/es/tutoriales/[slug]` - Spanish tutorial detail
 - ✅ `/en/tutorials/[slug]` - English tutorial detail
 - ✅ Cover image support
 - ✅ Author info display
+- ✅ Category names translated
 - ✅ Language switcher with i18n slug
 
 #### Book Detail Pages (100% Complete)
 
-- ✅ `/es/books/[slug]` - Spanish book review (was `/es/libros/[slug]`)
+- ✅ `/es/libros/[slug]` - Spanish book review
 - ✅ `/en/books/[slug]` - English book review
 - ✅ Cover image support
 - ✅ Author info with biography
@@ -547,40 +645,41 @@ Following industry standards and SEO best practices:
 
 #### Taxonomy Pages (100% Complete - All Implemented)
 
-- ✅ `/es/categories/[slug]` + `/en/categories/[slug]` (was `categoria/category`)
+- ✅ `/es/categorias/[slug]` + `/en/categories/[slug]`
+
   - Shows all content types (posts, tutorials, books)
   - Pagination support
   - i18n mapping for language switching
-- ✅ `/es/genres/[slug]` + `/en/genres/[slug]` (was `genero/genre`)
+
+- ✅ `/es/generos/[slug]` + `/en/genres/[slug]`
 
   - Shows books by genre
   - Pagination support
   - i18n mapping for language switching
 
-- ✅ `/es/publishers/[slug]` + `/en/publishers/[slug]` (was `editorial/publisher`)
+- ✅ `/es/editoriales/[slug]` + `/en/publishers/[slug]`
 
   - Shows books by publisher
   - Pagination support
   - Language-specific (no i18n)
 
-- ✅ `/es/series/[slug]` + `/en/series/[slug]` (was `/es/serie/`)
+- ✅ `/es/series/[slug]` + `/en/series/[slug]`
 
   - Shows books in a series
+  - Sorted by series order
   - Pagination support
   - i18n mapping for language switching
 
-- ✅ `/es/challenges/[slug]` + `/en/challenges/[slug]` (was `/es/reto/` and `/en/challenge/`)
+- ✅ `/es/retos/[slug]` + `/en/challenges/[slug]`
 
   - Shows books for a reading challenge
   - Pagination support
   - i18n mapping for language switching
 
-- ✅ `/es/tutoriales/[slug]` - Spanish tutorial detail
-- ✅ `/en/tutorials/[slug]` - English tutorial detail
-- ✅ Cover image with proper aspect ratio
-- ✅ Language switcher with i18n slug
-
-- ⚠️ Not yet implemented
+- ✅ `/es/cursos/[slug]` + `/en/courses/[slug]`
+  - Shows tutorials for a course
+  - Pagination support
+  - i18n mapping for language switching
 
 #### SEO & Open Graph (0% Complete)
 
@@ -599,7 +698,7 @@ Following industry standards and SEO best practices:
 
 ## 📦 Build Statistics
 
-- **Total pages generated:** 35
+- **Total pages generated:** 74
 - **Test suites:** 23
 - **Total tests:** 438 (all passing ✅)
 - **Build time:** ~7 seconds
@@ -616,22 +715,28 @@ Following industry standards and SEO best practices:
 - `/en/about/index.html`
 - `/test-collections/index.html`
 
-**Blog Listings (6):**
+**Blog Listings (12):**
 
-- `/es/blog/index.html`
-- `/en/blog/index.html`
-- `/es/tutoriales/index.html`
+- `/es/publicaciones/index.html` + 6 paginated pages (`/es/publicaciones/pagina/2-7/`)
+- `/en/posts/index.html`
+- `/es/tutoriales/index.html` + 2 paginated pages (`/es/tutoriales/pagina/2-3/`)
 - `/en/tutorials/index.html`
 - `/es/libros/index.html`
 - `/en/books/index.html`
 
-**Blog Detail Pages (5):**
+**Blog Detail Pages (17):**
 
-- `/es/blog/de-ruby-a-javascript/index.html`
-- `/en/blog/from-ruby-to-javascript/index.html`
+- `/es/publicaciones/de-ruby-a-javascript/index.html`
+- `/es/publicaciones/libros-leidos-durante-2017/index.html`
+- `/en/posts/from-ruby-to-javascript/index.html`
 - `/es/tutoriales/guia-variables-javascript/index.html`
+- `/es/tutoriales/introduccion-a-git/index.html`
+- `/es/tutoriales/commits-y-diffs-en-git/index.html`
+- `/es/tutoriales/trabajo-con-ramas-git/index.html`
 - `/en/tutorials/javascript-variables-guide/index.html`
 - `/es/libros/apocalipsis-stephen-king/index.html`
+- `/es/libros/*.html` (10 more Stephen King books)
+- `/es/libros/*.html` (3 Camilla Läckberg books)
 
 **Author Pages (2):**
 
@@ -640,29 +745,29 @@ Following industry standards and SEO best practices:
 
 **Category Pages (7):**
 
-- `/es/categoria/tutoriales/index.html`
-- `/es/categoria/libros/index.html`
-- `/es/categoria/resenas/index.html`
-- `/en/category/tutorials/index.html`
-- `/en/category/books/index.html`
-- `/en/category/reviews/index.html`
-- `/en/category/book-reviews/index.html`
+- `/es/categorias/tutoriales/index.html`
+- `/es/categorias/libros/index.html`
+- `/es/categorias/resenas/index.html`
+- `/en/categories/tutorials/index.html`
+- `/en/categories/books/index.html`
+- `/en/categories/reviews/index.html`
+- `/en/categories/book-reviews/index.html`
 
 **Genre Pages (8):**
 
-- `/es/genero/ficcion/index.html`
-- `/es/genero/terror/index.html`
-- `/es/genero/crimen/index.html`
-- `/es/genero/suspense/index.html`
-- `/en/genre/fiction/index.html`
-- `/en/genre/horror/index.html`
-- `/en/genre/crime/index.html`
-- `/en/genre/thriller/index.html`
+- `/es/generos/ficcion/index.html`
+- `/es/generos/terror/index.html`
+- `/es/generos/crimen/index.html`
+- `/es/generos/suspense/index.html`
+- `/en/genres/fiction/index.html`
+- `/en/genres/horror/index.html`
+- `/en/genres/crime/index.html`
+- `/en/genres/thriller/index.html`
 
 **Publisher Pages (2):**
 
-- `/es/editorial/debolsillo/index.html`
-- `/en/publisher/penguin-random-house/index.html`
+- `/es/editoriales/debolsillo/index.html`
+- `/en/publishers/penguin-random-house/index.html`
 
 ---
 
@@ -678,10 +783,10 @@ Following industry standards and SEO best practices:
 
 ### Quality
 
-- ✅ **Excellent test coverage** (97.72% statements, 98.74% lines)
+- ✅ **Excellent test coverage** (97.72% statements, 98.74% lines, 100% functions)
 - ✅ **Comprehensive integration tests** for all taxonomy types
-- ✅ **40 new tests** for taxonomy validation
-- ✅ **Zero build errors or warnings**
+- ✅ **438 unit tests** for taxonomy, i18n, theme, content validation
+- ✅ **Zero build errors or warnings** (74 pages generated)
 
 ### Features
 
@@ -690,30 +795,25 @@ Following industry standards and SEO best practices:
 - ✅ **Genre hierarchy** support with circular reference prevention
 - ✅ **Image handling** matching Gatsby's fluid behavior
 - ✅ **Content filtering** by taxonomy with proper sorting
+- ✅ **Unified pagination** component across all page types
+- ✅ **Complete i18n** with translated UI text and category names
+- ✅ **FOUC-free theme switching** with multi-layer prevention
 
 ---
 
 ## 🚧 What's Next (Priority Order)
 
-### Immediate (Phase 4 completion)
+### Immediate (Content Migration)
 
-1. **Series Pages** - Implement `/serie/[slug]` pages similar to category pages
-2. **Challenge Pages** - Implement `/reto/[slug]` pages similar to category pages
+1. **Migrate 2017 Books** - Add remaining 12 books to reach 100% for SkillBarYear
+2. **Migrate More Posts** - Start migrating additional blog posts from Gatsby
+3. **Create Challenges** - Add reading challenge pages
 
-### Short-term (Phase 3 completion)
-
-3. **MDX Components** - BookLink, AuthorLink, Spoiler, SkillBarYear
-
-### Mid-term (Phase 5)
+### Short-term (Phase 5 - Final Polish)
 
 4. **RSS Feed** - Generate RSS for all blog content
 5. **SEO Optimization** - Meta tags, Open Graph, structured data
 6. **Documentation** - Complete README update, content guidelines
-
-### Long-term (Phase 2 completion)
-
-7. **Full Content Migration** - Migrate all posts, tutorials, and books from Gatsby
-8. **Image Migration** - Copy and optimize all images
 
 ---
 
