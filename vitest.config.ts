@@ -25,6 +25,8 @@ export default defineConfig({
       "@types": path.resolve(__dirname, "./src/types"),
       "@styles": path.resolve(__dirname, "./src/styles"),
       "@scripts": path.resolve(__dirname, "./src/scripts"),
+      "@utils": path.resolve(__dirname, "./src/utils"),
+      "astro:content": path.resolve(__dirname, "./src/__mocks__/astro-content.ts"),
     },
     extensions: [".mjs", ".js", ".ts", ".jsx", ".tsx", ".json"],
   },

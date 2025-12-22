@@ -10,7 +10,8 @@
       "@locales/*": ["src/locales/*"],
       "@types/*": ["src/types/*"],
       "@styles/*": ["src/styles/*"],
-      "@scripts/*": ["src/scripts/*"]
+      "@scripts/*": ["src/scripts/*"],
+      "@utils/*": ["src/utils/*"]
     }
   },
   "include": [".astro/types.d.ts", "**/*"],

@@ -1,0 +1,56 @@
+/**
+ * Helper utilities for BookLink component
+ * Contains pure functions for book lookup and title parsing
+ */
+
+import { buildBookUrl } from "@utils/routes";
+import type { CollectionEntry } from "astro:content";
+
+/**
+ * Parse a book title in format "Title, Author" or just "Title"
+ */
+export const parseTitle = (titleStr: string) => {
+  const parts = titleStr.split(", ");
+  return {
+    bookTitle: parts[0],
+    author: parts.slice(1).join(", ") || "", // Handle multiple commas
+  };
+};
+
+/**
+ * Find a book by title (supports partial matching) and language
+ */
+export const findBook = (
+  books: CollectionEntry<"books">[],
+  title: string,
+  lang: "es" | "en",
+): CollectionEntry<"books"> | undefined => {
+  return books.find((b) => b.data.title.includes(title) && b.data.language === lang);
+};
+
+/**
+ * Generate display text for book link
+ */
+export const generateDisplayTitle = (title: string, full: boolean, book?: CollectionEntry<"books">): string => {
+  if (book) {
+    const bookData = parseTitle(book.data.title);
+    if (full && bookData.author) {
+      return `<em>${bookData.bookTitle}</em>, ${bookData.author}`;
+    }
+    return `<em>${bookData.bookTitle}</em>`;
+  }
+
+  // Fallback if book not found
+  const parsedTitle = parseTitle(title);
+  if (full && parsedTitle.author) {
+    return `<em>${parsedTitle.bookTitle}</em>, ${parsedTitle.author}`;
+  }
+  return `<em>${parsedTitle.bookTitle}</em>`;
+};
+
+/**
+ * Generate book URL if book exists
+ */
+export const generateBookUrl = (book: CollectionEntry<"books"> | undefined, lang: "es" | "en"): string | null => {
+  return book ? buildBookUrl(lang, book.data.post_slug) : null;
+};
