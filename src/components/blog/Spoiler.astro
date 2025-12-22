@@ -9,12 +9,11 @@
  * <Spoiler>This works with <em>emphasized</em> text too</Spoiler>
  */
 
-import { getLocaleFromPath } from "@/locales";
-import { translate } from "@/locales";
+import { t } from "@/locales";
 
 const currentPath = Astro.url.pathname;
-const currentLang = getLocaleFromPath(currentPath);
-const spoilerText = translate("book.spoilerAlert", currentLang);
+const currentLang = currentPath.startsWith("/en/") ? "en" : "es";
+const spoilerText = t(currentLang, "book.spoilerAlert");
 ---
 
 <strong set:html={spoilerText} />: <span class="spoiler"><slot /></span>
