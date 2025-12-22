@@ -27,6 +27,7 @@
     "posts": "Publicaciones",
     "tutorials": "Tutoriales",
     "books": "Libros",
+    "feeds": "RSS",
     "categories": "Categorías",
     "category": "Categoría",
     "genres": "Géneros",
@@ -48,6 +49,7 @@
     "posts": "publicaciones",
     "tutorials": "tutoriales",
     "books": "libros",
+    "feeds": "feeds",
     "categories": "categorias",
     "genres": "generos",
     "publishers": "editoriales",
@@ -105,5 +107,18 @@
   "book": {
     "spoilerAlert": "Atención, <em>spoiler</em>",
     "review": "Reseña de libro"
+  },
+  "feeds": {
+    "title": "Feeds RSS",
+    "description": "Suscríbete a nuestros feeds RSS para recibir las últimas actualizaciones",
+    "general": "Feed General",
+    "generalDescription": "Todos los contenidos (libros, publicaciones y tutoriales)",
+    "books": "Feed de Libros",
+    "booksDescription": "Reseñas de libros y opiniones sobre ficción, terror, suspense y más",
+    "tutorials": "Feed de Tutoriales",
+    "tutorialsDescription": "Tutoriales sobre programación, JavaScript, Git y desarrollo web",
+    "whatIsRss": "¿Qué es RSS?",
+    "whatIsRssDescription": "RSS es una tecnología que te permite suscribirte a sitios web y recibir actualizaciones automáticamente. Puedes usar lectores como Feedly, Inoreader o NewsBlur para gestionar tus suscripciones.",
+    "subscribeButton": "Suscribirse"
   }
 }

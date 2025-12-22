@@ -29,6 +29,7 @@ const indexRoutes = [
   `/${lang}/${t(lang, "routes.posts")}`,
   `/${lang}/${t(lang, "routes.tutorials")}`,
   `/${lang}/${t(lang, "routes.books")}`,
+  `/${lang}/${t(lang, "routes.feeds")}`,
   `/${lang}/${t(lang, "routes.authors")}`,
   `/${lang}/${t(lang, "routes.categories")}`,
   `/${lang}/${t(lang, "routes.genres")}`,
@@ -60,6 +61,7 @@ const aboutUrl = buildLocalizedPath(lang, "about");
 const postsUrl = buildLocalizedPath(lang, "posts");
 const tutorialsUrl = buildLocalizedPath(lang, "tutorials");
 const booksUrl = buildLocalizedPath(lang, "books");
+const feedsUrl = buildLocalizedPath(lang, "feeds");
 const categoriesUrl = buildLocalizedPath(lang, "categories");
 const genresUrl = buildLocalizedPath(lang, "genres");
 const publishersUrl = buildLocalizedPath(lang, "publishers");
@@ -113,6 +115,11 @@ const coursesUrl = buildLocalizedPath(lang, "courses");
       <li class="navigation__link">
         <a href={booksUrl} class:list={[{ "navigation__link--active": currentPath.startsWith(booksUrl) }]}>
           {t(lang, "pages.books")}
+        </a>
+      </li>
+      <li class="navigation__link">
+        <a href={feedsUrl} class:list={[{ "navigation__link--active": currentPath.startsWith(feedsUrl) }]}>
+          {t(lang, "pages.feeds")}
         </a>
       </li>
       <li class="navigation__link">
