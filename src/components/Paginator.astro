@@ -133,7 +133,7 @@ function getPageUrl(page: number): string {
 
       {/* Page info */}
       <div class="paginator__info">
-        Page {currentPage} of {totalPages}
+        {`${t(lang, "paginator.page")} ${currentPage} ${t(lang, "paginator.of")} ${totalPages}`}
       </div>
     </nav>
   )

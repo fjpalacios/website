@@ -62,9 +62,17 @@
     "me": "Sobre mí",
     "internet": "Internet"
   },
+  "pagination": {
+    "page": "Página",
+    "of": "de",
+    "next": "Siguiente »",
+    "prev": "« Anterior"
+  },
   "paginator": {
     "prev": "« Anterior",
-    "next": "Siguiente »"
+    "next": "Siguiente »",
+    "page": "Página",
+    "of": "de"
   },
   "allCategories": "Todas las categorías",
   "allGenres": "Todos los géneros",
