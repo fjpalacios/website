@@ -1,0 +1,9 @@
+{
+  "name": "Master Git from Scratch",
+  "course_slug": "master-git-from-scratch",
+  "language": "en",
+  "i18n": "domina-git-desde-cero",
+  "description": "Learn Git from basic concepts to advanced version control techniques",
+  "difficulty": "beginner",
+  "estimated_duration": 900
+}
