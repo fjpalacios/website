@@ -1,9 +1,9 @@
 ---
+import Paginator from "@components/Paginator.astro";
 import PostList from "@components/PostList.astro";
 import Title from "@components/Title.astro";
 import Layout from "@layouts/Layout.astro";
 import { t } from "@locales";
-import { buildBooksIndexUrl } from "@utils/routes";
 
 import contactEs from "@/content/static/contact/es.json";
 import { paginateItems, getPageCount } from "@/utils/blog";
@@ -43,49 +43,17 @@ const pageDescription = "Reseñas de libros";
     )
   }
 
-  {
-    totalPages > 1 && (
-      <div class="pagination">
-        {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
-          <a href={buildBooksIndexUrl(lang, page)} class:list={["page-link", { active: page === currentPage }]}>
-            {page}
-          </a>
-        ))}
-      </div>
-    )
-  }
+  <Paginator currentPage={currentPage} totalPages={totalPages} basePath="/es/libros" lang={lang} />
 </Layout>
 
 <style lang="scss">
   @use "@/styles/mixins" as *;
   @use "@/styles/variables" as *;
 
-  .pagination {
+  .empty-state {
     grid-column: span 12;
-    display: flex;
-    justify-content: center;
-    gap: 0.5rem;
-    margin-top: 2rem;
-
-    .page-link {
-      padding: 0.5rem 1rem;
-      background: $primary;
-      color: $text;
-      border: 1px solid $primary;
-      text-decoration: none;
-      transition: all 0.2s ease;
-
-      &:hover {
-        background: $accent;
-        color: $background;
-        border-color: $accent;
-      }
-
-      &.active {
-        background: $accent;
-        color: $background;
-        font-weight: bold;
-      }
-    }
+    text-align: center;
+    padding: 4rem 2rem;
+    color: $cursive-color;
   }
 </style>
