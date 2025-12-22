@@ -13,17 +13,15 @@
 import { findAuthor, generateAuthorUrl } from "@utils/authorLinkHelpers";
 import { getCollection } from "astro:content";
 
-import { getLocaleFromPath } from "@/locales";
-
 interface Props {
   name: string;
 }
 
 const { name } = Astro.props;
 
-// Get current language from URL
+// Get current language from URL (default to "es" if not found)
 const currentPath = Astro.url.pathname;
-const currentLang = getLocaleFromPath(currentPath) as "es" | "en";
+const currentLang = (currentPath.startsWith("/en/") ? "en" : "es") as "es" | "en";
 
 // Query all authors and find the matching one
 const allAuthors = await getCollection("authors");

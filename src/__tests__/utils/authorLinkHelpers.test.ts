@@ -66,19 +66,19 @@ describe("authorLinkHelpers", () => {
     test("should generate Spanish URL when author exists", () => {
       const author = mockAuthors[0];
       const result = generateAuthorUrl(author, "es");
-      expect(result).toBe("/es/autor/stephen-king");
+      expect(result).toBe("/es/autores/stephen-king");
     });
 
     test("should generate English URL when language is en", () => {
       const author = mockAuthors[0];
       const result = generateAuthorUrl(author, "en");
-      expect(result).toBe("/en/author/stephen-king");
+      expect(result).toBe("/en/authors/stephen-king");
     });
 
     test("should handle author with special characters", () => {
       const author = mockAuthors[1];
       const result = generateAuthorUrl(author, "es");
-      expect(result).toBe("/es/autor/camilla-lackberg");
+      expect(result).toBe("/es/autores/camilla-lackberg");
     });
 
     test("should return null when author is undefined", () => {
