@@ -67,9 +67,11 @@ export function switchTheme(): void {
 export function initTheme(): void {
   const theme = getSavedTheme();
 
-  // Only apply theme if it's not already applied (prevents unnecessary DOM manipulation)
-  const currentTheme = getTheme();
-  if (currentTheme !== theme) {
+  // Check if theme class is explicitly set on body
+  const hasThemeClass = document.body.classList.contains("dark") || document.body.classList.contains("light");
+
+  // Apply theme if not explicitly set, or if it differs from saved theme
+  if (!hasThemeClass || getTheme() !== theme) {
     applyTheme(theme);
   } else {
     // Theme is already applied, just update icon
