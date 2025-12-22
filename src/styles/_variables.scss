@@ -46,7 +46,31 @@ $container-max-width: 1400px; // Maximum width for main content container
   --code: #e83e8c;
 }
 
-// Apply theme to body based on class (no default to prevent FOUC)
+// Set default dark theme on html element to prevent FOUC
+// Define variables directly (not using @extend) to ensure they're in the compiled CSS
+html {
+  --accent: #efbb35;
+  --background: #11151c;
+  --primary: #192734;
+  --text: #f8f8f8;
+  --cursive-color: #c8c8c8;
+  --inverted-text: var(--text);
+  --header-link: var(--text);
+  --code: #ff79c6;
+
+  &.light {
+    --accent: #0c7298;
+    --background: #fbfef9;
+    --primary: #071013;
+    --text: #284b63;
+    --cursive-color: #636363;
+    --inverted-text: var(--background);
+    --header-link: var(--inverted-text);
+    --code: #e83e8c;
+  }
+}
+
+// Apply theme to body based on class (inherits from html)
 body {
   // Code syntax highlighting variables
   --deckgo-highlight-code-background: var(--primary);
