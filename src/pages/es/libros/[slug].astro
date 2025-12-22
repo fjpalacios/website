@@ -53,9 +53,52 @@ const scoreEmoji = renderScoreEmoji();
 const baseUrl = t(lang, "metaData.url");
 const currentUrl = new URL(Astro.url.pathname, baseUrl).href;
 const twitterUsername = t(lang, "metaData.twitterUsername");
+
+// Build JSON-LD schema for book
+const bookSchema: Record<string, unknown> = {
+  "@context": "https://schema.org",
+  "@type": "Book",
+  name: book.title,
+  author: {
+    "@type": "Person",
+    name: author?.data.name || book.author,
+  },
+  inLanguage: "es",
+  review: {
+    "@type": "Review",
+    reviewRating: {
+      "@type": "Rating",
+      ratingValue: book.score === "fav" ? 5 : book.score,
+      bestRating: 5,
+    },
+    author: {
+      "@type": "Person",
+      name: t(lang, "title"),
+    },
+    datePublished: book.date.toISOString(),
+  },
+};
+
+// Add optional fields
+if (book.isbn) bookSchema.isbn = book.isbn;
+if (book.pages) bookSchema.numberOfPages = book.pages;
+if (publisher) {
+  bookSchema.publisher = {
+    "@type": "Organization",
+    name: publisher.data.name,
+  };
+}
 ---
 
-<Layout lang={lang} title={`${book.title} - ${t(lang, "book.review")}`} contact={contact} translationSlug={book.i18n}>
+<Layout
+  lang={lang}
+  title={`${book.title} - ${t(lang, "book.review")}`}
+  contact={contact}
+  translationSlug={book.i18n}
+  image={book.book_cover || book.cover}
+  type="book"
+  schema={bookSchema}
+>
   <main class="book">
     <section class="book__content">
       <div class="book__content__cover">

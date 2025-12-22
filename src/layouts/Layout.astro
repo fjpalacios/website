@@ -1,6 +1,7 @@
 ---
 import Header from "@components/Header.astro";
 import Menu from "@components/Menu.astro";
+import SEO from "@components/SEO.astro";
 import { t } from "@locales";
 import type { ContactItem } from "@types/content";
 import { ViewTransitions } from "astro:transitions";
@@ -12,19 +13,32 @@ interface Props {
   contact: ContactItem[];
   translationSlug?: string; // Slug of the translated version (from i18n field)
   hasTargetContent?: boolean; // Whether target language has content (for index pages)
+  // SEO-specific props
+  image?: string;
+  type?: "website" | "article" | "book";
+  schema?: Record<string, unknown>;
 }
 
-const { lang, title, description, contact, translationSlug, hasTargetContent } = Astro.props;
+const {
+  lang,
+  title,
+  description,
+  contact,
+  translationSlug,
+  hasTargetContent,
+  image,
+  type = "website",
+  schema,
+} = Astro.props;
 const currentPath = Astro.url.pathname;
 
 // Build full title: "Page Title - Name" or just "Name" for home
 const fullName = t(lang, "title");
 const metaTitle = title ? `${title} - ${fullName}` : fullName;
 const metaDescription = description || t(lang, "metaData.description");
-const metaImage = t(lang, "metaData.image");
+const metaImage = image || t(lang, "metaData.image");
 // Build full URL with current path
 const baseUrl = t(lang, "metaData.url");
-const metaUrl = new URL(currentPath, baseUrl).href;
 ---
 
 <!doctype html>
@@ -33,15 +47,18 @@ const metaUrl = new URL(currentPath, baseUrl).href;
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="description" content={metaDescription} />
-    <meta property="og:title" content={metaTitle} />
-    <meta property="og:description" content={metaDescription} />
-    <meta property="og:image" content={metaImage} />
-    <meta property="og:url" content={metaUrl} />
-    <meta property="og:type" content="website" />
-    <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:title" content={metaTitle} />
-    <meta name="twitter:description" content={metaDescription} />
-    <meta name="twitter:image" content={metaImage} />
+
+    <!-- SEO Component: Open Graph, Twitter Cards, Canonical, Hreflang, JSON-LD -->
+    <SEO
+      title={metaTitle}
+      description={metaDescription}
+      image={metaImage}
+      type={type}
+      lang={lang}
+      translationSlug={translationSlug}
+      schema={schema}
+    />
+
     <link rel="icon" type="image/x-icon" href="/favicon.ico" />
     <ViewTransitions />
     <style is:global lang="scss">
@@ -59,6 +76,7 @@ const metaUrl = new URL(currentPath, baseUrl).href;
         document.documentElement.setAttribute("data-theme", theme);
       })();
     </script>
+    <!-- Person schema for site owner (site-wide, not page-specific) -->
     <script
       type="application/ld+json"
       set:html={JSON.stringify({

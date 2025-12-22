@@ -1,0 +1,86 @@
+---
+/**
+ * SEO Component - Comprehensive metadata management
+ *
+ * Handles:
+ * - Open Graph tags for social media sharing
+ * - Twitter Card tags
+ * - Canonical URLs and hreflang for i18n
+ * - JSON-LD structured data for search engines
+ */
+
+import { t } from "@locales";
+
+interface Props {
+  title: string;
+  description: string;
+  image?: string;
+  type?: "website" | "article" | "book";
+  lang: "es" | "en";
+  translationSlug?: string;
+  schema?: Record<string, unknown>;
+}
+
+const { title, description, image, type = "website", lang, translationSlug, schema } = Astro.props;
+
+// Get site metadata from locales
+const siteUrl = t(lang, "metaData.url");
+const twitterUsername = t(lang, "metaData.twitterUsername");
+
+// Build canonical URL
+const currentPath = Astro.url.pathname;
+const canonicalUrl = `${siteUrl}${currentPath}`;
+
+// Build alternate language URL if translation exists
+const alternateLang = lang === "es" ? "en" : "es";
+const alternateUrl = translationSlug ? `${siteUrl}${translationSlug}` : null;
+
+// Convert image URL to absolute if needed
+const absoluteImageUrl = image ? (image.startsWith("http") ? image : `${siteUrl}${image}`) : null;
+
+// Map language to OG locale format
+const ogLocale = lang === "es" ? "es_ES" : "en_US";
+
+// Build default JSON-LD schema if none provided
+const defaultSchema = {
+  "@context": "https://schema.org",
+  "@type": "WebPage",
+  name: title,
+  description: description,
+  url: canonicalUrl,
+  inLanguage: lang,
+};
+
+const finalSchema = schema || defaultSchema;
+---
+
+<!-- Open Graph / Facebook -->
+<meta property="og:type" content={type} />
+<meta property="og:url" content={canonicalUrl} />
+<meta property="og:title" content={title} />
+<meta property="og:description" content={description} />
+<meta property="og:locale" content={ogLocale} />
+{absoluteImageUrl && <meta property="og:image" content={absoluteImageUrl} />}
+
+<!-- Twitter -->
+<meta name="twitter:card" content="summary_large_image" />
+<meta name="twitter:site" content={twitterUsername} />
+<meta name="twitter:title" content={title} />
+<meta name="twitter:description" content={description} />
+{absoluteImageUrl && <meta name="twitter:image" content={absoluteImageUrl} />}
+
+<!-- Canonical URL -->
+<link rel="canonical" href={canonicalUrl} />
+
+<!-- Hreflang tags for alternate languages -->
+{
+  alternateUrl && (
+    <>
+      <link rel="alternate" hreflang={lang} href={canonicalUrl} />
+      <link rel="alternate" hreflang={alternateLang} href={alternateUrl} />
+    </>
+  )
+}
+
+<!-- JSON-LD Structured Data -->
+<script type="application/ld+json" set:html={JSON.stringify(finalSchema)} />
