@@ -1,0 +1,24 @@
+---
+/**
+ * Spoiler Component
+ * Displays content with a blur effect that reveals on hover
+ * Used in MDX for hiding plot spoilers in book reviews
+ *
+ * Usage in MDX:
+ * <Spoiler>This is a plot spoiler that will be blurred</Spoiler>
+ * <Spoiler>This works with <em>emphasized</em> text too</Spoiler>
+ */
+
+import { getLocaleFromPath } from "@/locales";
+import { translate } from "@/locales";
+
+const currentPath = Astro.url.pathname;
+const currentLang = getLocaleFromPath(currentPath);
+const spoilerText = translate("book.spoilerAlert", currentLang);
+---
+
+<strong set:html={spoilerText} />: <span class="spoiler"><slot /></span>
+
+<style lang="scss">
+  @import "../../styles/components/spoiler.scss";
+</style>

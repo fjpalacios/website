@@ -88,5 +88,8 @@
   "codeBlock": {
     "copy": "Copiar código",
     "copied": "Copiado"
+  },
+  "book": {
+    "spoilerAlert": "Atención, <em>spoiler</em>"
   }
 }
