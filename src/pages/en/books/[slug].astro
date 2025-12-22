@@ -30,7 +30,7 @@ const allPublishers = await getCollection("publishers");
 const allGenres = await getCollection("genres");
 const allCategories = await getCollection("categories");
 
-const author = findAuthorBySlug(allAuthors, book.author);
+const author = findAuthorBySlug(allAuthors, book.author, "en");
 const publisher = book.publisher ? findPublisherBySlug(allPublishers, book.publisher) : null;
 const genres = findGenresBySlug(allGenres, book.genres);
 const categories = findCategoriesBySlug(allCategories, book.categories);

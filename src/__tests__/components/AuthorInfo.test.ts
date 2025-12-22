@@ -49,6 +49,10 @@ describe("AuthorInfo Component", () => {
     // Check that author data is used
     expect(content).toContain("author.data.picture");
     expect(content).toContain("author.data.name");
-    expect(content).toContain("author.data.bio");
+
+    // Check that MDX content is rendered using render() function
+    expect(content).toContain('from "astro:content"');
+    expect(content).toContain("render(author)");
+    expect(content).toContain("<Content />");
   });
 });

@@ -1,4 +1,5 @@
 ---
+import { render } from "astro:content";
 import type { CollectionEntry } from "astro:content";
 
 interface Props {
@@ -7,6 +8,7 @@ interface Props {
 }
 
 const { author, border = true } = Astro.props;
+const { Content } = await render(author);
 ---
 
 <main class:list={[border ? "author-info--border" : "author-info"]}>
@@ -17,7 +19,7 @@ const { author, border = true } = Astro.props;
   </div>
   <div class="author-info__text">
     <div class="text-area">
-      <p>{author.data.bio}</p>
+      <Content />
     </div>
   </div>
 </main>

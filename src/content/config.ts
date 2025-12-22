@@ -51,12 +51,12 @@ const tutorialsCollection = defineCollection({
 });
 
 // ============================================================================
-// TAXONOMY COLLECTIONS (data-only, no MDX body)
+// TAXONOMY COLLECTIONS
 // ============================================================================
 
-// Authors collection
+// Authors collection (MDX with biographies)
 const authorsCollection = defineCollection({
-  loader: glob({ pattern: "**/*.json", base: "./src/content/authors" }),
+  loader: glob({ pattern: "**/*.{md,mdx}", base: "./src/content/authors", type: "content" }),
   schema: authorsSchema,
 });
 
@@ -109,9 +109,9 @@ export const collections = {
   books: booksCollection,
   posts: postsCollection,
   tutorials: tutorialsCollection,
+  authors: authorsCollection,
 
   // Taxonomy collections (data only)
-  authors: authorsCollection,
   categories: categoriesCollection,
   publishers: publishersCollection,
   series: seriesCollection,

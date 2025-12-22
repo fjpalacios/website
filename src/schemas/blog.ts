@@ -106,12 +106,11 @@ export const tutorialsSchema = z.object({
 
 export type Tutorial = z.infer<typeof tutorialsSchema>;
 
-// Authors collection schema (taxonomy)
+// Authors collection schema (now MDX content with biography in body)
 export const authorsSchema = z.object({
   // Basic metadata
   name: z.string().min(1),
   author_slug: z.string().min(1),
-  bio: z.string().min(1),
   language: z.enum(["es", "en"]),
 
   // Optional personal information

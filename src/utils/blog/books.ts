@@ -14,16 +14,20 @@ export function findBookBySlug(books: CollectionEntry<"books">[], slug: string):
 }
 
 /**
- * Find an author by their slug
+ * Find an author by their slug and language
  * @param authors - Array of author entries
  * @param authorSlug - The author_slug reference from a book
+ * @param lang - Language to filter by ("es" or "en")
  * @returns The author entry or undefined if not found
  */
 export function findAuthorBySlug(
   authors: CollectionEntry<"authors">[],
   authorSlug: string,
+  lang?: "es" | "en",
 ): CollectionEntry<"authors"> | undefined {
-  return authors.find((author) => author.data.author_slug === authorSlug);
+  return authors.find(
+    (author) => author.data.author_slug === authorSlug && (lang ? author.data.language === lang : true),
+  );
 }
 
 /**

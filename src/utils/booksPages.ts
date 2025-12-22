@@ -33,7 +33,7 @@ export async function getAllBooksForLanguage(lang: string): Promise<BookSummary[
 
   // Prepare summaries with author info
   return sortedBooks.map((book) => {
-    const author = findAuthorBySlug(allAuthors, book.data.author);
+    const author = findAuthorBySlug(allAuthors, book.data.author, lang as "es" | "en");
     return prepareBookSummary(book, author);
   });
 }
