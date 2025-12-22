@@ -66,7 +66,15 @@ export function switchTheme(): void {
 
 export function initTheme(): void {
   const theme = getSavedTheme();
-  applyTheme(theme);
+
+  // Only apply theme if it's not already applied (prevents unnecessary DOM manipulation)
+  const currentTheme = getTheme();
+  if (currentTheme !== theme) {
+    applyTheme(theme);
+  } else {
+    // Theme is already applied, just update icon
+    updateThemeIcon();
+  }
 
   // Save default theme if not already saved
   if (typeof localStorage !== "undefined" && !localStorage.getItem(THEME_KEY)) {

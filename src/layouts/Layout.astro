@@ -55,6 +55,8 @@ const metaUrl = new URL(currentPath, baseUrl).href;
         const theme = localStorage.getItem("theme") || "dark";
         // Apply to html immediately (already available)
         document.documentElement.classList.add(theme);
+        // Also set a data attribute for CSS to use
+        document.documentElement.setAttribute("data-theme", theme);
       })();
     </script>
     <script

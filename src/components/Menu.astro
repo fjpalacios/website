@@ -154,6 +154,17 @@ const coursesUrl = buildLocalizedPath(lang, "courses");
   </div>
 </nav>
 
+<script is:inline>
+  // Update theme icon immediately after menu renders (prevents icon flash)
+  (function () {
+    const theme = localStorage.getItem("theme") || "dark";
+    const icon = document.querySelector(".theme-switcher__icon");
+    if (icon) {
+      icon.textContent = theme === "dark" ? "☀️" : "🌑";
+    }
+  })();
+</script>
+
 <script>
   import { initTheme } from "@scripts/theme";
 
