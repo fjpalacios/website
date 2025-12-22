@@ -1,25 +1,31 @@
-@import "../../styles/variables";
-
-%spoiler {
-  transition: all 500ms cubic-bezier(0.25, 0.25, 0.75, 0.75);
-  color: transparent;
-  text-shadow: 0 0 5px $text;
-}
+@use "../variables" as *;
 
 .spoiler {
-  @extend %spoiler;
+  transition: all 500ms cubic-bezier(0.25, 0.25, 0.75, 0.75);
+  color: transparent !important;
+  text-shadow: 0 0 5px $text;
 
-  em {
-    @extend %spoiler;
+  * {
+    color: transparent !important;
+    text-shadow: 0 0 5px $text;
+    transition: all 500ms cubic-bezier(0.25, 0.25, 0.75, 0.75);
   }
 
   &:hover {
-    color: $text;
+    color: $text !important;
     text-shadow: none;
 
-    em {
-      color: $cursive-color;
+    * {
       text-shadow: none;
+    }
+
+    em {
+      color: $cursive-color !important;
+    }
+
+    strong,
+    code {
+      color: $text !important;
     }
   }
 }
