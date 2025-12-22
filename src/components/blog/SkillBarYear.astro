@@ -1,0 +1,43 @@
+---
+import { getCollection } from "astro:content";
+
+import SkillBar from "./SkillBar.astro";
+
+interface Props {
+  year: string;
+}
+
+const { year } = Astro.props;
+
+// Reading challenge goals by year
+const challenges: Record<string, number> = {
+  "2012": 30,
+  "2013": 30,
+  "2014": 30,
+  "2015": 30,
+  "2016": 30,
+  "2017": 30,
+  "2021": 6,
+};
+
+// Get all books from the collection
+const allBooks = await getCollection("books");
+
+// Filter books by year
+const booksInYear = allBooks.filter((book) => {
+  const bookYear = new Date(book.data.date).getFullYear().toString();
+  return bookYear === year;
+});
+
+const booksCount = booksInYear.length;
+const challengeGoal = challenges[year] || 30; // Default to 30 if year not in challenges
+
+// Calculate percentage
+const percentage = Math.round((booksCount / challengeGoal) * 100);
+const clampedPercentage = Math.min(100, percentage);
+
+// Color based on completion
+const color = percentage >= 100 ? "#34d44a" : "#d43434";
+---
+
+<SkillBar text={year} width={clampedPercentage} color={color} />
