@@ -32,9 +32,12 @@ const publishersWithCounts = publishersData
 
 const pageTitle = `${t(lang, "pages.publisher")}: ${publisher.data.name}`;
 const basePath = buildPublisherUrl(lang, publisher.data.publisher_slug);
+
+// SEO description
+const description = `${content.length} ${content.length === 1 ? "libro" : "libros"} de la editorial ${publisher.data.name}`;
 ---
 
-<Layout lang={lang} title={pageTitle} contact={contact}>
+<Layout lang={lang} title={pageTitle} description={description} contact={contact}>
   <SectionTitle title={pageTitle} />
   <PostList posts={content} lang={lang} />
   <Paginator currentPage={currentPage} totalPages={totalPages} basePath={basePath} lang={lang} />

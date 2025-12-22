@@ -32,9 +32,12 @@ const genresWithCounts = genresData
 
 const pageTitle = `${t(lang, "pages.genre")}: ${genre.data.name}`;
 const basePath = buildGenreUrl(lang, genre.data.genre_slug);
+
+// SEO description
+const description = `${content.length} ${content.length === 1 ? "libro" : "libros"} del género ${genre.data.name}`;
 ---
 
-<Layout lang={lang} title={pageTitle} contact={contact} translationSlug={genre.data.i18n}>
+<Layout lang={lang} title={pageTitle} description={description} contact={contact} translationSlug={genre.data.i18n}>
   <SectionTitle title={pageTitle} />
   <PostList posts={content} lang={lang} />
   <Paginator currentPage={currentPage} totalPages={totalPages} basePath={basePath} lang={lang} />

@@ -35,9 +35,12 @@ const authorsWithCounts = authorsData
 const authorTitle = author.data.gender === "male" ? t(lang, "pages.authorMale") : t(lang, "pages.authorFemale");
 const pageTitle = `${authorTitle}: ${author.data.name}`;
 const basePath = buildAuthorUrl(lang, author.data.author_slug);
+
+// SEO description
+const description = `${content.length} ${content.length === 1 ? "book" : "books"} by ${author.data.name} reviewed on the blog`;
 ---
 
-<Layout lang={lang} title={pageTitle} contact={contact}>
+<Layout lang={lang} title={pageTitle} description={description} contact={contact}>
   <Title title={pageTitle} />
 
   <div class="space" style="margin-bottom: 20px;">
