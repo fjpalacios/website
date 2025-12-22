@@ -1,0 +1,8 @@
+{
+  "name": "Fantasy",
+  "genre_slug": "fantasy",
+  "language": "en",
+  "description": "Fiction that includes supernatural or magical elements",
+  "parent": "fiction",
+  "i18n": "fantastico"
+}
