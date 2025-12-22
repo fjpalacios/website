@@ -1,12 +1,14 @@
 ---
+import Paginator from "@components/Paginator.astro";
 import PostList from "@components/PostList.astro";
 import Title from "@components/Title.astro";
 import Layout from "@layouts/Layout.astro";
 import { t } from "@locales";
 import { buildPostsIndexUrl } from "@utils/routes";
+
 import contactEs from "@/content/static/contact/es.json";
-import { getAllContentForLanguage, POSTS_PER_PAGE } from "@/utils/postsPages";
 import { paginateItems, getPageCount } from "@/utils/blog";
+import { getAllContentForLanguage, POSTS_PER_PAGE } from "@/utils/postsPages";
 
 const lang = "es";
 const currentPage = 1;
@@ -24,7 +26,13 @@ const pageDescription = "Artículos, tutoriales y reseñas de libros";
 const baseUrl = buildPostsIndexUrl(lang);
 ---
 
-<Layout lang={lang} title={pageTitle} description={pageDescription} contact={contactEs} hasTargetContent={hasTargetContent}>
+<Layout
+  lang={lang}
+  title={pageTitle}
+  description={pageDescription}
+  contact={contactEs}
+  hasTargetContent={hasTargetContent}
+>
   <Title title={pageTitle} />
 
   {
@@ -37,14 +45,5 @@ const baseUrl = buildPostsIndexUrl(lang);
     )
   }
 
-  {
-    totalPages > 1 && (
-      <div class="pagination-info">
-        <p>
-          {t(lang, "pagination.page")} {currentPage} {t(lang, "pagination.of")} {totalPages} •{" "}
-          <a href={buildPostsIndexUrl(lang, 2)}>{t(lang, "pagination.next")}</a>
-        </p>
-      </div>
-    )
-  }
+  <Paginator currentPage={currentPage} totalPages={totalPages} basePath="/es/publicaciones" lang={lang} />
 </Layout>
