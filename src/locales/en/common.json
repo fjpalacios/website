@@ -81,6 +81,11 @@
   "allChallenges": "All challenges",
   "allAuthors": "All authors",
   "allCourses": "All courses",
+  "categories": {
+    "books": "Books",
+    "tutorials": "Tutorials",
+    "development": "Development"
+  },
   "emptyState": {
     "books": "No books available at the moment. Check back soon!",
     "posts": "No posts available at the moment. Check back soon!",

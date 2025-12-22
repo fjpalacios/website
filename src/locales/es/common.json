@@ -81,6 +81,11 @@
   "allChallenges": "Todos los retos",
   "allAuthors": "Todos los autores",
   "allCourses": "Todos los cursos",
+  "categories": {
+    "books": "Libros",
+    "tutorials": "Tutoriales",
+    "development": "Desarrollo"
+  },
   "emptyState": {
     "books": "No hay libros disponibles en este momento. ¡Vuelve pronto!",
     "posts": "No hay publicaciones disponibles en este momento. ¡Vuelve pronto!",

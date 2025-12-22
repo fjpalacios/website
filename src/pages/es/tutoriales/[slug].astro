@@ -72,7 +72,7 @@ const twitterUsername = t(lang, "metaData.twitterUsername");
       <ul class="tutorial__info__text">
         <li>
           <a href={buildCategoryUrl(lang, tutorial.category)} class="tutorial__info__text__item" title="Category">
-            {tutorial.category}
+            {t(lang, `categories.${tutorial.category}`)}
           </a>
         </li>
       </ul>
