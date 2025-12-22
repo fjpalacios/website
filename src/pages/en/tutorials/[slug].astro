@@ -32,6 +32,38 @@ const course = tutorial.course ? allCourses.find((c) => c.data.course_slug === t
 const baseUrl = t(lang, "metaData.url");
 const currentUrl = new URL(Astro.url.pathname, baseUrl).href;
 const twitterUsername = t(lang, "metaData.twitterUsername");
+
+// Build JSON-LD schema for tutorial article
+const tutorialSchema: Record<string, unknown> = {
+  "@context": "https://schema.org",
+  "@type": "TechArticle",
+  headline: tutorial.title,
+  description: tutorial.excerpt,
+  image: coverImage,
+  datePublished: tutorial.date.toISOString(),
+  author: {
+    "@type": "Person",
+    name: t(lang, "title"),
+  },
+  publisher: {
+    "@type": "Person",
+    name: t(lang, "title"),
+  },
+  inLanguage: "en",
+};
+
+// Add modified date if available
+if (tutorial.updated) {
+  tutorialSchema.dateModified = tutorial.updated.toISOString();
+}
+
+// Add course as part of series if available
+if (course) {
+  tutorialSchema.isPartOf = {
+    "@type": "CreativeWorkSeries",
+    name: course.data.name,
+  };
+}
 ---
 
 <Layout
@@ -40,6 +72,9 @@ const twitterUsername = t(lang, "metaData.twitterUsername");
   description={tutorial.excerpt}
   contact={contact}
   translationSlug={tutorial.i18n}
+  image={coverImage}
+  type="article"
+  schema={tutorialSchema}
 >
   <main class="tutorial">
     <section class="tutorial__content">
