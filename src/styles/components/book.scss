@@ -62,11 +62,8 @@
       }
 
       .text-area {
-        img,
-        span.gatsby-resp-image-background-image {
-          width: calc(100% + 40px) !important;
-          margin: 0 -20px !important;
-        }
+        @include text-area-images;
+        @include blockquote-style;
       }
 
       h4 {
@@ -84,23 +81,15 @@
   }
 
   &__info {
-    display: grid;
-    grid-template-columns: 20px 1fr;
-    align-content: center;
+    @include info-section;
     margin-bottom: 10px;
-    padding: 0 20px;
-    column-gap: 1vw;
 
     @include small-and-up {
       margin-left: 135px;
     }
 
     &__icon {
-      font-size: 1em;
-
-      @include medium-and-up {
-        font-size: 0.8em;
-      }
+      @include icon-responsive;
     }
 
     &__text {
@@ -150,3 +139,6 @@
     }
   }
 }
+
+// Blockquote adjustments for light theme
+@include blockquote-light-theme(".book__content__content .text-area blockquote");

@@ -2,64 +2,27 @@
 @use "../variables" as *;
 
 .post {
-  display: grid;
-  grid-column: span 6;
+  @include content-detail-base;
 
   &__content {
-    margin-bottom: 20px;
-    overflow: hidden;
-    border: 2px solid $primary;
+    @include content-wrapper;
 
     > .cover-image-wrapper {
-      position: relative;
-      width: 100%;
-      padding-bottom: 39.13%; // Aspect ratio of 1840x720 (720/1840 * 100)
-      overflow: hidden;
-
-      > img {
-        position: absolute;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        object-fit: cover;
-        object-position: center;
-      }
+      @include cover-image-wrapper;
     }
 
     .text-area {
-      img,
-      span.gatsby-resp-image-background-image {
-        width: calc(100% + 40px) !important;
-        margin: 0 -20px !important;
-      }
-
-      h2,
-      h3 {
-        margin: 2em 0 0.7em;
-        padding-bottom: 0.3em;
-        border-bottom: 1px solid $text;
-        font-size: 1em;
-      }
+      @include text-area-images;
+      @include text-area-headers;
+      @include blockquote-style;
     }
   }
 
   &__info {
-    display: grid;
-    grid-template-columns: 20px 1fr;
-    align-content: center;
-    padding: 0 20px;
-    column-gap: 1vw;
+    @include info-section;
 
     &__text {
-      margin: 0;
-      padding-left: 0;
-      list-style: none;
-
-      li {
-        display: inline-block;
-        padding-right: 1vw;
-      }
+      @include inline-list;
 
       &__item {
         text-transform: capitalize;
@@ -69,9 +32,8 @@
 }
 
 i {
-  font-size: 1em;
-
-  @include medium-and-up {
-    font-size: 0.8em;
-  }
+  @include icon-responsive;
 }
+
+// Blockquote adjustments for light theme
+@include blockquote-light-theme(".text-area blockquote");
