@@ -9,14 +9,46 @@
 ## 📊 Progress Overview
 
 - **Phase 1:** Foundation ✅ 100%
-- **Phase 2:** Content Migration 🟡 30%
+- **Phase 2:** Content Migration 🟡 5%
 - **Phase 3:** i18n & Components ✅ 100%
 - **Phase 4:** Routing & Pages ✅ 100%
 - **Phase 5:** Production Ready 🟡 60%
 - **Phase 6:** Content Complete 🔴 0%
 - **Phase 7:** Launch 🔴 0%
 
-**Overall Progress:** 95% Code / 30% Content / 70% Total
+**Overall Progress:** 95% Code / 5% Content / 60% Total
+
+---
+
+## 📚 Content Migration Overview
+
+**Three Content Sources to Migrate:**
+
+### 1. **fjp.es (WordPress) - 144 Book Reviews**
+
+- **Location:** `/WordPress/output/` (already extracted as Markdown)
+- **Status:** Ready to migrate
+- **Format:** Needs transformation (WordPress shortcodes → Astro MDX)
+- **Estimated Time:** 8-12 hours
+- **Priority:** HIGHEST
+
+### 2. **sargatanacode.es - ~50-100 Posts**
+
+- **Location:** Database (Markdown format stored in DB)
+- **Status:** Needs extraction script
+- **Format:** Already Markdown, needs frontmatter generation
+- **Estimated Time:** 6-10 hours
+- **Priority:** HIGH
+
+### 3. **Gatsby Site - Verify No Orphaned Content**
+
+- **Location:** Current Gatsby implementation
+- **Status:** Audit needed
+- **Purpose:** Ensure no unique content left behind
+- **Estimated Time:** 2-4 hours
+- **Priority:** LOW
+
+**Total Content to Migrate:** ~200-250 pieces (books + posts + tutorials)
 
 ---
 
@@ -980,313 +1012,471 @@ Your privacy is respected. 🔒
 
 ## 🟢 Phase 6: Content Migration (0% → 100%)
 
-**Estimated Time:** 10-20 hours (depending on content volume)
+**Estimated Time:** 20-40 hours (depending on content volume and cleanup needed)
 
-### 🔲 Migrate 2017 Books (Priority: High)
+**Content Sources:**
+
+1. **fjp.es (WordPress)** - 144 book reviews already extracted in `/WordPress/output/` (Markdown format)
+2. **sargatanacode.es** - Posts stored in database (Markdown format, requires database connection to extract)
+3. **Gatsby site** - Existing content in current Gatsby implementation
+
+**Migration Strategy:**
+
+- Prioritize WordPress books (already in Markdown, just need transformation)
+- Then sargatanacode posts (need extraction script first)
+- Finally complete any remaining Gatsby content not yet migrated
+
+### 🔲 Source 1: WordPress Books Migration (fjp.es)
 
 **Status:** 🔴 NOT STARTED  
-**Estimated Time:** 2-3 hours
-
-**Why:** Complete the SkillBarYear component showing reading progress
+**Priority:** HIGHEST  
+**Estimated Time:** 8-12 hours
 
 **Current State:**
 
-- 15 books from 2017 already migrated (Stephen King collection)
-- SkillBarYear shows incomplete progress
-- Need remaining books to reach 100%
+- **144 book reviews** already extracted in `/WordPress/output/` (Markdown files)
+- Format needs transformation (WordPress shortcodes → Astro MDX)
+- Images need to be downloaded and optimized
+- Metadata needs to be extracted from content body into frontmatter
 
-#### Task 6.1: Identify Missing 2017 Books
+**Sample File Analysis:** `/WordPress/output/1984-george-orwell.md`
 
-- [ ] Check Gatsby site for all 2017 book reviews
-- [ ] Create list of missing books
-- [ ] Verify which have been migrated
+```yaml
+# Current format
+---
+title: "1984, de George Orwell"
+date: "2016-12-01"
+---
+![[titulo-foto]](images/1984-p.jpg)
+[estrellas] [relectura]
+**[titulo]**, de [autor]
+**Páginas:** 352 **ISBN:** 9788420664262
+**Comprar:** [papel id="842066426X"] [ebook id="B003CT38JG"]
+**Editorial:** [editorial]
+```
 
-**Where to Find:**
+**Target format:**
+
+```yaml
+---
+title: "1984"
+date: 2016-12-01
+language: "es"
+post_slug: "1984-george-orwell"
+excerpt: "En el año 1984 Londres es una ciudad lúgubre..."
+score: "fav" # Extract from [estrellas]
+author: "george-orwell"
+publisher: "debolsillo" # Extract from [editorial]
+genres: ["distopia", "ficcion"]
+isbn: "9788420664262"
+pages: 352
+cover: "/images/books/1984-george-orwell.jpg"
+book_cover: "/images/books/1984-george-orwell.jpg"
+---
+```
+
+#### Task 6.0: Create WordPress to Astro Migration Script
+
+**Priority:** Do this FIRST - it will save tons of manual work
+
+- [ ] Create `/scripts/migrate-wordpress-books.js`
+- [ ] Parse frontmatter + body content
+- [ ] Extract metadata from body (pages, ISBN, editorial, etc.)
+- [ ] Transform WordPress shortcodes to proper frontmatter fields
+- [ ] Convert `[autor]`, `[titulo]`, `[editorial]` references
+- [ ] Map rating `[estrellas]` to score (1-5 or "fav")
+- [ ] Detect `[relectura]` flag and add to metadata
+- [ ] Clean up body content (remove shortcodes)
+- [ ] Generate proper slug from title + author
+- [ ] Download images from WordPress if available
+- [ ] Generate new MDX files in `src/content/books/es/`
+
+**Script Structure:**
+
+```javascript
+// scripts/migrate-wordpress-books.js
+import fs from "fs";
+import path from "path";
+import matter from "gray-matter";
+
+const INPUT_DIR = "../WordPress/output";
+const OUTPUT_DIR = "./src/content/books/es";
+
+// Mapping dictionaries
+const PUBLISHER_MAP = {
+  Debolsillo: "debolsillo",
+  "Penguin Random House": "penguin-random-house",
+  // ... add more as discovered
+};
+
+const AUTHOR_MAP = {
+  "George Orwell": "george-orwell",
+  "Stephen King": "stephen-king",
+  // ... add more as discovered
+};
+
+function parseWordPressBook(filepath) {
+  const content = fs.readFileSync(filepath, "utf8");
+  const { data, content: body } = matter(content);
+
+  // Extract metadata from body
+  const pagesMatch = body.match(/\*\*Páginas:\*\* (\d+)/);
+  const isbnMatch = body.match(/\*\*ISBN:\*\* (\d+)/);
+  const editorialMatch = body.match(/\*\*Editorial:\*\* \[editorial\]/);
+
+  // Parse shortcodes
+  const hasReread = body.includes("[relectura]");
+  const starsMatch = body.match(/\[estrellas\]/);
+
+  // Transform
+  return {
+    ...data,
+    language: "es",
+    pages: pagesMatch ? parseInt(pagesMatch[1]) : null,
+    isbn: isbnMatch ? isbnMatch[1] : null,
+    // ... more transformations
+  };
+}
+
+// Process all files
+const files = fs.readdirSync(INPUT_DIR);
+files.forEach((file) => {
+  if (file.endsWith(".md")) {
+    const book = parseWordPressBook(path.join(INPUT_DIR, file));
+    // Write to OUTPUT_DIR
+  }
+});
+```
+
+**Run with:**
 
 ```bash
-# In old Gatsby site
-find content/books -name "*.mdx" | grep "2017"
+bun run scripts/migrate-wordpress-books.js --dry-run  # Preview changes
+bun run scripts/migrate-wordpress-books.js  # Actually migrate
 ```
 
-#### Task 6.2: Migrate Book Reviews
+#### Task 6.1: WordPress Books - First Pass (20 books)
 
-- [ ] Copy MDX files from Gatsby to Astro
-- [ ] Update frontmatter to match new schema
-- [ ] Download and optimize book cover images
-- [ ] Verify all fields are correct
+**Test the script with a small batch first**
 
-**Frontmatter Mapping (Gatsby → Astro):**
+- [ ] Run migration script on 20 books (2016-2017 books)
+- [ ] Verify generated MDX files are correct
+- [ ] Check that all frontmatter fields are populated
+- [ ] Ensure images are downloaded
+- [ ] Test that pages render correctly
+- [ ] Fix any issues in the script
 
-```yaml
-# Gatsby (old)
-title: "Book Title"
-date: "2017-12-15"
-author: "Author Name"
-rating: 5
+**Books to test (2016):**
 
-# Astro (new)
-title: "Book Title"
-date: 2017-12-15
-language: "es"
-post_slug: "book-title"
-excerpt: "Short description..."
-score: "fav"  # or number 1-5
-author: "author-slug"
-publisher: "publisher-slug"
-genres: ["genre-slug"]
-isbn: "978-XXXXXXXXXX"
-pages: 500
-cover: "/images/books/book-cover.jpg"
-book_cover: "/images/books/book-cover.jpg"  # For backward compat
+- 1984, George Orwell
+- Frankenstein, Mary Shelley
+- El Principito
+- El Hobbit
+- Carrie, Stephen King
+- (etc... pick 20 early books)
+
+**Manual verification checklist per book:**
+
+- [ ] Title correct
+- [ ] Author slug matches existing author or new author created
+- [ ] Publisher slug correct
+- [ ] Genres assigned (manually add if needed)
+- [ ] ISBN present
+- [ ] Pages count correct
+- [ ] Cover image exists and loads
+- [ ] Excerpt is from synopsis section
+- [ ] Body content clean (no shortcodes remaining)
+- [ ] Score mapped correctly (stars → 1-5 or "fav")
+- [ ] Reread flag captured if present
+
+#### Task 6.2: Create Missing Authors from WordPress Books
+
+- [ ] Extract all unique authors from 144 books
+- [ ] Cross-reference with existing `src/content/authors/`
+- [ ] Create missing author JSON files
+- [ ] Add author bios where available (from WordPress `[bio]` shortcode)
+
+**Script to extract authors:**
+
+```bash
+# Quick & dirty author extraction
+grep -h "autor=" /home/fjpalacios/Code/WordPress/output/*.md | \
+  sed 's/.*autor="\([^"]*\)".*/\1/' | \
+  sort -u > authors-to-create.txt
 ```
 
-#### Task 6.3: Add Missing Authors
+#### Task 6.3: Create Missing Publishers from WordPress Books
 
-- [ ] Check if book authors exist in `src/content/authors/`
-- [ ] If not, create author JSON files
-- [ ] Add author bio (optional)
+- [ ] Extract all unique publishers from 144 books
+- [ ] Cross-reference with existing `src/content/publishers/`
+- [ ] Create missing publisher JSON files
 
-**Example:**
+#### Task 6.4: Assign Genres to WordPress Books
 
-```json
-// src/content/authors/new-author.json
-{
-  "slug": "new-author",
-  "name": "Author Name",
-  "bio": "Optional biography...",
-  "language": "es"
-}
+**This will be semi-manual**
+
+WordPress books don't have genre metadata, needs to be assigned based on:
+
+- Book content/synopsis
+- Known book classification (fiction, horror, sci-fi, etc.)
+- Can use AI assistance or manual classification
+
+**Approach:**
+
+- [ ] Group books by author (many Stephen King → horror)
+- [ ] Classify by decade/era
+- [ ] Use ISBN lookups for genre information
+- [ ] Batch assign genres by category
+
+**Tool suggestion:**
+Create a helper script that presents each book and suggests genres:
+
+```bash
+bun run scripts/assign-genres-interactive.js
+# Shows: "1984 by George Orwell"
+# Suggests: ["distopia", "ficcion", "ciencia-ficcion"]
+# Accept/modify/skip
 ```
 
-#### Task 6.4: Add Missing Publishers
+#### Task 6.5: WordPress Books - Full Migration (144 books)
 
-- [ ] Check if publishers exist
-- [ ] Create publisher JSON files if needed
+- [ ] Run migration script on ALL 144 books
+- [ ] Spot-check 20 random books for correctness
+- [ ] Build site and verify all pages render
+- [ ] Check for broken links or missing images
+- [ ] Fix any issues discovered
 
-#### Task 6.5: Add Missing Genres
+#### Task 6.6: WordPress Images Optimization
 
-- [ ] Verify all genres exist
-- [ ] Create missing genre files
-- [ ] Ensure i18n mappings (ES ↔ EN)
+- [ ] Download all book cover images
+- [ ] Optimize images (resize to 800px max width)
+- [ ] Convert to WebP format
+- [ ] Organize in `/public/images/books/` by year or alphabetically
+- [ ] Update paths in MDX files
 
-#### Task 6.6: Verify Book Pages Render
+**Bulk image optimization:**
 
-- [ ] Run `bun run dev`
-- [ ] Check each new book page renders correctly
-- [ ] Verify cover images load
-- [ ] Check author links work
-- [ ] Verify genre links work
-
-#### Task 6.7: Update SkillBarYear Data
-
-- [ ] Ensure all 2017 books have correct date
-- [ ] Check SkillBarYear component calculates correctly
-- [ ] Should show 100% progress for 2017
+```bash
+# Using sharp-cli or imagemagick
+find public/images/books -name "*.jpg" -exec \
+  convert {} -resize 800x -quality 85 -format webp {}.webp \;
+```
 
 **Success Criteria:**
 
-- All 2017 books migrated ✅
-- SkillBarYear shows 100% for 2017 ✅
-- All book pages render correctly ✅
-- Images optimized and loading ✅
+- All 144 WordPress books migrated ✅
+- All authors exist in system ✅
+- All publishers exist in system ✅
+- Genres assigned to all books ✅
+- All images optimized and loading ✅
+- All pages render without errors ✅
+- SkillBarYear shows accurate data for all years ✅
 
 ---
 
-### 🔲 Migrate Blog Posts
+### 🔲 Source 2: Sargatanacode Posts Migration
 
 **Status:** 🔴 NOT STARTED  
-**Estimated Time:** 5-8 hours
+**Priority:** HIGH  
+**Estimated Time:** 6-10 hours
 
-**Strategy:** Migrate in batches, prioritize popular content
+**Current State:**
 
-#### Task 6.8: Audit Existing Posts
+- Content stored in sargatanacode.es database
+- Posts are in Markdown format (already!)
+- Need database connection to extract
+- Unknown number of posts (estimate: 50-100?)
 
-- [ ] Count total posts in Gatsby site
-- [ ] Identify categories/topics
-- [ ] Check which have translations (ES ↔ EN)
-- [ ] Note any special features (embedded videos, code blocks, etc.)
+#### Task 6.7: Database Connection & Audit
 
-#### Task 6.9: Prioritize Posts for Migration
+- [ ] Connect to sargatanacode.es database
+- [ ] Identify table structure (posts, metadata, etc.)
+- [ ] Count total posts to migrate
+- [ ] Check what metadata is available (date, categories, tags, language)
+- [ ] Verify Markdown content quality
+- [ ] Check for embedded images/assets
 
-**Batch 1 (High Priority):** Most popular posts
+**Database connection script:**
 
-- [ ] Check Google Analytics (if available) for top 10 posts
-- [ ] Migrate these first
+```javascript
+// scripts/extract-sargatanacode.js
+import mysql from "mysql2/promise"; // or postgres, etc.
 
-**Batch 2 (Medium Priority):** Series/related posts
+const connection = await mysql.createConnection({
+  host: process.env.SARGATA_DB_HOST,
+  user: process.env.SARGATA_DB_USER,
+  password: process.env.SARGATA_DB_PASS,
+  database: "sargatanacode",
+});
 
-- [ ] Git tutorials series
-- [ ] JavaScript fundamentals series
-- [ ] Any multi-part posts
+// Query posts
+const [rows] = await connection.execute('SELECT * FROM posts WHERE status = "published"');
 
-**Batch 3 (Low Priority):** One-off posts
+console.log(`Found ${rows.length} posts to migrate`);
+```
 
-- [ ] Individual articles
-- [ ] Older content
+#### Task 6.8: Create Sargatanacode Extraction Script
 
-#### Task 6.10: Migrate Posts - Batch 1
+- [ ] Create `/scripts/extract-sargatanacode-posts.js`
+- [ ] Connect to database
+- [ ] Extract all published posts
+- [ ] Parse Markdown content
+- [ ] Extract metadata (title, date, categories, tags, slug)
+- [ ] Identify language (ES or EN)
+- [ ] Find post translations (ES ↔ EN mapping via slug or ID)
+- [ ] Download embedded images
+- [ ] Generate frontmatter
+- [ ] Save as MDX files in `src/content/posts/{lang}/`
 
-- [ ] Copy MDX files
-- [ ] Update frontmatter
-- [ ] Verify categories exist
-- [ ] Check images and optimize
+**Output format:**
+
+```yaml
+---
+title: "Cómo usar Git"
+date: 2018-05-20
+language: "es"
+post_slug: "como-usar-git"
+excerpt: "Tutorial básico de Git..."
+categories: ["tutoriales", "desarrollo"]
+tags: ["git", "control-versiones"]
+image: "/images/posts/git-tutorial.jpg"
+i18n_slug: "how-to-use-git" # If translation exists
+---
+Markdown content here...
+```
+
+#### Task 6.9: Sargatanacode - First Pass (10 posts)
+
+**Test with small batch**
+
+- [ ] Extract 10 posts from database
+- [ ] Verify MDX files are correctly generated
+- [ ] Check all frontmatter fields populated
+- [ ] Ensure images downloaded
+- [ ] Test posts render correctly
+- [ ] Fix any issues in extraction script
+
+#### Task 6.10: Map Sargatanacode Categories to Astro
+
+- [ ] Extract all unique categories from database
+- [ ] Map to existing Astro categories
+- [ ] Create new categories if needed (maintain i18n)
+
+**Example mapping:**
+
+```
+Sargatanacode → Astro
+"Programming" → "desarrollo"
+"Tutorials" → "tutoriales"
+"Books" → "libros"
+```
+
+#### Task 6.11: Sargatanacode - Full Extraction
+
+- [ ] Run extraction script on ALL posts
+- [ ] Verify post count matches database
+- [ ] Spot-check 10 random posts
+- [ ] Build site and verify all render
+- [ ] Fix any broken links or missing images
+
+#### Task 6.12: Sargatanacode Images Optimization
+
+- [ ] Download all post images from database or filesystem
+- [ ] Optimize images (resize, compress)
+- [ ] Convert to WebP
+- [ ] Organize in `/public/images/posts/`
+- [ ] Update paths in MDX files
+
+**Success Criteria:**
+
+- All sargatanacode posts extracted ✅
+- All translations linked (ES ↔ EN) ✅
+- Categories mapped correctly ✅
+- All images optimized ✅
+- All posts render without errors ✅
+
+---
+
+### 🔲 Source 3: Complete Gatsby Content (if needed)
+
+**Status:** 🔴 NOT STARTED  
+**Priority:** LOW (only if unique content exists)  
+**Estimated Time:** 2-4 hours
+
+**Purpose:** Verify no content is left behind in Gatsby that isn't in WordPress or Sargatanacode
+
+#### Task 6.13: Gatsby Content Audit
+
+- [ ] Compare Gatsby content folders vs WordPress/Sargatanacode
+- [ ] Identify any unique posts/tutorials/books not in other sources
+- [ ] Check for orphaned content (drafts, unpublished)
+- [ ] Document what (if anything) needs manual migration
+
+**Content to check:**
+
+- `/content/books/` → Compare with WordPress books
+- `/content/posts/` → Compare with Sargatanacode
+- `/content/tutorials/` → Compare with Sargatanacode
+
+#### Task 6.14: Migrate Gatsby-Only Content (if any found)
+
+- [ ] Copy unique MDX files from Gatsby
+- [ ] Update frontmatter to Astro format
+- [ ] Verify metadata complete
 - [ ] Test rendering
 
-**Frontmatter Updates:**
-
-```yaml
-# Old Gatsby
-title: "Post Title"
-date: "2019-05-20"
-category: "tutorials"
-
-# New Astro
-title: "Post Title"
-date: 2019-05-20
-language: "es"
-post_slug: "post-title"
-excerpt: "Brief description..."
-categories: ["tutoriales"]
-image: "/images/posts/post-image.jpg"
-```
-
-#### Task 6.11: Handle Special Content
-
-- [ ] Embedded YouTube videos → Use Astro component
-- [ ] Code blocks → Verify Shiki syntax highlighting
-- [ ] Tables → Check Markdown tables render
-- [ ] Callouts/notes → Create custom components if needed
-
-**MDX Components to Create (if needed):**
-
-- `<YouTube id="xxx" />`
-- `<Callout type="info|warning|tip" />`
-- `<CodeBlock lang="js" />`
-
-#### Task 6.12: Migrate Posts - Batch 2 & 3
-
-- [ ] Repeat process for remaining posts
-- [ ] Focus on quality over speed
-- [ ] Test each post after migration
-
-#### Task 6.13: Add Post Translations
-
-- [ ] Identify posts with ES/EN versions
-- [ ] Ensure `i18n_slug` field is set correctly
-- [ ] Test language switcher on posts
-
 **Success Criteria:**
 
-- All priority posts migrated ✅
-- Code blocks render with syntax highlighting ✅
-- Images optimized and loading ✅
-- Categories linked correctly ✅
-- Translations linked (if exist) ✅
+- All unique Gatsby content migrated (or confirmed none exists) ✅
+- No content left behind ✅
 
 ---
 
-### 🔲 Migrate Tutorials
-
-**Status:** 🔴 NOT STARTED (3 already migrated)  
-**Estimated Time:** 3-5 hours
-
-**Current State:**
-
-- 3 Git tutorials already migrated:
-  - "¿Qué es Git?"
-  - "Cómo instalar Git"
-  - "Primeros pasos con Git"
-
-#### Task 6.14: Migrate Remaining Tutorials
-
-- [ ] Identify all tutorials in Gatsby site
-- [ ] Copy MDX files
-- [ ] Update frontmatter (add `course` field if part of series)
-- [ ] Verify code examples work
-- [ ] Test step-by-step instructions
-
-**Frontmatter with Course:**
-
-```yaml
-title: "Git Branches"
-date: 2020-03-15
-language: "es"
-post_slug: "git-branches"
-excerpt: "Learn about Git branches..."
-categories: ["tutoriales"]
-course: "git-fundamentals" # Links to course
-```
-
-#### Task 6.15: Create Missing Courses
-
-- [ ] Check if courses exist in `src/content/courses/`
-- [ ] Create course JSON files if needed
-
-**Example:**
-
-```json
-// src/content/courses/git-fundamentals.json
-{
-  "slug": "git-fundamentals",
-  "name": "Fundamentos de Git",
-  "description": "Aprende Git desde cero",
-  "language": "es",
-  "i18n": "git-fundamentals-en"
-}
-```
-
-#### Task 6.16: Order Tutorials in Courses
-
-- [ ] Ensure tutorials have correct order within course
-- [ ] Test course detail page shows all tutorials
-- [ ] Verify pagination works
-
-**Success Criteria:**
-
-- All tutorials migrated ✅
-- Courses created and linked ✅
-- Tutorial order correct ✅
-- Code examples work ✅
-
----
-
-### 🔲 Migrate Remaining Books
+### 🔲 Post-Migration Cleanup & Validation
 
 **Status:** 🔴 NOT STARTED  
-**Estimated Time:** 5-10 hours
+**Estimated Time:** 4-6 hours
 
-**Current State:**
+#### Task 6.15: Content Validation
 
-- ~15 books migrated (mostly Stephen King + Camilla Läckberg)
-- Many more books in Gatsby site
+- [ ] Build site and verify page count
+  - Expected: ~240+ pages (144 books + ~100 posts + existing)
+- [ ] Test all book pages render
+- [ ] Test all post pages render
+- [ ] Test all tutorial pages render
+- [ ] Check for 404 errors
+- [ ] Verify all images load
+- [ ] Test language switcher on all content
 
-#### Task 6.17: Complete Book Migration
+#### Task 6.16: Cross-Reference Links
 
-- [ ] Identify all books from all years
-- [ ] Prioritize by year (most recent first)
-- [ ] Batch migrate by author/genre
-- [ ] Add to series if applicable
+- [ ] Check internal links between posts
+- [ ] Verify author links work
+- [ ] Test category/genre/publisher links
+- [ ] Fix any broken links
 
-**Series to Complete:**
+#### Task 6.17: SEO Audit Post-Migration
 
-- [ ] The Dark Tower (Stephen King) - if more books exist
-- [ ] Fjällbacka (Camilla Läckberg) - complete series
-- [ ] Any other series
+- [ ] Run Lighthouse on sample pages
+- [ ] Verify structured data on all content types
+- [ ] Check meta descriptions are unique
+- [ ] Ensure all images have alt text
+- [ ] Validate sitemap includes all pages
 
-#### Task 6.18: Verify Series Order
+#### Task 6.18: SkillBarYear Verification
 
-- [ ] Check `series_order` field is set correctly
-- [ ] Test series detail pages show books in order
-- [ ] Ensure "Book X of Y" displays correctly
+- [ ] Check 2016 shows correct book count
+- [ ] Check 2017 shows correct book count
+- [ ] Check all years up to current
+- [ ] Verify progress bars display correctly
 
 **Success Criteria:**
 
-- All books migrated ✅
-- Series complete and ordered ✅
-- All years represented ✅
-- SkillBarYear data accurate for all years ✅
-
----
+- All content renders without errors ✅
+- No broken links ✅
+- SEO audit passes ✅
+- SkillBarYear accurate for all years ✅
+- Build completes in <10 seconds ✅
 
 ## 🚀 Phase 7: Launch Preparation (0% → 100%)
 
@@ -1511,14 +1701,14 @@ Update this section as tasks are completed:
 | Phase                      | Progress | Status         |
 | -------------------------- | -------- | -------------- |
 | Phase 1: Foundation        | 100%     | ✅ Complete    |
-| Phase 2: Content Migration | 30%      | 🟡 In Progress |
+| Phase 2: Content Migration | 5%       | 🟡 In Progress |
 | Phase 3: i18n & Components | 100%     | ✅ Complete    |
 | Phase 4: Routing & Pages   | 100%     | ✅ Complete    |
 | Phase 5: Production Ready  | 60%      | 🟡 In Progress |
 | Phase 6: Content Complete  | 0%       | 🔴 Not Started |
 | Phase 7: Launch            | 0%       | 🔴 Not Started |
 
-**Overall:** 70% Complete
+**Overall:** 60% Complete (95% code ready, 5% content migrated)
 
 ---
 
