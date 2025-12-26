@@ -31,7 +31,7 @@ const pageDescription = t(lang, "allCourses");
 
   {
     itemsWithContent.length > 0 ? (
-      <CourseList courses={itemsWithContent} title={t(lang, "allCourses")} lang={lang} showCount={false} />
+      <CourseList courses={itemsWithContent} title={t(lang, "allCourses")} lang={lang} />
     ) : (
       <div class="empty-state">
         <p>{t(lang, "emptyState.courses")}</p>

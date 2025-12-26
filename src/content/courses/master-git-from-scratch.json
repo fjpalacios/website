@@ -3,7 +3,7 @@
   "course_slug": "master-git-from-scratch",
   "language": "en",
   "i18n": "domina-git-desde-cero",
-  "description": "Learn Git from basic concepts to advanced version control techniques",
+  "description": "In this course you'll find the necessary commands to start with Git as well as more advanced tasks to increase your productivity (and security) when working on your projects.",
   "difficulty": "beginner",
   "estimated_duration": 900
 }
