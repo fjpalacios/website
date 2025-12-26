@@ -40,7 +40,7 @@ test.describe("SEO Structured Data - Content Pages", () => {
     });
 
     test("should have Book schema on English book page", async ({ page }) => {
-      await page.goto("/en/books/apocalipsis-stephen-king/");
+      await page.goto("/en/books/the-stand-stephen-king/");
 
       const jsonLdScripts = await page.locator('script[type="application/ld+json"]').all();
       let bookSchema = null;
@@ -66,11 +66,7 @@ test.describe("SEO Structured Data - Content Pages", () => {
 
   test.describe("Post Pages - JSON-LD Schema", () => {
     test("should have BlogPosting schema on Spanish post page", async ({ page }) => {
-      await page.goto("/es/publicaciones/");
-
-      // Get first post link and navigate to it
-      const firstPostLink = page.locator(".post-list__item a").first();
-      await firstPostLink.click();
+      await page.goto("/es/publicaciones/libros-leidos-durante-2017/");
 
       // Find the BlogPosting schema
       const jsonLdScripts = await page.locator('script[type="application/ld+json"]').all();
@@ -95,9 +91,7 @@ test.describe("SEO Structured Data - Content Pages", () => {
     });
 
     test("should have og:type=article on post pages", async ({ page }) => {
-      await page.goto("/es/publicaciones/");
-      const firstPostLink = page.locator(".post-list__item a").first();
-      await firstPostLink.click();
+      await page.goto("/es/publicaciones/libros-leidos-durante-2017/");
 
       await expect(page.locator('meta[property="og:type"]')).toHaveAttribute("content", "article");
     });
@@ -144,24 +138,21 @@ test.describe("SEO Structured Data - Content Pages", () => {
     });
 
     test("should have canonical URL on post page", async ({ page }) => {
-      await page.goto("/es/publicaciones/");
-      const firstPostLink = page.locator(".post-list__item a").first();
-      const href = await firstPostLink.getAttribute("href");
-      await firstPostLink.click();
+      await page.goto("/es/publicaciones/libros-leidos-durante-2017/");
 
       const canonical = page.locator('link[rel="canonical"]');
-      await expect(canonical).toHaveAttribute("href", `https://fjp.es${href}`);
+      await expect(canonical).toHaveAttribute("href", "https://fjp.es/es/publicaciones/libros-leidos-durante-2017/");
     });
   });
 
   test.describe("Hreflang Tags", () => {
     test("should have hreflang tags on pages with translations", async ({ page }) => {
-      await page.goto("/es/sobre-mi/");
+      await page.goto("/es/acerca-de/");
 
       const hreflangEs = page.locator('link[rel="alternate"][hreflang="es"]');
       const hreflangEn = page.locator('link[rel="alternate"][hreflang="en"]');
 
-      await expect(hreflangEs).toHaveAttribute("href", "https://fjp.es/es/sobre-mi/");
+      await expect(hreflangEs).toHaveAttribute("href", "https://fjp.es/es/acerca-de/");
       await expect(hreflangEn).toHaveAttribute("href", "https://fjp.es/en/about/");
     });
 
