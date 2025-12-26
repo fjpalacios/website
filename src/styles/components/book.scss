@@ -102,12 +102,14 @@
 
 .score {
   margin-top: 10px;
-  font-size: 1em;
+  font-size: 1.1em; // Slightly larger than regular text
   text-align: center;
   width: 100%;
+  color: $accent; // Use accent color for stars
+  letter-spacing: 1px; // Small spacing between stars
 
   @include small-and-up {
-    font-size: 0.9em;
+    font-size: 1.2em;
   }
 }
 

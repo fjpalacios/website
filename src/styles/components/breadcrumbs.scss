@@ -2,7 +2,11 @@
 @use "../mixins" as *;
 
 .breadcrumbs {
+  background-color: $primary;
+  color: $inverted-text;
+  padding: 10px 20px;
   margin-bottom: 20px;
+  transition: all 0.45s ease;
   font-size: 0.875rem; // 14px
   line-height: 1.5;
 
@@ -13,10 +17,11 @@
   &__list {
     display: flex;
     flex-wrap: wrap;
-    gap: 8px;
+    gap: 10px;
     margin: 0;
     padding: 0;
     list-style: none;
+    align-items: center;
   }
 
   &__item {
@@ -24,15 +29,15 @@
     align-items: center;
 
     &:not(:last-child)::after {
-      content: "→";
+      content: ">";
       color: $accent;
-      margin-left: 8px;
+      margin-left: 10px;
       font-weight: normal;
     }
   }
 
   &__link {
-    color: $text;
+    color: $inverted-text;
     text-decoration: none;
     transition: color 0.45s ease;
 
@@ -53,9 +58,10 @@
     font-weight: 600;
   }
 
-  // Responsive: reduce font size on very small screens
+  // Responsive: adjust padding on smaller screens
   @media (max-width: 480px) {
     font-size: 0.8125rem; // 13px
+    padding: 8px 15px;
     margin-bottom: 15px;
   }
 }
