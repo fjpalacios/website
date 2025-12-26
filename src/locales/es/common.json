@@ -109,7 +109,7 @@
     "review": "Reseña de libro"
   },
   "feeds": {
-    "title": "Feeds RSS",
+    "title": "📡 Feeds RSS",
     "description": "Suscríbete a nuestros feeds RSS para recibir las últimas actualizaciones",
     "general": "Feed General",
     "generalDescription": "Todos los contenidos publicados en el sitio",
