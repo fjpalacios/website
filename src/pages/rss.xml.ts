@@ -10,7 +10,7 @@ export async function GET(context: APIContext) {
   const allPosts = [...books, ...posts, ...tutorials].sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf());
 
   return rss({
-    title: "fjp.es - Blog",
+    title: "fjp.es - Blog (All Languages)",
     description:
       "Blog personal sobre libros, programación y tecnología / Personal blog about books, programming and technology",
     site: context.site!,
@@ -30,11 +30,10 @@ export async function GET(context: APIContext) {
       }
 
       return {
-        title: post.data.title,
+        title: `[${lang.toUpperCase()}] ${post.data.title}`,
         pubDate: post.data.date,
         description: post.data.excerpt,
         link,
-        // Add language to help RSS readers
         customData: `<language>${lang}</language>`,
       };
     }),
