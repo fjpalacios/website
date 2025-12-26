@@ -1,9 +1,10 @@
 ---
+import Breadcrumbs, { type BreadcrumbItem } from "@components/Breadcrumbs.astro";
 import PostTitle from "@components/PostTitle.astro";
 import Share from "@components/Share.astro";
 import Layout from "@layouts/Layout.astro";
 import { t } from "@locales";
-import { buildCategoryUrl, buildTagUrl, buildCourseUrl } from "@utils/routes";
+import { buildCategoryUrl, buildTagUrl, buildCourseUrl, buildTutorialsIndexUrl } from "@utils/routes";
 import { getCollection, render } from "astro:content";
 
 import contactEs from "@/content/static/contact/es.json";
@@ -27,6 +28,13 @@ const coverImage = tutorial.cover || `/images/defaults/tutorial-default.jpg`;
 // Get course info if exists
 const allCourses = tutorial.course ? await getCollection("courses") : [];
 const course = tutorial.course ? allCourses.find((c) => c.data.course_slug === tutorial.course) : null;
+
+// Build breadcrumbs
+const breadcrumbs: BreadcrumbItem[] = [
+  { label: t(lang, "pages.home"), url: `/${lang}` },
+  { label: t(lang, "pages.tutorials"), url: buildTutorialsIndexUrl(lang) },
+  { label: tutorial.title }, // Current page, no URL
+];
 
 // Share component data
 const baseUrl = t(lang, "metaData.url");
@@ -76,6 +84,7 @@ if (course) {
   type="article"
   schema={tutorialSchema}
 >
+  <Breadcrumbs items={breadcrumbs} lang={lang} />
   <main class="tutorial">
     <section class="tutorial__content">
       <div class="cover-image-wrapper">

@@ -1,11 +1,19 @@
 ---
 import AuthorInfo from "@components/AuthorInfo.astro";
+import Breadcrumbs, { type BreadcrumbItem } from "@components/Breadcrumbs.astro";
 import PostTitle from "@components/PostTitle.astro";
 import SectionTitle from "@components/SectionTitle.astro";
 import Share from "@components/Share.astro";
 import Layout from "@layouts/Layout.astro";
 import { t } from "@locales";
-import { buildAuthorUrl, buildPublisherUrl, buildGenreUrl, buildCategoryUrl, buildScoreUrl } from "@utils/routes";
+import {
+  buildAuthorUrl,
+  buildPublisherUrl,
+  buildGenreUrl,
+  buildCategoryUrl,
+  buildScoreUrl,
+  buildBooksIndexUrl,
+} from "@utils/routes";
 import { getCollection, render } from "astro:content";
 
 import contactEn from "@/content/static/contact/en.json";
@@ -48,6 +56,13 @@ const renderScoreEmoji = () => {
 };
 
 const scoreEmoji = renderScoreEmoji();
+
+// Build breadcrumbs
+const breadcrumbs: BreadcrumbItem[] = [
+  { label: t(lang, "pages.home"), url: `/${lang}` },
+  { label: t(lang, "pages.books"), url: buildBooksIndexUrl(lang) },
+  { label: book.title }, // Current page, no URL
+];
 
 // Share component data
 const baseUrl = t(lang, "metaData.url");
@@ -99,6 +114,7 @@ if (publisher) {
   type="book"
   schema={bookSchema}
 >
+  <Breadcrumbs items={breadcrumbs} lang={lang} />
   <main class="book">
     <section class="book__content">
       <div class="book__content__cover">
