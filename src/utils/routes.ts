@@ -221,6 +221,34 @@ export function buildBooksIndexUrl(lang: string, page?: number): string {
   return base;
 }
 
+export function buildAuthorsIndexUrl(lang: string): string {
+  return buildLocalizedPath(lang, "authors");
+}
+
+export function buildCategoriesIndexUrl(lang: string): string {
+  return buildLocalizedPath(lang, "categories");
+}
+
+export function buildGenresIndexUrl(lang: string): string {
+  return buildLocalizedPath(lang, "genres");
+}
+
+export function buildPublishersIndexUrl(lang: string): string {
+  return buildLocalizedPath(lang, "publishers");
+}
+
+export function buildSeriesIndexUrl(lang: string): string {
+  return buildLocalizedPath(lang, "series");
+}
+
+export function buildChallengesIndexUrl(lang: string): string {
+  return buildLocalizedPath(lang, "challenges");
+}
+
+export function buildCoursesIndexUrl(lang: string): string {
+  return buildLocalizedPath(lang, "courses");
+}
+
 /**
  * Language utilities for dynamic routes
  */

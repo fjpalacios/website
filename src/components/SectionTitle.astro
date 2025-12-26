@@ -1,11 +1,12 @@
 ---
 interface Props {
   title: string;
+  srOnly?: boolean; // Screen reader only - visually hidden
 }
 
-const { title } = Astro.props;
+const { title, srOnly = false } = Astro.props;
 ---
 
-<div class="section-title">
+<div class:list={["section-title", { "sr-only": srOnly }]}>
   <h3>{title}</h3>
 </div>
