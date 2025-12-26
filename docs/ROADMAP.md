@@ -107,23 +107,30 @@
 
 **Current State:**
 
-- ✅ `/rss.xml` - Global feed (all content types)
-- ✅ `/es/libros/rss.xml` - Spanish books
-- ✅ `/es/tutoriales/rss.xml` - Spanish tutorials
-- ✅ `/en/books/rss.xml` - English books
-- ✅ `/en/tutorials/rss.xml` - English tutorials
-- ✅ `/es/feeds` - **Visual RSS subscription page** (Spanish)
-- ✅ `/en/feeds` - **Visual RSS subscription page** (English)
+- ✅ `/rss.xml` - Global bilingual feed (all content types, all languages)
+- ✅ `/es/rss.xml` - Spanish general feed (all content types in Spanish)
+- ✅ `/en/rss.xml` - English general feed (all content types in English)
+- ✅ `/es/libros/rss.xml` - Spanish books feed
+- ✅ `/es/tutoriales/rss.xml` - Spanish tutorials feed
+- ✅ `/en/books/rss.xml` - English books feed
+- ✅ `/en/tutorials/rss.xml` - English tutorials feed
+- ✅ `/es/feeds` - Visual RSS subscription page (Spanish)
+- ✅ `/en/feeds` - Visual RSS subscription page (English)
 
 **What Was Implemented:**
 
-- All RSS feeds for books and tutorials (posts don't exist yet, will be added during content migration)
-- RSS subscription pages (`/es/feeds` and `/en/feeds`) with:
-  - Visual interface explaining what RSS is
+- **Language-specific general feeds**: `/es/rss.xml` and `/en/rss.xml` filter content by language
+- **Bilingual root feed**: `/rss.xml` includes all content with `[ES]`/`[EN]` prefixes
+- **RSS autodiscovery**: `<link rel="alternate">` tags in `<head>` for all feeds
+- **Proper language tags**: All feeds include `<language>` at channel level
+- **Feed subscription pages**: Visual interface with:
+  - Explanation of what RSS is
   - Links to all available feeds
   - Icons and descriptions for each feed type
-  - "Subscribe" buttons for each feed
-- Translation keys for feeds UI in both languages
+  - Subscribe buttons with RSS icons
+- **Language switcher fix**: Feeds pages properly switch between `/es/feeds` and `/en/feeds`
+- **E2E tests**: 12 tests covering autodiscovery, feed pages, XML validation, and language switcher
+- **Route translations**: `feeds` registered in route system for proper i18n URL handling
 
 **Note about Posts RSS:**  
 Posts RSS feeds (`/es/publicaciones/rss.xml` and `/en/posts/rss.xml`) will be created **AFTER** content migration, when there are actual posts to include in the feed. Currently there are only 2 test posts.
@@ -131,9 +138,11 @@ Posts RSS feeds (`/es/publicaciones/rss.xml` and `/en/posts/rss.xml`) will be cr
 **Success Criteria:**
 
 - All content types have RSS feeds ✅
+- Language-specific feeds (no mixed languages) ✅
 - Visual subscription pages with RSS explanation ✅
-- Feeds validate on https://validator.w3.org/feed/ (to be tested)
-- Links from header/footer to feeds pages ✅
+- RSS autodiscovery in HTML head ✅
+- Language switcher works correctly on feed pages ✅
+- E2E tests for RSS functionality ✅
 
 ---
 
