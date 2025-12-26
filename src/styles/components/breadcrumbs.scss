@@ -1,0 +1,61 @@
+@use "../variables" as *;
+@use "../mixins" as *;
+
+.breadcrumbs {
+  margin-bottom: 20px;
+  font-size: 0.875rem; // 14px
+  line-height: 1.5;
+
+  @include print {
+    display: none; // Hide breadcrumbs in print
+  }
+
+  &__list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  &__item {
+    display: flex;
+    align-items: center;
+
+    &:not(:last-child)::after {
+      content: "→";
+      color: $accent;
+      margin-left: 8px;
+      font-weight: normal;
+    }
+  }
+
+  &__link {
+    color: $text;
+    text-decoration: none;
+    transition: color 0.45s ease;
+
+    &:hover {
+      color: $accent;
+      text-decoration: underline;
+    }
+
+    &:focus {
+      outline: 2px solid $accent;
+      outline-offset: 2px;
+      border-radius: 2px;
+    }
+  }
+
+  &__current {
+    color: $accent;
+    font-weight: 600;
+  }
+
+  // Responsive: reduce font size on very small screens
+  @media (max-width: 480px) {
+    font-size: 0.8125rem; // 13px
+    margin-bottom: 15px;
+  }
+}

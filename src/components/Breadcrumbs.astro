@@ -1,0 +1,49 @@
+---
+export interface BreadcrumbItem {
+  label: string;
+  url?: string; // undefined for current page
+}
+
+interface Props {
+  items: BreadcrumbItem[];
+  lang: string;
+}
+
+const { items, lang } = Astro.props;
+
+// Build Schema.org BreadcrumbList JSON-LD
+const baseUrl = lang === "es" ? "https://www.fcpalacios.dev" : "https://www.fcpalacios.dev";
+
+const breadcrumbSchema = {
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  itemListElement: items.map((item, index) => ({
+    "@type": "ListItem",
+    position: index + 1,
+    name: item.label,
+    ...(item.url && { item: `${baseUrl}${item.url}` }),
+  })),
+};
+---
+
+<nav class="breadcrumbs" aria-label="breadcrumb">
+  <ol class="breadcrumbs__list">
+    {
+      items.map((item, index) => (
+        <li class="breadcrumbs__item">
+          {item.url ? (
+            <a href={item.url} class="breadcrumbs__link">
+              {item.label}
+            </a>
+          ) : (
+            <span class="breadcrumbs__current" aria-current="page">
+              {item.label}
+            </span>
+          )}
+        </li>
+      ))
+    }
+  </ol>
+</nav>
+
+<script type="application/ld+json" set:html={JSON.stringify(breadcrumbSchema)} />
