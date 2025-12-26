@@ -60,6 +60,27 @@ const baseUrl = t(lang, "metaData.url");
     />
 
     <link rel="icon" type="image/x-icon" href="/favicon.ico" />
+
+    <!-- RSS Feeds - Autodiscovery -->
+    <link
+      rel="alternate"
+      type="application/rss+xml"
+      title={`${t(lang, "title")} - ${t(lang, "feeds.general")}`}
+      href={lang === "es" ? "/es/rss.xml" : "/en/rss.xml"}
+    />
+    <link
+      rel="alternate"
+      type="application/rss+xml"
+      title={`${t(lang, "title")} - ${t(lang, "feeds.books")}`}
+      href={lang === "es" ? "/es/libros/rss.xml" : "/en/books/rss.xml"}
+    />
+    <link
+      rel="alternate"
+      type="application/rss+xml"
+      title={`${t(lang, "title")} - ${t(lang, "feeds.tutorials")}`}
+      href={lang === "es" ? "/es/tutoriales/rss.xml" : "/en/tutorials/rss.xml"}
+    />
+
     <ViewTransitions />
     <style is:global lang="scss">
       @use "../styles/main";
