@@ -1,0 +1,104 @@
+---
+import { getCollection, getEntry } from "astro:content";
+import BookLink from "./BookLink.astro";
+import AuthorLink from "./AuthorLink.astro";
+
+interface Props {
+  year: number;
+  language?: "es" | "en";
+}
+
+const { year, language = "es" } = Astro.props;
+
+// Get all books from the specified year and language
+const allBooks = await getCollection("books", ({ data }) => {
+  const bookYear = new Date(data.date).getFullYear();
+  return bookYear === year && data.language === language;
+});
+
+// Sort by date (chronological order)
+const sortedBooks = allBooks.sort((a, b) => {
+  return new Date(a.data.date).getTime() - new Date(b.data.date).getTime();
+});
+
+// Pre-fetch all unique authors for this year's books
+// Note: author files are named with language suffix (e.g., "charles-dickens-es")
+const uniqueAuthorSlugs = [...new Set(sortedBooks.map((book) => book.data.author))];
+const authorsMap = new Map();
+for (const slug of uniqueAuthorSlugs) {
+  const authorId = `${slug}-${language}`; // Compose full author ID with language suffix
+  const author = await getEntry("authors", authorId);
+  if (author) {
+    authorsMap.set(slug, author.data.name);
+  }
+}
+
+// Group books by month
+const booksByMonth: Record<number, typeof sortedBooks> = {};
+sortedBooks.forEach((book) => {
+  const month = new Date(book.data.date).getMonth(); // 0-11
+  if (!booksByMonth[month]) {
+    booksByMonth[month] = [];
+  }
+  booksByMonth[month].push(book);
+});
+
+// Month names in Spanish and English
+const monthNames = {
+  es: [
+    "Enero",
+    "Febrero",
+    "Marzo",
+    "Abril",
+    "Mayo",
+    "Junio",
+    "Julio",
+    "Agosto",
+    "Septiembre",
+    "Octubre",
+    "Noviembre",
+    "Diciembre",
+  ],
+  en: [
+    "January",
+    "February",
+    "March",
+    "April",
+    "May",
+    "June",
+    "July",
+    "August",
+    "September",
+    "October",
+    "November",
+    "December",
+  ],
+};
+
+// Get sorted months (only those with books)
+const sortedMonths = Object.keys(booksByMonth)
+  .map(Number)
+  .sort((a, b) => a - b);
+
+// Counter for numbering books
+let bookNumber = 1;
+---
+
+{
+  sortedMonths.map((month) => (
+    <>
+      <h2>{monthNames[language][month]}</h2>
+      <ol start={bookNumber}>
+        {booksByMonth[month].map((book) => {
+          const currentNumber = bookNumber++;
+          const authorName = authorsMap.get(book.data.author) || book.data.author;
+          return (
+            <li>
+              <BookLink title={book.data.title} slug={book.data.post_slug} />, de <AuthorLink name={authorName} />.
+            </li>
+          );
+        })}
+      </ol>
+    </>
+  ))
+}
