@@ -45,12 +45,12 @@ const categories = findCategoriesBySlug(allCategories, book.categories);
 
 const authorWithGender = author?.data.gender === "male" ? "The author" : "The author";
 
-// Score rendering with emojis
+// Score rendering with Unicode stars
 const renderScoreEmoji = () => {
   if (book.score === "fav") {
     return "❤️❤️❤️❤️❤️";
   }
-  const stars = "⭐".repeat(book.score);
+  const stars = "★".repeat(book.score);
   const emptyStars = "☆".repeat(5 - book.score);
   return stars + emptyStars;
 };
