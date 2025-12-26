@@ -1,11 +1,12 @@
 ---
+import Breadcrumbs, { type BreadcrumbItem } from "@components/Breadcrumbs.astro";
 import Paginator from "@components/Paginator.astro";
 import PostList from "@components/PostList.astro";
 import PublisherList from "@components/PublisherList.astro";
-import SectionTitle from "@components/SectionTitle.astro";
+import Title from "@components/Title.astro";
 import Layout from "@layouts/Layout.astro";
 import { t } from "@locales";
-import { buildPublisherUrl } from "@utils/routes";
+import { buildPublisherUrl, buildPublishersIndexUrl } from "@utils/routes";
 
 import contactEs from "@/content/static/contact/es.json";
 import { TAXONOMY_CONFIGS, generateTaxonomyDetailPaths, getTaxonomyItemsWithCount } from "@/utils/taxonomyPages";
@@ -35,10 +36,18 @@ const basePath = buildPublisherUrl(lang, publisher.data.publisher_slug);
 
 // SEO description
 const description = `${content.length} ${content.length === 1 ? "libro" : "libros"} de la editorial ${publisher.data.name}`;
+
+// Build breadcrumbs
+const breadcrumbs: BreadcrumbItem[] = [
+  { label: t(lang, "pages.home"), url: `/${lang}` },
+  { label: t(lang, "pages.publishers"), url: buildPublishersIndexUrl(lang) },
+  { label: publisher.data.name }, // Current page, no URL
+];
 ---
 
 <Layout lang={lang} title={pageTitle} description={description} contact={contact}>
-  <SectionTitle title={pageTitle} />
+  <Breadcrumbs items={breadcrumbs} lang={lang} />
+  <Title title={pageTitle} srOnly={true} />
   <PostList posts={content} lang={lang} />
   <Paginator currentPage={currentPage} totalPages={totalPages} basePath={basePath} lang={lang} />
   <PublisherList publishers={publishersWithCounts} title={t(lang, "allPublishers")} lang={lang} />

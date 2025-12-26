@@ -1,11 +1,12 @@
 ---
+import Breadcrumbs, { type BreadcrumbItem } from "@components/Breadcrumbs.astro";
 import CategoryList from "@components/CategoryList.astro";
 import Paginator from "@components/Paginator.astro";
 import PostList from "@components/PostList.astro";
-import SectionTitle from "@components/SectionTitle.astro";
+import Title from "@components/Title.astro";
 import Layout from "@layouts/Layout.astro";
 import { t } from "@locales";
-import { buildCategoryUrl } from "@utils/routes";
+import { buildCategoryUrl, buildCategoriesIndexUrl } from "@utils/routes";
 
 import contactEs from "@/content/static/contact/es.json";
 import { TAXONOMY_CONFIGS, generateTaxonomyDetailPaths, getTaxonomyItemsWithCount } from "@/utils/taxonomyPages";
@@ -35,10 +36,18 @@ const basePath = buildCategoryUrl(lang, category.data.category_slug);
 
 // SEO description
 const description = `${content.length} ${content.length === 1 ? "entrada" : "entradas"} en la categoría ${category.data.name}`;
+
+// Build breadcrumbs
+const breadcrumbs: BreadcrumbItem[] = [
+  { label: t(lang, "pages.home"), url: `/${lang}` },
+  { label: t(lang, "pages.categories"), url: buildCategoriesIndexUrl(lang) },
+  { label: category.data.name }, // Current page, no URL
+];
 ---
 
 <Layout lang={lang} title={pageTitle} description={description} contact={contact} translationSlug={category.data.i18n}>
-  <SectionTitle title={pageTitle} />
+  <Breadcrumbs items={breadcrumbs} lang={lang} />
+  <Title title={pageTitle} srOnly={true} />
   <PostList posts={content} lang={lang} />
   <Paginator currentPage={currentPage} totalPages={totalPages} basePath={basePath} lang={lang} />
   <CategoryList categories={categoriesWithCounts} title={t(lang, "allCategories")} lang={lang} />

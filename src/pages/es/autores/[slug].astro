@@ -1,12 +1,13 @@
 ---
 import AuthorInfo from "@components/AuthorInfo.astro";
 import AuthorList from "@components/AuthorList.astro";
+import Breadcrumbs, { type BreadcrumbItem } from "@components/Breadcrumbs.astro";
 import Paginator from "@components/Paginator.astro";
 import PostList from "@components/PostList.astro";
 import Title from "@components/Title.astro";
 import Layout from "@layouts/Layout.astro";
 import { t } from "@locales";
-import { buildAuthorUrl } from "@utils/routes";
+import { buildAuthorUrl, buildAuthorsIndexUrl } from "@utils/routes";
 
 import contactEs from "@/content/static/contact/es.json";
 import { TAXONOMY_CONFIGS, generateTaxonomyDetailPaths, getTaxonomyItemsWithCount } from "@/utils/taxonomyPages";
@@ -38,10 +39,18 @@ const basePath = buildAuthorUrl(lang, author.data.author_slug);
 
 // SEO description
 const description = `${content.length} ${content.length === 1 ? "libro" : "libros"} de ${author.data.name} reseñados en el blog`;
+
+// Build breadcrumbs
+const breadcrumbs: BreadcrumbItem[] = [
+  { label: t(lang, "pages.home"), url: `/${lang}` },
+  { label: t(lang, "pages.authors"), url: buildAuthorsIndexUrl(lang) },
+  { label: author.data.name }, // Current page, no URL
+];
 ---
 
 <Layout lang={lang} title={pageTitle} description={description} contact={contact}>
-  <Title title={pageTitle} />
+  <Breadcrumbs items={breadcrumbs} lang={lang} />
+  <Title title={pageTitle} srOnly={true} />
 
   <div class="space" style="margin-bottom: 20px;">
     <AuthorInfo author={author} border={true} />

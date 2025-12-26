@@ -1,11 +1,12 @@
 ---
+import Breadcrumbs, { type BreadcrumbItem } from "@components/Breadcrumbs.astro";
 import CourseList from "@components/CourseList.astro";
 import Paginator from "@components/Paginator.astro";
 import PostList from "@components/PostList.astro";
-import SectionTitle from "@components/SectionTitle.astro";
+import Title from "@components/Title.astro";
 import Layout from "@layouts/Layout.astro";
 import { t } from "@locales";
-import { buildCourseUrl } from "@utils/routes";
+import { buildCourseUrl, buildCoursesIndexUrl } from "@utils/routes";
 
 import contactEn from "@/content/static/contact/en.json";
 import { TAXONOMY_CONFIGS, generateTaxonomyDetailPaths, getTaxonomyItemsWithCount } from "@/utils/taxonomyPages";
@@ -31,10 +32,18 @@ const coursesWithCounts = coursesData
 
 const pageTitle = `${t(lang, "pages.course")}: ${course.data.name}`;
 const basePath = buildCourseUrl(lang, course.data.course_slug);
+
+// Build breadcrumbs
+const breadcrumbs: BreadcrumbItem[] = [
+  { label: t(lang, "pages.home"), url: `/${lang}` },
+  { label: t(lang, "pages.courses"), url: buildCoursesIndexUrl(lang) },
+  { label: course.data.name }, // Current page, no URL
+];
 ---
 
 <Layout lang={lang} title={pageTitle} contact={contact} translationSlug={course.data.i18n}>
-  <SectionTitle title={pageTitle} />
+  <Breadcrumbs items={breadcrumbs} lang={lang} />
+  <Title title={pageTitle} srOnly={true} />
 
   {
     course.data.description && (
