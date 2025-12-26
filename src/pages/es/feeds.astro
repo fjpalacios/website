@@ -13,7 +13,7 @@ const feeds = [
   {
     title: t(lang, "feeds.general"),
     description: t(lang, "feeds.generalDescription"),
-    url: "/rss.xml",
+    url: "/es/rss.xml",
     icon: "📰",
   },
   {
@@ -54,7 +54,7 @@ const feedsContent = feeds
 const rssInfoContent = `<p>${t(lang, "feeds.whatIsRssDescription")}</p>`;
 ---
 
-<Layout title={pageTitle} description={pageDescription} lang={lang} contact={contact} translationSlug="/en/feeds">
+<Layout title={pageTitle} description={pageDescription} lang={lang} contact={contact}>
   <main class="feeds-page">
     <section class="feeds-page__section">
       <Title title={pageTitle} />

@@ -12,6 +12,7 @@ export async function GET(context: APIContext) {
     title: "fjp.es - Reseñas de Libros",
     description: "Reseñas y opiniones sobre libros de ficción, terror, suspense y más",
     site: context.site!,
+    customData: `<language>es</language>`,
     items: spanishBooks.map((book) => ({
       title: book.data.title,
       pubDate: book.data.date,

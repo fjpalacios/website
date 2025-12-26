@@ -12,6 +12,7 @@ export async function GET(context: APIContext) {
     title: "fjp.es - Tutoriales de Programación",
     description: "Tutoriales sobre JavaScript, Git, desarrollo web y más",
     site: context.site!,
+    customData: `<language>es</language>`,
     items: spanishTutorials.map((tutorial) => ({
       title: tutorial.data.title,
       pubDate: tutorial.data.date,
