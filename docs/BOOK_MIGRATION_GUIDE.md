@@ -105,44 +105,41 @@ Every book must have **ALL** required metadata fields. **WordPress exports do NO
 
 ⚠️ **IMAGES ARE CRITICAL**: A book/author without images looks broken and unprofessional. **ALWAYS verify images exist and load correctly.**
 
-#### Cover Images: Understanding the Fields
+#### Cover Images: Understanding the Fields ⚠️ CRITICAL
 
-**IMPORTANT**: There are THREE different image fields for books:
+**IMPORTANT**: There are TWO different image fields for books:
 
-1. **`cover`**: Default fallback image
+1. **`cover`**: Default fallback image ⭐ **ALWAYS USE THIS**
 
-   - **Almost always**: `/images/defaults/book-default-es.jpg` (or `-en.jpg` for English)
-   - Used as fallback when specific images are not available
-   - **DO NOT change this unless you have a specific reason**
+   - **ALWAYS**: `/images/defaults/book-default-es.jpg` (or `-en.jpg` for English)
+   - This is the ONLY value for `cover` field
+   - Used as fallback when book_cover is not loaded yet or is missing
+   - **NEVER change this value**
    - Path: `/images/defaults/book-default-[language].jpg`
 
-2. **`book_cover`**: The actual book cover image ⭐ **THIS IS WHAT YOU NEED TO SET**
+2. **`book_cover`**: The actual book cover image ⭐ **THIS IS THE REAL COVER**
 
    - The real book cover that appears on the book detail page
    - High quality image of the book cover
    - Path: `/images/books/book-name.jpg`
    - Stored in: `/home/fjpalacios/Code/website/public/images/books/`
    - **This is mandatory for every book migration**
-
-3. **`post_image`** (OPTIONAL): Featured post image
-   - Used in lists and blog roll views
-   - Can be different from `book_cover` (e.g., a quote image, custom graphic)
-   - Path: `/images/posts/post-name.jpg`
-   - Stored in: `/home/fjpalacios/Code/website/public/images/posts/`
-   - If not specified, `book_cover` is used
+   - Must be downloaded from `/WordPress/output/images/` or from https://fjp.es/book-slug/ if not found
 
 **Typical Frontmatter Structure**:
 
 ```yaml
-cover: "/images/defaults/book-default-es.jpg" # Keep as default
-book_cover: "/images/books/apocalipsis-stephen-king.jpg" # Set this!
-post_image: "/images/posts/special-image.jpg" # Optional
+cover: "/images/defaults/book-default-es.jpg" # ALWAYS this value
+book_cover: "/images/books/apocalipsis-stephen-king.jpg" # Download and set this!
 ```
+
+**There is NO `post_image` field for books. Only `cover` (default) and `book_cover` (actual).**
 
 **Book Cover Image Checklist** ⚠️ **MANDATORY**:
 
-- [ ] Download book cover from original website (https://fjp.es/book-slug/)
-  - Right-click on cover image → Copy image address
+- [ ] Check if cover exists in `/WordPress/output/images/` directory
+- [ ] If not found, download book cover from original website (https://fjp.es/book-slug/)
+  - Right-click on cover image → Save image
   - Use `wget` or save directly
 - [ ] Save to `/public/images/books/` with descriptive name (e.g., `book-slug.jpg`)
 - [ ] **VERIFY file exists**: `ls -lh public/images/books/book-slug.jpg`
@@ -153,15 +150,20 @@ post_image: "/images/posts/special-image.jpg" # Optional
 
 #### Author Images: Equally Important!
 
-**Author Photo Checklist** ⚠️ **MANDATORY if creating new author**:
+**Author Photo Checklist** ⚠️ **MANDATORY if author bio exists on fjp.es**:
 
+- [ ] Check if author bio exists on https://fjp.es/author-slug/
+- [ ] If bio exists, author photo is **MANDATORY** (not optional)
 - [ ] Download author photo from original website
   - URL pattern: `https://fjp.es/wp-content/uploads/author-slug.jpg`
+  - Or inspect the page source to find the exact image URL
 - [ ] Save to `/public/images/authors/` with author slug name
 - [ ] **VERIFY file exists**: `ls -lh public/images/authors/author-slug.jpg`
 - [ ] **CHECK file size**: Should be > 5KB
 - [ ] Add `picture` field to author frontmatter
 - [ ] **TEST in browser**: Image must load on author page
+
+**Note**: If the author bio exists on fjp.es, both the bio text AND the photo are mandatory.
 
 **Common image commands**:
 

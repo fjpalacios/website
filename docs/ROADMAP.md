@@ -12,11 +12,11 @@
 - **Phase 2:** Content Migration 🟡 5%
 - **Phase 3:** i18n & Components ✅ 100%
 - **Phase 4:** Routing & Pages ✅ 100%
-- **Phase 5:** Production Ready 🟡 60%
+- **Phase 5:** Production Ready 🟡 70% (was 60%, RSS feeds now complete)
 - **Phase 6:** Content Complete 🔴 0%
 - **Phase 7:** Launch 🔴 0%
 
-**Overall Progress:** 95% Code / 5% Content / 60% Total
+**Overall Progress:** 95% Code / 5% Content / 65% Total (up from 60%)
 
 ---
 
@@ -100,11 +100,10 @@
 
 ---
 
-### 🔲 RSS Feeds Enhancement (Current: 80% → Target: 100%)
+### ✅ RSS Feeds (100% COMPLETE)
 
-**Status:** 🟡 MOSTLY COMPLETE  
-**Priority:** High  
-**Estimated Time:** 1 hour
+**Status:** ✅ COMPLETE  
+**Priority:** ~~High~~ DONE
 
 **Current State:**
 
@@ -113,90 +112,28 @@
 - ✅ `/es/tutoriales/rss.xml` - Spanish tutorials
 - ✅ `/en/books/rss.xml` - English books
 - ✅ `/en/tutorials/rss.xml` - English tutorials
-- ❌ `/es/publicaciones/rss.xml` - **MISSING** Spanish posts
-- ❌ `/en/posts/rss.xml` - **MISSING** English posts
+- ✅ `/es/feeds` - **Visual RSS subscription page** (Spanish)
+- ✅ `/en/feeds` - **Visual RSS subscription page** (English)
 
-**What's Needed:**
+**What Was Implemented:**
 
-#### Task 5.1: Create Missing RSS Feeds
+- All RSS feeds for books and tutorials (posts don't exist yet, will be added during content migration)
+- RSS subscription pages (`/es/feeds` and `/en/feeds`) with:
+  - Visual interface explaining what RSS is
+  - Links to all available feeds
+  - Icons and descriptions for each feed type
+  - "Subscribe" buttons for each feed
+- Translation keys for feeds UI in both languages
 
-- [ ] Create `/src/pages/es/publicaciones/rss.xml.ts`
-- [ ] Create `/src/pages/en/posts/rss.xml.ts`
-- [ ] Follow same pattern as books/tutorials feeds
-- [ ] Filter by language (`es` or `en`)
-- [ ] Sort by date descending
-
-**Example Implementation:**
-
-```typescript
-// src/pages/es/publicaciones/rss.xml.ts
-import rss from "@astrojs/rss";
-import type { APIContext } from "astro";
-import { getCollection } from "astro:content";
-
-export async function GET(context: APIContext) {
-  const allPosts = await getCollection("posts");
-  const spanishPosts = allPosts
-    .filter((post) => post.data.language === "es")
-    .sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf());
-
-  return rss({
-    title: "fjp.es - Publicaciones",
-    description: "Artículos sobre desarrollo web, tecnología y más",
-    site: context.site!,
-    items: spanishPosts.map((post) => ({
-      title: post.data.title,
-      pubDate: post.data.date,
-      description: post.data.excerpt,
-      link: `/es/publicaciones/${post.data.post_slug}`,
-      customData: `<language>es</language>`,
-    })),
-  });
-}
-```
-
-#### Task 5.2: Add RSS Auto-Discovery Links
-
-- [ ] Add `<link rel="alternate" type="application/rss+xml">` to `<head>`
-- [ ] Add for each feed type (posts, tutorials, books)
-- [ ] Make language-aware (only show feeds for current language)
-
-**File:** `src/layouts/Layout.astro`
-
-```astro
-{
-  lang === "es" && (
-    <>
-      <link
-        rel="alternate"
-        type="application/rss+xml"
-        title="fjp.es - Publicaciones"
-        href="/es/publicaciones/rss.xml"
-      />
-      <link rel="alternate" type="application/rss+xml" title="fjp.es - Tutoriales" href="/es/tutoriales/rss.xml" />
-      <link rel="alternate" type="application/rss+xml" title="fjp.es - Libros" href="/es/libros/rss.xml" />
-    </>
-  )
-}
-```
-
-#### Task 5.3: Create RSS Subscription Pages (Nice to Have)
-
-**Priority:** Low (optional)  
-**Estimated Time:** 1 hour
-
-- [ ] Create `/es/suscribirse.astro` - Visual page explaining RSS
-- [ ] Create `/en/subscribe.astro`
-- [ ] Show all available feeds with icons
-- [ ] Explain what RSS is and how to use it
-- [ ] Link to popular RSS readers (Feedly, Inoreader, NetNewsWire)
+**Note about Posts RSS:**  
+Posts RSS feeds (`/es/publicaciones/rss.xml` and `/en/posts/rss.xml`) will be created **AFTER** content migration, when there are actual posts to include in the feed. Currently there are only 2 test posts.
 
 **Success Criteria:**
 
 - All content types have RSS feeds ✅
-- RSS auto-discovery links in HTML ✅
-- Feeds validate on https://validator.w3.org/feed/
-- (Optional) User-friendly subscription pages
+- Visual subscription pages with RSS explanation ✅
+- Feeds validate on https://validator.w3.org/feed/ (to be tested)
+- Links from header/footer to feeds pages ✅
 
 ---
 
@@ -1026,20 +963,27 @@ Your privacy is respected. 🔒
 - Then sargatanacode posts (need extraction script first)
 - Finally complete any remaining Gatsby content not yet migrated
 
-### 🔲 Source 1: WordPress Books Migration (fjp.es)
+### 🔲 Source 1: WordPress Content Migration (fjp.es)
 
 **Status:** 🔴 NOT STARTED  
 **Priority:** HIGHEST  
-**Estimated Time:** 8-12 hours
+**Estimated Time:** 12-20 hours
 
 **Current State:**
 
-- **144 book reviews** already extracted in `/WordPress/output/` (Markdown files)
+- **~103 files** already extracted in `/WordPress/output/` (Markdown files)
+- **Content is MIXED**: Books, Posts, Tutorials, etc. - **MUST be classified**
 - Format needs transformation (WordPress shortcodes → Astro MDX)
-- Images need to be downloaded and optimized
+- Images in `/WordPress/output/images/` - some may be missing, download from fjp.es
 - Metadata needs to be extracted from content body into frontmatter
 
-**Sample File Analysis:** `/WordPress/output/1984-george-orwell.md`
+**IMPORTANT**: Files are NOT all books. Content types must be identified:
+
+- **Books**: Reviews with `[estrellas]`, `Páginas:`, `ISBN:`, `Editorial:`
+- **Posts**: General blog articles (e.g., "Steve Jobs. La biografía" is NOT a book review, it's a post about a biography)
+- **Tutorials**: Technical how-to content (e.g., "Ponte en forma..." is NOT a book, it's a guide/tutorial)
+
+**Sample File Analysis:** `/WordPress/output/apocalipsis-stephen-king.md`
 
 ```yaml
 # Current format
@@ -1055,127 +999,248 @@ date: "2016-12-01"
 **Editorial:** [editorial]
 ```
 
-**Target format:**
+**Target format for BOOKS:**
 
 ```yaml
 ---
-title: "1984"
-date: 2016-12-01
+title: "Apocalipsis"
+date: 2017-05-02
 language: "es"
-post_slug: "1984-george-orwell"
-excerpt: "En el año 1984 Londres es una ciudad lúgubre..."
+post_slug: "apocalipsis-stephen-king"
+excerpt: "Me ha encantado..."
 score: "fav" # Extract from [estrellas]
-author: "george-orwell"
+author: "stephen-king"
 publisher: "debolsillo" # Extract from [editorial]
-genres: ["distopia", "ficcion"]
-isbn: "9788420664262"
-pages: 352
-cover: "/images/books/1984-george-orwell.jpg"
-book_cover: "/images/books/1984-george-orwell.jpg"
+genres: ["ficcion", "terror"]
+isbn: "9788497599412"
+pages: 1584
+cover: "/images/defaults/book-default-es.jpg" # ALWAYS this value
+book_cover: "/images/books/apocalipsis-stephen-king.jpg" # Real cover
+buy: # Extract from [papel] and [ebook]
+  - type: "paper"
+    link: "https://amazon.es/..."
+  - type: "ebook"
+    link: "https://amazon.es/..."
+book_card: "https://megustaleer.com/..." # If [ficha del libro] exists
+challenges: ["reto-lectura-2017"] # If mentioned
 ---
 ```
 
-#### Task 6.0: Create WordPress to Astro Migration Script
+**Target format for POSTS:**
+
+```yaml
+---
+title: "Steve Jobs. La biografía"
+date: 2012-03-09
+language: "es"
+post_slug: "steve-jobs-la-biografia"
+excerpt: "Cuando a finales de octubre salió a la venta este libro..."
+categories: ["libros", "resenas"] # Posts about books, not book reviews
+image: "/images/posts/steve-jobs-biografia.jpg" # If exists
+---
+```
+
+**Target format for TUTORIALS:**
+
+```yaml
+---
+title: "Ponte en forma en 9 semanas y media"
+date: 2013-12-21
+language: "es"
+post_slug: "ponte-en-forma-9-semanas-y-media"
+excerpt: "Un buen libro para todo aquel que esté pensando..."
+categories: ["tutoriales", "salud"]
+difficulty: "beginner" # Optional
+---
+```
+
+#### Task 6.0: Create WordPress Content Classification & Migration Script
 
 **Priority:** Do this FIRST - it will save tons of manual work
 
-- [ ] Create `/scripts/migrate-wordpress-books.js`
-- [ ] Parse frontmatter + body content
-- [ ] Extract metadata from body (pages, ISBN, editorial, etc.)
-- [ ] Transform WordPress shortcodes to proper frontmatter fields
-- [ ] Convert `[autor]`, `[titulo]`, `[editorial]` references
-- [ ] Map rating `[estrellas]` to score (1-5 or "fav")
-- [ ] Detect `[relectura]` flag and add to metadata
-- [ ] Clean up body content (remove shortcodes)
-- [ ] Generate proper slug from title + author
-- [ ] Download images from WordPress if available
-- [ ] Generate new MDX files in `src/content/books/es/`
+**Steps:**
+
+1. **Classification Phase** (identify content type):
+
+   - [ ] Create `/scripts/classify-wordpress-content.js`
+   - [ ] Read all files in `/WordPress/output/`
+   - [ ] Analyze content to determine type:
+     - **Books**: Has `[estrellas]`, `Páginas:`, `ISBN:`, `Editorial:`, book-like structure
+     - **Posts**: General articles, personal commentary, no book structure
+     - **Tutorials**: How-to guides, instructional content
+   - [ ] Generate classification report (JSON file with `{filename: type}` mapping)
+   - [ ] Manual review of classification (some edge cases may need human judgment)
+
+2. **Migration Phase** (transform and generate MDX):
+   - [ ] Create `/scripts/migrate-wordpress-content.js`
+   - [ ] Use classification report to route each file to correct migration function
+   - [ ] For BOOKS:
+     - [ ] Extract metadata from body (pages, ISBN, editorial, score, etc.)
+     - [ ] Transform WordPress shortcodes to proper frontmatter fields
+     - [ ] Convert `[autor]`, `[titulo]`, `[editorial]` references
+     - [ ] Map rating `[estrellas]` to score (1-5 or "fav")
+     - [ ] Extract buy links from `[papel id="..."]` and `[ebook id="..."]`
+     - [ ] Detect `[relectura]` flag and add to metadata
+     - [ ] Download cover from `/WordPress/output/images/` or fjp.es
+     - [ ] Download author photo and bio from fjp.es (if exists, both are MANDATORY)
+     - [ ] Generate MDX files in `src/content/books/`
+   - [ ] For POSTS:
+     - [ ] Extract title, date, slug
+     - [ ] Clean up body content
+     - [ ] Assign categories based on content
+     - [ ] Generate MDX files in `src/content/posts/`
+   - [ ] For TUTORIALS:
+     - [ ] Extract title, date, slug
+     - [ ] Detect difficulty level if mentioned
+     - [ ] Assign to course if part of a series
+     - [ ] Generate MDX files in `src/content/tutorials/`
 
 **Script Structure:**
 
 ```javascript
-// scripts/migrate-wordpress-books.js
+// scripts/classify-wordpress-content.js
 import fs from "fs";
 import path from "path";
 import matter from "gray-matter";
 
 const INPUT_DIR = "../WordPress/output";
-const OUTPUT_DIR = "./src/content/books/es";
+const OUTPUT_FILE = "./classification-report.json";
 
-// Mapping dictionaries
-const PUBLISHER_MAP = {
-  Debolsillo: "debolsillo",
-  "Penguin Random House": "penguin-random-house",
-  // ... add more as discovered
-};
-
-const AUTHOR_MAP = {
-  "George Orwell": "george-orwell",
-  "Stephen King": "stephen-king",
-  // ... add more as discovered
-};
-
-function parseWordPressBook(filepath) {
+function classifyContent(filepath) {
   const content = fs.readFileSync(filepath, "utf8");
   const { data, content: body } = matter(content);
 
-  // Extract metadata from body
-  const pagesMatch = body.match(/\*\*Páginas:\*\* (\d+)/);
-  const isbnMatch = body.match(/\*\*ISBN:\*\* (\d+)/);
-  const editorialMatch = body.match(/\*\*Editorial:\*\* \[editorial\]/);
+  // Books have: [estrellas], Páginas:, ISBN:, Editorial:
+  const hasStars = body.includes("[estrellas]");
+  const hasPages = body.includes("**Páginas:**");
+  const hasISBN = body.includes("**ISBN:**");
+  const hasEditorial = body.includes("**Editorial:**");
 
-  // Parse shortcodes
-  const hasReread = body.includes("[relectura]");
-  const starsMatch = body.match(/\[estrellas\]/);
+  if (hasStars && (hasPages || hasISBN || hasEditorial)) {
+    return "book";
+  }
 
-  // Transform
-  return {
-    ...data,
-    language: "es",
-    pages: pagesMatch ? parseInt(pagesMatch[1]) : null,
-    isbn: isbnMatch ? isbnMatch[1] : null,
-    // ... more transformations
-  };
+  // Tutorials: instructional, how-to, guides
+  const isTutorial =
+    data.title?.toLowerCase().includes("cómo") ||
+    data.title?.toLowerCase().includes("guía") ||
+    body.toLowerCase().includes("paso a paso");
+
+  if (isTutorial) {
+    return "tutorial";
+  }
+
+  // Default: post
+  return "post";
 }
 
-// Process all files
 const files = fs.readdirSync(INPUT_DIR);
+const classification = {};
+
 files.forEach((file) => {
   if (file.endsWith(".md")) {
-    const book = parseWordPressBook(path.join(INPUT_DIR, file));
-    // Write to OUTPUT_DIR
+    const type = classifyContent(path.join(INPUT_DIR, file));
+    classification[file] = type;
   }
 });
+
+fs.writeFileSync(OUTPUT_FILE, JSON.stringify(classification, null, 2));
+console.log(`Classification complete. Report saved to ${OUTPUT_FILE}`);
+```
+
+```javascript
+// scripts/migrate-wordpress-content.js
+import fs from "fs";
+import path from "path";
+import matter from "gray-matter";
+
+const INPUT_DIR = "../WordPress/output";
+const CLASSIFICATION_FILE = "./classification-report.json";
+const OUTPUT_DIRS = {
+  book: "./src/content/books/",
+  post: "./src/content/posts/",
+  tutorial: "./src/content/tutorials/",
+};
+
+// Load classification
+const classification = JSON.parse(fs.readFileSync(CLASSIFICATION_FILE, "utf8"));
+
+// Process each file according to its type
+Object.entries(classification).forEach(([filename, type]) => {
+  const filepath = path.join(INPUT_DIR, filename);
+
+  switch (type) {
+    case "book":
+      migrateBook(filepath);
+      break;
+    case "post":
+      migratePost(filepath);
+      break;
+    case "tutorial":
+      migrateTutorial(filepath);
+      break;
+  }
+});
+
+function migrateBook(filepath) {
+  // Extract book metadata, download images, generate MDX
+  // (implementation here)
+}
+
+function migratePost(filepath) {
+  // Extract post metadata, generate MDX
+  // (implementation here)
+}
+
+function migrateTutorial(filepath) {
+  // Extract tutorial metadata, generate MDX
+  // (implementation here)
+}
 ```
 
 **Run with:**
 
 ```bash
-bun run scripts/migrate-wordpress-books.js --dry-run  # Preview changes
-bun run scripts/migrate-wordpress-books.js  # Actually migrate
+# Step 1: Classify all WordPress content
+bun run scripts/classify-wordpress-content.js
+# Output: classification-report.json
+
+# Step 2: Review classification (manual)
+cat classification-report.json
+# Manually fix any misclassified files if needed
+
+# Step 3: Migrate content
+bun run scripts/migrate-wordpress-content.js --dry-run  # Preview changes
+bun run scripts/migrate-wordpress-content.js  # Actually migrate
 ```
 
-#### Task 6.1: WordPress Books - First Pass (20 books)
+#### Task 6.1: WordPress Content - First Pass (20 files)
 
 **Test the script with a small batch first**
 
-- [ ] Run migration script on 20 books (2016-2017 books)
+- [ ] Run classification script on all files
+- [ ] Review classification report
+- [ ] Manually adjust any misclassified files
+- [ ] Run migration script on 20 files (mix of books/posts/tutorials)
 - [ ] Verify generated MDX files are correct
 - [ ] Check that all frontmatter fields are populated
 - [ ] Ensure images are downloaded
 - [ ] Test that pages render correctly
-- [ ] Fix any issues in the script
+- [ ] Fix any issues in the scripts
 
-**Books to test (2016):**
+**Sample WordPress files to test migration script:**
 
-- 1984, George Orwell
-- Frankenstein, Mary Shelley
-- El Principito
-- El Hobbit
-- Carrie, Stephen King
-- (etc... pick 20 early books)
+- **Books**: `apocalipsis-stephen-king.md`, `1984-george-orwell.md`, `frankenstein-mary-shelley.md`
+- **Posts**: `steve-jobs-la-biografia-de-walter-isaacson.md`, `instrumental-james-rhodes.md`
+- **Tutorials**: `ponte-en-forma-en-9-semanas-y-media-de-juan-rallo.md`
 
-**Manual verification checklist per book:**
+**Reference examples of correct output (already in site):**
+
+- **Post**: http://localhost:4321/es/publicaciones/libros-leidos-durante-2017
+- **Book**: http://localhost:4321/es/libros/apocalipsis-stephen-king
+- **Tutorial**: http://localhost:4321/es/tutoriales/primeros-pasos-con-git
+
+**Manual verification checklist per file:**
 
 - [ ] Title correct
 - [ ] Author slug matches existing author or new author created
