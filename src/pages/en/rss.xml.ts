@@ -2,38 +2,19 @@ import rss from "@astrojs/rss";
 import type { APIContext } from "astro";
 import { getCollection } from "astro:content";
 
+import { generateMultiCollectionFeed } from "@/utils/rss/generator";
+
 export async function GET(context: APIContext) {
-  const books = await getCollection("books", ({ data }) => data.language === "en");
-  const posts = await getCollection("posts", ({ data }) => data.language === "en");
-  const tutorials = await getCollection("tutorials", ({ data }) => data.language === "en");
+  const books = await getCollection("books");
+  const posts = await getCollection("posts");
+  const tutorials = await getCollection("tutorials");
 
-  const allContent = [...books, ...posts, ...tutorials].sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf());
-
-  return rss({
+  const feedData = generateMultiCollectionFeed([books, posts, tutorials], {
     title: "fjp.es - Blog in English",
     description: "Personal blog about books, programming and technology",
-    site: context.site!,
-    customData: `<language>en</language>`,
-    items: allContent.map((item) => {
-      const isBook = item.collection === "books";
-      const isTutorial = item.collection === "tutorials";
-
-      // Build the correct URL based on content type
-      let link = "";
-      if (isBook) {
-        link = `/en/books/${item.data.post_slug}`;
-      } else if (isTutorial) {
-        link = `/en/tutorials/${item.data.post_slug}`;
-      } else {
-        link = `/en/posts/${item.data.post_slug}`;
-      }
-
-      return {
-        title: item.data.title,
-        pubDate: item.data.date,
-        description: item.data.excerpt,
-        link,
-      };
-    }),
+    site: context.site!.toString(),
+    language: "en",
   });
+
+  return rss(feedData);
 }
