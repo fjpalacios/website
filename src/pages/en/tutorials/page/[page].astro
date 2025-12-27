@@ -26,7 +26,9 @@ const pageDescription = "Web development tutorials and guides";
 
   {
     tutorials.length > 0 ? (
-      <PostList posts={tutorials} lang={lang} />
+      <div data-pagefind-ignore>
+        <PostList posts={tutorials} lang={lang} />
+      </div>
     ) : (
       <div class="empty-state">
         <p>{t(lang, "emptyState.tutorials")}</p>

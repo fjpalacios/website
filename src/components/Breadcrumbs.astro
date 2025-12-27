@@ -26,10 +26,10 @@ const breadcrumbSchema = {
 };
 ---
 
-<nav class="breadcrumbs" aria-label="breadcrumb">
+<nav class="breadcrumbs" aria-label="breadcrumb" data-pagefind-ignore>
   <ol class="breadcrumbs__list">
     {
-      items.map((item, index) => (
+      items.map((item, _index) => (
         <li class="breadcrumbs__item">
           {item.url ? (
             <a href={item.url} class="breadcrumbs__link">

@@ -69,6 +69,8 @@ if (post.updated) {
       <div class="cover-image-wrapper">
         <img src={coverImage} alt={post.title} loading="lazy" />
       </div>
+      <!-- Pagefind title meta -->
+      <span data-pagefind-meta="title" style="display: none;">{post.title}</span>
       <PostTitle title={post.title} date={post.date} lang={lang} />
       <div class="text-area">
         <Content />

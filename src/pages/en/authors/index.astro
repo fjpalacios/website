@@ -30,13 +30,15 @@ const pageDescription = t(lang, "allAuthors");
 >
   <Title title={pageTitle} />
 
-  {
-    itemsWithContent.length > 0 ? (
-      <AuthorList authors={itemsWithContent} title={t(lang, "allAuthors")} lang={lang} showCount={true} />
-    ) : (
-      <div class="empty-state">
-        <p>{t(lang, "emptyState.authors")}</p>
-      </div>
-    )
-  }
+  <div data-pagefind-ignore>
+    {
+      itemsWithContent.length > 0 ? (
+        <AuthorList authors={itemsWithContent} title={t(lang, "allAuthors")} lang={lang} showCount={true} />
+      ) : (
+        <div class="empty-state">
+          <p>{t(lang, "emptyState.authors")}</p>
+        </div>
+      )
+    }
+  </div>
 </Layout>

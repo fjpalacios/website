@@ -14,6 +14,7 @@ interface Props {
   contact: ContactItem[];
   translationSlug?: string; // Slug of the translated version (from i18n field)
   hasTargetContent?: boolean; // Whether target language has content (for index pages)
+  shortTitle?: boolean; // Use short title without site name suffix (for taxonomy pages)
   // SEO-specific props
   image?: string;
   type?: "website" | "article" | "book";
@@ -27,6 +28,7 @@ const {
   contact,
   translationSlug,
   hasTargetContent,
+  shortTitle = false,
   image,
   type = "website",
   schema,
@@ -34,8 +36,9 @@ const {
 const currentPath = Astro.url.pathname;
 
 // Build full title: "Page Title - Name" or just "Name" for home
+// For taxonomy pages with shortTitle=true, use only the title without site name
 const fullName = t(lang, "title");
-const metaTitle = title ? `${title} - ${fullName}` : fullName;
+const metaTitle = shortTitle ? title || fullName : title ? `${title} - ${fullName}` : fullName;
 const metaDescription = description || t(lang, "metaData.description");
 const metaImage = image || t(lang, "metaData.image");
 // Build full URL with current path
@@ -145,9 +148,12 @@ const baseUrl = t(lang, "metaData.url");
           currentPath={currentPath}
           translationSlug={translationSlug}
           hasTargetContent={hasTargetContent}
+          data-pagefind-ignore
         />
         <Header lang={lang} contact={contact} />
-        <div class="content">
+        <!-- Named slot for JSON-LD schemas (outside pagefind-body to avoid indexing) -->
+        <slot name="schema" />
+        <div class="content" data-pagefind-body>
           <slot />
         </div>
       </div>

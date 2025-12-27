@@ -24,15 +24,17 @@ const pageDescription = "Reseñas de libros";
 <Layout lang={lang} title={pageTitle} description={pageDescription} contact={contact}>
   <Title title={pageTitle} />
 
-  {
-    books.length > 0 ? (
-      <PostList posts={books} lang={lang} />
-    ) : (
-      <div class="empty-state">
-        <p>{t(lang, "emptyState.books")}</p>
-      </div>
-    )
-  }
+  <div data-pagefind-ignore>
+    {
+      books.length > 0 ? (
+        <PostList posts={books} lang={lang} />
+      ) : (
+        <div class="empty-state">
+          <p>{t(lang, "emptyState.books")}</p>
+        </div>
+      )
+    }
+  </div>
 
   <Paginator currentPage={currentPage} totalPages={totalPages} basePath="/es/libros" lang={lang} />
 </Layout>

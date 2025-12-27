@@ -4,6 +4,7 @@ import PostList from "@components/PostList.astro";
 import Title from "@components/Title.astro";
 import Layout from "@layouts/Layout.astro";
 import { t } from "@locales";
+
 import contactEs from "@/content/static/contact/es.json";
 import { generatePostsPaginationPaths } from "@/utils/postsPages";
 
@@ -25,7 +26,9 @@ const pageDescription = "Artículos y tutoriales sobre desarrollo web";
 
   {
     posts.length > 0 ? (
-      <PostList posts={posts} lang={lang} />
+      <div data-pagefind-ignore>
+        <PostList posts={posts} lang={lang} />
+      </div>
     ) : (
       <div class="empty-state">
         <p>{t(lang, "emptyState.posts")}</p>

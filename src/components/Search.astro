@@ -47,6 +47,27 @@ const { lang } = Astro.props;
   // This script runs on every page load (including view transitions)
   (function () {
     let pagefindUI = null;
+    let pagefindCSSLoaded = false;
+
+    // Ensure Pagefind CSS is loaded
+    function ensurePagefindCSS() {
+      if (pagefindCSSLoaded) return;
+
+      const existingLink = document.querySelector('link[href*="pagefind-ui.css"]');
+      if (existingLink) {
+        pagefindCSSLoaded = true;
+        return;
+      }
+
+      // If CSS link doesn't exist or failed to load, add it
+      const link = document.createElement("link");
+      link.rel = "stylesheet";
+      link.href = "/pagefind/pagefind-ui.css";
+      link.onload = () => {
+        pagefindCSSLoaded = true;
+      };
+      document.head.appendChild(link);
+    }
 
     function initializePagefind() {
       if (pagefindUI) return; // Already initialized
@@ -54,13 +75,16 @@ const { lang } = Astro.props;
       const searchContainer = document.getElementById("search");
       if (!searchContainer || !window.PagefindUI) return;
 
+      // Ensure CSS is loaded before initializing
+      ensurePagefindCSS();
+
       // Get lang from body data attribute
       const lang = document.body.dataset.lang || "es";
 
       try {
         pagefindUI = new window.PagefindUI({
           element: "#search",
-          showSubResults: true,
+          showSubResults: false, // Disable sub-results to avoid duplicates
           showImages: false,
           excerptLength: 15,
           translations: {

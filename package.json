@@ -4,7 +4,9 @@
   "version": "0.0.1",
   "scripts": {
     "dev": "astro dev",
+    "dev:search": "bun run scripts/copy-pagefind-dev.js && astro dev",
     "build": "astro build && bun run pagefind --site dist",
+    "postbuild": "bun run scripts/copy-pagefind-dev.js",
     "preview": "astro preview",
     "astro": "astro",
     "format": "prettier --write .",

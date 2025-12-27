@@ -49,19 +49,21 @@ const itemListSchema = generateItemListSchema(
   contact={contactEn}
   hasTargetContent={hasTargetContent}
 >
-  <script type="application/ld+json" set:html={JSON.stringify(itemListSchema)} />
-
   <Title title={pageTitle} />
 
-  {
-    posts.length > 0 ? (
-      <PostList posts={posts} lang={lang} />
-    ) : (
-      <div class="empty-state">
-        <p>{t(lang, "emptyState.posts")}</p>
-      </div>
-    )
-  }
+  <div data-pagefind-ignore>
+    <script type="application/ld+json" set:html={JSON.stringify(itemListSchema)} />
+
+    {
+      posts.length > 0 ? (
+        <PostList posts={posts} lang={lang} />
+      ) : (
+        <div class="empty-state">
+          <p>{t(lang, "emptyState.posts")}</p>
+        </div>
+      )
+    }
+  </div>
 
   <Paginator currentPage={currentPage} totalPages={totalPages} basePath="/en/posts" lang={lang} />
 </Layout>

@@ -59,11 +59,13 @@ const itemListSchema = generateItemListSchema(
 ---
 
 <Layout lang={lang} title={pageTitle} contact={contact} translationSlug={challenge.data.i18n}>
-  <script type="application/ld+json" set:html={JSON.stringify(itemListSchema)} />
+  <script slot="schema" type="application/ld+json" set:html={JSON.stringify(itemListSchema)} />
 
   <Breadcrumbs items={breadcrumbs} lang={lang} />
-  <Title title={pageTitle} srOnly={true} />
-  <PostList posts={content} lang={lang} />
+  <Title title={pageTitle} srOnly={false} useAsPagefindTitle={true} />
+  <div data-pagefind-ignore>
+    <PostList posts={content} lang={lang} />
+  </div>
   <Paginator currentPage={currentPage} totalPages={totalPages} basePath={basePath} lang={lang} />
   <ChallengeList challenges={challengesWithCounts} title={t(lang, "allChallenges")} lang={lang} />
 </Layout>

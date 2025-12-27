@@ -30,3 +30,6 @@ coverage/
 playwright-report/
 test-results/
 /playwright/.cache/
+
+# pagefind (generated, copied from dist/ for dev)
+/public/pagefind/

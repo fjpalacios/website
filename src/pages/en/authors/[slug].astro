@@ -66,17 +66,22 @@ const itemListSchema = generateItemListSchema(
 );
 ---
 
-<Layout lang={lang} title={pageTitle} description={description} contact={contact}>
-  <script type="application/ld+json" set:html={JSON.stringify(itemListSchema)} />
+<Layout lang={lang} title={pageTitle} description={description} contact={contact} shortTitle={true}>
+  <script slot="schema" type="application/ld+json" set:html={JSON.stringify(itemListSchema)} />
 
   <Breadcrumbs items={breadcrumbs} lang={lang} />
-  <Title title={pageTitle} srOnly={true} />
+  <Title title={pageTitle} srOnly={false} useAsPagefindTitle={true} />
 
-  <div class="space" style="margin-bottom: 20px;">
+  <!-- Short indexable description for Pagefind -->
+  <p class="sr-only" aria-hidden="true">{description}</p>
+
+  <div class="space" style="margin-bottom: 20px;" data-pagefind-ignore>
     <AuthorInfo author={author} border={true} />
   </div>
 
-  <PostList posts={content} lang={lang} />
+  <div data-pagefind-ignore>
+    <PostList posts={content} lang={lang} />
+  </div>
 
   <Paginator currentPage={currentPage} totalPages={totalPages} basePath={basePath} lang={lang} />
 

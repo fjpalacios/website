@@ -35,13 +35,15 @@ const pageDescription = t(lang, "allGenres");
 >
   <Title title={pageTitle} />
 
-  {
-    genresWithContent.length > 0 ? (
-      <GenreList genres={genresWithContent} title={t(lang, "allGenres")} lang={lang} showCount={true} />
-    ) : (
-      <div class="empty-state">
-        <p>{t(lang, "emptyState.genres")}</p>
-      </div>
-    )
-  }
+  <div data-pagefind-ignore>
+    {
+      genresWithContent.length > 0 ? (
+        <GenreList genres={genresWithContent} title={t(lang, "allGenres")} lang={lang} showCount={true} />
+      ) : (
+        <div class="empty-state">
+          <p>{t(lang, "emptyState.genres")}</p>
+        </div>
+      )
+    }
+  </div>
 </Layout>

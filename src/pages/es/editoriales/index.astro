@@ -29,13 +29,20 @@ const pageDescription = t(lang, "allPublishers");
   hasTargetContent={hasTargetLangContent}
 >
   <Title title={pageTitle} />
-  {
-    publishersWithContent.length > 0 ? (
-      <PublisherList publishers={publishersWithContent} title={t(lang, "allPublishers")} lang={lang} showCount={true} />
-    ) : (
-      <div class="empty-state">
-        <p>{t(lang, "emptyState.publishers")}</p>
-      </div>
-    )
-  }
+  <div data-pagefind-ignore>
+    {
+      publishersWithContent.length > 0 ? (
+        <PublisherList
+          publishers={publishersWithContent}
+          title={t(lang, "allPublishers")}
+          lang={lang}
+          showCount={true}
+        />
+      ) : (
+        <div class="empty-state">
+          <p>{t(lang, "emptyState.publishers")}</p>
+        </div>
+      )
+    }
+  </div>
 </Layout>

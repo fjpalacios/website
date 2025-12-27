@@ -35,13 +35,20 @@ const pageDescription = t(lang, "allCategories");
 >
   <Title title={pageTitle} />
 
-  {
-    categoriesWithContent.length > 0 ? (
-      <CategoryList categories={categoriesWithContent} title={t(lang, "allCategories")} lang={lang} showCount={true} />
-    ) : (
-      <div class="empty-state">
-        <p>{t(lang, "emptyState.categories")}</p>
-      </div>
-    )
-  }
+  <div data-pagefind-ignore>
+    {
+      categoriesWithContent.length > 0 ? (
+        <CategoryList
+          categories={categoriesWithContent}
+          title={t(lang, "allCategories")}
+          lang={lang}
+          showCount={true}
+        />
+      ) : (
+        <div class="empty-state">
+          <p>{t(lang, "emptyState.categories")}</p>
+        </div>
+      )
+    }
+  </div>
 </Layout>

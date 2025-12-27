@@ -30,13 +30,15 @@ const pageDescription = t(lang, "allSeries");
 >
   <Title title={pageTitle} />
 
-  {
-    itemsWithContent.length > 0 ? (
-      <SeriesList series={itemsWithContent} title={t(lang, "allSeries")} lang={lang} showCount={true} />
-    ) : (
-      <div class="empty-state">
-        <p>{t(lang, "emptyState.series")}</p>
-      </div>
-    )
-  }
+  <div data-pagefind-ignore>
+    {
+      itemsWithContent.length > 0 ? (
+        <SeriesList series={itemsWithContent} title={t(lang, "allSeries")} lang={lang} showCount={true} />
+      ) : (
+        <div class="empty-state">
+          <p>{t(lang, "emptyState.series")}</p>
+        </div>
+      )
+    }
+  </div>
 </Layout>

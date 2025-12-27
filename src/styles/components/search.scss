@@ -130,6 +130,29 @@
     padding: 1rem;
     max-height: 60vh;
     overflow-y: auto;
+
+    // Custom scrollbar styling
+    &::-webkit-scrollbar {
+      width: 8px;
+    }
+
+    &::-webkit-scrollbar-track {
+      background: rgba(255, 255, 255, 0.05);
+      border-radius: 4px;
+    }
+
+    &::-webkit-scrollbar-thumb {
+      background: rgba(239, 187, 53, 0.3);
+      border-radius: 4px;
+
+      &:hover {
+        background: rgba(239, 187, 53, 0.5);
+      }
+    }
+
+    // Firefox scrollbar
+    scrollbar-width: thin;
+    scrollbar-color: rgba(239, 187, 53, 0.3) rgba(255, 255, 255, 0.05);
   }
 }
 
@@ -148,44 +171,156 @@
   --pagefind-ui-font: system-ui, -apple-system, sans-serif;
 }
 
-:global(.search-modal__container .pagefind-ui__search-input) {
-  font-size: 1rem;
-  padding: 0.75rem 1rem;
-  background: $background;
-  color: $text;
+// Search form wrapper
+:global(.search-modal__container .pagefind-ui__form) {
+  position: relative;
 }
 
-:global(.search-modal__container .pagefind-ui__result) {
-  border-radius: 0.5rem;
-  padding: 1rem;
-  margin-bottom: 0.5rem;
+// Search icon (magnifying glass)
+:global(.search-modal__container .pagefind-ui__search-icon) {
+  position: absolute;
+  left: 1rem;
+  top: 50%;
+  transform: translateY(-50%);
+  pointer-events: none;
+  z-index: 1;
+}
 
-  &:hover {
-    background: rgba(255, 255, 255, 0.05);
+// Search input field
+:global(.search-modal__container .pagefind-ui__search-input) {
+  font-size: 1rem;
+  padding: 1rem 3rem 1rem 3rem; // Space for icon on left and clear button on right
+  background: $background;
+  color: $text;
+  border: 2px solid rgba(255, 255, 255, 0.15);
+  border-radius: 0.5rem;
+  transition: all 0.2s ease;
+  width: 100%;
+
+  &:focus {
+    outline: none;
+    border-color: $accent;
+    box-shadow: 0 0 0 3px rgba(239, 187, 53, 0.1);
+  }
+
+  &::placeholder {
+    color: rgba(248, 248, 248, 0.4);
   }
 }
 
+// Clear button - Keep it simple, Pagefind handles positioning
+:global(.search-modal__container .pagefind-ui__search-clear) {
+  color: $cursive-color !important;
+  transition: color 0.2s ease;
+  background: transparent !important;
+  border: none !important;
+  cursor: pointer;
+  padding: 0.5rem !important;
+
+  &:hover {
+    color: $accent !important;
+  }
+}
+
+// Results area
+:global(.search-modal__container .pagefind-ui__results-area) {
+  margin-top: 1rem;
+}
+
+// Results list - no scrollbar here, use modal's scrollbar
+:global(.search-modal__container .pagefind-ui__results) {
+  padding-top: 0.5rem; // Space before first card
+}
+
+// Individual result card
+:global(.search-modal__container .pagefind-ui__result) {
+  border-radius: 0.5rem;
+  padding: 1.5rem !important; // Override Pagefind's default 30px 0
+  margin-bottom: 0.75rem;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  transition: all 0.2s ease;
+  overflow: hidden;
+  border-top: none !important; // Remove Pagefind's top border
+  border-bottom: none !important; // Remove Pagefind's bottom border
+
+  &:hover {
+    background: rgba(255, 255, 255, 0.08);
+    border-color: rgba(239, 187, 53, 0.3);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  }
+}
+
+// Result inner container - reset margins
+:global(.search-modal__container .pagefind-ui__result-inner) {
+  margin-top: 0 !important; // Remove Pagefind's margin
+}
+
+// Result link
 :global(.search-modal__container .pagefind-ui__result-link) {
   color: $text;
   text-decoration: none;
+  display: block;
 
   &:hover {
+    color: $text;
+  }
+}
+
+// Result title
+:global(.search-modal__container .pagefind-ui__result-title) {
+  color: $text;
+  font-weight: 600;
+  font-size: 1.1rem;
+  margin-bottom: 0.5rem;
+  transition: color 0.2s ease;
+
+  .pagefind-ui__result:hover & {
     color: $accent;
   }
 }
 
-:global(.search-modal__container .pagefind-ui__result-title) {
-  color: $text;
-  font-weight: 600;
-}
-
+// Result excerpt
 :global(.search-modal__container .pagefind-ui__result-excerpt) {
   color: $cursive-color;
   line-height: 1.6;
+  font-size: 0.95rem;
 }
 
+// Search term highlights
+:global(.search-modal__container mark) {
+  background-color: rgba(239, 187, 53, 0.25);
+  color: $accent;
+  padding: 0.125rem 0.25rem;
+  border-radius: 0.25rem;
+  font-weight: 500;
+}
+
+// Loading state
+:global(.search-modal__container .pagefind-ui__loading) {
+  color: $accent;
+  text-align: center;
+  padding: 2rem;
+  font-size: 0.95rem;
+}
+
+// Empty state / No results message
 :global(.search-modal__container .pagefind-ui__message) {
   color: $cursive-color;
   text-align: center;
-  padding: 2rem 1rem;
+  padding: 3rem 1rem;
+  font-size: 1rem;
+}
+
+// Results counter with visual separator
+:global(.search-modal__container .pagefind-ui__results-count) {
+  color: $cursive-color;
+  font-size: 0.875rem;
+  margin-bottom: 1rem;
+  padding: 0.75rem 0 1rem 0;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  border-bottom: 2px solid rgba(239, 187, 53, 0.2);
 }

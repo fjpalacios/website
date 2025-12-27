@@ -122,6 +122,8 @@ if (publisher) {
         <div class="score">{scoreEmoji}</div>
       </div>
       <div class="book__content__content">
+        <!-- Pagefind title meta -->
+        <span data-pagefind-meta="title" style="display: none;">{book.title}</span>
         <PostTitle title={book.title} date={book.date} lang={lang} />
         <div class="book__content__content__data">
           <div class="book__content__content__data_pages">
@@ -180,15 +182,17 @@ if (publisher) {
         <div class="text-area">
           <p>{book.synopsis}</p>
         </div>
-        {author && <SectionTitle title={authorWithGender} />}
-        {author && <AuthorInfo author={author} border={false} />}
+        <div data-pagefind-ignore>
+          {author && <SectionTitle title={authorWithGender} />}
+          {author && <AuthorInfo author={author} border={false} />}
+        </div>
         <SectionTitle title="Review" />
         <div class="text-area">
           <Content />
         </div>
       </div>
     </section>
-    <section class="book__info">
+    <section class="book__info" data-pagefind-ignore>
       <div class="book__info__icon">📚</div>
       <ul class="book__info__text">
         {
@@ -214,7 +218,7 @@ if (publisher) {
         </li>
       </ul>
     </section>
-    <section class="book__info">
+    <section class="book__info" data-pagefind-ignore>
       <div class="book__info__icon">🏷️</div>
       <ul class="book__info__text">
         {
@@ -234,7 +238,7 @@ if (publisher) {
     </section>
     {
       genres.length > 0 && (
-        <section class="book__info">
+        <section class="book__info" data-pagefind-ignore>
           <div class="book__info__icon">🔖</div>
           <ul class="book__info__text">
             {genres.map((genre) => (

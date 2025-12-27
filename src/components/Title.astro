@@ -2,11 +2,21 @@
 interface Props {
   title: string;
   srOnly?: boolean; // Screen reader only - visually hidden
+  useAsPagefindTitle?: boolean; // Use this title for Pagefind indexing
+  headingLevel?: "h1" | "h2"; // Allow specifying heading level
 }
 
-const { title, srOnly = false } = Astro.props;
+const { title, srOnly = false, useAsPagefindTitle = false, headingLevel = "h2" } = Astro.props;
+const HeadingTag = headingLevel;
 ---
 
 <div class:list={["title", { "sr-only": srOnly }]}>
-  <h2>{title}</h2>
+  {
+    useAsPagefindTitle && (
+      <span data-pagefind-meta="title" style="display: none;">
+        {title}
+      </span>
+    )
+  }
+  <HeadingTag>{title}</HeadingTag>
 </div>

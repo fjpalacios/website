@@ -4,7 +4,6 @@ import PostList from "@components/PostList.astro";
 import Title from "@components/Title.astro";
 import Layout from "@layouts/Layout.astro";
 import { t } from "@locales";
-import { buildPostsIndexUrl } from "@utils/routes";
 
 import contactEs from "@/content/static/contact/es.json";
 import { paginateItems, getPageCount } from "@/utils/blog";
@@ -24,7 +23,7 @@ const hasTargetContent = targetContent.length > 0;
 
 const pageTitle = "📝 " + t(lang, "pages.posts");
 const pageDescription = "Artículos, tutoriales y reseñas de libros";
-const baseUrl = buildPostsIndexUrl(lang);
+// const baseUrl = buildPostsIndexUrl(lang);
 
 // Generate ItemList schema for SEO
 const itemListSchema = generateItemListSchema(
@@ -51,19 +50,21 @@ const itemListSchema = generateItemListSchema(
   contact={contactEs}
   hasTargetContent={hasTargetContent}
 >
-  <script type="application/ld+json" set:html={JSON.stringify(itemListSchema)} />
-
   <Title title={pageTitle} />
 
-  {
-    posts.length > 0 ? (
-      <PostList posts={posts} lang={lang} />
-    ) : (
-      <div class="empty-state">
-        <p>{t(lang, "emptyState.posts")}</p>
-      </div>
-    )
-  }
+  <div data-pagefind-ignore>
+    <script type="application/ld+json" set:html={JSON.stringify(itemListSchema)} />
+
+    {
+      posts.length > 0 ? (
+        <PostList posts={posts} lang={lang} />
+      ) : (
+        <div class="empty-state">
+          <p>{t(lang, "emptyState.posts")}</p>
+        </div>
+      )
+    }
+  </div>
 
   <Paginator currentPage={currentPage} totalPages={totalPages} basePath="/es/publicaciones" lang={lang} />
 </Layout>

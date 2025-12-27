@@ -29,13 +29,15 @@ const pageDescription = t(lang, "allCourses");
 >
   <Title title={pageTitle} />
 
-  {
-    itemsWithContent.length > 0 ? (
-      <CourseList courses={itemsWithContent} title={t(lang, "allCourses")} lang={lang} />
-    ) : (
-      <div class="empty-state">
-        <p>{t(lang, "emptyState.courses")}</p>
-      </div>
-    )
-  }
+  <div data-pagefind-ignore>
+    {
+      itemsWithContent.length > 0 ? (
+        <CourseList courses={itemsWithContent} title={t(lang, "allCourses")} lang={lang} />
+      ) : (
+        <div class="empty-state">
+          <p>{t(lang, "emptyState.courses")}</p>
+        </div>
+      )
+    }
+  </div>
 </Layout>
