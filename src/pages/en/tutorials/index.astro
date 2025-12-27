@@ -7,6 +7,7 @@ import { t } from "@locales";
 
 import contactEn from "@/content/static/contact/en.json";
 import { paginateItems, getPageCount } from "@/utils/blog";
+import { generateItemListSchema } from "@/utils/schemas/itemList";
 import { getAllTutorialsForLanguage, TUTORIALS_PER_PAGE } from "@/utils/tutorialsPages";
 
 const lang = "en";
@@ -22,6 +23,17 @@ const hasTargetContent = targetTutorials.length > 0;
 
 const pageTitle = "📚 " + t(lang, "pages.tutorials");
 const pageDescription = "Web development tutorials and guides";
+
+// Generate ItemList schema for SEO
+const itemListSchema = generateItemListSchema(
+  tutorials.map((tutorial) => ({
+    name: tutorial.title,
+    url: `/${lang}/${t(lang, "routes.tutorials")}/${tutorial.slug}/`,
+    type: "TechArticle",
+    description: tutorial.excerpt,
+  })),
+  Astro.site ? Astro.site.toString() : "https://fjp.es",
+);
 ---
 
 <Layout
@@ -31,6 +43,8 @@ const pageDescription = "Web development tutorials and guides";
   contact={contactEn}
   hasTargetContent={hasTargetContent}
 >
+  <script type="application/ld+json" set:html={JSON.stringify(itemListSchema)} />
+
   <Title title={pageTitle} />
 
   {
