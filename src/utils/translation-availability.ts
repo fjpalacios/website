@@ -79,8 +79,8 @@ export function isIndexPage(currentPath: string, lang: string): boolean {
  * Rules:
  * 1. Static pages (home, about) always have translation available
  * 2. Index/listing pages check hasTargetContent (if provided) to know if target language has content
- * 3. Content detail pages depend on translationSlug being provided
- * 4. Taxonomy detail pages depend on translationSlug being provided
+ * 3. Taxonomy detail pages check hasTargetContent (passed from generateTaxonomyDetailPaths)
+ * 4. Content detail pages depend on translationSlug being provided
  *
  * @param currentPath - Current URL pathname
  * @param lang - Current language code
@@ -117,7 +117,12 @@ export function hasTranslation(
     return hasTargetContent !== undefined ? hasTargetContent : true;
   }
 
-  // Detail pages depend on translationSlug
+  // Taxonomy detail pages: check hasTargetContent (passed from generateTaxonomyDetailPaths)
+  if (hasTargetContent !== undefined) {
+    return hasTargetContent;
+  }
+
+  // Content detail pages depend on translationSlug
   // Empty string is treated as no translation
   return translationSlug !== undefined && translationSlug !== "";
 }
