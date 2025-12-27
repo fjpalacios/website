@@ -1,5 +1,5 @@
 ---
-import PublisherList from "@components/PublisherList.astro";
+import TaxonomyList from "@components/TaxonomyList.astro";
 import Title from "@components/Title.astro";
 import Layout from "@layouts/Layout.astro";
 import { t } from "@locales";
@@ -13,8 +13,7 @@ const config = TAXONOMY_CONFIGS.publishers;
 const publishersData = await getTaxonomyItemsWithCount(config, lang);
 const publishersWithContent = publishersData
   .filter(({ count }) => count > 0)
-  .sort((a, b) => a.item.data.name.localeCompare(b.item.data.name))
-  .map(({ item, count }) => ({ publisher: item, count }));
+  .sort((a, b) => a.item.data.name.localeCompare(b.item.data.name));
 
 const hasTargetLangContent = await hasTargetContent(config, "en");
 const pageTitle = `📚 ${t(lang, "pages.publishers")}`;
@@ -32,10 +31,12 @@ const pageDescription = t(lang, "allPublishers");
   <div data-pagefind-ignore>
     {
       publishersWithContent.length > 0 ? (
-        <PublisherList
-          publishers={publishersWithContent}
+        <TaxonomyList
+          items={publishersWithContent}
           title={t(lang, "allPublishers")}
           lang={lang}
+          routeKey="publishers"
+          slugField="publisher_slug"
           showCount={true}
         />
       ) : (

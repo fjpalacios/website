@@ -1,8 +1,8 @@
 ---
 import Breadcrumbs, { type BreadcrumbItem } from "@components/Breadcrumbs.astro";
-import CategoryList from "@components/CategoryList.astro";
 import Paginator from "@components/Paginator.astro";
 import PostList from "@components/PostList.astro";
+import TaxonomyList from "@components/TaxonomyList.astro";
 import Title from "@components/Title.astro";
 import Layout from "@layouts/Layout.astro";
 import { t } from "@locales";
@@ -29,8 +29,7 @@ const config = TAXONOMY_CONFIGS.categories;
 const categoriesData = await getTaxonomyItemsWithCount(config, lang);
 const categoriesWithCounts = categoriesData
   .filter(({ count }) => count > 0)
-  .sort((a, b) => (a.item.data.order || 999) - (b.item.data.order || 999))
-  .map(({ item, count }) => ({ category: item, count }));
+  .sort((a, b) => (a.item.data.order || 999) - (b.item.data.order || 999));
 
 const pageTitle = `${t(lang, "pages.category")}: ${category.data.name}`;
 const basePath = buildCategoryUrl(lang, category.data.category_slug);
@@ -65,10 +64,16 @@ const itemListSchema = generateItemListSchema(
   <script slot="schema" type="application/ld+json" set:html={JSON.stringify(itemListSchema)} />
 
   <Breadcrumbs items={breadcrumbs} lang={lang} />
-  <Title title={pageTitle} srOnly={false} useAsPagefindTitle={true} />
+  <Title title={pageTitle} srOnly={true} useAsPagefindTitle={true} />
   <div data-pagefind-ignore>
     <PostList posts={content} lang={lang} />
   </div>
   <Paginator currentPage={currentPage} totalPages={totalPages} basePath={basePath} lang={lang} />
-  <CategoryList categories={categoriesWithCounts} title={t(lang, "allCategories")} lang={lang} />
+  <TaxonomyList
+    items={categoriesWithCounts}
+    title={t(lang, "allCategories")}
+    lang={lang}
+    routeKey="categories"
+    slugField="category_slug"
+  />
 </Layout>

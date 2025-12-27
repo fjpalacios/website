@@ -2,7 +2,7 @@
 import Breadcrumbs, { type BreadcrumbItem } from "@components/Breadcrumbs.astro";
 import Paginator from "@components/Paginator.astro";
 import PostList from "@components/PostList.astro";
-import PublisherList from "@components/PublisherList.astro";
+import TaxonomyList from "@components/TaxonomyList.astro";
 import Title from "@components/Title.astro";
 import Layout from "@layouts/Layout.astro";
 import { t } from "@locales";
@@ -29,8 +29,7 @@ const config = TAXONOMY_CONFIGS.publishers;
 const publishersData = await getTaxonomyItemsWithCount(config, lang);
 const publishersWithCounts = publishersData
   .filter(({ count }) => count > 0)
-  .sort((a, b) => a.item.data.name.localeCompare(b.item.data.name))
-  .map(({ item, count }) => ({ publisher: item, count }));
+  .sort((a, b) => a.item.data.name.localeCompare(b.item.data.name));
 
 const pageTitle = `${t(lang, "pages.publisher")}: ${publisher.data.name}`;
 const basePath = buildPublisherUrl(lang, publisher.data.publisher_slug);
@@ -65,10 +64,16 @@ const itemListSchema = generateItemListSchema(
   <script slot="schema" type="application/ld+json" set:html={JSON.stringify(itemListSchema)} />
 
   <Breadcrumbs items={breadcrumbs} lang={lang} />
-  <Title title={pageTitle} srOnly={false} useAsPagefindTitle={true} />
+  <Title title={pageTitle} srOnly={true} useAsPagefindTitle={true} />
   <div data-pagefind-ignore>
     <PostList posts={content} lang={lang} />
   </div>
   <Paginator currentPage={currentPage} totalPages={totalPages} basePath={basePath} lang={lang} />
-  <PublisherList publishers={publishersWithCounts} title={t(lang, "allPublishers")} lang={lang} />
+  <TaxonomyList
+    items={publishersWithCounts}
+    title={t(lang, "allPublishers")}
+    lang={lang}
+    routeKey="publishers"
+    slugField="publisher_slug"
+  />
 </Layout>

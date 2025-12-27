@@ -1,8 +1,8 @@
 ---
 import Breadcrumbs, { type BreadcrumbItem } from "@components/Breadcrumbs.astro";
-import CourseList from "@components/CourseList.astro";
 import Paginator from "@components/Paginator.astro";
 import PostList from "@components/PostList.astro";
+import TaxonomyList from "@components/TaxonomyList.astro";
 import Title from "@components/Title.astro";
 import Layout from "@layouts/Layout.astro";
 import { t } from "@locales";
@@ -27,9 +27,7 @@ const { taxonomyItem: course, content, currentPage, totalPages, lang, contact } 
 // Get all courses with counts for sidebar
 const config = TAXONOMY_CONFIGS.courses;
 const coursesData = await getTaxonomyItemsWithCount(config, lang);
-const coursesWithCounts = coursesData
-  .sort((a, b) => a.item.data.name.localeCompare(b.item.data.name))
-  .map(({ item, count }) => ({ course: item, count }));
+const coursesWithCounts = coursesData.sort((a, b) => a.item.data.name.localeCompare(b.item.data.name));
 
 const pageTitle = `${t(lang, "pages.course")}: ${course.data.name}`;
 const basePath = buildCourseUrl(lang, course.data.course_slug);
@@ -73,5 +71,11 @@ const itemListSchema = generateItemListSchema(
 
   <PostList posts={content} lang={lang} />
   <Paginator currentPage={currentPage} totalPages={totalPages} basePath={basePath} lang={lang} />
-  <CourseList courses={coursesWithCounts} title={t(lang, "allCourses")} lang={lang} />
+  <TaxonomyList
+    items={coursesWithCounts}
+    title={t(lang, "allCourses")}
+    lang={lang}
+    routeKey="courses"
+    slugField="course_slug"
+  />
 </Layout>

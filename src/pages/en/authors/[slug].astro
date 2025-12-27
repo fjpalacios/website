@@ -1,9 +1,9 @@
 ---
 import AuthorInfo from "@components/AuthorInfo.astro";
-import AuthorList from "@components/AuthorList.astro";
 import Breadcrumbs, { type BreadcrumbItem } from "@components/Breadcrumbs.astro";
 import Paginator from "@components/Paginator.astro";
 import PostList from "@components/PostList.astro";
+import TaxonomyList from "@components/TaxonomyList.astro";
 import Title from "@components/Title.astro";
 import Layout from "@layouts/Layout.astro";
 import { t } from "@locales";
@@ -30,8 +30,7 @@ const config = TAXONOMY_CONFIGS.authors;
 const authorsData = await getTaxonomyItemsWithCount(config, lang);
 const authorsWithCounts = authorsData
   .filter(({ count }) => count > 0)
-  .sort((a, b) => a.item.data.name.localeCompare(b.item.data.name))
-  .map(({ item, count }) => ({ author: item, count }));
+  .sort((a, b) => a.item.data.name.localeCompare(b.item.data.name));
 
 // Get gender-specific title
 const authorTitle = author.data.gender === "male" ? t(lang, "pages.authorMale") : t(lang, "pages.authorFemale");
@@ -70,7 +69,7 @@ const itemListSchema = generateItemListSchema(
   <script slot="schema" type="application/ld+json" set:html={JSON.stringify(itemListSchema)} />
 
   <Breadcrumbs items={breadcrumbs} lang={lang} />
-  <Title title={pageTitle} srOnly={false} useAsPagefindTitle={true} />
+  <Title title={pageTitle} srOnly={true} useAsPagefindTitle={true} />
 
   <!-- Short indexable description for Pagefind -->
   <p class="sr-only" aria-hidden="true">{description}</p>
@@ -85,5 +84,12 @@ const itemListSchema = generateItemListSchema(
 
   <Paginator currentPage={currentPage} totalPages={totalPages} basePath={basePath} lang={lang} />
 
-  <AuthorList authors={authorsWithCounts} title={t(lang, "allAuthors")} lang={lang} showCount={true} />
+  <TaxonomyList
+    items={authorsWithCounts}
+    title={t(lang, "allAuthors")}
+    lang={lang}
+    routeKey="authors"
+    slugField="author_slug"
+    showCount={true}
+  />
 </Layout>
