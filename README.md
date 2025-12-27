@@ -10,13 +10,14 @@ Personal website and resume built with [Astro](https://astro.build/). Featuring 
 - 🌍 **Multi-language support**: Spanish (default) and English with native Astro i18n and translated URL paths
 - 📝 **Blog functionality**: Posts, tutorials, and book reviews with full taxonomy system
 - 🏷️ **Rich taxonomy**: Categories, genres, publishers, authors with multilingual support
+- 🔍 **Full-text search**: Pagefind-powered instant search with language filtering, keyboard shortcuts, and mobile support
 - 🎨 **Theme switcher**: Dark and light themes with localStorage persistence and FOUC prevention (multi-layer approach)
 - 📱 **Responsive design**: Mobile-first approach, tested across multiple devices
 - ♿ **Accessible**: WCAG 2.1 AA compliant with comprehensive accessibility testing
 - 🚀 **Fast**: Static site generation with Astro and View Transitions for SPA-like navigation
 - 🎯 **SEO optimized**: Complete meta tags, JSON-LD structured data (Book, BlogPosting, TechArticle), Open Graph, Twitter Cards, canonical URLs, and hreflang support
 - 💅 **SCSS styling**: Modular and maintainable styles with CSS variables
-- 🧪 **Fully tested**: 301 tests with 97.72% coverage (including 34 SEO-specific tests)
+- 🧪 **Fully tested**: 441 tests (319 unit + 122 E2E) with 97%+ coverage (including 34 SEO tests + 25 search tests)
 - 🔄 **CI/CD**: Automated testing, linting, and Lighthouse performance checks
 - 🪝 **Pre-commit hooks**: Automatic linting and testing before commits
 
@@ -32,8 +33,9 @@ Personal website and resume built with [Astro](https://astro.build/). Featuring 
 
 ### Testing
 
-- **Unit Tests**: Vitest + Testing Library (301 tests, 97.72% coverage)
-- **E2E Tests**: Playwright (69+ tests across multiple viewports)
+- **Unit Tests**: Vitest + Testing Library (319 tests, 97%+ coverage)
+- **E2E Tests**: Playwright (122 tests across multiple viewports)
+- **Search Tests**: 25 dedicated E2E tests for Pagefind integration
 - **Accessibility**: Axe-core with WCAG 2.1 AA compliance
 - **Performance**: Lighthouse CI integration
 - **SEO Tests**: 34 dedicated unit tests for SEO component + E2E structured data validation
@@ -62,19 +64,17 @@ Personal website and resume built with [Astro](https://astro.build/). Featuring 
 ├── docs/                  # Project documentation
 │   ├── BLOG_MIGRATION_SPEC.md
 │   └── BLOG_MIGRATION_PROGRESS.md
-├── e2e/                   # End-to-end tests (Playwright)
-│   ├── about.spec.ts
-│   ├── accessibility-comprehensive.spec.ts
-│   ├── blog.spec.ts
-│   ├── home.spec.ts
-│   ├── navigation.spec.ts
-│   ├── responsive.spec.ts
-│   ├── seo-meta.spec.ts
-│   ├── seo-structured-data.spec.ts  # SEO structured data validation
-│   └── state-performance.spec.ts
+├── e2e/                   # End-to-end tests (Playwright) - 7 files
+│   ├── breadcrumbs.spec.ts           # Breadcrumb navigation (10 tests)
+│   ├── rss.spec.ts                   # RSS feeds validation (12 tests)
+│   ├── search.spec.ts                # Search functionality (25 tests) ⭐
+│   ├── seo-itemlist.spec.ts          # SEO ItemList schema (40 tests)
+│   ├── seo-meta.spec.ts              # SEO meta tags (15 tests)
+│   ├── seo-structured-data.spec.ts   # SEO structured data (20 tests)
+│   └── state-performance.spec.ts     # State & performance (10 tests)
 ├── public/                # Static assets (images, fonts, favicon)
 ├── src/
-│   ├── __tests__/         # Unit tests (Vitest) - 301 tests
+│   ├── __tests__/         # Unit tests (Vitest) - 319 tests
 │   │   ├── content.test.ts
 │   │   ├── locales.test.ts
 │   │   ├── setup.ts
@@ -281,6 +281,49 @@ bun run test -- publishers
 bun run build
 ```
 
+## 🔍 Search System
+
+The website features **full-text search** powered by [Pagefind](https://pagefind.app/), a static search library that creates an index at build time.
+
+### Search Features
+
+- **Instant results**: Search as you type with no backend required
+- **Language filtering**: Automatically filters by current language (ES/EN)
+- **Keyboard shortcuts**: `Cmd+K` / `Ctrl+K` to open, `Esc` to close
+- **Modal UI**: Clean, accessible search modal with ARIA support
+- **Mobile responsive**: Works on all screen sizes
+- **Content exclusion**: Index pages and navigation excluded from results
+- **ViewTransitions compatible**: Persists through SPA-like navigation
+
+### Search Implementation
+
+- **Component**: `src/components/Search.astro` (190 lines)
+- **Styling**: `src/styles/components/search.scss` (327 lines, BEM methodology)
+- **Index generation**: Automatic at build time via Pagefind
+- **Dev support**: `scripts/copy-pagefind-dev.js` for development mode
+
+### What's Indexed
+
+- ✅ **Blog posts** (books, tutorials, posts)
+- ✅ **Taxonomy detail pages** (authors, categories, genres, etc.)
+- ✅ **Static pages** (about, contact)
+- ❌ **Index/listing pages** (excluded with `data-pagefind-ignore`)
+- ❌ **Navigation/breadcrumbs** (excluded to prevent noise)
+
+### Testing
+
+The search system has **25 dedicated E2E tests** covering:
+
+- Modal open/close (keyboard + click)
+- Search results and filtering
+- Language-specific results
+- UI translations
+- Content exclusion
+- Edge cases (special chars, long queries, empty queries)
+- ViewTransitions persistence
+
+See `e2e/search.spec.ts` for the full test suite.
+
 ## 🧞 Commands
 
 All commands are run from the root of the project, from a terminal:
@@ -303,15 +346,15 @@ All commands are run from the root of the project, from a terminal:
 
 ### Testing
 
-| Command                  | Action                                     |
-| :----------------------- | :----------------------------------------- |
-| `bun run test`           | Run unit tests in watch mode               |
-| `bun run test:run`       | Run unit tests once                        |
-| `bun run test:ui`        | Open Vitest UI                             |
-| `bun run test:coverage`  | Generate coverage report (97.72% coverage) |
-| `bun run test:e2e`       | Run E2E tests with Playwright              |
-| `bun run test:e2e:ui`    | Run E2E tests in interactive mode          |
-| `bun run test:e2e:debug` | Debug E2E tests                            |
+| Command                  | Action                                   |
+| :----------------------- | :--------------------------------------- |
+| `bun run test`           | Run unit tests in watch mode             |
+| `bun run test:run`       | Run unit tests once                      |
+| `bun run test:ui`        | Open Vitest UI                           |
+| `bun run test:coverage`  | Generate coverage report (97%+ coverage) |
+| `bun run test:e2e`       | Run E2E tests with Playwright            |
+| `bun run test:e2e:ui`    | Run E2E tests in interactive mode        |
+| `bun run test:e2e:debug` | Debug E2E tests                          |
 
 ## 🧪 Testing Strategy
 
@@ -323,30 +366,31 @@ Located in `src/__tests__/`, covering:
 - **Locales** (9 tests): Translation functions, language switching logic
 - **Content** (14 tests): Data structure validation for resume, about, and contact content
 - **SEO component** (34 tests): Open Graph tags, Twitter Cards, canonical URLs, hreflang, JSON-LD schemas, image URL handling
-- **Blog utilities** (226+ tests): Content collections, taxonomy, frontmatter validation
+- **Blog utilities** (244+ tests): Content collections, taxonomy, frontmatter validation
   - Categories (13 tests): Structure, i18n mappings, content references
   - Genres (14 tests): Structure, i18n mappings, hierarchy validation
   - Publishers (13 tests): Structure, language independence
+  - Authors (8 tests): Content validation, language independence
   - Posts, Tutorials, Books: Frontmatter validation, slug uniqueness, date formats
-  - Pagination, filtering, sorting logic
+  - Pagination (37 tests), filtering, sorting logic
+  - Slugify (31 tests): URL generation, special characters, translations
 
-**Total**: 301 tests  
-**Coverage**: 97.72% statements, 98.74% lines, 100% functions
+**Total**: 319 tests (21 test files)  
+**Coverage**: 97%+ statements, 90%+ branches, 100% functions
 
 ### E2E Tests (Playwright)
 
 Located in `e2e/`, covering:
 
-- **Home & About pages**: SEO validation, metadata, accessibility
-- **Navigation**: Language switching, menu navigation, routing, 404 handling
-- **Accessibility**: WCAG 2.1 Level AA compliance, keyboard navigation, ARIA labels
-- **Responsive design**: Mobile (iPhone 12, iPhone SE), Tablet (iPad), Desktop viewports
+- **Search** (25 tests): Modal UI, keyboard shortcuts, results filtering, language support, content exclusion
+- **SEO** (75+ tests): Meta tags, Open Graph, Twitter Cards, JSON-LD structured data (Book, BlogPosting, TechArticle)
+- **Breadcrumbs** (10 tests): Navigation, ARIA labels, structured data
+- **RSS Feeds** (12 tests): Feed generation, autodiscovery, content validation
+- **Accessibility**: WCAG 2.1 Level AA compliance, keyboard navigation
 - **Performance**: Load times, console errors, resource loading
-- **State management**: LocalStorage persistence, theme across navigation
-- **SEO & Social**: Open Graph, Twitter Cards, JSON-LD structured data
-- **Structured Data**: Book schema with ratings, BlogPosting schema, TechArticle schema, canonical URLs, hreflang tags
+- **State management**: LocalStorage persistence, theme across ViewTransitions
 
-**Total**: 69+ tests across multiple projects/viewports
+**Total**: 122 tests (7 test files) across Chromium
 
 ## 🏗️ Content Management
 
@@ -418,13 +462,28 @@ Theme logic is extracted to `src/scripts/theme.ts` for reusability and testing.
 
 ## 🔄 CI/CD Pipeline
 
-GitHub Actions workflow (`.github/workflows/ci.yml`) runs on every push and PR:
+GitHub Actions workflows run on every push and PR:
+
+### Main CI/CD Pipeline (`.github/workflows/ci.yml`)
 
 1. **Lint & Format Check**: ESLint + Prettier validation
-2. **Unit Tests**: Vitest with coverage reporting to Codecov
-3. **E2E Tests**: Playwright tests on Chromium
+2. **Unit Tests**: Vitest with coverage reporting to Codecov (319 tests)
+3. **E2E Tests**: Playwright tests on Chromium (122 tests)
 4. **Build Check**: Ensures production build succeeds
-5. **Lighthouse CI**: Performance, accessibility, SEO, and best practices audits (PRs only)
+5. **Lighthouse CI**: Performance, accessibility, SEO, and best practices audits
+
+### Dependabot Automation
+
+**Dependabot Lockfile Fix** (`.github/workflows/dependabot-lockfile-fix.yml`):
+
+- Automatically syncs `bun.lock` when Dependabot updates `package.json`
+- Prevents CI failures from frozen lockfile mismatches
+- Comments on PR when lockfile is updated
+
+**Dependabot Auto-Merge** (`.github/workflows/dependabot-auto-merge.yml`):
+
+- Auto-merges minor and patch updates after CI passes
+- Flags major updates for manual review
 
 ### Pre-commit Hooks
 
@@ -446,9 +505,11 @@ Automated dependency management configured in `.github/dependabot.yml`:
 
 ## 📊 Code Quality Metrics
 
-- **Unit Tests**: 301 tests across all features (including 34 SEO-specific tests)
-- **Unit Test Coverage**: 97.72% statements, 98.74% lines, 100% functions
-- **E2E Test Coverage**: 69+ tests covering all critical user flows
+- **Total Tests**: 441 tests (319 unit + 122 E2E)
+- **Unit Tests**: 319 tests across 21 test files (including 34 SEO tests)
+- **Unit Test Coverage**: 97%+ statements, 90%+ branches, 100% functions
+- **E2E Tests**: 122 tests across 7 test files covering all critical flows
+- **Search Tests**: 25 dedicated E2E tests for Pagefind integration
 - **Accessibility**: WCAG 2.1 Level AA compliant
 - **Performance**: Optimized for Core Web Vitals
 - **SEO**: Complete metadata with Open Graph, Twitter Cards, JSON-LD structured data (Book, BlogPosting, TechArticle), canonical URLs, hreflang, sitemap
@@ -516,11 +577,14 @@ This is a personal website, but contributions are welcome!
 ### Documentation
 
 - **[CONTRIBUTING.md](.github/CONTRIBUTING.md)**: Development workflow, branch naming, commit format
+- **[docs/SEARCH_IMPLEMENTATION.md](docs/SEARCH_IMPLEMENTATION.md)**: Pagefind search architecture and usage ⭐
+- **[docs/SEARCH_AUDIT.md](docs/SEARCH_AUDIT.md)**: Deep audit report of search implementation
 - **[docs/BLOG_MIGRATION_SPEC.md](docs/BLOG_MIGRATION_SPEC.md)**: Blog system architecture and migration plan
 - **[docs/BLOG_MIGRATION_PROGRESS.md](docs/BLOG_MIGRATION_PROGRESS.md)**: Current implementation status and progress
-- **[docs/SESSION_2025-12-21_CONTEXT.md](docs/SESSION_2025-12-21_CONTEXT.md)**: Project context and URL structure ⭐ **READ THIS FIRST!**
+- **[docs/SESSION_2025-12-21_CONTEXT.md](docs/SESSION_2025-12-21_CONTEXT.md)**: Project context and URL structure
 - **[docs/TAXONOMY_DETAIL_PAGES_ANALYSIS.md](docs/TAXONOMY_DETAIL_PAGES_ANALYSIS.md)**: Technical analysis of taxonomy pages
 - **[docs/DEVELOPMENT_GUIDELINES.md](docs/DEVELOPMENT_GUIDELINES.md)**: Development best practices and patterns
+- **[docs/ROADMAP.md](docs/ROADMAP.md)**: Project roadmap and future plans
 - **[docs/SESSION\_\*.md](docs/)**: Session reports documenting decisions and fixes
 
 ### Contribution Guidelines

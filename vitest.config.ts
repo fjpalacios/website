@@ -12,7 +12,15 @@ export default defineConfig({
     coverage: {
       provider: "istanbul",
       reporter: ["text", "html", "lcov"],
-      exclude: ["node_modules/", "dist/", "e2e/", "**/*.config.*", "**/*.d.ts", "**/__tests__/**"],
+      exclude: [
+        "node_modules/",
+        "dist/",
+        "e2e/",
+        "**/*.config.*",
+        "**/*.d.ts",
+        "**/__tests__/**",
+        "**/utils/routes.ts", // Route definitions are tested via E2E, not unit tests
+      ],
     },
   },
   resolve: {
