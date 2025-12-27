@@ -17,7 +17,7 @@ Personal website and resume built with [Astro](https://astro.build/). Featuring 
 - 🚀 **Fast**: Static site generation with Astro and View Transitions for SPA-like navigation
 - 🎯 **SEO optimized**: Complete meta tags, JSON-LD structured data (Book, BlogPosting, TechArticle), Open Graph, Twitter Cards, canonical URLs, and hreflang support
 - 💅 **SCSS styling**: Modular and maintainable styles with CSS variables
-- 🧪 **Fully tested**: 646 tests (524 unit + 122 E2E) with 97%+ coverage (including 34 SEO tests + 25 search tests + 205 schema tests)
+- 🧪 **Fully tested**: 972 tests (850 unit + 122 E2E) with 97%+ coverage (including 34 SEO tests + 25 search tests + 205 schema tests)
 - 🔄 **CI/CD**: Automated testing, linting, and Lighthouse performance checks
 - 🪝 **Pre-commit hooks**: Automatic linting and testing before commits
 
@@ -33,7 +33,7 @@ Personal website and resume built with [Astro](https://astro.build/). Featuring 
 
 ### Testing
 
-- **Unit Tests**: Vitest + Testing Library (524 tests, 97%+ coverage)
+- **Unit Tests**: Vitest + Testing Library (850 tests, 97%+ coverage)
 - **E2E Tests**: Playwright (122 tests across multiple viewports)
 - **Search Tests**: 25 dedicated E2E tests for Pagefind integration
 - **Accessibility**: Axe-core with WCAG 2.1 AA compliance
@@ -383,7 +383,7 @@ Located in `src/__tests__/`, covering:
   - Categories (33 tests): Hierarchy, i18n mappings, slugs, descriptions
   - Taxonomy (16 tests): Series, challenges, courses validation
 
-**Total**: 524 tests (28 test files)  
+**Total**: 850 tests (28 test files)  
 **Coverage**: 97%+ statements, 90%+ branches, 100% functions
 
 ### E2E Tests (Playwright)
@@ -475,7 +475,7 @@ GitHub Actions workflows run on every push and PR:
 ### Main CI/CD Pipeline (`.github/workflows/ci.yml`)
 
 1. **Lint & Format Check**: ESLint + Prettier validation
-2. **Unit Tests**: Vitest with coverage reporting to Codecov (319 tests)
+2. **Unit Tests**: Vitest with coverage reporting to Codecov (850 tests)
 3. **E2E Tests**: Playwright tests on Chromium (122 tests)
 4. **Build Check**: Ensures production build succeeds
 5. **Lighthouse CI**: Performance, accessibility, SEO, and best practices audits
@@ -513,8 +513,8 @@ Automated dependency management configured in `.github/dependabot.yml`:
 
 ## 📊 Code Quality Metrics
 
-- **Total Tests**: 441 tests (319 unit + 122 E2E)
-- **Unit Tests**: 319 tests across 21 test files (including 34 SEO tests)
+- **Total Tests**: 972 tests (850 unit + 122 E2E)
+- **Unit Tests**: 850 tests across 28 test files (including 34 SEO tests)
 - **Unit Test Coverage**: 97%+ statements, 90%+ branches, 100% functions
 - **E2E Tests**: 122 tests across 7 test files covering all critical flows
 - **Search Tests**: 25 dedicated E2E tests for Pagefind integration
