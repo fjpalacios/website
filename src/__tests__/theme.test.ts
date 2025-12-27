@@ -11,11 +11,49 @@ import {
 } from "@scripts/theme";
 import { describe, it, expect, beforeEach } from "vitest";
 
+/**
+ * localStorage mock for tests
+ * Bun test runner needs explicit localStorage implementation
+ */
+class LocalStorageMock implements Storage {
+  private store: Record<string, string> = {};
+
+  clear(): void {
+    this.store = {};
+  }
+
+  getItem(key: string): string | null {
+    return this.store[key] || null;
+  }
+
+  setItem(key: string, value: string): void {
+    this.store[key] = String(value);
+  }
+
+  removeItem(key: string): void {
+    delete this.store[key];
+  }
+
+  get length(): number {
+    return Object.keys(this.store).length;
+  }
+
+  key(index: number): string | null {
+    const keys = Object.keys(this.store);
+    return keys[index] || null;
+  }
+}
+
+// Set up global mocks
+const localStorageMock = new LocalStorageMock();
+global.localStorage = localStorageMock;
+
 describe("Theme utilities", () => {
   beforeEach(() => {
     // Clear localStorage and reset DOM
-    localStorage.clear();
+    localStorageMock.clear();
     document.body.className = "";
+    document.documentElement.className = "";
   });
 
   describe("getTheme", () => {
