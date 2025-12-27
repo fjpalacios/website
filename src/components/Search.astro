@@ -43,67 +43,47 @@ const { lang } = Astro.props;
   @use "../styles/components/search";
 </style>
 
-<!-- Load Pagefind CSS -->
-<link rel="stylesheet" href="/pagefind/pagefind-ui.css" />
-
 <script is:inline>
   // This script runs on every page load (including view transitions)
   (function () {
-    let pagefindInitialized = false;
     let pagefindUI = null;
 
-    async function initializePagefind() {
-      if (pagefindInitialized) return;
+    function initializePagefind() {
+      if (pagefindUI) return; // Already initialized
 
       const searchContainer = document.getElementById("search");
-      if (!searchContainer) return;
+      if (!searchContainer || !window.PagefindUI) return;
 
       // Get lang from body data attribute
       const lang = document.body.dataset.lang || "es";
 
       try {
-        // Load Pagefind UI script if not already loaded
-        if (!window.PagefindUI) {
-          await new Promise((resolve, reject) => {
-            const script = document.createElement("script");
-            script.src = "/pagefind/pagefind-ui.js";
-            script.onload = resolve;
-            script.onerror = reject;
-            document.head.appendChild(script);
-          });
-        }
-
-        // Initialize Pagefind UI
-        if (window.PagefindUI && !pagefindUI) {
-          pagefindUI = new window.PagefindUI({
-            element: "#search",
-            showSubResults: true,
-            showImages: false,
-            excerptLength: 15,
-            translations: {
-              placeholder: lang === "es" ? "Buscar en el blog..." : "Search the blog...",
-              clear_search: lang === "es" ? "Limpiar" : "Clear",
-              load_more: lang === "es" ? "Cargar más resultados" : "Load more results",
-              search_label: lang === "es" ? "Buscar en este sitio" : "Search this site",
-              filters_label: lang === "es" ? "Filtros" : "Filters",
-              zero_results:
-                lang === "es" ? "No se encontraron resultados para [SEARCH_TERM]" : "No results for [SEARCH_TERM]",
-              many_results: lang === "es" ? "[COUNT] resultados" : "[COUNT] results",
-              one_result: lang === "es" ? "[COUNT] resultado" : "[COUNT] result",
-              alt_search:
-                lang === "es"
-                  ? "No se encontraron resultados para [SEARCH_TERM]. Mostrando resultados para [DIFFERENT_TERM]"
-                  : "No results for [SEARCH_TERM]. Showing results for [DIFFERENT_TERM] instead",
-              search_suggestion:
-                lang === "es"
-                  ? "No se encontraron resultados para [SEARCH_TERM]. Intenta una de las siguientes búsquedas:"
-                  : "No results for [SEARCH_TERM]. Try one of the following searches:",
-              searching: lang === "es" ? "Buscando..." : "Searching...",
-            },
-          });
-        }
-
-        pagefindInitialized = true;
+        pagefindUI = new window.PagefindUI({
+          element: "#search",
+          showSubResults: true,
+          showImages: false,
+          excerptLength: 15,
+          translations: {
+            placeholder: lang === "es" ? "Buscar en el blog..." : "Search the blog...",
+            clear_search: lang === "es" ? "Limpiar" : "Clear",
+            load_more: lang === "es" ? "Cargar más resultados" : "Load more results",
+            search_label: lang === "es" ? "Buscar en este sitio" : "Search this site",
+            filters_label: lang === "es" ? "Filtros" : "Filters",
+            zero_results:
+              lang === "es" ? "No se encontraron resultados para [SEARCH_TERM]" : "No results for [SEARCH_TERM]",
+            many_results: lang === "es" ? "[COUNT] resultados" : "[COUNT] results",
+            one_result: lang === "es" ? "[COUNT] resultado" : "[COUNT] result",
+            alt_search:
+              lang === "es"
+                ? "No se encontraron resultados para [SEARCH_TERM]. Mostrando resultados para [DIFFERENT_TERM]"
+                : "No results for [SEARCH_TERM]. Showing results for [DIFFERENT_TERM] instead",
+            search_suggestion:
+              lang === "es"
+                ? "No se encontraron resultados para [SEARCH_TERM]. Intenta una de las siguientes búsquedas:"
+                : "No results for [SEARCH_TERM]. Try one of the following searches:",
+            searching: lang === "es" ? "Buscando..." : "Searching...",
+          },
+        });
       } catch (error) {
         console.error("Error initializing Pagefind:", error);
       }
@@ -117,15 +97,15 @@ const { lang } = Astro.props;
         document.body.style.overflow = "hidden";
 
         // Initialize Pagefind if not already done
-        initializePagefind().then(() => {
-          // Focus search input after initialization
-          setTimeout(() => {
-            const input = modal.querySelector(".pagefind-ui__search-input");
-            if (input) {
-              input.focus();
-            }
-          }, 200);
-        });
+        initializePagefind();
+
+        // Focus search input after a short delay
+        setTimeout(function () {
+          const input = modal.querySelector(".pagefind-ui__search-input");
+          if (input) {
+            input.focus();
+          }
+        }, 300);
       }
     }
 
