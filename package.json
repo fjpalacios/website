@@ -36,7 +36,7 @@
     "@astrojs/mdx": "^4.3.13",
     "@astrojs/rss": "4.0.14",
     "@astrojs/sitemap": "3.6.0",
-    "astro": "5.16.5",
+    "astro": "5.16.6",
     "normalize.css": "^8.0.1",
     "prismjs": "^1.30.0",
     "rehype-prism-plus": "^2.0.1",
