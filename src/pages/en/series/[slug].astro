@@ -9,6 +9,7 @@ import { t } from "@locales";
 import { buildSeriesUrl, buildSeriesIndexUrl } from "@utils/routes";
 
 import contactEn from "@/content/static/contact/en.json";
+import { generateItemListSchema } from "@/utils/schemas/itemList";
 import { TAXONOMY_CONFIGS, generateTaxonomyDetailPaths, getTaxonomyItemsWithCount } from "@/utils/taxonomyPages";
 
 export async function getStaticPaths() {
@@ -40,9 +41,26 @@ const breadcrumbs: BreadcrumbItem[] = [
   { label: t(lang, "pages.series"), url: buildSeriesIndexUrl(lang) },
   { label: serie.data.name }, // Current page, no URL
 ];
+
+// Generate ItemList schema for SEO
+const itemListSchema = generateItemListSchema(
+  content.map((item) => {
+    const schemaType = item.type === "book" ? "Book" : item.type === "tutorial" ? "TechArticle" : "BlogPosting";
+    const routeKey = item.type === "book" ? "books" : item.type === "tutorial" ? "tutorials" : "posts";
+    return {
+      name: item.title,
+      url: `/${lang}/${t(lang, `routes.${routeKey}`)}/${item.slug}/`,
+      type: schemaType,
+      description: item.excerpt,
+    };
+  }),
+  Astro.site ? Astro.site.toString() : "https://fjp.es",
+);
 ---
 
 <Layout lang={lang} title={pageTitle} contact={contact} translationSlug={serie.data.i18n}>
+  <script type="application/ld+json" set:html={JSON.stringify(itemListSchema)} />
+
   <Breadcrumbs items={breadcrumbs} lang={lang} />
   <Title title={pageTitle} srOnly={true} />
   <PostList posts={content} lang={lang} />
