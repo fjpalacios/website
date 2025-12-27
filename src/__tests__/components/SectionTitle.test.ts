@@ -20,8 +20,8 @@ describe("SectionTitle Component", () => {
     expect(content).toContain("interface Props");
     expect(content).toContain("title: string");
 
-    // Check for section-title class
-    expect(content).toContain('class="section-title"');
+    // Check for section-title class (using class:list syntax)
+    expect(content).toMatch(/class:list.*section-title/);
 
     // Check for h3 element
     expect(content).toContain("<h3>");
@@ -30,8 +30,8 @@ describe("SectionTitle Component", () => {
   it("should use title prop correctly", () => {
     const content = fs.readFileSync(componentPath, "utf-8");
 
-    // Check that title is destructured
-    expect(content).toContain("const { title }");
+    // Check that title is destructured (with optional srOnly prop)
+    expect(content).toMatch(/const\s*{\s*title/);
 
     // Check that title is rendered
     expect(content).toContain("{title}");
