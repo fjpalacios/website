@@ -10,7 +10,7 @@
  * - name: Author name (must match exactly, case-sensitive)
  */
 
-import { findAuthor, generateAuthorUrl } from "@utils/authorLinkHelpers";
+import { findAuthor, generateAuthorUrl, detectLanguageFromUrl } from "@utils/authorLinkHelpers";
 import { getCollection } from "astro:content";
 
 interface Props {
@@ -19,9 +19,8 @@ interface Props {
 
 const { name } = Astro.props;
 
-// Get current language from URL (default to "es" if not found)
-const currentPath = Astro.url.pathname;
-const currentLang = (currentPath.startsWith("/en/") ? "en" : "es") as "es" | "en";
+// Detect current language from URL (default to "es" if not found)
+const currentLang = detectLanguageFromUrl(Astro.url.pathname);
 
 // Query all authors and find the matching one
 const allAuthors = await getCollection("authors");

@@ -7,6 +7,20 @@ import { buildAuthorUrl } from "@utils/routes";
 import type { CollectionEntry } from "astro:content";
 
 /**
+ * Detect language from URL pathname
+ * @param pathname - URL pathname (e.g., "/en/authors/stephen-king" or "/es/autores/stephen-king")
+ * @returns Detected language ("en" or "es"), defaults to "es" if not detected
+ *
+ * @example
+ * detectLanguageFromUrl("/en/authors/stephen-king") // "en"
+ * detectLanguageFromUrl("/es/autores/stephen-king") // "es"
+ * detectLanguageFromUrl("/unknown/path") // "es" (default)
+ */
+export const detectLanguageFromUrl = (pathname: string): "es" | "en" => {
+  return pathname.startsWith("/en/") ? "en" : "es";
+};
+
+/**
  * Find an author by exact name match
  */
 export const findAuthor = (

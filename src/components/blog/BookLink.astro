@@ -6,14 +6,15 @@
  * Usage in MDX:
  * <BookLink title="Apocalipsis, de Stephen King" />
  * <BookLink title="Apocalipsis, de Stephen King" full={true} />
+ * <BookLink title="The Stand, by Stephen King" lang="es" />
  *
  * Props:
  * - title: Book title (can be partial, e.g., "Apocalipsis" or "Apocalipsis, de Stephen King")
  * - full: Display full title with author (default: false)
- * - lang: Language to search in ("es" | "en", default: "es")
+ * - lang: Language to search in ("es" | "en", default: auto-detected from URL)
  */
 
-import { findBook, generateDisplayTitle, generateBookUrl } from "@utils/bookLinkHelpers";
+import { findBook, generateDisplayTitle, generateBookUrl, detectLanguageFromUrl } from "@utils/bookLinkHelpers";
 import { getCollection } from "astro:content";
 
 interface Props {
@@ -22,7 +23,10 @@ interface Props {
   lang?: "es" | "en";
 }
 
-const { title, full = false, lang = "es" } = Astro.props;
+// Detect current language from URL (default to "es" if not found)
+const detectedLang = detectLanguageFromUrl(Astro.url.pathname);
+
+const { title, full = false, lang = detectedLang } = Astro.props;
 
 // Query all books and find the matching one
 const allBooks = await getCollection("books");

@@ -7,6 +7,20 @@ import { buildBookUrl } from "@utils/routes";
 import type { CollectionEntry } from "astro:content";
 
 /**
+ * Detect language from URL pathname
+ * @param pathname - URL pathname (e.g., "/en/books/the-stand" or "/es/libros/apocalipsis")
+ * @returns Detected language ("en" or "es"), defaults to "es" if not detected
+ *
+ * @example
+ * detectLanguageFromUrl("/en/books/the-stand") // "en"
+ * detectLanguageFromUrl("/es/libros/apocalipsis") // "es"
+ * detectLanguageFromUrl("/unknown/path") // "es" (default)
+ */
+export const detectLanguageFromUrl = (pathname: string): "es" | "en" => {
+  return pathname.startsWith("/en/") ? "en" : "es";
+};
+
+/**
  * Parse a book title in format "Title, Author" or just "Title"
  */
 export const parseTitle = (titleStr: string) => {

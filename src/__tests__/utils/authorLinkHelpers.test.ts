@@ -1,4 +1,4 @@
-import { findAuthor, generateAuthorUrl } from "@utils/authorLinkHelpers";
+import { findAuthor, generateAuthorUrl, detectLanguageFromUrl } from "@utils/authorLinkHelpers";
 import type { CollectionEntry } from "astro:content";
 import { describe, expect, test } from "vitest";
 
@@ -84,6 +84,34 @@ describe("authorLinkHelpers", () => {
     test("should return null when author is undefined", () => {
       const result = generateAuthorUrl(undefined, "es");
       expect(result).toBeNull();
+    });
+  });
+
+  describe("detectLanguageFromUrl", () => {
+    test("should detect English from /en/ prefix", () => {
+      expect(detectLanguageFromUrl("/en/authors/stephen-king")).toBe("en");
+      expect(detectLanguageFromUrl("/en/books/the-stand")).toBe("en");
+      expect(detectLanguageFromUrl("/en/")).toBe("en");
+      expect(detectLanguageFromUrl("/en")).toBe("es"); // No trailing slash, doesn't match
+    });
+
+    test("should detect Spanish from /es/ prefix", () => {
+      expect(detectLanguageFromUrl("/es/autores/stephen-king")).toBe("es");
+      expect(detectLanguageFromUrl("/es/libros/apocalipsis")).toBe("es");
+      expect(detectLanguageFromUrl("/es/")).toBe("es");
+    });
+
+    test("should default to Spanish for unknown paths", () => {
+      expect(detectLanguageFromUrl("/unknown/path")).toBe("es");
+      expect(detectLanguageFromUrl("/fr/authors/someone")).toBe("es");
+      expect(detectLanguageFromUrl("/")).toBe("es");
+      expect(detectLanguageFromUrl("")).toBe("es");
+    });
+
+    test("should handle edge cases", () => {
+      expect(detectLanguageFromUrl("/en")).toBe("es"); // No trailing slash
+      expect(detectLanguageFromUrl("/english/path")).toBe("es"); // Contains 'en' but not /en/
+      expect(detectLanguageFromUrl("/es")).toBe("es"); // No trailing slash, still defaults to es
     });
   });
 });
