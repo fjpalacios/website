@@ -18,6 +18,7 @@ import { getCollection, render } from "astro:content";
 
 import contactEs from "@/content/static/contact/es.json";
 import { findAuthorBySlug, findPublisherBySlug, findGenresBySlug, findCategoriesBySlug } from "@/utils/blog";
+import { renderScoreEmoji, getScoreAriaLabel } from "@/utils/book/scoreFormatter";
 import { generateBookDetailPaths } from "@/utils/booksPages";
 
 export async function getStaticPaths() {
@@ -45,17 +46,9 @@ const categories = findCategoriesBySlug(allCategories, book.categories);
 
 const authorWithGender = author?.data.gender === "male" ? "El autor" : "La autora";
 
-// Score rendering with Unicode stars
-const renderScoreEmoji = () => {
-  if (book.score === "fav") {
-    return "❤️❤️❤️❤️❤️";
-  }
-  const stars = "★".repeat(book.score);
-  const emptyStars = "☆".repeat(5 - book.score);
-  return stars + emptyStars;
-};
-
-const scoreEmoji = renderScoreEmoji();
+// Score rendering
+const scoreEmoji = renderScoreEmoji(book.score);
+const scoreAriaLabel = getScoreAriaLabel(book.score, lang);
 
 // Build breadcrumbs
 const breadcrumbs: BreadcrumbItem[] = [
@@ -119,7 +112,7 @@ if (publisher) {
     <section class="book__content">
       <div class="book__content__cover">
         <img src={book.book_cover || book.cover} alt={book.title} />
-        <div class="score">{scoreEmoji}</div>
+        <div class="score" aria-label={scoreAriaLabel}>{scoreEmoji}</div>
       </div>
       <div class="book__content__content">
         <!-- Pagefind title meta -->
