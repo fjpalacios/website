@@ -2,6 +2,8 @@
 import { t } from "@locales";
 import { getLocalizedRoute } from "@utils/routes";
 
+import { PAGINATION_CONFIG } from "../config/pagination";
+
 interface Props {
   currentPage: number;
   totalPages: number;
@@ -10,42 +12,43 @@ interface Props {
 }
 
 const { currentPage, totalPages, basePath, lang = "es" } = Astro.props;
+const { MAX_PAGE_BUTTONS, FIRST_PAGE, MIN_GAP_FOR_ELLIPSIS } = PAGINATION_CONFIG.UI;
 
 // Get localized "page" segment
 const pageSegment = getLocalizedRoute("page", lang);
 
 // Build URLs for prev/next pages
 // Always use /{pageSegment}/N format for consistency, except for page 1 which is the base path
-const prevUrl = currentPage === 2 ? basePath : `${basePath}/${pageSegment}/${currentPage - 1}`;
+const prevUrl = currentPage === FIRST_PAGE + 1 ? basePath : `${basePath}/${pageSegment}/${currentPage - 1}`;
 const nextUrl = `${basePath}/${pageSegment}/${currentPage + 1}`;
 const firstUrl = basePath;
 const lastUrl = `${basePath}/${pageSegment}/${totalPages}`;
 
-const showPrev = currentPage > 1;
+const showPrev = currentPage > FIRST_PAGE;
 const showNext = currentPage < totalPages;
-const showPaginator = totalPages > 1;
+const showPaginator = totalPages > FIRST_PAGE;
 
 // Generate page number array with smart truncation
 // Examples:
 // - [1, 2, 3, 4, 5] for 5 pages
 // - [1, "...", 5, 6, [7], 8, 9, "...", 20] for page 7 of 20
 function getPageNumbers(): (number | string)[] {
-  if (totalPages <= 7) {
-    // Show all pages if 7 or less
-    return Array.from({ length: totalPages }, (_, i) => i + 1);
+  if (totalPages <= MAX_PAGE_BUTTONS) {
+    // Show all pages if MAX_PAGE_BUTTONS or less
+    return Array.from({ length: totalPages }, (_, i) => i + FIRST_PAGE);
   }
 
   const pages: (number | string)[] = [];
 
   // Always show first page
-  pages.push(1);
+  pages.push(FIRST_PAGE);
 
   // Calculate range around current page
-  const rangeStart = Math.max(2, currentPage - 1);
+  const rangeStart = Math.max(FIRST_PAGE + 1, currentPage - 1);
   const rangeEnd = Math.min(totalPages - 1, currentPage + 1);
 
   // Add ellipsis after first page if needed
-  if (rangeStart > 2) {
+  if (rangeStart > FIRST_PAGE + MIN_GAP_FOR_ELLIPSIS) {
     pages.push("...");
   }
 
@@ -55,12 +58,12 @@ function getPageNumbers(): (number | string)[] {
   }
 
   // Add ellipsis before last page if needed
-  if (rangeEnd < totalPages - 1) {
+  if (rangeEnd < totalPages - MIN_GAP_FOR_ELLIPSIS) {
     pages.push("...");
   }
 
   // Always show last page
-  if (totalPages > 1) {
+  if (totalPages > FIRST_PAGE) {
     pages.push(totalPages);
   }
 
@@ -71,7 +74,7 @@ const pageNumbers = getPageNumbers();
 
 // Helper to build page URL
 function getPageUrl(page: number): string {
-  return page === 1 ? basePath : `${basePath}/${pageSegment}/${page}`;
+  return page === FIRST_PAGE ? basePath : `${basePath}/${pageSegment}/${page}`;
 }
 ---
 
@@ -80,7 +83,7 @@ function getPageUrl(page: number): string {
     <nav class="paginator" aria-label="Pagination">
       <div class="paginator__controls">
         {/* First page button */}
-        {currentPage > 2 && (
+        {currentPage > FIRST_PAGE + 1 && (
           <a href={firstUrl} class="paginator__button paginator__button--first" aria-label="First page">
             «
           </a>

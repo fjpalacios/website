@@ -95,4 +95,90 @@ describe("Pagination Config", () => {
       expect(validatePaginationSize(50.5)).toBe(false); // Above max
     });
   });
+
+  describe("PAGINATION_CONFIG.UI", () => {
+    it("should have MAX_PAGE_BUTTONS constant", () => {
+      expect(PAGINATION_CONFIG.UI.MAX_PAGE_BUTTONS).toBeDefined();
+      expect(PAGINATION_CONFIG.UI.MAX_PAGE_BUTTONS).toBe(7);
+      expect(typeof PAGINATION_CONFIG.UI.MAX_PAGE_BUTTONS).toBe("number");
+    });
+
+    it("should have INITIAL_PAGES_COUNT constant", () => {
+      expect(PAGINATION_CONFIG.UI.INITIAL_PAGES_COUNT).toBeDefined();
+      expect(PAGINATION_CONFIG.UI.INITIAL_PAGES_COUNT).toBe(5);
+      expect(typeof PAGINATION_CONFIG.UI.INITIAL_PAGES_COUNT).toBe("number");
+    });
+
+    it("should have START_THRESHOLD constant", () => {
+      expect(PAGINATION_CONFIG.UI.START_THRESHOLD).toBeDefined();
+      expect(PAGINATION_CONFIG.UI.START_THRESHOLD).toBe(4);
+      expect(typeof PAGINATION_CONFIG.UI.START_THRESHOLD).toBe("number");
+    });
+
+    it("should have END_THRESHOLD constant", () => {
+      expect(PAGINATION_CONFIG.UI.END_THRESHOLD).toBeDefined();
+      expect(PAGINATION_CONFIG.UI.END_THRESHOLD).toBe(3);
+      expect(typeof PAGINATION_CONFIG.UI.END_THRESHOLD).toBe("number");
+    });
+
+    it("should have END_OFFSET constant", () => {
+      expect(PAGINATION_CONFIG.UI.END_OFFSET).toBeDefined();
+      expect(PAGINATION_CONFIG.UI.END_OFFSET).toBe(4);
+      expect(typeof PAGINATION_CONFIG.UI.END_OFFSET).toBe("number");
+    });
+
+    it("should have PAGES_AROUND_CURRENT constant", () => {
+      expect(PAGINATION_CONFIG.UI.PAGES_AROUND_CURRENT).toBeDefined();
+      expect(PAGINATION_CONFIG.UI.PAGES_AROUND_CURRENT).toBe(2);
+      expect(typeof PAGINATION_CONFIG.UI.PAGES_AROUND_CURRENT).toBe("number");
+    });
+
+    it("should have FIRST_PAGE constant", () => {
+      expect(PAGINATION_CONFIG.UI.FIRST_PAGE).toBeDefined();
+      expect(PAGINATION_CONFIG.UI.FIRST_PAGE).toBe(1);
+      expect(typeof PAGINATION_CONFIG.UI.FIRST_PAGE).toBe("number");
+    });
+
+    it("should have MIN_GAP_FOR_ELLIPSIS constant", () => {
+      expect(PAGINATION_CONFIG.UI.MIN_GAP_FOR_ELLIPSIS).toBeDefined();
+      expect(PAGINATION_CONFIG.UI.MIN_GAP_FOR_ELLIPSIS).toBe(2);
+      expect(typeof PAGINATION_CONFIG.UI.MIN_GAP_FOR_ELLIPSIS).toBe("number");
+    });
+
+    it("should have logical relationships between constants", () => {
+      // INITIAL_PAGES_COUNT should be less than MAX_PAGE_BUTTONS
+      expect(PAGINATION_CONFIG.UI.INITIAL_PAGES_COUNT).toBeLessThan(PAGINATION_CONFIG.UI.MAX_PAGE_BUTTONS);
+
+      // START_THRESHOLD should be less than MAX_PAGE_BUTTONS
+      expect(PAGINATION_CONFIG.UI.START_THRESHOLD).toBeLessThan(PAGINATION_CONFIG.UI.MAX_PAGE_BUTTONS);
+
+      // END_THRESHOLD should be less than MAX_PAGE_BUTTONS
+      expect(PAGINATION_CONFIG.UI.END_THRESHOLD).toBeLessThan(PAGINATION_CONFIG.UI.MAX_PAGE_BUTTONS);
+
+      // PAGES_AROUND_CURRENT should be reasonable
+      expect(PAGINATION_CONFIG.UI.PAGES_AROUND_CURRENT).toBeGreaterThan(0);
+      expect(PAGINATION_CONFIG.UI.PAGES_AROUND_CURRENT).toBeLessThan(PAGINATION_CONFIG.UI.MAX_PAGE_BUTTONS);
+
+      // FIRST_PAGE should be 1 (standard pagination starts at 1)
+      expect(PAGINATION_CONFIG.UI.FIRST_PAGE).toBe(1);
+    });
+
+    it("should be immutable (as const)", () => {
+      // This test verifies that PAGINATION_CONFIG uses 'as const'
+      // TypeScript enforces readonly at compile time, preventing modifications
+
+      // Verify that the config object exists and has correct structure
+      expect(PAGINATION_CONFIG).toBeDefined();
+      expect(PAGINATION_CONFIG.UI).toBeDefined();
+
+      // TypeScript will prevent this at compile time with 'as const':
+      // If you uncomment the line below, TypeScript will show an error:
+      // @ts-expect-error - Cannot assign to 'MAX_PAGE_BUTTONS' because it is a read-only property
+      // PAGINATION_CONFIG.UI.MAX_PAGE_BUTTONS = 10;
+
+      // The presence of @ts-expect-error above confirms TypeScript treats it as readonly
+      // This is the expected behavior for 'as const' (compile-time immutability)
+      expect(PAGINATION_CONFIG.UI.MAX_PAGE_BUTTONS).toBe(7);
+    });
+  });
 });

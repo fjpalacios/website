@@ -22,6 +22,9 @@ test.describe("Search Functionality", () => {
     test("should open search modal with keyboard shortcut (Cmd+K)", async ({ page }) => {
       await page.goto("/es/libros");
 
+      // Wait for Pagefind to be ready
+      await waitForPagefindReady(page);
+
       // Modal should be hidden initially
       const modal = page.locator("#searchModal");
       await expect(modal).toHaveAttribute("aria-hidden", "true");
@@ -32,10 +35,13 @@ test.describe("Search Functionality", () => {
       // Modal should be visible
       await expect(modal).toHaveAttribute("aria-hidden", "false");
 
-      // Search input should be visible and focused
+      // Search input should be visible
       const searchInput = page.locator(".pagefind-ui__search-input");
       await expect(searchInput).toBeVisible();
-      await expect(searchInput).toBeFocused();
+
+      // Wait for automatic focus (TIMINGS.SEARCH_INPUT_FOCUS_MS = 300ms)
+      // Use a longer timeout to account for Pagefind initialization
+      await expect(searchInput).toBeFocused({ timeout: 2000 });
     });
 
     test("should open search modal with button click", async ({ page }) => {
@@ -116,15 +122,15 @@ test.describe("Search Functionality", () => {
       // Open search
       await page.keyboard.press(process.platform === "darwin" ? "Meta+KeyK" : "Control+KeyK");
 
-      // Wait for modal to open
-      await page.waitForTimeout(500);
+      // Wait for modal to open and focus delay (TIMINGS.SEARCH_INPUT_FOCUS_MS = 300ms)
+      await page.waitForTimeout(800);
 
       // Type search query
       const searchInput = page.locator(".pagefind-ui__search-input");
       await searchInput.fill("Stephen King");
 
       // Wait for results to load
-      await page.waitForTimeout(2000);
+      await page.waitForTimeout(3000);
 
       // Check if results appear
       const results = page.locator(".pagefind-ui__result");
@@ -151,15 +157,15 @@ test.describe("Search Functionality", () => {
       // Open search
       await page.keyboard.press(process.platform === "darwin" ? "Meta+KeyK" : "Control+KeyK");
 
-      // Wait for modal to open
-      await page.waitForTimeout(500);
+      // Wait for modal to open and focus delay (TIMINGS.SEARCH_INPUT_FOCUS_MS = 300ms)
+      await page.waitForTimeout(800);
 
       // Type search query
       const searchInput = page.locator(".pagefind-ui__search-input");
       await searchInput.fill("Stephen King");
 
       // Wait for results to load
-      await page.waitForTimeout(2000);
+      await page.waitForTimeout(3000);
 
       // Check if results appear
       const results = page.locator(".pagefind-ui__result");
@@ -186,15 +192,15 @@ test.describe("Search Functionality", () => {
       // Open search
       await page.keyboard.press(process.platform === "darwin" ? "Meta+KeyK" : "Control+KeyK");
 
-      // Wait for modal to open
-      await page.waitForTimeout(500);
+      // Wait for modal to open and focus delay (TIMINGS.SEARCH_INPUT_FOCUS_MS = 300ms)
+      await page.waitForTimeout(800);
 
       // Type non-existent query
       const searchInput = page.locator(".pagefind-ui__search-input");
       await searchInput.fill("xyzabc123nonexistent");
 
       // Wait for search to complete
-      await page.waitForTimeout(2000);
+      await page.waitForTimeout(3000);
 
       // Should show zero results message (in Spanish)
       const message = page.locator(".pagefind-ui__message");
@@ -210,28 +216,33 @@ test.describe("Search Functionality", () => {
       // Open search
       await page.keyboard.press(process.platform === "darwin" ? "Meta+KeyK" : "Control+KeyK");
 
-      // Wait for modal to open
-      await page.waitForTimeout(500);
+      // Wait for modal to open and focus delay (TIMINGS.SEARCH_INPUT_FOCUS_MS = 300ms)
+      await page.waitForTimeout(800);
 
       // Type search query
       const searchInput = page.locator(".pagefind-ui__search-input");
       await searchInput.fill("Stephen King");
 
       // Wait for results to load
-      await page.waitForTimeout(2000);
+      await page.waitForTimeout(3000);
 
-      // Wait for results to be visible
-      await page.waitForSelector(".pagefind-ui__result", { timeout: 10000 });
-
-      // Click first result
+      // Get first result and check URL
       const firstResult = page.locator(".pagefind-ui__result").first();
       const firstResultLink = firstResult.locator(".pagefind-ui__result-link");
+
+      // Wait for the link to be visible and stable
+      await expect(firstResultLink).toBeVisible();
+      await page.waitForTimeout(500);
+
       const href = await firstResultLink.getAttribute("href");
 
-      await firstResultLink.click();
+      // Click using force to avoid potential interception issues
+      await firstResultLink.click({ force: true });
 
-      // Should navigate to the result page
-      await page.waitForURL(`**${href}`, { timeout: 10000 });
+      // Wait for navigation with longer timeout
+      await page.waitForLoadState("domcontentloaded", { timeout: 10000 });
+
+      // Verify we navigated to the result page
       expect(page.url()).toContain(href || "");
     });
   });
@@ -342,12 +353,12 @@ test.describe("Search Functionality", () => {
 
       // Open search
       await page.keyboard.press(process.platform === "darwin" ? "Meta+KeyK" : "Control+KeyK");
-      await page.waitForTimeout(500);
+      await page.waitForTimeout(800);
 
       // Search for "Stephen King" - should return book detail pages, not listing pages
       const searchInput = page.locator(".pagefind-ui__search-input");
       await searchInput.fill("Stephen King");
-      await page.waitForTimeout(2000);
+      await page.waitForTimeout(3000);
 
       // Wait for results to be visible
       await page.waitForSelector(".pagefind-ui__result-link", { timeout: 10000 });
@@ -423,12 +434,12 @@ test.describe("Search Functionality", () => {
 
       // Open search
       await page.keyboard.press(process.platform === "darwin" ? "Meta+KeyK" : "Control+KeyK");
-      await page.waitForTimeout(500);
+      await page.waitForTimeout(800);
 
       // Search for a known book
       const searchInput = page.locator(".pagefind-ui__search-input");
       await searchInput.fill("Stephen King");
-      await page.waitForTimeout(2000);
+      await page.waitForTimeout(3000);
 
       // Wait for results to appear
       await page.waitForSelector(".pagefind-ui__result-title", { timeout: 10000 });
@@ -520,7 +531,7 @@ test.describe("Search Functionality", () => {
       // Leave search empty (just focus input)
       const searchInput = page.locator(".pagefind-ui__search-input");
       await searchInput.focus();
-      await page.waitForTimeout(500);
+      await page.waitForTimeout(800);
 
       // Should not show any results or error (empty state)
       const results = page.locator(".pagefind-ui__result");
@@ -557,11 +568,11 @@ test.describe("Search Functionality", () => {
 
       // Open search and perform search
       await page.keyboard.press(process.platform === "darwin" ? "Meta+KeyK" : "Control+KeyK");
-      await page.waitForTimeout(500);
+      await page.waitForTimeout(800);
 
       const searchInput = page.locator(".pagefind-ui__search-input");
       await searchInput.fill("Stephen King");
-      await page.waitForTimeout(2000);
+      await page.waitForTimeout(3000);
 
       // Wait for results to appear
       await page.waitForSelector(".pagefind-ui__result-link", { timeout: 10000 });

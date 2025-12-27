@@ -2,6 +2,8 @@
  * Pagination utilities for blog content
  */
 
+import { PAGINATION_CONFIG } from "../../config/pagination";
+
 export interface PaginationInfo {
   currentPage: number;
   totalPages: number;
@@ -65,14 +67,14 @@ export function paginateItems<T>(items: T[], page: number, perPage: number): T[]
   if (!Number.isInteger(perPage)) {
     throw new Error("Items per page must be an integer");
   }
-  if (page < 1) {
-    throw new Error("Page must be at least 1");
+  if (page < PAGINATION_CONFIG.UI.FIRST_PAGE) {
+    throw new Error(`Page must be at least ${PAGINATION_CONFIG.UI.FIRST_PAGE}`);
   }
   if (perPage <= 0) {
     throw new Error("Items per page must be positive");
   }
 
-  const startIndex = (page - 1) * perPage;
+  const startIndex = (page - PAGINATION_CONFIG.UI.FIRST_PAGE) * perPage;
   const endIndex = startIndex + perPage;
 
   return items.slice(startIndex, endIndex);
@@ -105,18 +107,18 @@ export function getPaginationInfo(currentPage: number, totalPages: number): Pagi
   if (!Number.isInteger(totalPages)) {
     throw new Error("Total pages must be an integer");
   }
-  if (currentPage < 1) {
-    throw new Error("Current page must be at least 1");
+  if (currentPage < PAGINATION_CONFIG.UI.FIRST_PAGE) {
+    throw new Error(`Current page must be at least ${PAGINATION_CONFIG.UI.FIRST_PAGE}`);
   }
-  if (totalPages < 1) {
-    throw new Error("Total pages must be at least 1");
+  if (totalPages < PAGINATION_CONFIG.UI.FIRST_PAGE) {
+    throw new Error(`Total pages must be at least ${PAGINATION_CONFIG.UI.FIRST_PAGE}`);
   }
   if (currentPage > totalPages) {
     throw new Error("Current page cannot exceed total pages");
   }
 
   const hasNextPage = currentPage < totalPages;
-  const hasPrevPage = currentPage > 1;
+  const hasPrevPage = currentPage > PAGINATION_CONFIG.UI.FIRST_PAGE;
 
   return {
     currentPage,
@@ -142,16 +144,26 @@ export function getPaginationInfo(currentPage: number, totalPages: number): Pagi
  * generatePageRange(8, 15) // => [1, '...', 6, 7, 8, 9, 10, '...', 15]
  */
 function generatePageRange(currentPage: number, totalPages: number): (number | "...")[] {
-  // If 7 or fewer pages, show all
-  if (totalPages <= 7) {
-    return Array.from({ length: totalPages }, (_, i) => i + 1);
+  const {
+    MAX_PAGE_BUTTONS,
+    INITIAL_PAGES_COUNT,
+    START_THRESHOLD,
+    END_THRESHOLD,
+    END_OFFSET,
+    PAGES_AROUND_CURRENT,
+    FIRST_PAGE,
+  } = PAGINATION_CONFIG.UI;
+
+  // If MAX_PAGE_BUTTONS or fewer pages, show all
+  if (totalPages <= MAX_PAGE_BUTTONS) {
+    return Array.from({ length: totalPages }, (_, i) => i + FIRST_PAGE);
   }
 
   const range: (number | "...")[] = [];
 
-  // If current page is near the beginning (pages 1-4)
-  if (currentPage <= 4) {
-    for (let i = 1; i <= 5; i++) {
+  // If current page is near the beginning (pages 1-START_THRESHOLD)
+  if (currentPage <= START_THRESHOLD) {
+    for (let i = FIRST_PAGE; i <= INITIAL_PAGES_COUNT; i++) {
       range.push(i);
     }
     range.push("...");
@@ -159,22 +171,22 @@ function generatePageRange(currentPage: number, totalPages: number): (number | "
     return range;
   }
 
-  // If current page is near the end (last 4 pages)
-  if (currentPage >= totalPages - 3) {
-    range.push(1);
+  // If current page is near the end (last END_OFFSET pages)
+  if (currentPage >= totalPages - END_THRESHOLD) {
+    range.push(FIRST_PAGE);
     range.push("...");
-    for (let i = totalPages - 4; i <= totalPages; i++) {
+    for (let i = totalPages - END_OFFSET; i <= totalPages; i++) {
       range.push(i);
     }
     return range;
   }
 
   // Current page is in the middle
-  range.push(1);
+  range.push(FIRST_PAGE);
   range.push("...");
 
-  // Show 2 pages before and after current
-  for (let i = currentPage - 2; i <= currentPage + 2; i++) {
+  // Show PAGES_AROUND_CURRENT pages before and after current
+  for (let i = currentPage - PAGES_AROUND_CURRENT; i <= currentPage + PAGES_AROUND_CURRENT; i++) {
     range.push(i);
   }
 

@@ -217,7 +217,7 @@ const baseUrl = t(lang, "metaData.url");
                     if (statusEl) {
                       statusEl.textContent = "";
                     }
-                  }, 2000);
+                  }, TIMINGS.CODE_COPY_FEEDBACK_MS);
                 } catch (err) {
                   console.error("Failed to copy code:", err);
                 }
