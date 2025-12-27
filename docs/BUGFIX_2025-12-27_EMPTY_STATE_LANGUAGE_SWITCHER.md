@@ -52,11 +52,13 @@ Added the missing SCSS styles block:
 
 **Root Cause**:
 
-- `generateTaxonomyDetailPaths()` function in `src/utils/taxonomyPages.ts` was not detecting if taxonomy item exists in target language
-- Taxonomy detail page components were not receiving `hasTargetContent` prop
-- Language switcher in `Menu.astro` uses `hasTranslation()` helper which requires `hasTargetContent` for detail pages
+1. `generateTaxonomyDetailPaths()` function in `src/utils/taxonomyPages.ts` was not detecting if taxonomy item exists in target language
+2. Taxonomy detail page components were not receiving `hasTargetContent` prop
+3. **`hasTranslation()` helper function was not checking `hasTargetContent` for detail pages** ⚠️ (Critical issue)
 
-**Solution**:
+**Solution** (implemented in 2 commits):
+
+**Commit 1 (895da65): Pass `hasTargetContent` through all layers**
 
 **Step 1: Update `generateTaxonomyDetailPaths()` function**
 
@@ -106,10 +108,59 @@ const { taxonomyItem, content, currentPage, totalPages, lang, contact, hasTarget
 //                                                                                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ NEW
 ```
 
+**Commit 2 (8440393): Add logic to use `hasTargetContent` in `hasTranslation()`** ⚡ **THE REAL FIX**
+
+**Step 3: Update `hasTranslation()` function**
+
+The previous steps passed `hasTargetContent` through all layers, but the `hasTranslation()` function wasn't using it for detail pages. This was the missing piece!
+
+```typescript
+// File: src/utils/translation-availability.ts
+
+export function hasTranslation(
+  currentPath: string,
+  lang: string,
+  translationSlug?: string,
+  hasTargetContent?: boolean,
+): boolean {
+  // Static pages always have translation
+  if (isStaticPage(currentPath, lang)) {
+    return true;
+  }
+
+  // Index pages check if target language has content
+  if (isIndexPage(currentPath, lang)) {
+    return hasTargetContent !== undefined ? hasTargetContent : true;
+  }
+
+  // Taxonomy detail pages: check hasTargetContent (passed from generateTaxonomyDetailPaths)
+  if (hasTargetContent !== undefined) {
+    return hasTargetContent; // ✅ NEW: Use the prop!
+  }
+
+  // Content detail pages depend on translationSlug
+  // Empty string is treated as no translation
+  return translationSlug !== undefined && translationSlug !== "";
+}
+```
+
+**Why this was needed**:
+
+- Taxonomy pages don't have `translationSlug` (they use the same slug in both languages)
+- They rely on `hasTargetContent` to know if translation exists
+- The function was checking `translationSlug` for ALL detail pages, ignoring `hasTargetContent`
+- Now it checks `hasTargetContent` FIRST, then falls back to `translationSlug` for content pages
+
 **Files Modified**:
+
+**Commit 1 (895da65)**:
 
 - `src/utils/taxonomyPages.ts` (+7 lines, modified generateTaxonomyDetailPaths)
 - 14 taxonomy detail pages (2 lines each: +1 in destructuring, +1 in Layout)
+
+**Commit 2 (8440393)**:
+
+- `src/utils/translation-availability.ts` (+5 lines, modified hasTranslation logic and JSDoc)
 
 ---
 
@@ -128,7 +179,8 @@ const { taxonomyItem, content, currentPage, totalPages, lang, contact, hasTarget
 5. **Menu.astro calls `hasTranslation()`** helper:
    ```typescript
    hasTranslation(currentPath, lang, translationSlug, hasTargetContent);
-   // Returns: true (because hasTargetContent is true)
+   // For taxonomy pages: translationSlug is undefined, but hasTargetContent is true
+   // Function checks hasTargetContent first → returns true ✅
    ```
 6. **Language switcher is ENABLED** ✅
 
@@ -185,12 +237,12 @@ _Not run for these specific fixes, but existing E2E tests cover language switche
 
 ### Lines Changed:
 
-| Type              | Files  | Lines Added | Lines Removed |
-| ----------------- | ------ | ----------- | ------------- |
-| Bug Fix 1 (CSS)   | 1      | +10         | 0             |
-| Bug Fix 2 (Logic) | 1      | +7          | -2            |
-| Bug Fix 2 (Pages) | 14     | +28         | 0             |
-| **Total**         | **16** | **+45**     | **-2**        |
+| Type                       | Files  | Lines Added | Lines Removed |
+| -------------------------- | ------ | ----------- | ------------- |
+| Bug Fix 1 (CSS)            | 1      | +10         | -1            |
+| Bug Fix 2 (Prop Passing)   | 15     | +35         | -14           |
+| Bug Fix 2 (hasTranslation) | 1      | +8          | -3            |
+| **Total**                  | **17** | **+53**     | **-18**       |
 
 ### Backward Compatibility:
 
@@ -253,10 +305,18 @@ _Not run for these specific fixes, but existing E2E tests cover language switche
 
 **For Language Switcher:**
 
+**Approach 1 (Commit 895da65)**: Pass `hasTargetContent` through all layers
+
 - Detection at build time (SSG) → zero runtime cost
-- Uses existing `hasTranslation()` helper (no new logic)
 - Slug-based matching works for all taxonomies
 - Authors with same slug = same person (e.g., "stephen-king" in both languages)
+
+**Approach 2 (Commit 8440393)**: Use the prop in `hasTranslation()` logic
+
+- Check `hasTargetContent` BEFORE `translationSlug` for detail pages
+- Allows taxonomy pages to work (they don't have `translationSlug`)
+- Falls back to `translationSlug` for content pages (posts, books, tutorials)
+- Clean separation of concerns
 
 ### Alternative Approaches Considered:
 
@@ -283,9 +343,12 @@ _Not run for these specific fixes, but existing E2E tests cover language switche
 ## 📝 Lessons Learned
 
 1. **CSS Consistency**: When copying component structure, remember to copy styles too
-2. **Props Propagation**: Language switcher needs `hasTargetContent` at ALL levels (utils → pages → layout → menu)
-3. **Build-Time Detection**: SSG allows us to detect translations at build time with zero runtime cost
-4. **Slug Matching**: Same slug = same entity is a clean pattern for i18n
+2. **Props Propagation**: Passing props through layers is only half the solution
+3. **Using Props**: Always verify the receiving function USES the prop (don't assume!)
+4. **Build-Time Detection**: SSG allows us to detect translations at build time with zero runtime cost
+5. **Slug Matching**: Same slug = same entity is a clean pattern for i18n
+6. **Debugging**: Console.logs at build time helped verify prop values were correct
+7. **Two-Phase Fix**: Sometimes fixes require multiple commits (infrastructure + logic)
 
 ---
 
@@ -306,19 +369,26 @@ _Not run for these specific fixes, but existing E2E tests cover language switche
 
 ## ✅ Verification Checklist
 
-- [x] Issue 1 (Empty State CSS) fixed
-- [x] Issue 2 (Language Switcher) fixed for authors
-- [x] Applied to ALL taxonomy types (7 types × 2 languages = 14 files)
-- [x] Unit tests passing (794/794)
-- [x] No TypeScript errors
-- [x] No ESLint errors
-- [x] Build successful
-- [x] Manual testing completed
-- [x] Documentation created
+- [x] Issue 1 (Empty State CSS) fixed ✅
+- [x] Issue 2 (Language Switcher) fixed for authors ✅
+- [x] Applied to ALL taxonomy types (7 types × 2 languages = 14 files) ✅
+- [x] Updated `hasTranslation()` logic to use `hasTargetContent` ✅
+- [x] Unit tests passing (794/794) ✅
+- [x] No TypeScript errors ✅
+- [x] No ESLint errors ✅
+- [x] Build successful ✅
+- [x] Manual testing completed ✅
+- [x] Browser verification: Language switcher works on `/es/autores/stephen-king` ✅
+- [x] Documentation updated ✅
 
 ---
 
-**Status**: ✅ Ready for commit and push
+**Status**: ✅ **COMPLETED & VERIFIED** - Ready for push to remote
+
+**Commits**:
+
+- `895da65` - Fix Issue #1 (CSS) + Infrastructure for Issue #2 (prop passing)
+- `8440393` - Complete Issue #2 fix (hasTranslation logic)
 
 ---
 
@@ -326,9 +396,15 @@ _Not run for these specific fixes, but existing E2E tests cover language switche
 
 **Modified**:
 
-- `src/pages/en/courses/index.astro`
-- `src/utils/taxonomyPages.ts`
-- 14 taxonomy detail pages (see list above)
+**Commit 895da65**:
+
+- `src/pages/en/courses/index.astro` (Issue #1: CSS fix)
+- `src/utils/taxonomyPages.ts` (Issue #2: prop generation)
+- 14 taxonomy detail pages (Issue #2: prop passing)
+
+**Commit 8440393**:
+
+- `src/utils/translation-availability.ts` (Issue #2: logic fix)
 
 **Documentation**:
 
