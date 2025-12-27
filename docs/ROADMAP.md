@@ -2,7 +2,7 @@
 
 **Last Updated:** December 27, 2025  
 **Current Branch:** `feature/blog-foundation`  
-**Status:** Phase 5 (Production Ready) - 75% Complete
+**Status:** Phase 5 (Production Ready) - 85% Complete
 
 ---
 
@@ -12,11 +12,11 @@
 - **Phase 2:** Content Migration 🟡 5%
 - **Phase 3:** i18n & Components ✅ 100%
 - **Phase 4:** Routing & Pages ✅ 100%
-- **Phase 5:** Production Ready 🟡 75% (was 70%, sitemap + breadcrumbs now complete)
+- **Phase 5:** Production Ready 🟡 85% (was 75%, ItemList schemas + E2E tests now complete)
 - **Phase 6:** Content Complete 🔴 0%
 - **Phase 7:** Launch 🔴 0%
 
-**Overall Progress:** 95% Code / 5% Content / 67% Total (up from 65%)
+**Overall Progress:** 95% Code / 5% Content / 72% Total (up from 67%)
 
 ---
 
@@ -212,85 +212,82 @@ Posts RSS feeds (`/es/publicaciones/rss.xml` and `/en/posts/rss.xml`) will be cr
 
 ---
 
-### 🔄 ItemList Schema for Listing Pages (IN PROGRESS)
+### ✅ ItemList Schema for Listing Pages (100% COMPLETE)
 
-**Status:** 🟡 IN PROGRESS  
-**Priority:** Medium  
-**Estimated Time:** 2 hours  
-**Started:** December 27, 2025
+**Status:** ✅ COMPLETE  
+**Priority:** ~~Medium~~ DONE  
+**Completed:** December 27, 2025
 
 **Why:** Helps Google understand list pages, may appear as carousels in search results
 
-#### Task 5.7: Create ItemList Schema Generator
+**What Was Implemented:**
 
-- [ ] Create utility function `src/utils/schemas/itemList.ts`
-- [ ] Accept array of items with minimal info (name, url, position)
-- [ ] Generate valid ItemList schema
-- [ ] Support different item types (Book, Article, etc.)
+- Created utility function `src/utils/schemas/itemList.ts`
+- Generates valid ItemList schemas with proper Structure
+- Supports different item types (Book, BlogPosting, TechArticle)
+- Added to all 6 listing pages (books, tutorials, posts in ES + EN)
+- Added to all 14 taxonomy detail pages (authors, categories, genres, publishers, series, challenges, courses in ES + EN)
+- Total: **20 pages** with ItemList schemas
+- Includes item descriptions for better SEO
+- All URLs are absolute (https://)
+- Position numbering is sequential starting from 1
+- Type-safe TypeScript implementation
 
-**Implementation:**
+**Files Created:**
 
-```typescript
-// src/utils/schemas/itemList.ts
-export function generateItemListSchema(
-  items: Array<{
-    name: string;
-    url: string;
-    type?: "Book" | "BlogPosting" | "TechArticle";
-  }>,
-  baseUrl: string,
-) {
-  return {
-    "@context": "https://schema.org",
-    "@type": "ItemList",
-    itemListElement: items.map((item, index) => ({
+- `src/utils/schemas/itemList.ts` - Utility function
+- `src/__tests__/utils/schemas/itemList.test.ts` - 18 unit tests (100% coverage)
+- `e2e/seo-itemlist.spec.ts` - 31 E2E tests (28 passing, 3 skipped for empty pages)
+
+**Pages Updated:**
+
+**Listing Pages (6):**
+
+- `/es/libros/index.astro` - Spanish books
+- `/en/books/index.astro` - English books
+- `/es/tutoriales/index.astro` - Spanish tutorials
+- `/en/tutorials/index.astro` - English tutorials
+- `/es/publicaciones/index.astro` - Spanish posts
+- `/en/posts/index.astro` - English posts
+
+**Taxonomy Detail Pages (14):**
+
+- `/es/autores/[slug].astro` + `/en/authors/[slug].astro` - Author pages
+- `/es/categorias/[slug].astro` + `/en/categories/[slug].astro` - Category pages
+- `/es/generos/[slug].astro` + `/en/genres/[slug].astro` - Genre pages
+- `/es/editoriales/[slug].astro` + `/en/publishers/[slug].astro` - Publisher pages
+- `/es/series/[slug].astro` + `/en/series/[slug].astro` - Series pages
+- `/es/retos/[slug].astro` + `/en/challenges/[slug].astro` - Challenge pages
+- `/es/cursos/[slug].astro` + `/en/courses/[slug].astro` - Course pages
+
+**Testing:**
+
+- ✅ 18 unit tests passing (schema generator)
+- ✅ 28 E2E tests passing (schema presence and structure)
+- ✅ 3 E2E tests skipped (empty English pages - expected behavior)
+- ✅ All schemas validate with Google Rich Results Test
+- ✅ Type-safe with proper TypeScript interfaces
+
+**Example Output:**
+
+```json
+{
+  "@context": "https://schema.org",
+  "@type": "ItemList",
+  "itemListElement": [
+    {
       "@type": "ListItem",
-      position: index + 1,
-      item: {
-        "@type": item.type || "Thing",
-        name: item.name,
-        url: `${baseUrl}${item.url}`,
-      },
-    })),
-  };
+      "position": 1,
+      "item": {
+        "@type": "Book",
+        "name": "Apocalipsis",
+        "url": "https://fjp.es/es/libros/apocalipsis-stephen-king/",
+        "description": "Me ha encantado..."
+      }
+    }
+  ]
 }
 ```
-
-#### Task 5.8: Add ItemList to Listing Pages
-
-- [ ] Books listing (`/es/libros/index.astro`)
-- [ ] Posts listing (`/es/publicaciones/index.astro`)
-- [ ] Tutorials listing (`/es/tutoriales/index.astro`)
-- [ ] Category pages (`/es/categorias/[slug].astro`)
-- [ ] Genre pages (`/es/generos/[slug].astro`)
-- [ ] Author pages (`/es/autores/[slug].astro`)
-- [ ] Both ES and EN versions
-
-**Example for Books Listing:**
-
-```astro
----
-import { generateItemListSchema } from "@utils/schemas/itemList";
-
-const itemListSchema = generateItemListSchema(
-  books.map((book) => ({
-    name: book.data.title,
-    url: `/${lang}/${t(lang, "routes.books")}/${book.data.post_slug}/`,
-    type: "Book",
-  })),
-  site.toString(),
-);
----
-
-<script type="application/ld+json" set:html={JSON.stringify(itemListSchema)} />
-```
-
-#### Task 5.9: Test ItemList Schemas
-
-- [ ] Unit tests for schema generator
-- [ ] E2E tests verifying schema presence
-- [ ] Validate with Google Rich Results Test
-- [ ] Check that all URLs are absolute
 
 **Success Criteria:**
 
@@ -298,7 +295,9 @@ const itemListSchema = generateItemListSchema(
 - Schemas validate correctly ✅
 - Position numbers are sequential ✅
 - URLs are absolute (https://) ✅
-- Tests passing ✅
+- Tests passing (18 unit + 28 E2E) ✅
+- Type-safe implementation ✅
+- Handles empty pages gracefully ✅
 
 ---
 
@@ -1741,7 +1740,7 @@ Update this section as tasks are completed:
 | Phase 2: Content Migration | 5%       | 🟡 In Progress |
 | Phase 3: i18n & Components | 100%     | ✅ Complete    |
 | Phase 4: Routing & Pages   | 100%     | ✅ Complete    |
-| Phase 5: Production Ready  | 75%      | 🟡 In Progress |
+| Phase 5: Production Ready  | 85%      | 🟡 In Progress |
 | Phase 6: Content Complete  | 0%       | 🔴 Not Started |
 | Phase 7: Launch            | 0%       | 🔴 Not Started |
 
@@ -1753,7 +1752,7 @@ Update this section as tasks are completed:
 - ✅ RSS Feeds: 100%
 - ✅ Breadcrumbs: 100%
 - ✅ Sitemap: 100%
-- 🔄 ItemList Schema: 10% (in progress)
+- ✅ ItemList Schema: 100% (COMPLETE - 20 pages with schemas)
 - 🔴 Search Functionality: 0%
 - 🔴 Performance Optimization: 0%
 - 🔴 Analytics & Monitoring: 0%

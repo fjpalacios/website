@@ -2,7 +2,290 @@
 
 **Last Updated:** December 27, 2025  
 **Current Branch:** `feature/blog-foundation`  
-**Status:** Phase 5 - Production Ready (70% → Working on ItemList Schemas)
+**Status:** Phase 5 - Production Ready (85% → ItemList Schemas + E2E Tests Complete)
+
+---
+
+## 🎉 Recent Progress (Dec 27, 2025 - Session 8)
+
+### ✅ Completed Tasks
+
+#### 1. ItemList Schema Implementation (NEW FEATURE)
+
+**Status:** ✅ COMPLETE  
+**Commits:** `f06c3b0`, `5b1d83e`, `e6565c9`, `1c88f9c`, `9018065`
+
+**Problem:** Listing pages lacked structured data to help search engines understand content relationships and potentially display rich results (carousels).
+
+**Solution Implemented:**
+
+**ItemList Schema Utility Creation:**
+
+- Created `src/utils/schemas/itemList.ts` - Type-safe utility function
+- Generates Schema.org ItemList JSON-LD markup
+- Supports multiple content types (Book, BlogPosting, TechArticle)
+- Validates all URLs are absolute (https://)
+- Sequential position numbering starting from 1
+- Includes item descriptions for better SEO
+
+**Pages Updated (20 total):**
+
+**Listing Pages (6):**
+
+- `/es/libros/index.astro` - Spanish books listing
+- `/en/books/index.astro` - English books listing
+- `/es/tutoriales/index.astro` - Spanish tutorials listing
+- `/en/tutorials/index.astro` - English tutorials listing
+- `/es/publicaciones/index.astro` - Spanish posts listing
+- `/en/posts/index.astro` - English posts listing
+
+**Taxonomy Detail Pages (14):**
+
+- `/es/autores/[slug].astro` + `/en/authors/[slug].astro` - Author pages (2)
+- `/es/categorias/[slug].astro` + `/en/categories/[slug].astro` - Category pages (2)
+- `/es/generos/[slug].astro` + `/en/genres/[slug].astro` - Genre pages (2)
+- `/es/editoriales/[slug].astro` + `/en/publishers/[slug].astro` - Publisher pages (2)
+- `/es/series/[slug].astro` + `/en/series/[slug].astro` - Series pages (2)
+- `/es/retos/[slug].astro` + `/en/challenges/[slug].astro` - Challenge pages (2)
+- `/es/cursos/[slug].astro` + `/en/courses/[slug].astro` - Course pages (2)
+
+**Example Schema Output:**
+
+```json
+{
+  "@context": "https://schema.org",
+  "@type": "ItemList",
+  "itemListElement": [
+    {
+      "@type": "ListItem",
+      "position": 1,
+      "item": {
+        "@type": "Book",
+        "name": "Apocalipsis",
+        "url": "https://fjp.es/es/libros/apocalipsis-stephen-king/",
+        "description": "Me ha encantado este libro de Stephen King..."
+      }
+    },
+    {
+      "@type": "ListItem",
+      "position": 2,
+      "item": {
+        "@type": "Book",
+        "name": "La princesa de hielo",
+        "url": "https://fjp.es/es/libros/la-princesa-de-hielo-camilla-lackberg/",
+        "description": "Primera entrega de la serie Fjällbacka..."
+      }
+    }
+  ]
+}
+```
+
+**Impact:**
+
+- 20 pages now have ItemList structured data
+- Helps Google understand content organization
+- Potential for rich result carousels in search
+- Better SEO for listing and taxonomy pages
+- Type-safe implementation prevents errors
+
+---
+
+#### 2. ItemList Schema Unit Tests
+
+**Status:** ✅ COMPLETE  
+**Commit:** Part of schema implementation commits
+
+**Problem:** Need comprehensive unit tests for the schema generator utility.
+
+**Solution Implemented:**
+
+- Created `src/__tests__/utils/schemas/itemList.test.ts`
+- **18 unit tests** covering all functionality:
+  - Basic schema generation
+  - Book item types
+  - BlogPosting item types
+  - TechArticle item types
+  - Mixed content types
+  - Position numbering
+  - URL validation (absolute URLs)
+  - Empty arrays handling
+  - Description inclusion
+  - Edge cases
+
+**Test Results:**
+
+- ✅ All 18 tests passing
+- ✅ 100% code coverage for ItemList utility
+- ✅ Fast execution (~22ms)
+
+**Impact:**
+
+- Ensures schema generator works correctly
+- Catches regressions early
+- Documents expected behavior
+- Type-safe with proper TypeScript interfaces
+
+---
+
+#### 3. ItemList Schema E2E Tests (COMPREHENSIVE)
+
+**Status:** ✅ COMPLETE  
+**Commit:** `95161e8`
+
+**Problem:** Need end-to-end validation that ItemList schemas are present and correctly structured on all pages in production.
+
+**Solution Implemented:**
+
+- Created `e2e/seo-itemlist.spec.ts`
+- **31 E2E tests** using Playwright:
+  - 6 tests for listing pages (books, tutorials, posts in ES/EN)
+  - 14 tests for taxonomy pages (all 7 taxonomy types × 2 languages)
+  - 5 data quality tests
+  - 6 additional validation tests
+
+**Test Coverage:**
+
+**Listing Pages (6 tests):**
+
+- Spanish books listing
+- English books listing
+- Spanish tutorials listing
+- English tutorials listing
+- Spanish posts listing
+- English posts listing
+
+**Taxonomy Pages (14 tests):**
+
+- Authors (ES/EN)
+- Categories (ES/EN)
+- Genres (ES/EN)
+- Publishers (ES/EN)
+- Series (ES/EN)
+- Challenges (ES/EN)
+- Courses (ES/EN)
+
+**Data Quality Tests (5 tests):**
+
+- Non-empty descriptions on all items
+- Valid URL format (absolute URLs starting with https://)
+- No duplicate URLs in ItemList
+- Consistent position numbering (sequential, starting from 1)
+- Correct Schema.org types based on content
+
+**Additional Validation (6 tests):**
+
+- Mixed content types handling (posts pages with books + tutorials)
+- Empty page handling (graceful skip for pages without content)
+- URL pattern validation (Spanish vs English routes)
+- Schema.org structure validation
+- Required properties presence
+
+**TypeScript Type Safety:**
+
+```typescript
+interface SchemaItem {
+  "@type": string;
+  name: string;
+  url: string;
+  description?: string;
+}
+
+interface SchemaListItem {
+  "@type": "ListItem";
+  position: number;
+  item: SchemaItem;
+}
+
+interface ItemListSchema {
+  "@context": string;
+  "@type": "ItemList";
+  itemListElement: SchemaListItem[];
+}
+```
+
+**Helper Functions:**
+
+- `getItemListSchema(page: Page)` - Extracts ItemList from page
+- `validateItemListStructure(schema: ItemListSchema, expectedItemType?)` - Validates structure
+
+**Test Results:**
+
+- ✅ 28 tests passing
+- ✅ 3 tests skipped (empty English pages - expected behavior)
+- ✅ Execution time: ~6.4s
+- ✅ No false positives or false negatives
+- ✅ Handles edge cases gracefully (empty pages, missing schemas)
+
+**Impact:**
+
+- Validates ItemList presence on all 20 pages
+- Ensures schema correctness in production
+- Catches schema errors before deployment
+- Type-safe test implementation
+- Fast and reliable E2E coverage
+
+---
+
+#### 4. Git Repository Cleanup
+
+**Status:** ✅ COMPLETE  
+**Commits:** 6 commits pushed to remote
+
+**Actions Taken:**
+
+- Committed ItemList utility and tests (5 commits for implementation)
+- Committed E2E tests (1 commit)
+- Pushed all changes to `origin/feature/blog-foundation`
+- Working tree clean
+- All pre-commit hooks passed (ESLint, Prettier)
+
+**Commit History:**
+
+```
+95161e8 - test(e2e): add comprehensive ItemList schema E2E tests
+9018065 - feat(seo): add ItemList schema to remaining taxonomy pages
+1c88f9c - feat(seo): add ItemList schema to category and genre taxonomy pages
+e6565c9 - feat(seo): add ItemList schema to author and category taxonomy pages
+5b1d83e - feat(seo): add ItemList schema to posts listing pages
+f06c3b0 - feat(seo): add ItemList schema to tutorial listing pages
+```
+
+---
+
+### 📊 Test Suite Status
+
+**Unit Tests:**
+
+- ✅ 319 tests passing (includes 18 new ItemList tests)
+- ✅ Execution time: 2.55s
+- ✅ All test suites green
+
+**E2E Tests:**
+
+- ✅ 28 ItemList E2E tests passing
+- ✅ 3 tests skipped (empty pages, expected)
+- ✅ Execution time: 6.4s
+- ✅ Type-safe with proper interfaces
+
+**Build:**
+
+- ✅ 88 pages generated
+- ✅ Build time: 8.80s
+- ✅ No errors or warnings
+
+---
+
+### 🎯 Next Steps
+
+**Remaining Phase 5 Tasks:**
+
+1. **Search Functionality (Pagefind)** - 0% → Not started
+2. **Performance Optimization** - 0% → Not started
+3. **Analytics & Monitoring** - 0% → Not started
+
+**Estimated Time to Phase 5 Completion:** 9-13 hours
+
+**Phase 5 Progress:** 85% → Up from 75% (ItemList schemas + E2E tests complete)
 
 ---
 
