@@ -131,51 +131,121 @@ export function getCanonicalSegment(localizedSegment: string, lang: string): Rou
 }
 
 /**
+ * Generic URL builders
+ */
+
+/**
+ * Content type for detail URLs
+ */
+export type ContentType =
+  | "posts"
+  | "tutorials"
+  | "books"
+  | "categories"
+  | "tags"
+  | "genres"
+  | "publishers"
+  | "series"
+  | "challenges"
+  | "courses"
+  | "authors";
+
+/**
+ * Generic builder for content detail URLs
+ * @param type - Content type (posts, books, tutorials, etc.)
+ * @param lang - Language code
+ * @param slug - Content slug
+ * @returns Localized URL for content detail page
+ *
+ * @example
+ * buildContentUrl("posts", "es", "my-post") // "/es/publicaciones/my-post"
+ * buildContentUrl("books", "en", "book-title") // "/en/books/book-title"
+ */
+export function buildContentUrl(type: ContentType, lang: string, slug: string): string {
+  return buildLocalizedPath(lang, type, slug);
+}
+
+/**
+ * Generic builder for simple index URLs (without pagination)
+ * @param type - Content type
+ * @param lang - Language code
+ * @returns Localized URL for index page
+ *
+ * @example
+ * buildIndexUrl("authors", "es") // "/es/autores"
+ * buildIndexUrl("categories", "en") // "/en/categories"
+ */
+export function buildIndexUrl(type: RouteSegment, lang: string): string {
+  return buildLocalizedPath(lang, type);
+}
+
+/**
+ * Generic builder for paginated index URLs
+ * @param type - Content type
+ * @param lang - Language code
+ * @param page - Page number (optional, default to base URL)
+ * @returns Localized URL for paginated index page
+ *
+ * @example
+ * buildPaginatedIndexUrl("posts", "es") // "/es/publicaciones"
+ * buildPaginatedIndexUrl("posts", "es", 2) // "/es/publicaciones/pagina/2"
+ */
+export function buildPaginatedIndexUrl(type: ContentType, lang: string, page?: number): string {
+  const base = buildLocalizedPath(lang, type);
+  if (page && page > 1) {
+    const pageSegment = getLocalizedRoute("page", lang);
+    return `${base}/${pageSegment}/${page}`;
+  }
+  return base;
+}
+
+/**
  * Helper functions for common URL patterns
+ * These are thin wrappers around generic builders for backwards compatibility
  */
 
 export function buildPostUrl(lang: string, slug: string): string {
-  return buildLocalizedPath(lang, "posts", slug);
+  return buildContentUrl("posts", lang, slug);
 }
 
 export function buildTutorialUrl(lang: string, slug: string): string {
-  return buildLocalizedPath(lang, "tutorials", slug);
+  return buildContentUrl("tutorials", lang, slug);
 }
 
 export function buildBookUrl(lang: string, slug: string): string {
-  return buildLocalizedPath(lang, "books", slug);
+  return buildContentUrl("books", lang, slug);
 }
 
 export function buildCategoryUrl(lang: string, slug: string): string {
-  return buildLocalizedPath(lang, "categories", slug);
+  return buildContentUrl("categories", lang, slug);
 }
 
 export function buildTagUrl(lang: string, slug: string): string {
-  return buildLocalizedPath(lang, "tags", slug);
+  return buildContentUrl("tags", lang, slug);
 }
 
 export function buildGenreUrl(lang: string, slug: string): string {
-  return buildLocalizedPath(lang, "genres", slug);
+  return buildContentUrl("genres", lang, slug);
 }
 
 export function buildPublisherUrl(lang: string, slug: string): string {
-  return buildLocalizedPath(lang, "publishers", slug);
+  return buildContentUrl("publishers", lang, slug);
 }
 
 export function buildSeriesUrl(lang: string, slug: string): string {
-  return buildLocalizedPath(lang, "series", slug);
+  return buildContentUrl("series", lang, slug);
 }
 
 export function buildChallengeUrl(lang: string, slug: string): string {
-  return buildLocalizedPath(lang, "challenges", slug);
+  return buildContentUrl("challenges", lang, slug);
 }
 
 export function buildCourseUrl(lang: string, slug: string): string {
-  return buildLocalizedPath(lang, "courses", slug);
+  return buildContentUrl("courses", lang, slug);
 }
 
 export function buildAuthorUrl(lang: string, slug: string): string {
-  return buildLocalizedPath(lang, "authors", slug);
+  return buildContentUrl("authors", lang, slug);
 }
 
 export function buildScoreUrl(lang: string, score: string | number): string {
@@ -183,70 +253,56 @@ export function buildScoreUrl(lang: string, score: string | number): string {
 }
 
 export function buildAboutUrl(lang: string): string {
-  return buildLocalizedPath(lang, "about");
+  return buildIndexUrl("about", lang);
 }
 
 export function buildFeedsUrl(lang: string): string {
-  return buildLocalizedPath(lang, "feeds");
+  return buildIndexUrl("feeds", lang);
 }
 
 /**
  * Helper functions for pagination URLs
+ * These are thin wrappers around buildPaginatedIndexUrl for backwards compatibility
  */
 
 export function buildPostsIndexUrl(lang: string, page?: number): string {
-  const base = buildLocalizedPath(lang, "posts");
-  if (page && page > 1) {
-    const pageSegment = getLocalizedRoute("page", lang);
-    return `${base}/${pageSegment}/${page}`;
-  }
-  return base;
+  return buildPaginatedIndexUrl("posts", lang, page);
 }
 
 export function buildTutorialsIndexUrl(lang: string, page?: number): string {
-  const base = buildLocalizedPath(lang, "tutorials");
-  if (page && page > 1) {
-    const pageSegment = getLocalizedRoute("page", lang);
-    return `${base}/${pageSegment}/${page}`;
-  }
-  return base;
+  return buildPaginatedIndexUrl("tutorials", lang, page);
 }
 
 export function buildBooksIndexUrl(lang: string, page?: number): string {
-  const base = buildLocalizedPath(lang, "books");
-  if (page && page > 1) {
-    const pageSegment = getLocalizedRoute("page", lang);
-    return `${base}/${pageSegment}/${page}`;
-  }
-  return base;
+  return buildPaginatedIndexUrl("books", lang, page);
 }
 
 export function buildAuthorsIndexUrl(lang: string): string {
-  return buildLocalizedPath(lang, "authors");
+  return buildIndexUrl("authors", lang);
 }
 
 export function buildCategoriesIndexUrl(lang: string): string {
-  return buildLocalizedPath(lang, "categories");
+  return buildIndexUrl("categories", lang);
 }
 
 export function buildGenresIndexUrl(lang: string): string {
-  return buildLocalizedPath(lang, "genres");
+  return buildIndexUrl("genres", lang);
 }
 
 export function buildPublishersIndexUrl(lang: string): string {
-  return buildLocalizedPath(lang, "publishers");
+  return buildIndexUrl("publishers", lang);
 }
 
 export function buildSeriesIndexUrl(lang: string): string {
-  return buildLocalizedPath(lang, "series");
+  return buildIndexUrl("series", lang);
 }
 
 export function buildChallengesIndexUrl(lang: string): string {
-  return buildLocalizedPath(lang, "challenges");
+  return buildIndexUrl("challenges", lang);
 }
 
 export function buildCoursesIndexUrl(lang: string): string {
-  return buildLocalizedPath(lang, "courses");
+  return buildIndexUrl("courses", lang);
 }
 
 /**
