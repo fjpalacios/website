@@ -9,6 +9,7 @@ import { buildPostsIndexUrl } from "@utils/routes";
 import contactEs from "@/content/static/contact/es.json";
 import { paginateItems, getPageCount } from "@/utils/blog";
 import { getAllContentForLanguage, POSTS_PER_PAGE } from "@/utils/postsPages";
+import { generateItemListSchema } from "@/utils/schemas/itemList";
 
 const lang = "es";
 const currentPage = 1;
@@ -24,6 +25,23 @@ const hasTargetContent = targetContent.length > 0;
 const pageTitle = "📝 " + t(lang, "pages.posts");
 const pageDescription = "Artículos, tutoriales y reseñas de libros";
 const baseUrl = buildPostsIndexUrl(lang);
+
+// Generate ItemList schema for SEO
+const itemListSchema = generateItemListSchema(
+  posts.map((post) => {
+    // Map content type to Schema.org type
+    const schemaType = post.type === "book" ? "Book" : post.type === "tutorial" ? "TechArticle" : "BlogPosting";
+    const routeKey = post.type === "book" ? "books" : post.type === "tutorial" ? "tutorials" : "posts";
+
+    return {
+      name: post.title,
+      url: `/${lang}/${t(lang, `routes.${routeKey}`)}/${post.slug}/`,
+      type: schemaType,
+      description: post.excerpt,
+    };
+  }),
+  Astro.site ? Astro.site.toString() : "https://fjp.es",
+);
 ---
 
 <Layout
@@ -33,6 +51,8 @@ const baseUrl = buildPostsIndexUrl(lang);
   contact={contactEs}
   hasTargetContent={hasTargetContent}
 >
+  <script type="application/ld+json" set:html={JSON.stringify(itemListSchema)} />
+
   <Title title={pageTitle} />
 
   {
