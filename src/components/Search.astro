@@ -43,88 +43,139 @@ const { lang } = Astro.props;
   @use "../styles/components/search";
 </style>
 
-<script define:vars={{ lang }}>
-  // Open modal
-  function openSearch() {
-    const modal = document.getElementById("searchModal");
-    if (modal) {
-      modal.setAttribute("aria-hidden", "false");
-      document.body.style.overflow = "hidden";
+<script is:inline>
+  // This script runs on every page load (including view transitions)
+  (function () {
+    let pagefindInitialized = false;
 
-      // Focus search input
-      setTimeout(() => {
-        const input = modal.querySelector(".pagefind-ui__search-input");
-        if (input instanceof HTMLElement) {
-          input.focus();
+    async function initializePagefind() {
+      if (pagefindInitialized) return;
+
+      const searchContainer = document.getElementById("search");
+      if (!searchContainer) return;
+
+      // Get lang from body data attribute
+      const lang = document.body.dataset.lang || "es";
+
+      try {
+        // Import Pagefind CSS
+        if (!document.querySelector('link[href="/pagefind/pagefind-ui.css"]')) {
+          const link = document.createElement("link");
+          link.rel = "stylesheet";
+          link.href = "/pagefind/pagefind-ui.css";
+          document.head.appendChild(link);
         }
-      }, 100);
+
+        // Dynamically import Pagefind UI
+        const pagefindModule = await import("/pagefind/pagefind-ui.js");
+        const PagefindUI = pagefindModule.PagefindUI;
+
+        new PagefindUI({
+          element: "#search",
+          showSubResults: true,
+          showImages: false,
+          excerptLength: 15,
+          translations: {
+            placeholder: lang === "es" ? "Buscar en el blog..." : "Search the blog...",
+            clear_search: lang === "es" ? "Limpiar" : "Clear",
+            load_more: lang === "es" ? "Cargar más resultados" : "Load more results",
+            search_label: lang === "es" ? "Buscar en este sitio" : "Search this site",
+            filters_label: lang === "es" ? "Filtros" : "Filters",
+            zero_results:
+              lang === "es" ? "No se encontraron resultados para [SEARCH_TERM]" : "No results for [SEARCH_TERM]",
+            many_results: lang === "es" ? "[COUNT] resultados" : "[COUNT] results",
+            one_result: lang === "es" ? "[COUNT] resultado" : "[COUNT] result",
+            alt_search:
+              lang === "es"
+                ? "No se encontraron resultados para [SEARCH_TERM]. Mostrando resultados para [DIFFERENT_TERM]"
+                : "No results for [SEARCH_TERM]. Showing results for [DIFFERENT_TERM] instead",
+            search_suggestion:
+              lang === "es"
+                ? "No se encontraron resultados para [SEARCH_TERM]. Intenta una de las siguientes búsquedas:"
+                : "No results for [SEARCH_TERM]. Try one of the following searches:",
+            searching: lang === "es" ? "Buscando..." : "Searching...",
+          },
+        });
+
+        pagefindInitialized = true;
+      } catch (error) {
+        console.error("Error initializing Pagefind:", error);
+      }
     }
-  }
 
-  // Close modal
-  function closeSearch() {
-    const modal = document.getElementById("searchModal");
-    if (modal) {
-      modal.setAttribute("aria-hidden", "true");
-      document.body.style.overflow = "";
+    // Open modal
+    function openSearch() {
+      const modal = document.getElementById("searchModal");
+      if (modal) {
+        modal.setAttribute("aria-hidden", "false");
+        document.body.style.overflow = "hidden";
+
+        // Initialize Pagefind if not already done
+        initializePagefind().then(() => {
+          // Focus search input after initialization
+          setTimeout(() => {
+            const input = modal.querySelector(".pagefind-ui__search-input");
+            if (input) {
+              input.focus();
+            }
+          }, 100);
+        });
+      }
     }
-  }
 
-  // Keyboard shortcut (Cmd+K / Ctrl+K)
-  document.addEventListener("keydown", (e) => {
-    if ((e.metaKey || e.ctrlKey) && e.key === "k") {
-      e.preventDefault();
-      openSearch();
+    // Close modal
+    function closeSearch() {
+      const modal = document.getElementById("searchModal");
+      if (modal) {
+        modal.setAttribute("aria-hidden", "true");
+        document.body.style.overflow = "";
+      }
     }
 
-    // ESC to close
-    if (e.key === "Escape") {
-      closeSearch();
+    // Setup event listeners
+    function setupSearchListeners() {
+      // Keyboard shortcut (Cmd+K / Ctrl+K)
+      const keydownHandler = (e) => {
+        if ((e.metaKey || e.ctrlKey) && e.key === "k") {
+          e.preventDefault();
+          openSearch();
+        }
+
+        // ESC to close
+        if (e.key === "Escape") {
+          closeSearch();
+        }
+      };
+
+      // Remove old listener if exists
+      document.removeEventListener("keydown", keydownHandler);
+      document.addEventListener("keydown", keydownHandler);
+
+      // Button click (from menu)
+      const searchButton = document.getElementById("search-toggle");
+      if (searchButton) {
+        searchButton.addEventListener("click", openSearch);
+      }
+
+      // Close button
+      const closeButton = document.querySelector(".search-modal__close");
+      if (closeButton) {
+        closeButton.addEventListener("click", closeSearch);
+      }
+
+      // Click backdrop to close
+      const backdrop = document.querySelector(".search-modal__backdrop");
+      if (backdrop) {
+        backdrop.addEventListener("click", closeSearch);
+      }
     }
-  });
 
-  // Button click (from menu)
-  document.getElementById("search-toggle")?.addEventListener("click", openSearch);
+    // Run on initial page load and after view transitions
+    document.addEventListener("astro:page-load", setupSearchListeners);
 
-  // Close button
-  document.querySelector(".search-modal__close")?.addEventListener("click", closeSearch);
-
-  // Click backdrop to close
-  document.querySelector(".search-modal__backdrop")?.addEventListener("click", closeSearch);
-
-  // Initialize Pagefind UI
-  window.addEventListener("DOMContentLoaded", async () => {
-    // Dynamically import Pagefind UI
-    const { PagefindUI } = await import("/pagefind/pagefind-ui.js");
-
-    new PagefindUI({
-      element: "#search",
-      showSubResults: true,
-      showImages: false,
-      excerptLength: 15,
-      filters: {
-        lang: lang, // Filter by current page language
-      },
-      translations: {
-        placeholder: lang === "es" ? "Buscar en el blog..." : "Search the blog...",
-        clear_search: lang === "es" ? "Limpiar" : "Clear",
-        load_more: lang === "es" ? "Cargar más resultados" : "Load more results",
-        search_label: lang === "es" ? "Buscar en este sitio" : "Search this site",
-        filters_label: lang === "es" ? "Filtros" : "Filters",
-        zero_results:
-          lang === "es" ? "No se encontraron resultados para [SEARCH_TERM]" : "No results for [SEARCH_TERM]",
-        many_results: lang === "es" ? "[COUNT] resultados" : "[COUNT] results",
-        one_result: lang === "es" ? "[COUNT] resultado" : "[COUNT] result",
-        alt_search:
-          lang === "es"
-            ? "No se encontraron resultados para [SEARCH_TERM]. Mostrando resultados para [DIFFERENT_TERM]"
-            : "No results for [SEARCH_TERM]. Showing results for [DIFFERENT_TERM] instead",
-        search_suggestion:
-          lang === "es"
-            ? "No se encontraron resultados para [SEARCH_TERM]. Intenta una de las siguientes búsquedas:"
-            : "No results for [SEARCH_TERM]. Try one of the following searches:",
-        searching: lang === "es" ? "Buscando..." : "Searching...",
-      },
-    });
-  });
+    // If astro:page-load already fired, run immediately
+    if (document.readyState === "complete" || document.readyState === "interactive") {
+      setupSearchListeners();
+    }
+  })();
 </script>
