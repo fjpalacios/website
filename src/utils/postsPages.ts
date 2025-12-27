@@ -9,13 +9,14 @@ import { PAGINATION_CONFIG } from "@/config/pagination";
 import type { ContactItem } from "@/types/content";
 import {
   filterByLanguage,
-  paginateItems,
   getPageCount,
+  paginateItems,
+  prepareBookSummary,
   preparePostSummary,
   prepareTutorialSummary,
-  prepareBookSummary,
   type PostSummary,
 } from "@/utils/blog";
+import { generateDetailPaths, generatePaginationPaths } from "@/utils/pagination/generator";
 
 export const POSTS_PER_PAGE = PAGINATION_CONFIG.posts;
 
@@ -78,27 +79,14 @@ export async function generatePostsIndexPaths(lang: string, contact: ContactItem
  */
 export async function generatePostsPaginationPaths(lang: string, contact: ContactItem[]) {
   const sortedContent = await getAllContentForLanguage(lang);
-  const totalPages = getPageCount(sortedContent.length, POSTS_PER_PAGE);
-  const paths = [];
 
-  // Generate paths for each page (starting from page 2)
-  for (let page = 2; page <= totalPages; page++) {
-    const start = (page - 1) * POSTS_PER_PAGE;
-    const end = start + POSTS_PER_PAGE;
-
-    paths.push({
-      page: page.toString(),
-      props: {
-        lang,
-        posts: sortedContent.slice(start, end),
-        currentPage: page,
-        totalPages,
-        contact,
-      },
-    });
-  }
-
-  return paths;
+  return generatePaginationPaths({
+    items: sortedContent,
+    itemsPerPage: POSTS_PER_PAGE,
+    lang,
+    contact,
+    itemsKey: "posts",
+  });
 }
 
 /**
@@ -106,14 +94,11 @@ export async function generatePostsPaginationPaths(lang: string, contact: Contac
  */
 export async function generatePostDetailPaths(lang: string, contact: ContactItem[]) {
   const posts = await getCollection("posts");
-  const langPosts = posts.filter((post) => post.data.language === lang);
 
-  return langPosts.map((post) => ({
-    slug: post.data.post_slug,
-    props: {
-      postEntry: post,
-      lang,
-      contact,
-    },
-  }));
+  return generateDetailPaths({
+    entries: posts,
+    lang,
+    contact,
+    entryKey: "postEntry",
+  });
 }

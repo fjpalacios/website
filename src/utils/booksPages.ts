@@ -7,14 +7,8 @@ import { getCollection } from "astro:content";
 
 import { PAGINATION_CONFIG } from "@/config/pagination";
 import type { ContactItem } from "@/types/content";
-import {
-  filterByLanguage,
-  findAuthorBySlug,
-  getPageCount,
-  prepareBookSummary,
-  sortByDate,
-  type BookSummary,
-} from "@/utils/blog";
+import { filterByLanguage, findAuthorBySlug, prepareBookSummary, sortByDate, type BookSummary } from "@/utils/blog";
+import { generateDetailPaths, generatePaginationPaths } from "@/utils/pagination/generator";
 
 export const BOOKS_PER_PAGE = PAGINATION_CONFIG.books;
 
@@ -44,27 +38,14 @@ export async function getAllBooksForLanguage(lang: string): Promise<BookSummary[
  */
 export async function generateBooksPaginationPaths(lang: string, contact: ContactItem[]) {
   const sortedBooks = await getAllBooksForLanguage(lang);
-  const totalPages = getPageCount(sortedBooks.length, BOOKS_PER_PAGE);
-  const paths = [];
 
-  // Generate paths for each page (starting from page 2)
-  for (let page = 2; page <= totalPages; page++) {
-    const start = (page - 1) * BOOKS_PER_PAGE;
-    const end = start + BOOKS_PER_PAGE;
-
-    paths.push({
-      page: page.toString(),
-      props: {
-        lang,
-        books: sortedBooks.slice(start, end),
-        currentPage: page,
-        totalPages,
-        contact,
-      },
-    });
-  }
-
-  return paths;
+  return generatePaginationPaths({
+    items: sortedBooks,
+    itemsPerPage: BOOKS_PER_PAGE,
+    lang,
+    contact,
+    itemsKey: "books",
+  });
 }
 
 /**
@@ -72,14 +53,11 @@ export async function generateBooksPaginationPaths(lang: string, contact: Contac
  */
 export async function generateBookDetailPaths(lang: string, contact: ContactItem[]) {
   const books = await getCollection("books");
-  const langBooks = books.filter((book) => book.data.language === lang);
 
-  return langBooks.map((book) => ({
-    slug: book.data.post_slug,
-    props: {
-      bookEntry: book,
-      lang,
-      contact,
-    },
-  }));
+  return generateDetailPaths({
+    entries: books,
+    lang,
+    contact,
+    entryKey: "bookEntry",
+  });
 }

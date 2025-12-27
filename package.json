@@ -16,7 +16,7 @@
     "test:ui": "vitest --ui src/__tests__",
     "test:run": "vitest run src/__tests__",
     "test:coverage": "vitest run --coverage src/__tests__",
-    "test:e2e": "playwright test",
+    "test:e2e": "bun run build && playwright test",
     "test:e2e:ui": "playwright test --ui",
     "test:e2e:debug": "playwright test --debug",
     "test:visual": "playwright test --project=visual-regression",

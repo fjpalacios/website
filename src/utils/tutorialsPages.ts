@@ -7,7 +7,8 @@ import { getCollection } from "astro:content";
 
 import { PAGINATION_CONFIG } from "@/config/pagination";
 import type { ContactItem } from "@/types/content";
-import { filterByLanguage, getPageCount, prepareTutorialSummary, sortByDate, type TutorialSummary } from "@/utils/blog";
+import { filterByLanguage, prepareTutorialSummary, sortByDate, type TutorialSummary } from "@/utils/blog";
+import { generateDetailPaths, generatePaginationPaths } from "@/utils/pagination/generator";
 
 export const TUTORIALS_PER_PAGE = PAGINATION_CONFIG.tutorials;
 
@@ -33,27 +34,14 @@ export async function getAllTutorialsForLanguage(lang: string): Promise<Tutorial
  */
 export async function generateTutorialsPaginationPaths(lang: string, contact: ContactItem[]) {
   const sortedTutorials = await getAllTutorialsForLanguage(lang);
-  const totalPages = getPageCount(sortedTutorials.length, TUTORIALS_PER_PAGE);
-  const paths = [];
 
-  // Generate paths for each page (starting from page 2)
-  for (let page = 2; page <= totalPages; page++) {
-    const start = (page - 1) * TUTORIALS_PER_PAGE;
-    const end = start + TUTORIALS_PER_PAGE;
-
-    paths.push({
-      page: page.toString(),
-      props: {
-        lang,
-        tutorials: sortedTutorials.slice(start, end),
-        currentPage: page,
-        totalPages,
-        contact,
-      },
-    });
-  }
-
-  return paths;
+  return generatePaginationPaths({
+    items: sortedTutorials,
+    itemsPerPage: TUTORIALS_PER_PAGE,
+    lang,
+    contact,
+    itemsKey: "tutorials",
+  });
 }
 
 /**
@@ -61,14 +49,11 @@ export async function generateTutorialsPaginationPaths(lang: string, contact: Co
  */
 export async function generateTutorialDetailPaths(lang: string, contact: ContactItem[]) {
   const tutorials = await getCollection("tutorials");
-  const langTutorials = tutorials.filter((tutorial) => tutorial.data.language === lang);
 
-  return langTutorials.map((tutorial) => ({
-    slug: tutorial.data.post_slug,
-    props: {
-      tutorialEntry: tutorial,
-      lang,
-      contact,
-    },
-  }));
+  return generateDetailPaths({
+    entries: tutorials,
+    lang,
+    contact,
+    entryKey: "tutorialEntry",
+  });
 }
