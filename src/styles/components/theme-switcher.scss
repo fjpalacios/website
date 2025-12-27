@@ -2,7 +2,6 @@
 @use "../mixins" as *;
 
 .theme-switcher {
-  all: unset;
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -12,6 +11,10 @@
   background: transparent;
   border: none;
   padding: 0;
+  font-family: inherit;
+  font-size: inherit;
+  line-height: inherit;
+  color: inherit;
   transition: transform 0.2s ease;
 
   &:hover {
