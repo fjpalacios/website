@@ -2,6 +2,7 @@
 import LanguageSwitcher from "@components/LanguageSwitcher.astro";
 import { t } from "@locales";
 import { buildLocalizedPath } from "@utils/routes";
+import { hasTranslation as checkTranslationAvailability } from "@utils/translation-availability";
 
 interface Props {
   lang: string;
@@ -12,49 +13,8 @@ interface Props {
 
 const { lang, currentPath, translationSlug, hasTargetContent } = Astro.props;
 
-// Determine if translation exists based on translationSlug and hasTargetContent
-// Rules:
-// 1. Static pages (home, about) always have translation available
-// 2. Index/listing pages check hasTargetContent (if provided) to know if target language has content
-// 3. Content detail pages depend on translationSlug being provided
-// 4. Taxonomy detail pages depend on translationSlug being provided
-
-// Check if it's a static page (home, about)
-const isHomePage = currentPath === `/${lang}` || currentPath === `/${lang}/`;
-const isAboutPage = currentPath.includes(`/${t(lang, "routes.about")}`);
-const isStaticPage = isHomePage || isAboutPage;
-
-// Check if it's an index/listing page (ends with a route segment, no slug after)
-const indexRoutes = [
-  `/${lang}/${t(lang, "routes.posts")}`,
-  `/${lang}/${t(lang, "routes.tutorials")}`,
-  `/${lang}/${t(lang, "routes.books")}`,
-  `/${lang}/${t(lang, "routes.feeds")}`,
-  `/${lang}/${t(lang, "routes.authors")}`,
-  `/${lang}/${t(lang, "routes.categories")}`,
-  `/${lang}/${t(lang, "routes.genres")}`,
-  `/${lang}/${t(lang, "routes.publishers")}`,
-  `/${lang}/${t(lang, "routes.series")}`,
-  `/${lang}/${t(lang, "routes.challenges")}`,
-  `/${lang}/${t(lang, "routes.courses")}`,
-];
-
-const isIndexPage = indexRoutes.some((route) => currentPath === route || currentPath === `${route}/`);
-
-// Determine if translation is available
-let hasTranslation = true;
-
-if (isStaticPage) {
-  // Static pages always have translation
-  hasTranslation = true;
-} else if (isIndexPage) {
-  // Index pages check if target language has content
-  // If hasTargetContent is not provided, assume translation exists (backward compatibility)
-  hasTranslation = hasTargetContent !== undefined ? hasTargetContent : true;
-} else {
-  // Detail pages depend on translationSlug
-  hasTranslation = translationSlug !== undefined;
-}
+// Determine if translation exists
+const hasTranslation = checkTranslationAvailability(currentPath, lang, translationSlug, hasTargetContent);
 
 const homeUrl = `/${lang}`;
 const aboutUrl = buildLocalizedPath(lang, "about");

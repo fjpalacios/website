@@ -1,8 +1,3 @@
-/**
- * Shared logic for taxonomy pages (categories, genres, publishers, authors, series, challenges, courses)
- * Eliminates code duplication across all taxonomy index and detail pages
- */
-
 import type { CollectionEntry } from "astro:content";
 import { getCollection } from "astro:content";
 
@@ -10,6 +5,7 @@ import { PAGINATION_CONFIG } from "@/config/pagination";
 import type { ContactItem } from "@/types/content";
 import { filterByLanguage, prepareBookSummary, preparePostSummary, prepareTutorialSummary } from "@/utils/blog";
 import type { BookSummary, PostSummary } from "@/utils/blog";
+import { extractContentDate } from "@/utils/content-date";
 
 export const ITEMS_PER_PAGE = PAGINATION_CONFIG.taxonomy;
 
@@ -183,8 +179,8 @@ export async function generateTaxonomyDetailPaths(config: TaxonomyConfig, lang: 
 
     // Sort by date descending
     taxonomyContent.sort((a, b) => {
-      const dateA = new Date(a.data.date || ("read_start_date" in a.data ? a.data.read_start_date : 0));
-      const dateB = new Date(b.data.date || ("read_start_date" in b.data ? b.data.read_start_date : 0));
+      const dateA = extractContentDate(a);
+      const dateB = extractContentDate(b);
       return dateB.getTime() - dateA.getTime();
     });
 

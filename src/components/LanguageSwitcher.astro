@@ -1,6 +1,6 @@
 ---
 import { t } from "@locales";
-import { getCanonicalSegment, getLocalizedRoute, type RouteSegment } from "@utils/routes";
+import { buildDetailPageUrl, buildHomeUrl, buildStaticPageUrl, isHomePage } from "@utils/translation-url";
 
 interface Props {
   lang: "es" | "en";
@@ -18,52 +18,22 @@ const currentPath = Astro.url.pathname;
 function getTranslatedUrl(): string {
   const pathParts = currentPath.split("/").filter(Boolean);
 
-  if (pathParts.length === 0) {
-    return `/${targetLang}`;
+  // Home page
+  if (isHomePage(pathParts)) {
+    return buildHomeUrl(targetLang);
   }
 
   // pathParts: ["es", "libros", "slug"] or ["en", "books", "slug"]
   const currentLang = pathParts[0];
   const localizedSegment = pathParts[1];
 
-  if (!translationSlug) {
-    // No translation slug = static page or listing page
-    // Static pages (home, about) and listing pages (books index, tutorials index) always have translations
-
-    if (pathParts.length === 1) {
-      // Home page: /es → /en
-      return `/${targetLang}`;
-    }
-
-    // Get canonical segment from localized path
-    const canonicalSegment = getCanonicalSegment(localizedSegment, currentLang);
-
-    if (!canonicalSegment) {
-      // Unknown segment, just swap language
-      return `/${targetLang}/${localizedSegment}`;
-    }
-
-    // Translate to target language
-    const translatedSegment = getLocalizedRoute(canonicalSegment as RouteSegment, targetLang);
-
-    // Rebuild path with remaining segments
-    const remainingParts = pathParts.slice(2);
-    return `/${targetLang}/${translatedSegment}${remainingParts.length ? "/" + remainingParts.join("/") : ""}`;
+  // Detail page with translation slug
+  if (translationSlug) {
+    return buildDetailPageUrl(localizedSegment, translationSlug, currentLang, targetLang);
   }
 
-  // We have a translation slug = detail page (post, tutorial, book)
-  // Get canonical segment from current localized path
-  const canonicalSegment = getCanonicalSegment(localizedSegment, currentLang);
-
-  if (!canonicalSegment) {
-    // Fallback if we can't determine the content type
-    return `/${targetLang}`;
-  }
-
-  // Translate to target language
-  const translatedSegment = getLocalizedRoute(canonicalSegment as RouteSegment, targetLang);
-
-  return `/${targetLang}/${translatedSegment}/${translationSlug}`;
+  // Static or listing page without translation slug
+  return buildStaticPageUrl(pathParts, currentLang, targetLang);
 }
 
 const translatedUrl = disabled ? "#" : getTranslatedUrl();
