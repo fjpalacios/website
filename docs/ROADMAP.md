@@ -1,8 +1,8 @@
 # 🗺️ Website Roadmap - Blog Migration Complete
 
-**Last Updated:** December 23, 2025  
+**Last Updated:** December 27, 2025  
 **Current Branch:** `feature/blog-foundation`  
-**Status:** Phase 4 Complete → Moving to Phase 5 (Production Ready)
+**Status:** Phase 5 (Production Ready) - 75% Complete
 
 ---
 
@@ -12,11 +12,11 @@
 - **Phase 2:** Content Migration 🟡 5%
 - **Phase 3:** i18n & Components ✅ 100%
 - **Phase 4:** Routing & Pages ✅ 100%
-- **Phase 5:** Production Ready 🟡 70% (was 60%, RSS feeds now complete)
+- **Phase 5:** Production Ready 🟡 75% (was 70%, sitemap + breadcrumbs now complete)
 - **Phase 6:** Content Complete 🔴 0%
 - **Phase 7:** Launch 🔴 0%
 
-**Overall Progress:** 95% Code / 5% Content / 65% Total (up from 60%)
+**Overall Progress:** 95% Code / 5% Content / 67% Total (up from 65%)
 
 ---
 
@@ -146,99 +146,27 @@ Posts RSS feeds (`/es/publicaciones/rss.xml` and `/en/posts/rss.xml`) will be cr
 
 ---
 
-### 🔲 Breadcrumbs with Schema.org Markup
+### ✅ Breadcrumbs with Schema.org Markup (100% COMPLETE)
 
-**Status:** 🔴 NOT STARTED  
-**Priority:** High  
-**Estimated Time:** 3 hours
+**Status:** ✅ COMPLETE  
+**Priority:** ~~High~~ DONE  
+**Completed:** December 26, 2025
 
 **Why:** Improves UX (navigation) and SEO (rich snippets in Google search results)
 
-#### Task 5.4: Create Breadcrumb Component
+**What Was Implemented:**
 
-- [ ] Create `src/components/Breadcrumbs.astro`
-- [ ] Accept `items` prop: `Array<{label: string, href?: string}>`
-- [ ] Render styled breadcrumb trail
-- [ ] Include JSON-LD BreadcrumbList schema
-- [ ] Match current design aesthetic (colors, fonts)
-- [ ] Responsive (stack on mobile if needed)
-
-**Design Considerations:**
-
-```
-Home > Libros > Terror > Apocalipsis
-[icon] [link] [separator] [link] [separator] [link] [separator] [current]
-```
-
-**Style Requirements:**
-
-- Use existing CSS variables for colors
-- Separator: `>` or `/` or custom icon from Fontello
-- Current page: no link, different style (bold/color)
-- Hover states on links
-- Accessible (proper ARIA labels)
-
-**JSON-LD Schema:**
-
-```typescript
-const breadcrumbSchema = {
-  "@context": "https://schema.org",
-  "@type": "BreadcrumbList",
-  itemListElement: [
-    {
-      "@type": "ListItem",
-      position: 1,
-      name: "Home",
-      item: "https://fjp.es/es/",
-    },
-    {
-      "@type": "ListItem",
-      position: 2,
-      name: "Libros",
-      item: "https://fjp.es/es/libros/",
-    },
-    {
-      "@type": "ListItem",
-      position: 3,
-      name: "Terror",
-      item: "https://fjp.es/es/generos/terror/",
-    },
-    {
-      "@type": "ListItem",
-      position: 4,
-      name: "Apocalipsis",
-      // No "item" for current page
-    },
-  ],
-};
-```
-
-#### Task 5.5: Add Breadcrumbs to Detail Pages
-
-- [ ] Book detail pages (`/es/libros/[slug].astro`)
-- [ ] Post detail pages (`/es/publicaciones/[slug].astro`)
-- [ ] Tutorial detail pages (`/es/tutoriales/[slug].astro`)
-- [ ] Both ES and EN versions
-
-**Example for Book Page:**
-
-```astro
----
-const breadcrumbItems = [
-  { label: t(lang, "ui.home"), href: `/${lang}/` },
-  { label: t(lang, "pages.books"), href: `/${lang}/${t(lang, "routes.books")}/` },
-  { label: book.title }, // Current page, no href
-];
----
-
-<Breadcrumbs items={breadcrumbItems} lang={lang} />
-```
-
-#### Task 5.6: Add Tests for Breadcrumbs
-
-- [ ] Unit tests for Breadcrumbs component (rendering, schema generation)
-- [ ] E2E tests for breadcrumb presence and functionality
-- [ ] Validate schema with Google Rich Results Test
+- Created `src/components/Breadcrumbs.astro` component
+- Accepts `items` prop: `Array<{label: string, href?: string}>`
+- Renders styled breadcrumb trail with separators
+- Includes JSON-LD BreadcrumbList schema
+- Matches current design aesthetic
+- Responsive design
+- Added to all detail pages (books, posts, tutorials)
+- Added to all taxonomy detail pages (authors, categories, genres, publishers, series, challenges, courses)
+- Both ES and EN versions complete
+- Unit tests and E2E tests passing (`e2e/breadcrumbs.spec.ts`)
+- Schema validated with Google Rich Results Test
 
 **Success Criteria:**
 
@@ -250,11 +178,46 @@ const breadcrumbItems = [
 
 ---
 
-### 🔲 ItemList Schema for Listing Pages
+### ✅ Sitemap with Priorities and Change Frequencies (100% COMPLETE)
 
-**Status:** 🔴 NOT STARTED  
+**Status:** ✅ COMPLETE  
+**Priority:** ~~High~~ DONE  
+**Completed:** December 27, 2025
+
+**Why:** Helps search engines prioritize important pages and understand update frequency
+
+**What Was Implemented:**
+
+- Fixed `@astrojs/sitemap` configuration: `customize()` → `serialize()`
+- Added priority values (1.0 for home, 0.8 for content, 0.7 for taxonomy, 0.6 for listings, 0.5 for static, 0.3 for pagination)
+- Added `changefreq` hints (daily for home, monthly for content, weekly for taxonomy/listings)
+- Configured i18n support for ES/EN alternates
+- File: `astro.config.mjs`
+- Removed test pages from sitemap (88 pages now, was 97)
+
+**Verification:**
+
+- ✅ Build successful: 88 pages generated
+- ✅ No errors or warnings
+- ✅ Sitemap includes `<priority>` and `<changefreq>` tags
+- ✅ All URLs follow correct structure
+
+**Success Criteria:**
+
+- Sitemap generated with proper structure ✅
+- Priority values applied correctly ✅
+- Change frequency hints included ✅
+- i18n alternates configured ✅
+- No warnings during build ✅
+
+---
+
+### 🔄 ItemList Schema for Listing Pages (IN PROGRESS)
+
+**Status:** 🟡 IN PROGRESS  
 **Priority:** Medium  
-**Estimated Time:** 2 hours
+**Estimated Time:** 2 hours  
+**Started:** December 27, 2025
 
 **Why:** Helps Google understand list pages, may appear as carousels in search results
 
@@ -1770,7 +1733,7 @@ This roadmap is complete when:
 
 Update this section as tasks are completed:
 
-**Last Updated:** December 23, 2025
+**Last Updated:** December 27, 2025
 
 | Phase                      | Progress | Status         |
 | -------------------------- | -------- | -------------- |
@@ -1778,11 +1741,22 @@ Update this section as tasks are completed:
 | Phase 2: Content Migration | 5%       | 🟡 In Progress |
 | Phase 3: i18n & Components | 100%     | ✅ Complete    |
 | Phase 4: Routing & Pages   | 100%     | ✅ Complete    |
-| Phase 5: Production Ready  | 60%      | 🟡 In Progress |
+| Phase 5: Production Ready  | 75%      | 🟡 In Progress |
 | Phase 6: Content Complete  | 0%       | 🔴 Not Started |
 | Phase 7: Launch            | 0%       | 🔴 Not Started |
 
-**Overall:** 60% Complete (95% code ready, 5% content migrated)
+**Overall:** 67% Complete (95% code ready, 5% content migrated)
+
+**Phase 5 Breakdown:**
+
+- ✅ SEO & Metadata: 100%
+- ✅ RSS Feeds: 100%
+- ✅ Breadcrumbs: 100%
+- ✅ Sitemap: 100%
+- 🔄 ItemList Schema: 10% (in progress)
+- 🔴 Search Functionality: 0%
+- 🔴 Performance Optimization: 0%
+- 🔴 Analytics & Monitoring: 0%
 
 ---
 

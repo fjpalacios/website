@@ -452,7 +452,7 @@ Automated dependency management configured in `.github/dependabot.yml`:
 - **Accessibility**: WCAG 2.1 Level AA compliant
 - **Performance**: Optimized for Core Web Vitals
 - **SEO**: Complete metadata with Open Graph, Twitter Cards, JSON-LD structured data (Book, BlogPosting, TechArticle), canonical URLs, hreflang, sitemap
-- **Build Output**: 96 pages generated (resume, blog, taxonomy pages, paginated listings)
+- **Build Output**: 88 pages generated (resume, blog, taxonomy pages, paginated listings)
 
 ## 🚀 Performance Features
 
