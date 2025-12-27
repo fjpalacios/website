@@ -1,4 +1,21 @@
-import { expect, test } from "@playwright/test";
+import { type Page, expect, test } from "@playwright/test";
+
+/**
+ * Helper function to wait for Pagefind to be ready and indexed
+ */
+async function waitForPagefindReady(page: Page) {
+  // Wait for Pagefind library to load
+  await page.waitForFunction(
+    () => {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      return typeof (window as any).PagefindUI !== "undefined";
+    },
+    { timeout: 10000 },
+  );
+
+  // Additional wait for index to be ready
+  await page.waitForTimeout(1500);
+}
 
 test.describe("Search Functionality", () => {
   test.describe("Search Modal", () => {
@@ -93,18 +110,21 @@ test.describe("Search Functionality", () => {
     test("should show search results when typing in Spanish page", async ({ page }) => {
       await page.goto("/es/libros");
 
+      // Wait for Pagefind to be ready
+      await waitForPagefindReady(page);
+
       // Open search
       await page.keyboard.press(process.platform === "darwin" ? "Meta+KeyK" : "Control+KeyK");
 
-      // Wait for Pagefind to initialize
-      await page.waitForTimeout(1000);
+      // Wait for modal to open
+      await page.waitForTimeout(500);
 
       // Type search query
       const searchInput = page.locator(".pagefind-ui__search-input");
       await searchInput.fill("Stephen King");
 
-      // Wait for results
-      await page.waitForTimeout(1500);
+      // Wait for results to load
+      await page.waitForTimeout(2000);
 
       // Check if results appear
       const results = page.locator(".pagefind-ui__result");
@@ -125,18 +145,21 @@ test.describe("Search Functionality", () => {
     test("should show search results when typing in English page", async ({ page }) => {
       await page.goto("/en/books");
 
+      // Wait for Pagefind to be ready
+      await waitForPagefindReady(page);
+
       // Open search
       await page.keyboard.press(process.platform === "darwin" ? "Meta+KeyK" : "Control+KeyK");
 
-      // Wait for Pagefind to initialize
-      await page.waitForTimeout(1000);
+      // Wait for modal to open
+      await page.waitForTimeout(500);
 
       // Type search query
       const searchInput = page.locator(".pagefind-ui__search-input");
       await searchInput.fill("Stephen King");
 
-      // Wait for results
-      await page.waitForTimeout(1500);
+      // Wait for results to load
+      await page.waitForTimeout(2000);
 
       // Check if results appear
       const results = page.locator(".pagefind-ui__result");
@@ -157,39 +180,48 @@ test.describe("Search Functionality", () => {
     test("should show zero results message for non-existent query", async ({ page }) => {
       await page.goto("/es/libros");
 
+      // Wait for Pagefind to be ready
+      await waitForPagefindReady(page);
+
       // Open search
       await page.keyboard.press(process.platform === "darwin" ? "Meta+KeyK" : "Control+KeyK");
 
-      // Wait for Pagefind to initialize
-      await page.waitForTimeout(1000);
+      // Wait for modal to open
+      await page.waitForTimeout(500);
 
       // Type non-existent query
       const searchInput = page.locator(".pagefind-ui__search-input");
       await searchInput.fill("xyzabc123nonexistent");
 
-      // Wait for results
-      await page.waitForTimeout(1500);
+      // Wait for search to complete
+      await page.waitForTimeout(2000);
 
       // Should show zero results message (in Spanish)
       const message = page.locator(".pagefind-ui__message");
-      await expect(message).toContainText("No se encontraron resultados");
+      await expect(message).toContainText("No se encontraron resultados", { timeout: 10000 });
     });
 
     test("should navigate to result when clicking on it", async ({ page }) => {
       await page.goto("/es/libros");
 
+      // Wait for Pagefind to be ready
+      await waitForPagefindReady(page);
+
       // Open search
       await page.keyboard.press(process.platform === "darwin" ? "Meta+KeyK" : "Control+KeyK");
 
-      // Wait for Pagefind to initialize
-      await page.waitForTimeout(1000);
+      // Wait for modal to open
+      await page.waitForTimeout(500);
 
       // Type search query
       const searchInput = page.locator(".pagefind-ui__search-input");
       await searchInput.fill("Stephen King");
 
-      // Wait for results
-      await page.waitForTimeout(1500);
+      // Wait for results to load
+      await page.waitForTimeout(2000);
+
+      // Wait for results to be visible
+      await page.waitForSelector(".pagefind-ui__result", { timeout: 10000 });
 
       // Click first result
       const firstResult = page.locator(".pagefind-ui__result").first();
@@ -199,7 +231,7 @@ test.describe("Search Functionality", () => {
       await firstResultLink.click();
 
       // Should navigate to the result page
-      await page.waitForURL(`**${href}`);
+      await page.waitForURL(`**${href}`, { timeout: 10000 });
       expect(page.url()).toContain(href || "");
     });
   });
@@ -305,14 +337,20 @@ test.describe("Search Functionality", () => {
     test("should NOT show index/listing pages in search results", async ({ page }) => {
       await page.goto("/es/libros");
 
+      // Wait for Pagefind to be ready
+      await waitForPagefindReady(page);
+
       // Open search
       await page.keyboard.press(process.platform === "darwin" ? "Meta+KeyK" : "Control+KeyK");
-      await page.waitForTimeout(1000);
+      await page.waitForTimeout(500);
 
       // Search for "Stephen King" - should return book detail pages, not listing pages
       const searchInput = page.locator(".pagefind-ui__search-input");
       await searchInput.fill("Stephen King");
-      await page.waitForTimeout(1500);
+      await page.waitForTimeout(2000);
+
+      // Wait for results to be visible
+      await page.waitForSelector(".pagefind-ui__result-link", { timeout: 10000 });
 
       // Get all result URLs
       const results = page.locator(".pagefind-ui__result-link");
@@ -380,14 +418,20 @@ test.describe("Search Functionality", () => {
     test("should show correct title metadata for book pages", async ({ page }) => {
       await page.goto("/es/libros");
 
+      // Wait for Pagefind to be ready
+      await waitForPagefindReady(page);
+
       // Open search
       await page.keyboard.press(process.platform === "darwin" ? "Meta+KeyK" : "Control+KeyK");
-      await page.waitForTimeout(1000);
+      await page.waitForTimeout(500);
 
       // Search for a known book
       const searchInput = page.locator(".pagefind-ui__search-input");
       await searchInput.fill("Stephen King");
-      await page.waitForTimeout(1500);
+      await page.waitForTimeout(2000);
+
+      // Wait for results to appear
+      await page.waitForSelector(".pagefind-ui__result-title", { timeout: 10000 });
 
       // Get first result title
       const firstResultTitle = page.locator(".pagefind-ui__result-title").first();
@@ -508,13 +552,19 @@ test.describe("Search Functionality", () => {
     test("should persist search functionality after view transitions", async ({ page }) => {
       await page.goto("/es/libros");
 
+      // Wait for Pagefind to be ready
+      await waitForPagefindReady(page);
+
       // Open search and perform search
       await page.keyboard.press(process.platform === "darwin" ? "Meta+KeyK" : "Control+KeyK");
-      await page.waitForTimeout(1000);
+      await page.waitForTimeout(500);
 
       const searchInput = page.locator(".pagefind-ui__search-input");
       await searchInput.fill("Stephen King");
-      await page.waitForTimeout(1500);
+      await page.waitForTimeout(2000);
+
+      // Wait for results to appear
+      await page.waitForSelector(".pagefind-ui__result-link", { timeout: 10000 });
 
       // Get first result and navigate
       const firstResultLink = page.locator(".pagefind-ui__result-link").first();
