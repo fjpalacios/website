@@ -122,18 +122,19 @@ test.describe("Search Functionality", () => {
       // Open search
       await page.keyboard.press(process.platform === "darwin" ? "Meta+KeyK" : "Control+KeyK");
 
-      // Wait for modal to open and focus delay (TIMINGS.SEARCH_INPUT_FOCUS_MS = 300ms)
-      await page.waitForTimeout(800);
+      // Wait for modal to be visible
+      const modal = page.locator("#searchModal");
+      await expect(modal).toHaveAttribute("aria-hidden", "false");
 
       // Type search query
       const searchInput = page.locator(".pagefind-ui__search-input");
       await searchInput.fill("Stephen King");
 
-      // Wait for results to load
-      await page.waitForTimeout(3000);
+      // Wait for results to appear (using waitFor with proper timeout)
+      const results = page.locator(".pagefind-ui__result");
+      await expect(results.first()).toBeVisible({ timeout: 10000 });
 
       // Check if results appear
-      const results = page.locator(".pagefind-ui__result");
       const resultsCount = await results.count();
 
       // Should have at least 1 result
@@ -157,18 +158,19 @@ test.describe("Search Functionality", () => {
       // Open search
       await page.keyboard.press(process.platform === "darwin" ? "Meta+KeyK" : "Control+KeyK");
 
-      // Wait for modal to open and focus delay (TIMINGS.SEARCH_INPUT_FOCUS_MS = 300ms)
-      await page.waitForTimeout(800);
+      // Wait for modal to be visible
+      const modal = page.locator("#searchModal");
+      await expect(modal).toHaveAttribute("aria-hidden", "false");
 
       // Type search query
       const searchInput = page.locator(".pagefind-ui__search-input");
       await searchInput.fill("Stephen King");
 
-      // Wait for results to load
-      await page.waitForTimeout(3000);
+      // Wait for results to appear (using waitFor with proper timeout)
+      const results = page.locator(".pagefind-ui__result");
+      await expect(results.first()).toBeVisible({ timeout: 10000 });
 
       // Check if results appear
-      const results = page.locator(".pagefind-ui__result");
       const resultsCount = await results.count();
 
       // Should have at least 1 result
@@ -216,31 +218,35 @@ test.describe("Search Functionality", () => {
       // Open search
       await page.keyboard.press(process.platform === "darwin" ? "Meta+KeyK" : "Control+KeyK");
 
-      // Wait for modal to open and focus delay (TIMINGS.SEARCH_INPUT_FOCUS_MS = 300ms)
-      await page.waitForTimeout(800);
+      // Wait for modal to be visible
+      const modal = page.locator("#searchModal");
+      await expect(modal).toHaveAttribute("aria-hidden", "false");
 
       // Type search query
       const searchInput = page.locator(".pagefind-ui__search-input");
       await searchInput.fill("Stephen King");
 
-      // Wait for results to load
-      await page.waitForTimeout(3000);
-
-      // Get first result and check URL
+      // Wait for results to appear
       const firstResult = page.locator(".pagefind-ui__result").first();
-      const firstResultLink = firstResult.locator(".pagefind-ui__result-link");
+      await expect(firstResult).toBeVisible({ timeout: 10000 });
 
-      // Wait for the link to be visible and stable
+      // Get the link element
+      const firstResultLink = firstResult.locator(".pagefind-ui__result-link");
       await expect(firstResultLink).toBeVisible();
-      await page.waitForTimeout(500);
 
       const href = await firstResultLink.getAttribute("href");
 
-      // Click using force to avoid potential interception issues
-      await firstResultLink.click({ force: true });
+      // Ensure href is not null
+      expect(href).not.toBeNull();
 
-      // Wait for navigation with longer timeout
-      await page.waitForLoadState("domcontentloaded", { timeout: 10000 });
+      // Store current URL to detect navigation
+      const currentUrl = page.url();
+
+      // Click the result
+      await firstResultLink.click();
+
+      // Wait for URL to change (with View Transitions this happens client-side)
+      await page.waitForFunction((oldUrl) => window.location.href !== oldUrl, currentUrl, { timeout: 10000 });
 
       // Verify we navigated to the result page
       expect(page.url()).toContain(href || "");
@@ -353,18 +359,20 @@ test.describe("Search Functionality", () => {
 
       // Open search
       await page.keyboard.press(process.platform === "darwin" ? "Meta+KeyK" : "Control+KeyK");
-      await page.waitForTimeout(800);
+
+      // Wait for modal to be visible
+      const modal = page.locator("#searchModal");
+      await expect(modal).toHaveAttribute("aria-hidden", "false");
 
       // Search for "Stephen King" - should return book detail pages, not listing pages
       const searchInput = page.locator(".pagefind-ui__search-input");
       await searchInput.fill("Stephen King");
-      await page.waitForTimeout(3000);
 
-      // Wait for results to be visible
-      await page.waitForSelector(".pagefind-ui__result-link", { timeout: 10000 });
+      // Wait for results to appear
+      const results = page.locator(".pagefind-ui__result-link");
+      await expect(results.first()).toBeVisible({ timeout: 10000 });
 
       // Get all result URLs
-      const results = page.locator(".pagefind-ui__result-link");
       const resultsCount = await results.count();
 
       // Should have results
@@ -568,28 +576,32 @@ test.describe("Search Functionality", () => {
 
       // Open search and perform search
       await page.keyboard.press(process.platform === "darwin" ? "Meta+KeyK" : "Control+KeyK");
-      await page.waitForTimeout(800);
+
+      // Wait for modal to be visible
+      const modal = page.locator("#searchModal");
+      await expect(modal).toHaveAttribute("aria-hidden", "false");
 
       const searchInput = page.locator(".pagefind-ui__search-input");
       await searchInput.fill("Stephen King");
-      await page.waitForTimeout(3000);
 
       // Wait for results to appear
-      await page.waitForSelector(".pagefind-ui__result-link", { timeout: 10000 });
-
-      // Get first result and navigate
       const firstResultLink = page.locator(".pagefind-ui__result-link").first();
+      await expect(firstResultLink).toBeVisible({ timeout: 10000 });
+
+      // Store current URL to detect navigation
+      const currentUrl = page.url();
+
+      // Navigate by clicking first result
       await firstResultLink.click();
 
-      // Wait for navigation
-      await page.waitForTimeout(1000);
+      // Wait for URL to change (View Transitions)
+      await page.waitForFunction((oldUrl) => window.location.href !== oldUrl, currentUrl, { timeout: 10000 });
 
       // Try opening search again on new page (should work after Astro view transition)
       await page.keyboard.press(process.platform === "darwin" ? "Meta+KeyK" : "Control+KeyK");
 
       // Modal should open
-      const modal = page.locator("#searchModal");
-      await expect(modal).toHaveAttribute("aria-hidden", "false");
+      await expect(modal).toHaveAttribute("aria-hidden", "false", { timeout: 5000 });
     });
   });
 });
