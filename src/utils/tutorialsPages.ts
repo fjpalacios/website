@@ -5,10 +5,11 @@
 
 import { getCollection } from "astro:content";
 
+import { PAGINATION_CONFIG } from "@/config/pagination";
 import type { ContactItem } from "@/types/content";
 import { filterByLanguage, getPageCount, prepareTutorialSummary, sortByDate, type TutorialSummary } from "@/utils/blog";
 
-export const TUTORIALS_PER_PAGE = 12;
+export const TUTORIALS_PER_PAGE = PAGINATION_CONFIG.tutorials;
 
 /**
  * Get all tutorials for a language, sorted by date

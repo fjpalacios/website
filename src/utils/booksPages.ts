@@ -5,6 +5,7 @@
 
 import { getCollection } from "astro:content";
 
+import { PAGINATION_CONFIG } from "@/config/pagination";
 import type { ContactItem } from "@/types/content";
 import {
   filterByLanguage,
@@ -15,7 +16,7 @@ import {
   type BookSummary,
 } from "@/utils/blog";
 
-export const BOOKS_PER_PAGE = 12;
+export const BOOKS_PER_PAGE = PAGINATION_CONFIG.books;
 
 /**
  * Get all books for a language, sorted by date

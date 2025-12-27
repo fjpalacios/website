@@ -6,11 +6,12 @@
 import type { CollectionEntry } from "astro:content";
 import { getCollection } from "astro:content";
 
+import { PAGINATION_CONFIG } from "@/config/pagination";
 import type { ContactItem } from "@/types/content";
 import { filterByLanguage, prepareBookSummary, preparePostSummary, prepareTutorialSummary } from "@/utils/blog";
 import type { BookSummary, PostSummary } from "@/utils/blog";
 
-export const ITEMS_PER_PAGE = 10;
+export const ITEMS_PER_PAGE = PAGINATION_CONFIG.taxonomy;
 
 /**
  * Generic taxonomy configuration

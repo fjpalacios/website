@@ -4,6 +4,9 @@
  */
 
 import { getCollection } from "astro:content";
+
+import { PAGINATION_CONFIG } from "@/config/pagination";
+import type { ContactItem } from "@/types/content";
 import {
   filterByLanguage,
   paginateItems,
@@ -14,7 +17,7 @@ import {
   type PostSummary,
 } from "@/utils/blog";
 
-export const POSTS_PER_PAGE = 12;
+export const POSTS_PER_PAGE = PAGINATION_CONFIG.posts;
 
 /**
  * Get all content for a language, combined and sorted
@@ -49,7 +52,7 @@ export async function getAllContentForLanguage(lang: string): Promise<PostSummar
 /**
  * Generate static paths for posts index page (page 1)
  */
-export async function generatePostsIndexPaths(lang: string, contact: any) {
+export async function generatePostsIndexPaths(lang: string, contact: ContactItem[]) {
   const currentPage = 1;
   const sortedContent = await getAllContentForLanguage(lang);
   const totalPages = getPageCount(sortedContent.length, POSTS_PER_PAGE);
@@ -73,7 +76,7 @@ export async function generatePostsIndexPaths(lang: string, contact: any) {
 /**
  * Generate static paths for posts pagination pages (page 2+)
  */
-export async function generatePostsPaginationPaths(lang: string, contact: any) {
+export async function generatePostsPaginationPaths(lang: string, contact: ContactItem[]) {
   const sortedContent = await getAllContentForLanguage(lang);
   const totalPages = getPageCount(sortedContent.length, POSTS_PER_PAGE);
   const paths = [];
@@ -101,7 +104,7 @@ export async function generatePostsPaginationPaths(lang: string, contact: any) {
 /**
  * Generate static paths for post detail pages
  */
-export async function generatePostDetailPaths(lang: string, contact: any) {
+export async function generatePostDetailPaths(lang: string, contact: ContactItem[]) {
   const posts = await getCollection("posts");
   const langPosts = posts.filter((post) => post.data.language === lang);
 
