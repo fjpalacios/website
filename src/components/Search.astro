@@ -43,10 +43,14 @@ const { lang } = Astro.props;
   @use "../styles/components/search";
 </style>
 
+<!-- Load Pagefind CSS -->
+<link rel="stylesheet" href="/pagefind/pagefind-ui.css" />
+
 <script is:inline>
   // This script runs on every page load (including view transitions)
   (function () {
     let pagefindInitialized = false;
+    let pagefindUI = null;
 
     async function initializePagefind() {
       if (pagefindInitialized) return;
@@ -58,44 +62,46 @@ const { lang } = Astro.props;
       const lang = document.body.dataset.lang || "es";
 
       try {
-        // Import Pagefind CSS
-        if (!document.querySelector('link[href="/pagefind/pagefind-ui.css"]')) {
-          const link = document.createElement("link");
-          link.rel = "stylesheet";
-          link.href = "/pagefind/pagefind-ui.css";
-          document.head.appendChild(link);
+        // Load Pagefind UI script if not already loaded
+        if (!window.PagefindUI) {
+          await new Promise((resolve, reject) => {
+            const script = document.createElement("script");
+            script.src = "/pagefind/pagefind-ui.js";
+            script.onload = resolve;
+            script.onerror = reject;
+            document.head.appendChild(script);
+          });
         }
 
-        // Dynamically import Pagefind UI
-        const pagefindModule = await import("/pagefind/pagefind-ui.js");
-        const PagefindUI = pagefindModule.PagefindUI;
-
-        new PagefindUI({
-          element: "#search",
-          showSubResults: true,
-          showImages: false,
-          excerptLength: 15,
-          translations: {
-            placeholder: lang === "es" ? "Buscar en el blog..." : "Search the blog...",
-            clear_search: lang === "es" ? "Limpiar" : "Clear",
-            load_more: lang === "es" ? "Cargar más resultados" : "Load more results",
-            search_label: lang === "es" ? "Buscar en este sitio" : "Search this site",
-            filters_label: lang === "es" ? "Filtros" : "Filters",
-            zero_results:
-              lang === "es" ? "No se encontraron resultados para [SEARCH_TERM]" : "No results for [SEARCH_TERM]",
-            many_results: lang === "es" ? "[COUNT] resultados" : "[COUNT] results",
-            one_result: lang === "es" ? "[COUNT] resultado" : "[COUNT] result",
-            alt_search:
-              lang === "es"
-                ? "No se encontraron resultados para [SEARCH_TERM]. Mostrando resultados para [DIFFERENT_TERM]"
-                : "No results for [SEARCH_TERM]. Showing results for [DIFFERENT_TERM] instead",
-            search_suggestion:
-              lang === "es"
-                ? "No se encontraron resultados para [SEARCH_TERM]. Intenta una de las siguientes búsquedas:"
-                : "No results for [SEARCH_TERM]. Try one of the following searches:",
-            searching: lang === "es" ? "Buscando..." : "Searching...",
-          },
-        });
+        // Initialize Pagefind UI
+        if (window.PagefindUI && !pagefindUI) {
+          pagefindUI = new window.PagefindUI({
+            element: "#search",
+            showSubResults: true,
+            showImages: false,
+            excerptLength: 15,
+            translations: {
+              placeholder: lang === "es" ? "Buscar en el blog..." : "Search the blog...",
+              clear_search: lang === "es" ? "Limpiar" : "Clear",
+              load_more: lang === "es" ? "Cargar más resultados" : "Load more results",
+              search_label: lang === "es" ? "Buscar en este sitio" : "Search this site",
+              filters_label: lang === "es" ? "Filtros" : "Filters",
+              zero_results:
+                lang === "es" ? "No se encontraron resultados para [SEARCH_TERM]" : "No results for [SEARCH_TERM]",
+              many_results: lang === "es" ? "[COUNT] resultados" : "[COUNT] results",
+              one_result: lang === "es" ? "[COUNT] resultado" : "[COUNT] result",
+              alt_search:
+                lang === "es"
+                  ? "No se encontraron resultados para [SEARCH_TERM]. Mostrando resultados para [DIFFERENT_TERM]"
+                  : "No results for [SEARCH_TERM]. Showing results for [DIFFERENT_TERM] instead",
+              search_suggestion:
+                lang === "es"
+                  ? "No se encontraron resultados para [SEARCH_TERM]. Intenta una de las siguientes búsquedas:"
+                  : "No results for [SEARCH_TERM]. Try one of the following searches:",
+              searching: lang === "es" ? "Buscando..." : "Searching...",
+            },
+          });
+        }
 
         pagefindInitialized = true;
       } catch (error) {
@@ -118,7 +124,7 @@ const { lang } = Astro.props;
             if (input) {
               input.focus();
             }
-          }, 100);
+          }, 200);
         });
       }
     }
@@ -135,7 +141,7 @@ const { lang } = Astro.props;
     // Setup event listeners
     function setupSearchListeners() {
       // Keyboard shortcut (Cmd+K / Ctrl+K)
-      const keydownHandler = (e) => {
+      document.addEventListener("keydown", function (e) {
         if ((e.metaKey || e.ctrlKey) && e.key === "k") {
           e.preventDefault();
           openSearch();
@@ -145,11 +151,7 @@ const { lang } = Astro.props;
         if (e.key === "Escape") {
           closeSearch();
         }
-      };
-
-      // Remove old listener if exists
-      document.removeEventListener("keydown", keydownHandler);
-      document.addEventListener("keydown", keydownHandler);
+      });
 
       // Button click (from menu)
       const searchButton = document.getElementById("search-toggle");
@@ -171,11 +173,13 @@ const { lang } = Astro.props;
     }
 
     // Run on initial page load and after view transitions
-    document.addEventListener("astro:page-load", setupSearchListeners);
+    if (document.addEventListener) {
+      document.addEventListener("astro:page-load", setupSearchListeners);
+    }
 
-    // If astro:page-load already fired, run immediately
+    // If astro:page-load already fired or not available, run immediately
     if (document.readyState === "complete" || document.readyState === "interactive") {
-      setupSearchListeners();
+      setTimeout(setupSearchListeners, 1);
     }
   })();
 </script>
