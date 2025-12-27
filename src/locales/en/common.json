@@ -10,7 +10,8 @@
   "menu": {
     "toEnglish": "Switch to English language",
     "toSpanish": "Switch to Spanish language",
-    "switchTheme": "Switch Theme"
+    "switchTheme": "Switch Theme",
+    "search": "Search"
   },
   "resume": {
     "me": "About me",

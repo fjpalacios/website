@@ -1,6 +1,7 @@
 ---
 import Header from "@components/Header.astro";
 import Menu from "@components/Menu.astro";
+import Search from "@components/Search.astro";
 import SEO from "@components/SEO.astro";
 import { t } from "@locales";
 import type { ContactItem } from "@types/content";
@@ -146,6 +147,8 @@ const baseUrl = t(lang, "metaData.url");
         </div>
       </div>
     </div>
+    <!-- Search Modal (global, accessible from menu) -->
+    <Search lang={lang} />
     <script is:inline define:vars={{ copyText: t(lang, "codeBlock.copy"), copiedText: t(lang, "codeBlock.copied") }}>
       // Store translations in global scope
       window.__CODE_BLOCK_I18N__ = { copyText, copiedText };

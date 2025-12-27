@@ -10,7 +10,8 @@
   "menu": {
     "toEnglish": "Cambia a Inglés",
     "toSpanish": "Cambia a español",
-    "switchTheme": "Cambia tema"
+    "switchTheme": "Cambia tema",
+    "search": "Buscar"
   },
   "resume": {
     "me": "Sobre mí",

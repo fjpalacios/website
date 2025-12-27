@@ -1,0 +1,130 @@
+---
+/**
+ * Search component using Pagefind
+ * Provides instant search with language filtering
+ */
+interface Props {
+  lang: "es" | "en";
+}
+
+const { lang } = Astro.props;
+---
+
+<!-- Search Modal -->
+<div class="search-modal" id="searchModal" aria-hidden="true">
+  <div class="search-modal__backdrop"></div>
+  <div class="search-modal__content" role="dialog" aria-modal="true" aria-labelledby="search-title">
+    <div class="search-modal__header">
+      <h2 id="search-title" class="sr-only">
+        {lang === "es" ? "Buscar en el sitio" : "Search the site"}
+      </h2>
+      <button class="search-modal__close" type="button" aria-label="Close search">
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          width="24"
+          height="24"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        >
+          <line x1="18" y1="6" x2="6" y2="18"></line>
+          <line x1="6" y1="6" x2="18" y2="18"></line>
+        </svg>
+      </button>
+    </div>
+    <div class="search-modal__container" id="search"></div>
+  </div>
+</div>
+
+<style lang="scss">
+  @use "../styles/components/search";
+</style>
+
+<script define:vars={{ lang }}>
+  // Open modal
+  function openSearch() {
+    const modal = document.getElementById("searchModal");
+    if (modal) {
+      modal.setAttribute("aria-hidden", "false");
+      document.body.style.overflow = "hidden";
+
+      // Focus search input
+      setTimeout(() => {
+        const input = modal.querySelector(".pagefind-ui__search-input");
+        if (input instanceof HTMLElement) {
+          input.focus();
+        }
+      }, 100);
+    }
+  }
+
+  // Close modal
+  function closeSearch() {
+    const modal = document.getElementById("searchModal");
+    if (modal) {
+      modal.setAttribute("aria-hidden", "true");
+      document.body.style.overflow = "";
+    }
+  }
+
+  // Keyboard shortcut (Cmd+K / Ctrl+K)
+  document.addEventListener("keydown", (e) => {
+    if ((e.metaKey || e.ctrlKey) && e.key === "k") {
+      e.preventDefault();
+      openSearch();
+    }
+
+    // ESC to close
+    if (e.key === "Escape") {
+      closeSearch();
+    }
+  });
+
+  // Button click (from menu)
+  document.getElementById("search-toggle")?.addEventListener("click", openSearch);
+
+  // Close button
+  document.querySelector(".search-modal__close")?.addEventListener("click", closeSearch);
+
+  // Click backdrop to close
+  document.querySelector(".search-modal__backdrop")?.addEventListener("click", closeSearch);
+
+  // Initialize Pagefind UI
+  window.addEventListener("DOMContentLoaded", async () => {
+    // Dynamically import Pagefind UI
+    const { PagefindUI } = await import("/pagefind/pagefind-ui.js");
+
+    new PagefindUI({
+      element: "#search",
+      showSubResults: true,
+      showImages: false,
+      excerptLength: 15,
+      filters: {
+        lang: lang, // Filter by current page language
+      },
+      translations: {
+        placeholder: lang === "es" ? "Buscar en el blog..." : "Search the blog...",
+        clear_search: lang === "es" ? "Limpiar" : "Clear",
+        load_more: lang === "es" ? "Cargar más resultados" : "Load more results",
+        search_label: lang === "es" ? "Buscar en este sitio" : "Search this site",
+        filters_label: lang === "es" ? "Filtros" : "Filters",
+        zero_results:
+          lang === "es" ? "No se encontraron resultados para [SEARCH_TERM]" : "No results for [SEARCH_TERM]",
+        many_results: lang === "es" ? "[COUNT] resultados" : "[COUNT] results",
+        one_result: lang === "es" ? "[COUNT] resultado" : "[COUNT] result",
+        alt_search:
+          lang === "es"
+            ? "No se encontraron resultados para [SEARCH_TERM]. Mostrando resultados para [DIFFERENT_TERM]"
+            : "No results for [SEARCH_TERM]. Showing results for [DIFFERENT_TERM] instead",
+        search_suggestion:
+          lang === "es"
+            ? "No se encontraron resultados para [SEARCH_TERM]. Intenta una de las siguientes búsquedas:"
+            : "No results for [SEARCH_TERM]. Try one of the following searches:",
+        searching: lang === "es" ? "Buscando..." : "Searching...",
+      },
+    });
+  });
+</script>
