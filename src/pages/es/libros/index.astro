@@ -8,6 +8,7 @@ import { t } from "@locales";
 import contactEs from "@/content/static/contact/es.json";
 import { paginateItems, getPageCount } from "@/utils/blog";
 import { getAllBooksForLanguage, BOOKS_PER_PAGE } from "@/utils/booksPages";
+import { generateItemListSchema } from "@/utils/schemas/itemList";
 
 const lang = "es";
 const currentPage = 1;
@@ -22,6 +23,17 @@ const hasTargetContent = targetBooks.length > 0;
 
 const pageTitle = "📚 " + t(lang, "pages.books");
 const pageDescription = "Reseñas de libros";
+
+// Generate ItemList schema for SEO
+const itemListSchema = generateItemListSchema(
+  books.map((book) => ({
+    name: book.title,
+    url: `/${lang}/${t(lang, "routes.books")}/${book.slug}/`,
+    type: "Book",
+    description: book.excerpt,
+  })),
+  Astro.site ? Astro.site.toString() : "https://fjp.es",
+);
 ---
 
 <Layout
@@ -31,6 +43,8 @@ const pageDescription = "Reseñas de libros";
   contact={contactEs}
   hasTargetContent={hasTargetContent}
 >
+  <script type="application/ld+json" set:html={JSON.stringify(itemListSchema)} />
+
   <Title title={pageTitle} />
 
   {
