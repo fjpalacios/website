@@ -3,12 +3,13 @@ import BasicList from "@components/BasicList.astro";
 import LanguagesList from "@components/LanguagesList.astro";
 import TextArea from "@components/TextArea.astro";
 import Title from "@components/Title.astro";
-import { contact } from "@content/es/contact";
 import { resume } from "@content/es/resume";
 import Layout from "@layouts/Layout.astro";
 import { t } from "@locales";
+import { getContact } from "@utils/content/contact";
 
 const lang = "es";
+const contact = getContact(lang);
 ---
 
 <Layout lang={lang} contact={contact}>

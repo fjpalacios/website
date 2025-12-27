@@ -121,5 +121,10 @@
     "whatIsRss": "What is RSS?",
     "whatIsRssDescription": "RSS is a technology that allows you to subscribe to websites and receive updates automatically. You can use readers like Feedly, Inoreader or NewsBlur to manage your subscriptions.",
     "subscribeButton": "Subscribe"
+  },
+  "footer": {
+    "navigation": "Site navigation",
+    "allRightsReserved": "All rights reserved",
+    "builtWith": "Built with"
   }
 }

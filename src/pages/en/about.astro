@@ -2,11 +2,12 @@
 import TextArea from "@components/TextArea.astro";
 import Title from "@components/Title.astro";
 import { about } from "@content/en/about";
-import { contact } from "@content/en/contact";
 import Layout from "@layouts/Layout.astro";
 import { t } from "@locales";
+import { getContact } from "@utils/content/contact";
 
 const lang = "en";
+const contact = getContact(lang);
 ---
 
 <Layout lang={lang} contact={contact} title={t(lang, "pages.about")}>

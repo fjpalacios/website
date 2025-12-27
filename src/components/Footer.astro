@@ -1,0 +1,153 @@
+---
+import { getFooterItems } from "@config/navigation";
+import { t } from "@locales";
+import { buildLocalizedPath } from "@utils/routes";
+
+interface Props {
+  lang: string;
+}
+
+const { lang } = Astro.props;
+
+// Get footer navigation items (excludes home, only shows items with content)
+const footerItems = await getFooterItems(lang);
+
+// Build items with URLs and labels
+const itemsWithUrls = footerItems.map((item) => ({
+  url: item.routeKey === "home" ? `/${lang}` : buildLocalizedPath(lang, item.routeKey),
+  label: t(lang, `pages.${item.id}`),
+  id: item.id,
+}));
+---
+
+<footer class="footer">
+  <div class="footer__container">
+    <!-- Navigation Links -->
+    <nav class="footer__nav" aria-label={t(lang, "footer.navigation")}>
+      <ul class="footer__links">
+        {
+          itemsWithUrls.map((item) => (
+            <li class="footer__link-item">
+              <a href={item.url} class="footer__link">
+                {item.label}
+              </a>
+            </li>
+          ))
+        }
+      </ul>
+    </nav>
+
+    <!-- Tech Stack / Built With -->
+    <div class="footer__meta">
+      <p class="footer__built-with">
+        {t(lang, "footer.builtWith")}
+        <a href="https://astro.build" class="footer__tech-link" rel="noopener noreferrer" target="_blank">Astro</a>
+      </p>
+    </div>
+  </div>
+</footer>
+
+<style lang="scss">
+  .footer {
+    grid-column: span 12; // Take full width in parent grid layout
+    background-color: var(--primary);
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    margin-top: 2rem;
+    padding: 1.25rem 1rem;
+
+    &__container {
+      max-width: 1400px;
+      margin: 0 auto;
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+      align-items: center;
+      text-align: center;
+    }
+
+    &__nav {
+      width: 100%;
+    }
+
+    &__links {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 0.35rem 0.85rem;
+    }
+
+    &__link-item {
+      // Flex gap handles spacing
+    }
+
+    &__link {
+      color: var(--cursive-color);
+      text-decoration: none;
+      font-size: 0.85rem;
+      transition: color 0.2s ease;
+      padding: 0.15rem 0.4rem;
+      display: inline-block;
+
+      &:hover,
+      &:focus {
+        color: var(--accent);
+        text-decoration: underline;
+      }
+
+      &:focus-visible {
+        outline: 2px solid var(--accent);
+        outline-offset: 2px;
+        border-radius: 2px;
+      }
+    }
+
+    &__meta {
+      color: var(--cursive-color);
+      font-size: 0.8rem;
+      opacity: 0.8;
+      line-height: 1.4;
+    }
+
+    &__built-with {
+      margin: 0;
+    }
+
+    &__tech-link {
+      color: var(--text);
+      text-decoration: none;
+      transition: color 0.2s ease;
+      font-weight: 500;
+
+      &:hover,
+      &:focus {
+        color: var(--accent);
+        text-decoration: underline;
+      }
+    }
+
+    // Responsive adjustments
+    @media (min-width: 768px) {
+      padding: 1.5rem 1rem;
+
+      &__container {
+        gap: 1.25rem;
+      }
+
+      &__links {
+        gap: 0.4rem 1rem;
+      }
+
+      &__link {
+        font-size: 0.9rem;
+      }
+    }
+
+    // Hide footer in print version
+    @media only print {
+      display: none;
+    }
+  }
+</style>

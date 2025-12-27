@@ -144,6 +144,7 @@ export default defineConfig({
         "@styles": path.resolve(__dirname, "./src/styles"),
         "@scripts": path.resolve(__dirname, "./src/scripts"),
         "@utils": path.resolve(__dirname, "./src/utils"),
+        "@config": path.resolve(__dirname, "./src/config"),
       },
     },
   },
