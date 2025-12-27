@@ -8,7 +8,7 @@ export default defineConfig({
     environment: "happy-dom",
     pool: "forks",
     setupFiles: ["./src/__tests__/setup.ts"],
-    exclude: ["**/node_modules/**", "**/dist/**", "**/e2e/**", "**/*.config.*", "**/__tests__/archived/**"],
+    exclude: ["**/node_modules/**", "**/dist/**", "**/e2e/**", "**/*.config.*"],
     coverage: {
       provider: "istanbul",
       reporter: ["text", "html", "lcov"],

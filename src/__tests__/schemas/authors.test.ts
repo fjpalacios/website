@@ -8,7 +8,6 @@ describe("Authors Collection Schema", () => {
       const validAuthor = {
         name: "Stephen King",
         author_slug: "stephen-king",
-        bio: "Stephen King is an American author of horror, supernatural fiction...",
         language: "en",
         gender: "male",
         picture: "./stephen-king.jpg",
@@ -23,7 +22,6 @@ describe("Authors Collection Schema", () => {
       const spanishAuthor = {
         name: "Camilla Läckberg",
         author_slug: "camilla-lackberg",
-        bio: "Camilla Läckberg es una escritora sueca de novelas policíacas...",
         language: "es",
         gender: "female",
       };
@@ -35,7 +33,6 @@ describe("Authors Collection Schema", () => {
       const minimalAuthor = {
         name: "John Doe",
         author_slug: "john-doe",
-        bio: "An author.",
         language: "en",
       };
 
@@ -47,7 +44,6 @@ describe("Authors Collection Schema", () => {
     const baseAuthor = {
       name: "Test Author",
       author_slug: "test-author",
-      bio: "Test bio",
       language: "es",
     };
 
@@ -61,11 +57,6 @@ describe("Authors Collection Schema", () => {
       expect(() => authorsSchema.parse(authorWithoutSlug)).toThrow();
     });
 
-    it("should require bio", () => {
-      const { bio, ...authorWithoutBio } = baseAuthor;
-      expect(() => authorsSchema.parse(authorWithoutBio)).toThrow();
-    });
-
     it("should require language", () => {
       const { language, ...authorWithoutLanguage } = baseAuthor;
       expect(() => authorsSchema.parse(authorWithoutLanguage)).toThrow();
@@ -76,7 +67,6 @@ describe("Authors Collection Schema", () => {
     const baseAuthor = {
       name: "Test Author",
       author_slug: "test-author",
-      bio: "Test bio",
       language: "es",
     };
 
@@ -86,10 +76,6 @@ describe("Authors Collection Schema", () => {
 
     it("should reject empty author_slug", () => {
       expect(() => authorsSchema.parse({ ...baseAuthor, author_slug: "" })).toThrow();
-    });
-
-    it("should reject empty bio", () => {
-      expect(() => authorsSchema.parse({ ...baseAuthor, bio: "" })).toThrow();
     });
 
     it("should reject invalid language", () => {
@@ -109,7 +95,6 @@ describe("Authors Collection Schema", () => {
     const baseAuthor = {
       name: "Test Author",
       author_slug: "test-author",
-      bio: "Test bio",
       language: "es",
     };
 
@@ -205,18 +190,12 @@ describe("Authors Collection Schema", () => {
     const baseAuthor = {
       name: "Test Author",
       author_slug: "test-author",
-      bio: "Test bio",
       language: "es",
     };
 
     it("should handle very long name", () => {
       const longName = "A".repeat(200);
       expect(() => authorsSchema.parse({ ...baseAuthor, name: longName })).not.toThrow();
-    });
-
-    it("should handle very long bio", () => {
-      const longBio = "A".repeat(5000);
-      expect(() => authorsSchema.parse({ ...baseAuthor, bio: longBio })).not.toThrow();
     });
 
     it("should handle name with special characters", () => {
@@ -239,7 +218,6 @@ describe("Authors Collection Schema", () => {
       const stephenKing = {
         name: "Stephen King",
         author_slug: "stephen-king",
-        bio: "Stephen King is an American author of horror, supernatural fiction, suspense, crime, science-fiction, and fantasy novels.",
         language: "en",
         gender: "male",
         picture: "./stephen-king.jpg",
@@ -256,7 +234,6 @@ describe("Authors Collection Schema", () => {
       const camillaLackberg = {
         name: "Camilla Läckberg",
         author_slug: "camilla-lackberg",
-        bio: "Camilla Läckberg es una escritora sueca de novelas policíacas, especialmente conocida por su serie de novelas ambientadas en Fjällbacka.",
         language: "es",
         gender: "female",
         picture: "./camilla-lackberg.jpg",
@@ -272,7 +249,6 @@ describe("Authors Collection Schema", () => {
       const indieAuthor = {
         name: "Jane Smith",
         author_slug: "jane-smith",
-        bio: "Indie author writing fantasy novels.",
         language: "en",
       };
 
@@ -283,7 +259,6 @@ describe("Authors Collection Schema", () => {
       const historicalAuthor = {
         name: "Edgar Allan Poe",
         author_slug: "edgar-allan-poe",
-        bio: "Edgar Allan Poe was an American writer, poet, editor, and literary critic.",
         language: "en",
         gender: "male",
         birth_year: 1809,
@@ -299,7 +274,6 @@ describe("Authors Collection Schema", () => {
       const socialAuthor = {
         name: "Modern Author",
         author_slug: "modern-author",
-        bio: "A contemporary author with strong social media presence.",
         language: "en",
         gender: "other",
         picture: "./modern-author.jpg",
@@ -320,7 +294,6 @@ describe("Authors Collection Schema", () => {
       const authorWithI18n = {
         name: "Stephen King",
         author_slug: "stephen-king",
-        bio: "Stephen King is an American author...",
         language: "en",
         i18n: "stephen-king-es", // Points to Spanish version
       };
@@ -332,7 +305,6 @@ describe("Authors Collection Schema", () => {
       const englishVersion = {
         name: "Stephen King",
         author_slug: "stephen-king-en",
-        bio: "Stephen King is an American author...",
         language: "en",
         i18n: "stephen-king-es",
       };
@@ -340,7 +312,6 @@ describe("Authors Collection Schema", () => {
       const spanishVersion = {
         name: "Stephen King",
         author_slug: "stephen-king-es",
-        bio: "Stephen King es un autor estadounidense...",
         language: "es",
         i18n: "stephen-king-en",
       };
