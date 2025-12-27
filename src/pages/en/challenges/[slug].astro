@@ -22,7 +22,7 @@ export async function getStaticPaths() {
   }));
 }
 
-const { taxonomyItem: challenge, content, currentPage, totalPages, lang, contact } = Astro.props;
+const { taxonomyItem: challenge, content, currentPage, totalPages, lang, contact, hasTargetContent } = Astro.props;
 
 // Get all challenges with counts for sidebar
 const config = TAXONOMY_CONFIGS.challenges;
@@ -57,7 +57,13 @@ const itemListSchema = generateItemListSchema(
 );
 ---
 
-<Layout lang={lang} title={pageTitle} contact={contact} translationSlug={challenge.data.i18n}>
+<Layout
+  lang={lang}
+  title={pageTitle}
+  contact={contact}
+  translationSlug={challenge.data.i18n}
+  hasTargetContent={hasTargetContent}
+>
   <script slot="schema" type="application/ld+json" set:html={JSON.stringify(itemListSchema)} />
 
   <Breadcrumbs items={breadcrumbs} lang={lang} />

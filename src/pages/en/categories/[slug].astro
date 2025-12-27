@@ -22,7 +22,7 @@ export async function getStaticPaths() {
   }));
 }
 
-const { taxonomyItem: category, content, currentPage, totalPages, lang, contact } = Astro.props;
+const { taxonomyItem: category, content, currentPage, totalPages, lang, contact, hasTargetContent } = Astro.props;
 
 // Get all categories with counts for sidebar
 const config = TAXONOMY_CONFIGS.categories;
@@ -60,7 +60,14 @@ const itemListSchema = generateItemListSchema(
 );
 ---
 
-<Layout lang={lang} title={pageTitle} description={description} contact={contact} translationSlug={category.data.i18n}>
+<Layout
+  lang={lang}
+  title={pageTitle}
+  description={description}
+  contact={contact}
+  translationSlug={category.data.i18n}
+  hasTargetContent={hasTargetContent}
+>
   <script slot="schema" type="application/ld+json" set:html={JSON.stringify(itemListSchema)} />
 
   <Breadcrumbs items={breadcrumbs} lang={lang} />

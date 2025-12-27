@@ -163,10 +163,18 @@ export async function generateTaxonomyDetailPaths(config: TaxonomyConfig, lang: 
   const taxonomyItems = await getAllTaxonomyItems(config, lang);
   const allContent = await getAllContentForTaxonomy(config, lang);
 
+  // Get target language items to check if translation exists
+  const targetLang = lang === "es" ? "en" : "es";
+  const targetTaxonomyItems = await getAllTaxonomyItems(config, targetLang);
+  const targetTaxonomySlugs = new Set(targetTaxonomyItems.map((item) => item.data[config.slugField]));
+
   const paths = [];
 
   for (const taxonomyItem of taxonomyItems) {
     const taxonomySlug = taxonomyItem.data[config.slugField];
+
+    // Check if this taxonomy item exists in the target language
+    const hasTargetContent = targetTaxonomySlugs.has(taxonomySlug);
 
     // Filter content by taxonomy
     const taxonomyContent = allContent.filter((item) => {
@@ -205,6 +213,7 @@ export async function generateTaxonomyDetailPaths(config: TaxonomyConfig, lang: 
           totalPages: Math.max(1, totalPages),
           lang,
           contact,
+          hasTargetContent, // Add this prop for language switcher
         },
       });
     }

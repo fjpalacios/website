@@ -22,7 +22,7 @@ export async function getStaticPaths() {
   }));
 }
 
-const { taxonomyItem: course, content, currentPage, totalPages, lang, contact } = Astro.props;
+const { taxonomyItem: course, content, currentPage, totalPages, lang, contact, hasTargetContent } = Astro.props;
 
 // Get all courses with counts for sidebar
 const config = TAXONOMY_CONFIGS.courses;
@@ -55,7 +55,13 @@ const itemListSchema = generateItemListSchema(
 );
 ---
 
-<Layout lang={lang} title={pageTitle} contact={contact} translationSlug={course.data.i18n}>
+<Layout
+  lang={lang}
+  title={pageTitle}
+  contact={contact}
+  translationSlug={course.data.i18n}
+  hasTargetContent={hasTargetContent}
+>
   <script type="application/ld+json" set:html={JSON.stringify(itemListSchema)} />
 
   <Breadcrumbs items={breadcrumbs} lang={lang} />

@@ -11,7 +11,9 @@ const lang = "en";
 const config = TAXONOMY_CONFIGS.courses;
 
 const itemsData = await getTaxonomyItemsWithCount(config, lang);
-const itemsWithContent = itemsData.sort((a, b) => a.item.data.name.localeCompare(b.item.data.name));
+const itemsWithContent = itemsData
+  .filter(({ count }) => count > 0)
+  .sort((a, b) => a.item.data.name.localeCompare(b.item.data.name));
 
 const hasTargetLangContent = await hasTargetContent(config, "es");
 const pageTitle = `🎓 ${t(lang, "pages.courses")}`;
@@ -45,3 +47,15 @@ const pageDescription = t(lang, "allCourses");
     }
   </div>
 </Layout>
+
+<style lang="scss">
+  @use "@/styles/mixins" as *;
+  @use "@/styles/variables" as *;
+
+  .empty-state {
+    grid-column: span 12;
+    text-align: center;
+    padding: 4rem 2rem;
+    color: $cursive-color;
+  }
+</style>

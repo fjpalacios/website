@@ -22,7 +22,7 @@ export async function getStaticPaths() {
   }));
 }
 
-const { taxonomyItem: publisher, content, currentPage, totalPages, lang, contact } = Astro.props;
+const { taxonomyItem: publisher, content, currentPage, totalPages, lang, contact, hasTargetContent } = Astro.props;
 
 // Get all publishers with counts for sidebar
 const config = TAXONOMY_CONFIGS.publishers;
@@ -60,7 +60,7 @@ const itemListSchema = generateItemListSchema(
 );
 ---
 
-<Layout lang={lang} title={pageTitle} description={description} contact={contact}>
+<Layout lang={lang} title={pageTitle} description={description} contact={contact} hasTargetContent={hasTargetContent}>
   <script slot="schema" type="application/ld+json" set:html={JSON.stringify(itemListSchema)} />
 
   <Breadcrumbs items={breadcrumbs} lang={lang} />
