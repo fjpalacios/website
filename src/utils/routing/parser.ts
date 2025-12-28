@@ -9,16 +9,15 @@
  * @see docs/PHASE_3_UNIFIED_ROUTING.md
  */
 
-import type { Language } from "@/utils/routes";
-
 import {
   getContentTypeConfig,
   getSpecialSegment,
   parseRouteSegment,
   type ContentTypeConfig,
   type PageType,
-} from "./unified-routing";
-import { safeValidateParsedRoute, type ValidatedParsedRoute } from "./unified-routing-schema";
+} from "@/config/unified-routing";
+import { safeValidateParsedRoute, type ValidatedParsedRoute } from "@/config/unified-routing-schema";
+import type { Language } from "@/utils/routes";
 
 /**
  * Parsed route result

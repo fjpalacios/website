@@ -1,0 +1,120 @@
+---
+/**
+ * Unified Dynamic Routing - Books Only (Phase 3 Migration)
+ *
+ * Handles all books pages:
+ * - /en/books → Books list
+ * - /es/libros → Books list
+ * - /en/books/page/2 → Pagination
+ * - /es/libros/pagina/2 → Pagination
+ * - /en/books/my-book → Detail
+ * - /es/libros/mi-libro → Detail
+ *
+ * This replaces:
+ * - src/pages/en/books/index.astro
+ * - src/pages/es/libros/index.astro
+ * - src/pages/en/books/page/[page].astro
+ * - src/pages/es/libros/pagina/[page].astro
+ * - src/pages/en/books/[slug].astro
+ * - src/pages/es/libros/[slug].astro
+ */
+
+// Utils
+import type { GetStaticPaths } from "astro";
+
+// Contact data
+import contactEn from "@/content/static/contact/en.json";
+import contactEs from "@/content/static/contact/es.json";
+// Import existing page templates
+import BooksDetailPage from "@/pages-templates/books/BooksDetailPage.astro";
+import BooksListPage from "@/pages-templates/books/BooksListPage.astro";
+import BooksPaginationPage from "@/pages-templates/books/BooksPaginationPage.astro";
+import { paginateItems, getPageCount } from "@/utils/blog";
+import { getAllBooksForLanguage, BOOKS_PER_PAGE, generateBookDetailPaths } from "@/utils/booksPages";
+import { getLanguages } from "@/utils/routes";
+import { generateItemListSchema } from "@/utils/schemas/itemList";
+
+export const getStaticPaths: GetStaticPaths = async () => {
+  const languages = getLanguages();
+  const paths: { params: { lang: string; route: string }; props: Record<string, unknown> }[] = [];
+
+  for (const lang of languages) {
+    const contact = lang === "en" ? contactEn : contactEs;
+    const targetLang = lang === "en" ? "es" : "en";
+    const routeSegment = lang === "en" ? "books" : "libros";
+    const pageSegment = lang === "en" ? "page" : "pagina";
+
+    // Get all books
+    const sortedBooks = await getAllBooksForLanguage(lang);
+    const targetBooks = await getAllBooksForLanguage(targetLang);
+    const hasTargetContent = targetBooks.length > 0;
+    const totalPages = getPageCount(sortedBooks.length, BOOKS_PER_PAGE);
+
+    // 1. LIST PAGE
+    const books = paginateItems(sortedBooks, 1, BOOKS_PER_PAGE);
+    const itemListSchema = generateItemListSchema(
+      books.map((book) => ({
+        name: book.title,
+        url: `/${lang}/${routeSegment}/${book.slug}/`,
+        type: "Book",
+        description: book.excerpt,
+      })),
+      "https://fjp.es",
+    );
+
+    paths.push({
+      params: { lang, route: routeSegment },
+      props: {
+        pageType: "list",
+        lang,
+        books,
+        currentPage: 1,
+        totalPages,
+        itemListSchema,
+        contact,
+        hasTargetContent,
+      },
+    });
+
+    // 2. PAGINATION PAGES
+    for (let page = 2; page <= totalPages; page++) {
+      const paginatedBooks = paginateItems(sortedBooks, page, BOOKS_PER_PAGE);
+
+      paths.push({
+        params: { lang, route: `${routeSegment}/${pageSegment}/${page}` },
+        props: {
+          pageType: "pagination",
+          lang,
+          books: paginatedBooks,
+          currentPage: page,
+          totalPages,
+          contact,
+          hasTargetContent,
+        },
+      });
+    }
+
+    // 3. DETAIL PAGES
+    const detailPaths = await generateBookDetailPaths(lang, contact);
+    for (const { slug, props } of detailPaths) {
+      paths.push({
+        params: { lang, route: `${routeSegment}/${slug}` },
+        props: {
+          pageType: "detail",
+          ...props,
+          hasTargetContent,
+        },
+      });
+    }
+  }
+
+  console.log(`[Unified Routing] Generated ${paths.length} paths for books`);
+  return paths;
+};
+
+const { pageType } = Astro.props;
+---
+
+{pageType === "list" && <BooksListPage {...Astro.props} />}
+{pageType === "pagination" && <BooksPaginationPage {...Astro.props} />}
+{pageType === "detail" && <BooksDetailPage {...Astro.props} />}
