@@ -1,6 +1,6 @@
 ---
 /**
- * Unified Dynamic Routing - Books, Tutorials, Posts, Authors, Publishers & Genres (Phase 3 Migration)
+ * Unified Dynamic Routing - All Content Types & Taxonomies (Phase 3 Migration)
  *
  * Handles all main content type pages:
  * - /en/books → Books list
@@ -94,6 +94,8 @@ import CategoriesDetailPage from "@/pages-templates/categories/CategoriesDetailP
 import CategoriesListPage from "@/pages-templates/categories/CategoriesListPage.astro";
 import ChallengesDetailPage from "@/pages-templates/challenges/ChallengesDetailPage.astro";
 import ChallengesListPage from "@/pages-templates/challenges/ChallengesListPage.astro";
+import CoursesDetailPage from "@/pages-templates/courses/CoursesDetailPage.astro";
+import CoursesListPage from "@/pages-templates/courses/CoursesListPage.astro";
 import GenresDetailPage from "@/pages-templates/genres/GenresDetailPage.astro";
 import GenresListPage from "@/pages-templates/genres/GenresListPage.astro";
 // Import existing page templates - Tutorials
@@ -641,6 +643,46 @@ export const getStaticPaths: GetStaticPaths = async () => {
         });
       }
     }
+
+    // =================================================================
+    // COURSES (Taxonomy)
+    // =================================================================
+    {
+      const config = TAXONOMY_CONFIGS.courses;
+      const routeSegment = lang === "en" ? "courses" : "cursos";
+
+      const coursesData = await getTaxonomyItemsWithCount(config, lang);
+      const itemsWithContent = coursesData
+        .filter(({ count }) => count > 0)
+        .sort((a, b) => a.item.data.name.localeCompare(b.item.data.name));
+
+      const hasTargetContent = await hasTargetTaxonomyContent(config, targetLang);
+
+      paths.push({
+        params: { lang, route: routeSegment },
+        props: {
+          contentType: "courses",
+          pageType: "list",
+          lang,
+          itemsWithContent,
+          contact,
+          hasTargetContent,
+        },
+      });
+
+      const detailPaths = await generateTaxonomyDetailPaths(config, lang, contact);
+      for (const { slug, props } of detailPaths) {
+        paths.push({
+          params: { lang, route: `${routeSegment}/${slug}` },
+          props: {
+            contentType: "courses",
+            pageType: "detail",
+            ...props,
+            coursesWithCounts: itemsWithContent,
+          },
+        });
+      }
+    }
   }
 
   console.log(`[Unified Routing] Generated ${paths.length} paths (all content types + taxonomies)`);
@@ -688,3 +730,7 @@ const { pageType, contentType } = Astro.props;
 {/* Challenges */}
 {contentType === "challenges" && pageType === "list" && <ChallengesListPage {...Astro.props} />}
 {contentType === "challenges" && pageType === "detail" && <ChallengesDetailPage {...Astro.props} />}
+
+{/* Courses */}
+{contentType === "courses" && pageType === "list" && <CoursesListPage {...Astro.props} />}
+{contentType === "courses" && pageType === "detail" && <CoursesDetailPage {...Astro.props} />}
