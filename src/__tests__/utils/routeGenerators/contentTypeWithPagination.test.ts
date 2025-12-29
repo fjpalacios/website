@@ -10,12 +10,22 @@
  * - Props validation
  */
 
-import { describe, test, expect, vi } from "vitest";
+import { describe, test, expect, vi, beforeEach } from "vitest";
 
+import { buildCache } from "@/utils/cache/buildCache";
 import {
   generateContentTypeWithPaginationRoutes,
   type ContentTypeWithPaginationConfig,
 } from "@/utils/routeGenerators/contentTypeWithPagination";
+
+// ============================================================================
+// SETUP: Clear cache before each test
+// ============================================================================
+
+beforeEach(() => {
+  // Clear build cache to avoid interference between tests
+  buildCache.clear();
+});
 
 // ============================================================================
 // MOCK DATA

@@ -23,8 +23,8 @@ describe("SectionTitle Component", () => {
     // Check for section-title class (using class:list syntax)
     expect(content).toMatch(/class:list.*section-title/);
 
-    // Check for h3 element
-    expect(content).toContain("<h3>");
+    // Check for dynamic heading tag (HeadingTag component)
+    expect(content).toContain("HeadingTag");
   });
 
   it("should use title prop correctly", () => {

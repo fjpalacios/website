@@ -7,9 +7,14 @@
  * - Detail pages (e.g., /en/books/my-book)
  *
  * Used by: Books, Tutorials, Posts
+ *
+ * Performance Optimizations:
+ * - Uses build cache to avoid duplicate content fetching
+ * - Parallel fetching of current and target language content
  */
 
 import { paginateItems, getPageCount } from "@/utils/blog";
+import { getCachedCollection } from "@/utils/cache/cachedLoaders";
 import { generateItemListSchema } from "@/utils/schemas/itemList";
 
 export interface ContentTypeWithPaginationConfig<T> {
@@ -80,9 +85,12 @@ export async function generateContentTypeWithPaginationRoutes<T>(
 
   const paths: GeneratedPath[] = [];
 
-  // Get all items for current and target language
-  const sortedItems = await getAllItems(lang);
-  const targetItems = await getAllItems(targetLang);
+  // ⚡ Performance: Fetch both languages in parallel using cached loaders
+  const [sortedItems, targetItems] = await Promise.all([
+    getCachedCollection(contentType, lang, getAllItems),
+    getCachedCollection(contentType, targetLang, getAllItems),
+  ]);
+
   const hasTargetContent = targetItems.length > 0;
   const totalPages = getPageCount(sortedItems.length, itemsPerPage);
 
