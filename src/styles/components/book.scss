@@ -66,9 +66,11 @@
         @include blockquote-style;
       }
 
+      h3,
       h4 {
         margin: 20px 0 20px -20px;
         padding: 4px 11px 5px 20px;
+        font-size: 1em;
         background-image: linear-gradient(to right, $primary, $background);
         color: $inverted-text;
 

@@ -40,7 +40,7 @@ function getItemUrl(item: ListItem): string {
         <a href={getItemUrl(post)}>
           <section class="blog__grid__post">
             <img src={post.cover || defaultCover} alt={post.title} width="800" height="400" loading="lazy" />
-            <PostTitle title={post.title} date={post.date} lang={lang} />
+            <PostTitle title={post.title} date={post.date} lang={lang} headingLevel="h2" />
             <div class="text-area">
               <p>{post.excerpt}</p>
             </div>

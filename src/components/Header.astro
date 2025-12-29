@@ -11,8 +11,8 @@ const { lang, contact } = Astro.props;
 ---
 
 <header class="header" data-pagefind-ignore>
-  <h1 class="header__title">{t(lang, "title")}</h1>
-  <h2 class="header__subtitle">{t(lang, "subtitle")}</h2>
+  <div class="header__title">{t(lang, "title")}</div>
+  <div class="header__subtitle">{t(lang, "subtitle")}</div>
   <div class="header__contact">
     {
       contact.map((item) => (

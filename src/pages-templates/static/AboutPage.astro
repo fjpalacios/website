@@ -22,11 +22,11 @@ const { lang, contact, aboutContent } = Astro.props;
   <main class="about">
     <section class="about__grid">
       <section class="about__grid__me">
-        <Title title={t(lang, "about.me")} />
+        <Title title={t(lang, "about.me")} headingLevel="h1" />
         <TextArea text={aboutContent.me} />
       </section>
       <section class="about__grid__internet">
-        <Title title={t(lang, "about.internet")} />
+        <Title title={t(lang, "about.internet")} headingLevel="h2" />
         <TextArea text={aboutContent.internet} />
       </section>
     </section>

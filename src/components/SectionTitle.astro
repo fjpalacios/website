@@ -2,11 +2,13 @@
 interface Props {
   title: string;
   srOnly?: boolean; // Screen reader only - visually hidden
+  headingLevel?: "h2" | "h3" | "h4"; // Allow specifying heading level
 }
 
-const { title, srOnly = false } = Astro.props;
+const { title, srOnly = false, headingLevel = "h2" } = Astro.props;
+const HeadingTag = headingLevel;
 ---
 
 <div class:list={["section-title", { "sr-only": srOnly }]}>
-  <h3>{title}</h3>
+  <HeadingTag>{title}</HeadingTag>
 </div>
