@@ -97,6 +97,7 @@ import ChallengesListPage from "@/pages-templates/challenges/ChallengesListPage.
 import CoursesDetailPage from "@/pages-templates/courses/CoursesDetailPage.astro";
 import CoursesListPage from "@/pages-templates/courses/CoursesListPage.astro";
 import GenresDetailPage from "@/pages-templates/genres/GenresDetailPage.astro";
+// Import static page templates
 import GenresListPage from "@/pages-templates/genres/GenresListPage.astro";
 // Import existing page templates - Tutorials
 import PostsDetailPage from "@/pages-templates/posts/PostsDetailPage.astro";
@@ -106,6 +107,8 @@ import PublishersDetailPage from "@/pages-templates/publishers/PublishersDetailP
 import PublishersListPage from "@/pages-templates/publishers/PublishersListPage.astro";
 import SeriesDetailPage from "@/pages-templates/series/SeriesDetailPage.astro";
 import SeriesListPage from "@/pages-templates/series/SeriesListPage.astro";
+import AboutPage from "@/pages-templates/static/AboutPage.astro";
+import FeedsPage from "@/pages-templates/static/FeedsPage.astro";
 import TutorialsDetailPage from "@/pages-templates/tutorials/TutorialsDetailPage.astro";
 import TutorialsListPage from "@/pages-templates/tutorials/TutorialsListPage.astro";
 import TutorialsPaginationPage from "@/pages-templates/tutorials/TutorialsPaginationPage.astro";
@@ -683,9 +686,45 @@ export const getStaticPaths: GetStaticPaths = async () => {
         });
       }
     }
+
+    // =================================================================
+    // STATIC PAGES
+    // =================================================================
+
+    // About Page
+    {
+      const routeSegment = lang === "en" ? "about" : "acerca-de";
+      const aboutContent = await import(`@content/${lang}/about.ts`).then((mod) => mod.about);
+
+      paths.push({
+        params: { lang, route: routeSegment },
+        props: {
+          contentType: "about",
+          pageType: "static",
+          lang,
+          contact,
+          aboutContent,
+        },
+      });
+    }
+
+    // Feeds Page
+    {
+      const routeSegment = "feeds";
+
+      paths.push({
+        params: { lang, route: routeSegment },
+        props: {
+          contentType: "feeds",
+          pageType: "static",
+          lang,
+          contact,
+        },
+      });
+    }
   }
 
-  console.log(`[Unified Routing] Generated ${paths.length} paths (all content types + taxonomies)`);
+  console.log(`[Unified Routing] Generated ${paths.length} paths (all content types + taxonomies + static pages)`);
   return paths;
 };
 
@@ -734,3 +773,7 @@ const { pageType, contentType } = Astro.props;
 {/* Courses */}
 {contentType === "courses" && pageType === "list" && <CoursesListPage {...Astro.props} />}
 {contentType === "courses" && pageType === "detail" && <CoursesDetailPage {...Astro.props} />}
+
+{/* Static Pages */}
+{contentType === "about" && pageType === "static" && <AboutPage {...Astro.props} />}
+{contentType === "feeds" && pageType === "static" && <FeedsPage {...Astro.props} />}
