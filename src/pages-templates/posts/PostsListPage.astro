@@ -1,0 +1,98 @@
+---
+/**
+ * Posts List Page Template
+ * Displays the first page of mixed content (posts + tutorials + books)
+ *
+ * Used by: /en/posts/ and /es/publicaciones/
+ * Features: Mixed content timeline, ItemList schema, pagination, language switcher
+ *
+ * NOTE: This page shows ALL content types combined (posts, tutorials, books)
+ * sorted by date, providing a unified timeline view.
+ */
+
+import Paginator from "@components/Paginator.astro";
+import PostList from "@components/PostList.astro";
+import Title from "@components/Title.astro";
+import Layout from "@layouts/Layout.astro";
+import { t } from "@locales";
+
+import type { ContactItem } from "@/types/content";
+import type { PostSummary } from "@/utils/blog";
+import { generateItemListSchema } from "@/utils/schemas/itemList";
+
+interface Props {
+  lang: "en" | "es";
+  posts: PostSummary[];
+  currentPage: number;
+  totalPages: number;
+  contact: ContactItem[];
+  hasTargetContent: boolean;
+}
+
+const { lang, posts, currentPage, totalPages, contact, hasTargetContent } = Astro.props;
+
+const pageTitle = "📝 " + t(lang, "pages.posts");
+const pageDescription =
+  lang === "en" ? "Articles, tutorials and book reviews" : "Artículos, tutoriales y reseñas de libros";
+
+// Build base path for pagination
+const basePath = `/${lang}/${t(lang, "routes.posts")}`;
+
+// Generate ItemList schema for SEO
+// NOTE: Posts page shows mixed content, so we need to map each item's type
+const itemListSchema = generateItemListSchema(
+  posts.map((post) => {
+    // Map content type to Schema.org type
+    const schemaType = post.type === "book" ? "Book" : post.type === "tutorial" ? "TechArticle" : "BlogPosting";
+
+    // Map to correct route segment
+    const routeKey = post.type === "book" ? "books" : post.type === "tutorial" ? "tutorials" : "posts";
+
+    return {
+      name: post.title,
+      url: `/${lang}/${t(lang, `routes.${routeKey}`)}/${post.slug}/`,
+      type: schemaType,
+      description: post.excerpt,
+    };
+  }),
+  Astro.site ? Astro.site.toString() : "https://fjp.es",
+);
+---
+
+<Layout
+  lang={lang}
+  title={pageTitle}
+  description={pageDescription}
+  contact={contact}
+  hasTargetContent={hasTargetContent}
+>
+  <Title title={pageTitle} />
+
+  <div data-pagefind-ignore>
+    <script type="application/ld+json" set:html={JSON.stringify(itemListSchema)} />
+
+    {
+      posts.length > 0 ? (
+        <PostList posts={posts} lang={lang} />
+      ) : (
+        <div class="empty-state">
+          <p>{t(lang, "emptyState.posts")}</p>
+        </div>
+      )
+    }
+  </div>
+
+  <Paginator currentPage={currentPage} totalPages={totalPages} basePath={basePath} lang={lang} />
+</Layout>
+
+<style lang="scss">
+  @use "@/styles/mixins" as *;
+  @use "@/styles/variables" as *;
+
+  .empty-state {
+    grid-column: span 12;
+    text-align: center;
+    padding: 4rem 2rem;
+    color: $cursive-color;
+  }
+</style>

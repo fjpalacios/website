@@ -1,0 +1,121 @@
+---
+/**
+ * Posts Detail Page Template
+ * Displays a single post with metadata
+ *
+ * Used by: /en/posts/[slug]/ and /es/publicaciones/[slug]/
+ * Features: Categories, tags, cover image, schema.org BlogPosting
+ *
+ * NOTE: This template is ONLY for the "posts" collection.
+ * Books and tutorials have their own detail pages.
+ */
+
+import PostTitle from "@components/PostTitle.astro";
+import Share from "@components/Share.astro";
+import Layout from "@layouts/Layout.astro";
+import { t } from "@locales";
+import { buildCategoryUrl, buildTagUrl } from "@utils/routes";
+import { render, type CollectionEntry } from "astro:content";
+
+import type { ContactItem } from "@/types/content";
+
+interface Props {
+  lang: "en" | "es";
+  postEntry: CollectionEntry<"posts">;
+  contact: ContactItem[];
+}
+
+const { lang, postEntry, contact } = Astro.props;
+const post = postEntry.data;
+const { Content } = await render(postEntry);
+
+// Cover image with fallback
+const coverImage = post.cover || `/images/defaults/post-default.jpg`;
+
+// Share component data
+const baseUrl = t(lang, "metaData.url");
+const currentUrl = new URL(Astro.url.pathname, baseUrl).href;
+const twitterUsername = t(lang, "metaData.twitterUsername");
+
+// Build JSON-LD schema for article
+const articleSchema: Record<string, unknown> = {
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  headline: post.title,
+  description: post.excerpt,
+  image: coverImage,
+  datePublished: post.date.toISOString(),
+  author: {
+    "@type": "Person",
+    name: t(lang, "title"),
+  },
+  publisher: {
+    "@type": "Person",
+    name: t(lang, "title"),
+  },
+  inLanguage: lang,
+};
+
+// Add modified date if available
+if (post.updated) {
+  articleSchema.dateModified = post.updated.toISOString();
+}
+---
+
+<Layout
+  lang={lang}
+  title={post.title}
+  description={post.excerpt}
+  contact={contact}
+  translationSlug={post.i18n}
+  image={coverImage}
+  type="article"
+  schema={articleSchema}
+>
+  <main class="post">
+    <section class="post__content">
+      <div class="cover-image-wrapper">
+        <img src={coverImage} alt={post.title} loading="lazy" />
+      </div>
+      <!-- Pagefind title meta -->
+      <span data-pagefind-meta="title" style="display: none;">{post.title}</span>
+      <PostTitle title={post.title} date={post.date} lang={lang} />
+      <div class="text-area">
+        <Content />
+      </div>
+    </section>
+
+    <section class="post__info">
+      <div class="post__info__icon">🏷️</div>
+      <ul class="post__info__text">
+        <li>
+          <a href={buildCategoryUrl(lang, post.category)} class="post__info__text__item" title="Category">
+            {t(lang, `categories.${post.category}`)}
+          </a>
+        </li>
+      </ul>
+    </section>
+
+    {
+      post.tags && post.tags.length > 0 && (
+        <section class="post__info">
+          <div class="post__info__icon">🔖</div>
+          <ul class="post__info__text">
+            {post.tags.map((tag) => (
+              <li>
+                <a href={buildTagUrl(lang, tag)} class="post__info__text__item" title="Tag">
+                  {tag}
+                </a>
+              </li>
+            ))}
+          </ul>
+        </section>
+      )
+    }
+  </main>
+  <Share title={post.title} url={currentUrl} lang={lang} twitterUsername={twitterUsername} />
+</Layout>
+
+<style lang="scss">
+  @use "@/styles/components/post.scss";
+</style>
