@@ -59,32 +59,32 @@ describe("Tutorials Collection Schema", () => {
     };
 
     it("should require title", () => {
-      const { title, ...tutorialWithoutTitle } = baseTutorial;
+      const { title: _title, ...tutorialWithoutTitle } = baseTutorial;
       expect(() => tutorialsSchema.parse(tutorialWithoutTitle)).toThrow();
     });
 
     it("should require post_slug", () => {
-      const { post_slug, ...tutorialWithoutSlug } = baseTutorial;
+      const { post_slug: _post_slug, ...tutorialWithoutSlug } = baseTutorial;
       expect(() => tutorialsSchema.parse(tutorialWithoutSlug)).toThrow();
     });
 
     it("should require date", () => {
-      const { date, ...tutorialWithoutDate } = baseTutorial;
+      const { date: _date, ...tutorialWithoutDate } = baseTutorial;
       expect(() => tutorialsSchema.parse(tutorialWithoutDate)).toThrow();
     });
 
     it("should require excerpt", () => {
-      const { excerpt, ...tutorialWithoutExcerpt } = baseTutorial;
+      const { excerpt: _excerpt, ...tutorialWithoutExcerpt } = baseTutorial;
       expect(() => tutorialsSchema.parse(tutorialWithoutExcerpt)).toThrow();
     });
 
     it("should require language", () => {
-      const { language, ...tutorialWithoutLanguage } = baseTutorial;
+      const { language: _language, ...tutorialWithoutLanguage } = baseTutorial;
       expect(() => tutorialsSchema.parse(tutorialWithoutLanguage)).toThrow();
     });
 
     it("should require category", () => {
-      const { category, ...tutorialWithoutCategory } = baseTutorial;
+      const { category: _category, ...tutorialWithoutCategory } = baseTutorial;
       expect(() => tutorialsSchema.parse(tutorialWithoutCategory)).toThrow();
     });
   });

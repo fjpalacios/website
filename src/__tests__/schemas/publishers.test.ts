@@ -28,17 +28,17 @@ describe("Publishers Collection Schema", () => {
 
   describe("Required fields", () => {
     it("should require name", () => {
-      const { name, ...rest } = basePublisher;
+      const { name: _name, ...rest } = basePublisher;
       expect(() => publishersSchema.parse(rest)).toThrow();
     });
 
     it("should require publisher_slug", () => {
-      const { publisher_slug, ...rest } = basePublisher;
+      const { publisher_slug: _publisher_slug, ...rest } = basePublisher;
       expect(() => publishersSchema.parse(rest)).toThrow();
     });
 
     it("should require language", () => {
-      const { language, ...rest } = basePublisher;
+      const { language: _language, ...rest } = basePublisher;
       expect(() => publishersSchema.parse(rest)).toThrow();
     });
   });

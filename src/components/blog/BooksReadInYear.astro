@@ -91,7 +91,7 @@ let bookNumber = 1;
       <h2>{monthNames[language][month]}</h2>
       <ol start={bookNumber}>
         {booksByMonth[month].map((book) => {
-          const currentNumber = bookNumber++;
+          bookNumber++; // Increment for side effect only
           const authorName = authorsMap.get(book.data.author) || book.data.author;
           return (
             <li>

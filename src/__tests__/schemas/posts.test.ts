@@ -57,32 +57,32 @@ describe("Posts Collection Schema", () => {
     };
 
     it("should require title", () => {
-      const { title, ...postWithoutTitle } = basePost;
+      const { title: _title, ...postWithoutTitle } = basePost;
       expect(() => postsSchema.parse(postWithoutTitle)).toThrow();
     });
 
     it("should require post_slug", () => {
-      const { post_slug, ...postWithoutSlug } = basePost;
+      const { post_slug: _post_slug, ...postWithoutSlug } = basePost;
       expect(() => postsSchema.parse(postWithoutSlug)).toThrow();
     });
 
     it("should require date", () => {
-      const { date, ...postWithoutDate } = basePost;
+      const { date: _date, ...postWithoutDate } = basePost;
       expect(() => postsSchema.parse(postWithoutDate)).toThrow();
     });
 
     it("should require excerpt", () => {
-      const { excerpt, ...postWithoutExcerpt } = basePost;
+      const { excerpt: _excerpt, ...postWithoutExcerpt } = basePost;
       expect(() => postsSchema.parse(postWithoutExcerpt)).toThrow();
     });
 
     it("should require language", () => {
-      const { language, ...postWithoutLanguage } = basePost;
+      const { language: _language, ...postWithoutLanguage } = basePost;
       expect(() => postsSchema.parse(postWithoutLanguage)).toThrow();
     });
 
     it("should require category", () => {
-      const { category, ...postWithoutCategory } = basePost;
+      const { category: _category, ...postWithoutCategory } = basePost;
       expect(() => postsSchema.parse(postWithoutCategory)).toThrow();
     });
   });

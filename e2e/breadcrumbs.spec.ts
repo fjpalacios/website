@@ -124,7 +124,7 @@ test.describe("Breadcrumbs", () => {
       await expect(currentPage).toHaveAttribute("aria-current", "page");
     });
 
-    test("should display breadcrumbs on English tutorial detail page", async ({ page }) => {
+    test("should display breadcrumbs on English tutorial detail page", async ({ page: _page }) => {
       // Skip this test: no English tutorials exist yet
       // When English tutorials are added, update this test with a real slug
       test.skip();

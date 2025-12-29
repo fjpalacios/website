@@ -19,16 +19,11 @@
 
 import type { GetStaticPaths } from "astro";
 
+// Configuration
+import { getRouteSegment } from "@/config/routeSegments";
 // Contact data
 import contactEn from "@/content/static/contact/en.json";
 import contactEs from "@/content/static/contact/es.json";
-
-// Page templates - Books
-
-// Page templates - Tutorials
-
-// Page templates - Posts
-
 // Page templates - Taxonomies
 import AuthorsDetailPage from "@/pages-templates/authors/AuthorsDetailPage.astro";
 import AuthorsListPage from "@/pages-templates/authors/AuthorsListPage.astro";
@@ -50,16 +45,12 @@ import PublishersDetailPage from "@/pages-templates/publishers/PublishersDetailP
 import PublishersListPage from "@/pages-templates/publishers/PublishersListPage.astro";
 import SeriesDetailPage from "@/pages-templates/series/SeriesDetailPage.astro";
 import SeriesListPage from "@/pages-templates/series/SeriesListPage.astro";
-
 // Page templates - Static
 import AboutPage from "@/pages-templates/static/AboutPage.astro";
 import FeedsPage from "@/pages-templates/static/FeedsPage.astro";
 import TutorialsDetailPage from "@/pages-templates/tutorials/TutorialsDetailPage.astro";
 import TutorialsListPage from "@/pages-templates/tutorials/TutorialsListPage.astro";
 import TutorialsPaginationPage from "@/pages-templates/tutorials/TutorialsPaginationPage.astro";
-
-// Route generators (Phase 4)
-
 // Utilities
 import { paginateItems, getPageCount } from "@/utils/blog";
 import { getAllBooksForLanguage, BOOKS_PER_PAGE, generateBookDetailPaths } from "@/utils/booksPages";
@@ -89,8 +80,8 @@ export const getStaticPaths: GetStaticPaths = async () => {
       ...(await generateContentTypeWithPaginationRoutes({
         lang,
         targetLang,
-        routeSegment: lang === "en" ? "books" : "libros",
-        pageSegment: lang === "en" ? "page" : "pagina",
+        routeSegment: getRouteSegment("books", lang),
+        pageSegment: getRouteSegment("page", lang),
         contentType: "books",
         getAllItems: getAllBooksForLanguage,
         itemsPerPage: BOOKS_PER_PAGE,
@@ -112,8 +103,8 @@ export const getStaticPaths: GetStaticPaths = async () => {
       ...(await generateContentTypeWithPaginationRoutes({
         lang,
         targetLang,
-        routeSegment: lang === "en" ? "tutorials" : "tutoriales",
-        pageSegment: lang === "en" ? "page" : "pagina",
+        routeSegment: getRouteSegment("tutorials", lang),
+        pageSegment: getRouteSegment("page", lang),
         contentType: "tutorials",
         getAllItems: getAllTutorialsForLanguage,
         itemsPerPage: TUTORIALS_PER_PAGE,
@@ -133,8 +124,8 @@ export const getStaticPaths: GetStaticPaths = async () => {
     // Cannot use generic generator due to complex schema mapping
     // =================================================================
     {
-      const routeSegment = lang === "en" ? "posts" : "publicaciones";
-      const pageSegment = lang === "en" ? "page" : "pagina";
+      const routeSegment = getRouteSegment("posts", lang);
+      const pageSegment = getRouteSegment("page", lang);
 
       // Get all content (posts, tutorials, books combined)
       const sortedContent = await getAllContentForLanguage(lang);
@@ -153,18 +144,11 @@ export const getStaticPaths: GetStaticPaths = async () => {
 
           // Map to correct route segment
           const routeKey = post.type === "book" ? "books" : post.type === "tutorial" ? "tutorials" : "posts";
+          const localizedRouteSegment = getRouteSegment(routeKey, lang);
 
           return {
             name: post.title,
-            url: `/${lang}/${
-              lang === "en"
-                ? routeKey
-                : routeKey === "books"
-                  ? "libros"
-                  : routeKey === "tutorials"
-                    ? "tutoriales"
-                    : "publicaciones"
-            }/${post.slug}/`,
+            url: `/${lang}/${localizedRouteSegment}/${post.slug}/`,
             type: schemaType,
             description: post.excerpt,
           };
@@ -231,7 +215,7 @@ export const getStaticPaths: GetStaticPaths = async () => {
         taxonomyConfig: TAXONOMY_CONFIGS.authors,
         lang,
         targetLang,
-        routeSegment: lang === "en" ? "authors" : "autores",
+        routeSegment: getRouteSegment("authors", lang),
         contentType: "authors",
         contact,
         itemsPropsKey: "authorsWithCounts",
@@ -244,7 +228,7 @@ export const getStaticPaths: GetStaticPaths = async () => {
         taxonomyConfig: TAXONOMY_CONFIGS.publishers,
         lang,
         targetLang,
-        routeSegment: lang === "en" ? "publishers" : "editoriales",
+        routeSegment: getRouteSegment("publishers", lang),
         contentType: "publishers",
         contact,
         itemsPropsKey: "publishersWithCounts",
@@ -257,7 +241,7 @@ export const getStaticPaths: GetStaticPaths = async () => {
         taxonomyConfig: TAXONOMY_CONFIGS.genres,
         lang,
         targetLang,
-        routeSegment: lang === "en" ? "genres" : "generos",
+        routeSegment: getRouteSegment("genres", lang),
         contentType: "genres",
         contact,
         itemsPropsKey: "genresWithCounts",
@@ -270,7 +254,7 @@ export const getStaticPaths: GetStaticPaths = async () => {
         taxonomyConfig: TAXONOMY_CONFIGS.categories,
         lang,
         targetLang,
-        routeSegment: lang === "en" ? "categories" : "categorias",
+        routeSegment: getRouteSegment("categories", lang),
         contentType: "categories",
         contact,
         itemsPropsKey: "categoriesWithCounts",
@@ -283,7 +267,7 @@ export const getStaticPaths: GetStaticPaths = async () => {
         taxonomyConfig: TAXONOMY_CONFIGS.series,
         lang,
         targetLang,
-        routeSegment: lang === "en" ? "series" : "series",
+        routeSegment: getRouteSegment("series", lang),
         contentType: "series",
         contact,
         itemsPropsKey: "seriesWithCounts",
@@ -296,7 +280,7 @@ export const getStaticPaths: GetStaticPaths = async () => {
         taxonomyConfig: TAXONOMY_CONFIGS.challenges,
         lang,
         targetLang,
-        routeSegment: lang === "en" ? "challenges" : "retos",
+        routeSegment: getRouteSegment("challenges", lang),
         contentType: "challenges",
         contact,
         itemsPropsKey: "challengesWithCounts",
@@ -309,7 +293,7 @@ export const getStaticPaths: GetStaticPaths = async () => {
         taxonomyConfig: TAXONOMY_CONFIGS.courses,
         lang,
         targetLang,
-        routeSegment: lang === "en" ? "courses" : "cursos",
+        routeSegment: getRouteSegment("courses", lang),
         contentType: "courses",
         contact,
         itemsPropsKey: "coursesWithCounts",
@@ -325,7 +309,7 @@ export const getStaticPaths: GetStaticPaths = async () => {
     paths.push(
       ...generateStaticPageRoute({
         lang,
-        routeSegment: lang === "en" ? "about" : "acerca-de",
+        routeSegment: getRouteSegment("about", lang),
         contentType: "about",
         contact,
         content: aboutContent,

@@ -23,7 +23,7 @@ for (const proc of processesToKill) {
     execSync(`pkill -f "${proc.pattern}"`, { stdio: "ignore" });
     console.log(`   ✅ Killed ${proc.name}`);
     killedAny = true;
-  } catch (error) {
+  } catch {
     // pkill returns non-zero exit code if no processes found
     // This is expected and not an error
   }

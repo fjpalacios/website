@@ -48,17 +48,17 @@ describe("Authors Collection Schema", () => {
     };
 
     it("should require name", () => {
-      const { name, ...authorWithoutName } = baseAuthor;
+      const { name: _name, ...authorWithoutName } = baseAuthor;
       expect(() => authorsSchema.parse(authorWithoutName)).toThrow();
     });
 
     it("should require author_slug", () => {
-      const { author_slug, ...authorWithoutSlug } = baseAuthor;
+      const { author_slug: _author_slug, ...authorWithoutSlug } = baseAuthor;
       expect(() => authorsSchema.parse(authorWithoutSlug)).toThrow();
     });
 
     it("should require language", () => {
-      const { language, ...authorWithoutLanguage } = baseAuthor;
+      const { language: _language, ...authorWithoutLanguage } = baseAuthor;
       expect(() => authorsSchema.parse(authorWithoutLanguage)).toThrow();
     });
   });

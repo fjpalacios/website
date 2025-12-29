@@ -45,17 +45,17 @@ describe("Categories Collection Schema", () => {
     };
 
     it("should require name", () => {
-      const { name, ...categoryWithoutName } = baseCategory;
+      const { name: _name, ...categoryWithoutName } = baseCategory;
       expect(() => categoriesSchema.parse(categoryWithoutName)).toThrow();
     });
 
     it("should require category_slug", () => {
-      const { category_slug, ...categoryWithoutSlug } = baseCategory;
+      const { category_slug: _category_slug, ...categoryWithoutSlug } = baseCategory;
       expect(() => categoriesSchema.parse(categoryWithoutSlug)).toThrow();
     });
 
     it("should require language", () => {
-      const { language, ...categoryWithoutLanguage } = baseCategory;
+      const { language: _language, ...categoryWithoutLanguage } = baseCategory;
       expect(() => categoriesSchema.parse(categoryWithoutLanguage)).toThrow();
     });
   });
