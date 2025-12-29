@@ -1,0 +1,285 @@
+---
+/**
+ * Books Detail Page Template
+ * Reusable template for book detail pages
+ * Used by unified routing system
+ */
+
+import AuthorInfo from "@components/AuthorInfo.astro";
+import Breadcrumbs, { type BreadcrumbItem } from "@components/Breadcrumbs.astro";
+import PostTitle from "@components/PostTitle.astro";
+import SectionTitle from "@components/SectionTitle.astro";
+import Share from "@components/Share.astro";
+import Layout from "@layouts/Layout.astro";
+import { t } from "@locales";
+import type { ContactItem } from "@types/content";
+import { buildAuthorUrl, buildPublisherUrl, buildGenreUrl, buildCategoryUrl, buildScoreUrl } from "@utils/routes";
+import { render, type CollectionEntry } from "astro:content";
+
+interface Props {
+  bookEntry: CollectionEntry<"books">;
+  lang: string;
+  contact: ContactItem[];
+  hasTargetContent: boolean;
+}
+
+const { bookEntry, lang, contact, hasTargetContent } = Astro.props;
+const book = bookEntry.data;
+const { Content } = await render(bookEntry);
+
+// Get related data from props (already loaded in getStaticPaths)
+// We need to reload them here because Astro components can't access arbitrary props
+import { getCollection } from "astro:content";
+
+import { findAuthorBySlug, findPublisherBySlug, findGenresBySlug, findCategoriesBySlug } from "@/utils/blog";
+import { renderScoreEmoji, getScoreAriaLabel } from "@/utils/book/scoreFormatter";
+import { buildBooksIndexUrl } from "@/utils/routes";
+
+const allAuthors = await getCollection("authors");
+const allPublishers = await getCollection("publishers");
+const allGenres = await getCollection("genres");
+const allCategories = await getCollection("categories");
+
+const author = findAuthorBySlug(allAuthors, book.author, lang as "en" | "es");
+const publisher = book.publisher ? findPublisherBySlug(allPublishers, book.publisher) : null;
+const genres = findGenresBySlug(allGenres, book.genres);
+const categories = findCategoriesBySlug(allCategories, book.categories);
+
+// Type-safe variables for template mapping (avoids inline type annotations in JSX)
+const typedBuyLinks = (book.buy || []) as Array<{
+  type: "paper" | "ebook" | "audiobook";
+  link: string;
+}>;
+const typedCategories = categories as CollectionEntry<"categories">[];
+const typedGenres = genres as CollectionEntry<"genres">[];
+
+const authorWithGender =
+  author?.data.gender === "male"
+    ? lang === "en"
+      ? "The author"
+      : "El autor"
+    : lang === "en"
+      ? "The author"
+      : "La autora";
+
+// Score rendering
+const scoreEmoji = renderScoreEmoji(book.score);
+const scoreAriaLabel = getScoreAriaLabel(book.score, lang);
+
+// Build breadcrumbs
+const breadcrumbs: BreadcrumbItem[] = [
+  { label: t(lang, "pages.home"), url: `/${lang}` },
+  { label: t(lang, "pages.books"), url: buildBooksIndexUrl(lang) },
+  { label: book.title },
+];
+
+// Share component data
+const baseUrl = t(lang, "metaData.url");
+const currentUrl = new URL(Astro.url.pathname, baseUrl).href;
+const twitterUsername = t(lang, "metaData.twitterUsername");
+
+// Build JSON-LD schema for book
+const bookSchema: Record<string, unknown> = {
+  "@context": "https://schema.org",
+  "@type": "Book",
+  name: book.title,
+  author: {
+    "@type": "Person",
+    name: author?.data.name || book.author,
+  },
+  inLanguage: lang,
+  review: {
+    "@type": "Review",
+    reviewRating: {
+      "@type": "Rating",
+      ratingValue: book.score === "fav" ? 5 : book.score,
+      bestRating: 5,
+    },
+    author: {
+      "@type": "Person",
+      name: t(lang, "title"),
+    },
+    datePublished: book.date.toISOString(),
+  },
+};
+
+if (book.isbn) bookSchema.isbn = book.isbn;
+if (book.pages) bookSchema.numberOfPages = book.pages;
+if (publisher) {
+  bookSchema.publisher = {
+    "@type": "Organization",
+    name: publisher.data.name,
+  };
+}
+
+// Translations
+const pagesLabel = lang === "en" ? "Pages" : "Páginas";
+const buyLabel = lang === "en" ? "Buy" : "Comprar";
+const publisherLabel = lang === "en" ? "Publisher" : "Editorial";
+const bookDetailsLabel = lang === "en" ? "Book details" : "Detalles del libro";
+const synopsisLabel = lang === "en" ? "Synopsis" : "Sinopsis";
+const reviewLabel = lang === "en" ? "Review" : "Reseña";
+const paperbackLabel = lang === "en" ? "Paperback" : "Tapa blanda";
+const ebookLabel = lang === "en" ? "eBook" : "eBook";
+const audiobookLabel = lang === "en" ? "Audiobook" : "Audiolibro";
+const scoreLabel = lang === "en" ? "Score" : "Puntuación";
+const favoriteLabel = lang === "en" ? "Favorite" : "Favorito";
+const categoryLabel = lang === "en" ? "Category" : "Categoría";
+const genreLabel = lang === "en" ? "Genre" : "Género";
+---
+
+<Layout
+  lang={lang}
+  title={`${book.title} - ${t(lang, "book.review")}`}
+  contact={contact}
+  translationSlug={book.i18n}
+  image={book.book_cover || book.cover}
+  type="book"
+  schema={bookSchema}
+  hasTargetContent={hasTargetContent}
+>
+  <Breadcrumbs items={breadcrumbs} lang={lang} />
+  <main class="book">
+    <section class="book__content">
+      <div class="book__content__cover">
+        <img src={book.book_cover || book.cover} alt={book.title} />
+        <div class="score" aria-label={scoreAriaLabel}>{scoreEmoji}</div>
+      </div>
+      <div class="book__content__content">
+        <!-- Pagefind title meta -->
+        <span data-pagefind-meta="title" style="display: none;">{book.title}</span>
+        <PostTitle title={book.title} date={book.date} lang={lang} />
+        <div class="book__content__content__data">
+          <div class="book__content__content__data_pages">
+            <strong>{pagesLabel}</strong>: {book.pages}
+          </div>
+          <div class="book__content__content__data__isbn">
+            {
+              book.isbn ? (
+                <>
+                  <strong>ISBN</strong>: {book.isbn}
+                </>
+              ) : book.asin ? (
+                <>
+                  <strong>ASIN</strong>: {book.asin}
+                </>
+              ) : null
+            }
+          </div>
+          {
+            typedBuyLinks.length > 0 && (
+              <div class="book__content__content__data__buy">
+                <strong>{buyLabel}</strong>:
+                <ul>
+                  {typedBuyLinks.map((buyLink) => (
+                    <li>
+                      <a href={buyLink.link} target="_blank" rel="nofollow">
+                        {buyLink.type === "paper"
+                          ? paperbackLabel
+                          : buyLink.type === "ebook"
+                            ? ebookLabel
+                            : audiobookLabel}
+                      </a>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )
+          }
+          {
+            publisher && (
+              <div class="book__content__content__data__publisher">
+                <strong>{publisherLabel}</strong>:
+                <ul>
+                  <li>
+                    <a href={buildPublisherUrl(lang, publisher.data.publisher_slug)}>{publisher.data.name}</a>
+                  </li>
+                  {book.book_card && (
+                    <li>
+                      <a href={book.book_card} target="_blank" rel="nofollow">
+                        {bookDetailsLabel}
+                      </a>
+                    </li>
+                  )}
+                </ul>
+              </div>
+            )
+          }
+        </div>
+        <SectionTitle title={synopsisLabel} />
+        <div class="text-area">
+          <p>{book.synopsis}</p>
+        </div>
+        <div data-pagefind-ignore>
+          {author && <SectionTitle title={authorWithGender} />}
+          {author && <AuthorInfo author={author} border={false} />}
+        </div>
+        <SectionTitle title={reviewLabel} />
+        <div class="text-area">
+          <Content />
+        </div>
+      </div>
+    </section>
+    <section class="book__info" data-pagefind-ignore>
+      <div class="book__info__icon">📚</div>
+      <ul class="book__info__text">
+        {
+          author && (
+            <li>
+              <a href={buildAuthorUrl(lang, author.data.author_slug)} title={authorWithGender}>
+                {author.data.name}
+              </a>
+            </li>
+          )
+        }
+        {
+          publisher && (
+            <li>
+              <a href={buildPublisherUrl(lang, publisher.data.publisher_slug)}>{publisher.data.name}</a>
+            </li>
+          )
+        }
+        <li>
+          <a href={buildScoreUrl(lang, book.score)} title={scoreLabel}>
+            {book.score === "fav" ? favoriteLabel : `${book.score}/5`}
+          </a>
+        </li>
+      </ul>
+    </section>
+    <section class="book__info" data-pagefind-ignore>
+      <div class="book__info__icon">🏷️</div>
+      <ul class="book__info__text">
+        {
+          typedCategories.map((category) => (
+            <li>
+              <a
+                href={buildCategoryUrl(lang, category.data.category_slug)}
+                class="book__info__text__item"
+                title={categoryLabel}
+              >
+                {category.data.name}
+              </a>
+            </li>
+          ))
+        }
+      </ul>
+    </section>
+    {
+      typedGenres.length > 0 && (
+        <section class="book__info" data-pagefind-ignore>
+          <div class="book__info__icon">🔖</div>
+          <ul class="book__info__text">
+            {typedGenres.map((genre) => (
+              <li>
+                <a href={buildGenreUrl(lang, genre.data.genre_slug)} title={genreLabel}>
+                  {genre.data.name}
+                </a>
+              </li>
+            ))}
+          </ul>
+        </section>
+      )
+    }
+  </main>
+  <Share title={book.title} url={currentUrl} lang={lang} twitterUsername={twitterUsername} />
+</Layout>

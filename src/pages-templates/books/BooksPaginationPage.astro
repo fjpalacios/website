@@ -1,0 +1,68 @@
+---
+/**
+ * Books Pagination Page Template
+ * Reusable template for books pagination (page 2+)
+ * Used by unified routing system
+ */
+
+import Paginator from "@components/Paginator.astro";
+import PostList from "@components/PostList.astro";
+import Title from "@components/Title.astro";
+import Layout from "@layouts/Layout.astro";
+import { t } from "@locales";
+import type { ContactItem } from "@types/content";
+import type { CollectionEntry } from "astro:content";
+
+import { buildBooksIndexUrl } from "@/utils/routes";
+
+interface Props {
+  lang: string;
+  books: CollectionEntry<"books">[];
+  currentPage: number;
+  totalPages: number;
+  contact: ContactItem[];
+  hasTargetContent: boolean;
+}
+
+const { lang, books, currentPage, totalPages, contact, hasTargetContent } = Astro.props;
+
+const pageTitle = "📚 " + t(lang, "pages.books");
+const pageDescription = lang === "en" ? "Book reviews" : "Reseñas de libros";
+const basePath = buildBooksIndexUrl(lang);
+---
+
+<Layout
+  lang={lang}
+  title={pageTitle}
+  description={pageDescription}
+  contact={contact}
+  hasTargetContent={hasTargetContent}
+>
+  <Title title={pageTitle} />
+
+  <div data-pagefind-ignore>
+    {
+      books.length > 0 ? (
+        <PostList posts={books} lang={lang} />
+      ) : (
+        <div class="empty-state">
+          <p>{t(lang, "emptyState.books")}</p>
+        </div>
+      )
+    }
+  </div>
+
+  <Paginator currentPage={currentPage} totalPages={totalPages} basePath={basePath} lang={lang} />
+</Layout>
+
+<style lang="scss">
+  @use "@/styles/mixins" as *;
+  @use "@/styles/variables" as *;
+
+  .empty-state {
+    grid-column: span 12;
+    text-align: center;
+    padding: 4rem 2rem;
+    color: $cursive-color;
+  }
+</style>
