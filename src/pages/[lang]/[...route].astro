@@ -1,6 +1,6 @@
 ---
 /**
- * Unified Dynamic Routing - Books, Tutorials, Posts & Authors (Phase 3 Migration)
+ * Unified Dynamic Routing - Books, Tutorials, Posts, Authors & Publishers (Phase 3 Migration)
  *
  * Handles all main content type pages:
  * - /en/books → Books list
@@ -25,6 +25,10 @@
  * - /es/autores → Authors list
  * - /en/authors/author-slug → Author detail (with pagination)
  * - /es/autores/author-slug → Author detail (with pagination)
+ * - /en/publishers → Publishers list
+ * - /es/editoriales → Publishers list
+ * - /en/publishers/publisher-slug → Publisher detail (with pagination)
+ * - /es/editoriales/publisher-slug → Publisher detail (with pagination)
  *
  * This replaces:
  * Books:
@@ -56,6 +60,12 @@
  * - src/pages/es/autores/index.astro
  * - src/pages/en/authors/[slug].astro
  * - src/pages/es/autores/[slug].astro
+ *
+ * Publishers:
+ * - src/pages/en/publishers/index.astro
+ * - src/pages/es/editoriales/index.astro
+ * - src/pages/en/publishers/[slug].astro
+ * - src/pages/es/editoriales/[slug].astro
  */
 
 // Utils
@@ -74,11 +84,14 @@ import BooksPaginationPage from "@/pages-templates/books/BooksPaginationPage.ast
 import PostsDetailPage from "@/pages-templates/posts/PostsDetailPage.astro";
 import PostsListPage from "@/pages-templates/posts/PostsListPage.astro";
 import PostsPaginationPage from "@/pages-templates/posts/PostsPaginationPage.astro";
+import PublishersDetailPage from "@/pages-templates/publishers/PublishersDetailPage.astro";
+import PublishersListPage from "@/pages-templates/publishers/PublishersListPage.astro";
 import TutorialsDetailPage from "@/pages-templates/tutorials/TutorialsDetailPage.astro";
 import TutorialsListPage from "@/pages-templates/tutorials/TutorialsListPage.astro";
 import TutorialsPaginationPage from "@/pages-templates/tutorials/TutorialsPaginationPage.astro";
 // Import existing page templates - Posts
 // Import existing page templates - Authors
+// Import existing page templates - Publishers
 import { paginateItems, getPageCount } from "@/utils/blog";
 import { getAllBooksForLanguage, BOOKS_PER_PAGE, generateBookDetailPaths } from "@/utils/booksPages";
 import { getAllContentForLanguage, POSTS_PER_PAGE, generatePostDetailPaths } from "@/utils/postsPages";
@@ -388,9 +401,58 @@ export const getStaticPaths: GetStaticPaths = async () => {
         });
       }
     }
+
+    // =================================================================
+    // PUBLISHERS (Taxonomy)
+    // =================================================================
+    {
+      const config = TAXONOMY_CONFIGS.publishers;
+      const routeSegment = lang === "en" ? "publishers" : "editoriales";
+
+      // Get all publishers with counts
+      const publishersData = await getTaxonomyItemsWithCount(config, lang);
+      const itemsWithContent = publishersData
+        .filter(({ count }) => count > 0)
+        .sort((a, b) => a.item.data.name.localeCompare(b.item.data.name));
+
+      // Check if target language has content
+      const hasTargetContent = await hasTargetTaxonomyContent(config, targetLang);
+
+      // 1. LIST PAGE (no pagination, shows all publishers)
+      paths.push({
+        params: { lang, route: routeSegment },
+        props: {
+          contentType: "publishers",
+          pageType: "list",
+          lang,
+          itemsWithContent,
+          contact,
+          hasTargetContent,
+        },
+      });
+
+      // 2. DETAIL PAGES (with pagination for books)
+      const detailPaths = await generateTaxonomyDetailPaths(config, lang, contact);
+      for (const { slug, props } of detailPaths) {
+        // Add publishersWithCounts to props for sidebar
+        const enhancedProps = {
+          ...props,
+          publishersWithCounts: itemsWithContent,
+        };
+
+        paths.push({
+          params: { lang, route: `${routeSegment}/${slug}` },
+          props: {
+            contentType: "publishers",
+            pageType: "detail",
+            ...enhancedProps,
+          },
+        });
+      }
+    }
   }
 
-  console.log(`[Unified Routing] Generated ${paths.length} paths (books + tutorials + posts + authors)`);
+  console.log(`[Unified Routing] Generated ${paths.length} paths (books + tutorials + posts + authors + publishers)`);
   return paths;
 };
 
@@ -415,3 +477,7 @@ const { pageType, contentType } = Astro.props;
 {/* Authors */}
 {contentType === "authors" && pageType === "list" && <AuthorsListPage {...Astro.props} />}
 {contentType === "authors" && pageType === "detail" && <AuthorsDetailPage {...Astro.props} />}
+
+{/* Publishers */}
+{contentType === "publishers" && pageType === "list" && <PublishersListPage {...Astro.props} />}
+{contentType === "publishers" && pageType === "detail" && <PublishersDetailPage {...Astro.props} />}
