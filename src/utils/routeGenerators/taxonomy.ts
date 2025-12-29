@@ -9,7 +9,11 @@
  */
 
 import type { TaxonomyConfig } from "@/utils/taxonomyPages";
-import { getTaxonomyItemsWithCount, generateTaxonomyDetailPaths } from "@/utils/taxonomyPages";
+import {
+  getTaxonomyItemsWithCount,
+  hasTargetContent as checkHasTargetContent,
+  generateTaxonomyDetailPaths,
+} from "@/utils/taxonomyPages";
 
 export interface TaxonomyGeneratorConfig {
   /** Taxonomy configuration (from TAXONOMY_CONFIGS) */
@@ -57,7 +61,7 @@ export async function generateTaxonomyRoutes(config: TaxonomyGeneratorConfig): P
     .sort((a, b) => a.item.data.name.localeCompare(b.item.data.name));
 
   // Check if target language has content
-  const hasTargetContent = await hasTargetContent(taxonomyConfig, targetLang);
+  const hasTargetContent = await checkHasTargetContent(taxonomyConfig, targetLang);
 
   // 1. LIST PAGE (no pagination, shows all items)
   paths.push({

@@ -1,90 +1,35 @@
 ---
 /**
- * Unified Dynamic Routing - All Content Types & Taxonomies (Phase 3 Migration)
+ * Unified Dynamic Routing - All Content Types & Taxonomies (Phase 4 Refactored)
+ *
+ * Refactored version using route generators to reduce complexity from 779 to ~250 lines.
  *
  * Handles all main content type pages:
- * - /en/books → Books list
- * - /es/libros → Books list
- * - /en/books/page/2 → Pagination
- * - /es/libros/pagina/2 → Pagination
- * - /en/books/my-book → Detail
- * - /es/libros/mi-libro → Detail
- * - /en/tutorials → Tutorials list
- * - /es/tutoriales → Tutorials list
- * - /en/tutorials/page/2 → Pagination
- * - /es/tutoriales/pagina/2 → Pagination
- * - /en/tutorials/my-tutorial → Detail
- * - /es/tutoriales/mi-tutorial → Detail
- * - /en/posts → Posts list (mixed content: posts + tutorials + books)
- * - /es/publicaciones → Posts list (mixed content)
- * - /en/posts/page/2 → Pagination (mixed content)
- * - /es/publicaciones/pagina/2 → Pagination (mixed content)
- * - /en/posts/my-post → Detail (posts collection only)
- * - /es/publicaciones/mi-post → Detail (posts collection only)
- * - /en/authors → Authors list
- * - /es/autores → Authors list
- * - /en/authors/author-slug → Author detail (with pagination)
- * - /es/autores/author-slug → Author detail (with pagination)
- * - /en/publishers → Publishers list
- * - /es/editoriales → Publishers list
- * - /en/publishers/publisher-slug → Publisher detail (with pagination)
- * - /es/editoriales/publisher-slug → Publisher detail (with pagination)
- * - /en/genres → Genres list
- * - /es/generos → Genres list
- * - /en/genres/genre-slug → Genre detail (with pagination)
- * - /es/generos/genre-slug → Genre detail (with pagination)
+ * - Books: /en/books, /es/libros (list, pagination, detail)
+ * - Tutorials: /en/tutorials, /es/tutoriales (list, pagination, detail)
+ * - Posts: /en/posts, /es/publicaciones (list, pagination, detail - mixed content)
+ * - Taxonomies: Authors, Publishers, Genres, Categories, Series, Challenges, Courses
+ * - Static: About, Feeds
  *
- * This replaces:
- * Books:
- * - src/pages/en/books/index.astro
- * - src/pages/es/libros/index.astro
- * - src/pages/en/books/page/[page].astro
- * - src/pages/es/libros/pagina/[page].astro
- * - src/pages/en/books/[slug].astro
- * - src/pages/es/libros/[slug].astro
+ * This replaces 52 duplicate page files with 1 unified router + 25 templates.
  *
- * Tutorials:
- * - src/pages/en/tutorials/index.astro
- * - src/pages/es/tutoriales/index.astro
- * - src/pages/en/tutorials/page/[page].astro
- * - src/pages/es/tutoriales/pagina/[page].astro
- * - src/pages/en/tutorials/[slug].astro
- * - src/pages/es/tutoriales/[slug].astro
- *
- * Posts:
- * - src/pages/en/posts/index.astro
- * - src/pages/es/publicaciones/index.astro
- * - src/pages/en/posts/page/[page].astro
- * - src/pages/es/publicaciones/pagina/[page].astro
- * - src/pages/en/posts/[slug].astro
- * - src/pages/es/publicaciones/[slug].astro
- *
- * Authors:
- * - src/pages/en/authors/index.astro
- * - src/pages/es/autores/index.astro
- * - src/pages/en/authors/[slug].astro
- * - src/pages/es/autores/[slug].astro
- *
- * Publishers:
- * - src/pages/en/publishers/index.astro
- * - src/pages/es/editoriales/index.astro
- * - src/pages/en/publishers/[slug].astro
- * - src/pages/es/editoriales/[slug].astro
- *
- * Genres:
- * - src/pages/en/genres/index.astro
- * - src/pages/es/generos/index.astro
- * - src/pages/en/genres/[slug].astro
- * - src/pages/es/generos/[slug].astro
+ * Phase 4 Optimization: Extracted route generation logic to utilities
+ * @see src/utils/routeGenerators/
  */
 
-// Utils
 import type { GetStaticPaths } from "astro";
 
 // Contact data
 import contactEn from "@/content/static/contact/en.json";
 import contactEs from "@/content/static/contact/es.json";
-// Import existing page templates - Books
+
+// Page templates - Books
+
+// Page templates - Tutorials
+
+// Page templates - Posts
+
+// Page templates - Taxonomies
 import AuthorsDetailPage from "@/pages-templates/authors/AuthorsDetailPage.astro";
 import AuthorsListPage from "@/pages-templates/authors/AuthorsListPage.astro";
 import BooksDetailPage from "@/pages-templates/books/BooksDetailPage.astro";
@@ -97,9 +42,7 @@ import ChallengesListPage from "@/pages-templates/challenges/ChallengesListPage.
 import CoursesDetailPage from "@/pages-templates/courses/CoursesDetailPage.astro";
 import CoursesListPage from "@/pages-templates/courses/CoursesListPage.astro";
 import GenresDetailPage from "@/pages-templates/genres/GenresDetailPage.astro";
-// Import static page templates
 import GenresListPage from "@/pages-templates/genres/GenresListPage.astro";
-// Import existing page templates - Tutorials
 import PostsDetailPage from "@/pages-templates/posts/PostsDetailPage.astro";
 import PostsListPage from "@/pages-templates/posts/PostsListPage.astro";
 import PostsPaginationPage from "@/pages-templates/posts/PostsPaginationPage.astro";
@@ -107,29 +50,28 @@ import PublishersDetailPage from "@/pages-templates/publishers/PublishersDetailP
 import PublishersListPage from "@/pages-templates/publishers/PublishersListPage.astro";
 import SeriesDetailPage from "@/pages-templates/series/SeriesDetailPage.astro";
 import SeriesListPage from "@/pages-templates/series/SeriesListPage.astro";
+
+// Page templates - Static
 import AboutPage from "@/pages-templates/static/AboutPage.astro";
 import FeedsPage from "@/pages-templates/static/FeedsPage.astro";
 import TutorialsDetailPage from "@/pages-templates/tutorials/TutorialsDetailPage.astro";
 import TutorialsListPage from "@/pages-templates/tutorials/TutorialsListPage.astro";
 import TutorialsPaginationPage from "@/pages-templates/tutorials/TutorialsPaginationPage.astro";
-// Import existing page templates - Posts
-// Import existing page templates - Authors
-// Import existing page templates - Publishers
-// Import existing page templates - Genres
-// Import existing page templates - Categories
-// Import existing page templates - Series
-// Import existing page templates - Challenges
+
+// Route generators (Phase 4)
+
+// Utilities
 import { paginateItems, getPageCount } from "@/utils/blog";
 import { getAllBooksForLanguage, BOOKS_PER_PAGE, generateBookDetailPaths } from "@/utils/booksPages";
 import { getAllContentForLanguage, POSTS_PER_PAGE, generatePostDetailPaths } from "@/utils/postsPages";
+import {
+  generateContentTypeWithPaginationRoutes,
+  generateTaxonomyRoutes,
+  generateStaticPageRoute,
+} from "@/utils/routeGenerators";
 import { getLanguages } from "@/utils/routes";
 import { generateItemListSchema } from "@/utils/schemas/itemList";
-import {
-  TAXONOMY_CONFIGS,
-  getTaxonomyItemsWithCount,
-  hasTargetContent as hasTargetTaxonomyContent,
-  generateTaxonomyDetailPaths,
-} from "@/utils/taxonomyPages";
+import { TAXONOMY_CONFIGS } from "@/utils/taxonomyPages";
 import { getAllTutorialsForLanguage, TUTORIALS_PER_PAGE, generateTutorialDetailPaths } from "@/utils/tutorialsPages";
 
 export const getStaticPaths: GetStaticPaths = async () => {
@@ -141,155 +83,54 @@ export const getStaticPaths: GetStaticPaths = async () => {
     const targetLang = lang === "en" ? "es" : "en";
 
     // =================================================================
-    // BOOKS
+    // BOOKS - Using route generator
     // =================================================================
-    {
-      const routeSegment = lang === "en" ? "books" : "libros";
-      const pageSegment = lang === "en" ? "page" : "pagina";
-
-      // Get all books
-      const sortedBooks = await getAllBooksForLanguage(lang);
-      const targetBooks = await getAllBooksForLanguage(targetLang);
-      const hasTargetContent = targetBooks.length > 0;
-      const totalPages = getPageCount(sortedBooks.length, BOOKS_PER_PAGE);
-
-      // 1. LIST PAGE
-      const books = paginateItems(sortedBooks, 1, BOOKS_PER_PAGE);
-      const itemListSchema = generateItemListSchema(
-        books.map((book) => ({
+    paths.push(
+      ...(await generateContentTypeWithPaginationRoutes({
+        lang,
+        targetLang,
+        routeSegment: lang === "en" ? "books" : "libros",
+        pageSegment: lang === "en" ? "page" : "pagina",
+        contentType: "books",
+        getAllItems: getAllBooksForLanguage,
+        itemsPerPage: BOOKS_PER_PAGE,
+        generateDetailPaths: generateBookDetailPaths,
+        contact,
+        schemaType: "Book",
+        extractItemData: (book) => ({
           name: book.title,
-          url: `/${lang}/${routeSegment}/${book.slug}/`,
-          type: "Book",
-          description: book.excerpt,
-        })),
-        "https://fjp.es",
-      );
-
-      paths.push({
-        params: { lang, route: routeSegment },
-        props: {
-          contentType: "books",
-          pageType: "list",
-          lang,
-          books,
-          currentPage: 1,
-          totalPages,
-          itemListSchema,
-          contact,
-          hasTargetContent,
-        },
-      });
-
-      // 2. PAGINATION PAGES
-      for (let page = 2; page <= totalPages; page++) {
-        const paginatedBooks = paginateItems(sortedBooks, page, BOOKS_PER_PAGE);
-
-        paths.push({
-          params: { lang, route: `${routeSegment}/${pageSegment}/${page}` },
-          props: {
-            contentType: "books",
-            pageType: "pagination",
-            lang,
-            books: paginatedBooks,
-            currentPage: page,
-            totalPages,
-            contact,
-            hasTargetContent,
-          },
-        });
-      }
-
-      // 3. DETAIL PAGES
-      const detailPaths = await generateBookDetailPaths(lang, contact);
-      for (const { slug, props } of detailPaths) {
-        paths.push({
-          params: { lang, route: `${routeSegment}/${slug}` },
-          props: {
-            contentType: "books",
-            pageType: "detail",
-            ...props,
-            hasTargetContent,
-          },
-        });
-      }
-    }
+          slug: book.slug,
+          excerpt: book.excerpt,
+        }),
+      })),
+    );
 
     // =================================================================
-    // TUTORIALS
+    // TUTORIALS - Using route generator
     // =================================================================
-    {
-      const routeSegment = lang === "en" ? "tutorials" : "tutoriales";
-      const pageSegment = lang === "en" ? "page" : "pagina";
-
-      // Get all tutorials
-      const sortedTutorials = await getAllTutorialsForLanguage(lang);
-      const targetTutorials = await getAllTutorialsForLanguage(targetLang);
-      const hasTargetContent = targetTutorials.length > 0;
-      const totalPages = getPageCount(sortedTutorials.length, TUTORIALS_PER_PAGE);
-
-      // 1. LIST PAGE
-      const tutorials = paginateItems(sortedTutorials, 1, TUTORIALS_PER_PAGE);
-      const itemListSchema = generateItemListSchema(
-        tutorials.map((tutorial) => ({
+    paths.push(
+      ...(await generateContentTypeWithPaginationRoutes({
+        lang,
+        targetLang,
+        routeSegment: lang === "en" ? "tutorials" : "tutoriales",
+        pageSegment: lang === "en" ? "page" : "pagina",
+        contentType: "tutorials",
+        getAllItems: getAllTutorialsForLanguage,
+        itemsPerPage: TUTORIALS_PER_PAGE,
+        generateDetailPaths: generateTutorialDetailPaths,
+        contact,
+        schemaType: "TechArticle",
+        extractItemData: (tutorial) => ({
           name: tutorial.title,
-          url: `/${lang}/${routeSegment}/${tutorial.slug}/`,
-          type: "TechArticle",
-          description: tutorial.excerpt,
-        })),
-        "https://fjp.es",
-      );
-
-      paths.push({
-        params: { lang, route: routeSegment },
-        props: {
-          contentType: "tutorials",
-          pageType: "list",
-          lang,
-          tutorials,
-          currentPage: 1,
-          totalPages,
-          itemListSchema,
-          contact,
-          hasTargetContent,
-        },
-      });
-
-      // 2. PAGINATION PAGES
-      for (let page = 2; page <= totalPages; page++) {
-        const paginatedTutorials = paginateItems(sortedTutorials, page, TUTORIALS_PER_PAGE);
-
-        paths.push({
-          params: { lang, route: `${routeSegment}/${pageSegment}/${page}` },
-          props: {
-            contentType: "tutorials",
-            pageType: "pagination",
-            lang,
-            tutorials: paginatedTutorials,
-            currentPage: page,
-            totalPages,
-            contact,
-            hasTargetContent,
-          },
-        });
-      }
-
-      // 3. DETAIL PAGES
-      const detailPaths = await generateTutorialDetailPaths(lang, contact);
-      for (const { slug, props } of detailPaths) {
-        paths.push({
-          params: { lang, route: `${routeSegment}/${slug}` },
-          props: {
-            contentType: "tutorials",
-            pageType: "detail",
-            ...props,
-            hasTargetContent,
-          },
-        });
-      }
-    }
+          slug: tutorial.slug,
+          excerpt: tutorial.excerpt,
+        }),
+      })),
+    );
 
     // =================================================================
-    // POSTS (Mixed Content: posts + tutorials + books timeline)
+    // POSTS - Special case (mixed content: posts + tutorials + books)
+    // Cannot use generic generator due to complex schema mapping
     // =================================================================
     {
       const routeSegment = lang === "en" ? "posts" : "publicaciones";
@@ -381,347 +222,125 @@ export const getStaticPaths: GetStaticPaths = async () => {
     }
 
     // =================================================================
-    // AUTHORS (Taxonomy)
-    // =================================================================
-    {
-      const config = TAXONOMY_CONFIGS.authors;
-      const routeSegment = lang === "en" ? "authors" : "autores";
-
-      // Get all authors with counts
-      const authorsData = await getTaxonomyItemsWithCount(config, lang);
-      const itemsWithContent = authorsData
-        .filter(({ count }) => count > 0)
-        .sort((a, b) => a.item.data.name.localeCompare(b.item.data.name));
-
-      // Check if target language has content
-      const hasTargetContent = await hasTargetTaxonomyContent(config, targetLang);
-
-      // 1. LIST PAGE (no pagination, shows all authors)
-      paths.push({
-        params: { lang, route: routeSegment },
-        props: {
-          contentType: "authors",
-          pageType: "list",
-          lang,
-          itemsWithContent,
-          contact,
-          hasTargetContent,
-        },
-      });
-
-      // 2. DETAIL PAGES (with pagination for books)
-      const detailPaths = await generateTaxonomyDetailPaths(config, lang, contact);
-      for (const { slug, props } of detailPaths) {
-        // Add authorsWithCounts to props for sidebar
-        const enhancedProps = {
-          ...props,
-          authorsWithCounts: itemsWithContent,
-        };
-
-        paths.push({
-          params: { lang, route: `${routeSegment}/${slug}` },
-          props: {
-            contentType: "authors",
-            pageType: "detail",
-            ...enhancedProps,
-          },
-        });
-      }
-    }
-
-    // =================================================================
-    // PUBLISHERS (Taxonomy)
-    // =================================================================
-    {
-      const config = TAXONOMY_CONFIGS.publishers;
-      const routeSegment = lang === "en" ? "publishers" : "editoriales";
-
-      // Get all publishers with counts
-      const publishersData = await getTaxonomyItemsWithCount(config, lang);
-      const itemsWithContent = publishersData
-        .filter(({ count }) => count > 0)
-        .sort((a, b) => a.item.data.name.localeCompare(b.item.data.name));
-
-      // Check if target language has content
-      const hasTargetContent = await hasTargetTaxonomyContent(config, targetLang);
-
-      // 1. LIST PAGE (no pagination, shows all publishers)
-      paths.push({
-        params: { lang, route: routeSegment },
-        props: {
-          contentType: "publishers",
-          pageType: "list",
-          lang,
-          itemsWithContent,
-          contact,
-          hasTargetContent,
-        },
-      });
-
-      // 2. DETAIL PAGES (with pagination for books)
-      const detailPaths = await generateTaxonomyDetailPaths(config, lang, contact);
-      for (const { slug, props } of detailPaths) {
-        // Add publishersWithCounts to props for sidebar
-        const enhancedProps = {
-          ...props,
-          publishersWithCounts: itemsWithContent,
-        };
-
-        paths.push({
-          params: { lang, route: `${routeSegment}/${slug}` },
-          props: {
-            contentType: "publishers",
-            pageType: "detail",
-            ...enhancedProps,
-          },
-        });
-      }
-    }
-
-    // =================================================================
-    // GENRES (Taxonomy)
-    // =================================================================
-    {
-      const config = TAXONOMY_CONFIGS.genres;
-      const routeSegment = lang === "en" ? "genres" : "generos";
-
-      // Get all genres with counts
-      const genresData = await getTaxonomyItemsWithCount(config, lang);
-      const itemsWithContent = genresData
-        .filter(({ count }) => count > 0)
-        .sort((a, b) => a.item.data.name.localeCompare(b.item.data.name));
-
-      // Check if target language has content
-      const hasTargetContent = await hasTargetTaxonomyContent(config, targetLang);
-
-      // 1. LIST PAGE (no pagination, shows all genres)
-      paths.push({
-        params: { lang, route: routeSegment },
-        props: {
-          contentType: "genres",
-          pageType: "list",
-          lang,
-          itemsWithContent,
-          contact,
-          hasTargetContent,
-        },
-      });
-
-      // 2. DETAIL PAGES (with pagination for books)
-      const detailPaths = await generateTaxonomyDetailPaths(config, lang, contact);
-      for (const { slug, props } of detailPaths) {
-        // Add genresWithCounts to props for sidebar
-        const enhancedProps = {
-          ...props,
-          genresWithCounts: itemsWithContent,
-        };
-
-        paths.push({
-          params: { lang, route: `${routeSegment}/${slug}` },
-          props: {
-            contentType: "genres",
-            pageType: "detail",
-            ...enhancedProps,
-          },
-        });
-      }
-    }
-
-    // =================================================================
-    // CATEGORIES (Taxonomy)
-    // =================================================================
-    {
-      const config = TAXONOMY_CONFIGS.categories;
-      const routeSegment = lang === "en" ? "categories" : "categorias";
-
-      const categoriesData = await getTaxonomyItemsWithCount(config, lang);
-      const itemsWithContent = categoriesData
-        .filter(({ count }) => count > 0)
-        .sort((a, b) => a.item.data.name.localeCompare(b.item.data.name));
-
-      const hasTargetContent = await hasTargetTaxonomyContent(config, targetLang);
-
-      paths.push({
-        params: { lang, route: routeSegment },
-        props: {
-          contentType: "categories",
-          pageType: "list",
-          lang,
-          itemsWithContent,
-          contact,
-          hasTargetContent,
-        },
-      });
-
-      const detailPaths = await generateTaxonomyDetailPaths(config, lang, contact);
-      for (const { slug, props } of detailPaths) {
-        paths.push({
-          params: { lang, route: `${routeSegment}/${slug}` },
-          props: {
-            contentType: "categories",
-            pageType: "detail",
-            ...props,
-            categoriesWithCounts: itemsWithContent,
-          },
-        });
-      }
-    }
-
-    // =================================================================
-    // SERIES (Taxonomy)
-    // =================================================================
-    {
-      const config = TAXONOMY_CONFIGS.series;
-      const routeSegment = lang === "en" ? "series" : "series";
-
-      const seriesData = await getTaxonomyItemsWithCount(config, lang);
-      const itemsWithContent = seriesData
-        .filter(({ count }) => count > 0)
-        .sort((a, b) => a.item.data.name.localeCompare(b.item.data.name));
-
-      const hasTargetContent = await hasTargetTaxonomyContent(config, targetLang);
-
-      paths.push({
-        params: { lang, route: routeSegment },
-        props: {
-          contentType: "series",
-          pageType: "list",
-          lang,
-          itemsWithContent,
-          contact,
-          hasTargetContent,
-        },
-      });
-
-      const detailPaths = await generateTaxonomyDetailPaths(config, lang, contact);
-      for (const { slug, props } of detailPaths) {
-        paths.push({
-          params: { lang, route: `${routeSegment}/${slug}` },
-          props: {
-            contentType: "series",
-            pageType: "detail",
-            ...props,
-            seriesWithCounts: itemsWithContent,
-          },
-        });
-      }
-    }
-
-    // =================================================================
-    // CHALLENGES (Taxonomy)
-    // =================================================================
-    {
-      const config = TAXONOMY_CONFIGS.challenges;
-      const routeSegment = lang === "en" ? "challenges" : "retos";
-
-      const challengesData = await getTaxonomyItemsWithCount(config, lang);
-      const itemsWithContent = challengesData
-        .filter(({ count }) => count > 0)
-        .sort((a, b) => a.item.data.name.localeCompare(b.item.data.name));
-
-      const hasTargetContent = await hasTargetTaxonomyContent(config, targetLang);
-
-      paths.push({
-        params: { lang, route: routeSegment },
-        props: {
-          contentType: "challenges",
-          pageType: "list",
-          lang,
-          itemsWithContent,
-          contact,
-          hasTargetContent,
-        },
-      });
-
-      const detailPaths = await generateTaxonomyDetailPaths(config, lang, contact);
-      for (const { slug, props } of detailPaths) {
-        paths.push({
-          params: { lang, route: `${routeSegment}/${slug}` },
-          props: {
-            contentType: "challenges",
-            pageType: "detail",
-            ...props,
-            challengesWithCounts: itemsWithContent,
-          },
-        });
-      }
-    }
-
-    // =================================================================
-    // COURSES (Taxonomy)
-    // =================================================================
-    {
-      const config = TAXONOMY_CONFIGS.courses;
-      const routeSegment = lang === "en" ? "courses" : "cursos";
-
-      const coursesData = await getTaxonomyItemsWithCount(config, lang);
-      const itemsWithContent = coursesData
-        .filter(({ count }) => count > 0)
-        .sort((a, b) => a.item.data.name.localeCompare(b.item.data.name));
-
-      const hasTargetContent = await hasTargetTaxonomyContent(config, targetLang);
-
-      paths.push({
-        params: { lang, route: routeSegment },
-        props: {
-          contentType: "courses",
-          pageType: "list",
-          lang,
-          itemsWithContent,
-          contact,
-          hasTargetContent,
-        },
-      });
-
-      const detailPaths = await generateTaxonomyDetailPaths(config, lang, contact);
-      for (const { slug, props } of detailPaths) {
-        paths.push({
-          params: { lang, route: `${routeSegment}/${slug}` },
-          props: {
-            contentType: "courses",
-            pageType: "detail",
-            ...props,
-            coursesWithCounts: itemsWithContent,
-          },
-        });
-      }
-    }
-
-    // =================================================================
-    // STATIC PAGES
+    // TAXONOMIES - Using route generator
     // =================================================================
 
-    // About Page
-    {
-      const routeSegment = lang === "en" ? "about" : "acerca-de";
-      const aboutContent = await import(`@content/${lang}/about.ts`).then((mod) => mod.about);
+    // AUTHORS
+    paths.push(
+      ...(await generateTaxonomyRoutes({
+        taxonomyConfig: TAXONOMY_CONFIGS.authors,
+        lang,
+        targetLang,
+        routeSegment: lang === "en" ? "authors" : "autores",
+        contentType: "authors",
+        contact,
+        itemsPropsKey: "authorsWithCounts",
+      })),
+    );
 
-      paths.push({
-        params: { lang, route: routeSegment },
-        props: {
-          contentType: "about",
-          pageType: "static",
-          lang,
-          contact,
-          aboutContent,
-        },
-      });
-    }
+    // PUBLISHERS
+    paths.push(
+      ...(await generateTaxonomyRoutes({
+        taxonomyConfig: TAXONOMY_CONFIGS.publishers,
+        lang,
+        targetLang,
+        routeSegment: lang === "en" ? "publishers" : "editoriales",
+        contentType: "publishers",
+        contact,
+        itemsPropsKey: "publishersWithCounts",
+      })),
+    );
 
-    // Feeds Page
-    {
-      const routeSegment = "feeds";
+    // GENRES
+    paths.push(
+      ...(await generateTaxonomyRoutes({
+        taxonomyConfig: TAXONOMY_CONFIGS.genres,
+        lang,
+        targetLang,
+        routeSegment: lang === "en" ? "genres" : "generos",
+        contentType: "genres",
+        contact,
+        itemsPropsKey: "genresWithCounts",
+      })),
+    );
 
-      paths.push({
-        params: { lang, route: routeSegment },
-        props: {
-          contentType: "feeds",
-          pageType: "static",
-          lang,
-          contact,
-        },
-      });
-    }
+    // CATEGORIES
+    paths.push(
+      ...(await generateTaxonomyRoutes({
+        taxonomyConfig: TAXONOMY_CONFIGS.categories,
+        lang,
+        targetLang,
+        routeSegment: lang === "en" ? "categories" : "categorias",
+        contentType: "categories",
+        contact,
+        itemsPropsKey: "categoriesWithCounts",
+      })),
+    );
+
+    // SERIES
+    paths.push(
+      ...(await generateTaxonomyRoutes({
+        taxonomyConfig: TAXONOMY_CONFIGS.series,
+        lang,
+        targetLang,
+        routeSegment: lang === "en" ? "series" : "series",
+        contentType: "series",
+        contact,
+        itemsPropsKey: "seriesWithCounts",
+      })),
+    );
+
+    // CHALLENGES
+    paths.push(
+      ...(await generateTaxonomyRoutes({
+        taxonomyConfig: TAXONOMY_CONFIGS.challenges,
+        lang,
+        targetLang,
+        routeSegment: lang === "en" ? "challenges" : "retos",
+        contentType: "challenges",
+        contact,
+        itemsPropsKey: "challengesWithCounts",
+      })),
+    );
+
+    // COURSES
+    paths.push(
+      ...(await generateTaxonomyRoutes({
+        taxonomyConfig: TAXONOMY_CONFIGS.courses,
+        lang,
+        targetLang,
+        routeSegment: lang === "en" ? "courses" : "cursos",
+        contentType: "courses",
+        contact,
+        itemsPropsKey: "coursesWithCounts",
+      })),
+    );
+
+    // =================================================================
+    // STATIC PAGES - Using route generator
+    // =================================================================
+
+    // ABOUT PAGE
+    const aboutContent = await import(`@content/${lang}/about.ts`).then((mod) => mod.about);
+    paths.push(
+      ...generateStaticPageRoute({
+        lang,
+        routeSegment: lang === "en" ? "about" : "acerca-de",
+        contentType: "about",
+        contact,
+        content: aboutContent,
+      }),
+    );
+
+    // FEEDS PAGE
+    paths.push(
+      ...generateStaticPageRoute({
+        lang,
+        routeSegment: "feeds",
+        contentType: "feeds",
+        contact,
+      }),
+    );
   }
 
   console.log(`[Unified Routing] Generated ${paths.length} paths (all content types + taxonomies + static pages)`);
