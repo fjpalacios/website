@@ -1,11 +1,26 @@
 /**
  * Route Generator: Taxonomy Pages
  *
- * Generates routes for taxonomy types:
- * - List page (e.g., /en/authors)
- * - Detail pages with pagination (e.g., /en/authors/author-slug, /en/authors/author-slug/page/2)
+ * Generates routes for taxonomy types that organize content by metadata.
+ * Each taxonomy has:
+ * - List page: Shows all taxonomy items with content counts
+ * - Detail pages: Show all content related to a specific taxonomy item (with pagination)
  *
- * Used by: Authors, Publishers, Genres, Categories, Series, Challenges, Courses
+ * Taxonomy Types:
+ * - Authors: Book and tutorial authors
+ * - Publishers: Book publishers
+ * - Genres: Book genres (Fiction, Mystery, etc.)
+ * - Categories: Post/tutorial categories (Programming, DevOps, etc.)
+ * - Series: Book series
+ * - Challenges: Reading challenges
+ * - Courses: Tutorial courses
+ *
+ * Route Examples:
+ * - List: /en/authors → Shows all authors with book counts
+ * - Detail: /en/authors/stephen-king → Shows all Stephen King's books
+ * - Detail Paginated: /en/authors/stephen-king/page/2 → Page 2 of Stephen King's books
+ *
+ * @module routeGenerators/taxonomy
  */
 
 import type { TaxonomyConfig } from "@/utils/taxonomyPages";
@@ -15,26 +30,29 @@ import {
   generateTaxonomyDetailPaths,
 } from "@/utils/taxonomyPages";
 
+/**
+ * Configuration for taxonomy route generation
+ */
 export interface TaxonomyGeneratorConfig {
-  /** Taxonomy configuration (from TAXONOMY_CONFIGS) */
+  /** Taxonomy configuration containing collection name and related content fetchers */
   taxonomyConfig: TaxonomyConfig;
 
-  /** Current language (e.g., 'en', 'es') */
+  /** Current language code (e.g., 'en', 'es') */
   lang: string;
 
-  /** Target language for content availability check */
+  /** Target language for checking if translations exist */
   targetLang: string;
 
-  /** Route segment in current language (e.g., 'authors', 'autores') */
+  /** Localized route segment (e.g., 'authors' in EN, 'autores' in ES) */
   routeSegment: string;
 
-  /** Content type identifier (e.g., 'authors', 'publishers') */
+  /** Content type identifier matching the taxonomy (e.g., 'authors', 'publishers') */
   contentType: string;
 
-  /** Contact data for current language */
+  /** Contact information for the current language */
   contact: unknown;
 
-  /** Props key for taxonomy items (e.g., 'authorsWithCounts', 'publishersWithCounts') */
+  /** Property key name for passing taxonomy items to templates (e.g., 'authorsWithCounts') */
   itemsPropsKey: string;
 }
 
@@ -44,23 +62,50 @@ export interface GeneratedPath {
 }
 
 /**
- * Generate all routes for a taxonomy
+ * Generate all routes for a taxonomy type
  *
- * @param config Configuration object
- * @returns Array of generated paths
+ * Process:
+ * 1. Fetch all taxonomy items with content counts
+ * 2. Filter out items with zero content
+ * 3. Generate list page showing all items
+ * 4. Generate detail pages for each item (with pagination if needed)
+ *
+ * Performance Note:
+ * This function is called in parallel with other content types during build.
+ * It uses the taxonomy config's efficient content counting methods.
+ *
+ * @param config - Taxonomy generation configuration
+ * @returns Array of generated route paths with params and props
+ *
+ * @example
+ * ```ts
+ * const authorRoutes = await generateTaxonomyRoutes({
+ *   taxonomyConfig: TAXONOMY_CONFIGS.authors,
+ *   lang: 'en',
+ *   targetLang: 'es',
+ *   routeSegment: 'authors',
+ *   contentType: 'authors',
+ *   contact: contactEn,
+ *   itemsPropsKey: 'authorsWithCounts'
+ * });
+ * // Returns: [list page, detail page 1, detail page 2, ...]
+ * ```
  */
 export async function generateTaxonomyRoutes(config: TaxonomyGeneratorConfig): Promise<GeneratedPath[]> {
   const { taxonomyConfig, lang, targetLang, routeSegment, contentType, contact, itemsPropsKey } = config;
 
   const paths: GeneratedPath[] = [];
 
-  // Get all taxonomy items with counts
+  // Fetch all taxonomy items and count their related content
   const itemsData = await getTaxonomyItemsWithCount(taxonomyConfig, lang);
+
+  // Only include items that have at least one piece of content
+  // Sort alphabetically by name for consistent ordering
   const itemsWithContent = itemsData
     .filter(({ count }) => count > 0)
     .sort((a, b) => a.item.data.name.localeCompare(b.item.data.name));
 
-  // Check if target language has content
+  // Check if target language has any content for translation links
   const hasTargetContent = await checkHasTargetContent(taxonomyConfig, targetLang);
 
   // 1. LIST PAGE (no pagination, shows all items)

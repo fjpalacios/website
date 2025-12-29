@@ -1,57 +1,76 @@
 /**
  * Route Generator: Content Types with Pagination
  *
- * Generates routes for content types that support:
- * - List page (e.g., /en/books)
- * - Pagination pages (e.g., /en/books/page/2)
- * - Detail pages (e.g., /en/books/my-book)
+ * Generates routes for content types that support pagination and have both
+ * list pages and individual detail pages.
  *
- * Used by: Books, Tutorials, Posts
+ * Route Structure:
+ * - List Page (page 1): /en/books → First 10 items
+ * - Pagination Pages: /en/books/page/2 → Next 10 items
+ * - Detail Pages: /en/books/my-book → Individual item page
+ *
+ * Supported Content Types:
+ * - Books: Book reviews with metadata (author, publisher, genre, etc.)
+ * - Tutorials: Technical articles organized by categories and courses
+ * - Posts: Mixed content feed (books + tutorials combined, chronological)
+ *
+ * Key Features:
+ * - Automatic pagination based on configurable items-per-page
+ * - Schema.org ItemList generation for SEO
+ * - Translation availability detection
+ * - Build-time caching to avoid duplicate queries
+ * - Parallel fetching of current and target language content
  *
  * Performance Optimizations:
  * - Uses build cache to avoid duplicate content fetching
  * - Parallel fetching of current and target language content
+ * - All collection queries are cached at build time
+ *
+ * @module routeGenerators/contentTypeWithPagination
  */
 
 import { paginateItems, getPageCount } from "@/utils/blog";
 import { getCachedCollection } from "@/utils/cache/cachedLoaders";
 import { generateItemListSchema } from "@/utils/schemas/itemList";
 
+/**
+ * Configuration for content type route generation with pagination support
+ */
 export interface ContentTypeWithPaginationConfig<T> {
-  /** Current language (e.g., 'en', 'es') */
+  /** Current language code (e.g., 'en', 'es') */
   lang: string;
 
-  /** Target language for content availability check */
+  /** Target language for checking if translations exist */
   targetLang: string;
 
-  /** Route segment in current language (e.g., 'books', 'libros') */
+  /** Localized route segment (e.g., 'books' in EN, 'libros' in ES) */
   routeSegment: string;
 
-  /** Page segment in current language (e.g., 'page', 'pagina') */
+  /** Localized pagination segment (e.g., 'page' in EN, 'pagina' in ES) */
   pageSegment: string;
 
   /** Content type identifier (e.g., 'books', 'tutorials', 'posts') */
   contentType: string;
 
-  /** Function to get all items for current language */
+  /** Function to fetch all items for the current language */
   getAllItems: (lang: string) => Promise<T[]>;
 
-  /** Items per page */
+  /** Number of items to display per page (e.g., 10 for books, 20 for posts) */
   itemsPerPage: number;
 
-  /** Function to generate detail paths */
+  /** Function to generate detail page routes for individual items */
   generateDetailPaths: (
     lang: string,
     contact: unknown,
   ) => Promise<Array<{ slug: string; props: Record<string, unknown> }>>;
 
-  /** Contact data for current language */
+  /** Contact information for the current language */
   contact: unknown;
 
-  /** Schema.org type for ItemList (e.g., 'Book', 'TechArticle', 'BlogPosting') */
+  /** Schema.org type for ItemList schema (used for SEO) */
   schemaType: "Book" | "TechArticle" | "BlogPosting";
 
-  /** Function to extract item data for schema */
+  /** Function to extract necessary data from each item for schema generation */
   extractItemData: (item: T) => { name: string; slug: string; excerpt: string };
 }
 
@@ -61,10 +80,44 @@ export interface GeneratedPath {
 }
 
 /**
- * Generate all routes for a content type with pagination
+ * Generate all routes for a content type with pagination support
  *
- * @param config Configuration object
- * @returns Array of generated paths
+ * This generator creates three types of routes:
+ * 1. **List Page** (page 1): Shows first N items with Schema.org ItemList
+ * 2. **Pagination Pages** (page 2+): Shows subsequent N items per page
+ * 3. **Detail Pages**: Individual pages for each content item
+ *
+ * Generation Process:
+ * 1. Fetch content for current and target languages (parallel, cached)
+ * 2. Calculate total pages needed based on item count
+ * 3. Generate list page with Schema.org markup
+ * 4. Generate pagination pages (if total pages > 1)
+ * 5. Generate detail pages using provided generator function
+ *
+ * Caching Strategy:
+ * All content fetching uses the build cache to avoid duplicate queries.
+ * The cache key format is `collection:{contentType}:{lang}`.
+ *
+ * @param config - Content type configuration with pagination settings
+ * @returns Array of generated route paths (list + pagination + details)
+ *
+ * @example
+ * ```ts
+ * const bookRoutes = await generateContentTypeWithPaginationRoutes({
+ *   lang: 'en',
+ *   targetLang: 'es',
+ *   routeSegment: 'books',
+ *   pageSegment: 'page',
+ *   contentType: 'books',
+ *   getAllItems: getAllBooksForLanguage,
+ *   itemsPerPage: 10,
+ *   generateDetailPaths: generateBookDetailPaths,
+ *   contact: contactEn,
+ *   schemaType: 'Book',
+ *   extractItemData: (book) => ({ name: book.title, slug: book.slug, excerpt: book.excerpt })
+ * });
+ * // Returns: [list page, pagination pages..., detail pages...]
+ * ```
  */
 export async function generateContentTypeWithPaginationRoutes<T>(
   config: ContentTypeWithPaginationConfig<T>,

@@ -71,6 +71,22 @@ import { generateItemListSchema } from "@/utils/schemas/itemList";
 import { TAXONOMY_CONFIGS } from "@/utils/taxonomyPages";
 import { getAllTutorialsForLanguage, TUTORIALS_PER_PAGE, generateTutorialDetailPaths } from "@/utils/tutorialsPages";
 
+/**
+ * Generates all static paths for the unified dynamic router
+ *
+ * This function is the heart of the routing system. It generates all page paths
+ * for both languages (ES/EN) including:
+ * - Content with pagination (Books, Tutorials, Posts)
+ * - Taxonomies (Authors, Publishers, Genres, etc.)
+ * - Static pages (About, Feeds)
+ *
+ * Performance optimizations:
+ * - Parallel generation of independent content types
+ * - Build-time caching to avoid duplicate queries
+ * - Performance monitoring to track generation time
+ *
+ * @returns Array of static paths with params and props for each page
+ */
 export const getStaticPaths: GetStaticPaths = async () => {
   performanceMonitor.start("total-route-generation");
 
@@ -125,10 +141,18 @@ export const getStaticPaths: GetStaticPaths = async () => {
     return CONTENT_TYPE_MAPPING[contentType as keyof typeof CONTENT_TYPE_MAPPING] || CONTENT_TYPE_MAPPING.post;
   };
 
+  // =================================================================
+  // LANGUAGE-SPECIFIC ROUTE GENERATION
+  // =================================================================
+  // Process each language independently (ES and EN)
+  // Each iteration generates all routes for one language
+
   for (const lang of languages) {
     performanceMonitor.start(`routes-${lang}`);
 
+    // Load contact data for current language
     const contact = lang === "en" ? contactEn : contactEs;
+    // Determine target language for translation availability checks
     const targetLang = lang === "en" ? "es" : "en";
 
     // Define taxonomy types for route generation
