@@ -1,0 +1,111 @@
+---
+/**
+ * Challenges Detail Page Template
+ * Phase 3: Unified i18n Routing System
+ *
+ * Displays individual reading challenge with all books.
+ * Includes pagination if challenge has many books.
+ * Shows sidebar with all challenges for navigation.
+ *
+ * Used by the unified router for both EN and ES variants.
+ */
+
+import Breadcrumbs, { type BreadcrumbItem } from "@components/Breadcrumbs.astro";
+import Paginator from "@components/Paginator.astro";
+import PostList from "@components/PostList.astro";
+import TaxonomyList from "@components/TaxonomyList.astro";
+import Title from "@components/Title.astro";
+import Layout from "@layouts/Layout.astro";
+import { t } from "@locales";
+import { buildChallengeUrl, buildChallengesIndexUrl } from "@utils/routes";
+import type { CollectionEntry } from "astro:content";
+
+import type { ContactItem } from "@/types/content";
+import type { Language } from "@/utils/routes";
+import { generateItemListSchema } from "@/utils/schemas/itemList";
+
+interface Props {
+  lang: Language;
+  taxonomyItem: CollectionEntry<"challenges">;
+  content: Array<{
+    type: string;
+    title: string;
+    slug: string;
+    excerpt: string;
+    publishedAt: Date;
+  }>;
+  currentPage: number;
+  totalPages: number;
+  contact: ContactItem[];
+  hasTargetContent: boolean;
+  challengesWithCounts: Array<{
+    item: CollectionEntry<"challenges">;
+    count: number;
+  }>;
+}
+
+const {
+  lang,
+  taxonomyItem: challenge,
+  content,
+  currentPage,
+  totalPages,
+  contact,
+  hasTargetContent,
+  challengesWithCounts,
+} = Astro.props;
+
+const pageTitle = `${t(lang, "pages.challenge")}: ${challenge.data.name}`;
+const basePath = buildChallengeUrl(lang, challenge.data.challenge_slug);
+
+// SEO description
+const description = `${content.length} ${content.length === 1 ? "book" : "books"} in ${challenge.data.name} challenge`;
+
+// Build breadcrumbs
+const breadcrumbs: BreadcrumbItem[] = [
+  { label: t(lang, "pages.home"), url: `/${lang}` },
+  { label: t(lang, "pages.challenges"), url: buildChallengesIndexUrl(lang) },
+  { label: challenge.data.name }, // Current page, no URL
+];
+
+// Generate ItemList schema for SEO
+const itemListSchema = generateItemListSchema(
+  content.map((item) => {
+    const schemaType = item.type === "book" ? "Book" : item.type === "tutorial" ? "TechArticle" : "BlogPosting";
+    const routeKey = item.type === "book" ? "books" : item.type === "tutorial" ? "tutorials" : "posts";
+
+    return {
+      name: item.title,
+      url: `/${lang}/${t(lang, `routes.${routeKey}`)}/${item.slug}/`,
+      type: schemaType,
+      description: item.excerpt,
+    };
+  }),
+  Astro.site ? Astro.site.toString() : "https://fjp.es",
+);
+---
+
+<Layout lang={lang} title={pageTitle} description={description} contact={contact} hasTargetContent={hasTargetContent}>
+  <script slot="schema" type="application/ld+json" set:html={JSON.stringify(itemListSchema)} />
+
+  <Breadcrumbs items={breadcrumbs} lang={lang} />
+  <Title title={pageTitle} srOnly={true} useAsPagefindTitle={true} />
+
+  <!-- Short indexable description for Pagefind -->
+  <p class="sr-only" aria-hidden="true">{description}</p>
+
+  <div data-pagefind-ignore>
+    <PostList posts={content} lang={lang} />
+  </div>
+
+  <Paginator currentPage={currentPage} totalPages={totalPages} basePath={basePath} lang={lang} />
+
+  <TaxonomyList
+    items={challengesWithCounts}
+    title={t(lang, "allChallenges")}
+    lang={lang}
+    routeKey="challenges"
+    slugField="challenge_slug"
+    showCount={true}
+  />
+</Layout>

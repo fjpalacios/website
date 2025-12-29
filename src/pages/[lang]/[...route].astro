@@ -90,6 +90,10 @@ import AuthorsListPage from "@/pages-templates/authors/AuthorsListPage.astro";
 import BooksDetailPage from "@/pages-templates/books/BooksDetailPage.astro";
 import BooksListPage from "@/pages-templates/books/BooksListPage.astro";
 import BooksPaginationPage from "@/pages-templates/books/BooksPaginationPage.astro";
+import CategoriesDetailPage from "@/pages-templates/categories/CategoriesDetailPage.astro";
+import CategoriesListPage from "@/pages-templates/categories/CategoriesListPage.astro";
+import ChallengesDetailPage from "@/pages-templates/challenges/ChallengesDetailPage.astro";
+import ChallengesListPage from "@/pages-templates/challenges/ChallengesListPage.astro";
 import GenresDetailPage from "@/pages-templates/genres/GenresDetailPage.astro";
 import GenresListPage from "@/pages-templates/genres/GenresListPage.astro";
 // Import existing page templates - Tutorials
@@ -98,6 +102,8 @@ import PostsListPage from "@/pages-templates/posts/PostsListPage.astro";
 import PostsPaginationPage from "@/pages-templates/posts/PostsPaginationPage.astro";
 import PublishersDetailPage from "@/pages-templates/publishers/PublishersDetailPage.astro";
 import PublishersListPage from "@/pages-templates/publishers/PublishersListPage.astro";
+import SeriesDetailPage from "@/pages-templates/series/SeriesDetailPage.astro";
+import SeriesListPage from "@/pages-templates/series/SeriesListPage.astro";
 import TutorialsDetailPage from "@/pages-templates/tutorials/TutorialsDetailPage.astro";
 import TutorialsListPage from "@/pages-templates/tutorials/TutorialsListPage.astro";
 import TutorialsPaginationPage from "@/pages-templates/tutorials/TutorialsPaginationPage.astro";
@@ -105,6 +111,9 @@ import TutorialsPaginationPage from "@/pages-templates/tutorials/TutorialsPagina
 // Import existing page templates - Authors
 // Import existing page templates - Publishers
 // Import existing page templates - Genres
+// Import existing page templates - Categories
+// Import existing page templates - Series
+// Import existing page templates - Challenges
 import { paginateItems, getPageCount } from "@/utils/blog";
 import { getAllBooksForLanguage, BOOKS_PER_PAGE, generateBookDetailPaths } from "@/utils/booksPages";
 import { getAllContentForLanguage, POSTS_PER_PAGE, generatePostDetailPaths } from "@/utils/postsPages";
@@ -512,11 +521,129 @@ export const getStaticPaths: GetStaticPaths = async () => {
         });
       }
     }
+
+    // =================================================================
+    // CATEGORIES (Taxonomy)
+    // =================================================================
+    {
+      const config = TAXONOMY_CONFIGS.categories;
+      const routeSegment = lang === "en" ? "categories" : "categorias";
+
+      const categoriesData = await getTaxonomyItemsWithCount(config, lang);
+      const itemsWithContent = categoriesData
+        .filter(({ count }) => count > 0)
+        .sort((a, b) => a.item.data.name.localeCompare(b.item.data.name));
+
+      const hasTargetContent = await hasTargetTaxonomyContent(config, targetLang);
+
+      paths.push({
+        params: { lang, route: routeSegment },
+        props: {
+          contentType: "categories",
+          pageType: "list",
+          lang,
+          itemsWithContent,
+          contact,
+          hasTargetContent,
+        },
+      });
+
+      const detailPaths = await generateTaxonomyDetailPaths(config, lang, contact);
+      for (const { slug, props } of detailPaths) {
+        paths.push({
+          params: { lang, route: `${routeSegment}/${slug}` },
+          props: {
+            contentType: "categories",
+            pageType: "detail",
+            ...props,
+            categoriesWithCounts: itemsWithContent,
+          },
+        });
+      }
+    }
+
+    // =================================================================
+    // SERIES (Taxonomy)
+    // =================================================================
+    {
+      const config = TAXONOMY_CONFIGS.series;
+      const routeSegment = lang === "en" ? "series" : "series";
+
+      const seriesData = await getTaxonomyItemsWithCount(config, lang);
+      const itemsWithContent = seriesData
+        .filter(({ count }) => count > 0)
+        .sort((a, b) => a.item.data.name.localeCompare(b.item.data.name));
+
+      const hasTargetContent = await hasTargetTaxonomyContent(config, targetLang);
+
+      paths.push({
+        params: { lang, route: routeSegment },
+        props: {
+          contentType: "series",
+          pageType: "list",
+          lang,
+          itemsWithContent,
+          contact,
+          hasTargetContent,
+        },
+      });
+
+      const detailPaths = await generateTaxonomyDetailPaths(config, lang, contact);
+      for (const { slug, props } of detailPaths) {
+        paths.push({
+          params: { lang, route: `${routeSegment}/${slug}` },
+          props: {
+            contentType: "series",
+            pageType: "detail",
+            ...props,
+            seriesWithCounts: itemsWithContent,
+          },
+        });
+      }
+    }
+
+    // =================================================================
+    // CHALLENGES (Taxonomy)
+    // =================================================================
+    {
+      const config = TAXONOMY_CONFIGS.challenges;
+      const routeSegment = lang === "en" ? "challenges" : "retos";
+
+      const challengesData = await getTaxonomyItemsWithCount(config, lang);
+      const itemsWithContent = challengesData
+        .filter(({ count }) => count > 0)
+        .sort((a, b) => a.item.data.name.localeCompare(b.item.data.name));
+
+      const hasTargetContent = await hasTargetTaxonomyContent(config, targetLang);
+
+      paths.push({
+        params: { lang, route: routeSegment },
+        props: {
+          contentType: "challenges",
+          pageType: "list",
+          lang,
+          itemsWithContent,
+          contact,
+          hasTargetContent,
+        },
+      });
+
+      const detailPaths = await generateTaxonomyDetailPaths(config, lang, contact);
+      for (const { slug, props } of detailPaths) {
+        paths.push({
+          params: { lang, route: `${routeSegment}/${slug}` },
+          props: {
+            contentType: "challenges",
+            pageType: "detail",
+            ...props,
+            challengesWithCounts: itemsWithContent,
+          },
+        });
+      }
+    }
   }
 
-  console.log(
-    `[Unified Routing] Generated ${paths.length} paths (books + tutorials + posts + authors + publishers + genres)`,
-  );
+  console.log(`[Unified Routing] Generated ${paths.length} paths (all content types + taxonomies)`);
   return paths;
 };
 
@@ -549,3 +676,15 @@ const { pageType, contentType } = Astro.props;
 {/* Genres */}
 {contentType === "genres" && pageType === "list" && <GenresListPage {...Astro.props} />}
 {contentType === "genres" && pageType === "detail" && <GenresDetailPage {...Astro.props} />}
+
+{/* Categories */}
+{contentType === "categories" && pageType === "list" && <CategoriesListPage {...Astro.props} />}
+{contentType === "categories" && pageType === "detail" && <CategoriesDetailPage {...Astro.props} />}
+
+{/* Series */}
+{contentType === "series" && pageType === "list" && <SeriesListPage {...Astro.props} />}
+{contentType === "series" && pageType === "detail" && <SeriesDetailPage {...Astro.props} />}
+
+{/* Challenges */}
+{contentType === "challenges" && pageType === "list" && <ChallengesListPage {...Astro.props} />}
+{contentType === "challenges" && pageType === "detail" && <ChallengesDetailPage {...Astro.props} />}
