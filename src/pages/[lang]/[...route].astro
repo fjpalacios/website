@@ -89,6 +89,34 @@ export const getStaticPaths: GetStaticPaths = async () => {
     }
   };
 
+  /**
+   * Maps content type to Schema.org type and route segment
+   * Eliminates nested ternary operators for better readability
+   */
+  const CONTENT_TYPE_MAPPING = {
+    book: {
+      schemaType: "Book" as const,
+      routeKey: "books" as const,
+    },
+    tutorial: {
+      schemaType: "TechArticle" as const,
+      routeKey: "tutorials" as const,
+    },
+    post: {
+      schemaType: "BlogPosting" as const,
+      routeKey: "posts" as const,
+    },
+  } as const;
+
+  /**
+   * Get content type mapping for schema generation
+   * @param contentType The content type from post data
+   * @returns Schema type and route key for the content
+   */
+  const getContentTypeMapping = (contentType: string) => {
+    return CONTENT_TYPE_MAPPING[contentType as keyof typeof CONTENT_TYPE_MAPPING] || CONTENT_TYPE_MAPPING.post;
+  };
+
   for (const lang of languages) {
     const contact = lang === "en" ? contactEn : contactEs;
     const targetLang = lang === "en" ? "es" : "en";
@@ -167,11 +195,8 @@ export const getStaticPaths: GetStaticPaths = async () => {
       // Generate ItemList schema for mixed content
       const itemListSchema = generateItemListSchema(
         posts.map((post) => {
-          // Map content type to Schema.org type
-          const schemaType = post.type === "book" ? "Book" : post.type === "tutorial" ? "TechArticle" : "BlogPosting";
-
-          // Map to correct route segment
-          const routeKey = post.type === "book" ? "books" : post.type === "tutorial" ? "tutorials" : "posts";
+          // Use mapping helper to get schema type and route key
+          const { schemaType, routeKey } = getContentTypeMapping(post.type);
           const localizedRouteSegment = getRouteSegment(routeKey, lang);
 
           return {
@@ -239,124 +264,27 @@ export const getStaticPaths: GetStaticPaths = async () => {
     // TAXONOMIES - Using route generator
     // =================================================================
 
-    // AUTHORS
-    paths.push(
-      ...(await safeGenerateRoutes(
-        async () =>
-          generateTaxonomyRoutes({
-            taxonomyConfig: TAXONOMY_CONFIGS.authors,
-            lang,
-            targetLang,
-            routeSegment: getRouteSegment("authors", lang),
-            contentType: "authors",
-            contact,
-            itemsPropsKey: "authorsWithCounts",
-          }),
-        `authors (${lang})`,
-      )),
-    );
+    // Define taxonomy types to generate routes for
+    const taxonomyTypes = ["authors", "publishers", "genres", "categories", "series", "challenges", "courses"] as const;
 
-    // PUBLISHERS
-    paths.push(
-      ...(await safeGenerateRoutes(
-        async () =>
-          generateTaxonomyRoutes({
-            taxonomyConfig: TAXONOMY_CONFIGS.publishers,
-            lang,
-            targetLang,
-            routeSegment: getRouteSegment("publishers", lang),
-            contentType: "publishers",
-            contact,
-            itemsPropsKey: "publishersWithCounts",
-          }),
-        `publishers (${lang})`,
-      )),
-    );
-
-    // GENRES
-    paths.push(
-      ...(await safeGenerateRoutes(
-        async () =>
-          generateTaxonomyRoutes({
-            taxonomyConfig: TAXONOMY_CONFIGS.genres,
-            lang,
-            targetLang,
-            routeSegment: getRouteSegment("genres", lang),
-            contentType: "genres",
-            contact,
-            itemsPropsKey: "genresWithCounts",
-          }),
-        `genres (${lang})`,
-      )),
-    );
-
-    // CATEGORIES
-    paths.push(
-      ...(await safeGenerateRoutes(
-        async () =>
-          generateTaxonomyRoutes({
-            taxonomyConfig: TAXONOMY_CONFIGS.categories,
-            lang,
-            targetLang,
-            routeSegment: getRouteSegment("categories", lang),
-            contentType: "categories",
-            contact,
-            itemsPropsKey: "categoriesWithCounts",
-          }),
-        `categories (${lang})`,
-      )),
-    );
-
-    // SERIES
-    paths.push(
-      ...(await safeGenerateRoutes(
-        async () =>
-          generateTaxonomyRoutes({
-            taxonomyConfig: TAXONOMY_CONFIGS.series,
-            lang,
-            targetLang,
-            routeSegment: getRouteSegment("series", lang),
-            contentType: "series",
-            contact,
-            itemsPropsKey: "seriesWithCounts",
-          }),
-        `series (${lang})`,
-      )),
-    );
-
-    // CHALLENGES
-    paths.push(
-      ...(await safeGenerateRoutes(
-        async () =>
-          generateTaxonomyRoutes({
-            taxonomyConfig: TAXONOMY_CONFIGS.challenges,
-            lang,
-            targetLang,
-            routeSegment: getRouteSegment("challenges", lang),
-            contentType: "challenges",
-            contact,
-            itemsPropsKey: "challengesWithCounts",
-          }),
-        `challenges (${lang})`,
-      )),
-    );
-
-    // COURSES
-    paths.push(
-      ...(await safeGenerateRoutes(
-        async () =>
-          generateTaxonomyRoutes({
-            taxonomyConfig: TAXONOMY_CONFIGS.courses,
-            lang,
-            targetLang,
-            routeSegment: getRouteSegment("courses", lang),
-            contentType: "courses",
-            contact,
-            itemsPropsKey: "coursesWithCounts",
-          }),
-        `courses (${lang})`,
-      )),
-    );
+    // Generate routes for all taxonomies using a loop (reduces repetition)
+    for (const taxonomyType of taxonomyTypes) {
+      paths.push(
+        ...(await safeGenerateRoutes(
+          async () =>
+            generateTaxonomyRoutes({
+              taxonomyConfig: TAXONOMY_CONFIGS[taxonomyType],
+              lang,
+              targetLang,
+              routeSegment: getRouteSegment(taxonomyType, lang),
+              contentType: taxonomyType,
+              contact,
+              itemsPropsKey: `${taxonomyType}WithCounts` as const,
+            }),
+          `${taxonomyType} (${lang})`,
+        )),
+      );
+    }
 
     // =================================================================
     // STATIC PAGES - Using route generator
