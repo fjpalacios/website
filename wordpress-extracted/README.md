@@ -14,6 +14,7 @@ wordpress-extracted/
 ## 📝 Posts Extracted (10 total)
 
 ### "Libros leídos durante" series (6 posts)
+
 - `libros-leidos-durante-2012.md`
 - `libros-leidos-durante-2013.md`
 - `libros-leidos-durante-2014.md`
@@ -22,6 +23,7 @@ wordpress-extracted/
 - `libros-leidos-durante-2017.md`
 
 ### Literary challenges (4 posts)
+
 - `reto-literario-los-155-libros-que-debes-leer-antes-de-morir.md`
 - `reto-literario-stephen-king.md`
 - `reto-literario-pesadillas.md`
@@ -30,9 +32,11 @@ wordpress-extracted/
 ## 🎓 Tutorials Extracted (3 total)
 
 ### Web Development (1 tutorial)
+
 - `redireccionar-htaccess-http-https.md` - How to redirect HTTP to HTTPS using .htaccess
 
 ### Mathematics (2 tutorials)
+
 - `averiguar-resto-division-calculadora.md` - How to calculate division remainder with calculator
 - `minimo-comun-multiplo-y-maximo-comun-divisor-con-calculadora.md` - LCM and GCD with calculator
 

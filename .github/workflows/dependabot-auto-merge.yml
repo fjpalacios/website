@@ -13,7 +13,7 @@ jobs:
     name: Auto-merge Dependabot PRs
     runs-on: ubuntu-latest
     if: github.actor == 'dependabot[bot]'
-    
+
     steps:
       - name: Dependabot metadata
         id: metadata
@@ -38,12 +38,12 @@ jobs:
           gh pr comment "$PR_URL" --body "🚨 **Major version update detected**
 
           This PR updates \`${{ steps.metadata.outputs.dependency-names }}\` to a new major version.
-          
+
           Please review carefully:
           - Check the CHANGELOG for breaking changes
           - Run tests locally before merging
           - Consider the impact on production
-          
+
           This PR will **not** be auto-merged and requires manual review."
         env:
           PR_URL: ${{ github.event.pull_request.html_url }}

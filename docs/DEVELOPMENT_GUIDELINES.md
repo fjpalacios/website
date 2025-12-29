@@ -20,20 +20,21 @@
 ```
 
 **Example:**
+
 ```typescript
 // ❌ BAD: Write code first
 export function slugify(text: string): string {
-  return text.toLowerCase().replace(/\s+/g, '-');
+  return text.toLowerCase().replace(/\s+/g, "-");
 }
 
 // ✅ GOOD: Write test first
-describe('slugify', () => {
-  test('converts text to slug', () => {
-    expect(slugify('Hello World')).toBe('hello-world');
+describe("slugify", () => {
+  test("converts text to slug", () => {
+    expect(slugify("Hello World")).toBe("hello-world");
   });
-  
-  test('handles special characters', () => {
-    expect(slugify('¿Qué tal?')).toBe('que-tal');
+
+  test("handles special characters", () => {
+    expect(slugify("¿Qué tal?")).toBe("que-tal");
   });
 });
 
@@ -43,28 +44,31 @@ describe('slugify', () => {
 ### 2. Exhaustive Testing
 
 **Coverage Requirements:**
+
 - Unit Tests: 95%+ coverage
 - E2E Tests: All critical user flows
 - Integration Tests: All data relationships
 
 **Test Types:**
 
-| Test Type | Purpose | Tools | Location |
-|-----------|---------|-------|----------|
-| Unit | Test individual functions/components | Vitest | `src/__tests__/` |
-| E2E | Test user workflows | Playwright | `e2e/` |
-| Integration | Test data relationships | Vitest | `src/__tests__/integration/` |
-| Visual | Prevent UI regressions | Playwright | `e2e/*.spec.ts` |
+| Test Type   | Purpose                              | Tools      | Location                     |
+| ----------- | ------------------------------------ | ---------- | ---------------------------- |
+| Unit        | Test individual functions/components | Vitest     | `src/__tests__/`             |
+| E2E         | Test user workflows                  | Playwright | `e2e/`                       |
+| Integration | Test data relationships              | Vitest     | `src/__tests__/integration/` |
+| Visual      | Prevent UI regressions               | Playwright | `e2e/*.spec.ts`              |
 
 ### 3. Documentation First
 
 **Before coding, document:**
+
 - What you're building
 - Why you're building it
 - How it fits in the system
 - What decisions you made
 
 **After coding, update:**
+
 - `docs/BLOG_MIGRATION_PROGRESS.md` - Progress tracker
 - `docs/SESSION_*.md` - Session reports
 - `README.md` - If public API changes
@@ -73,32 +77,34 @@ describe('slugify', () => {
 ### 4. Code Quality Standards
 
 **TypeScript:**
+
 - ✅ Strict mode enabled
 - ✅ No `any` types
 - ✅ Explicit return types for functions
 - ✅ Interfaces over types when possible
 
 **Naming Conventions:**
+
 ```typescript
 // Files: kebab-case
-category-list.astro
-blog-utils.ts
+category - list.astro;
+blog - utils.ts;
 
 // Components: PascalCase
-CategoryList.astro
-PostList.astro
+CategoryList.astro;
+PostList.astro;
 
 // Functions: camelCase
-slugify()
-prepareBooksummary()
+slugify();
+prepareBooksummary();
 
 // Constants: SCREAMING_SNAKE_CASE
-POSTS_PER_PAGE = 10
-MAX_TITLE_LENGTH = 100
+POSTS_PER_PAGE = 10;
+MAX_TITLE_LENGTH = 100;
 
 // Types/Interfaces: PascalCase
-interface PostSummary { }
-type Language = 'es' | 'en'
+interface PostSummary {}
+type Language = "es" | "en";
 ```
 
 ---
@@ -108,11 +114,13 @@ type Language = 'es' | 'en'
 ### URL Structure Rules
 
 **The Golden Rule:**
+
 ```
 All URLs = /{language}/{translated-slug}/
 ```
 
 **Examples:**
+
 ```typescript
 // ✅ CORRECT
 /es/publicaciones/mi-articulo/
@@ -130,6 +138,7 @@ All URLs = /{language}/{translated-slug}/
 ### i18n Implementation
 
 **When to use `i18n` field:**
+
 ```json
 // Categories, Genres, Series, Challenges → YES
 {
@@ -149,16 +158,15 @@ All URLs = /{language}/{translated-slug}/
 ```
 
 **URL Generation Pattern:**
+
 ```typescript
 // ✅ CORRECT: Build URLs dynamically based on language
-const basePath = lang === "es" 
-  ? `/es/categorias` 
-  : `/en/categories`;
+const basePath = lang === "es" ? `/es/categorias` : `/en/categories`;
 
 const url = `${basePath}/${item.data.category_slug}`;
 
 // ❌ WRONG: Hardcoded paths
-const url = `/es/${item.slug}`;  // Ignores language context
+const url = `/es/${item.slug}`; // Ignores language context
 ```
 
 ---
@@ -239,59 +247,61 @@ e2e/                            # End-to-end tests
 
 ```typescript
 // src/__tests__/components/CategoryList.test.ts
-import { describe, expect, test } from 'vitest';
-import { render } from '@testing-library/react';
-import CategoryList from '@components/CategoryList.astro';
+import { describe, expect, test } from "vitest";
+import { render } from "@testing-library/react";
+import CategoryList from "@components/CategoryList.astro";
 
-describe('CategoryList Component', () => {
+describe("CategoryList Component", () => {
   const mockData = {
     categories: [
-      { 
-        category: { 
-          data: { 
-            category_slug: 'tutoriales', 
-            name: 'Tutoriales',
-            language: 'es'
-          } 
-        }, 
-        count: 10 
-      }
+      {
+        category: {
+          data: {
+            category_slug: "tutoriales",
+            name: "Tutoriales",
+            language: "es",
+          },
+        },
+        count: 10,
+      },
     ],
-    lang: 'es',
-    title: 'All Categories'
+    lang: "es",
+    title: "All Categories",
   };
 
-  test('renders all categories', () => {
+  test("renders all categories", () => {
     const { getAllByRole } = render(CategoryList, { props: mockData });
-    const links = getAllByRole('link');
+    const links = getAllByRole("link");
     expect(links).toHaveLength(1);
   });
 
-  test('generates correct Spanish URLs', () => {
+  test("generates correct Spanish URLs", () => {
     const { getAllByRole } = render(CategoryList, { props: mockData });
-    const link = getAllByRole('link')[0];
-    expect(link.getAttribute('href')).toBe('/es/categorias/tutoriales');
+    const link = getAllByRole("link")[0];
+    expect(link.getAttribute("href")).toBe("/es/categorias/tutoriales");
   });
 
-  test('generates correct English URLs', () => {
+  test("generates correct English URLs", () => {
     const englishData = {
       ...mockData,
-      categories: [{
-        category: {
-          data: {
-            category_slug: 'tutorials',
-            name: 'Tutorials',
-            language: 'en'
-          }
+      categories: [
+        {
+          category: {
+            data: {
+              category_slug: "tutorials",
+              name: "Tutorials",
+              language: "en",
+            },
+          },
+          count: 10,
         },
-        count: 10
-      }],
-      lang: 'en'
+      ],
+      lang: "en",
     };
-    
+
     const { getAllByRole } = render(CategoryList, { props: englishData });
-    const link = getAllByRole('link')[0];
-    expect(link.getAttribute('href')).toBe('/en/categories/tutorials');
+    const link = getAllByRole("link")[0];
+    expect(link.getAttribute("href")).toBe("/en/categories/tutorials");
   });
 });
 ```
@@ -300,41 +310,41 @@ describe('CategoryList Component', () => {
 
 ```typescript
 // e2e/taxonomy-details.spec.ts
-import { test, expect } from '@playwright/test';
+import { test, expect } from "@playwright/test";
 
-test.describe('Category Detail Page', () => {
-  test('Spanish category page works correctly', async ({ page }) => {
+test.describe("Category Detail Page", () => {
+  test("Spanish category page works correctly", async ({ page }) => {
     // Navigate to page
-    await page.goto('/es/categorias/tutoriales');
-    
+    await page.goto("/es/categorias/tutoriales");
+
     // Verify page loaded
     await expect(page).toHaveTitle(/Categoría: Tutoriales/);
-    await expect(page.locator('h1')).toContainText('Categoría: Tutoriales');
-    
+    await expect(page.locator("h1")).toContainText("Categoría: Tutoriales");
+
     // Verify content is filtered
-    const posts = page.locator('.post-list article');
+    const posts = page.locator(".post-list article");
     await expect(posts).toHaveCountGreaterThan(0);
-    
+
     // Verify sidebar links
-    const sidebarLinks = page.locator('.categories a');
+    const sidebarLinks = page.locator(".categories a");
     const firstLink = sidebarLinks.first();
-    const href = await firstLink.getAttribute('href');
+    const href = await firstLink.getAttribute("href");
     expect(href).toMatch(/^\/es\/categorias\/[a-z-]+$/);
-    
+
     // Test navigation
     await firstLink.click();
     await expect(page).toHaveURL(/\/es\/categorias\/.+/);
   });
 
-  test('language switcher works', async ({ page }) => {
-    await page.goto('/es/categorias/tutoriales');
-    
+  test("language switcher works", async ({ page }) => {
+    await page.goto("/es/categorias/tutoriales");
+
     // Click language switcher
     await page.click('[data-language="en"]');
-    
+
     // Should navigate to English equivalent
-    await expect(page).toHaveURL('/en/categories/tutorials');
-    await expect(page.locator('h1')).toContainText('Category: Tutorials');
+    await expect(page).toHaveURL("/en/categories/tutorials");
+    await expect(page.locator("h1")).toContainText("Category: Tutorials");
   });
 });
 ```
@@ -346,12 +356,14 @@ test.describe('Category Detail Page', () => {
 ### Session Reports
 
 **Create a session report when:**
+
 - Fixing a bug
 - Implementing a feature
 - Making architectural decisions
 - Discovering issues
 
 **Template:**
+
 ```markdown
 # Session Report - YYYY-MM-DD - [Brief Title]
 
@@ -360,20 +372,24 @@ test.describe('Category Detail Page', () => {
 **Status:** [Complete / In Progress / Blocked]
 
 ## Issues Addressed
+
 1. Issue description
 2. Root cause
 3. Solution applied
 
 ## Changes Made
+
 - File modified: Description
 - File created: Purpose
 
 ## Verification
+
 - ✅ Tests pass
 - ✅ Build succeeds
 - ✅ Manual testing completed
 
 ## Next Steps
+
 - [ ] Action item 1
 - [ ] Action item 2
 ```
@@ -381,6 +397,7 @@ test.describe('Category Detail Page', () => {
 ### Code Comments
 
 **When to comment:**
+
 ```typescript
 // ✅ GOOD: Explain WHY, not WHAT
 // Sort by series order instead of date because users expect to see books
@@ -402,8 +419,8 @@ if (!publisher.data.i18n) {
 // ✅ GOOD: Gotcha or non-obvious behavior
 // Must check readyState because script can execute before DOM is ready
 // when using View Transitions API
-if (document.readyState === 'loading') {
-  document.addEventListener('DOMContentLoaded', addCopyButtons);
+if (document.readyState === "loading") {
+  document.addEventListener("DOMContentLoaded", addCopyButtons);
 }
 ```
 
@@ -523,9 +540,9 @@ const basePath = lang === "es" ? "/es/categorias" : "/en/categories";
 )}
 
 // Or disable switcher
-<LanguageSwitcher 
-  translationSlug={item.data.i18n} 
-  disabled={!item.data.i18n} 
+<LanguageSwitcher
+  translationSlug={item.data.i18n}
+  disabled={!item.data.i18n}
 />
 ```
 
@@ -533,26 +550,26 @@ const basePath = lang === "es" ? "/es/categorias" : "/en/categories";
 
 ```typescript
 // ❌ WRONG: Only test successful cases
-test('slugify works', () => {
-  expect(slugify('Hello')).toBe('hello');
+test("slugify works", () => {
+  expect(slugify("Hello")).toBe("hello");
 });
 
 // ✅ CORRECT: Test edge cases and errors
-describe('slugify', () => {
-  test('converts basic text', () => {
-    expect(slugify('Hello World')).toBe('hello-world');
+describe("slugify", () => {
+  test("converts basic text", () => {
+    expect(slugify("Hello World")).toBe("hello-world");
   });
-  
-  test('handles empty string', () => {
-    expect(slugify('')).toBe('');
+
+  test("handles empty string", () => {
+    expect(slugify("")).toBe("");
   });
-  
-  test('handles special characters', () => {
-    expect(slugify('¿Qué tal?')).toBe('que-tal');
+
+  test("handles special characters", () => {
+    expect(slugify("¿Qué tal?")).toBe("que-tal");
   });
-  
-  test('handles very long text', () => {
-    const longText = 'a'.repeat(1000);
+
+  test("handles very long text", () => {
+    const longText = "a".repeat(1000);
     expect(slugify(longText).length).toBeLessThanOrEqual(200);
   });
 });

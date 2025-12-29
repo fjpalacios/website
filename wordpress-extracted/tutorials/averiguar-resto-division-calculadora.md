@@ -26,7 +26,7 @@ Para el primer ejemplo vamos a calcular el resto de la siguiente división: 6539
 
 Ahora podemos concluir que el resto de 6539 ÷ 5 es **4**. Como se ve, el segundo paso consiste simplemente en obviar la parte entera del resultado y quedarnos únicamente con la decimal, por lo que **esta operación es innecesaria en la práctica**.
 
-En el segundo ejemplo calcularemos el resto de la siguiente división: 5738 ÷ 73. Este caso es diferente, el *resto* que nos da es periódico, por lo que tenemos que redondearlo para obtener el resto real.
+En el segundo ejemplo calcularemos el resto de la siguiente división: 5738 ÷ 73. Este caso es diferente, el _resto_ que nos da es periódico, por lo que tenemos que redondearlo para obtener el resto real.
 
 5738 ÷ 73 = 78,602739726
 78,602739726 - 78 = 0,602739726
@@ -61,7 +61,7 @@ Y aquí es donde en realidad podemos ver el tiempo que nos ahorramos usando este
 
 ## Modo base
 
-Pero si lo que buscamos es ahorrar tiempo el siguiente método no tiene rival. Si tenéis una calculadora molona seguro que os va a encantar. Para hacerlo de esta forma nuestra calculadora debe tener modo **base**: un modo para convertir números entre distintas bases (binario, octal, decimal, hexadecimal…). Y además debe permitir hacer operaciones desde ese modo. Éste es mi preferido porque lo simplifica todo ya que este modo sólo trabaja con números enteros: *no existen* los decimales. Cuando entremos al modo base lógicamente tenemos que seleccionar el modo **decimal** para operar con él, que normalmente suele venir ya seleccionado directamente, pero por si acaso.
+Pero si lo que buscamos es ahorrar tiempo el siguiente método no tiene rival. Si tenéis una calculadora molona seguro que os va a encantar. Para hacerlo de esta forma nuestra calculadora debe tener modo **base**: un modo para convertir números entre distintas bases (binario, octal, decimal, hexadecimal…). Y además debe permitir hacer operaciones desde ese modo. Éste es mi preferido porque lo simplifica todo ya que este modo sólo trabaja con números enteros: _no existen_ los decimales. Cuando entremos al modo base lógicamente tenemos que seleccionar el modo **decimal** para operar con él, que normalmente suele venir ya seleccionado directamente, pero por si acaso.
 
 Y para muestra de sencillez, como comentaba anteriormente, esta es la representación de las pocas operaciones a realizar:
 
@@ -79,6 +79,6 @@ El siguiente ejemplo, como hemos visto en los anteriores métodos, tenía un mon
 
 Con este método, de la misma forma para cualquier número, como hemos visto, hemos calculado en pocos pasos que el resto de 5738 ÷ 73 es **44**.
 
-Ahora ya es cosa vuestra, y del *poder* de vuestra calculadora, cuál de estos tres métodos utilizar.
+Ahora ya es cosa vuestra, y del _poder_ de vuestra calculadora, cuál de estos tres métodos utilizar.
 
 Espero que os haya sido útil esta información.

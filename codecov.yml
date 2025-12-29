@@ -5,14 +5,14 @@ coverage:
   precision: 2
   round: down
   range: "70...100"
-  
+
   status:
     project:
       default:
         target: 95%
         threshold: 2%
         if_not_found: success
-    
+
     patch:
       default:
         target: 90%
