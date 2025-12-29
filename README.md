@@ -17,7 +17,7 @@ Personal website and resume built with [Astro](https://astro.build/). Featuring 
 - 🚀 **Fast**: Static site generation with Astro and View Transitions for SPA-like navigation
 - 🎯 **SEO optimized**: Complete meta tags, JSON-LD structured data (Book, BlogPosting, TechArticle), Open Graph, Twitter Cards, canonical URLs, and hreflang support
 - 💅 **SCSS styling**: Modular and maintainable styles with CSS variables
-- 🧪 **Fully tested**: 972 tests (850 unit + 122 E2E) with 97%+ coverage (including 34 SEO tests + 25 search tests + 205 schema tests)
+- 🧪 **Fully tested**: 1,086 tests (964 unit + 122 E2E) with 97%+ coverage (including 34 SEO tests + 25 search tests + 205 schema tests)
 - 🔄 **CI/CD**: Automated testing, linting, and Lighthouse performance checks
 - 🪝 **Pre-commit hooks**: Automatic linting and testing before commits
 
@@ -33,12 +33,13 @@ Personal website and resume built with [Astro](https://astro.build/). Featuring 
 
 ### Testing
 
-- **Unit Tests**: Vitest + Testing Library (850 tests, 97%+ coverage)
+- **Unit Tests**: Vitest + Testing Library (964 tests, 97%+ coverage)
 - **E2E Tests**: Playwright (122 tests across multiple viewports)
 - **Search Tests**: 25 dedicated E2E tests for Pagefind integration
 - **Accessibility**: Axe-core with WCAG 2.1 AA compliance
 - **Performance**: Lighthouse CI integration
 - **SEO Tests**: 34 dedicated unit tests for SEO component + E2E structured data validation
+- **Routing Tests**: 114 tests for unified routing system
 
 ### Content
 
@@ -61,10 +62,13 @@ Personal website and resume built with [Astro](https://astro.build/). Featuring 
 │   └── workflows/
 │       └── ci.yml         # CI/CD pipeline configuration
 ├── .husky/                # Git hooks configuration
-├── docs/                  # Project documentation
+├── docs/                  # Project documentation (41 files)
 │   ├── BLOG_MIGRATION_SPEC.md
-│   └── BLOG_MIGRATION_PROGRESS.md
-├── e2e/                   # End-to-end tests (Playwright) - 7 files
+│   ├── BLOG_MIGRATION_PROGRESS.md
+│   ├── ROUTER_COMPLEXITY_ANALYSIS.md
+│   ├── PHASE_3_STATUS.md
+│   └── SESSION_*.md      # Detailed session documentation
+├── e2e/                   # End-to-end tests (Playwright) - 122 tests
 │   ├── breadcrumbs.spec.ts           # Breadcrumb navigation (10 tests)
 │   ├── rss.spec.ts                   # RSS feeds validation (12 tests)
 │   ├── search.spec.ts                # Search functionality (25 tests) ⭐
@@ -74,7 +78,7 @@ Personal website and resume built with [Astro](https://astro.build/). Featuring 
 │   └── state-performance.spec.ts     # State & performance (10 tests)
 ├── public/                # Static assets (images, fonts, favicon)
 ├── src/
-│   ├── __tests__/         # Unit tests (Vitest) - 319 tests
+│   ├── __tests__/         # Unit tests (Vitest) - 964 tests
 │   │   ├── content.test.ts
 │   │   ├── locales.test.ts
 │   │   ├── setup.ts
@@ -82,11 +86,12 @@ Personal website and resume built with [Astro](https://astro.build/). Featuring 
 │   │   ├── components/
 │   │   │   └── SEO.test.ts  # 34 SEO tests
 │   │   └── utils/
-│   │       └── blog/      # Blog utility tests
-│   │           ├── categories.test.ts
-│   │           ├── genres.test.ts
-│   │           ├── publishers.test.ts
-│   │           └── ...
+│   │       ├── blog/      # Blog utility tests
+│   │       │   ├── categories.test.ts
+│   │       │   ├── genres.test.ts
+│   │       │   ├── publishers.test.ts
+│   │       │   └── ...
+│   │       └── routing/   # Unified routing tests (114 tests)
 │   ├── components/        # Reusable Astro components
 │   │   ├── BaseHead.astro
 │   │   ├── SEO.astro      # SEO component with Open Graph & JSON-LD
@@ -115,22 +120,32 @@ Personal website and resume built with [Astro](https://astro.build/). Featuring 
 │   │   ├── index.ts       # Translation helper functions
 │   │   ├── es/
 │   │   └── en/
-│   ├── pages/             # Routes and pages
-│   │   ├── es/            # Spanish pages
-│   │   │   ├── blog/
-│   │   │   ├── tutoriales/
-│   │   │   ├── libros/
-│   │   │   ├── categoria/
-│   │   │   ├── genero/
-│   │   │   └── editorial/
-│   │   ├── en/            # English pages
-│   │   │   ├── blog/
-│   │   │   ├── tutorials/
-│   │   │   ├── books/
-│   │   │   ├── category/
-│   │   │   ├── genre/
-│   │   │   └── publisher/
-│   │   └── index.astro    # Root redirect to /es/
+│   ├── pages/             # Routes and pages (unified routing architecture)
+│   │   ├── [lang]/
+│   │   │   └── [...route].astro  # 🌟 Unified router (86 paths)
+│   │   ├── en/
+│   │   │   ├── index.astro       # English homepage
+│   │   │   ├── rss.xml.ts        # Main RSS feed
+│   │   │   ├── books/rss.xml.ts  # Books RSS feed
+│   │   │   └── tutorials/rss.xml.ts
+│   │   ├── es/
+│   │   │   ├── index.astro       # Spanish homepage
+│   │   │   ├── rss.xml.ts        # Main RSS feed
+│   │   │   ├── libros/rss.xml.ts # Books RSS feed
+│   │   │   └── tutoriales/rss.xml.ts
+│   │   └── index.astro           # Root redirect to /es/
+│   ├── pages-templates/   # 🎨 Reusable page templates (25 templates)
+│   │   ├── books/         # Books: list, pagination, detail
+│   │   ├── tutorials/     # Tutorials: list, pagination, detail
+│   │   ├── posts/         # Posts: list, pagination, detail
+│   │   ├── authors/       # Authors: list, detail
+│   │   ├── publishers/    # Publishers: list, detail
+│   │   ├── genres/        # Genres: list, detail
+│   │   ├── categories/    # Categories: list, detail
+│   │   ├── series/        # Series: list, detail
+│   │   ├── challenges/    # Challenges: list, detail
+│   │   ├── courses/       # Courses: list, detail
+│   │   └── static/        # Static pages: About, Feeds
 │   ├── scripts/           # Client-side TypeScript modules
 │   │   └── theme.ts       # Theme management logic
 │   ├── styles/            # Global and component SCSS
@@ -277,9 +292,107 @@ bun run test -- categories
 bun run test -- genres
 bun run test -- publishers
 
-# Build and check generated pages (currently 35 pages)
+# Build and check generated pages (currently 88 pages via unified router)
 bun run build
 ```
+
+## 🏗️ Unified Routing Architecture (Phase 3)
+
+The website uses a **unified i18n routing system** that eliminates code duplication and provides centralized route management. Completed December 29, 2025.
+
+### Architecture Overview
+
+**Single Router File**: `src/pages/[lang]/[...route].astro` (779 lines)
+
+- Handles all 12 content types (3 content types + 7 taxonomies + 2 static pages)
+- Generates 86 unique paths dynamically
+- Supports 2 languages (EN, ES)
+- Zero code duplication
+
+### How It Works
+
+```typescript
+// Example route generation for Books
+export const getStaticPaths: GetStaticPaths = async () => {
+  const paths = [];
+
+  for (const lang of ["en", "es"]) {
+    // Books list: /en/books or /es/libros
+    paths.push({
+      params: { lang, route: "books" },
+      props: { contentType: "books", pageType: "list", books, ... },
+    });
+
+    // Books pagination: /en/books/page/2
+    paths.push({
+      params: { lang, route: "books/page/2" },
+      props: { contentType: "books", pageType: "pagination", ... },
+    });
+
+    // Book detail: /en/books/the-name-of-the-wind
+    paths.push({
+      params: { lang, route: "books/the-name-of-the-wind" },
+      props: { contentType: "books", pageType: "detail", book, ... },
+    });
+  }
+
+  return paths;
+};
+
+// Template selection
+const { contentType, pageType } = Astro.props;
+```
+
+```astro
+{contentType === "books" && pageType === "list" && <BooksListPage {...props} />}
+{contentType === "books" && pageType === "detail" && <BooksDetailPage {...props} />}
+```
+
+### Reusable Templates
+
+All page rendering is handled by **25 reusable templates** in `src/pages-templates/`:
+
+| Content Type     | Templates | Handles                        |
+| ---------------- | --------- | ------------------------------ |
+| **Books**        | 3         | List, pagination, detail       |
+| **Tutorials**    | 3         | List, pagination, detail       |
+| **Posts**        | 3         | List, pagination, detail       |
+| **Authors**      | 2         | List, detail (with pagination) |
+| **Publishers**   | 2         | List, detail (with pagination) |
+| **Genres**       | 2         | List, detail (with pagination) |
+| **Categories**   | 2         | List, detail (with pagination) |
+| **Series**       | 2         | List, detail (with pagination) |
+| **Challenges**   | 2         | List, detail (with pagination) |
+| **Courses**      | 2         | List, detail (with pagination) |
+| **Static Pages** | 2         | About, Feeds                   |
+
+**Benefits:**
+
+- ✅ **DRY**: Change once, applies everywhere
+- ✅ **Type-safe**: Full TypeScript support
+- ✅ **Maintainable**: Easy to find and update code
+- ✅ **Scalable**: Add new language = update config only
+- ✅ **Testable**: 964 unit tests + E2E coverage
+
+### Architecture Comparison
+
+**Before Phase 3** (duplicate pages):
+
+- 52 page files (26 EN + 26 ES)
+- ~4,500 lines of code
+- 50% duplication
+- 2x maintenance effort
+- Adding 3rd language = duplicate all 26 files
+
+**After Phase 3** (unified routing):
+
+- 1 router + 25 templates = 26 files
+- ~3,200 lines of code
+- 0% duplication
+- 1x maintenance effort
+- Adding 3rd language = update config only
+
+**Result**: 29% less code, 100% better maintainability 🎯
 
 ## 🔍 Search System
 
@@ -366,7 +479,7 @@ Located in `src/__tests__/`, covering:
 - **Locales** (9 tests): Translation functions, language switching logic
 - **Content** (14 tests): Data structure validation for resume, about, and contact content
 - **SEO component** (34 tests): Open Graph tags, Twitter Cards, canonical URLs, hreflang, JSON-LD schemas, image URL handling
-- **Blog utilities** (244+ tests): Content collections, taxonomy, frontmatter validation
+- **Blog utilities** (500+ tests): Content collections, taxonomy, frontmatter validation, unified routing
   - Categories (13 tests): Structure, i18n mappings, content references
   - Genres (14 tests): Structure, i18n mappings, hierarchy validation
   - Publishers (13 tests): Structure, language independence
@@ -374,6 +487,7 @@ Located in `src/__tests__/`, covering:
   - Posts, Tutorials, Books: Frontmatter validation, slug uniqueness, date formats
   - Pagination (37 tests), filtering, sorting logic
   - Slugify (31 tests): URL generation, special characters, translations
+  - **Unified Routing** (114 tests): Path generation, template selection, i18n support ⭐
 - **Schema validation** (205 tests): Zod schema validation for all content types
   - Books (24 tests): Required fields, score validation, pages, language, buy links, optional fields
   - Posts (35 tests): Metadata, categories, language, featured images, date validation
@@ -383,7 +497,7 @@ Located in `src/__tests__/`, covering:
   - Categories (33 tests): Hierarchy, i18n mappings, slugs, descriptions
   - Taxonomy (16 tests): Series, challenges, courses validation
 
-**Total**: 850 tests (28 test files)  
+**Total**: 964 tests (41 test files)  
 **Coverage**: 97%+ statements, 90%+ branches, 100% functions
 
 ### E2E Tests (Playwright)
@@ -399,6 +513,8 @@ Located in `e2e/`, covering:
 - **State management**: LocalStorage persistence, theme across ViewTransitions
 
 **Total**: 122 tests (7 test files) across Chromium
+
+**Grand Total**: 1,086 tests (964 unit + 122 E2E) with 97%+ coverage 🎯
 
 ## 🏗️ Content Management
 
@@ -464,9 +580,11 @@ Theme logic is extracted to `src/scripts/theme.ts` for reusability and testing.
 
 - **Default language**: Spanish (`es`)
 - **Available languages**: Spanish (`es`), English (`en`)
-- **Routing**: `/es/` and `/en/` prefixes with native Astro i18n helpers
+- **Routing**: Unified i18n routing system via `src/pages/[lang]/[...route].astro`
+- **Path generation**: 86 dynamic paths generated for 2 languages
 - **Root behavior**: `/` redirects to `/es/`
 - **Path aliases**: Configured for easy imports (`@components`, `@locales`, etc.)
+- **Scalability**: Adding a 3rd language requires only config changes (no file duplication)
 
 ## 🔄 CI/CD Pipeline
 
@@ -475,7 +593,7 @@ GitHub Actions workflows run on every push and PR:
 ### Main CI/CD Pipeline (`.github/workflows/ci.yml`)
 
 1. **Lint & Format Check**: ESLint + Prettier validation
-2. **Unit Tests**: Vitest with coverage reporting to Codecov (850 tests)
+2. **Unit Tests**: Vitest with coverage reporting to Codecov (964 tests)
 3. **E2E Tests**: Playwright tests on Chromium (122 tests)
 4. **Build Check**: Ensures production build succeeds
 5. **Lighthouse CI**: Performance, accessibility, SEO, and best practices audits
@@ -513,15 +631,15 @@ Automated dependency management configured in `.github/dependabot.yml`:
 
 ## 📊 Code Quality Metrics
 
-- **Total Tests**: 972 tests (850 unit + 122 E2E)
-- **Unit Tests**: 850 tests across 28 test files (including 34 SEO tests)
+- **Total Tests**: 1,086 tests (964 unit + 122 E2E) ⭐
+- **Unit Tests**: 964 tests across 41 test files (including 34 SEO tests + 114 routing tests)
 - **Unit Test Coverage**: 97%+ statements, 90%+ branches, 100% functions
 - **E2E Tests**: 122 tests across 7 test files covering all critical flows
 - **Search Tests**: 25 dedicated E2E tests for Pagefind integration
 - **Accessibility**: WCAG 2.1 Level AA compliant
 - **Performance**: Optimized for Core Web Vitals
 - **SEO**: Complete metadata with Open Graph, Twitter Cards, JSON-LD structured data (Book, BlogPosting, TechArticle), canonical URLs, hreflang, sitemap
-- **Build Output**: 88 pages generated (resume, blog, taxonomy pages, paginated listings)
+- **Build Output**: 88 pages generated via unified routing system (86 dynamic paths + 2 index pages)
 
 ## 🚀 Performance Features
 
@@ -586,14 +704,15 @@ This is a personal website, but contributions are welcome!
 
 - **[CONTRIBUTING.md](.github/CONTRIBUTING.md)**: Development workflow, branch naming, commit format
 - **[docs/SEARCH_IMPLEMENTATION.md](docs/SEARCH_IMPLEMENTATION.md)**: Pagefind search architecture and usage ⭐
+- **[docs/SEARCH_IMPLEMENTATION.md](docs/SEARCH_IMPLEMENTATION.md)**: Complete search implementation documentation
 - **[docs/SEARCH_AUDIT.md](docs/SEARCH_AUDIT.md)**: Deep audit report of search implementation
 - **[docs/BLOG_MIGRATION_SPEC.md](docs/BLOG_MIGRATION_SPEC.md)**: Blog system architecture and migration plan
 - **[docs/BLOG_MIGRATION_PROGRESS.md](docs/BLOG_MIGRATION_PROGRESS.md)**: Current implementation status and progress
-- **[docs/SESSION_2025-12-21_CONTEXT.md](docs/SESSION_2025-12-21_CONTEXT.md)**: Project context and URL structure
-- **[docs/TAXONOMY_DETAIL_PAGES_ANALYSIS.md](docs/TAXONOMY_DETAIL_PAGES_ANALYSIS.md)**: Technical analysis of taxonomy pages
+- **[docs/PHASE_3_STATUS.md](docs/PHASE_3_STATUS.md)**: Phase 3 unified routing completion status (100% ✅)
+- **[docs/ROUTER_COMPLEXITY_ANALYSIS.md](docs/ROUTER_COMPLEXITY_ANALYSIS.md)**: Router complexity analysis and refactoring recommendations
 - **[docs/DEVELOPMENT_GUIDELINES.md](docs/DEVELOPMENT_GUIDELINES.md)**: Development best practices and patterns
 - **[docs/ROADMAP.md](docs/ROADMAP.md)**: Project roadmap and future plans
-- **[docs/SESSION\_\*.md](docs/)**: Session reports documenting decisions and fixes
+- **[docs/SESSION\_\*.md](docs/)**: 20+ session reports documenting decisions, migrations, and fixes
 
 ### Contribution Guidelines
 
