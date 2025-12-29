@@ -69,6 +69,26 @@ export const getStaticPaths: GetStaticPaths = async () => {
   const languages = getLanguages();
   const paths: { params: { lang: string; route: string }; props: Record<string, unknown> }[] = [];
 
+  /**
+   * Helper function to safely generate routes with error handling
+   * @param generator Function that generates routes
+   * @param context Description of what's being generated (for error messages)
+   * @returns Array of generated paths, or empty array if generation fails
+   */
+  const safeGenerateRoutes = async (
+    generator: () => Promise<Array<{ params: { lang: string; route: string }; props: Record<string, unknown> }>>,
+    context: string,
+  ): Promise<Array<{ params: { lang: string; route: string }; props: Record<string, unknown> }>> => {
+    try {
+      return await generator();
+    } catch (error) {
+      console.error(`[Unified Routing] Error generating routes for ${context}:`, error);
+      // Return empty array to allow build to continue with other routes
+      // This prevents a single content type error from breaking the entire build
+      return [];
+    }
+  };
+
   for (const lang of languages) {
     const contact = lang === "en" ? contactEn : contactEs;
     const targetLang = lang === "en" ? "es" : "en";
@@ -77,53 +97,61 @@ export const getStaticPaths: GetStaticPaths = async () => {
     // BOOKS - Using route generator
     // =================================================================
     paths.push(
-      ...(await generateContentTypeWithPaginationRoutes({
-        lang,
-        targetLang,
-        routeSegment: getRouteSegment("books", lang),
-        pageSegment: getRouteSegment("page", lang),
-        contentType: "books",
-        getAllItems: getAllBooksForLanguage,
-        itemsPerPage: BOOKS_PER_PAGE,
-        generateDetailPaths: generateBookDetailPaths,
-        contact,
-        schemaType: "Book",
-        extractItemData: (book) => ({
-          name: book.title,
-          slug: book.slug,
-          excerpt: book.excerpt,
-        }),
-      })),
+      ...(await safeGenerateRoutes(
+        async () =>
+          generateContentTypeWithPaginationRoutes({
+            lang,
+            targetLang,
+            routeSegment: getRouteSegment("books", lang),
+            pageSegment: getRouteSegment("page", lang),
+            contentType: "books",
+            getAllItems: getAllBooksForLanguage,
+            itemsPerPage: BOOKS_PER_PAGE,
+            generateDetailPaths: generateBookDetailPaths,
+            contact,
+            schemaType: "Book",
+            extractItemData: (book) => ({
+              name: book.title,
+              slug: book.slug,
+              excerpt: book.excerpt,
+            }),
+          }),
+        `books (${lang})`,
+      )),
     );
 
     // =================================================================
     // TUTORIALS - Using route generator
     // =================================================================
     paths.push(
-      ...(await generateContentTypeWithPaginationRoutes({
-        lang,
-        targetLang,
-        routeSegment: getRouteSegment("tutorials", lang),
-        pageSegment: getRouteSegment("page", lang),
-        contentType: "tutorials",
-        getAllItems: getAllTutorialsForLanguage,
-        itemsPerPage: TUTORIALS_PER_PAGE,
-        generateDetailPaths: generateTutorialDetailPaths,
-        contact,
-        schemaType: "TechArticle",
-        extractItemData: (tutorial) => ({
-          name: tutorial.title,
-          slug: tutorial.slug,
-          excerpt: tutorial.excerpt,
-        }),
-      })),
+      ...(await safeGenerateRoutes(
+        async () =>
+          generateContentTypeWithPaginationRoutes({
+            lang,
+            targetLang,
+            routeSegment: getRouteSegment("tutorials", lang),
+            pageSegment: getRouteSegment("page", lang),
+            contentType: "tutorials",
+            getAllItems: getAllTutorialsForLanguage,
+            itemsPerPage: TUTORIALS_PER_PAGE,
+            generateDetailPaths: generateTutorialDetailPaths,
+            contact,
+            schemaType: "TechArticle",
+            extractItemData: (tutorial) => ({
+              name: tutorial.title,
+              slug: tutorial.slug,
+              excerpt: tutorial.excerpt,
+            }),
+          }),
+        `tutorials (${lang})`,
+      )),
     );
 
     // =================================================================
     // POSTS - Special case (mixed content: posts + tutorials + books)
     // Cannot use generic generator due to complex schema mapping
     // =================================================================
-    {
+    try {
       const routeSegment = getRouteSegment("posts", lang);
       const pageSegment = getRouteSegment("page", lang);
 
@@ -203,6 +231,8 @@ export const getStaticPaths: GetStaticPaths = async () => {
           },
         });
       }
+    } catch (error) {
+      console.error(`[Unified Routing] Error generating routes for posts (${lang}):`, error);
     }
 
     // =================================================================
@@ -211,93 +241,121 @@ export const getStaticPaths: GetStaticPaths = async () => {
 
     // AUTHORS
     paths.push(
-      ...(await generateTaxonomyRoutes({
-        taxonomyConfig: TAXONOMY_CONFIGS.authors,
-        lang,
-        targetLang,
-        routeSegment: getRouteSegment("authors", lang),
-        contentType: "authors",
-        contact,
-        itemsPropsKey: "authorsWithCounts",
-      })),
+      ...(await safeGenerateRoutes(
+        async () =>
+          generateTaxonomyRoutes({
+            taxonomyConfig: TAXONOMY_CONFIGS.authors,
+            lang,
+            targetLang,
+            routeSegment: getRouteSegment("authors", lang),
+            contentType: "authors",
+            contact,
+            itemsPropsKey: "authorsWithCounts",
+          }),
+        `authors (${lang})`,
+      )),
     );
 
     // PUBLISHERS
     paths.push(
-      ...(await generateTaxonomyRoutes({
-        taxonomyConfig: TAXONOMY_CONFIGS.publishers,
-        lang,
-        targetLang,
-        routeSegment: getRouteSegment("publishers", lang),
-        contentType: "publishers",
-        contact,
-        itemsPropsKey: "publishersWithCounts",
-      })),
+      ...(await safeGenerateRoutes(
+        async () =>
+          generateTaxonomyRoutes({
+            taxonomyConfig: TAXONOMY_CONFIGS.publishers,
+            lang,
+            targetLang,
+            routeSegment: getRouteSegment("publishers", lang),
+            contentType: "publishers",
+            contact,
+            itemsPropsKey: "publishersWithCounts",
+          }),
+        `publishers (${lang})`,
+      )),
     );
 
     // GENRES
     paths.push(
-      ...(await generateTaxonomyRoutes({
-        taxonomyConfig: TAXONOMY_CONFIGS.genres,
-        lang,
-        targetLang,
-        routeSegment: getRouteSegment("genres", lang),
-        contentType: "genres",
-        contact,
-        itemsPropsKey: "genresWithCounts",
-      })),
+      ...(await safeGenerateRoutes(
+        async () =>
+          generateTaxonomyRoutes({
+            taxonomyConfig: TAXONOMY_CONFIGS.genres,
+            lang,
+            targetLang,
+            routeSegment: getRouteSegment("genres", lang),
+            contentType: "genres",
+            contact,
+            itemsPropsKey: "genresWithCounts",
+          }),
+        `genres (${lang})`,
+      )),
     );
 
     // CATEGORIES
     paths.push(
-      ...(await generateTaxonomyRoutes({
-        taxonomyConfig: TAXONOMY_CONFIGS.categories,
-        lang,
-        targetLang,
-        routeSegment: getRouteSegment("categories", lang),
-        contentType: "categories",
-        contact,
-        itemsPropsKey: "categoriesWithCounts",
-      })),
+      ...(await safeGenerateRoutes(
+        async () =>
+          generateTaxonomyRoutes({
+            taxonomyConfig: TAXONOMY_CONFIGS.categories,
+            lang,
+            targetLang,
+            routeSegment: getRouteSegment("categories", lang),
+            contentType: "categories",
+            contact,
+            itemsPropsKey: "categoriesWithCounts",
+          }),
+        `categories (${lang})`,
+      )),
     );
 
     // SERIES
     paths.push(
-      ...(await generateTaxonomyRoutes({
-        taxonomyConfig: TAXONOMY_CONFIGS.series,
-        lang,
-        targetLang,
-        routeSegment: getRouteSegment("series", lang),
-        contentType: "series",
-        contact,
-        itemsPropsKey: "seriesWithCounts",
-      })),
+      ...(await safeGenerateRoutes(
+        async () =>
+          generateTaxonomyRoutes({
+            taxonomyConfig: TAXONOMY_CONFIGS.series,
+            lang,
+            targetLang,
+            routeSegment: getRouteSegment("series", lang),
+            contentType: "series",
+            contact,
+            itemsPropsKey: "seriesWithCounts",
+          }),
+        `series (${lang})`,
+      )),
     );
 
     // CHALLENGES
     paths.push(
-      ...(await generateTaxonomyRoutes({
-        taxonomyConfig: TAXONOMY_CONFIGS.challenges,
-        lang,
-        targetLang,
-        routeSegment: getRouteSegment("challenges", lang),
-        contentType: "challenges",
-        contact,
-        itemsPropsKey: "challengesWithCounts",
-      })),
+      ...(await safeGenerateRoutes(
+        async () =>
+          generateTaxonomyRoutes({
+            taxonomyConfig: TAXONOMY_CONFIGS.challenges,
+            lang,
+            targetLang,
+            routeSegment: getRouteSegment("challenges", lang),
+            contentType: "challenges",
+            contact,
+            itemsPropsKey: "challengesWithCounts",
+          }),
+        `challenges (${lang})`,
+      )),
     );
 
     // COURSES
     paths.push(
-      ...(await generateTaxonomyRoutes({
-        taxonomyConfig: TAXONOMY_CONFIGS.courses,
-        lang,
-        targetLang,
-        routeSegment: getRouteSegment("courses", lang),
-        contentType: "courses",
-        contact,
-        itemsPropsKey: "coursesWithCounts",
-      })),
+      ...(await safeGenerateRoutes(
+        async () =>
+          generateTaxonomyRoutes({
+            taxonomyConfig: TAXONOMY_CONFIGS.courses,
+            lang,
+            targetLang,
+            routeSegment: getRouteSegment("courses", lang),
+            contentType: "courses",
+            contact,
+            itemsPropsKey: "coursesWithCounts",
+          }),
+        `courses (${lang})`,
+      )),
     );
 
     // =================================================================
@@ -305,26 +363,34 @@ export const getStaticPaths: GetStaticPaths = async () => {
     // =================================================================
 
     // ABOUT PAGE
-    const aboutContent = await import(`@content/${lang}/about.ts`).then((mod) => mod.about);
-    paths.push(
-      ...generateStaticPageRoute({
-        lang,
-        routeSegment: getRouteSegment("about", lang),
-        contentType: "about",
-        contact,
-        content: aboutContent,
-      }),
-    );
+    try {
+      const aboutContent = await import(`@content/${lang}/about.ts`).then((mod) => mod.about);
+      paths.push(
+        ...generateStaticPageRoute({
+          lang,
+          routeSegment: getRouteSegment("about", lang),
+          contentType: "about",
+          contact,
+          content: aboutContent,
+        }),
+      );
+    } catch (error) {
+      console.error(`[Unified Routing] Error generating routes for about (${lang}):`, error);
+    }
 
     // FEEDS PAGE
-    paths.push(
-      ...generateStaticPageRoute({
-        lang,
-        routeSegment: "feeds",
-        contentType: "feeds",
-        contact,
-      }),
-    );
+    try {
+      paths.push(
+        ...generateStaticPageRoute({
+          lang,
+          routeSegment: "feeds",
+          contentType: "feeds",
+          contact,
+        }),
+      );
+    } catch (error) {
+      console.error(`[Unified Routing] Error generating routes for feeds (${lang}):`, error);
+    }
   }
 
   console.log(`[Unified Routing] Generated ${paths.length} paths (all content types + taxonomies + static pages)`);
