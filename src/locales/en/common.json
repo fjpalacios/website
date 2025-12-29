@@ -109,6 +109,36 @@
     "spoilerAlert": "Spoiler alert",
     "review": "Book Review"
   },
+  "taxonomy": {
+    "author": {
+      "bookCount_one": "{{count}} book by {{name}} reviewed on the blog",
+      "bookCount_other": "{{count}} books by {{name}} reviewed on the blog"
+    },
+    "category": {
+      "itemCount_one": "{{count}} item in this category",
+      "itemCount_other": "{{count}} items in this category"
+    },
+    "genre": {
+      "bookCount_one": "{{count}} book in this genre",
+      "bookCount_other": "{{count}} books in this genre"
+    },
+    "publisher": {
+      "bookCount_one": "{{count}} book from this publisher",
+      "bookCount_other": "{{count}} books from this publisher"
+    },
+    "series": {
+      "bookCount_one": "{{count}} book in this series",
+      "bookCount_other": "{{count}} books in this series"
+    },
+    "challenge": {
+      "bookCount_one": "{{count}} book in this challenge",
+      "bookCount_other": "{{count}} books in this challenge"
+    },
+    "course": {
+      "tutorialCount_one": "{{count}} tutorial in this course",
+      "tutorialCount_other": "{{count}} tutorials in this course"
+    }
+  },
   "feeds": {
     "title": "📡 RSS Feeds",
     "description": "Subscribe to our RSS feeds to receive the latest updates",

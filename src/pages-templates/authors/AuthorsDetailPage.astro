@@ -62,7 +62,10 @@ const pageTitle = `${authorTitle}: ${author.data.name}`;
 const basePath = buildAuthorUrl(lang, author.data.author_slug);
 
 // SEO description
-const description = `${content.length} ${content.length === 1 ? "book" : "books"} by ${author.data.name} reviewed on the blog`;
+const translationKey = content.length === 1 ? "taxonomy.author.bookCount_one" : "taxonomy.author.bookCount_other";
+const description = t(lang, translationKey)
+  .replace("{{count}}", content.length.toString())
+  .replace("{{name}}", author.data.name);
 
 // Build breadcrumbs
 const breadcrumbs: BreadcrumbItem[] = [

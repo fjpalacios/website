@@ -60,7 +60,10 @@ const pageTitle = `${t(lang, "pages.genre")}: ${genre.data.name}`;
 const basePath = buildGenreUrl(lang, genre.data.genre_slug);
 
 // SEO description
-const description = `${content.length} ${content.length === 1 ? "book" : "books"} in ${genre.data.name} genre`;
+const translationKey = content.length === 1 ? "taxonomy.genre.bookCount_one" : "taxonomy.genre.bookCount_other";
+const description = t(lang, translationKey)
+  .replace("{{count}}", content.length.toString())
+  .replace("{{name}}", genre.data.name);
 
 // Build breadcrumbs
 const breadcrumbs: BreadcrumbItem[] = [

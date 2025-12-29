@@ -59,7 +59,10 @@ const pageTitle = `${t(lang, "pages.publisher")}: ${publisher.data.name}`;
 const basePath = buildPublisherUrl(lang, publisher.data.publisher_slug);
 
 // SEO description
-const description = `${content.length} ${content.length === 1 ? "book" : "books"} from ${publisher.data.name} publisher`;
+const translationKey = content.length === 1 ? "taxonomy.publisher.bookCount_one" : "taxonomy.publisher.bookCount_other";
+const description = t(lang, translationKey)
+  .replace("{{count}}", content.length.toString())
+  .replace("{{name}}", publisher.data.name);
 
 // Build breadcrumbs
 const breadcrumbs: BreadcrumbItem[] = [

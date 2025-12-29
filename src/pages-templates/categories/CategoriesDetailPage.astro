@@ -59,7 +59,10 @@ const pageTitle = `${t(lang, "pages.category")}: ${category.data.name}`;
 const basePath = buildCategoryUrl(lang, category.data.category_slug);
 
 // SEO description
-const description = `${content.length} ${content.length === 1 ? "item" : "items"} in ${category.data.name} category`;
+const translationKey = content.length === 1 ? "taxonomy.category.itemCount_one" : "taxonomy.category.itemCount_other";
+const description = t(lang, translationKey)
+  .replace("{{count}}", content.length.toString())
+  .replace("{{name}}", category.data.name);
 
 // Build breadcrumbs
 const breadcrumbs: BreadcrumbItem[] = [

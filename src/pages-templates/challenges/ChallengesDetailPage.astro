@@ -59,7 +59,10 @@ const pageTitle = `${t(lang, "pages.challenge")}: ${challenge.data.name}`;
 const basePath = buildChallengeUrl(lang, challenge.data.challenge_slug);
 
 // SEO description
-const description = `${content.length} ${content.length === 1 ? "book" : "books"} in ${challenge.data.name} challenge`;
+const translationKey = content.length === 1 ? "taxonomy.challenge.bookCount_one" : "taxonomy.challenge.bookCount_other";
+const description = t(lang, translationKey)
+  .replace("{{count}}", content.length.toString())
+  .replace("{{name}}", challenge.data.name);
 
 // Build breadcrumbs
 const breadcrumbs: BreadcrumbItem[] = [

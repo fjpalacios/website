@@ -59,7 +59,10 @@ const pageTitle = `${t(lang, "pages.series")}: ${series.data.name}`;
 const basePath = buildSeriesUrl(lang, series.data.series_slug);
 
 // SEO description
-const description = `${content.length} ${content.length === 1 ? "book" : "books"} in ${series.data.name} series`;
+const translationKey = content.length === 1 ? "taxonomy.series.bookCount_one" : "taxonomy.series.bookCount_other";
+const description = t(lang, translationKey)
+  .replace("{{count}}", content.length.toString())
+  .replace("{{name}}", series.data.name);
 
 // Build breadcrumbs
 const breadcrumbs: BreadcrumbItem[] = [
