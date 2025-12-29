@@ -1,6 +1,6 @@
 ---
 /**
- * Unified Dynamic Routing - Books, Tutorials, Posts, Authors & Publishers (Phase 3 Migration)
+ * Unified Dynamic Routing - Books, Tutorials, Posts, Authors, Publishers & Genres (Phase 3 Migration)
  *
  * Handles all main content type pages:
  * - /en/books → Books list
@@ -29,6 +29,10 @@
  * - /es/editoriales → Publishers list
  * - /en/publishers/publisher-slug → Publisher detail (with pagination)
  * - /es/editoriales/publisher-slug → Publisher detail (with pagination)
+ * - /en/genres → Genres list
+ * - /es/generos → Genres list
+ * - /en/genres/genre-slug → Genre detail (with pagination)
+ * - /es/generos/genre-slug → Genre detail (with pagination)
  *
  * This replaces:
  * Books:
@@ -66,6 +70,12 @@
  * - src/pages/es/editoriales/index.astro
  * - src/pages/en/publishers/[slug].astro
  * - src/pages/es/editoriales/[slug].astro
+ *
+ * Genres:
+ * - src/pages/en/genres/index.astro
+ * - src/pages/es/generos/index.astro
+ * - src/pages/en/genres/[slug].astro
+ * - src/pages/es/generos/[slug].astro
  */
 
 // Utils
@@ -80,6 +90,8 @@ import AuthorsListPage from "@/pages-templates/authors/AuthorsListPage.astro";
 import BooksDetailPage from "@/pages-templates/books/BooksDetailPage.astro";
 import BooksListPage from "@/pages-templates/books/BooksListPage.astro";
 import BooksPaginationPage from "@/pages-templates/books/BooksPaginationPage.astro";
+import GenresDetailPage from "@/pages-templates/genres/GenresDetailPage.astro";
+import GenresListPage from "@/pages-templates/genres/GenresListPage.astro";
 // Import existing page templates - Tutorials
 import PostsDetailPage from "@/pages-templates/posts/PostsDetailPage.astro";
 import PostsListPage from "@/pages-templates/posts/PostsListPage.astro";
@@ -92,6 +104,7 @@ import TutorialsPaginationPage from "@/pages-templates/tutorials/TutorialsPagina
 // Import existing page templates - Posts
 // Import existing page templates - Authors
 // Import existing page templates - Publishers
+// Import existing page templates - Genres
 import { paginateItems, getPageCount } from "@/utils/blog";
 import { getAllBooksForLanguage, BOOKS_PER_PAGE, generateBookDetailPaths } from "@/utils/booksPages";
 import { getAllContentForLanguage, POSTS_PER_PAGE, generatePostDetailPaths } from "@/utils/postsPages";
@@ -450,9 +463,60 @@ export const getStaticPaths: GetStaticPaths = async () => {
         });
       }
     }
+
+    // =================================================================
+    // GENRES (Taxonomy)
+    // =================================================================
+    {
+      const config = TAXONOMY_CONFIGS.genres;
+      const routeSegment = lang === "en" ? "genres" : "generos";
+
+      // Get all genres with counts
+      const genresData = await getTaxonomyItemsWithCount(config, lang);
+      const itemsWithContent = genresData
+        .filter(({ count }) => count > 0)
+        .sort((a, b) => a.item.data.name.localeCompare(b.item.data.name));
+
+      // Check if target language has content
+      const hasTargetContent = await hasTargetTaxonomyContent(config, targetLang);
+
+      // 1. LIST PAGE (no pagination, shows all genres)
+      paths.push({
+        params: { lang, route: routeSegment },
+        props: {
+          contentType: "genres",
+          pageType: "list",
+          lang,
+          itemsWithContent,
+          contact,
+          hasTargetContent,
+        },
+      });
+
+      // 2. DETAIL PAGES (with pagination for books)
+      const detailPaths = await generateTaxonomyDetailPaths(config, lang, contact);
+      for (const { slug, props } of detailPaths) {
+        // Add genresWithCounts to props for sidebar
+        const enhancedProps = {
+          ...props,
+          genresWithCounts: itemsWithContent,
+        };
+
+        paths.push({
+          params: { lang, route: `${routeSegment}/${slug}` },
+          props: {
+            contentType: "genres",
+            pageType: "detail",
+            ...enhancedProps,
+          },
+        });
+      }
+    }
   }
 
-  console.log(`[Unified Routing] Generated ${paths.length} paths (books + tutorials + posts + authors + publishers)`);
+  console.log(
+    `[Unified Routing] Generated ${paths.length} paths (books + tutorials + posts + authors + publishers + genres)`,
+  );
   return paths;
 };
 
@@ -481,3 +545,7 @@ const { pageType, contentType } = Astro.props;
 {/* Publishers */}
 {contentType === "publishers" && pageType === "list" && <PublishersListPage {...Astro.props} />}
 {contentType === "publishers" && pageType === "detail" && <PublishersDetailPage {...Astro.props} />}
+
+{/* Genres */}
+{contentType === "genres" && pageType === "list" && <GenresListPage {...Astro.props} />}
+{contentType === "genres" && pageType === "detail" && <GenresDetailPage {...Astro.props} />}

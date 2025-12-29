@@ -1,0 +1,62 @@
+---
+/**
+ * Genres List Page Template
+ * Phase 3: Unified i18n Routing System
+ *
+ * Displays all genres with book counts, sorted alphabetically.
+ * Used by the unified router for both EN and ES variants.
+ */
+
+import TaxonomyList from "@components/TaxonomyList.astro";
+import Title from "@components/Title.astro";
+import Layout from "@layouts/Layout.astro";
+import { t } from "@locales";
+import type { CollectionEntry } from "astro:content";
+
+import type { ContactItem } from "@/types/content";
+import type { Language } from "@/utils/routes";
+
+interface Props {
+  lang: Language;
+  itemsWithContent: Array<{
+    item: CollectionEntry<"genres">;
+    count: number;
+  }>;
+  contact: ContactItem[];
+  hasTargetContent: boolean;
+}
+
+const { lang, itemsWithContent, contact, hasTargetContent } = Astro.props;
+
+const pageTitle = `📚 ${t(lang, "pages.genres")}`;
+const pageDescription = t(lang, "allGenres");
+---
+
+<Layout
+  lang={lang}
+  title={pageTitle}
+  description={pageDescription}
+  contact={contact}
+  hasTargetContent={hasTargetContent}
+>
+  <Title title={pageTitle} />
+
+  <div data-pagefind-ignore>
+    {
+      itemsWithContent.length > 0 ? (
+        <TaxonomyList
+          items={itemsWithContent}
+          title={t(lang, "allGenres")}
+          lang={lang}
+          routeKey="genres"
+          slugField="genre_slug"
+          showCount={true}
+        />
+      ) : (
+        <div class="empty-state">
+          <p>{t(lang, "emptyState.genres")}</p>
+        </div>
+      )
+    }
+  </div>
+</Layout>
