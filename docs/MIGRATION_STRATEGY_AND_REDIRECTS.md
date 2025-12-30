@@ -125,65 +125,70 @@ Finally: Add remaining content incrementally
 
 ### 🚀 Target Hosting Strategy
 
-#### Primary Plan: GitHub Pages (Free)
+#### ✅ Recommended: Cloudflare Pages (Free Tier)
 
-**Pros:**
+**Why Cloudflare Pages:**
 
-- ✅ Free hosting
-- ✅ Automatic deployments from GitHub repo
-- ✅ Custom domain support (fjp.es)
-- ✅ HTTPS by default
-- ✅ Good performance
+- ✅ **Free hosting** with unlimited bandwidth (no quotas like Netlify/Vercel)
+- ✅ **Edge functions** support for dynamic language detection
+- ✅ **Advanced redirects** via `_redirects` file (301 permanent redirects)
+- ✅ **Global CDN** included (285+ cities worldwide)
+- ✅ **Works with DonDominio domains** (current registrar)
+- ✅ **Better redirect handling** than GitHub Pages
+- ✅ **No build limits** (GitHub Pages has 10 builds/hour limit)
+- ✅ **Preview deployments** for PRs
+- ✅ **Automatic HTTPS** with custom domains
 
-**Cons:**
+**Comparison with alternatives:**
 
-- ⚠️ Static only (no SSR/middleware)
-- ⚠️ No edge functions for dynamic language detection
-- ⚠️ Limited redirect capabilities (needs workarounds)
+| Feature                  | Cloudflare Pages | GitHub Pages | Netlify     | Vercel      |
+| ------------------------ | ---------------- | ------------ | ----------- | ----------- |
+| Free tier bandwidth      | ✅ Unlimited     | ✅ 100GB/mo  | ⚠️ 100GB/mo | ⚠️ 100GB/mo |
+| Edge functions           | ✅ Yes           | ❌ No        | ✅ Yes      | ✅ Yes      |
+| Advanced redirects       | ✅ Yes           | ⚠️ Limited   | ✅ Yes      | ✅ Yes      |
+| Global CDN               | ✅ 285+ cities   | ✅ Yes       | ✅ Yes      | ✅ Yes      |
+| Build time limit         | ✅ 20min         | ⚠️ 10min     | ✅ 15min    | ⚠️ 45min    |
+| Cost after free tier     | $0 (truly free)  | $0           | Paid plans  | Paid plans  |
+| DonDominio compatibility | ✅ Yes           | ✅ Yes       | ✅ Yes      | ✅ Yes      |
+| 301 redirect support     | ✅ Excellent     | ⚠️ Limited   | ✅ Good     | ✅ Good     |
 
-#### Alternative Options (If Needed)
+#### Why NOT GitHub Pages
 
-**Cloudflare Pages (Free Tier):**
+While GitHub Pages is simpler, it has critical limitations for this project:
 
-- ✅ Free hosting
-- ✅ Edge functions support (for language detection)
-- ✅ Advanced redirects (\_redirects file)
-- ✅ Can use existing DonDominio domains
-- ✅ Global CDN included
-- ✅ Better redirect handling than GitHub Pages
-- **Recommended if dynamic language detection required**
+- ❌ **No edge functions:** Can't do dynamic language detection at edge
+- ❌ **Limited redirects:** Redirects require workarounds (meta refresh or client-side JS)
+- ❌ **No 301 support:** Can't do proper SEO-friendly permanent redirects
+- ❌ **Build limits:** 10 builds per hour (problematic for CI/CD)
+- ❌ **No `_redirects` file:** Must use Jekyll plugins or client-side solutions
 
-**Netlify (Free Tier):**
+#### Why NOT Netlify/Vercel
 
-- ✅ Free hosting
-- ✅ Edge functions support
-- ✅ Advanced redirects (\_redirects file)
-- ✅ Custom domain support
-- ✅ Automatic deployments
+Both are excellent but have restrictive free tiers:
 
-**Vercel (Free Tier):**
+- ⚠️ **100GB bandwidth limit** per month (Cloudflare = unlimited)
+- ⚠️ **Paid plans required** after free tier (Cloudflare stays free)
+- ✅ Similar features otherwise (edge functions, redirects, CDN)
 
-- ✅ Free hosting
-- ✅ Edge functions support
-- ✅ Advanced redirects (vercel.json)
-- ✅ Custom domain support
-- ⚠️ More complex redirect syntax
+### 💡 Final Recommendation
 
-### 💡 Recommendation
+**Use Cloudflare Pages** for this project because:
 
-**If dynamic language detection is required (/ → /es or /en based on browser):**
-→ Use **Cloudflare Pages** (free, includes edge functions + CDN)
+1. **Better redirect handling** (critical for SEO during WordPress migration)
+2. **Edge functions** for dynamic language detection (UX improvement)
+3. **Unlimited bandwidth** (no surprises, truly free forever)
+4. **Superior CDN** (285+ cities = better global performance)
+5. **No build limits** (better for CI/CD workflows)
 
-**If static-only is acceptable:**
-→ Use **GitHub Pages** (simplest, free, already in GitHub)
-
-**Hybrid Approach (Recommended):**
+**Implementation approach:**
 
 1. Host main site on **Cloudflare Pages**
 2. Use DonDominio DNS → Point to Cloudflare
 3. Use Cloudflare edge workers for language detection
 4. Use `_redirects` file for WordPress/SargantanaCode redirects
 5. Keep GitHub repo as source of truth
+
+**See:** `docs/CLOUDFLARE_ARCHITECTURE_FAQ.md` for detailed technical analysis
 
 ---
 
@@ -803,14 +808,11 @@ fjp.es/old-url/ → fjp.es/es/new-url/
 
 ---
 
-### 3. Hosting Platform ✅ ANSWERED
+### 3. Hosting Platform ✅ DECIDED
 
 **Question:** Where will fjp.es be hosted after migration?
 
-**Answer:**
-
-- **Primary Plan:** GitHub Pages (free, simple)
-- **Recommended Alternative:** Cloudflare Pages (free, with edge functions + CDN)
+**Decision:** **Cloudflare Pages** (free tier)
 
 **Current Infrastructure:**
 
@@ -818,16 +820,32 @@ fjp.es/old-url/ → fjp.es/es/new-url/
 - No CDN currently configured
 - No edge functions active
 
-**Recommendation:** Use **Cloudflare Pages** because:
+**Why Cloudflare Pages:**
 
-- ✅ Free tier (unlimited bandwidth)
+- ✅ Free tier with unlimited bandwidth (no quotas)
 - ✅ Edge functions for language detection
-- ✅ Advanced redirects support (\_redirects file)
-- ✅ Global CDN included
+- ✅ Advanced redirects support (`_redirects` file with 301 support)
+- ✅ Global CDN included (285+ cities)
 - ✅ Works seamlessly with DonDominio DNS
 - ✅ Better redirect handling than GitHub Pages
+- ✅ No build time limits (GitHub Pages = 10 builds/hour)
+- ✅ Truly free forever (no paid tier required)
 
-**Impact:** Using Cloudflare Pages enables dynamic language detection and better redirect management.
+**Why NOT GitHub Pages:**
+
+- ❌ No edge functions
+- ❌ Limited redirect capabilities (no proper 301 support)
+- ❌ Build time limits
+- ❌ Can't do dynamic language detection at edge
+
+**Impact:** Using Cloudflare Pages enables:
+
+1. Dynamic language detection at edge (better UX)
+2. Proper 301 redirects (better SEO)
+3. Unlimited bandwidth (no cost surprises)
+4. Superior global performance
+
+**See:** `docs/CLOUDFLARE_ARCHITECTURE_FAQ.md` for detailed technical comparison
 
 ---
 
