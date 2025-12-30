@@ -28,7 +28,7 @@ interface Props {
 
 const { lang, itemsWithContent, contact, hasTargetContent } = Astro.props;
 
-const pageTitle = `🎯 ${t(lang, "pages.challenges")}`;
+const pageTitle = t(lang, "pages.challenges");
 const pageDescription = t(lang, "allChallenges");
 ---
 
@@ -39,7 +39,7 @@ const pageDescription = t(lang, "allChallenges");
   contact={contact}
   hasTargetContent={hasTargetContent}
 >
-  <Title title={pageTitle} />
+  <Title title={pageTitle} icon="target" />
 
   <div data-pagefind-ignore>
     {

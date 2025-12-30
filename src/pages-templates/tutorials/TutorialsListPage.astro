@@ -28,7 +28,7 @@ interface Props {
 
 const { lang, tutorials, currentPage, totalPages, contact, hasTargetContent } = Astro.props;
 
-const pageTitle = "📚 " + t(lang, "pages.tutorials");
+const pageTitle = t(lang, "pages.tutorials");
 const pageDescription = lang === "en" ? "Web development tutorials and guides" : "Tutoriales y guías de desarrollo web";
 
 // Build base path for pagination
@@ -53,7 +53,7 @@ const itemListSchema = generateItemListSchema(
   contact={contact}
   hasTargetContent={hasTargetContent}
 >
-  <Title title={pageTitle} />
+  <Title title={pageTitle} icon="graduation-cap" />
 
   <div data-pagefind-ignore>
     <script type="application/ld+json" set:html={JSON.stringify(itemListSchema)} />

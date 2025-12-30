@@ -10,6 +10,7 @@
  * Books and tutorials have their own detail pages.
  */
 
+import Icon from "@components/Icon.astro";
 import PostTitle from "@components/PostTitle.astro";
 import Share from "@components/Share.astro";
 import Layout from "@layouts/Layout.astro";
@@ -86,7 +87,7 @@ if (post.updated) {
     </section>
 
     <section class="post__info">
-      <div class="post__info__icon">🏷️</div>
+      <Icon name="tag" size="md" class="post__info__icon" />
       <ul class="post__info__text">
         <li>
           <a href={buildCategoryUrl(lang, post.category)} class="post__info__text__item" title="Category">
@@ -99,7 +100,7 @@ if (post.updated) {
     {
       post.tags && post.tags.length > 0 && (
         <section class="post__info">
-          <div class="post__info__icon">🔖</div>
+          <Icon name="bookmark" size="md" class="post__info__icon" />
           <ul class="post__info__text">
             {post.tags.map((tag) => (
               <li>

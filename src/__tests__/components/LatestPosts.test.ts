@@ -57,22 +57,26 @@ describe("LatestPosts Component", () => {
     expect(content).toContain("buildTutorialUrl");
   });
 
-  it("should have content type badges", () => {
+  it("should have content type badges with Icon component", () => {
     const content = fs.readFileSync(componentPath, "utf-8");
 
-    // Check for getContentBadge function
-    expect(content).toContain("getContentBadge");
+    // Check for Icon component import
+    expect(content).toContain('import Icon from "@components/Icon.astro"');
+
+    // Check for getContentIconName function (renamed from getContentBadge)
+    expect(content).toContain("getContentIconName");
 
     // Check for badge element in template
     expect(content).toContain("latest-posts__list__post__title__badge");
 
-    // Check that badge is rendered with aria-label
-    expect(content).toContain("aria-label={post.type}");
+    // Check for icon names in function (instead of emojis)
+    expect(content).toContain('"book"'); // book icon
+    expect(content).toContain('"graduation-cap"'); // tutorial icon
+    expect(content).toContain('"file-text"'); // post icon
 
-    // Check for emoji badges in function
-    expect(content).toContain("📚"); // book
-    expect(content).toContain("🎓"); // tutorial
-    expect(content).toContain("📝"); // post
+    // Check that Icon component is used
+    expect(content).toContain("<Icon");
+    expect(content).toContain("name={iconName}");
   });
 
   it("should have 'View All Posts' link", () => {

@@ -7,6 +7,7 @@
 
 import AuthorInfo from "@components/AuthorInfo.astro";
 import Breadcrumbs, { type BreadcrumbItem } from "@components/Breadcrumbs.astro";
+import Icon from "@components/Icon.astro";
 import PostTitle from "@components/PostTitle.astro";
 import Rating from "@components/Rating.astro";
 import SectionTitle from "@components/SectionTitle.astro";
@@ -217,7 +218,7 @@ const genreLabel = lang === "en" ? "Genre" : "Género";
       </div>
     </section>
     <section class="book__info" data-pagefind-ignore>
-      <div class="book__info__icon">📚</div>
+      <Icon name="book" size="md" class="book__info__icon" />
       <ul class="book__info__text">
         {
           author && (
@@ -243,7 +244,7 @@ const genreLabel = lang === "en" ? "Genre" : "Género";
       </ul>
     </section>
     <section class="book__info" data-pagefind-ignore>
-      <div class="book__info__icon">🏷️</div>
+      <Icon name="tag" size="md" class="book__info__icon" />
       <ul class="book__info__text">
         {
           typedCategories.map((category) => (
@@ -263,7 +264,7 @@ const genreLabel = lang === "en" ? "Genre" : "Género";
     {
       typedGenres.length > 0 && (
         <section class="book__info" data-pagefind-ignore>
-          <div class="book__info__icon">🔖</div>
+          <Icon name="bookmark" size="md" class="book__info__icon" />
           <ul class="book__info__text">
             {typedGenres.map((genre) => (
               <li>

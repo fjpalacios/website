@@ -18,6 +18,7 @@
  * @param {string} lang - Language code ('es' | 'en')
  */
 
+import Icon from "@components/Icon.astro";
 import Title from "@components/Title.astro";
 import { t } from "@locales";
 import type { PostSummary } from "@utils/blog";
@@ -48,17 +49,17 @@ function getContentUrl(item: PostSummary): string {
 }
 
 /**
- * Get the correct emoji badge based on content type
+ * Get the correct icon name based on content type
  */
-function getContentBadge(type: PostSummary["type"]): string {
+function getContentIconName(type: PostSummary["type"]): string {
   switch (type) {
     case "book":
-      return "📚";
+      return "book";
     case "tutorial":
-      return "🎓";
+      return "graduation-cap";
     case "post":
     default:
-      return "📝";
+      return "file-text";
   }
 }
 
@@ -77,14 +78,12 @@ const allPostsUrl = buildIndexUrl("posts", lang);
         {latestPosts.map((post) => {
           const url = getContentUrl(post);
           const formattedDate = formatVintageDate(post.date, lang);
-          const badge = getContentBadge(post.type);
+          const iconName = getContentIconName(post.type);
 
           return (
             <section class="latest-posts__list__post">
               <section class="latest-posts__list__post__title">
-                <span class="latest-posts__list__post__title__badge" aria-label={post.type}>
-                  {badge}
-                </span>
+                <Icon name={iconName} class="latest-posts__list__post__title__badge" size="md" />
                 <a href={url}>{post.title}</a>
               </section>
               <section class="latest-posts__list__post__date">
@@ -105,3 +104,20 @@ const allPostsUrl = buildIndexUrl("posts", lang);
     </main>
   )
 }
+
+<style lang="scss">
+  .latest-posts {
+    &__list {
+      &__post {
+        &__title {
+          display: flex;
+          align-items: center;
+
+          &__badge {
+            margin-right: 0.75rem;
+          }
+        }
+      }
+    }
+  }
+</style>

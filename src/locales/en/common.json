@@ -142,7 +142,7 @@
     }
   },
   "feeds": {
-    "title": "📡 RSS Feeds",
+    "title": "RSS Feeds",
     "description": "Subscribe to our RSS feeds to receive the latest updates",
     "general": "General Feed",
     "generalDescription": "All content published on the site",

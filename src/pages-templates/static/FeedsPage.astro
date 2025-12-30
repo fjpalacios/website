@@ -1,4 +1,5 @@
 ---
+import Icon from "@components/Icon.astro";
 import TextArea from "@components/TextArea.astro";
 import Title from "@components/Title.astro";
 import Layout from "@layouts/Layout.astro";
@@ -21,42 +22,21 @@ const feeds = [
     title: t(lang, "feeds.general"),
     description: t(lang, "feeds.generalDescription"),
     url: lang === "en" ? "/en/rss.xml" : "/es/rss.xml",
-    icon: "📰",
+    iconName: "newspaper",
   },
   {
     title: t(lang, "feeds.books"),
     description: t(lang, "feeds.booksDescription"),
     url: lang === "en" ? "/en/books/rss.xml" : "/es/libros/rss.xml",
-    icon: "📚",
+    iconName: "book",
   },
   {
     title: t(lang, "feeds.tutorials"),
     description: t(lang, "feeds.tutorialsDescription"),
     url: lang === "en" ? "/en/tutorials/rss.xml" : "/es/tutoriales/rss.xml",
-    icon: "💻",
+    iconName: "laptop",
   },
 ];
-
-// Build HTML content for each feed
-const feedsContent = feeds
-  .map(
-    (feed) => `
-  <div class="feed-item">
-    <div class="feed-item__header">
-      <span class="feed-item__icon">${feed.icon}</span>
-      <h3 class="feed-item__title">${feed.title}</h3>
-    </div>
-    <p class="feed-item__description">${feed.description}</p>
-    <a href="${feed.url}" class="feed-item__link" type="application/rss+xml" aria-label="${t(lang, "feeds.subscribeButton")} - ${feed.title}">
-      <svg class="feed-item__icon-rss" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
-        <path d="M6.503 20.752c0 1.794-1.456 3.248-3.251 3.248-1.796 0-3.252-1.454-3.252-3.248 0-1.794 1.456-3.248 3.252-3.248 1.795.001 3.251 1.454 3.251 3.248zm-6.503-12.572v4.811c6.05.062 10.96 4.966 11.022 11.009h4.817c-.062-8.71-7.118-15.758-15.839-15.82zm0-3.368c10.58.046 19.152 8.594 19.183 19.188h4.817c-.03-13.231-10.755-23.954-24-24v4.812z" />
-      </svg>
-      ${t(lang, "feeds.subscribeButton")}
-    </a>
-  </div>
-`,
-  )
-  .join("");
 
 const rssInfoContent = `<p>${t(lang, "feeds.whatIsRssDescription")}</p>`;
 ---
@@ -64,8 +44,38 @@ const rssInfoContent = `<p>${t(lang, "feeds.whatIsRssDescription")}</p>`;
 <Layout title={pageTitle} description={pageDescription} lang={lang} contact={contact}>
   <main class="feeds-page">
     <section class="feeds-page__section">
-      <Title title={pageTitle} />
-      <TextArea text={`<p>${pageDescription}</p>${feedsContent}`} />
+      <Title title={pageTitle} icon="rss" />
+      <TextArea text={`<p>${pageDescription}</p>`} />
+      <div class="text-area feeds-list">
+        {
+          feeds.map((feed) => (
+            <div class="feed-item">
+              <div class="feed-item__header">
+                <Icon name={feed.iconName} size="md" class="feed-item__icon" />
+                <h3 class="feed-item__title">{feed.title}</h3>
+              </div>
+              <p class="feed-item__description">{feed.description}</p>
+              <a
+                href={feed.url}
+                class="feed-item__link"
+                type="application/rss+xml"
+                aria-label={`${t(lang, "feeds.subscribeButton")} - ${feed.title}`}
+              >
+                <svg
+                  class="feed-item__icon-rss"
+                  xmlns="http://www.w3.org/2000/svg"
+                  viewBox="0 0 24 24"
+                  fill="currentColor"
+                  aria-hidden="true"
+                >
+                  <path d="M6.503 20.752c0 1.794-1.456 3.248-3.251 3.248-1.796 0-3.252-1.454-3.252-3.248 0-1.794 1.456-3.248 3.252-3.248 1.795.001 3.251 1.454 3.251 3.248zm-6.503-12.572v4.811c6.05.062 10.96 4.966 11.022 11.009h4.817c-.062-8.71-7.118-15.758-15.839-15.82zm0-3.368c10.58.046 19.152 8.594 19.183 19.188h4.817c-.03-13.231-10.755-23.954-24-24v4.812z" />
+                </svg>
+                {t(lang, "feeds.subscribeButton")}
+              </a>
+            </div>
+          ))
+        }
+      </div>
     </section>
 
     <section class="feeds-page__section">

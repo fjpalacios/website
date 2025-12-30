@@ -31,7 +31,7 @@ interface Props {
 
 const { lang, posts, currentPage, totalPages, contact, hasTargetContent } = Astro.props;
 
-const pageTitle = "📝 " + t(lang, "pages.posts");
+const pageTitle = t(lang, "pages.posts");
 const pageDescription =
   lang === "en" ? "Articles, tutorials and book reviews" : "Artículos, tutoriales y reseñas de libros";
 
@@ -66,7 +66,7 @@ const itemListSchema = generateItemListSchema(
   contact={contact}
   hasTargetContent={hasTargetContent}
 >
-  <Title title={pageTitle} />
+  <Title title={pageTitle} icon="file-text" />
 
   <div data-pagefind-ignore>
     <script type="application/ld+json" set:html={JSON.stringify(itemListSchema)} />

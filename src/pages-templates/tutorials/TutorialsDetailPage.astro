@@ -8,6 +8,7 @@
  */
 
 import Breadcrumbs, { type BreadcrumbItem } from "@components/Breadcrumbs.astro";
+import Icon from "@components/Icon.astro";
 import PostTitle from "@components/PostTitle.astro";
 import Share from "@components/Share.astro";
 import Layout from "@layouts/Layout.astro";
@@ -106,7 +107,7 @@ if (course) {
     {
       course && (
         <section class="tutorial__info">
-          <div class="tutorial__info__icon">🎓</div>
+          <Icon name="graduation-cap" size="md" class="tutorial__info__icon" />
           <ul class="tutorial__info__text">
             <li>
               <a href={buildCourseUrl(lang, course.data.course_slug)} title="Course">
@@ -119,7 +120,7 @@ if (course) {
     }
 
     <section class="tutorial__info">
-      <div class="tutorial__info__icon">🏷️</div>
+      <Icon name="tag" size="md" class="tutorial__info__icon" />
       <ul class="tutorial__info__text">
         <li>
           <a href={buildCategoryUrl(lang, tutorial.category)} class="tutorial__info__text__item" title="Category">
@@ -132,7 +133,7 @@ if (course) {
     {
       tutorial.tags && tutorial.tags.length > 0 && (
         <section class="tutorial__info">
-          <div class="tutorial__info__icon">🔖</div>
+          <Icon name="bookmark" size="md" class="tutorial__info__icon" />
           <ul class="tutorial__info__text">
             {tutorial.tags.map((tag) => (
               <li>
