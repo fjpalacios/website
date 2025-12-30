@@ -41,13 +41,14 @@ interface MockBook {
   };
 }
 
-const createMockBook = (id: number, lang: "es" | "en" = "es"): MockBook => ({
+const createMockBook = (id: number, lang: "es" | "en" = "es", i18n?: string): MockBook => ({
   id: `book-${id}`,
   data: {
     title: `Book Title ${id}`,
     post_slug: `book-slug-${id}`,
     excerpt: `Excerpt for book ${id}`,
     language: lang,
+    ...(i18n && { i18n }),
   },
 });
 
@@ -380,16 +381,20 @@ describe("generateContentTypeWithPaginationRoutes - Language Handling", () => {
 
 describe("generateContentTypeWithPaginationRoutes - Detail Pages", () => {
   test("should generate detail pages with correct routes", async () => {
-    const mockBooks = [createMockBook(1, "es"), createMockBook(2, "es")];
+    const mockBooks = [createMockBook(1, "es", "the-hobbit"), createMockBook(2, "es", "1984-book")];
+
+    const mockTargetBooks = [{ slug: "the-hobbit" }, { slug: "1984-book" }];
 
     const config = createConfig<MockBook>({
       lang: "es",
       targetLang: "en",
       routeSegment: "libros",
-      getAllItems: vi.fn().mockResolvedValue(mockBooks),
+      getAllItems: vi.fn().mockImplementation((lang: string) => {
+        return lang === "es" ? Promise.resolve(mockBooks) : Promise.resolve(mockTargetBooks);
+      }),
       generateDetailPaths: vi.fn().mockResolvedValue([
-        { slug: "el-hobbit", props: { book: mockBooks[0], title: "El Hobbit" } },
-        { slug: "1984", props: { book: mockBooks[1], title: "1984" } },
+        { slug: "el-hobbit", props: { bookEntry: mockBooks[0], title: "El Hobbit" } },
+        { slug: "1984", props: { bookEntry: mockBooks[1], title: "1984" } },
       ]),
     });
 
@@ -417,19 +422,23 @@ describe("generateContentTypeWithPaginationRoutes - Detail Pages", () => {
   });
 
   test("should merge detail page props correctly", async () => {
-    const mockBook = createMockBook(1, "es");
+    const mockBook = createMockBook(1, "es", "test-book-en");
 
     const detailProps = {
-      book: mockBook,
+      bookEntry: mockBook,
       title: "Test Book",
       author: "Test Author",
       customField: "Custom Value",
     };
 
+    const mockTargetBooks = [{ slug: "test-book-en" }];
+
     const config = createConfig<MockBook>({
       lang: "es",
       targetLang: "en",
-      getAllItems: vi.fn().mockResolvedValue([mockBook]),
+      getAllItems: vi.fn().mockImplementation((lang: string) => {
+        return lang === "es" ? Promise.resolve([mockBook]) : Promise.resolve(mockTargetBooks);
+      }),
       generateDetailPaths: vi.fn().mockResolvedValue([
         {
           slug: "test-book",
@@ -825,5 +834,192 @@ describe("generateContentTypeWithPaginationRoutes - Integration", () => {
     expect(detailPages).toHaveLength(35);
     expect(detailPages.every((p) => p.props.pageType === "detail")).toBe(true);
     expect(detailPages.every((p) => p.params.route.startsWith("libros/"))).toBe(true);
+  });
+
+  test("should set hasTargetContent=false for book detail without translation", async () => {
+    // Spanish book WITHOUT English translation
+    const mockBookES = {
+      id: "book-1",
+      data: {
+        title: "Libro sin traducción",
+        post_slug: "libro-sin-traduccion",
+        excerpt: "Este libro no tiene traducción",
+        language: "es" as const,
+        // NO i18n field - no translation exists
+      },
+    };
+
+    // English book list (no matching slug)
+    const mockBooksEN = [
+      {
+        slug: "some-other-book",
+        title: "Some Other Book",
+        excerpt: "Different book",
+        language: "en" as const,
+        score: 4,
+        date: new Date(),
+        cover: "/cover.jpg",
+        pages: 200,
+        type: "book" as const,
+      },
+    ];
+
+    const getAllItemsMock = vi.fn().mockImplementation((lang: string) => {
+      return lang === "es" ? Promise.resolve([mockBookES]) : Promise.resolve(mockBooksEN);
+    });
+
+    const config = createConfig<typeof mockBookES>({
+      lang: "es",
+      targetLang: "en",
+      getAllItems: getAllItemsMock,
+      generateDetailPaths: vi.fn().mockResolvedValue([
+        {
+          slug: "libro-sin-traduccion",
+          props: { bookEntry: mockBookES },
+        },
+      ]),
+    });
+
+    const paths = await generateContentTypeWithPaginationRoutes(config);
+    const detailPage = paths.find((p) => p.props.pageType === "detail");
+
+    // Should be false because no English book has slug matching i18n field (which doesn't exist)
+    expect(detailPage?.props.hasTargetContent).toBe(false);
+  });
+
+  test("should set hasTargetContent=true for book detail WITH translation", async () => {
+    // Spanish book WITH English translation
+    const mockBookES = {
+      id: "book-1",
+      data: {
+        title: "Apocalipsis",
+        post_slug: "apocalipsis-stephen-king",
+        excerpt: "Me ha encantado",
+        language: "es" as const,
+        i18n: "the-stand-stephen-king", // HAS translation
+      },
+    };
+
+    // English book list (WITH matching slug)
+    const mockBooksEN = [
+      {
+        slug: "the-stand-stephen-king", // MATCHES i18n field
+        title: "The Stand",
+        excerpt: "I loved it",
+        language: "en" as const,
+        score: 5,
+        date: new Date(),
+        cover: "/cover.jpg",
+        pages: 1153,
+        type: "book" as const,
+      },
+      {
+        slug: "some-other-book",
+        title: "Some Other Book",
+        excerpt: "Different book",
+        language: "en" as const,
+        score: 3,
+        date: new Date(),
+        cover: "/cover.jpg",
+        pages: 300,
+        type: "book" as const,
+      },
+    ];
+
+    const getAllItemsMock = vi.fn().mockImplementation((lang: string) => {
+      return lang === "es" ? Promise.resolve([mockBookES]) : Promise.resolve(mockBooksEN);
+    });
+
+    const config = createConfig<typeof mockBookES>({
+      lang: "es",
+      targetLang: "en",
+      getAllItems: getAllItemsMock,
+      generateDetailPaths: vi.fn().mockResolvedValue([
+        {
+          slug: "apocalipsis-stephen-king",
+          props: { bookEntry: mockBookES },
+        },
+      ]),
+    });
+
+    const paths = await generateContentTypeWithPaginationRoutes(config);
+    const detailPage = paths.find((p) => p.props.pageType === "detail");
+
+    // Should be true because English books include one with slug matching i18n field
+    expect(detailPage?.props.hasTargetContent).toBe(true);
+  });
+
+  test("should handle multiple books with different translation availability", async () => {
+    // Book 1: HAS translation
+    const mockBook1ES = {
+      id: "book-1",
+      data: {
+        title: "Libro con traducción",
+        post_slug: "libro-con-traduccion",
+        excerpt: "Este tiene traducción",
+        language: "es" as const,
+        i18n: "book-with-translation",
+      },
+    };
+
+    // Book 2: NO translation
+    const mockBook2ES = {
+      id: "book-2",
+      data: {
+        title: "Libro sin traducción",
+        post_slug: "libro-sin-traduccion",
+        excerpt: "Este NO tiene traducción",
+        language: "es" as const,
+        // NO i18n field
+      },
+    };
+
+    // English books (only Book 1 has translation)
+    const mockBooksEN = [
+      {
+        slug: "book-with-translation", // MATCHES Book 1's i18n
+        title: "Book With Translation",
+        excerpt: "This has translation",
+        language: "en" as const,
+        score: 4,
+        date: new Date(),
+        cover: "/cover.jpg",
+        pages: 200,
+        type: "book" as const,
+      },
+    ];
+
+    const getAllItemsMock = vi.fn().mockImplementation((lang: string) => {
+      return lang === "es" ? Promise.resolve([mockBook1ES, mockBook2ES]) : Promise.resolve(mockBooksEN);
+    });
+
+    const config = createConfig<typeof mockBook1ES>({
+      lang: "es",
+      targetLang: "en",
+      getAllItems: getAllItemsMock,
+      generateDetailPaths: vi.fn().mockResolvedValue([
+        {
+          slug: "libro-con-traduccion",
+          props: { bookEntry: mockBook1ES },
+        },
+        {
+          slug: "libro-sin-traduccion",
+          props: { bookEntry: mockBook2ES },
+        },
+      ]),
+    });
+
+    const paths = await generateContentTypeWithPaginationRoutes(config);
+    const detailPages = paths.filter((p) => p.props.pageType === "detail");
+
+    expect(detailPages).toHaveLength(2);
+
+    // Book 1: Should have translation
+    const book1DetailPage = detailPages.find((p) => p.params.route.includes("libro-con-traduccion"));
+    expect(book1DetailPage?.props.hasTargetContent).toBe(true);
+
+    // Book 2: Should NOT have translation
+    const book2DetailPage = detailPages.find((p) => p.params.route.includes("libro-sin-traduccion"));
+    expect(book2DetailPage?.props.hasTargetContent).toBe(false);
   });
 });

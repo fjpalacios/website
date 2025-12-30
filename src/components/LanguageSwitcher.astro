@@ -50,28 +50,97 @@ const flagLabel = t(lang, targetLang === "es" ? "menu.toSpanish" : "menu.toEngli
         {flagEmoji}
       </span>
     ) : (
-      <a href={translatedUrl} class="language-switcher__link" title={flagLabel} aria-label={flagLabel}>
+      <a
+        href={translatedUrl}
+        class="language-switcher__link"
+        title={flagLabel}
+        aria-label={flagLabel}
+        data-astro-reload
+      >
         <span class="language-switcher__flag">{flagEmoji}</span>
       </a>
     )
   }
 </div>
 
+<script>
+  // Preserve hash and query params when switching languages
+  // This runs on the client side to capture hash fragments (which aren't sent to server)
+  function setupLanguageSwitcher() {
+    const languageSwitcherLink = document.querySelector(".language-switcher__link") as HTMLAnchorElement;
+
+    if (!languageSwitcherLink) return;
+
+    // Remove any existing listener to avoid duplicates
+    const existingHandler = (languageSwitcherLink as HTMLAnchorElement & { __langSwitchHandler?: (e: Event) => void })
+      .__langSwitchHandler;
+    if (existingHandler) {
+      languageSwitcherLink.removeEventListener("click", existingHandler);
+    }
+
+    // Create new handler
+    const handler = (e: Event) => {
+      const currentSearch = window.location.search;
+      const currentHash = window.location.hash;
+
+      if (currentSearch || currentHash) {
+        e.preventDefault();
+        const baseHref = languageSwitcherLink.getAttribute("href");
+        const newHref = baseHref + currentSearch + currentHash;
+        window.location.href = newHref;
+      }
+    };
+
+    // Store handler reference and add listener
+    (languageSwitcherLink as HTMLAnchorElement & { __langSwitchHandler?: (e: Event) => void }).__langSwitchHandler =
+      handler;
+    languageSwitcherLink.addEventListener("click", handler);
+
+    // Mark as ready for E2E tests
+    languageSwitcherLink.setAttribute("data-lang-switcher-ready", "true");
+  }
+
+  // Run on initial load and after each View Transition
+  document.addEventListener("astro:page-load", setupLanguageSwitcher);
+</script>
+
 <style lang="scss">
+  @use "../styles/mixins" as *;
+
   .language-switcher {
     line-height: 1;
     display: inline-flex;
     align-items: center;
 
     &__flag {
-      font-size: 16px;
+      font-size: 20px;
       display: block;
       user-select: none;
+      line-height: 1;
+
+      // Desktop: Slightly larger for better visibility
+      @include small-and-up {
+        font-size: 22px;
+      }
     }
 
     &__link {
       text-decoration: none;
       transition: transform 0.2s ease;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      // Mobile: Large touch targets (WCAG 2.1 Level AAA: 44x44px)
+      min-width: 44px;
+      min-height: 44px;
+      padding: 10px;
+
+      // Desktop: More compact
+      @include small-and-up {
+        min-width: auto;
+        min-height: auto;
+        padding: 4px;
+      }
 
       &:hover {
         transform: scale(1.15);

@@ -46,4 +46,11 @@ const breadcrumbSchema = {
   </ol>
 </nav>
 
+<style is:global>
+  /* Light theme: override hover color for better contrast on dark breadcrumb background */
+  body.light .breadcrumbs__link:hover {
+    color: #ffffff !important; /* White for maximum contrast */
+  }
+</style>
+
 <script type="application/ld+json" set:html={JSON.stringify(breadcrumbSchema)} />

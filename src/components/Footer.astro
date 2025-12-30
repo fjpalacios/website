@@ -86,10 +86,24 @@ const itemsWithUrls = footerItems.map((item) => ({
     &__link {
       color: var(--cursive-color);
       text-decoration: none;
-      font-size: 0.85rem;
       transition: color 0.2s ease;
-      padding: 0.15rem 0.4rem;
       display: inline-block;
+
+      // Mobile: WCAG Level AAA touch targets (44x44px)
+      min-height: 44px;
+      min-width: 60px; // Enough for shortest links
+      padding: 12px 8px;
+      font-size: 0.9rem;
+      line-height: 1.2;
+      text-align: center;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+
+      // Light theme needs lighter colors on dark footer background
+      :global(body.light) & {
+        color: #b0b0b0; // 8.86:1 contrast on #071013
+      }
 
       &:hover,
       &:focus {
@@ -102,13 +116,29 @@ const itemsWithUrls = footerItems.map((item) => ({
         outline-offset: 2px;
         border-radius: 2px;
       }
+
+      // Desktop: Compact design (≥768px)
+      @media (min-width: 768px) {
+        min-height: auto;
+        min-width: auto;
+        padding: 0.15rem 0.4rem;
+        font-size: 0.85rem;
+        text-align: left;
+        display: inline-block;
+      }
     }
 
     &__meta {
       color: var(--cursive-color);
       font-size: 0.8rem;
-      opacity: 0.8;
+      opacity: 0.85; // Slightly more opaque for better contrast
       line-height: 1.4;
+
+      // Light theme needs lighter colors on dark footer background
+      :global(body.light) & {
+        color: #b0b0b0; // 8.86:1 contrast on #071013
+        opacity: 1;
+      }
     }
 
     &__built-with {
@@ -120,6 +150,11 @@ const itemsWithUrls = footerItems.map((item) => ({
       text-decoration: none;
       transition: color 0.2s ease;
       font-weight: 500;
+
+      // Light theme needs lighter colors on dark footer background
+      :global(body.light) & {
+        color: #d0d0d0; // 12.46:1 contrast on #071013
+      }
 
       &:hover,
       &:focus {
@@ -138,10 +173,6 @@ const itemsWithUrls = footerItems.map((item) => ({
 
       &__links {
         gap: 0.4rem 1rem;
-      }
-
-      &__link {
-        font-size: 0.9rem;
       }
     }
 

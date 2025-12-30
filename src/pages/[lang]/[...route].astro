@@ -1,8 +1,8 @@
 ---
 /**
- * Unified Dynamic Routing - All Content Types & Taxonomies (Phase 4 Refactored)
+ * Unified Dynamic Routing - All Content Types & Taxonomies (Phase 6 Refactored)
  *
- * Refactored version using route generators to reduce complexity from 779 to ~250 lines.
+ * Configuration-driven router that eliminates repetitive code patterns.
  *
  * Handles all main content type pages:
  * - Books: /en/books, /es/libros (list, pagination, detail)
@@ -15,48 +15,25 @@
  *
  * Phase 4 Optimization: Extracted route generation logic to utilities
  * Phase 5.2 Optimization: Added caching and parallel generation for performance
+ * Phase 6 Optimization: Config-driven approach + dynamic template mapping
  *
  * @see src/utils/routeGenerators/
  * @see src/utils/cache/
+ * @see src/config/templateMap.ts
+ * @see src/config/routeConfig.ts
  */
 
 import type { GetStaticPaths } from "astro";
 
 // Configuration
+import { CONTENT_TYPE_CONFIGS, TAXONOMY_TYPES } from "@/config/routeConfig";
 import { getRouteSegment } from "@/config/routeSegments";
+import { getTemplate } from "@/config/templateMap";
 // Contact data
 import contactEn from "@/content/static/contact/en.json";
 import contactEs from "@/content/static/contact/es.json";
-// Page templates - Taxonomies
-import AuthorsDetailPage from "@/pages-templates/authors/AuthorsDetailPage.astro";
-import AuthorsListPage from "@/pages-templates/authors/AuthorsListPage.astro";
-import BooksDetailPage from "@/pages-templates/books/BooksDetailPage.astro";
-import BooksListPage from "@/pages-templates/books/BooksListPage.astro";
-import BooksPaginationPage from "@/pages-templates/books/BooksPaginationPage.astro";
-import CategoriesDetailPage from "@/pages-templates/categories/CategoriesDetailPage.astro";
-import CategoriesListPage from "@/pages-templates/categories/CategoriesListPage.astro";
-import ChallengesDetailPage from "@/pages-templates/challenges/ChallengesDetailPage.astro";
-import ChallengesListPage from "@/pages-templates/challenges/ChallengesListPage.astro";
-import CoursesDetailPage from "@/pages-templates/courses/CoursesDetailPage.astro";
-import CoursesListPage from "@/pages-templates/courses/CoursesListPage.astro";
-import GenresDetailPage from "@/pages-templates/genres/GenresDetailPage.astro";
-import GenresListPage from "@/pages-templates/genres/GenresListPage.astro";
-import PostsDetailPage from "@/pages-templates/posts/PostsDetailPage.astro";
-import PostsListPage from "@/pages-templates/posts/PostsListPage.astro";
-import PostsPaginationPage from "@/pages-templates/posts/PostsPaginationPage.astro";
-import PublishersDetailPage from "@/pages-templates/publishers/PublishersDetailPage.astro";
-import PublishersListPage from "@/pages-templates/publishers/PublishersListPage.astro";
-import SeriesDetailPage from "@/pages-templates/series/SeriesDetailPage.astro";
-import SeriesListPage from "@/pages-templates/series/SeriesListPage.astro";
-// Page templates - Static
-import AboutPage from "@/pages-templates/static/AboutPage.astro";
-import FeedsPage from "@/pages-templates/static/FeedsPage.astro";
-import TutorialsDetailPage from "@/pages-templates/tutorials/TutorialsDetailPage.astro";
-import TutorialsListPage from "@/pages-templates/tutorials/TutorialsListPage.astro";
-import TutorialsPaginationPage from "@/pages-templates/tutorials/TutorialsPaginationPage.astro";
 // Utilities
 import { paginateItems, getPageCount } from "@/utils/blog";
-import { getAllBooksForLanguage, BOOKS_PER_PAGE, generateBookDetailPaths } from "@/utils/booksPages";
 import { logCacheStats } from "@/utils/cache/buildCache";
 import { getCachedCollection } from "@/utils/cache/cachedLoaders";
 import { performanceMonitor } from "@/utils/performance/monitor";
@@ -69,7 +46,6 @@ import {
 import { getLanguages } from "@/utils/routes";
 import { generateItemListSchema } from "@/utils/schemas/itemList";
 import { TAXONOMY_CONFIGS } from "@/utils/taxonomyPages";
-import { getAllTutorialsForLanguage, TUTORIALS_PER_PAGE, generateTutorialDetailPaths } from "@/utils/tutorialsPages";
 
 /**
  * Generates all static paths for the unified dynamic router
@@ -84,6 +60,7 @@ import { getAllTutorialsForLanguage, TUTORIALS_PER_PAGE, generateTutorialDetailP
  * - Parallel generation of independent content types
  * - Build-time caching to avoid duplicate queries
  * - Performance monitoring to track generation time
+ * - Configuration-driven approach eliminates code duplication
  *
  * @returns Array of static paths with params and props for each page
  */
@@ -115,7 +92,7 @@ export const getStaticPaths: GetStaticPaths = async () => {
 
   /**
    * Maps content type to Schema.org type and route segment
-   * Eliminates nested ternary operators for better readability
+   * Used for mixed content (posts that can be BlogPosting, TechArticle, or Book)
    */
   const CONTENT_TYPE_MAPPING = {
     book: {
@@ -155,9 +132,6 @@ export const getStaticPaths: GetStaticPaths = async () => {
     // Determine target language for translation availability checks
     const targetLang = lang === "en" ? "es" : "en";
 
-    // Define taxonomy types for route generation
-    const taxonomyTypes = ["authors", "publishers", "genres", "categories", "series", "challenges", "courses"] as const;
-
     // =================================================================
     // PARALLEL ROUTE GENERATION - Phase 5.2 Optimization
     // =================================================================
@@ -165,55 +139,32 @@ export const getStaticPaths: GetStaticPaths = async () => {
     // Books, Tutorials, and Taxonomies can be generated simultaneously
 
     performanceMonitor.start(`parallel-generation-${lang}`);
-    const [booksRoutes, tutorialsRoutes, ...taxonomyRoutes] = await Promise.all([
-      // BOOKS
-      safeGenerateRoutes(
-        async () =>
-          generateContentTypeWithPaginationRoutes({
-            lang,
-            targetLang,
-            routeSegment: getRouteSegment("books", lang),
-            pageSegment: getRouteSegment("page", lang),
-            contentType: "books",
-            getAllItems: getAllBooksForLanguage,
-            itemsPerPage: BOOKS_PER_PAGE,
-            generateDetailPaths: generateBookDetailPaths,
-            contact,
-            schemaType: "Book",
-            extractItemData: (book) => ({
-              name: book.title,
-              slug: book.slug,
-              excerpt: book.excerpt,
+
+    // Build parallel generators for all content types
+    const parallelGenerators = [
+      // Generate routes for all configured content types (books, tutorials)
+      ...Object.values(CONTENT_TYPE_CONFIGS).map((config) =>
+        safeGenerateRoutes(
+          async () =>
+            generateContentTypeWithPaginationRoutes({
+              lang,
+              targetLang,
+              routeSegment: getRouteSegment(config.routeKey, lang),
+              pageSegment: getRouteSegment("page", lang),
+              contentType: config.contentType,
+              getAllItems: config.getAllItems,
+              itemsPerPage: config.itemsPerPage,
+              generateDetailPaths: config.generateDetailPaths,
+              contact,
+              schemaType: config.schemaType,
+              extractItemData: config.extractItemData,
             }),
-          }),
-        `books (${lang})`,
+          `${config.contentType} (${lang})`,
+        ),
       ),
 
-      // TUTORIALS
-      safeGenerateRoutes(
-        async () =>
-          generateContentTypeWithPaginationRoutes({
-            lang,
-            targetLang,
-            routeSegment: getRouteSegment("tutorials", lang),
-            pageSegment: getRouteSegment("page", lang),
-            contentType: "tutorials",
-            getAllItems: getAllTutorialsForLanguage,
-            itemsPerPage: TUTORIALS_PER_PAGE,
-            generateDetailPaths: generateTutorialDetailPaths,
-            contact,
-            schemaType: "TechArticle",
-            extractItemData: (tutorial) => ({
-              name: tutorial.title,
-              slug: tutorial.slug,
-              excerpt: tutorial.excerpt,
-            }),
-          }),
-        `tutorials (${lang})`,
-      ),
-
-      // TAXONOMIES - Generate all taxonomy types in parallel
-      ...taxonomyTypes.map((taxonomyType) =>
+      // Generate routes for all taxonomies
+      ...TAXONOMY_TYPES.map((taxonomyType) =>
         safeGenerateRoutes(
           async () =>
             generateTaxonomyRoutes({
@@ -228,11 +179,14 @@ export const getStaticPaths: GetStaticPaths = async () => {
           `${taxonomyType} (${lang})`,
         ),
       ),
-    ]);
+    ];
+
+    // Execute all generators in parallel
+    const allRoutes = await Promise.all(parallelGenerators);
     performanceMonitor.end(`parallel-generation-${lang}`);
 
-    // Add generated routes to paths
-    paths.push(...booksRoutes, ...tutorialsRoutes, ...taxonomyRoutes.flat());
+    // Flatten and add all generated routes
+    paths.push(...allRoutes.flat());
 
     // =================================================================
     // POSTS - Special case (mixed content: posts + tutorials + books)
@@ -325,14 +279,17 @@ export const getStaticPaths: GetStaticPaths = async () => {
     performanceMonitor.end(`posts-${lang}`);
 
     // =================================================================
-    // STATIC PAGES - Using route generator
+    // STATIC PAGES - About and Feeds
     // =================================================================
-
     performanceMonitor.start(`static-${lang}`);
 
     // ABOUT PAGE
     try {
-      const aboutContent = await import(`@content/${lang}/about.ts`).then((mod) => mod.about);
+      const aboutContent =
+        lang === "en"
+          ? await import("@content/en/about.ts").then((mod) => mod.about)
+          : await import("@content/es/about.ts").then((mod) => mod.about);
+
       paths.push(
         ...generateStaticPageRoute({
           lang,
@@ -351,7 +308,7 @@ export const getStaticPaths: GetStaticPaths = async () => {
       paths.push(
         ...generateStaticPageRoute({
           lang,
-          routeSegment: "feeds",
+          routeSegment: getRouteSegment("feeds", lang),
           contentType: "feeds",
           contact,
         }),
@@ -375,52 +332,27 @@ export const getStaticPaths: GetStaticPaths = async () => {
   return paths;
 };
 
+// =================================================================
+// DYNAMIC TEMPLATE SELECTION
+// =================================================================
+// Use template map to select the correct component based on contentType + pageType
+// This replaces 47 lines of conditional rendering with a single lookup
+
 const { pageType, contentType } = Astro.props;
+
+// Get the appropriate template component
+const Template = getTemplate(contentType, pageType);
 ---
 
-{/* Books */}
-{contentType === "books" && pageType === "list" && <BooksListPage {...Astro.props} />}
-{contentType === "books" && pageType === "pagination" && <BooksPaginationPage {...Astro.props} />}
-{contentType === "books" && pageType === "detail" && <BooksDetailPage {...Astro.props} />}
-
-{/* Tutorials */}
-{contentType === "tutorials" && pageType === "list" && <TutorialsListPage {...Astro.props} />}
-{contentType === "tutorials" && pageType === "pagination" && <TutorialsPaginationPage {...Astro.props} />}
-{contentType === "tutorials" && pageType === "detail" && <TutorialsDetailPage {...Astro.props} />}
-
-{/* Posts */}
-{contentType === "posts" && pageType === "list" && <PostsListPage {...Astro.props} />}
-{contentType === "posts" && pageType === "pagination" && <PostsPaginationPage {...Astro.props} />}
-{contentType === "posts" && pageType === "detail" && <PostsDetailPage {...Astro.props} />}
-
-{/* Authors */}
-{contentType === "authors" && pageType === "list" && <AuthorsListPage {...Astro.props} />}
-{contentType === "authors" && pageType === "detail" && <AuthorsDetailPage {...Astro.props} />}
-
-{/* Publishers */}
-{contentType === "publishers" && pageType === "list" && <PublishersListPage {...Astro.props} />}
-{contentType === "publishers" && pageType === "detail" && <PublishersDetailPage {...Astro.props} />}
-
-{/* Genres */}
-{contentType === "genres" && pageType === "list" && <GenresListPage {...Astro.props} />}
-{contentType === "genres" && pageType === "detail" && <GenresDetailPage {...Astro.props} />}
-
-{/* Categories */}
-{contentType === "categories" && pageType === "list" && <CategoriesListPage {...Astro.props} />}
-{contentType === "categories" && pageType === "detail" && <CategoriesDetailPage {...Astro.props} />}
-
-{/* Series */}
-{contentType === "series" && pageType === "list" && <SeriesListPage {...Astro.props} />}
-{contentType === "series" && pageType === "detail" && <SeriesDetailPage {...Astro.props} />}
-
-{/* Challenges */}
-{contentType === "challenges" && pageType === "list" && <ChallengesListPage {...Astro.props} />}
-{contentType === "challenges" && pageType === "detail" && <ChallengesDetailPage {...Astro.props} />}
-
-{/* Courses */}
-{contentType === "courses" && pageType === "list" && <CoursesListPage {...Astro.props} />}
-{contentType === "courses" && pageType === "detail" && <CoursesDetailPage {...Astro.props} />}
-
-{/* Static Pages */}
-{contentType === "about" && pageType === "static" && <AboutPage {...Astro.props} />}
-{contentType === "feeds" && pageType === "static" && <FeedsPage {...Astro.props} />}
+{
+  Template ? (
+    <Template {...Astro.props} />
+  ) : (
+    <div>
+      <h1>404 - Template Not Found</h1>
+      <p>
+        No template found for contentType="{contentType}" and pageType="{pageType}"
+      </p>
+    </div>
+  )
+}

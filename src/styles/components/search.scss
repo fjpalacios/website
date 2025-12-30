@@ -6,17 +6,25 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 20px;
-  height: 20px;
   cursor: pointer;
   background: transparent;
   border: none;
-  padding: 0;
   font-family: inherit;
   font-size: inherit;
   line-height: inherit;
   color: inherit;
   transition: transform 0.2s ease;
+  // Mobile: Large touch targets (WCAG 2.1 Level AAA: 44x44px)
+  min-width: 44px;
+  min-height: 44px;
+  padding: 10px;
+
+  // Desktop: More compact
+  @include small-and-up {
+    min-width: auto;
+    min-height: auto;
+    padding: 4px;
+  }
 
   &:hover {
     transform: scale(1.15);
@@ -29,13 +37,13 @@
   }
 
   &__icon {
-    font-size: 14px;
+    font-size: 18px;
     line-height: 1;
     display: block;
     user-select: none;
 
     @include medium-and-up {
-      font-size: 15px;
+      font-size: 20px;
     }
   }
 }
@@ -323,4 +331,144 @@
   letter-spacing: 0.05em;
   text-transform: uppercase;
   border-bottom: 2px solid rgba(239, 187, 53, 0.2);
+}
+
+// ========================================
+// LIGHT THEME OVERRIDES
+// ========================================
+
+// Light theme: Modal backdrop (slightly lighter overlay)
+:global(body.light .search-modal__backdrop) {
+  background: rgba(0, 0, 0, 0.4);
+}
+
+// Light theme: Modal content background
+:global(body.light .search-modal__content) {
+  background: #fbfef9; // Light theme primary color
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.15);
+}
+
+// Light theme: Header border
+:global(body.light .search-modal__header) {
+  border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+// Light theme: Close button
+:global(body.light .search-modal__close) {
+  color: #6a6a6a; // Light theme cursive color
+
+  &:hover {
+    background: rgba(0, 0, 0, 0.05);
+    color: #284b63; // Light theme text color
+  }
+}
+
+// Light theme: Scrollbar track
+:global(body.light .search-modal__container::-webkit-scrollbar-track) {
+  background: rgba(0, 0, 0, 0.05);
+}
+
+// Light theme: Scrollbar thumb
+:global(body.light .search-modal__container::-webkit-scrollbar-thumb) {
+  background: rgba(0, 86, 179, 0.3); // Light theme accent
+
+  &:hover {
+    background: rgba(0, 86, 179, 0.5);
+  }
+}
+
+// Light theme: Firefox scrollbar
+:global(body.light .search-modal__container) {
+  scrollbar-color: rgba(0, 86, 179, 0.3) rgba(0, 0, 0, 0.05);
+}
+
+// Light theme: Pagefind UI variables
+:global(body.light .search-modal__container .pagefind-ui) {
+  --pagefind-ui-primary: #0056b3; // Light theme accent
+  --pagefind-ui-text: #284b63; // Light theme text
+  --pagefind-ui-background: #fbfef9; // Light theme primary
+  --pagefind-ui-border: rgba(0, 0, 0, 0.1);
+  --pagefind-ui-tag: #e8ede7; // Light theme background
+}
+
+// Light theme: Search input
+:global(body.light .search-modal__container .pagefind-ui__search-input) {
+  background: #e8ede7; // Light theme background
+  color: #284b63; // Light theme text
+  border: 2px solid rgba(0, 0, 0, 0.15);
+
+  &:focus {
+    border-color: #0056b3; // Light theme accent
+    box-shadow: 0 0 0 3px rgba(0, 86, 179, 0.1);
+  }
+
+  &::placeholder {
+    color: rgba(40, 75, 99, 0.4); // Light theme text with opacity
+  }
+}
+
+// Light theme: Clear button
+:global(body.light .search-modal__container .pagefind-ui__search-clear) {
+  color: #6a6a6a !important; // Light theme cursive color
+
+  &:hover {
+    color: #0056b3 !important; // Light theme accent
+  }
+}
+
+// Light theme: Result cards
+:global(body.light .search-modal__container .pagefind-ui__result) {
+  background: rgba(0, 0, 0, 0.04); // Increased from 0.02 for better contrast
+  border: 1px solid rgba(0, 0, 0, 0.15); // Increased from 0.08 for visibility
+
+  &:hover {
+    background: rgba(0, 0, 0, 0.08); // Increased from 0.05
+    border-color: rgba(0, 86, 179, 0.4); // Slightly more visible
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  }
+}
+
+// Light theme: Result link
+:global(body.light .search-modal__container .pagefind-ui__result-link) {
+  color: #284b63; // Light theme text
+
+  &:hover {
+    color: #284b63;
+  }
+}
+
+// Light theme: Result title
+:global(body.light .search-modal__container .pagefind-ui__result-title) {
+  color: #284b63; // Light theme text
+
+  .pagefind-ui__result:hover & {
+    color: #0056b3; // Light theme accent
+  }
+}
+
+// Light theme: Result excerpt
+:global(body.light .search-modal__container .pagefind-ui__result-excerpt) {
+  color: #6a6a6a; // Light theme cursive color
+}
+
+// Light theme: Search term highlights
+:global(body.light .search-modal__container mark) {
+  background-color: rgba(0, 86, 179, 0.15);
+  color: #0056b3; // Light theme accent
+}
+
+// Light theme: Loading state
+:global(body.light .search-modal__container .pagefind-ui__loading) {
+  color: #0056b3; // Light theme accent
+}
+
+// Light theme: Empty state / No results
+:global(body.light .search-modal__container .pagefind-ui__message) {
+  color: #6a6a6a; // Light theme cursive color
+}
+
+// Light theme: Results counter
+:global(body.light .search-modal__container .pagefind-ui__results-count) {
+  color: #6a6a6a; // Light theme cursive color
+  border-bottom: 2px solid rgba(0, 86, 179, 0.2);
 }

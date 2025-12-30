@@ -118,6 +118,10 @@ export const ROUTE_SEGMENTS: Record<string, Record<LanguageKey, string>> = {
     en: "contact",
     es: "contacto",
   },
+  feeds: {
+    en: "feeds",
+    es: "feeds",
+  },
 
   // Pagination
   page: {

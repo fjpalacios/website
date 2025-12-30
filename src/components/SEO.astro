@@ -38,7 +38,21 @@ let alternateUrl: string | null = null;
 
 if (translationSlug) {
   // Dynamic content (posts, books, etc) with specific slug
-  alternateUrl = `${siteUrl}${translationSlug}`;
+  // Extract the content type from current path to build correct alternate URL
+  const pathParts = currentPath.split("/").filter(Boolean);
+
+  if (pathParts.length > 1) {
+    const currentLang = pathParts[0];
+    const localizedSegment = pathParts[1]; // e.g., "libros" or "books"
+    const canonicalSegment = getCanonicalSegment(localizedSegment, currentLang);
+
+    if (canonicalSegment) {
+      // Translate segment to target language
+      const translatedSegment = getLocalizedRoute(canonicalSegment as RouteSegment, alternateLang);
+      // Build full URL: https://fjp.es/en/books/slug/
+      alternateUrl = `${siteUrl}/${alternateLang}/${translatedSegment}/${translationSlug}/`;
+    }
+  }
 } else {
   // Static pages - auto-translate the route
   const pathParts = currentPath.split("/").filter(Boolean);

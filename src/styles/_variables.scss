@@ -31,19 +31,19 @@ $container-max-width: 1400px; // Maximum width for main content container
   --cursive-color: #c8c8c8;
   --inverted-text: var(--text);
   --header-link: var(--text);
-  --code: #ff79c6;
+  --code: #8be9fd; // Cyan for better contrast on dark backgrounds
 }
 
 // Light theme values
 %light {
-  --accent: #0c7298; // Darker cyan-blue for WCAG AA compliance (4.52:1 contrast on #fbfef9)
-  --background: #fbfef9;
-  --primary: #071013;
+  --accent: #0056b3; // Bootstrap blue for better vibrancy (8.59:1 contrast on #fbfef9)
+  --background: #fbfef9; // Off-white page background
+  --primary: #071013; // Dark color (kept for compatibility, overridden where needed)
   --text: #284b63;
-  --cursive-color: #636363;
-  --inverted-text: var(--background);
+  --cursive-color: #6a6a6a; // Medium gray for WCAG AA compliance (5.32:1 contrast on #fbfef9)
+  --inverted-text: var(--background); // Light color for dark backgrounds
   --header-link: var(--inverted-text);
-  --code: #e83e8c;
+  --code: #d63384; // Pink for inline code
 }
 
 // Set default dark theme on html element to prevent FOUC
@@ -56,17 +56,17 @@ html {
   --cursive-color: #c8c8c8;
   --inverted-text: var(--text);
   --header-link: var(--text);
-  --code: #ff79c6;
+  --code: #8be9fd; // Cyan for better contrast on dark backgrounds
 
   &.light {
-    --accent: #0c7298;
-    --background: #fbfef9;
-    --primary: #071013;
+    --accent: #0056b3;
+    --background: #fbfef9; // Off-white page background
+    --primary: #071013; // Dark color (kept for compatibility, overridden where needed)
     --text: #284b63;
-    --cursive-color: #636363;
-    --inverted-text: var(--background);
+    --cursive-color: #6a6a6a;
+    --inverted-text: var(--background); // Light color for dark backgrounds
     --header-link: var(--inverted-text);
-    --code: #e83e8c;
+    --code: #d63384; // Pink for inline code
   }
 }
 

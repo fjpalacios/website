@@ -12,6 +12,7 @@
     "lint": "eslint . --ext .astro,.js,.ts,.jsx,.tsx --fix",
     "lint:check": "eslint . --ext .astro,.js,.ts,.jsx,.tsx",
     "test": "vitest run src/__tests__",
+    "test:unit": "vitest run src/__tests__",
     "test:watch": "vitest src/__tests__",
     "test:ui": "vitest --ui src/__tests__",
     "test:coverage": "vitest run --coverage src/__tests__",

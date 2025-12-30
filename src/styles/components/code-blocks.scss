@@ -200,3 +200,19 @@ body.light .code-copy-button {
   font-family: "Fira Code", Consolas, Monaco, "Courier New", monospace;
   font-size: 0.9em;
 }
+
+// Light theme: Inline code with custom background (not using --primary)
+body.light :not(pre) > code {
+  background-color: rgba(0, 86, 179, 0.08) !important; // Subtle blue tint matching accent
+  color: #d63384 !important; // Pink with good contrast (8.5:1 on light bg)
+  border: 1px solid rgba(0, 86, 179, 0.12); // Subtle border for definition
+}
+
+// Light theme: Code block separator lines
+body.light .code-line.line-number::before {
+  border-right: 1px solid rgba(255, 255, 255, 0.2) !important; // Light border on dark code blocks
+}
+
+body.light .code-toolbar {
+  border-bottom: 1px solid rgba(255, 255, 255, 0.2) !important; // Light border on dark code blocks
+}

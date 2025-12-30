@@ -1,7 +1,6 @@
 ---
 import { getCollection, getEntry } from "astro:content";
 
-import AuthorLink from "./AuthorLink.astro";
 import BookLink from "./BookLink.astro";
 
 interface Props {
@@ -92,10 +91,9 @@ let bookNumber = 1;
       <ol start={bookNumber}>
         {booksByMonth[month].map((book) => {
           bookNumber++; // Increment for side effect only
-          const authorName = authorsMap.get(book.data.author) || book.data.author;
           return (
             <li>
-              <BookLink title={book.data.title} slug={book.data.post_slug} />, de <AuthorLink name={authorName} />.
+              <BookLink title={book.data.title} slug={book.data.post_slug} full={true} />.
             </li>
           );
         })}

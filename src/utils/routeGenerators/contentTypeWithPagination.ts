@@ -200,6 +200,14 @@ export async function generateContentTypeWithPaginationRoutes<T>(
   const detailPaths = await generateDetailPaths(lang, contact);
 
   for (const { slug, props } of detailPaths) {
+    // Calculate hasTargetContent for THIS specific entry
+    // Check if this entry has an i18n field and if that translation exists in target language
+    const entryKey = Object.keys(props).find((k) => k.endsWith("Entry")) || "";
+    const entry = props[entryKey] as { data?: { i18n?: string } } | undefined;
+    const hasSpecificTranslation = entry?.data?.i18n
+      ? targetItems.some((item: { slug: string }) => item.slug === entry.data.i18n)
+      : false;
+
     paths.push({
       params: { lang, route: `${routeSegment}/${slug}` },
       props: {
@@ -207,7 +215,7 @@ export async function generateContentTypeWithPaginationRoutes<T>(
         pageType: "detail",
         lang,
         ...props,
-        hasTargetContent,
+        hasTargetContent: hasSpecificTranslation,
       },
     });
   }

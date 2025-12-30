@@ -5,17 +5,25 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 20px;
-  height: 20px;
   cursor: pointer;
   background: transparent;
   border: none;
-  padding: 0;
   font-family: inherit;
   font-size: inherit;
   line-height: inherit;
   color: inherit;
   transition: transform 0.2s ease;
+  // Mobile: Large touch targets (WCAG 2.1 Level AAA: 44x44px)
+  min-width: 44px;
+  min-height: 44px;
+  padding: 10px;
+
+  // Desktop: More compact
+  @include small-and-up {
+    min-width: auto;
+    min-height: auto;
+    padding: 4px;
+  }
 
   &:hover {
     transform: scale(1.15);
@@ -28,13 +36,13 @@
   }
 
   &__icon {
-    font-size: 14px;
+    font-size: 18px;
     line-height: 1;
     display: block;
     user-select: none;
 
     @include medium-and-up {
-      font-size: 15px;
+      font-size: 20px;
     }
   }
 }

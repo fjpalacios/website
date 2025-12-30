@@ -17,7 +17,7 @@
   &__list {
     display: flex;
     flex-wrap: wrap;
-    gap: 10px;
+    gap: 8px; // Reduced from 10px for tighter spacing
     margin: 0;
     padding: 0;
     list-style: none;
@@ -31,7 +31,7 @@
     &:not(:last-child)::after {
       content: ">";
       color: $accent;
-      margin-left: 10px;
+      margin-left: 8px; // Reduced from 10px
       font-weight: normal;
     }
   }
@@ -54,8 +54,8 @@
   }
 
   &__current {
-    color: $accent;
-    font-weight: 600;
+    color: $inverted-text; // Same as links to avoid confusion (not clickable)
+    font-weight: 600; // Bold to emphasize it's the current page
   }
 
   // Responsive: adjust padding on smaller screens

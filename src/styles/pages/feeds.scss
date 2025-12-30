@@ -46,7 +46,7 @@
     :global(.feed-item__title) {
       margin: 0;
       padding: 0;
-      color: $accent;
+      color: $text; // Use text color instead of accent to avoid confusion with links
       font-size: 1.3em;
       font-weight: 600;
       text-transform: uppercase;
@@ -76,10 +76,22 @@
       transition: all 0.3s ease;
       border: 2px solid $primary;
 
+      // Light theme needs better contrast
+      :global(body.light) & {
+        background-color: $primary;
+        color: #d0d0d0; // 12.46:1 contrast on #071013
+        border-color: $primary;
+      }
+
       &:hover {
         background-color: $accent;
         border-color: $accent;
         color: $background;
+
+        // Light theme hover: white text on accent color
+        :global(body.light) & {
+          color: #ffffff; // White on accent (#0c7298) = 4.67:1 contrast
+        }
       }
 
       &:focus {

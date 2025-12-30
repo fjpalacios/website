@@ -27,6 +27,19 @@
       &__item {
         text-transform: capitalize;
       }
+
+      // Accessibility: Links should have permanent underline for consistency
+      a {
+        text-decoration: underline;
+        text-underline-offset: 2px;
+
+        &:hover,
+        &:focus {
+          text-decoration: underline;
+          text-decoration-thickness: 2px; // Thicker underline for visual feedback
+          text-decoration-color: $accent;
+        }
+      }
     }
   }
 }
