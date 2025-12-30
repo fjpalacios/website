@@ -30,11 +30,8 @@ test.describe("Content Type Routes - Books", () => {
   test("should render books pagination page 2", async ({ page }) => {
     await page.goto("/es/libros/pagina/2/");
 
-    // Page should load successfully
-    await expect(page).toHaveTitle(/Libros/);
-
-    // Should show "Página 2"
-    await expect(page.locator("text=/Página 2/i")).toBeVisible();
+    // Page should load successfully and title should contain page number
+    await expect(page).toHaveTitle(/Libros.*Página 2/);
   });
 
   test("should render book detail page", async ({ page }) => {

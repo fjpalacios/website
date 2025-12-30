@@ -174,8 +174,8 @@ test.describe("Pagination - Edge Cases", () => {
     test("should use correct URL pattern for Spanish pagination", async ({ page }) => {
       await page.goto("/es/libros/");
 
-      // Look for page 2 link
-      const page2Link = page.locator('a[href*="/pagina/2"]');
+      // Look for page 2 link (use .first() since there might be multiple links to page 2)
+      const page2Link = page.locator('a[href*="/pagina/2"]').first();
 
       if ((await page2Link.count()) > 0) {
         const href = await page2Link.getAttribute("href");

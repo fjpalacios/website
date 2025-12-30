@@ -29,15 +29,27 @@ interface Props {
 
 const { lang, posts, currentPage, totalPages, contact } = Astro.props;
 
-const pageTitle = "📝 " + t(lang, "pages.posts");
-const pageDescription =
+// Add page number to title and description for SEO
+const baseTitle = "📝 " + t(lang, "pages.posts");
+const pageNumberText = lang === "en" ? `Page ${currentPage}` : `Página ${currentPage}`;
+const pageTitle = `${baseTitle} - ${pageNumberText}`;
+const baseDescription =
   lang === "en" ? "Articles and tutorials about web development" : "Artículos y tutoriales sobre desarrollo web";
+const pageDescription = `${baseDescription} - ${lang === "en" ? `page ${currentPage}` : `página ${currentPage}`}`;
 
 // Build base path for pagination
 const basePath = `/${lang}/${t(lang, "routes.posts")}`;
 ---
 
-<Layout lang={lang} title={pageTitle} description={pageDescription} contact={contact}>
+<Layout
+  lang={lang}
+  title={pageTitle}
+  description={pageDescription}
+  contact={contact}
+  currentPage={currentPage}
+  totalPages={totalPages}
+  basePath={basePath}
+>
   <Title title={pageTitle} />
 
   {

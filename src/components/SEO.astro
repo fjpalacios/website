@@ -20,9 +20,24 @@ interface Props {
   lang: "es" | "en";
   translationSlug?: string;
   schema?: Record<string, unknown>;
+  // Pagination support for rel=prev/next
+  currentPage?: number;
+  totalPages?: number;
+  basePath?: string;
 }
 
-const { title, description, image, type = "website", lang, translationSlug, schema } = Astro.props;
+const {
+  title,
+  description,
+  image,
+  type = "website",
+  lang,
+  translationSlug,
+  schema,
+  currentPage,
+  totalPages,
+  basePath,
+} = Astro.props;
 
 // Get site metadata from locales
 const siteUrl = t(lang, "metaData.url");
@@ -97,6 +112,29 @@ const defaultSchema = {
 };
 
 const finalSchema = schema || defaultSchema;
+
+// Build pagination URLs for rel=prev/next
+const pageSegment = lang === "es" ? "pagina" : "page";
+let prevUrl: string | null = null;
+let nextUrl: string | null = null;
+
+if (currentPage && totalPages && basePath) {
+  // Previous page URL
+  if (currentPage > 1) {
+    if (currentPage === 2) {
+      // Page 2 should link back to base URL (page 1)
+      prevUrl = `${siteUrl}${basePath}/`;
+    } else {
+      // Page 3+ should link to paginated URL
+      prevUrl = `${siteUrl}${basePath}/${pageSegment}/${currentPage - 1}/`;
+    }
+  }
+
+  // Next page URL
+  if (currentPage < totalPages) {
+    nextUrl = `${siteUrl}${basePath}/${pageSegment}/${currentPage + 1}/`;
+  }
+}
 ---
 
 <!-- Open Graph / Facebook -->
@@ -116,6 +154,10 @@ const finalSchema = schema || defaultSchema;
 
 <!-- Canonical URL -->
 <link rel="canonical" href={canonicalUrl} />
+
+<!-- Pagination: rel=prev/next links -->
+{prevUrl && <link rel="prev" href={prevUrl} />}
+{nextUrl && <link rel="next" href={nextUrl} />}
 
 <!-- Hreflang tags for alternate languages -->
 {

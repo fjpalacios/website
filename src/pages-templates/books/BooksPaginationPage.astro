@@ -26,8 +26,12 @@ interface Props {
 
 const { lang, books, currentPage, totalPages, contact, hasTargetContent } = Astro.props;
 
-const pageTitle = "📚 " + t(lang, "pages.books");
-const pageDescription = lang === "en" ? "Book reviews" : "Reseñas de libros";
+// Add page number to title and description for SEO
+const baseTitle = "📚 " + t(lang, "pages.books");
+const pageNumberText = lang === "en" ? `Page ${currentPage}` : `Página ${currentPage}`;
+const pageTitle = `${baseTitle} - ${pageNumberText}`;
+const baseDescription = lang === "en" ? "Book reviews" : "Reseñas de libros";
+const pageDescription = `${baseDescription} - ${lang === "en" ? `page ${currentPage}` : `página ${currentPage}`}`;
 const basePath = buildBooksIndexUrl(lang);
 ---
 
@@ -37,6 +41,9 @@ const basePath = buildBooksIndexUrl(lang);
   description={pageDescription}
   contact={contact}
   hasTargetContent={hasTargetContent}
+  currentPage={currentPage}
+  totalPages={totalPages}
+  basePath={basePath}
 >
   <Title title={pageTitle} />
 

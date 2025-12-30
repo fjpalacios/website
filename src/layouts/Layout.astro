@@ -20,6 +20,10 @@ interface Props {
   image?: string;
   type?: "website" | "article" | "book";
   schema?: Record<string, unknown>;
+  // Pagination props for rel=prev/next
+  currentPage?: number;
+  totalPages?: number;
+  basePath?: string;
 }
 
 const {
@@ -33,6 +37,9 @@ const {
   image,
   type = "website",
   schema,
+  currentPage,
+  totalPages,
+  basePath,
 } = Astro.props;
 const currentPath = Astro.url.pathname;
 
@@ -62,6 +69,9 @@ const baseUrl = t(lang, "metaData.url");
       lang={lang}
       translationSlug={translationSlug}
       schema={schema}
+      currentPage={currentPage}
+      totalPages={totalPages}
+      basePath={basePath}
     />
 
     <link rel="icon" type="image/x-icon" href="/favicon.ico" />
