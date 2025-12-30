@@ -119,6 +119,81 @@ test.describe("LatestPosts Component", () => {
       await expect(dateElement).toHaveAttribute("datetime");
       await expect(dateElement).toHaveAttribute("aria-label");
     });
+
+    test("each post should have a content type badge", async ({ page }) => {
+      await page.goto(SPANISH_HOME);
+      await page.waitForLoadState("networkidle");
+
+      const firstPost = page.locator(".latest-posts__list__post").first();
+      const badge = firstPost.locator(".latest-posts__list__post__title__badge");
+
+      await expect(badge).toBeVisible();
+      await expect(badge).toHaveAttribute("aria-label");
+    });
+
+    test("badge should contain correct emoji for content type", async ({ page }) => {
+      await page.goto(SPANISH_HOME);
+      await page.waitForLoadState("networkidle");
+
+      const firstPost = page.locator(".latest-posts__list__post").first();
+      const badge = firstPost.locator(".latest-posts__list__post__title__badge");
+      const badgeText = await badge.textContent();
+
+      // Should be one of: 📚 (book), 🎓 (tutorial), 📝 (post)
+      const validBadges = ["📚", "🎓", "📝"];
+      expect(validBadges).toContain(badgeText?.trim());
+    });
+
+    test("badge aria-label should match content type", async ({ page }) => {
+      await page.goto(SPANISH_HOME);
+      await page.waitForLoadState("networkidle");
+
+      const firstPost = page.locator(".latest-posts__list__post").first();
+      const badge = firstPost.locator(".latest-posts__list__post__title__badge");
+      const ariaLabel = await badge.getAttribute("aria-label");
+
+      // Should be one of: book, tutorial, post
+      const validTypes = ["book", "tutorial", "post"];
+      expect(validTypes).toContain(ariaLabel);
+    });
+
+    test("should have 'View All Posts' footer link", async ({ page }) => {
+      await page.goto(SPANISH_HOME);
+      await page.waitForLoadState("networkidle");
+
+      const footer = page.locator(".latest-posts__footer");
+      await expect(footer).toBeVisible();
+
+      const link = footer.locator(".latest-posts__footer__link");
+      await expect(link).toBeVisible();
+    });
+
+    test("footer link should have correct text in Spanish", async ({ page }) => {
+      await page.goto(SPANISH_HOME);
+      await page.waitForLoadState("networkidle");
+
+      const link = page.locator(".latest-posts__footer__link");
+      await expect(link).toContainText("Ver todas las publicaciones");
+    });
+
+    test("footer link should have correct text in English", async ({ page }) => {
+      await page.goto(ENGLISH_HOME);
+      await page.waitForLoadState("networkidle");
+
+      const link = page.locator(".latest-posts__footer__link");
+      await expect(link).toContainText("View all posts");
+    });
+
+    test("footer link should navigate to posts listing page", async ({ page }) => {
+      await page.goto(SPANISH_HOME);
+      await page.waitForLoadState("networkidle");
+
+      const link = page.locator(".latest-posts__footer__link");
+      const href = await link.getAttribute("href");
+
+      // Should link to posts listing page
+      expect(href).toBe("/es/publicaciones");
+    });
   });
 
   test.describe("Navigation and Links", () => {

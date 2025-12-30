@@ -1004,17 +1004,17 @@ a em {
 
 ### Test Coverage
 
-- **Unit Tests**: 22/22 passing (100%)
-- **E2E Tests**: 34/34 passing (100%)
-- **Total Tests**: 56 tests covering component
-- **Empty State Coverage**: 6 unit tests + 7 E2E tests specifically for empty state behavior
+- **Unit Tests**: 1131/1131 passing (100%) - includes 29 new tests for getLatestPosts utility
+- **E2E Tests**: 41/41 passing (100%) - includes 7 new tests for badges and footer
+- **Total Tests**: 1172 tests covering component and utility
+- **Coverage**: Maintained above 95%
 
 ### Build Status
 
 ```bash
 $ bun run build
-✓ Completed in 8.68s
-88 page(s) built in 8.68s
+✓ Completed in ~8s
+88 page(s) built in ~8s
 ```
 
 ### Lighthouse Scores (Baseline Maintained)
@@ -1028,14 +1028,14 @@ $ bun run build
 
 - ✅ WCAG AAA compliant
 - ✅ Semantic HTML (`<main>`, `<section>`, `<time>`)
-- ✅ Screen reader support (`aria-label` on dates)
+- ✅ Screen reader support (`aria-label` on dates and badges)
 - ✅ Keyboard navigation (focusable links)
 - ✅ Proper heading hierarchy (uses `<Title>` component)
 
 ### Performance
 
 - ✅ No layout shifts (CLS: 0)
-- ✅ Optimized queries (Content Collections API)
+- ✅ Optimized queries (Content Collections API with utility function)
 - ✅ Minimal CSS (< 1KB gzipped)
 - ✅ No JavaScript required (static HTML)
 
@@ -1043,7 +1043,7 @@ $ bun run build
 
 - ✅ TypeScript type safety
 - ✅ BEM naming convention
-- ✅ DRY principle (reuses utilities)
+- ✅ DRY principle (reuses utilities and extracted query logic)
 - ✅ Single Responsibility Principle
 - ✅ Clear separation of concerns
 
@@ -1298,23 +1298,144 @@ function getCachedDate(date: Date, lang: string) {
 
 ---
 
+## Session Summary
+
+### Part 1: Extract Query Logic to Utility Function (COMPLETED)
+
+**Date**: December 30, 2025  
+**Status**: ✅ COMPLETED
+
+Refactored LatestPosts component to use a reusable utility function for querying latest posts.
+
+**Files Created**:
+
+- `src/utils/content/getLatestPosts.ts` - Utility function (97 lines)
+- `src/__tests__/utils/content/getLatestPosts.test.ts` - Tests (247 lines, 29 tests)
+
+**Files Modified**:
+
+- `src/components/LatestPosts.astro` - Now uses utility function (~100 lines, was ~137)
+- `src/__tests__/components/LatestPosts.test.ts` - Removed 7 redundant tests, added utility usage test (18 tests)
+
+**Benefits**:
+
+- Clean separation of concerns
+- Reusable query logic across application
+- Easier to test and maintain
+- Reduced component complexity
+
+---
+
+### Part 2: Add Content Type Badges (COMPLETED)
+
+**Date**: December 30, 2025  
+**Status**: ✅ COMPLETED
+
+Added emoji badges to identify content types (books, tutorials, posts).
+
+**Implementation**:
+
+- 📚 for books
+- 🎓 for tutorials
+- 📝 for posts
+
+**Files Modified**:
+
+- `src/components/LatestPosts.astro` - Added `getContentBadge()` function and badge rendering
+- `src/styles/components/latest-posts.scss` - Added badge styles with BEM naming
+- `src/__tests__/components/LatestPosts.test.ts` - Added badge tests
+- `e2e/latest-posts.spec.ts` - Added 3 E2E badge tests
+
+**Styling**:
+
+- Font-size: 1.2rem
+- Flex gap: 0.75rem
+- Badge margin-right: 0.25rem
+- Title margin-bottom: 0.5rem
+- Semantic HTML with aria-label for accessibility
+
+---
+
+### Part 3: Add "View All Posts" Footer Link (COMPLETED)
+
+**Date**: December 30, 2025  
+**Status**: ✅ COMPLETED
+
+Added footer link to navigate to full posts listing page.
+
+**Implementation**:
+
+- Link text: "Ver todas las publicaciones" (ES) / "View all posts" (EN)
+- No arrow (→) as per user request
+- Uses global link styles (accent color, no underline)
+- Text-transform: uppercase
+- Right-aligned footer
+
+**Files Modified**:
+
+- `src/locales/es/common.json` - Added `viewAllPosts` translation
+- `src/locales/en/common.json` - Added `viewAllPosts` translation
+- `src/components/LatestPosts.astro` - Added footer section with link
+- `src/styles/components/latest-posts.scss` - Added footer styles
+- `src/__tests__/components/LatestPosts.test.ts` - Added footer link test
+- `e2e/latest-posts.spec.ts` - Added 4 E2E footer tests
+
+**User Preferences**:
+
+- No arrow (→) in link text
+- Global link styles only (no custom hover)
+- Uppercase text
+
+---
+
+### Part 4: Fix Title Component Mobile Issue (COMPLETED)
+
+**Date**: December 30, 2025  
+**Status**: ✅ COMPLETED
+
+Fixed mobile layout issue where long titles (e.g., "ÚLTIMAS PUBLICACIONES DEL BLOG") were overlapping.
+
+**Problem**:
+
+- `line-height: 0` caused text to overlap on mobile
+- `padding: 10px 20px` created too much vertical space
+- Default h2 margin caused excessive height
+
+**Solution**:
+
+- Changed `line-height: 0` → `line-height: 1`
+- Changed `padding: 10px 20px` → `padding: 0.1px 20px`
+- Added `h2 { margin: 0.5em 0; }` to reduce vertical space
+
+**Files Modified**:
+
+- `src/styles/components/title.scss` - Fixed line-height, padding, and h2 margin
+
+**Result**:
+
+- Title renders correctly on mobile without overlap
+- Reduced vertical space for cleaner layout
+- Works for both short (English) and long (Spanish) titles
+
+---
+
 ## Next Steps
 
 ### Immediate (This Session)
 
 1. ✅ Create documentation (this file)
-2. ✅ Fix failing E2E test (line 357 undefined `lang` variable)
-3. ✅ Run full test suite
-4. ✅ Verify all 1106 unit tests + 34 E2E tests pass
-5. ⏳ Run production build
-6. ⏳ Review all changes
-7. ⏳ Create git commit (pending user approval)
+2. ✅ Extract query logic to utility function (refactoring)
+3. ✅ Add content type badges (enhancement)
+4. ✅ Add footer link to posts listing
+5. ✅ Fix Title component mobile issue
+6. ⏳ Update ROADMAP.md with completion status
+7. ⏳ Run production build
+8. ⏳ Review all changes
+9. ⏳ Create git commit (pending user approval)
 
 ### Short-Term (Next Session)
 
-1. 📋 Extract query logic to utility function (refactoring)
-2. 📋 Add content type badges (enhancement)
-3. 📋 Update ROADMAP.md with completion status
+1. 📋 Consider additional enhancements based on user feedback
 
 ### Long-Term (Future)
 

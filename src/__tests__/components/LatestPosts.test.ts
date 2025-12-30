@@ -27,50 +27,15 @@ describe("LatestPosts Component", () => {
     expect(content).toContain("latest-posts__list__post");
   });
 
-  it("should query all content collections", () => {
+  it("should use getLatestPosts utility function", () => {
     const content = fs.readFileSync(componentPath, "utf-8");
 
-    // Check that it imports getCollection from astro:content
-    expect(content).toContain('from "astro:content"');
-    expect(content).toContain("getCollection");
+    // Check that it imports the utility from the correct path
+    expect(content).toContain('from "@utils/content/getLatestPosts"');
+    expect(content).toContain("getLatestPosts");
 
-    // Check that it queries all three collections
-    expect(content).toContain('getCollection("posts")');
-    expect(content).toContain('getCollection("tutorials")');
-    expect(content).toContain('getCollection("books")');
-  });
-
-  it("should filter content by language", () => {
-    const content = fs.readFileSync(componentPath, "utf-8");
-
-    // Check for language filtering logic
-    expect(content).toContain("filterByLanguage");
-    expect(content).toContain("language");
-  });
-
-  it("should exclude draft content", () => {
-    const content = fs.readFileSync(componentPath, "utf-8");
-
-    // Check that drafts are filtered out
-    expect(content).toContain("!post.data.draft");
-    expect(content).toContain("!tutorial.data.draft");
-  });
-
-  it("should sort content by date descending", () => {
-    const content = fs.readFileSync(componentPath, "utf-8");
-
-    // Check for date sorting logic
-    expect(content).toContain("sort");
-    expect(content).toContain("date");
-    expect(content).toMatch(/dateB.*dateA|getTime/);
-  });
-
-  it("should limit results", () => {
-    const content = fs.readFileSync(componentPath, "utf-8");
-
-    // Check for limit/slice logic
-    expect(content).toContain("slice");
-    expect(content).toContain("maxItems");
+    // Check that it calls the utility with correct parameters
+    expect(content).toContain("await getLatestPosts(lang, limit)");
   });
 
   it("should use vintage date formatting", () => {
@@ -92,13 +57,38 @@ describe("LatestPosts Component", () => {
     expect(content).toContain("buildTutorialUrl");
   });
 
-  it("should handle different content types", () => {
+  it("should have content type badges", () => {
     const content = fs.readFileSync(componentPath, "utf-8");
 
-    // Check for content type handling
-    expect(content).toContain('type: "post"');
-    expect(content).toContain('type: "tutorial"');
-    expect(content).toContain('type: "book"');
+    // Check for getContentBadge function
+    expect(content).toContain("getContentBadge");
+
+    // Check for badge element in template
+    expect(content).toContain("latest-posts__list__post__title__badge");
+
+    // Check that badge is rendered with aria-label
+    expect(content).toContain("aria-label={post.type}");
+
+    // Check for emoji badges in function
+    expect(content).toContain("📚"); // book
+    expect(content).toContain("🎓"); // tutorial
+    expect(content).toContain("📝"); // post
+  });
+
+  it("should have 'View All Posts' link", () => {
+    const content = fs.readFileSync(componentPath, "utf-8");
+
+    // Check for footer element
+    expect(content).toContain("latest-posts__footer");
+
+    // Check for link element
+    expect(content).toContain("latest-posts__footer__link");
+
+    // Check for buildIndexUrl import and usage
+    expect(content).toContain("buildIndexUrl");
+
+    // Check for translation key
+    expect(content).toContain("viewAllPosts");
   });
 
   it("should use translation system", () => {
@@ -141,17 +131,6 @@ describe("LatestPosts Component", () => {
     expect(content).toMatch(/limit\s*=\s*4/);
   });
 
-  it("should map posts with correct fields", () => {
-    const content = fs.readFileSync(componentPath, "utf-8");
-
-    // Check for required fields in post mapping
-    expect(content).toContain("slug");
-    expect(content).toContain("title");
-    expect(content).toContain("date");
-    expect(content).toContain("excerpt");
-    expect(content).toContain("cover");
-  });
-
   describe("Empty State Handling", () => {
     it("should not render any HTML when there are no posts", () => {
       const content = fs.readFileSync(componentPath, "utf-8");
@@ -167,19 +146,18 @@ describe("LatestPosts Component", () => {
     it("should handle case where language has no content", () => {
       const content = fs.readFileSync(componentPath, "utf-8");
 
-      // Component filters by language, so if a language has no posts,
-      // the array should be empty and nothing should render
-      expect(content).toContain("filterByLanguage");
+      // Component uses getLatestPosts utility which filters by language
+      // If a language has no posts, the array should be empty and nothing should render
+      expect(content).toContain("getLatestPosts");
       expect(content).toContain("latestPosts.length > 0");
     });
 
     it("should handle case where all posts are drafts", () => {
       const content = fs.readFileSync(componentPath, "utf-8");
 
-      // Component filters out drafts, so if all posts are drafts,
-      // the array should be empty and nothing should render
-      expect(content).toContain("!post.data.draft");
-      expect(content).toContain("!tutorial.data.draft");
+      // Component uses getLatestPosts utility which filters out drafts
+      // If all posts are drafts, the array should be empty and nothing should render
+      expect(content).toContain("getLatestPosts");
       expect(content).toContain("latestPosts.length > 0");
     });
 
@@ -211,14 +189,10 @@ describe("LatestPosts Component", () => {
     it("should gracefully handle mixed empty collections", () => {
       const content = fs.readFileSync(componentPath, "utf-8");
 
+      // Component uses getLatestPosts utility which handles all collections
       // When books, posts, or tutorials are empty individually,
       // the component should still work if ANY collection has content
-      expect(content).toContain('getCollection("posts")');
-      expect(content).toContain('getCollection("tutorials")');
-      expect(content).toContain('getCollection("books")');
-
-      // All collections are combined before checking length
-      expect(content).toContain("combinedContent");
+      expect(content).toContain("getLatestPosts");
       expect(content).toContain("latestPosts.length > 0");
     });
   });

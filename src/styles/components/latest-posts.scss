@@ -48,7 +48,18 @@
       &__title {
         grid-area: title;
         padding-top: 1px;
+        margin-bottom: 0.5rem;
         text-transform: uppercase;
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+
+        &__badge {
+          font-size: 1.2rem;
+          line-height: 1;
+          flex-shrink: 0;
+          margin-right: 0.25rem;
+        }
 
         // Links inherit global link styles ($accent color, no underline)
         // No additional hover effects needed - uses global styles
@@ -75,6 +86,16 @@
         font-weight: normal;
         text-transform: uppercase;
       }
+    }
+  }
+
+  &__footer {
+    padding: 0 20px 20px 20px;
+    text-align: right;
+
+    &__link {
+      text-transform: uppercase;
+      // Uses global link styles ($accent color, no underline)
     }
   }
 }

@@ -20,11 +20,10 @@
 
 import Title from "@components/Title.astro";
 import { t } from "@locales";
-import { filterByLanguage } from "@utils/blog";
 import type { PostSummary } from "@utils/blog";
+import { getLatestPosts } from "@utils/content/getLatestPosts";
 import { formatVintageDate } from "@utils/dateFormat";
-import { buildBookUrl, buildPostUrl, buildTutorialUrl } from "@utils/routes";
-import { getCollection } from "astro:content";
+import { buildBookUrl, buildPostUrl, buildTutorialUrl, buildIndexUrl } from "@utils/routes";
 
 interface Props {
   limit?: number;
@@ -32,61 +31,6 @@ interface Props {
 }
 
 const { limit = 4, lang } = Astro.props;
-
-/**
- * Get all content for the current language, sorted by date
- */
-async function getLatestPosts(language: string, maxItems: number): Promise<PostSummary[]> {
-  // Get all content types
-  const allPosts = await getCollection("posts");
-  const allTutorials = await getCollection("tutorials");
-  const allBooks = await getCollection("books");
-
-  // Filter by language and exclude drafts
-  const langPosts = filterByLanguage(allPosts, language).filter((post) => !post.data.draft);
-  const langTutorials = filterByLanguage(allTutorials, language).filter((tutorial) => !tutorial.data.draft);
-  const langBooks = filterByLanguage(allBooks, language);
-
-  // Prepare combined content with unified structure
-  const combinedContent: PostSummary[] = [
-    ...langPosts.map((post) => ({
-      type: "post" as const,
-      slug: post.data.post_slug,
-      title: post.data.title,
-      date: post.data.date,
-      excerpt: post.data.excerpt,
-      language: post.data.language,
-      cover: post.data.cover || post.data.featured_image,
-    })),
-    ...langTutorials.map((tutorial) => ({
-      type: "tutorial" as const,
-      slug: tutorial.data.post_slug,
-      title: tutorial.data.title,
-      date: tutorial.data.date,
-      excerpt: tutorial.data.excerpt,
-      language: tutorial.data.language,
-      cover: tutorial.data.cover || tutorial.data.featured_image,
-    })),
-    ...langBooks.map((book) => ({
-      type: "book" as const,
-      slug: book.data.post_slug,
-      title: book.data.title,
-      date: book.data.date,
-      excerpt: book.data.excerpt,
-      language: book.data.language,
-      cover: book.data.cover,
-    })),
-  ];
-
-  // Sort by date (newest first) and limit
-  return combinedContent
-    .sort((a, b) => {
-      const dateA = new Date(a.date);
-      const dateB = new Date(b.date);
-      return dateB.getTime() - dateA.getTime();
-    })
-    .slice(0, maxItems);
-}
 
 /**
  * Get the correct URL based on content type
@@ -103,8 +47,26 @@ function getContentUrl(item: PostSummary): string {
   }
 }
 
-// Fetch latest posts
+/**
+ * Get the correct emoji badge based on content type
+ */
+function getContentBadge(type: PostSummary["type"]): string {
+  switch (type) {
+    case "book":
+      return "📚";
+    case "tutorial":
+      return "🎓";
+    case "post":
+    default:
+      return "📝";
+  }
+}
+
+// Fetch latest posts using utility function
 const latestPosts = await getLatestPosts(lang, limit);
+
+// Build URL for "View all posts" link
+const allPostsUrl = buildIndexUrl("posts", lang);
 ---
 
 {
@@ -115,10 +77,14 @@ const latestPosts = await getLatestPosts(lang, limit);
         {latestPosts.map((post) => {
           const url = getContentUrl(post);
           const formattedDate = formatVintageDate(post.date, lang);
+          const badge = getContentBadge(post.type);
 
           return (
             <section class="latest-posts__list__post">
               <section class="latest-posts__list__post__title">
+                <span class="latest-posts__list__post__title__badge" aria-label={post.type}>
+                  {badge}
+                </span>
                 <a href={url}>{post.title}</a>
               </section>
               <section class="latest-posts__list__post__date">
@@ -131,6 +97,11 @@ const latestPosts = await getLatestPosts(lang, limit);
           );
         })}
       </section>
+      <footer class="latest-posts__footer">
+        <a href={allPostsUrl} class="latest-posts__footer__link">
+          {t(lang, "viewAllPosts")}
+        </a>
+      </footer>
     </main>
   )
 }
