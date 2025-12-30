@@ -33,3 +33,9 @@ test-results/
 
 # pagefind (generated, copied from dist/ for dev)
 /public/pagefind/
+
+# lighthouse (local development only)
+lighthouserc.json
+lighthouse-reports/
+.lighthouseci/
+lighthouse-baseline-report.txt

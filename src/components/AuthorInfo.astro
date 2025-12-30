@@ -14,7 +14,7 @@ const { Content } = await render(author);
 <main class:list={[border ? "author-info--border" : "author-info"]}>
   <div class="author-info__image">
     <div class="author-info__image__border">
-      <img src={author.data.picture} alt={author.data.name} />
+      <img src={author.data.picture} alt={author.data.name} width="150" height="150" loading="lazy" />
     </div>
   </div>
   <div class="author-info__text">

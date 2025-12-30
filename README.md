@@ -17,7 +17,7 @@ Personal website and resume built with [Astro](https://astro.build/). Featuring 
 - 🚀 **Fast**: Static site generation with Astro and View Transitions for SPA-like navigation
 - 🎯 **SEO optimized**: Complete meta tags, JSON-LD structured data (Book, BlogPosting, TechArticle), Open Graph, Twitter Cards, canonical URLs, and hreflang support
 - 💅 **SCSS styling**: Modular and maintainable styles with CSS variables
-- 🧪 **Fully tested**: 1,086 tests (964 unit + 122 E2E) with 97%+ coverage (including 34 SEO tests + 25 search tests + 205 schema tests)
+- 🧪 **Fully tested**: 1,364 tests (1,084 unit + 280 E2E) with 97%+ coverage (including 34 SEO tests + 25 search tests + 205 schema tests + 28 print tests)
 - 🔄 **CI/CD**: Automated testing, linting, and Lighthouse performance checks
 - 🪝 **Pre-commit hooks**: Automatic linting and testing before commits
 
@@ -28,13 +28,13 @@ Personal website and resume built with [Astro](https://astro.build/). Featuring 
 - **Framework**: Astro 5.x
 - **Language**: TypeScript
 - **Styling**: SCSS with CSS variables for theming
-- **Icons**: Fontello custom icon font
+- **Icons**: Inline SVG components (header) + Fontello custom icon font (UI)
 - **Package Manager**: Bun
 
 ### Testing
 
-- **Unit Tests**: Vitest + Testing Library (964 tests, 97%+ coverage)
-- **E2E Tests**: Playwright (122 tests across multiple viewports)
+- **Unit Tests**: Vitest + Testing Library (1,084 tests, 97%+ coverage)
+- **E2E Tests**: Playwright (280 tests across multiple viewports)
 - **Search Tests**: 25 dedicated E2E tests for Pagefind integration
 - **Accessibility**: Axe-core with WCAG 2.1 AA compliance
 - **Performance**: Lighthouse CI integration
@@ -68,17 +68,22 @@ Personal website and resume built with [Astro](https://astro.build/). Featuring 
 │   ├── ROUTER_COMPLEXITY_ANALYSIS.md
 │   ├── PHASE_3_STATUS.md
 │   └── SESSION_*.md      # Detailed session documentation
-├── e2e/                   # End-to-end tests (Playwright) - 122 tests
-│   ├── breadcrumbs.spec.ts           # Breadcrumb navigation (10 tests)
-│   ├── rss.spec.ts                   # RSS feeds validation (12 tests)
-│   ├── search.spec.ts                # Search functionality (25 tests) ⭐
-│   ├── seo-itemlist.spec.ts          # SEO ItemList schema (40 tests)
-│   ├── seo-meta.spec.ts              # SEO meta tags (15 tests)
-│   ├── seo-structured-data.spec.ts   # SEO structured data (20 tests)
-│   └── state-performance.spec.ts     # State & performance (10 tests)
+├── e2e/                   # End-to-end tests (Playwright) - 280 tests
+│   ├── accessibility.spec.ts                # Accessibility (50 tests)
+│   ├── breadcrumbs.spec.ts                  # Breadcrumb navigation (10 tests)
+│   ├── language-switching-edge-cases.spec.ts # Language switching (17 tests)
+│   ├── pagination-edge-cases.spec.ts        # Pagination (30 tests)
+│   ├── print.spec.ts                        # Print styles for CV (28 tests) ⭐
+│   ├── routing.spec.ts                      # Routing (33 tests)
+│   ├── rss.spec.ts                          # RSS feeds validation (12 tests)
+│   ├── search.spec.ts                       # Search functionality (25 tests) ⭐
+│   ├── seo-itemlist.spec.ts                 # SEO ItemList schema (31 tests)
+│   ├── seo-meta.spec.ts                     # SEO meta tags (15 tests)
+│   ├── seo-structured-data.spec.ts          # SEO structured data (23 tests)
+│   └── state-performance.spec.ts            # State & performance (6 tests)
 ├── public/                # Static assets (images, fonts, favicon)
 ├── src/
-│   ├── __tests__/         # Unit tests (Vitest) - 964 tests
+│   ├── __tests__/         # Unit tests (Vitest) - 1,084 tests
 │   │   ├── content.test.ts
 │   │   ├── locales.test.ts
 │   │   ├── setup.ts
@@ -437,6 +442,37 @@ The search system has **25 dedicated E2E tests** covering:
 
 See `e2e/search.spec.ts` for the full test suite.
 
+## 🖨️ Print Styles for CV Generation
+
+The `/es/acerca-de` (About) page is optimized for printing to PDF (Ctrl+P → Save as PDF) to generate a professional CV.
+
+### Print Features
+
+- **SVG icons**: Inline SVG components replace emojis for perfect print rendering
+- **Compact header**: Optimized spacing matching original design specifications
+- **Contact visibility**: Phone and website shown only in print, Twitter hidden
+- **Clean layout**: Menu, theme switcher, and interactive elements hidden
+- **Professional output**: Dark header maintained, all typography optimized
+
+### Implementation
+
+- **Component**: `src/components/Icon.astro` - Inline SVG icon component with 7 icons
+- **Icons**: `public/icons/*.svg` - SVG files for LinkedIn, email, GitHub, Twitter, location, phone, web
+- **Styles**: `src/styles/components/header.scss` - Print-specific SCSS with `@include print`
+- **Testing**: 28 E2E tests in `e2e/print.spec.ts` covering screen/print modes
+
+### Print Testing
+
+The print system has **28 dedicated E2E tests** covering:
+
+- Element visibility in screen vs print modes
+- Contact items display logic (email, phone, web, social)
+- Header layout and spacing
+- Theme switcher and menu hiding
+- Icon rendering and alignment
+
+See `e2e/print.spec.ts` for the full test suite.
+
 ## 🧞 Commands
 
 All commands are run from the root of the project, from a terminal:
@@ -497,7 +533,7 @@ Located in `src/__tests__/`, covering:
   - Categories (33 tests): Hierarchy, i18n mappings, slugs, descriptions
   - Taxonomy (16 tests): Series, challenges, courses validation
 
-**Total**: 964 tests (41 test files)  
+**Total**: 1,084 tests (45 test files)  
 **Coverage**: 97%+ statements, 90%+ branches, 100% functions
 
 ### E2E Tests (Playwright)
@@ -505,6 +541,7 @@ Located in `src/__tests__/`, covering:
 Located in `e2e/`, covering:
 
 - **Search** (25 tests): Modal UI, keyboard shortcuts, results filtering, language support, content exclusion
+- **Print Styles** (28 tests): Screen/print modes, contact visibility, header layout, icon rendering ⭐
 - **SEO** (75+ tests): Meta tags, Open Graph, Twitter Cards, JSON-LD structured data (Book, BlogPosting, TechArticle)
 - **Breadcrumbs** (10 tests): Navigation, ARIA labels, structured data
 - **RSS Feeds** (12 tests): Feed generation, autodiscovery, content validation
@@ -512,9 +549,9 @@ Located in `e2e/`, covering:
 - **Performance**: Load times, console errors, resource loading
 - **State management**: LocalStorage persistence, theme across ViewTransitions
 
-**Total**: 122 tests (7 test files) across Chromium
+**Total**: 280 tests (12 test files) across Chromium
 
-**Grand Total**: 1,086 tests (964 unit + 122 E2E) with 97%+ coverage 🎯
+**Grand Total**: 1,364 tests (1,084 unit + 280 E2E) with 97%+ coverage 🎯
 
 ## 🏗️ Content Management
 
@@ -631,10 +668,10 @@ Automated dependency management configured in `.github/dependabot.yml`:
 
 ## 📊 Code Quality Metrics
 
-- **Total Tests**: 1,086 tests (964 unit + 122 E2E) ⭐
-- **Unit Tests**: 964 tests across 41 test files (including 34 SEO tests + 114 routing tests)
+- **Total Tests**: 1,364 tests (1,084 unit + 280 E2E) ⭐
+- **Unit Tests**: 1,084 tests across 45 test files (including 34 SEO tests + 114 routing tests)
 - **Unit Test Coverage**: 97%+ statements, 90%+ branches, 100% functions
-- **E2E Tests**: 122 tests across 7 test files covering all critical flows
+- **E2E Tests**: 280 tests across 12 test files covering all critical flows
 - **Search Tests**: 25 dedicated E2E tests for Pagefind integration
 - **Accessibility**: WCAG 2.1 Level AA compliant
 - **Performance**: Optimized for Core Web Vitals
