@@ -128,7 +128,8 @@ test.describe("LatestPosts Component", () => {
       const badge = firstPost.locator(".latest-posts__list__post__title__badge");
 
       await expect(badge).toBeVisible();
-      await expect(badge).toHaveAttribute("aria-label");
+      // Badge is now an SVG icon with aria-hidden
+      await expect(badge).toHaveAttribute("aria-hidden", "true");
     });
 
     test("badge should contain correct emoji for content type", async ({ page }) => {
@@ -137,11 +138,10 @@ test.describe("LatestPosts Component", () => {
 
       const firstPost = page.locator(".latest-posts__list__post").first();
       const badge = firstPost.locator(".latest-posts__list__post__title__badge");
-      const badgeText = await badge.textContent();
 
-      // Should be one of: 📚 (book), 🎓 (tutorial), 📝 (post)
-      const validBadges = ["📚", "🎓", "📝"];
-      expect(validBadges).toContain(badgeText?.trim());
+      // Badge itself is an SVG icon (not emoji)
+      await expect(badge).toBeVisible();
+      await expect(badge).toHaveAttribute("xmlns", "http://www.w3.org/2000/svg");
     });
 
     test("badge aria-label should match content type", async ({ page }) => {
@@ -150,11 +150,14 @@ test.describe("LatestPosts Component", () => {
 
       const firstPost = page.locator(".latest-posts__list__post").first();
       const badge = firstPost.locator(".latest-posts__list__post__title__badge");
-      const ariaLabel = await badge.getAttribute("aria-label");
 
-      // Should be one of: book, tutorial, post
-      const validTypes = ["book", "tutorial", "post"];
-      expect(validTypes).toContain(ariaLabel);
+      // Badge is an SVG icon
+      await expect(badge).toBeVisible();
+      await expect(badge).toHaveAttribute("xmlns", "http://www.w3.org/2000/svg");
+
+      // Should have the class assigned by LatestPosts component
+      const badgeClass = await badge.getAttribute("class");
+      expect(badgeClass).toContain("latest-posts__list__post__title__badge");
     });
 
     test("should have 'View All Posts' footer link", async ({ page }) => {

@@ -292,10 +292,11 @@ test.describe("Search Functionality", () => {
       const searchButton = page.locator("#search-toggle");
       await expect(searchButton).toBeVisible();
 
-      // Should have icon
+      // Should have SVG icon
       const icon = searchButton.locator(".search-button__icon");
       await expect(icon).toBeVisible();
-      await expect(icon).toContainText("🔍");
+      // Verify it's an SVG element (not emoji)
+      await expect(icon).toHaveAttribute("xmlns", "http://www.w3.org/2000/svg");
     });
 
     test("should have proper ARIA labels on search button", async ({ page }) => {

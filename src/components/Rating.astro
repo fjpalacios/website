@@ -39,7 +39,7 @@ const ariaLabel = isFavorite
 const scoreText = isFavorite ? (lang === "en" ? "Favorite" : "Favorito") : `${numericScore}/5`;
 ---
 
-<div class={`rating rating--${size} ${isFavorite ? "rating--favorite" : ""}`} aria-label={ariaLabel}>
+<div class={`rating rating--${size} ${isFavorite ? "rating--favorite" : ""}`} role="img" aria-label={ariaLabel}>
   <div class="rating__stars">
     {
       Array.from({ length: 5 }, (_, i) => {

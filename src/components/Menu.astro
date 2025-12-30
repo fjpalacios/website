@@ -1,4 +1,5 @@
 ---
+import Icon from "@components/Icon.astro";
 import LanguageSwitcher from "@components/LanguageSwitcher.astro";
 import { getMenuItems } from "@config/navigation";
 import { t } from "@locales";
@@ -43,7 +44,8 @@ const itemsWithUrls = menuItems.map((item) => {
       aria-label={t(lang, "menu.switchTheme")}
       title={t(lang, "menu.switchTheme")}
     >
-      <span class="theme-switcher__icon" aria-hidden="true"></span>
+      <Icon name="sun" size="md" class="theme-switcher__icon theme-switcher__icon--sun" />
+      <Icon name="moon" size="md" class="theme-switcher__icon theme-switcher__icon--moon" />
     </button>
     <button
       type="button"
@@ -52,7 +54,7 @@ const itemsWithUrls = menuItems.map((item) => {
       aria-label={t(lang, "menu.search")}
       title={t(lang, "menu.search")}
     >
-      <span class="search-button__icon" aria-hidden="true">🔍</span>
+      <Icon name="search" size="md" class="search-button__icon" />
     </button>
   </div>
   <div class="menu__right">
@@ -69,17 +71,6 @@ const itemsWithUrls = menuItems.map((item) => {
     </ul>
   </div>
 </nav>
-
-<script is:inline>
-  // Update theme icon immediately after menu renders (prevents icon flash)
-  (function () {
-    const theme = localStorage.getItem("theme") || "dark";
-    const icon = document.querySelector(".theme-switcher__icon");
-    if (icon) {
-      icon.textContent = theme === "dark" ? "☀️" : "🌑";
-    }
-  })();
-</script>
 
 <script>
   import { initTheme } from "@scripts/theme";

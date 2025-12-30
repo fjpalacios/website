@@ -131,8 +131,6 @@ div pre[class*="language-"] {
   opacity: 1 !important;
   visibility: visible !important;
   pointer-events: auto !important;
-  font-size: 18px !important;
-  line-height: 1 !important;
 
   &:hover {
     background: $border-dark !important;
@@ -146,9 +144,9 @@ div pre[class*="language-"] {
     border-color: rgba(74, 222, 128, 0.3) !important;
   }
 
-  svg {
-    width: 18px;
-    height: 18px;
+  &__icon {
+    width: 16px;
+    height: 16px;
     display: block;
     flex-shrink: 0;
   }

@@ -29,16 +29,9 @@ export function getSavedTheme(): Theme {
 export function updateThemeIcon(): void {
   if (typeof document === "undefined") return;
 
-  const icon = document.querySelector(".theme-switcher__icon");
-  if (!icon) return;
-
-  const currentTheme = getTheme();
-  // Show sun emoji when in dark mode (clicking will switch to light)
-  // Show moon emoji when in light mode (clicking will switch to dark)
-  // Using specific emojis for better contrast:
-  // - ☀️ sun (yellow) shows well on dark backgrounds
-  // - 🌑 new moon (dark) shows well on light backgrounds
-  icon.textContent = currentTheme === "dark" ? "☀️" : "🌑";
+  // Icons are toggled via CSS based on html[data-theme] attribute
+  // No JavaScript manipulation needed, but we keep this function
+  // for potential future icon updates or animations
 }
 
 export function applyTheme(theme: Theme): void {
@@ -49,6 +42,9 @@ export function applyTheme(theme: Theme): void {
   // Apply to both html and body to prevent FOUC
   document.documentElement.classList.remove(oldTheme);
   document.documentElement.classList.add(theme);
+
+  // Update data-theme attribute on html for CSS selectors
+  document.documentElement.setAttribute("data-theme", theme);
 
   document.body.classList.remove(oldTheme);
   document.body.classList.add(theme);
