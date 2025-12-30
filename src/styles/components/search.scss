@@ -74,7 +74,7 @@
     left: 0;
     right: 0;
     bottom: 0;
-    background: rgba(0, 0, 0, 0.6);
+    background: $overlay-dark;
     backdrop-filter: blur(4px);
   }
 
@@ -85,7 +85,7 @@
     max-width: 42rem;
     background: $primary;
     border-radius: 0.75rem;
-    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.3);
+    box-shadow: 0 20px 25px -5px $shadow-dark;
     animation: slideUp 0.2s ease-out;
 
     @keyframes slideUp {
@@ -106,7 +106,7 @@
     align-items: center;
     justify-content: flex-end;
     padding: 1rem;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    border-bottom: 1px solid $border-light;
   }
 
   // Element: close button
@@ -170,7 +170,7 @@
   --pagefind-ui-primary: #{$accent};
   --pagefind-ui-text: #{$text};
   --pagefind-ui-background: #{$primary};
-  --pagefind-ui-border: rgba(255, 255, 255, 0.1);
+  --pagefind-ui-border: #{$border-light};
   --pagefind-ui-tag: #{$background};
   --pagefind-ui-border-width: 1px;
   --pagefind-ui-border-radius: 0.5rem;
@@ -200,7 +200,7 @@
   padding: 1rem 3rem 1rem 3rem; // Space for icon on left and clear button on right
   background: $background;
   color: $text;
-  border: 2px solid rgba(255, 255, 255, 0.15);
+  border: 2px solid $border-medium;
   border-radius: 0.5rem;
   transition: all 0.2s ease;
   width: 100%;
@@ -246,17 +246,17 @@
   padding: 1.5rem !important; // Override Pagefind's default 30px 0
   margin-bottom: 0.75rem;
   background: rgba(255, 255, 255, 0.03);
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  border: 1px solid $border-light;
   transition: all 0.2s ease;
   overflow: hidden;
   border-top: none !important; // Remove Pagefind's top border
   border-bottom: none !important; // Remove Pagefind's bottom border
 
   &:hover {
-    background: rgba(255, 255, 255, 0.08);
+    background: $border-light;
     border-color: rgba(239, 187, 53, 0.3);
     transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+    box-shadow: 0 4px 12px $shadow-medium;
   }
 }
 
@@ -339,18 +339,18 @@
 
 // Light theme: Modal backdrop (slightly lighter overlay)
 :global(body.light .search-modal__backdrop) {
-  background: rgba(0, 0, 0, 0.4);
+  background: $overlay-light;
 }
 
 // Light theme: Modal content background
 :global(body.light .search-modal__content) {
   background: #fbfef9; // Light theme primary color
-  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.15);
+  box-shadow: 0 20px 25px -5px $shadow-medium;
 }
 
 // Light theme: Header border
 :global(body.light .search-modal__header) {
-  border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+  border-bottom: 1px solid $border-medium;
 }
 
 // Light theme: Close button
@@ -387,7 +387,7 @@
   --pagefind-ui-primary: #0056b3; // Light theme accent
   --pagefind-ui-text: #284b63; // Light theme text
   --pagefind-ui-background: #fbfef9; // Light theme primary
-  --pagefind-ui-border: rgba(0, 0, 0, 0.1);
+  --pagefind-ui-border: #{$border-medium};
   --pagefind-ui-tag: #e8ede7; // Light theme background
 }
 
@@ -395,7 +395,7 @@
 :global(body.light .search-modal__container .pagefind-ui__search-input) {
   background: #e8ede7; // Light theme background
   color: #284b63; // Light theme text
-  border: 2px solid rgba(0, 0, 0, 0.15);
+  border: 2px solid $border-dark;
 
   &:focus {
     border-color: #0056b3; // Light theme accent
@@ -419,12 +419,12 @@
 // Light theme: Result cards
 :global(body.light .search-modal__container .pagefind-ui__result) {
   background: rgba(0, 0, 0, 0.04); // Increased from 0.02 for better contrast
-  border: 1px solid rgba(0, 0, 0, 0.15); // Increased from 0.08 for visibility
+  border: 1px solid $border-dark; // Increased from 0.08 for visibility
 
   &:hover {
-    background: rgba(0, 0, 0, 0.08); // Increased from 0.05
+    background: $border-medium; // Increased from 0.05
     border-color: rgba(0, 86, 179, 0.4); // Slightly more visible
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 4px 12px $shadow-medium;
   }
 }
 

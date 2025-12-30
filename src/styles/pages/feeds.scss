@@ -79,7 +79,7 @@
       // Light theme needs better contrast
       :global(body.light) & {
         background-color: $primary;
-        color: #d0d0d0; // 12.46:1 contrast on #071013
+        color: $gray-lighter; // 12.46:1 contrast on #071013
         border-color: $primary;
       }
 
@@ -90,7 +90,7 @@
 
         // Light theme hover: white text on accent color
         :global(body.light) & {
-          color: #ffffff; // White on accent (#0c7298) = 4.67:1 contrast
+          color: $code-syntax-white; // White on accent (#0c7298) = 4.67:1 contrast
         }
       }
 

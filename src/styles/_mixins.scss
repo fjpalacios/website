@@ -140,7 +140,7 @@
     line-height: 1.45;
     position: relative;
     border: none;
-    color: #9a9a9a;
+    color: $gray-light;
     display: flow-root;
 
     &::before {
@@ -152,7 +152,7 @@
       font-size: 80px;
       font-style: italic;
       font-family: Georgia, serif;
-      color: #7a7a7a;
+      color: $gray-medium;
     }
 
     p {
@@ -164,7 +164,7 @@
     cite {
       display: block;
       margin-top: -7px;
-      color: #999999;
+      color: $gray-light;
       font-style: normal;
       text-align: right;
     }
@@ -178,14 +178,14 @@
 // Example: @include blockquote-light-theme(".text-area blockquote");
 @mixin blockquote-light-theme($selector) {
   body.light #{$selector} {
-    color: #7a7a7a;
+    color: $gray-medium;
 
     &::before {
-      color: #7a7a7a;
+      color: $gray-medium;
     }
 
     cite {
-      color: #999999;
+      color: $gray-light;
     }
   }
 }

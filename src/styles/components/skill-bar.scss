@@ -1,3 +1,5 @@
+@use "../variables" as *;
+
 $height: 35px;
 
 .skill-bar {
@@ -19,7 +21,7 @@ $height: 35px;
   &__box {
     width: 100%;
     height: $height;
-    background-color: #eee;
+    background-color: $gray-lightest;
 
     &__level {
       height: $height;
