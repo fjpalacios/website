@@ -4,6 +4,7 @@ import Header from "@components/Header.astro";
 import Menu from "@components/Menu.astro";
 import Search from "@components/Search.astro";
 import SEO from "@components/SEO.astro";
+import { TIMINGS } from "@config/timings";
 import { t } from "@locales";
 import type { ContactItem } from "@types/content";
 import { ViewTransitions } from "astro:transitions";
@@ -173,9 +174,17 @@ const baseUrl = t(lang, "metaData.url");
     </div>
     <!-- Search Modal (global, accessible from menu) -->
     <Search lang={lang} />
-    <script is:inline define:vars={{ copyText: t(lang, "codeBlock.copy"), copiedText: t(lang, "codeBlock.copied") }}>
-      // Store translations in global scope
+    <script
+      is:inline
+      define:vars={{
+        copyText: t(lang, "codeBlock.copy"),
+        copiedText: t(lang, "codeBlock.copied"),
+        copyFeedbackMs: TIMINGS.CODE_COPY_FEEDBACK_MS,
+      }}
+    >
+      // Store translations and timings in global scope
       window.__CODE_BLOCK_I18N__ = { copyText, copiedText };
+      window.__CODE_BLOCK_TIMINGS__ = { copyFeedbackMs };
     </script>
     <script is:inline>
       // Add copy buttons and language labels to Prism code blocks
@@ -185,6 +194,7 @@ const baseUrl = t(lang, "metaData.url");
 
           // Get translations from global scope
           const i18n = window.__CODE_BLOCK_I18N__ || { copyText: "Copy code", copiedText: "Copied" };
+          const timings = window.__CODE_BLOCK_TIMINGS__ || { copyFeedbackMs: 2000 };
 
           codeBlocks.forEach((pre) => {
             // Skip if already setup
@@ -230,7 +240,7 @@ const baseUrl = t(lang, "metaData.url");
                     if (statusEl) {
                       statusEl.textContent = "";
                     }
-                  }, TIMINGS.CODE_COPY_FEEDBACK_MS);
+                  }, timings.copyFeedbackMs);
                 } catch (err) {
                   console.error("Failed to copy code:", err);
                 }

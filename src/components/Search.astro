@@ -187,7 +187,7 @@ const { lang } = Astro.props;
       document.addEventListener("focusin", focusTrapHandler.focusin, true);
     }
 
-    function removeFocusTrap(_modal: HTMLElement | null) {
+    function removeFocusTrap(_modal) {
       if (focusTrapHandler) {
         document.removeEventListener("keydown", focusTrapHandler.keydown, true);
         document.removeEventListener("focusin", focusTrapHandler.focusin, true);

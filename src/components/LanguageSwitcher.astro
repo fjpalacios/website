@@ -67,19 +67,18 @@ const flagLabel = t(lang, targetLang === "es" ? "menu.toSpanish" : "menu.toEngli
   // Preserve hash and query params when switching languages
   // This runs on the client side to capture hash fragments (which aren't sent to server)
   function setupLanguageSwitcher() {
-    const languageSwitcherLink = document.querySelector(".language-switcher__link") as HTMLAnchorElement;
+    const languageSwitcherLink = document.querySelector(".language-switcher__link");
 
     if (!languageSwitcherLink) return;
 
     // Remove any existing listener to avoid duplicates
-    const existingHandler = (languageSwitcherLink as HTMLAnchorElement & { __langSwitchHandler?: (e: Event) => void })
-      .__langSwitchHandler;
+    const existingHandler = languageSwitcherLink.__langSwitchHandler;
     if (existingHandler) {
       languageSwitcherLink.removeEventListener("click", existingHandler);
     }
 
     // Create new handler
-    const handler = (e: Event) => {
+    const handler = (e) => {
       const currentSearch = window.location.search;
       const currentHash = window.location.hash;
 
@@ -92,8 +91,7 @@ const flagLabel = t(lang, targetLang === "es" ? "menu.toSpanish" : "menu.toEngli
     };
 
     // Store handler reference and add listener
-    (languageSwitcherLink as HTMLAnchorElement & { __langSwitchHandler?: (e: Event) => void }).__langSwitchHandler =
-      handler;
+    languageSwitcherLink.__langSwitchHandler = handler;
     languageSwitcherLink.addEventListener("click", handler);
 
     // Mark as ready for E2E tests

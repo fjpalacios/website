@@ -18,7 +18,31 @@
  */
 
 import AxeBuilder from "@axe-core/playwright";
-import { test, expect } from "@playwright/test";
+import { test, expect, type Page } from "@playwright/test";
+
+/**
+ * Helper function to open search modal and wait for it to be ready
+ * This handles the timing issues with Pagefind initialization
+ */
+async function openSearchModal(page: Page): Promise<void> {
+  const searchButton = page.locator(".search-button");
+  await searchButton.click();
+
+  // Wait for modal to open (check visibility and aria-hidden attribute)
+  const modal = page.locator(".search-modal");
+  await modal.waitFor({ state: "visible", timeout: 10000 });
+  await page.waitForFunction(
+    () => {
+      const modal = document.querySelector(".search-modal");
+      return modal && modal.getAttribute("aria-hidden") === "false";
+    },
+    { timeout: 10000 },
+  );
+
+  // Wait for Pagefind UI to initialize (search input appears)
+  const searchInput = page.locator(".pagefind-ui__search-input");
+  await searchInput.waitFor({ state: "visible", timeout: 5000 });
+}
 
 test.describe("Accessibility Tests", () => {
   test.describe("Home Pages", () => {
@@ -335,7 +359,7 @@ test.describe("Accessibility Tests", () => {
       // Open search - use .first() to get the button, not the close button
       const searchButton = page.locator('[aria-label*="earch"], [aria-label*="uscar"]').first();
       if ((await searchButton.count()) > 0) {
-        await searchButton.click();
+        await openSearchModal(page);
         await page.waitForTimeout(300); // Wait for modal to open
 
         const accessibilityScanResults = await new AxeBuilder({ page })
@@ -406,7 +430,7 @@ test.describe("Accessibility Tests", () => {
       // Open search to test form - use .first() to get the button, not the close button
       const searchButton = page.locator('[aria-label*="earch"], [aria-label*="uscar"]').first();
       if ((await searchButton.count()) > 0) {
-        await searchButton.click();
+        await openSearchModal(page);
         await page.waitForTimeout(300);
 
         const accessibilityScanResults = await new AxeBuilder({ page }).withTags(["wcag2a"]).include("body").analyze();
@@ -492,14 +516,12 @@ test.describe("Accessibility Tests", () => {
       await page.waitForLoadState("networkidle");
 
       // Open search modal
-      const searchButton = page.locator(".search-button");
-      await searchButton.click();
-      await page.waitForSelector(".search-modal[aria-hidden='false']", { state: "visible" });
+      await openSearchModal(page);
 
       // Perform a search to show results
       const searchInput = page.locator(".pagefind-ui__search-input");
       await searchInput.fill("king");
-      await page.waitForTimeout(1000); // Wait for search results
+      await page.waitForTimeout(1500); // Wait for search results
 
       const accessibilityScanResults = await new AxeBuilder({ page })
         .withTags(["wcag2a", "wcag2aa", "wcag21a", "wcag21aa"])
@@ -519,9 +541,7 @@ test.describe("Accessibility Tests", () => {
       await page.waitForTimeout(300); // Wait for theme transition
 
       // Open search modal
-      const searchButton = page.locator(".search-button");
-      await searchButton.click();
-      await page.waitForSelector(".search-modal[aria-hidden='false']", { state: "visible" });
+      await openSearchModal(page);
 
       // Perform a search to show results
       const searchInput = page.locator(".pagefind-ui__search-input");
@@ -545,9 +565,8 @@ test.describe("Accessibility Tests", () => {
       await expect(modal).toHaveAttribute("aria-hidden", "true");
 
       // Open modal
-      const searchButton = page.locator(".search-button");
-      await searchButton.click();
-      await page.waitForSelector(".search-modal[aria-hidden='false']", { state: "visible" });
+      // Open search modal
+      await openSearchModal(page);
 
       // Check modal is visible
       await expect(modal).toHaveAttribute("aria-hidden", "false");
@@ -564,9 +583,7 @@ test.describe("Accessibility Tests", () => {
       await page.waitForLoadState("networkidle");
 
       // Open search modal
-      const searchButton = page.locator(".search-button");
-      await searchButton.click();
-      await page.waitForSelector(".search-modal[aria-hidden='false']", { state: "visible" });
+      await openSearchModal(page);
 
       // Perform a search
       const searchInput = page.locator(".pagefind-ui__search-input");
@@ -594,9 +611,7 @@ test.describe("Accessibility Tests", () => {
       await page.waitForTimeout(300);
 
       // Open search modal
-      const searchButton = page.locator(".search-button");
-      await searchButton.click();
-      await page.waitForSelector(".search-modal[aria-hidden='false']", { state: "visible" });
+      await openSearchModal(page);
 
       // Perform a search
       const searchInput = page.locator(".pagefind-ui__search-input");
@@ -618,19 +633,15 @@ test.describe("Accessibility Tests", () => {
       await page.goto("/es/");
       await page.waitForLoadState("networkidle");
 
-      // Open modal with keyboard (assuming search button is focusable)
-      await page.keyboard.press("Tab"); // Navigate to search button
-      // We might need multiple tabs depending on page structure
-      const searchButton = page.locator(".search-button");
-      await searchButton.focus();
-      await page.keyboard.press("Enter");
+      // Open search modal using keyboard shortcut
+      await page.keyboard.press(process.platform === "darwin" ? "Meta+KeyK" : "Control+KeyK");
 
       // Wait for modal to open
-      await page.waitForSelector(".search-modal[aria-hidden='false']", { state: "visible" });
+      await page.waitForSelector(".search-modal[aria-hidden='false']");
 
       // Check focus is on search input
       const searchInput = page.locator(".pagefind-ui__search-input");
-      await expect(searchInput).toBeFocused();
+      await expect(searchInput).toBeFocused({ timeout: 2000 });
 
       // Type search query
       await page.keyboard.type("king");
@@ -653,9 +664,8 @@ test.describe("Accessibility Tests", () => {
       await page.waitForLoadState("networkidle");
 
       // Open modal
-      const searchButton = page.locator(".search-button");
-      await searchButton.click();
-      await page.waitForSelector(".search-modal[aria-hidden='false']", { state: "visible" });
+      // Open search modal
+      await openSearchModal(page);
 
       // Get all focusable elements inside modal
       const modalFocusableElements = page.locator(".search-modal button, .search-modal input, .search-modal a[href]");
@@ -680,9 +690,8 @@ test.describe("Accessibility Tests", () => {
       await page.waitForLoadState("networkidle");
 
       // Open modal
-      const searchButton = page.locator(".search-button");
-      await searchButton.click();
-      await page.waitForSelector(".search-modal[aria-hidden='false']", { state: "visible" });
+      // Open search modal
+      await openSearchModal(page);
 
       // Perform search
       const searchInput = page.locator(".pagefind-ui__search-input");
@@ -707,9 +716,8 @@ test.describe("Accessibility Tests", () => {
       await page.waitForLoadState("networkidle");
 
       // Open modal
-      const searchButton = page.locator(".search-button");
-      await searchButton.click();
-      await page.waitForSelector(".search-modal[aria-hidden='false']", { state: "visible" });
+      // Open search modal
+      await openSearchModal(page);
 
       // Perform search
       const searchInput = page.locator(".pagefind-ui__search-input");
@@ -729,9 +737,8 @@ test.describe("Accessibility Tests", () => {
       await page.waitForLoadState("networkidle");
 
       // Open modal
-      const searchButton = page.locator(".search-button");
-      await searchButton.click();
-      await page.waitForSelector(".search-modal[aria-hidden='false']", { state: "visible" });
+      // Open search modal
+      await openSearchModal(page);
 
       // Perform search
       const searchInput = page.locator(".pagefind-ui__search-input");
@@ -761,9 +768,8 @@ test.describe("Accessibility Tests", () => {
       await page.waitForTimeout(300);
 
       // Open modal
-      const searchButton = page.locator(".search-button");
-      await searchButton.click();
-      await page.waitForSelector(".search-modal[aria-hidden='false']", { state: "visible" });
+      // Open search modal
+      await openSearchModal(page);
 
       // Perform search
       const searchInput = page.locator(".pagefind-ui__search-input");
