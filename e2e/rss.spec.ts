@@ -70,7 +70,7 @@ test.describe("RSS Feeds", () => {
       await page.goto("/es/feeds");
 
       // Click language switcher
-      await page.locator(".language-switcher__link").click();
+      await page.locator(".language-switcher").click();
       await page.waitForURL("/en/feeds");
 
       await expect(page).toHaveTitle(/RSS/);

@@ -162,7 +162,7 @@ test.describe("Performance & Loading", () => {
 
     // Interact with the page
     await page.locator("#theme-toggle").click();
-    await page.locator(".language-switcher__link").click();
+    await page.locator(".language-switcher").click();
 
     expect(exceptions).toHaveLength(0);
   });

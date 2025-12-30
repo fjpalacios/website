@@ -38,64 +38,52 @@ function getTranslatedUrl(): string {
 
 const translatedUrl = disabled ? "#" : getTranslatedUrl();
 
-// Flag emoji and alt text
-const flagEmoji = targetLang === "es" ? "🇪🇸" : "🇬🇧";
+// Language label and code
+const langCode = targetLang.toUpperCase();
 const flagLabel = t(lang, targetLang === "es" ? "menu.toSpanish" : "menu.toEnglish");
 ---
 
-<div class:list={["language-switcher", { "language-switcher--disabled": disabled }]}>
-  {
-    disabled ? (
-      <span class="language-switcher__flag" title={flagLabel} aria-label={flagLabel}>
-        {flagEmoji}
-      </span>
-    ) : (
-      <a
-        href={translatedUrl}
-        class="language-switcher__link"
-        title={flagLabel}
-        aria-label={flagLabel}
-        data-astro-reload
-      >
-        <span class="language-switcher__flag">{flagEmoji}</span>
-      </a>
-    )
-  }
-</div>
+<button
+  type="button"
+  class="language-switcher"
+  data-lang-url={translatedUrl}
+  disabled={disabled}
+  aria-label={flagLabel}
+  title={flagLabel}
+>
+  <span class="language-switcher__text">{langCode}</span>
+</button>
 
 <script>
   // Preserve hash and query params when switching languages
   // This runs on the client side to capture hash fragments (which aren't sent to server)
   function setupLanguageSwitcher() {
-    const languageSwitcherLink = document.querySelector(".language-switcher__link");
+    const button = document.querySelector(".language-switcher");
 
-    if (!languageSwitcherLink) return;
+    if (!button || button.disabled) return;
 
     // Remove any existing listener to avoid duplicates
-    const existingHandler = languageSwitcherLink.__langSwitchHandler;
+    const existingHandler = button.__langSwitchHandler;
     if (existingHandler) {
-      languageSwitcherLink.removeEventListener("click", existingHandler);
+      button.removeEventListener("click", existingHandler);
     }
 
     // Create new handler
     const handler = (e) => {
+      const baseUrl = button.getAttribute("data-lang-url");
       const currentSearch = window.location.search;
       const currentHash = window.location.hash;
+      const targetUrl = baseUrl + currentSearch + currentHash;
 
-      if (currentSearch || currentHash) {
-        e.preventDefault();
-        const baseHref = languageSwitcherLink.getAttribute("href");
-        const newHref = baseHref + currentSearch + currentHash;
-        window.location.href = newHref;
-      }
+      window.location.href = targetUrl;
     };
 
     // Store handler reference and add listener
-    languageSwitcherLink.__langSwitchHandler = handler;
-    languageSwitcherLink.addEventListener("click", handler);
+    button.__langSwitchHandler = handler;
+    button.addEventListener("click", handler);
 
     // Mark as ready for E2E tests
-    languageSwitcherLink.setAttribute("data-lang-switcher-ready", "true");
+    button.setAttribute("data-lang-switcher-ready", "true");
   }
 
   // Run on initial load and after each View Transition
@@ -106,49 +94,65 @@ const flagLabel = t(lang, targetLang === "es" ? "menu.toSpanish" : "menu.toEngli
   @use "../styles/mixins" as *;
 
   .language-switcher {
-    line-height: 1;
+    // Match theme-switcher and search-button exactly
     display: inline-flex;
     align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    background: transparent;
+    border: none;
+    font-family: inherit;
+    font-size: inherit;
+    line-height: inherit;
+    color: inherit;
+    transition: transform 0.2s ease;
+    // Mobile: Large touch targets (WCAG 2.1 Level AAA: 44x44px)
+    min-width: 44px;
+    min-height: 44px;
+    padding: 10px;
 
-    &__flag {
-      font-size: 20px;
-      display: block;
-      user-select: none;
+    // Desktop: More compact
+    @include small-and-up {
+      min-width: auto;
+      min-height: auto;
+      padding: 4px; // Match theme-switcher and search-button
+    }
+
+    &:hover:not(:disabled) {
+      transform: scale(1.15); // Match theme-switcher and search-button
+    }
+
+    &:focus-visible {
+      outline: 2px solid var(--accent);
+      outline-offset: 2px;
+      border-radius: 4px;
+    }
+
+    &:disabled {
+      cursor: not-allowed;
+      opacity: 0.6; // Applied to entire button for consistency
+    }
+
+    // Text display (like __icon in theme/search)
+    &__text {
+      font-size: 13px;
+      font-weight: 700;
+      letter-spacing: 0.5px;
       line-height: 1;
+      user-select: none;
+      display: block;
+      // Explicit colors for WCAG AA compliance
+      color: #f8f8f8;
 
-      // Desktop: Slightly larger for better visibility
       @include small-and-up {
-        font-size: 22px;
+        font-size: 14px;
       }
     }
 
-    &__link {
-      text-decoration: none;
-      transition: transform 0.2s ease;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      // Mobile: Large touch targets (WCAG 2.1 Level AAA: 44x44px)
-      min-width: 44px;
-      min-height: 44px;
-      padding: 10px;
-
-      // Desktop: More compact
-      @include small-and-up {
-        min-width: auto;
-        min-height: auto;
-        padding: 4px;
-      }
-
-      &:hover {
-        transform: scale(1.15);
-      }
-    }
-
-    &--disabled {
-      .language-switcher__flag {
-        filter: grayscale(100%) opacity(0.5);
-        cursor: not-allowed;
+    // Light theme override
+    :global(body.light) & {
+      &__text {
+        color: #284b63;
       }
     }
   }

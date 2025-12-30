@@ -20,34 +20,34 @@ import { test, expect, type Page } from "@playwright/test";
  * (ensures the client-side script has attached event listeners)
  */
 async function waitForLanguageSwitcherReady(page: Page) {
-  const languageSwitcherLink = page.locator(".language-switcher__link");
-  await expect(languageSwitcherLink).toBeVisible();
+  const languageSwitcher = page.locator(".language-switcher");
+  await expect(languageSwitcher).toBeVisible();
 
   // Wait for the data-lang-switcher-ready attribute to be set
   await page.waitForFunction(
     () => {
-      const link = document.querySelector(".language-switcher__link");
-      return link?.hasAttribute("data-lang-switcher-ready");
+      const button = document.querySelector(".language-switcher");
+      return button?.hasAttribute("data-lang-switcher-ready");
     },
     { timeout: 5000 },
   );
 
-  return languageSwitcherLink;
+  return languageSwitcher;
 }
 
 /**
  * Helper function to click language switcher and wait for navigation
  */
 async function clickLanguageSwitcherAndWait(page: Page) {
-  const languageSwitcherLink = await waitForLanguageSwitcherReady(page);
+  const languageSwitcher = await waitForLanguageSwitcherReady(page);
 
   // Get the target URL before clicking
-  const targetHref = await languageSwitcherLink.getAttribute("href");
+  const targetHref = await languageSwitcher.getAttribute("data-lang-url");
 
   // Click and wait for navigation to complete
   await Promise.all([
     page.waitForURL((url) => url.pathname.includes(targetHref!), { timeout: 10000 }),
-    languageSwitcherLink.click(),
+    languageSwitcher.click(),
   ]);
 
   await page.waitForLoadState("networkidle");
@@ -65,38 +65,33 @@ test.describe("Language Switching - Edge Cases", () => {
       // Language switcher should be present
       await expect(languageSwitcher).toBeVisible();
 
-      // Check if the language switcher is disabled (has disabled class)
-      const isDisabled = await languageSwitcher.evaluate((el) => el.classList.contains("language-switcher--disabled"));
+      // Check if the language switcher is disabled (has disabled attribute)
+      const isDisabled = await languageSwitcher.isDisabled();
 
-      // When disabled, it should have the disabled class
+      // When disabled, it should have the disabled attribute
       expect(isDisabled).toBe(true);
-
-      // The switcher should not have a clickable link when disabled
-      const link = languageSwitcher.locator(".language-switcher__link");
-      await expect(link).toHaveCount(0);
     });
 
     test("should fallback to language home page when switching to untranslated content", async ({ page }) => {
       // Start on a Spanish-only page
       await page.goto("/es/acerca-de/");
 
-      // Try to switch to English using the actual language switcher link
-      const languageSwitcherLink = page.locator(".language-switcher__link");
+      // Try to switch to English using the actual language switcher
+      const languageSwitcher = page.locator(".language-switcher");
 
-      // Check if switcher link exists (it should be disabled for pages without translation)
-      const count = await languageSwitcherLink.count();
+      // Check if switcher is disabled (it should be disabled for pages without translation)
+      const isDisabled = await languageSwitcher.isDisabled();
 
-      if (count > 0) {
-        // If link exists, clicking it should redirect to English home page or /en/about
-        await languageSwitcherLink.click();
+      if (!isDisabled) {
+        // If not disabled, clicking it should redirect to English home page or /en/about
+        await languageSwitcher.click();
         await page.waitForLoadState("networkidle");
 
         // Should be on English version (either /en/about or /en/ as fallback)
         expect(page.url()).toMatch(/\/en\//);
       } else {
-        // If no link, the switcher should be disabled (which is correct behavior)
-        const disabledSwitcher = page.locator(".language-switcher--disabled");
-        await expect(disabledSwitcher).toBeVisible();
+        // If disabled, the switcher should not be clickable (which is correct behavior)
+        await expect(languageSwitcher).toBeDisabled();
       }
     });
   });
@@ -106,10 +101,10 @@ test.describe("Language Switching - Edge Cases", () => {
       // Navigate to a page with a hash fragment
       await page.goto("/es/libros/apocalipsis-stephen-king/#opinion");
 
-      // Switch to English using the actual language switcher link
-      const languageSwitcherLink = page.locator(".language-switcher__link");
-      await expect(languageSwitcherLink).toBeVisible();
-      await languageSwitcherLink.click();
+      // Switch to English using the actual language switcher
+      const languageSwitcher = page.locator(".language-switcher");
+      await expect(languageSwitcher).toBeVisible();
+      await languageSwitcher.click();
       await page.waitForLoadState("networkidle");
 
       // Hash should be preserved
@@ -120,10 +115,10 @@ test.describe("Language Switching - Edge Cases", () => {
       // Navigate to a page with query parameters
       await page.goto("/es/libros/?filter=horror");
 
-      // Switch to English using the actual language switcher link
-      const languageSwitcherLink = page.locator(".language-switcher__link");
-      await expect(languageSwitcherLink).toBeVisible();
-      await languageSwitcherLink.click();
+      // Switch to English using the actual language switcher
+      const languageSwitcher = page.locator(".language-switcher");
+      await expect(languageSwitcher).toBeVisible();
+      await languageSwitcher.click();
       await page.waitForLoadState("networkidle");
 
       // Query parameters should be preserved
@@ -134,10 +129,10 @@ test.describe("Language Switching - Edge Cases", () => {
       // Navigate to a page with both
       await page.goto("/es/libros/?filter=horror#top");
 
-      // Switch to English using the actual language switcher link
-      const languageSwitcherLink = page.locator(".language-switcher__link");
-      await expect(languageSwitcherLink).toBeVisible();
-      await languageSwitcherLink.click();
+      // Switch to English using the actual language switcher
+      const languageSwitcher = page.locator(".language-switcher");
+      await expect(languageSwitcher).toBeVisible();
+      await languageSwitcher.click();
       await page.waitForLoadState("networkidle");
 
       // Both should be preserved
@@ -158,10 +153,10 @@ test.describe("Language Switching - Edge Cases", () => {
       const scrollBefore = await page.evaluate(() => window.scrollY);
       expect(scrollBefore).toBeGreaterThan(0);
 
-      // Switch language using the actual language switcher link
-      const languageSwitcherLink = page.locator(".language-switcher__link");
-      await expect(languageSwitcherLink).toBeVisible();
-      await languageSwitcherLink.click();
+      // Switch language using the actual language switcher
+      const languageSwitcher = page.locator(".language-switcher");
+      await expect(languageSwitcher).toBeVisible();
+      await languageSwitcher.click();
       await page.waitForLoadState("networkidle");
 
       // Wait a bit for any scroll behavior
@@ -236,10 +231,10 @@ test.describe("Language Switching - Edge Cases", () => {
       await page.goto("/es/libros/");
       const spanishUrl = page.url();
 
-      // Switch to English using the actual language switcher link
-      const languageSwitcherLink = page.locator(".language-switcher__link");
-      await expect(languageSwitcherLink).toBeVisible();
-      await languageSwitcherLink.click();
+      // Switch to English using the actual language switcher
+      const languageSwitcher = page.locator(".language-switcher");
+      await expect(languageSwitcher).toBeVisible();
+      await languageSwitcher.click();
       await page.waitForLoadState("networkidle");
 
       // Go back
@@ -255,25 +250,25 @@ test.describe("Language Switching - Edge Cases", () => {
       const url1 = page.url();
 
       // First switch: ES -> EN
-      let languageSwitcherLink = page.locator(".language-switcher__link");
-      await expect(languageSwitcherLink).toBeVisible();
-      await languageSwitcherLink.click();
+      let languageSwitcher = page.locator(".language-switcher");
+      await expect(languageSwitcher).toBeVisible();
+      await languageSwitcher.click();
       await page.waitForLoadState("networkidle");
       await page.waitForTimeout(300); // Extra wait for stability
       const url2 = page.url();
 
       // Second switch: EN -> ES
-      languageSwitcherLink = page.locator(".language-switcher__link");
-      await expect(languageSwitcherLink).toBeVisible();
-      await languageSwitcherLink.click();
+      languageSwitcher = page.locator(".language-switcher");
+      await expect(languageSwitcher).toBeVisible();
+      await languageSwitcher.click();
       await page.waitForLoadState("networkidle");
       await page.waitForTimeout(300); // Extra wait for stability
       const url3 = page.url();
 
       // Third switch: ES -> EN
-      languageSwitcherLink = page.locator(".language-switcher__link");
-      await expect(languageSwitcherLink).toBeVisible();
-      await languageSwitcherLink.click();
+      languageSwitcher = page.locator(".language-switcher");
+      await expect(languageSwitcher).toBeVisible();
+      await languageSwitcher.click();
       await page.waitForLoadState("networkidle");
       await page.waitForTimeout(300); // Extra wait for stability
       const url4 = page.url();
@@ -362,10 +357,10 @@ test.describe("Language Switching - Edge Cases", () => {
       // This test now just verifies that language switching works
       await page.goto("/es/");
 
-      // Switch language using the actual language switcher link
-      const languageSwitcherLink = page.locator(".language-switcher__link");
-      await expect(languageSwitcherLink).toBeVisible();
-      await languageSwitcherLink.click();
+      // Switch language using the actual language switcher
+      const languageSwitcher = page.locator(".language-switcher");
+      await expect(languageSwitcher).toBeVisible();
+      await languageSwitcher.click();
       await page.waitForLoadState("networkidle");
 
       // Verify we successfully switched to English
@@ -386,12 +381,12 @@ test.describe("Language Switching - Edge Cases", () => {
     test("should have proper ARIA labels on language switcher", async ({ page }) => {
       await page.goto("/es/");
 
-      // The language switcher link should have proper aria-label
-      const languageSwitcherLink = page.locator(".language-switcher__link");
-      await expect(languageSwitcherLink).toBeVisible();
+      // The language switcher should have proper aria-label
+      const languageSwitcher = page.locator(".language-switcher");
+      await expect(languageSwitcher).toBeVisible();
 
       // Should have descriptive label
-      const ariaLabel = await languageSwitcherLink.getAttribute("aria-label");
+      const ariaLabel = await languageSwitcher.getAttribute("aria-label");
       expect(ariaLabel).toBeTruthy();
       expect(ariaLabel).toMatch(/.+/); // Should have some text
 
@@ -418,9 +413,9 @@ test.describe("Language Switching - Edge Cases", () => {
       expect(page.url()).toContain("/es/pagina-inexistente");
 
       // Language switcher should still work (if present)
-      const langSwitcher = page.locator(".language-switcher__link");
-      if ((await langSwitcher.count()) > 0) {
-        await langSwitcher.click();
+      const languageSwitcher = page.locator(".language-switcher");
+      if ((await languageSwitcher.count()) > 0) {
+        await languageSwitcher.click();
 
         // Should redirect to English home or English 404
         await page.waitForLoadState("networkidle");
@@ -439,15 +434,15 @@ test.describe("Language Switching - Edge Cases", () => {
       await page.waitForLoadState("networkidle", { timeout: 20000 });
 
       // Switch language
-      const languageSwitcherLink = await waitForLanguageSwitcherReady(page);
+      const languageSwitcher = await waitForLanguageSwitcherReady(page);
 
-      const href = await languageSwitcherLink.getAttribute("href");
-      expect(href).toContain("/en");
+      const dataLangUrl = await languageSwitcher.getAttribute("data-lang-url");
+      expect(dataLangUrl).toContain("/en");
 
       // Click and wait for navigation
       await Promise.all([
         page.waitForURL((url) => url.pathname.includes("/en"), { timeout: 20000 }),
-        languageSwitcherLink.click(),
+        languageSwitcher.click(),
       ]);
       await page.waitForLoadState("networkidle", { timeout: 20000 });
 
