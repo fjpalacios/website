@@ -34,7 +34,7 @@ export const contact: ContactItem[] = [
   {
     name: "Ubicación",
     link: "https://osm.org/go/b_qODpV--",
-    icon: "location",
+    icon: "map-pin",
     text: "Valencia, ES",
   },
   {
