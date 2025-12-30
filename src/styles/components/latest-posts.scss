@@ -1,0 +1,80 @@
+/**
+ * LatestPosts Component Styles
+ * 
+ * BEM methodology for latest blog posts component.
+ * Displays recent blog posts (books, tutorials, posts) on homepage.
+ * 
+ * Features:
+ * - Simple text-based layout (like Gatsby version)
+ * - Grid layout with title, date, and excerpt areas
+ * - Border using primary color
+ * - Title links use global link styles ($accent color, no underline)
+ * - Hidden in print view (CV generation)
+ * - Responsive column gaps
+ * 
+ * @component latest-posts
+ */
+
+@use "../variables" as *;
+@use "../mixins" as *;
+
+.latest-posts {
+  grid-column: span 12;
+  margin-bottom: 40px;
+  border: 2px solid $primary;
+
+  // Hide component in print view (for CV generation)
+  @include print {
+    display: none;
+  }
+
+  &__list {
+    padding: 0 20px;
+    overflow: hidden;
+    transition: all 0.45s ease;
+
+    &__post {
+      display: grid;
+      grid-template-areas:
+        "title date"
+        "excerpt .";
+      margin-bottom: 20px;
+      column-gap: 5vw;
+
+      @include medium-and-up {
+        column-gap: 3vw;
+      }
+
+      &__title {
+        grid-area: title;
+        padding-top: 1px;
+        text-transform: uppercase;
+
+        // Links inherit global link styles ($accent color, no underline)
+        // No additional hover effects needed - uses global styles
+      }
+
+      &__date {
+        grid-area: date;
+        display: grid;
+        justify-content: end;
+        color: $text;
+
+        time {
+          font-variant-numeric: tabular-nums;
+        }
+      }
+
+      &__excerpt {
+        grid-area: excerpt;
+        color: $text;
+      }
+
+      h4 {
+        padding-left: 20px;
+        font-weight: normal;
+        text-transform: uppercase;
+      }
+    }
+  }
+}
