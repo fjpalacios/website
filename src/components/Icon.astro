@@ -9,15 +9,20 @@
  * @param {string} name - Icon name (e.g., "book", "star", "heart")
  * @param {string} [class] - Optional CSS classes
  * @param {string} [size] - Size variant: xs(12px), sm(16px), md(20px), lg(24px), xl(32px)
+ * @param {boolean} [filled] - Whether the icon should be filled (only for star/heart)
  */
 
 interface Props {
   name: string;
   class?: string;
   size?: "xs" | "sm" | "md" | "lg" | "xl";
+  filled?: boolean;
 }
 
-const { name, class: className, size = "md" } = Astro.props;
+const { name, class: className, size = "md", filled = false } = Astro.props;
+
+// Icons that can be filled
+const fillableIcons = ["star", "heart"];
 
 // All icons from Lucide Icons (https://lucide.dev)
 // Using 24x24 viewBox for consistency
@@ -92,6 +97,11 @@ const sizeMap = {
 };
 
 const iconSize = sizeMap[size];
+
+// Determine fill and stroke based on icon type and filled prop
+const isFillable = fillableIcons.includes(name);
+const fillValue = isFillable && filled ? "currentColor" : "none";
+const strokeValue = isFillable && filled ? "none" : "currentColor";
 ---
 
 {
@@ -101,8 +111,8 @@ const iconSize = sizeMap[size];
       width={iconSize}
       height={iconSize}
       viewBox={viewBox}
-      fill="none"
-      stroke="currentColor"
+      fill={fillValue}
+      stroke={strokeValue}
       stroke-width="2"
       stroke-linecap="round"
       stroke-linejoin="round"

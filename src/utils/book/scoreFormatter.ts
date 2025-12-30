@@ -8,6 +8,9 @@
 /**
  * Formats book score as emoji representation
  *
+ * @deprecated Use the Rating component (@components/Rating.astro) instead for consistent SVG icons.
+ * This function is kept for backwards compatibility but will be removed in a future version.
+ *
  * @param score - Numeric score (1-5) or "fav" for favorites
  * @returns Emoji string representation
  *

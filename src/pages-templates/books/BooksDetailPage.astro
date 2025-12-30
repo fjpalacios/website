@@ -8,6 +8,7 @@
 import AuthorInfo from "@components/AuthorInfo.astro";
 import Breadcrumbs, { type BreadcrumbItem } from "@components/Breadcrumbs.astro";
 import PostTitle from "@components/PostTitle.astro";
+import Rating from "@components/Rating.astro";
 import SectionTitle from "@components/SectionTitle.astro";
 import Share from "@components/Share.astro";
 import Layout from "@layouts/Layout.astro";
@@ -32,7 +33,6 @@ const { Content } = await render(bookEntry);
 import { getCollection } from "astro:content";
 
 import { findAuthorBySlug, findPublisherBySlug, findGenresBySlug, findCategoriesBySlug } from "@/utils/blog";
-import { renderScoreEmoji, getScoreAriaLabel } from "@/utils/book/scoreFormatter";
 import { buildBooksIndexUrl } from "@/utils/routes";
 
 const allAuthors = await getCollection("authors");
@@ -61,10 +61,6 @@ const authorWithGender =
     : lang === "en"
       ? "The author"
       : "La autora";
-
-// Score rendering
-const scoreEmoji = renderScoreEmoji(book.score);
-const scoreAriaLabel = getScoreAriaLabel(book.score, lang);
 
 // Build breadcrumbs
 const breadcrumbs: BreadcrumbItem[] = [
@@ -143,7 +139,7 @@ const genreLabel = lang === "en" ? "Genre" : "Género";
     <section class="book__content">
       <div class="book__content__cover">
         <img src={book.book_cover || book.cover} alt={book.title} width="98" height="151" />
-        <div class="score" aria-label={scoreAriaLabel}>{scoreEmoji}</div>
+        <Rating score={book.score} lang={lang} size="sm" />
       </div>
       <div class="book__content__content">
         <!-- Pagefind title meta -->
