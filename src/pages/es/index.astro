@@ -14,6 +14,7 @@ const contact = getContact(lang);
 
 <Layout lang={lang} contact={contact}>
   <main class="resume">
+    <h1 class="sr-only">{t(lang, "title")}</h1>
     <section class="resume__main-block">
       <Title title={t(lang, "resume.me")} />
       <TextArea text={resume.me} />

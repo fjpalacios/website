@@ -140,7 +140,7 @@ export const resume: ResumeData = {
     {
       name: "sargantanacode.es",
       desc: `Web application to teach programming<br />
-      Currently all the content of that website has been moved to the blog of this page.`,
+      Currently all the content of that website has been moved to fjp.es.`,
       languages: ["html5", "scss", "rubyonrails"],
     },
     {
@@ -148,7 +148,7 @@ export const resume: ResumeData = {
       url: "https://fjp.es",
       desc: `Personal website and blog<br />
       It's also an open source application; code available on GitHub`,
-      languages: ["gatsbyjs", "html5", "scss"],
+      languages: ["astro", "html5", "scss"],
     },
   ],
   volunteering: [

@@ -13,18 +13,14 @@
   @include print {
     margin-bottom: 10px;
     padding: 1px 10px;
+    min-height: 20px;
   }
 
   h2 {
     font-size: 1.17em;
 
     @include medium-and-up {
-      margin: 17px 0 13px;
       font-weight: 100;
-    }
-
-    @include print {
-      margin: 10px 0 7px;
     }
   }
 }

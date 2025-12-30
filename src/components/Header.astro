@@ -2,6 +2,8 @@
 import { t } from "@locales";
 import type { ContactItem } from "@types/content";
 
+import Icon from "./Icon.astro";
+
 interface Props {
   lang: string;
   contact: ContactItem[];
@@ -18,9 +20,7 @@ const { lang, contact } = Astro.props;
       contact.map((item) => (
         <div class="header__contact__item">
           <a href={item.link} target="_blank" rel="noreferrer" aria-label={item.name}>
-            <span class="header__contact__icon" aria-hidden="true">
-              {item.icon}
-            </span>
+            <Icon name={item.icon} class="header__contact__icon" />
             <span>{item.text}</span>
           </a>
         </div>

@@ -109,8 +109,7 @@
 // Makes images extend beyond content padding for visual impact
 // Used in: post, tutorial, book
 @mixin text-area-images {
-  img,
-  span.gatsby-resp-image-background-image {
+  img {
     width: calc(100% + 40px) !important;
     margin: 0 -20px !important;
   }

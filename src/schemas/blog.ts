@@ -63,7 +63,7 @@ export const postsSchema = z.object({
   draft: z.boolean().default(false),
 
   // Optional metadata
-  cover: z.string().optional(), // Relative path to cover image (Gatsby compat)
+  cover: z.string().optional(), // Relative path to cover image
   featured_image: z.string().optional(), // Alias for cover
   update_date: z.coerce.date().optional(), // When the post was last updated
   canonical_url: z.string().url().optional(), // For republished content
@@ -96,7 +96,7 @@ export const tutorialsSchema = z.object({
   course: z.string().optional(), // reference to courses collection
   github_repo: z.string().url().optional(), // Repository URL
   demo_url: z.string().url().optional(), // Live demo URL
-  cover: z.string().optional(), // Relative path to cover image (Gatsby compat)
+  cover: z.string().optional(), // Relative path to cover image
   featured_image: z.string().optional(), // Alias for cover
   update_date: z.coerce.date().optional(), // When the tutorial was last updated
 

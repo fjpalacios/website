@@ -90,8 +90,10 @@
     @include print {
       display: grid;
       grid-template-columns: repeat(2, 120px);
-      gap: 0;
       margin-top: 0;
+      gap: 0;
+      justify-content: space-between;
+      align-content: space-between;
     }
 
     &__item {
@@ -107,6 +109,16 @@
         min-height: 44px;
 
         @include small-and-up {
+          min-width: auto;
+          min-height: auto;
+        }
+
+        @include medium-and-up {
+          justify-content: flex-start;
+        }
+
+        @include print {
+          justify-content: flex-start;
           min-width: auto;
           min-height: auto;
         }
@@ -147,18 +159,24 @@
     }
 
     &__icon {
-      font-size: 20px;
+      width: 20px;
+      height: 20px;
+      min-width: 20px;
       margin-right: 0;
-      line-height: 1;
       display: block;
+      flex-shrink: 0;
 
       @include medium-and-up {
-        font-size: 16px;
+        width: 16px;
+        height: 16px;
+        min-width: 16px;
         margin-right: 0.5em;
       }
 
       @include print {
-        font-size: 16px;
+        width: 16px;
+        height: 16px;
+        min-width: 16px;
         margin-right: 0.5em;
       }
     }
@@ -178,7 +196,8 @@
 
 // Hide Twitter on print
 @include print {
-  .header__contact__item:has(a[href*="twitter.com"]) {
-    display: none;
+  .header__contact__item:has(a[href*="twitter.com"]),
+  .header__contact__item:has(a[href*="x.com"]) {
+    display: none !important;
   }
 }

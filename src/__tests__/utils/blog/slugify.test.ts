@@ -202,11 +202,11 @@ describe("slugify", () => {
     });
   });
 
-  describe("Real book titles from Gatsby blog", () => {
+  describe("Real book titles from blog", () => {
     it("should handle actual book titles correctly", async () => {
       const { slugify } = await import("@/utils/blog/slugify");
 
-      // Real examples from your Gatsby blog
+      // Real examples from blog
       expect(slugify("Apocalipsis, de Stephen King")).toBe("apocalipsis-de-stephen-king");
       expect(slugify("La princesa de hielo, de Camilla Läckberg")).toBe("la-princesa-de-hielo-de-camilla-lackberg");
       expect(slugify("Harry Potter y el cáliz de fuego")).toBe("harry-potter-y-el-caliz-de-fuego");

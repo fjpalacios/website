@@ -4,43 +4,43 @@ export const contact: ContactItem[] = [
   {
     name: "LinkedIn",
     link: "https://www.linkedin.com/in/fjpalacios/",
-    icon: "💼", // briefcase for professional network
+    icon: "linkedin",
     text: "fjpalacios",
   },
   {
     name: "Email",
     link: "mailto:javi@fjp.es",
-    icon: "✉️", // envelope
+    icon: "mail",
     text: "javi@fjp.es",
   },
   {
     name: "GitHub",
     link: "https://github.com/fjpalacios",
-    icon: "🐙", // octopus (GitHub mascot)
+    icon: "github",
     text: "fjpalacios",
   },
   {
     name: "Twitter",
     link: "https://twitter.com/fjpalacios",
-    icon: "🐦", // bird
+    icon: "twitter",
     text: "fjpalacios",
   },
   {
     name: "Website",
     link: "https://fjp.es",
-    icon: "🌐", // globe
+    icon: "globe",
     text: "fjp.es",
   },
   {
     name: "Location",
     link: "https://osm.org/go/b_qODpV--",
-    icon: "📍", // pin
+    icon: "location",
     text: "Valencia, ES",
   },
   {
     name: "Phone",
     link: "tel:0034671995762",
-    icon: "📞", // telephone
+    icon: "phone",
     text: "671995762",
   },
 ];

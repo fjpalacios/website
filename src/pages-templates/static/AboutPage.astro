@@ -21,8 +21,9 @@ const { lang, contact, aboutContent } = Astro.props;
 <Layout lang={lang} contact={contact} title={t(lang, "pages.about")}>
   <main class="about">
     <section class="about__grid">
+      <h1 class="sr-only">{t(lang, "pages.about")}</h1>
       <section class="about__grid__me">
-        <Title title={t(lang, "about.me")} headingLevel="h1" />
+        <Title title={t(lang, "about.me")} headingLevel="h2" />
         <TextArea text={aboutContent.me} />
       </section>
       <section class="about__grid__internet">

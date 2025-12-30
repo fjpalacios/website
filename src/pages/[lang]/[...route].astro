@@ -30,12 +30,11 @@ import { CONTENT_TYPE_CONFIGS, TAXONOMY_TYPES } from "@/config/routeConfig";
 import { getRouteSegment } from "@/config/routeSegments";
 import { getTemplate } from "@/config/templateMap";
 // Contact data
-import contactEn from "@/content/static/contact/en.json";
-import contactEs from "@/content/static/contact/es.json";
 // Utilities
 import { paginateItems, getPageCount } from "@/utils/blog";
 import { logCacheStats } from "@/utils/cache/buildCache";
 import { getCachedCollection } from "@/utils/cache/cachedLoaders";
+import { getContact } from "@/utils/content/contact";
 import { performanceMonitor } from "@/utils/performance/monitor";
 import { getAllContentForLanguage, POSTS_PER_PAGE, generatePostDetailPaths } from "@/utils/postsPages";
 import {
@@ -128,7 +127,7 @@ export const getStaticPaths: GetStaticPaths = async () => {
     performanceMonitor.start(`routes-${lang}`);
 
     // Load contact data for current language
-    const contact = lang === "en" ? contactEn : contactEs;
+    const contact = getContact(lang);
     // Determine target language for translation availability checks
     const targetLang = lang === "en" ? "es" : "en";
 
