@@ -272,7 +272,6 @@ const tutorialsCollection = defineCollection({
     cover: z.string().optional(),
     i18n: z.string().optional(),
     difficulty: z.enum(["beginner", "intermediate", "advanced"]).optional(),
-    tags: z.array(z.string()).default([]),
   }),
 });
 

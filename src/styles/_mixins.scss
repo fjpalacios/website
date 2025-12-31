@@ -203,7 +203,7 @@
 
 // Inline list items for metadata display
 // Removes default list styling and displays items horizontally
-// Used in: post, tutorial (for categories, tags, etc.)
+// Used in: post, tutorial, book (for categories, genres, etc.)
 @mixin inline-list {
   margin: 0;
   padding-left: 0;
