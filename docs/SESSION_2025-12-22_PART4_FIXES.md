@@ -11,8 +11,10 @@
 
 **Solution**:
 
-- `cover`: Always keep as default (`/images/defaults/book-default-es.jpg`)
-- `book_cover`: Set to actual book cover path (`/images/books/book-slug.jpg`)
+- `cover`: Listing/social image (horizontal 16:9) - Used in ALL listings (/es/libros, /es/publicaciones, etc.)
+- `book_cover`: Physical book cover (vertical 2:3) - ONLY shown in detail page sidebar, left of rating
+
+**Important**: `cover` and `book_cover` serve DIFFERENT purposes. `cover` is NOT a fallback!
 
 **Files Fixed**:
 

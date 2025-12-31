@@ -204,11 +204,11 @@ buy:
   - type: "ebook"
     link: "https://amazon.es/..."
 book_card: "https://megustaleer.com/..." # Optional
-genres: ["fiction", "thriller"]
-challenges: ["reading-challenge-2025"] # Optional
+genres: ["ficcion", "terror", "suspense"]
+challenges: ["reto-lectura-2017"] # Optional
 categories: ["libros", "resenas"]
-cover: "/images/defaults/book-default-es.jpg"
-book_cover: "/images/books/book-slug.jpg"
+cover: "/images/defaults/book-default-es.jpg" # Listing/social image (horizontal 16:9)
+book_cover: "/images/books/book-slug.jpg" # Physical book cover (vertical 2:3, detail page only)
 ---
 ```
 
@@ -267,7 +267,9 @@ The script creates a template file with placeholders. Edit the file:
 1. Replace "Breve resumen..." with actual excerpt
 2. Replace "Sinopsis completa..." with actual synopsis
 3. Write your review in the content section
-4. Add the book cover image to `/public/images/books/`
+4. Add the physical book cover image to `src/assets/books/{slug}.jpg`
+5. Verify `cover` uses the default listing image (`/images/defaults/book-default-{lang}.jpg`)
+6. Regenerate image imports: `bun run generate:images`
 
 ### 3. Validate Your Content
 
@@ -336,11 +338,51 @@ Creating a book with auto-creation:
 
 ### Images
 
-- **Book covers**: `/public/images/books/{slug}.jpg`
-- **Post covers**: `/public/images/posts/{slug}.jpg` (optional)
-- **Tutorial covers**: `/public/images/tutorials/{slug}.jpg` (optional)
-- Use **JPEG** for photos, **WebP** for graphics (future optimization)
-- Recommended size: **1200x630px** for OG images
+**Books have TWO distinct cover images:**
+
+- **`cover`**: Listing/social image (horizontal 16:9) - Appears in:
+
+  - `/es/libros` (books listing)
+  - `/es/publicaciones` (posts listing)
+  - Social media cards (Open Graph)
+  - Always use: `/images/defaults/book-default-es.jpg` or `/images/defaults/book-default-en.jpg`
+
+- **`book_cover`**: Physical book cover (vertical 2:3) - Appears ONLY in:
+  - Book detail page sidebar (left of rating)
+  - Path format in frontmatter: `/images/books/{slug}.jpg`
+  - **Actual file location**: `src/assets/books/{slug}.jpg`
+
+**Posts and Tutorials have ONE cover image:**
+
+- **`cover`**: Listing/social image (horizontal 16:9)
+- **Post covers**:
+  - Path in frontmatter: `/images/posts/{slug}.jpg`
+  - Actual file: `src/assets/posts/{slug}.jpg`
+  - Optional, defaults to `/images/defaults/post-default-{lang}.jpg`
+- **Tutorial covers**:
+  - Path in frontmatter: `/images/tutorials/{slug}.jpg`
+  - Actual file: `src/assets/tutorials/{slug}.jpg`
+  - Optional, defaults to `/images/defaults/tutorial-default.jpg`
+
+**Adding New Images:**
+
+```bash
+# 1. Place image in correct directory
+cp new-book-cover.jpg src/assets/books/{slug}.jpg
+
+# 2. Regenerate image imports (auto-detects all images)
+bun run generate:images
+
+# 3. Build (Astro optimizes to WebP automatically)
+bun run build
+```
+
+**Important:**
+
+- Use **JPEG** for photos (recommended)
+- Images are automatically converted to **WebP** during build
+- Recommended size: **1200x630px** for social cards
+- Filename must match slug: `el-hobbit.mdx` → `el-hobbit.jpg`
 
 ### Translations
 

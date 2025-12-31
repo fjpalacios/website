@@ -258,10 +258,10 @@ function getItemDimensions(item: PostSummary | TutorialSummary | BookSummary) {
 
 **File**: `src/pages-templates/books/BooksDetailPage.astro`
 
-**Critical detail**: Books have **TWO cover fields**:
+**Critical detail**: Books have **TWO cover fields** with different purposes:
 
-- `book.data.cover` - For social/meta tags (usually default image)
-- `book.data.book_cover` - Actual book cover (for display)
+- `book.data.cover` - Listing/social image (horizontal 16:9, appears in all listings)
+- `book.data.book_cover` - Physical book cover (vertical 2:3, ONLY in detail page sidebar)
 
 **Changes**:
 
@@ -891,19 +891,21 @@ find dist/_astro -name "*image-name*.webp"
 
 ### Issue: All Books Showing Same Cover
 
-**Root cause**: Likely using `book.data.cover` instead of `book.data.book_cover`
+**Root cause**: Incorrectly using `book.data.book_cover` in listings (should ONLY use `cover`)
 
-**Fix**: Use `book_cover` field (actual cover) instead of `cover` (default)
+**Fix**: Use `cover` field (listing image) for all listings, `book_cover` ONLY for detail page
 
 **Check**:
 
 ```typescript
-// WRONG:
-cover: book.data.cover;
+// WRONG (for listings):
+cover: book.data.book_cover || book.data.cover;
 
-// CORRECT:
-const coverImage = book.data.book_cover || book.data.cover;
-cover: coverImage;
+// CORRECT (for listings):
+cover: book.data.cover; // Always use cover for listings
+
+// CORRECT (for detail page sidebar):
+const bookCoverImage = book.data.book_cover; // Physical book cover
 ```
 
 ### Issue: Build Fails with "Cannot find module"
@@ -1118,13 +1120,18 @@ await expect(page).toHaveScreenshot("test.png", {
 
 ### 3. Books Have Two Cover Fields
 
-**Challenge**: All books were showing default covers in listings.
+**Challenge**: All books were showing book physical covers (book_cover) in listings instead of listing covers.
 
-**Root cause**: Books have `cover` (default/social) and `book_cover` (actual cover). We were using the wrong one.
+**Root cause**: Books have TWO distinct cover fields with specific purposes:
 
-**Solution**: Modified `prepareBookSummary()` to use `book_cover || cover` (prefer book_cover).
+- `cover`: Listing/social image (horizontal 16:9, used in all listings like /es/libros, /es/publicaciones)
+- `book_cover`: Physical book cover image (vertical 2:3, ONLY shown in book detail page sidebar)
 
-**Takeaway**: Always verify data structure when debugging "all showing same value" issues.
+We were incorrectly using `book_cover || cover` in listings, which displayed the wrong image.
+
+**Solution**: Modified `prepareBookSummary()` to ONLY use `cover` for listings. `book_cover` should NEVER appear in listings.
+
+**Takeaway**: Always understand the semantic purpose of each field, not just their technical fallback order.
 
 ### 4. Visual Regression Tests Need Tolerance for Images
 

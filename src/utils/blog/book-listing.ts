@@ -40,9 +40,9 @@ function normalizeCoverPath(cover: string): string {
  * @returns Book summary object
  */
 export function prepareBookSummary(book: CollectionEntry<"books">, author?: CollectionEntry<"authors">): BookSummary {
-  // For listings, use book_cover (actual book cover) if available
-  // Fall back to cover (default/social image) if book_cover doesn't exist
-  const coverImage = book.data.book_cover || book.data.cover;
+  // For listings, ALWAYS use cover (listing/social image)
+  // book_cover is ONLY for detail page (left sidebar with book physical cover)
+  const coverImage = book.data.cover;
 
   return {
     type: "book",

@@ -235,8 +235,8 @@ const booksCollection = defineCollection({
     book_card: z.string().url().optional(), // megustaleer.com link
 
     // Images
-    cover: z.string(), // Relative path to cover image
-    book_cover: z.string().optional(), // Original book cover filename
+    cover: z.string(), // Listing/social image (horizontal 16:9) - Used in all listings
+    book_cover: z.string().optional(), // Physical book cover (vertical 2:3) - ONLY in detail page sidebar
 
     // i18n
     i18n: z.string().optional(), // Slug of translated version

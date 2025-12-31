@@ -900,9 +900,10 @@ Optimize website performance to improve Core Web Vitals, reduce bundle sizes, an
 
 5. **Critical Bug Fixes**
 
-   - **Bug #1**: Books showing default covers in listings
-     - **Root cause**: `prepareBookSummary()` used `cover` instead of `book_cover`
-     - **Fix**: Modified `src/utils/blog/book-listing.ts` to use `book_cover || cover`
+   - **Bug #1**: Books showing physical book covers (book_cover) in listings
+     - **Root cause**: `prepareBookSummary()` incorrectly used `book_cover || cover` for listings
+     - **Fix**: Modified `src/utils/blog/book-listing.ts` to use ONLY `cover` for listings
+     - **Clarification**: `cover` = listing image, `book_cover` = physical book (detail page only)
    - **Bug #2**: Books using horizontal dimensions
      - **Fix**: Added `getItemDimensions()` function in `PostList.astro`
 
@@ -1028,10 +1029,12 @@ Optimize website performance to improve Core Web Vitals, reduce bundle sizes, an
 
 3. **Books Have Two Cover Fields**
 
-   - Challenge: All books showed default covers in listings
-   - Root cause: Books have `cover` (social) and `book_cover` (actual)
-   - Solution: Modified `prepareBookSummary()` to use `book_cover || cover`
-   - Takeaway: Always verify data structure when debugging "all same value" issues
+   - Challenge: Books were showing physical book covers (book_cover) in listings
+   - Root cause: Books have TWO distinct fields:
+     - `cover`: Listing/social image (horizontal 16:9, for all listings)
+     - `book_cover`: Physical book cover (vertical 2:3, ONLY in detail page sidebar)
+   - Solution: Modified `prepareBookSummary()` to use ONLY `cover` for listings
+   - Takeaway: Understand semantic purpose of each field, not just fallback order
 
 4. **Visual Regression Tests Need Tolerance for Images**
 

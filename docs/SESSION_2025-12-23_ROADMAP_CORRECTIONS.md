@@ -51,8 +51,8 @@ User identified several inaccuracies in the roadmap:
 
 **Reality:**
 
-- `cover`: **ALWAYS** `/images/defaults/book-default-es.jpg` (never changes)
-- `book_cover`: **The actual book cover** (must be downloaded and set)
+- `cover`: **Listing/social image** (horizontal 16:9, for /es/libros, /es/publicaciones, etc.)
+- `book_cover`: **Physical book cover** (vertical 2:3, ONLY in detail page sidebar)
 - `post_image`: **Does NOT exist for books** (removed from docs)
 
 **Correction:** Updated `BOOK_MIGRATION_GUIDE.md` with clear distinction
@@ -166,8 +166,8 @@ User identified several inaccuracies in the roadmap:
 
 2. **Book Images:**
 
-   - `cover` = default fallback (never changes)
-   - `book_cover` = actual cover (download and set)
+   - `cover` = listing/social image (horizontal 16:9, shown in all listings)
+   - `book_cover` = physical book cover (vertical 2:3, ONLY in detail page sidebar)
 
 3. **Author Data:**
 
