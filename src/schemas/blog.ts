@@ -59,7 +59,6 @@ export const postsSchema = z.object({
 
   // Post-specific metadata
   category: z.string().min(1), // reference to categories collection
-  tags: z.array(z.string()).default([]),
   draft: z.boolean().default(false),
 
   // Optional metadata
@@ -87,7 +86,6 @@ export const tutorialsSchema = z.object({
 
   // Tutorial-specific metadata
   category: z.string().min(1), // reference to categories collection
-  tags: z.array(z.string()).default([]),
   draft: z.boolean().default(false),
   difficulty: z.enum(["beginner", "intermediate", "advanced"]).optional(),
   estimated_time: z.number().positive().optional(), // Time in minutes

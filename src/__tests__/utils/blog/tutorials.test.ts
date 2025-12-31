@@ -17,7 +17,6 @@ const mockTutorial: CollectionEntry<"tutorials"> = {
     excerpt: "Learn how to test",
     language: "en",
     category: "tutorials",
-    tags: ["testing", "javascript"],
     difficulty: "beginner",
     estimated_time: 30,
     draft: false,
@@ -34,7 +33,6 @@ const mockTutorialWithOptional: CollectionEntry<"tutorials"> = {
     excerpt: "Advanced concepts",
     language: "es",
     category: "tutorials",
-    tags: ["advanced", "typescript"],
     difficulty: "advanced",
     estimated_time: 120,
     draft: false,
@@ -57,7 +55,6 @@ describe("prepareTutorialSummary", () => {
     expect(summary.date).toEqual(new Date("2024-01-15"));
     expect(summary.difficulty).toBe("beginner");
     expect(summary.estimatedTime).toBe(30);
-    expect(summary.tags).toEqual(["testing", "javascript"]);
   });
 
   it("should handle optional fields when not present", () => {
@@ -84,26 +81,5 @@ describe("prepareTutorialSummary", () => {
 
     const advanced = prepareTutorialSummary(mockTutorialWithOptional);
     expect(advanced.difficulty).toBe("advanced");
-  });
-
-  it("should preserve tags array", () => {
-    const summary = prepareTutorialSummary(mockTutorial);
-
-    expect(summary.tags).toHaveLength(2);
-    expect(summary.tags).toContain("testing");
-    expect(summary.tags).toContain("javascript");
-  });
-
-  it("should handle empty tags array", () => {
-    const tutorialNoTags: CollectionEntry<"tutorials"> = {
-      ...mockTutorial,
-      data: {
-        ...mockTutorial.data,
-        tags: [],
-      },
-    } as CollectionEntry<"tutorials">;
-
-    const summary = prepareTutorialSummary(tutorialNoTags);
-    expect(summary.tags).toEqual([]);
   });
 });

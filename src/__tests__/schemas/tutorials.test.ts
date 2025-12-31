@@ -12,7 +12,6 @@ describe("Tutorials Collection Schema", () => {
         excerpt: "Learn TypeScript from scratch with practical examples",
         language: "en",
         category: "programming",
-        tags: ["typescript", "javascript", "tutorial"],
         difficulty: "beginner",
         estimated_time: 30,
         draft: false,
@@ -138,26 +137,6 @@ describe("Tutorials Collection Schema", () => {
       category: "test",
     };
 
-    it("should accept optional tags array", () => {
-      const withTags = { ...baseTutorial, tags: ["javascript", "typescript"] };
-      expect(() => tutorialsSchema.parse(withTags)).not.toThrow();
-    });
-
-    it("should accept empty tags array", () => {
-      const withEmptyTags = { ...baseTutorial, tags: [] };
-      expect(() => tutorialsSchema.parse(withEmptyTags)).not.toThrow();
-    });
-
-    it("should accept optional draft field", () => {
-      const withDraft = { ...baseTutorial, draft: true };
-      expect(() => tutorialsSchema.parse(withDraft)).not.toThrow();
-    });
-
-    it("should default draft to false when not provided", () => {
-      const parsed = tutorialsSchema.parse(baseTutorial);
-      expect(parsed.draft).toBe(false);
-    });
-
     it("should accept optional difficulty field", () => {
       const withDifficulty = { ...baseTutorial, difficulty: "intermediate" };
       expect(() => tutorialsSchema.parse(withDifficulty)).not.toThrow();
@@ -268,11 +247,6 @@ describe("Tutorials Collection Schema", () => {
     it("should handle large estimated_time", () => {
       expect(() => tutorialsSchema.parse({ ...baseTutorial, estimated_time: 999 })).not.toThrow();
     });
-
-    it("should handle many tags", () => {
-      const manyTags = Array.from({ length: 20 }, (_, i) => `tag-${i}`);
-      expect(() => tutorialsSchema.parse({ ...baseTutorial, tags: manyTags })).not.toThrow();
-    });
   });
 
   describe("Real-world examples", () => {
@@ -284,7 +258,6 @@ describe("Tutorials Collection Schema", () => {
         excerpt: "Learn the fundamentals of JavaScript variables and data types",
         language: "en",
         category: "javascript",
-        tags: ["javascript", "beginner", "fundamentals"],
         difficulty: "beginner",
         estimated_time: 20,
         draft: false,
@@ -301,7 +274,6 @@ describe("Tutorials Collection Schema", () => {
         excerpt: "Master compound component pattern in React",
         language: "en",
         category: "react",
-        tags: ["react", "advanced", "patterns"],
         difficulty: "advanced",
         estimated_time: 45,
         github_repo: "https://github.com/example/react-compound-components",
@@ -321,7 +293,6 @@ describe("Tutorials Collection Schema", () => {
         excerpt: "Una introducción completa a Git para principiantes",
         language: "es",
         category: "control-versiones",
-        tags: ["git", "principiante", "tutorial"],
         difficulty: "beginner",
         estimated_time: 25,
         featured_image: "./git-intro.png",
@@ -354,7 +325,6 @@ describe("Tutorials Collection Schema", () => {
         excerpt: "Learn Node.js from scratch (Updated for Node.js 20)",
         language: "en",
         category: "nodejs",
-        tags: ["nodejs", "javascript", "backend"],
         difficulty: "beginner",
         estimated_time: 35,
         draft: false,

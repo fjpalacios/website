@@ -3,20 +3,18 @@ import { describe, expect, it } from "vitest";
 import {
   sortByDate,
   filterByLanguage,
-  filterByTag,
   groupByYear,
   type CollectionItem,
   type GroupedByYear,
 } from "@/utils/blog/collections";
 
 // Mock data for testing
-const createMockItem = (id: number, date: Date, language: "es" | "en", tags: string[] = []): CollectionItem => ({
+const createMockItem = (id: number, date: Date, language: "es" | "en"): CollectionItem => ({
   slug: `item-${id}`,
   data: {
     title: `Item ${id}`,
     date: date,
     language,
-    tags,
   },
 });
 
@@ -136,94 +134,6 @@ describe("filterByLanguage", () => {
   });
 });
 
-describe("filterByTag", () => {
-  const items: CollectionItem[] = [
-    createMockItem(1, new Date("2024-01-01"), "es", ["javascript", "react"]),
-    createMockItem(2, new Date("2024-01-02"), "es", ["typescript", "node"]),
-    createMockItem(3, new Date("2024-01-03"), "en", ["javascript", "vue"]),
-    createMockItem(4, new Date("2024-01-04"), "en", ["python", "django"]),
-    createMockItem(5, new Date("2024-01-05"), "es", ["javascript", "typescript"]),
-  ];
-
-  describe("Filter by single tag", () => {
-    it("should return items with javascript tag", () => {
-      const jsItems = filterByTag(items, "javascript");
-      expect(jsItems).toHaveLength(3);
-      expect(jsItems.map((item) => item.slug)).toEqual(["item-1", "item-3", "item-5"]);
-    });
-
-    it("should return items with typescript tag", () => {
-      const tsItems = filterByTag(items, "typescript");
-      expect(tsItems).toHaveLength(2);
-      expect(tsItems.map((item) => item.slug)).toEqual(["item-2", "item-5"]);
-    });
-
-    it("should return items with python tag", () => {
-      const pyItems = filterByTag(items, "python");
-      expect(pyItems).toHaveLength(1);
-      expect(pyItems[0].slug).toBe("item-4");
-    });
-  });
-
-  describe("Case sensitivity", () => {
-    it("should be case-insensitive by default", () => {
-      const result1 = filterByTag(items, "JavaScript");
-      const result2 = filterByTag(items, "javascript");
-      const result3 = filterByTag(items, "JAVASCRIPT");
-
-      expect(result1).toHaveLength(3);
-      expect(result2).toHaveLength(3);
-      expect(result3).toHaveLength(3);
-    });
-  });
-
-  describe("Edge cases", () => {
-    it("should return empty array when no items match", () => {
-      expect(filterByTag(items, "rust")).toEqual([]);
-    });
-
-    it("should handle empty array", () => {
-      expect(filterByTag([], "javascript")).toEqual([]);
-    });
-
-    it("should handle items with no tags", () => {
-      const noTags = [createMockItem(1, new Date(), "es", [])];
-      expect(filterByTag(noTags, "javascript")).toEqual([]);
-    });
-
-    it("should handle items with undefined tags", () => {
-      const itemsUndefinedTags: CollectionItem[] = [
-        {
-          slug: "item-1",
-          data: {
-            title: "Item 1",
-            date: new Date(),
-            language: "es",
-            // tags is undefined
-          },
-        },
-      ];
-      expect(filterByTag(itemsUndefinedTags, "javascript")).toEqual([]);
-    });
-
-    it("should not modify original array", () => {
-      const original = [...items];
-      filterByTag(items, "javascript");
-      expect(items).toEqual(original);
-    });
-  });
-
-  describe("Invalid inputs", () => {
-    it("should throw for empty tag string", () => {
-      expect(() => filterByTag(items, "")).toThrow("Tag cannot be empty");
-    });
-
-    it("should throw for whitespace-only tag", () => {
-      expect(() => filterByTag(items, "   ")).toThrow("Tag cannot be empty");
-    });
-  });
-});
-
 describe("groupByYear", () => {
   const items: CollectionItem[] = [
     createMockItem(1, new Date("2024-06-15"), "es"),
@@ -318,11 +228,11 @@ describe("groupByYear", () => {
 
 describe("Integration tests", () => {
   const items: CollectionItem[] = [
-    createMockItem(1, new Date("2024-06-15"), "es", ["javascript", "react"]),
-    createMockItem(2, new Date("2024-03-20"), "en", ["typescript", "node"]),
-    createMockItem(3, new Date("2023-11-10"), "es", ["javascript", "vue"]),
-    createMockItem(4, new Date("2023-05-01"), "en", ["python"]),
-    createMockItem(5, new Date("2024-01-05"), "es", ["javascript", "typescript"]),
+    createMockItem(1, new Date("2024-06-15"), "es"),
+    createMockItem(2, new Date("2024-03-20"), "en"),
+    createMockItem(3, new Date("2023-11-10"), "es"),
+    createMockItem(4, new Date("2023-05-01"), "en"),
+    createMockItem(5, new Date("2024-01-05"), "es"),
   ];
 
   it("should filter by language and sort by date", () => {
@@ -335,25 +245,14 @@ describe("Integration tests", () => {
     expect(sorted[2].slug).toBe("item-3"); // 2023-11-10
   });
 
-  it("should filter by tag and group by year", () => {
-    const jsItems = filterByTag(items, "javascript");
-    const grouped = groupByYear(jsItems);
+  it("should filter by language and group by year", () => {
+    const spanish = filterByLanguage(items, "es");
+    const grouped = groupByYear(spanish);
 
     expect(grouped).toHaveLength(2);
     expect(grouped[0].year).toBe(2024);
     expect(grouped[0].items).toHaveLength(2); // item-1 and item-5
     expect(grouped[1].year).toBe(2023);
     expect(grouped[1].items).toHaveLength(1); // item-3
-  });
-
-  it("should chain all operations", () => {
-    // Get Spanish items with javascript tag, grouped by year
-    const spanish = filterByLanguage(items, "es");
-    const jsItems = filterByTag(spanish, "javascript");
-    const grouped = groupByYear(jsItems);
-
-    expect(grouped).toHaveLength(2);
-    expect(grouped[0].items.every((item) => item.data.language === "es")).toBe(true);
-    expect(grouped[0].items.every((item) => item.data.tags?.includes("javascript"))).toBe(true);
   });
 });

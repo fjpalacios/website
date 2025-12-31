@@ -8,7 +8,6 @@ export interface CollectionItem {
     title: string;
     date: Date;
     language: "es" | "en";
-    tags?: string[];
   };
 }
 
@@ -61,33 +60,6 @@ export function sortByDate(items: CollectionItem[], order: "asc" | "desc" = "des
  */
 export function filterByLanguage(items: CollectionItem[], language: "es" | "en"): CollectionItem[] {
   return items.filter((item) => item.data.language === language);
-}
-
-/**
- * Filter collection items by tag (case-insensitive)
- *
- * @param items - Array of collection items
- * @param tag - Tag to filter by
- * @returns Filtered array of items containing the tag
- *
- * @example
- * filterByTag(items, 'javascript')
- * filterByTag(items, 'TypeScript') // Case-insensitive
- */
-export function filterByTag(items: CollectionItem[], tag: string): CollectionItem[] {
-  if (tag.trim() === "") {
-    throw new Error("Tag cannot be empty");
-  }
-
-  const normalizedTag = tag.toLowerCase().trim();
-
-  return items.filter((item) => {
-    if (!item.data.tags || item.data.tags.length === 0) {
-      return false;
-    }
-
-    return item.data.tags.some((itemTag) => itemTag.toLowerCase() === normalizedTag);
-  });
 }
 
 /**

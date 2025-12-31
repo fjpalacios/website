@@ -12,7 +12,6 @@ describe("Posts Collection Schema", () => {
         excerpt: "Este es mi primer post donde hablo sobre desarrollo web",
         language: "es",
         category: "development",
-        tags: ["javascript", "react", "web"],
         draft: false,
       };
 
@@ -136,16 +135,6 @@ describe("Posts Collection Schema", () => {
       category: "test",
     };
 
-    it("should accept optional tags array", () => {
-      const withTags = { ...basePost, tags: ["javascript", "typescript"] };
-      expect(() => postsSchema.parse(withTags)).not.toThrow();
-    });
-
-    it("should accept empty tags array", () => {
-      const withEmptyTags = { ...basePost, tags: [] };
-      expect(() => postsSchema.parse(withEmptyTags)).not.toThrow();
-    });
-
     it("should accept optional draft field", () => {
       const withDraft = { ...basePost, draft: true };
       expect(() => postsSchema.parse(withDraft)).not.toThrow();
@@ -226,11 +215,6 @@ describe("Posts Collection Schema", () => {
       const manyTags = Array.from({ length: 20 }, (_, i) => `tag-${i}`);
       expect(() => postsSchema.parse({ ...basePost, tags: manyTags })).not.toThrow();
     });
-
-    it("should handle tags with spaces and special characters", () => {
-      const specialTags = ["Node.js", "C++", "Web Development", "CI/CD"];
-      expect(() => postsSchema.parse({ ...basePost, tags: specialTags })).not.toThrow();
-    });
   });
 
   describe("Real-world examples", () => {
@@ -242,7 +226,6 @@ describe("Posts Collection Schema", () => {
         excerpt: "Un repaso por las mejores lecturas del año, con reseñas y recomendaciones",
         language: "es",
         category: "books",
-        tags: ["reviews", "year-review", "2023"],
         draft: false,
       };
 
@@ -257,7 +240,6 @@ describe("Posts Collection Schema", () => {
         excerpt: "Learn the basics of TypeScript and how to use it in your projects",
         language: "en",
         category: "tutorials",
-        tags: ["typescript", "javascript", "programming"],
         featured_image: "./typescript-intro.png",
         draft: false,
       };
@@ -287,7 +269,6 @@ describe("Posts Collection Schema", () => {
         excerpt: "A deep dive into async/await in JavaScript",
         language: "en",
         category: "development",
-        tags: ["javascript", "async", "promises"],
         canonical_url: "https://dev.to/author/understanding-async-await",
         draft: false,
       };
@@ -304,7 +285,6 @@ describe("Posts Collection Schema", () => {
         excerpt: "Learn React from scratch (Updated for React 18)",
         language: "en",
         category: "tutorials",
-        tags: ["react", "javascript", "frontend"],
         draft: false,
       };
 

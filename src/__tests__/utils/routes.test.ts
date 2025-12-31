@@ -9,7 +9,6 @@ import {
   buildTutorialUrl,
   buildBookUrl,
   buildCategoryUrl,
-  buildTagUrl,
   buildGenreUrl,
   buildPublisherUrl,
   buildSeriesUrl,
@@ -128,16 +127,6 @@ describe("routes utilities", () => {
 
       it("should build category URL in English", () => {
         expect(buildCategoryUrl("en", "tech")).toBe("/en/categories/tech");
-      });
-    });
-
-    describe("buildTagUrl", () => {
-      it("should build tag URL in Spanish", () => {
-        expect(buildTagUrl("es", "javascript")).toBe("/es/etiqueta/javascript");
-      });
-
-      it("should build tag URL in English", () => {
-        expect(buildTagUrl("en", "javascript")).toBe("/en/tag/javascript");
       });
     });
 
@@ -441,7 +430,6 @@ describe("routes utilities", () => {
           "tutorials",
           "books",
           "categories",
-          "tags",
           "genres",
           "publishers",
           "series",

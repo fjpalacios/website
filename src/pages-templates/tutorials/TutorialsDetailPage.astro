@@ -1,10 +1,10 @@
 ---
 /**
  * Tutorials Detail Page Template
- * Displays a single tutorial with metadata, course relationship, and tags
+ * Displays a single tutorial with metadata and course relationship
  *
  * Used by: /en/tutorials/[slug]/ and /es/tutoriales/[slug]/
- * Features: Breadcrumbs, course relationship, categories, tags, cover image, schema.org
+ * Features: Breadcrumbs, course relationship, categories, cover image, schema.org
  */
 
 import Breadcrumbs, { type BreadcrumbItem } from "@components/Breadcrumbs.astro";
@@ -17,7 +17,7 @@ import Layout from "@layouts/Layout.astro";
 import { t } from "@locales";
 import { getTutorialCoverImage } from "@utils/imageImports";
 import { IMAGE_DIMENSIONS, RESPONSIVE_SIZES } from "@utils/images";
-import { buildCategoryUrl, buildTagUrl, buildCourseUrl, buildTutorialsIndexUrl } from "@utils/routes";
+import { buildCategoryUrl, buildCourseUrl, buildTutorialsIndexUrl } from "@utils/routes";
 import { getCollection, render, type CollectionEntry } from "astro:content";
 
 import type { ContactItem } from "@/types/content";
@@ -176,23 +176,6 @@ if (course) {
         </li>
       </ul>
     </section>
-
-    {
-      tutorial.tags && tutorial.tags.length > 0 && (
-        <section class="tutorial__info">
-          <Icon name="bookmark" size="md" class="tutorial__info__icon" />
-          <ul class="tutorial__info__text">
-            {tutorial.tags.map((tag) => (
-              <li>
-                <a href={buildTagUrl(lang, tag)} class="tutorial__info__text__item" title="Tag">
-                  {tag}
-                </a>
-              </li>
-            ))}
-          </ul>
-        </section>
-      )
-    }
 
     {
       course && (previousTutorial || nextTutorial) && (

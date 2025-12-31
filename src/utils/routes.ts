@@ -8,7 +8,6 @@ export type RouteSegment =
   | "tutorials"
   | "books"
   | "categories"
-  | "tags"
   | "genres"
   | "publishers"
   | "series"
@@ -41,10 +40,6 @@ export const routeTranslations: Record<RouteSegment, Record<string, string>> = {
   categories: {
     en: "categories",
     es: "categorias",
-  },
-  tags: {
-    en: "tag",
-    es: "etiqueta",
   },
   genres: {
     en: "genres",
@@ -142,7 +137,6 @@ export type ContentType =
   | "tutorials"
   | "books"
   | "categories"
-  | "tags"
   | "genres"
   | "publishers"
   | "series"
@@ -218,10 +212,6 @@ export function buildBookUrl(lang: string, slug: string): string {
 
 export function buildCategoryUrl(lang: string, slug: string): string {
   return buildContentUrl("categories", lang, slug);
-}
-
-export function buildTagUrl(lang: string, slug: string): string {
-  return buildContentUrl("tags", lang, slug);
 }
 
 export function buildGenreUrl(lang: string, slug: string): string {
