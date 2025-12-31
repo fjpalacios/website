@@ -12,6 +12,21 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 // https://astro.build/config
 export default defineConfig({
   site: "https://fjp.es",
+  
+  // Image optimization configuration
+  image: {
+    // Use Sharp for image optimization (default, but explicit for clarity)
+    service: {
+      entrypoint: 'astro/assets/services/sharp',
+      config: {
+        limitInputPixels: false, // Allow large images
+      },
+    },
+    // Default formats for optimization
+    // When using <Image>, Astro will generate these formats
+    remotePatterns: [], // No remote images for now
+  },
+  
   integrations: [
     mdx(),
     sitemap({

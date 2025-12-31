@@ -9,10 +9,13 @@
 
 import Breadcrumbs, { type BreadcrumbItem } from "@components/Breadcrumbs.astro";
 import Icon from "@components/Icon.astro";
+import OptimizedImage from "@components/OptimizedImage.astro";
 import PostTitle from "@components/PostTitle.astro";
 import Share from "@components/Share.astro";
 import Layout from "@layouts/Layout.astro";
 import { t } from "@locales";
+import { getTutorialCoverImage } from "@utils/imageImports";
+import { IMAGE_DIMENSIONS, RESPONSIVE_SIZES } from "@utils/images";
 import { buildCategoryUrl, buildTagUrl, buildCourseUrl, buildTutorialsIndexUrl } from "@utils/routes";
 import { getCollection, render, type CollectionEntry } from "astro:content";
 
@@ -28,8 +31,10 @@ const { lang, tutorialEntry, contact } = Astro.props;
 const tutorial = tutorialEntry.data;
 const { Content } = await render(tutorialEntry);
 
-// Cover image with fallback
-const coverImage = tutorial.cover || `/images/defaults/tutorial-default.jpg`;
+// Cover image with fallback (returns ImageMetadata for optimization)
+const coverImage = getTutorialCoverImage(tutorial.cover);
+// Keep original path for meta tags (Layout expects string)
+const coverImagePath = tutorial.cover || "/images/defaults/tutorial-default.jpg";
 
 // Get course info if exists
 const allCourses = tutorial.course ? await getCollection("courses") : [];
@@ -53,7 +58,7 @@ const tutorialSchema: Record<string, unknown> = {
   "@type": "TechArticle",
   headline: tutorial.title,
   description: tutorial.excerpt,
-  image: coverImage,
+  image: coverImagePath,
   datePublished: tutorial.date.toISOString(),
   author: {
     "@type": "Person",
@@ -86,7 +91,7 @@ if (course) {
   description={tutorial.excerpt}
   contact={contact}
   translationSlug={tutorial.i18n}
-  image={coverImage}
+  image={coverImagePath}
   type="article"
   schema={tutorialSchema}
 >
@@ -94,7 +99,14 @@ if (course) {
   <main class="tutorial">
     <section class="tutorial__content">
       <div class="cover-image-wrapper">
-        <img src={coverImage} alt={tutorial.title} width="800" height="400" loading="lazy" />
+        <OptimizedImage
+          src={coverImage}
+          alt={tutorial.title}
+          width={IMAGE_DIMENSIONS.POST_COVER_MEDIUM.width}
+          height={IMAGE_DIMENSIONS.POST_COVER_MEDIUM.height}
+          sizes={RESPONSIVE_SIZES.FULL_WIDTH}
+          loading="eager"
+        />
       </div>
       <!-- Pagefind title meta -->
       <span data-pagefind-meta="title" style="display: none;">{tutorial.title}</span>

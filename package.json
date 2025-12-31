@@ -5,6 +5,7 @@
   "scripts": {
     "dev": "astro dev",
     "build": "astro build && bun run pagefind --site dist",
+    "build:clean": "rm -rf dist && astro build && bun run pagefind --site dist",
     "postbuild": "bun run scripts/copy-pagefind-dev.js",
     "preview": "astro preview",
     "format": "prettier --write .",
@@ -26,6 +27,9 @@
     "new:book": "node scripts/new-book.js",
     "new:post": "node scripts/new-post.js",
     "new:tutorial": "node scripts/new-tutorial.js",
+    "generate:images": "bun run scripts/generate-image-imports.ts",
+    "clean:dist": "rm -rf dist",
+    "clean:images": "bun run clean:dist && echo '✅ Cleaned dist/ directory. Next build will regenerate all images.'",
     "validate": "node scripts/validate-content.js",
     "validate:books": "node scripts/validate-content.js books",
     "validate:posts": "node scripts/validate-content.js posts",

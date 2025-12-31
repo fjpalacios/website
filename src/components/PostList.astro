@@ -1,6 +1,10 @@
 ---
+import OptimizedImage from "@components/OptimizedImage.astro";
 import PostTitle from "@components/PostTitle.astro";
+import { getPostCoverImage, getTutorialCoverImage, getBookCoverImage } from "@utils/imageImports";
+import { IMAGE_DIMENSIONS, RESPONSIVE_SIZES } from "@utils/images";
 import { buildBookUrl, buildTutorialUrl, buildPostUrl } from "@utils/routes";
+import type { ImageMetadata } from "astro";
 
 import type { PostSummary, TutorialSummary, BookSummary } from "@/utils/blog";
 
@@ -13,9 +17,6 @@ interface Props {
 }
 
 const { posts, lang } = Astro.props;
-
-// Default cover image fallback
-const defaultCover = "/images/defaults/post-default.jpg";
 
 // Get the correct URL path based on the item type and language
 function getItemUrl(item: ListItem): string {
@@ -31,22 +32,57 @@ function getItemUrl(item: ListItem): string {
       return buildPostUrl(itemLang, item.slug);
   }
 }
+
+// Get the correct cover image based on item type
+function getItemCover(item: ListItem): ImageMetadata {
+  switch (item.type) {
+    case "book":
+      return getBookCoverImage(item.cover, lang as "es" | "en");
+    case "tutorial":
+      return getTutorialCoverImage(item.cover);
+    case "post":
+    default:
+      return getPostCoverImage(item.cover);
+  }
+}
+
+// Get the correct image dimensions based on item type
+function getItemDimensions(item: ListItem) {
+  switch (item.type) {
+    case "book":
+      return IMAGE_DIMENSIONS.BOOK_COVER_MEDIUM; // 200x300 (2:3 vertical)
+    case "tutorial":
+    case "post":
+    default:
+      return IMAGE_DIMENSIONS.POST_COVER_MEDIUM; // 800x450 (16:9 horizontal)
+  }
+}
 ---
 
 <main class="blog">
   <section class="blog__grid">
     {
-      posts.map((post) => (
-        <a href={getItemUrl(post)}>
-          <section class="blog__grid__post">
-            <img src={post.cover || defaultCover} alt={post.title} width="800" height="400" loading="lazy" />
-            <PostTitle title={post.title} date={post.date} lang={lang} headingLevel="h2" />
-            <div class="text-area">
-              <p>{post.excerpt}</p>
-            </div>
-          </section>
-        </a>
-      ))
+      posts.map((post) => {
+        const dimensions = getItemDimensions(post);
+        return (
+          <a href={getItemUrl(post)}>
+            <section class="blog__grid__post">
+              <OptimizedImage
+                src={getItemCover(post)}
+                alt={post.title}
+                width={dimensions.width}
+                height={dimensions.height}
+                sizes={RESPONSIVE_SIZES.HALF_WIDTH}
+                loading="lazy"
+              />
+              <PostTitle title={post.title} date={post.date} lang={lang} headingLevel="h2" />
+              <div class="text-area">
+                <p>{post.excerpt}</p>
+              </div>
+            </section>
+          </a>
+        );
+      })
     }
   </section>
 </main>

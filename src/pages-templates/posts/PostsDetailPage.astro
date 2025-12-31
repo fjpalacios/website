@@ -11,10 +11,13 @@
  */
 
 import Icon from "@components/Icon.astro";
+import OptimizedImage from "@components/OptimizedImage.astro";
 import PostTitle from "@components/PostTitle.astro";
 import Share from "@components/Share.astro";
 import Layout from "@layouts/Layout.astro";
 import { t } from "@locales";
+import { getPostCoverImage } from "@utils/imageImports";
+import { IMAGE_DIMENSIONS, RESPONSIVE_SIZES } from "@utils/images";
 import { buildCategoryUrl, buildTagUrl } from "@utils/routes";
 import { render, type CollectionEntry } from "astro:content";
 
@@ -30,8 +33,10 @@ const { lang, postEntry, contact } = Astro.props;
 const post = postEntry.data;
 const { Content } = await render(postEntry);
 
-// Cover image with fallback
-const coverImage = post.cover || `/images/defaults/post-default.jpg`;
+// Cover image with fallback (returns ImageMetadata for optimization)
+const coverImage = getPostCoverImage(post.cover);
+// Keep original path for meta tags (Layout expects string)
+const coverImagePath = post.cover || "/images/defaults/post-default.jpg";
 
 // Share component data
 const baseUrl = t(lang, "metaData.url");
@@ -44,7 +49,7 @@ const articleSchema: Record<string, unknown> = {
   "@type": "BlogPosting",
   headline: post.title,
   description: post.excerpt,
-  image: coverImage,
+  image: coverImagePath,
   datePublished: post.date.toISOString(),
   author: {
     "@type": "Person",
@@ -69,14 +74,21 @@ if (post.updated) {
   description={post.excerpt}
   contact={contact}
   translationSlug={post.i18n}
-  image={coverImage}
+  image={coverImagePath}
   type="article"
   schema={articleSchema}
 >
   <main class="post">
     <section class="post__content">
       <div class="cover-image-wrapper">
-        <img src={coverImage} alt={post.title} width="800" height="400" loading="lazy" />
+        <OptimizedImage
+          src={coverImage}
+          alt={post.title}
+          width={IMAGE_DIMENSIONS.POST_COVER_MEDIUM.width}
+          height={IMAGE_DIMENSIONS.POST_COVER_MEDIUM.height}
+          sizes={RESPONSIVE_SIZES.FULL_WIDTH}
+          loading="eager"
+        />
       </div>
       <!-- Pagefind title meta -->
       <span data-pagefind-meta="title" style="display: none;">{post.title}</span>

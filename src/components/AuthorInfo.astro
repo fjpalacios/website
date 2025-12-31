@@ -1,4 +1,7 @@
 ---
+import OptimizedImage from "@components/OptimizedImage.astro";
+import { getAuthorPictureImage } from "@utils/imageImports";
+import { IMAGE_DIMENSIONS } from "@utils/images";
 import { render } from "astro:content";
 import type { CollectionEntry } from "astro:content";
 
@@ -9,14 +12,27 @@ interface Props {
 
 const { author, border = true } = Astro.props;
 const { Content } = await render(author);
+
+// Get optimized author picture (with fallback to undefined if not found)
+const authorPicture = getAuthorPictureImage(author.data.picture);
 ---
 
 <main class:list={[border ? "author-info--border" : "author-info"]}>
-  <div class="author-info__image">
-    <div class="author-info__image__border">
-      <img src={author.data.picture} alt={author.data.name} width="150" height="150" loading="lazy" />
-    </div>
-  </div>
+  {
+    authorPicture && (
+      <div class="author-info__image">
+        <div class="author-info__image__border">
+          <OptimizedImage
+            src={authorPicture}
+            alt={author.data.name}
+            width={IMAGE_DIMENSIONS.AUTHOR_PICTURE_MEDIUM.width}
+            height={IMAGE_DIMENSIONS.AUTHOR_PICTURE_MEDIUM.height}
+            loading="lazy"
+          />
+        </div>
+      </div>
+    )
+  }
   <div class="author-info__text">
     <div class="text-area">
       <Content />

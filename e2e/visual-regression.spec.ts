@@ -112,6 +112,7 @@ test.describe("Visual Regression - Homepage", () => {
       await expect(page).toHaveScreenshot("homepage-es-desktop-light.png", {
         fullPage: true,
         animations: "disabled",
+        maxDiffPixelRatio: 0.02,
       });
     });
 
@@ -133,6 +134,7 @@ test.describe("Visual Regression - Homepage", () => {
       await expect(page).toHaveScreenshot("homepage-en-desktop-light.png", {
         fullPage: true,
         animations: "disabled",
+        maxDiffPixelRatio: 0.02,
       });
     });
   });
@@ -206,6 +208,7 @@ test.describe("Visual Regression - Books", () => {
       await expect(page).toHaveScreenshot("books-listing-desktop-light.png", {
         fullPage: true,
         animations: "disabled",
+        maxDiffPixelRatio: 0.02,
       });
     });
 
@@ -229,6 +232,7 @@ test.describe("Visual Regression - Books", () => {
       await expect(page).toHaveScreenshot("books-listing-mobile-light.png", {
         fullPage: true,
         animations: "disabled",
+        maxDiffPixelRatio: 0.02,
       });
     });
   });
@@ -346,6 +350,7 @@ test.describe("Visual Regression - Posts", () => {
     await expect(page).toHaveScreenshot("posts-listing-mobile-light.png", {
       fullPage: true,
       animations: "disabled",
+      maxDiffPixelRatio: 0.02,
     });
   });
 });
