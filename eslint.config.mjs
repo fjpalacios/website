@@ -52,4 +52,24 @@ export default tseslint.config(
       ],
     },
   },
+  // Configuration for Node.js scripts
+  {
+    files: ["scripts/**/*.js"],
+    languageOptions: {
+      ecmaVersion: "latest",
+      globals: { ...globals.node },
+    },
+    rules: {
+      "no-console": "off", // Allow console in CLI scripts
+      "unused-imports/no-unused-vars": [
+        "warn",
+        {
+          vars: "all",
+          varsIgnorePattern: "^_",
+          args: "after-used",
+          argsIgnorePattern: "^_|^e$", // Also ignore 'e' in catch blocks
+        },
+      ],
+    },
+  },
 );

@@ -23,6 +23,13 @@
     "test:visual": "playwright test --project=visual-regression",
     "test:visual:update": "playwright test --project=visual-regression --update-snapshots",
     "check": "bun run lint:check && bun run format:check && bun run test",
+    "new:book": "node scripts/new-book.js",
+    "new:post": "node scripts/new-post.js",
+    "new:tutorial": "node scripts/new-tutorial.js",
+    "validate": "node scripts/validate-content.js",
+    "validate:books": "node scripts/validate-content.js books",
+    "validate:posts": "node scripts/validate-content.js posts",
+    "validate:tutorials": "node scripts/validate-content.js tutorials",
     "prepare": "husky"
   },
   "lint-staged": {
