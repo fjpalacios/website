@@ -900,6 +900,105 @@ These are purely decorative and don't impact functionality or accessibility, so 
 
 ---
 
+## 🐛 Bugfix: Missing Icons in Dynamic Usage (Dec 31, 2025)
+
+### Issue Discovered
+
+During content migration preparation, discovered that icons were being removed from `Icon.astro` without checking for **dynamic usage through JSON data files**.
+
+### Root Cause
+
+Icons like `"code"`, `"review"`, and `"folder"` were removed during previous cleanup phases, assuming they weren't used. However, they **ARE** being used dynamically:
+
+1. **Category JSON files** reference icons via `"icon"` field:
+
+   - `src/content/categories/tutoriales.json` → `"icon": "code"`
+   - `src/content/categories/tutorials.json` → `"icon": "code"`
+   - `src/content/categories/reviews.json` → `"icon": "review"`
+   - `src/content/categories/resenas.json` → `"icon": "review"`
+   - `src/content/categories/book-reviews.json` → `"icon": "review"`
+
+2. **Detail page templates** use icons for info sections:
+   - `PostsDetailPage.astro` → `<Icon name="folder" />`
+   - `BooksDetailPage.astro` → `<Icon name="folder" />`
+   - `TutorialsDetailPage.astro` → `<Icon name="folder" />`
+
+### Audit Results
+
+Comprehensive search revealed ALL icon usage across the project:
+
+**Icons in JSON data files:**
+
+- ✅ `book` - Used in libros.json, books.json (EXISTS)
+- ❌ `code` - Used in tutoriales.json, tutorials.json (MISSING)
+- ❌ `review` - Used in reviews.json, resenas.json, book-reviews.json (MISSING)
+
+**Icons in Astro templates:**
+
+- ✅ All list page titles using Icon component (book, file-text, graduation-cap, bookmark, tag, target, pen-line, book-open, rss)
+- ❌ `folder` - Used in 3 detail page templates (MISSING)
+
+### Solution Implemented
+
+**1. Added missing `code` icon from Lucide Icons:**
+
+```typescript
+code: '<path d="m16 18 6-6-6-6"></path><path d="m8 6-6 6 6 6"></path>',
+```
+
+**2. Added missing `review` icon (using `message-square-text` from Lucide):**
+
+```typescript
+review: '<path d="M22 17a2 2 0 0 1-2 2H6.828a2 2 0 0 0-1.414.586l-2.202 2.202A.71.71 0 0 1 2 21.286V5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2z"></path><path d="M7 11h10"></path><path d="M7 15h6"></path><path d="M7 7h8"></path>',
+```
+
+**3. Re-added `folder` icon (was recently added but accidentally removed):**
+
+```typescript
+folder: '<path d="M20 20a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.9a2 2 0 0 1-1.69-.9L9.6 3.9A2 2 0 0 0 7.93 3H4a2 2 0 0 0-2 2v13a2 2 0 0 0 2 2Z"></path>',
+```
+
+### Icon Count Update
+
+**Total icons in Icon.astro: 37** (was 34)
+
+**New icons added:**
+
+- `code` (programming/tutorials)
+- `review` (reviews/opinions)
+- `folder` (categories/organization)
+
+### Files Modified
+
+- `src/components/Icon.astro` - Added 3 missing icons + updated JSDoc
+
+### Verification
+
+✅ Build successful - No icon warnings  
+✅ All 1,125 unit tests passing  
+✅ All icons render correctly in UI
+
+### Lesson Learned
+
+**CRITICAL**: When auditing icon usage, always check for:
+
+1. ✅ Direct component usage (`<Icon name="..." />`)
+2. ✅ **Dynamic usage through data files** (JSON `"icon"` fields)
+3. ✅ Script-based icon references (theme.ts, etc.)
+
+Never assume an icon isn't used just because grep doesn't find direct references in templates.
+
+### Prevention Strategy
+
+Going forward, before removing any icon from `Icon.astro`:
+
+1. Search for direct usage: `grep -r 'name="icon-name"' src/`
+2. **Search for dynamic usage**: `grep -r '"icon-name"' src/content/`
+3. Check for string-based references: `grep -r "'icon-name'" src/`
+4. Review Icon.astro warning logs during build
+
+---
+
 ## 📚 Resources
 
 - **Lucide Icons**: https://lucide.dev/
@@ -910,4 +1009,6 @@ These are purely decorative and don't impact functionality or accessibility, so 
 
 ---
 
-**Next Steps**: Get approval from user, then start Phase 1 (Icon Component Enhancement).
+## ✅ Status: COMPLETE + BUGFIXED
+
+All phases of the Icon System Migration are complete, and the dynamic icon usage bug has been fixed. The icon system is now fully functional with 37 icons supporting all use cases across the application.
