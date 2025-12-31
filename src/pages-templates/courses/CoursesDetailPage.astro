@@ -95,6 +95,15 @@ const itemListSchema = generateItemListSchema(
   <Breadcrumbs items={breadcrumbs} lang={lang} />
   <Title title={pageTitle} srOnly={true} useAsPagefindTitle={true} />
 
+  <!-- Course description -->
+  {
+    course.data.description && (
+      <div class="course-description" data-pagefind-body>
+        <p>{course.data.description}</p>
+      </div>
+    )
+  }
+
   <!-- Short indexable description for Pagefind -->
   <p class="sr-only" aria-hidden="true">{description}</p>
 
