@@ -85,6 +85,23 @@
         grid-area: post-10;
       }
     }
+
+    &__post {
+      &__image-wrapper {
+        position: relative;
+
+        // Position badge at top-right corner of image
+        .tutorial-order-badge {
+          position: absolute;
+          top: 0.75rem;
+          right: 0.75rem;
+          z-index: 1;
+
+          // Add subtle shadow for better visibility
+          box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+        }
+      }
+    }
   }
 }
 

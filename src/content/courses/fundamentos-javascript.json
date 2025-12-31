@@ -1,9 +1,0 @@
-{
-  "name": "Fundamentos de JavaScript",
-  "course_slug": "fundamentos-javascript",
-  "language": "es",
-  "i18n": "javascript-fundamentals",
-  "description": "Guía completa de JavaScript para principiantes",
-  "difficulty": "beginner",
-  "estimated_duration": 1200
-}

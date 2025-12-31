@@ -8,6 +8,7 @@
  */
 
 import Breadcrumbs, { type BreadcrumbItem } from "@components/Breadcrumbs.astro";
+import CourseNavigation from "@components/CourseNavigation.astro";
 import Icon from "@components/Icon.astro";
 import OptimizedImage from "@components/OptimizedImage.astro";
 import PostTitle from "@components/PostTitle.astro";
@@ -39,6 +40,40 @@ const coverImagePath = tutorial.cover || "/images/defaults/tutorial-default.jpg"
 // Get course info if exists
 const allCourses = tutorial.course ? await getCollection("courses") : [];
 const course = tutorial.course ? allCourses.find((c) => c.data.course_slug === tutorial.course) : null;
+
+// Get course navigation (previous/next tutorials) if tutorial has order and belongs to a course
+let previousTutorial = null;
+let nextTutorial = null;
+
+if (tutorial.course && tutorial.order !== undefined) {
+  // Get all tutorials from the same course
+  const allTutorials = await getCollection("tutorials", (t) => {
+    return t.data.language === lang && t.data.course === tutorial.course && t.data.order !== undefined;
+  });
+
+  // Sort by order ascending
+  allTutorials.sort((a, b) => (a.data.order || 0) - (b.data.order || 0));
+
+  // Find previous tutorial (order - 1)
+  const prevTutorial = allTutorials.find((t) => t.data.order === tutorial.order! - 1);
+  if (prevTutorial) {
+    previousTutorial = {
+      title: prevTutorial.data.title,
+      slug: prevTutorial.data.post_slug,
+      order: prevTutorial.data.order!,
+    };
+  }
+
+  // Find next tutorial (order + 1)
+  const nextTut = allTutorials.find((t) => t.data.order === tutorial.order! + 1);
+  if (nextTut) {
+    nextTutorial = {
+      title: nextTut.data.title,
+      slug: nextTut.data.post_slug,
+      order: nextTut.data.order!,
+    };
+  }
+}
 
 // Build breadcrumbs
 const breadcrumbs: BreadcrumbItem[] = [
@@ -156,6 +191,17 @@ if (course) {
             ))}
           </ul>
         </section>
+      )
+    }
+
+    {
+      course && (previousTutorial || nextTutorial) && (
+        <CourseNavigation
+          previousTutorial={previousTutorial}
+          nextTutorial={nextTutorial}
+          lang={lang}
+          courseName={course.data.name}
+        />
       )
     }
   </main>

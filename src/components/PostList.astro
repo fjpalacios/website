@@ -1,6 +1,7 @@
 ---
 import OptimizedImage from "@components/OptimizedImage.astro";
 import PostTitle from "@components/PostTitle.astro";
+import TutorialOrderBadge from "@components/TutorialOrderBadge.astro";
 import { getPostCoverImage, getTutorialCoverImage, getBookCoverImage } from "@utils/imageImports";
 import { IMAGE_DIMENSIONS, RESPONSIVE_SIZES } from "@utils/images";
 import { buildBookUrl, buildTutorialUrl, buildPostUrl } from "@utils/routes";
@@ -14,9 +15,10 @@ type ListItem = PostSummary | TutorialSummary | BookSummary;
 interface Props {
   posts: ListItem[];
   lang: "es" | "en";
+  showOrderBadges?: boolean; // Only show order badges in course context
 }
 
-const { posts, lang } = Astro.props;
+const { posts, lang, showOrderBadges = false } = Astro.props;
 
 // Get the correct URL path based on the item type and language
 function getItemUrl(item: ListItem): string {
@@ -64,17 +66,22 @@ function getItemDimensions(item: ListItem) {
     {
       posts.map((post) => {
         const dimensions = getItemDimensions(post);
+        const showOrderBadge =
+          showOrderBadges && post.type === "tutorial" && "order" in post && post.order !== undefined;
         return (
           <a href={getItemUrl(post)}>
             <section class="blog__grid__post">
-              <OptimizedImage
-                src={getItemCover(post)}
-                alt={post.title}
-                width={dimensions.width}
-                height={dimensions.height}
-                sizes={RESPONSIVE_SIZES.HALF_WIDTH}
-                loading="lazy"
-              />
+              <div class="blog__grid__post__image-wrapper">
+                <OptimizedImage
+                  src={getItemCover(post)}
+                  alt={post.title}
+                  width={dimensions.width}
+                  height={dimensions.height}
+                  sizes={RESPONSIVE_SIZES.HALF_WIDTH}
+                  loading="lazy"
+                />
+                {showOrderBadge && <TutorialOrderBadge order={(post as TutorialSummary).order!} />}
+              </div>
               <PostTitle title={post.title} date={post.date} lang={lang} headingLevel="h2" />
               <div class="text-area">
                 <p>{post.excerpt}</p>

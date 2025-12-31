@@ -19,6 +19,7 @@ export interface TutorialSummary {
   difficulty?: "beginner" | "intermediate" | "advanced";
   estimatedTime?: number;
   course?: string;
+  order?: number;
   githubRepo?: string;
   demoUrl?: string;
   cover?: string;
@@ -45,6 +46,7 @@ export function prepareTutorialSummary(tutorial: CollectionEntry<"tutorials">): 
     difficulty: tutorial.data.difficulty,
     estimatedTime: tutorial.data.estimated_time,
     course: tutorial.data.course,
+    order: tutorial.data.order,
     githubRepo: tutorial.data.github_repo,
     demoUrl: tutorial.data.demo_url,
     cover: tutorial.data.cover || tutorial.data.featured_image,

@@ -315,6 +315,120 @@ test.describe("Visual Regression - Tutorials", () => {
 });
 
 // ============================================================================
+// COURSE PAGES WITH TUTORIAL ORDER BADGES
+// ============================================================================
+
+test.describe("Visual Regression - Courses", () => {
+  test("should match course detail with order badges desktop light", async ({ page }) => {
+    await page.setViewportSize(VIEWPORTS.desktop);
+    await page.goto("/es/cursos/domina-git-desde-cero/");
+    await waitForPageStable(page);
+
+    await expect(page).toHaveScreenshot("course-detail-with-badges-desktop-light.png", {
+      fullPage: true,
+      animations: "disabled",
+    });
+  });
+
+  test("should match course detail with order badges desktop dark", async ({ page }) => {
+    await page.setViewportSize(VIEWPORTS.desktop);
+    await page.goto("/es/cursos/domina-git-desde-cero/");
+    await waitForPageStable(page);
+    await activateDarkTheme(page);
+
+    await expect(page).toHaveScreenshot("course-detail-with-badges-desktop-dark.png", {
+      fullPage: true,
+      animations: "disabled",
+    });
+  });
+
+  test("should match course detail with order badges mobile light", async ({ page }) => {
+    await page.setViewportSize(VIEWPORTS.mobile);
+    await page.goto("/es/cursos/domina-git-desde-cero/");
+    await waitForPageStable(page);
+
+    await expect(page).toHaveScreenshot("course-detail-with-badges-mobile-light.png", {
+      fullPage: true,
+      animations: "disabled",
+    });
+  });
+});
+
+// ============================================================================
+// TUTORIAL DETAIL PAGES WITH COURSE NAVIGATION
+// ============================================================================
+
+test.describe("Visual Regression - Tutorial Detail with Course Navigation", () => {
+  test("should match tutorial with next button only desktop light", async ({ page }) => {
+    await page.setViewportSize(VIEWPORTS.desktop);
+    await page.goto("/es/tutoriales/que-es-git/");
+    await waitForPageStable(page);
+
+    await expect(page).toHaveScreenshot("tutorial-detail-next-only-desktop-light.png", {
+      fullPage: true,
+      animations: "disabled",
+    });
+  });
+
+  test("should match tutorial with next button only desktop dark", async ({ page }) => {
+    await page.setViewportSize(VIEWPORTS.desktop);
+    await page.goto("/es/tutoriales/que-es-git/");
+    await waitForPageStable(page);
+    await activateDarkTheme(page);
+
+    await expect(page).toHaveScreenshot("tutorial-detail-next-only-desktop-dark.png", {
+      fullPage: true,
+      animations: "disabled",
+    });
+  });
+
+  test("should match tutorial with both prev and next buttons desktop light", async ({ page }) => {
+    await page.setViewportSize(VIEWPORTS.desktop);
+    await page.goto("/es/tutoriales/como-instalar-git-en-linux-macos-y-windows/");
+    await waitForPageStable(page);
+
+    await expect(page).toHaveScreenshot("tutorial-detail-both-buttons-desktop-light.png", {
+      fullPage: true,
+      animations: "disabled",
+    });
+  });
+
+  test("should match tutorial with both prev and next buttons desktop dark", async ({ page }) => {
+    await page.setViewportSize(VIEWPORTS.desktop);
+    await page.goto("/es/tutoriales/como-instalar-git-en-linux-macos-y-windows/");
+    await waitForPageStable(page);
+    await activateDarkTheme(page);
+
+    await expect(page).toHaveScreenshot("tutorial-detail-both-buttons-desktop-dark.png", {
+      fullPage: true,
+      animations: "disabled",
+    });
+  });
+
+  test("should match tutorial with prev button only desktop light", async ({ page }) => {
+    await page.setViewportSize(VIEWPORTS.desktop);
+    await page.goto("/es/tutoriales/primeros-pasos-con-git/");
+    await waitForPageStable(page);
+
+    await expect(page).toHaveScreenshot("tutorial-detail-prev-only-desktop-light.png", {
+      fullPage: true,
+      animations: "disabled",
+    });
+  });
+
+  test("should match tutorial with navigation mobile light", async ({ page }) => {
+    await page.setViewportSize(VIEWPORTS.mobile);
+    await page.goto("/es/tutoriales/como-instalar-git-en-linux-macos-y-windows/");
+    await waitForPageStable(page);
+
+    await expect(page).toHaveScreenshot("tutorial-detail-navigation-mobile-light.png", {
+      fullPage: true,
+      animations: "disabled",
+    });
+  });
+});
+
+// ============================================================================
 // POSTS PAGES SCREENSHOTS
 // ============================================================================
 

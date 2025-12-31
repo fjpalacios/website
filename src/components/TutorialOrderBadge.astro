@@ -1,0 +1,27 @@
+---
+/**
+ * Tutorial Order Badge Component
+ *
+ * Displays a circular badge with the tutorial's order number within a course.
+ * Used in course listing pages to indicate the sequential order of tutorials.
+ *
+ * Features:
+ * - Perfect circle shape maintained for 1-3 digit numbers
+ * - Responsive sizing
+ * - Accessible with proper ARIA labels
+ *
+ * @prop {number} order - The tutorial's order number (1, 2, 3, etc.)
+ * @prop {string} [size] - Badge size variant: 'small' | 'medium' | 'large' (default: 'medium')
+ */
+
+interface Props {
+  order: number;
+  size?: "small" | "medium" | "large";
+}
+
+const { order, size = "medium" } = Astro.props;
+---
+
+<span class={`tutorial-order-badge tutorial-order-badge--${size}`} role="img" aria-label={`Tutorial ${order}`}>
+  {order}
+</span>

@@ -94,6 +94,7 @@ export const tutorialsSchema = z.object({
 
   // Optional metadata
   course: z.string().optional(), // reference to courses collection
+  order: z.number().int().positive().optional(), // Tutorial order within course (1, 2, 3...)
   github_repo: z.string().url().optional(), // Repository URL
   demo_url: z.string().url().optional(), // Live demo URL
   cover: z.string().optional(), // Relative path to cover image

@@ -141,6 +141,11 @@
       "tutorialCount_other": "{{count}} tutoriales en este curso"
     }
   },
+  "courseNavigation": {
+    "previous": "Tutorial anterior",
+    "next": "Siguiente tutorial",
+    "continue": "Continúa aprendiendo"
+  },
   "feeds": {
     "title": "Feeds RSS",
     "description": "Suscríbete a nuestros feeds RSS para recibir las últimas actualizaciones",

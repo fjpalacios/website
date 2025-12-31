@@ -33,6 +33,7 @@ interface Props {
     slug: string;
     excerpt: string;
     publishedAt: Date;
+    order?: number;
   }>;
   currentPage: number;
   totalPages: number;
@@ -108,7 +109,7 @@ const itemListSchema = generateItemListSchema(
   <p class="sr-only" aria-hidden="true">{description}</p>
 
   <div data-pagefind-ignore>
-    <PostList posts={content} lang={lang} />
+    <PostList posts={content} lang={lang} showOrderBadges={true} />
   </div>
 
   <Paginator currentPage={currentPage} totalPages={totalPages} basePath={basePath} lang={lang} />

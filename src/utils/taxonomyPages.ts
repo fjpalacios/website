@@ -185,8 +185,27 @@ export async function generateTaxonomyDetailPaths(config: TaxonomyConfig, lang: 
       return Array.isArray(value) && value.includes(taxonomySlug);
     });
 
-    // Sort by date descending
+    // Sort content
+    // For courses: sort by order field (ascending), then by date (descending) as fallback
+    // For other taxonomies: sort by date (descending)
     taxonomyContent.sort((a, b) => {
+      if (config.collection === "courses") {
+        // If both have order field, sort by order ascending
+        const orderA = a.collection === "tutorials" ? a.data.order : undefined;
+        const orderB = b.collection === "tutorials" ? b.data.order : undefined;
+
+        if (orderA !== undefined && orderB !== undefined) {
+          return orderA - orderB;
+        }
+
+        // If only one has order, prioritize the one with order
+        if (orderA !== undefined) return -1;
+        if (orderB !== undefined) return 1;
+
+        // If neither has order, fall back to date descending
+      }
+
+      // Default: sort by date descending
       const dateA = extractContentDate(a);
       const dateB = extractContentDate(b);
       return dateB.getTime() - dateA.getTime();
