@@ -1,0 +1,27 @@
+# robots.txt for fjp.es
+# Allow all search engines to crawl the site
+
+User-agent: *
+Allow: /
+
+# Disallow crawling of search index assets
+# Pagefind generates search index that doesn't need to be indexed by search engines
+User-agent: *
+Disallow: /pagefind/
+
+# XML Sitemaps
+# Main sitemap index
+Sitemap: https://fjp.es/sitemap-index.xml
+
+# RSS Feeds (for feed aggregators and search engines that support RSS discovery)
+# Main feeds (mixed content: posts, books, tutorials)
+Sitemap: https://fjp.es/es/rss.xml
+Sitemap: https://fjp.es/en/rss.xml
+
+# Topic-specific feeds (books only)
+Sitemap: https://fjp.es/es/libros/rss.xml
+Sitemap: https://fjp.es/en/books/rss.xml
+
+# Topic-specific feeds (tutorials only)
+Sitemap: https://fjp.es/es/tutoriales/rss.xml
+Sitemap: https://fjp.es/en/tutorials/rss.xml

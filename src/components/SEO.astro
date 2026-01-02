@@ -159,6 +159,9 @@ if (currentPage && totalPages && basePath) {
 {prevUrl && <link rel="prev" href={prevUrl} />}
 {nextUrl && <link rel="next" href={nextUrl} />}
 
+<!-- Robots directive for deep pagination (pages > 5) -->
+{currentPage && currentPage > 5 && <meta name="robots" content="noindex, follow" />}
+
 <!-- Hreflang tags for alternate languages -->
 {
   alternateUrl && (

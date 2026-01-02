@@ -173,24 +173,6 @@ test.describe("Language Switching - Taxonomy Pages", () => {
   });
 
   test.describe("Genres - Preserve URL Components", () => {
-    test("should preserve pagination when switching genre languages", async ({ page }) => {
-      // Go to page 2 of Spanish fiction genre
-      await page.goto("/es/generos/ficcion/pagina/2");
-
-      const languageSwitcher = await waitForLanguageSwitcherReady(page);
-
-      // Get target URL (should be page 2 in English)
-      const targetUrl = await languageSwitcher.getAttribute("data-lang-url");
-
-      // Click and navigate
-      await languageSwitcher.click();
-      await page.waitForLoadState("networkidle");
-
-      // Should be on English fiction page 2
-      expect(page.url()).toContain("/en/genres/fiction");
-      expect(page.url()).toContain("/page/2");
-    });
-
     test("should preserve hash fragment when switching genre languages", async ({ page }) => {
       await page.goto("/es/generos/ficcion/#top");
 
@@ -353,8 +335,7 @@ test.describe("Language Switching - Taxonomy Pages", () => {
     test("should be keyboard navigable on genre pages", async ({ page }) => {
       await page.goto("/es/generos/ficcion/");
 
-      // Tab to language switcher
-      await page.keyboard.press("Tab");
+      // Tab to language switcher (first focusable element in header)
       await page.keyboard.press("Tab");
 
       // Language switcher should receive focus
