@@ -16,7 +16,7 @@ const HeadingTag = headingLevel;
 <div class:list={["title", { "sr-only": srOnly }]}>
   {
     useAsPagefindTitle && (
-      <span data-pagefind-meta="title" style="display: none;">
+      <span data-pagefind-meta="title" class="title__pagefind-meta">
         {title}
       </span>
     )
@@ -33,6 +33,10 @@ const HeadingTag = headingLevel;
     h2 {
       display: flex;
       align-items: center;
+    }
+
+    &__pagefind-meta {
+      display: none;
     }
   }
 </style>

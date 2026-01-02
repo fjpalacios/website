@@ -1,6 +1,12 @@
 @use "../mixins" as *;
 @use "../variables" as *;
 
+.author-detail-page {
+  &__author-section {
+    margin-bottom: 20px;
+  }
+}
+
 .author {
   &__header {
     background: $primary;

@@ -10,6 +10,7 @@
  * @see docs/ROUTE_MAPPING.md
  */
 
+import { routingLogger } from "@/utils/logger";
 import type { Language } from "@/utils/routes";
 
 /**
@@ -465,7 +466,7 @@ export function parseRouteSegment(lang: Language, routeSegment: string): Content
 export function getRouteSegment(contentTypeId: string, lang: Language): string {
   const config = CONTENT_TYPES[contentTypeId];
   if (!config) {
-    console.warn(`[Routing] Unknown content type: ${contentTypeId}`);
+    routingLogger.warn(`Unknown content type: ${contentTypeId}`);
     return contentTypeId;
   }
   return config.routeSegments[lang] || contentTypeId;
@@ -557,7 +558,7 @@ export function validateRouteConfig(): void {
     throw new Error(`Route configuration validation failed:\n${errors.join("\n")}`);
   }
 
-  console.log("[Routing] ✅ Configuration validated successfully");
+  routingLogger.info("✅ Configuration validated successfully");
 }
 
 /**

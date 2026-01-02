@@ -111,7 +111,9 @@ const { lang } = Astro.props;
           },
         });
       } catch (error) {
-        console.error("Error initializing Pagefind:", error);
+        if (import.meta.env.DEV) {
+          console.error("Error initializing Pagefind:", error);
+        }
       }
     }
 

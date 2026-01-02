@@ -42,3 +42,8 @@ html {
   white-space: nowrap;
   border-width: 0;
 }
+
+// Pagefind metadata - hidden from visual display but indexed by Pagefind
+.pagefind-meta {
+  display: none;
+}

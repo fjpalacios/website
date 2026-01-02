@@ -21,7 +21,9 @@ import type { ContactItem } from "@types/content";
 import { getBookCoverImage } from "@utils/imageImports";
 import { IMAGE_DIMENSIONS } from "@utils/images";
 import { buildAuthorUrl, buildCategoryUrl, buildGenreUrl, buildPublisherUrl } from "@utils/routes";
+import { safeValidateProps, CommonSchemas } from "@utils/validation";
 import { render, type CollectionEntry } from "astro:content";
+import { z } from "zod";
 
 interface Props {
   bookEntry: CollectionEntry<"books">;
@@ -30,7 +32,27 @@ interface Props {
   hasTargetContent: boolean;
 }
 
-const { bookEntry, lang, contact, hasTargetContent } = Astro.props;
+// Validate Props at runtime
+const PropsSchema = z.object({
+  bookEntry: z.any(), // CollectionEntry is complex, skip for now
+  lang: CommonSchemas.language,
+  contact: z.array(z.any()),
+  hasTargetContent: z.boolean(),
+});
+
+const validatedProps = safeValidateProps(
+  PropsSchema,
+  Astro.props,
+  {
+    bookEntry: Astro.props.bookEntry,
+    lang: "es" as const,
+    contact: Astro.props.contact || [],
+    hasTargetContent: false,
+  },
+  "BooksDetailPage",
+);
+
+const { bookEntry, lang, contact, hasTargetContent } = validatedProps;
 const book = bookEntry.data;
 const { Content } = await render(bookEntry);
 
@@ -53,22 +75,30 @@ const allGenres = await getCollection("genres");
 const allCategories = await getCollection("categories");
 const allSeries = await getCollection("series");
 
-const author = findAuthorBySlug(allAuthors, book.author, lang as "en" | "es");
+const author = findAuthorBySlug(allAuthors, book.author, lang);
 const publisher = book.publisher ? findPublisherBySlug(allPublishers, book.publisher) : null;
 const genres = findGenresBySlug(allGenres, book.genres);
 const categories = findCategoriesBySlug(allCategories, book.categories);
 const series = book.series ? findSeriesBySlug(allSeries, book.series) : null;
 
 // Get optimized book cover image
-const bookCoverImage = getBookCoverImage(book.book_cover || book.cover, lang as "en" | "es");
+const bookCoverImage = getBookCoverImage(book.book_cover || book.cover, lang);
 
-// Type-safe variables for template mapping (avoids inline type annotations in JSX)
-const typedBuyLinks = (book.buy || []) as Array<{
-  type: "paper" | "ebook" | "audiobook";
-  link: string;
-}>;
-const typedCategories = categories as CollectionEntry<"categories">[];
-const typedGenres = genres as CollectionEntry<"genres">[];
+// Runtime validation schemas
+const BuyLinkSchema = z.object({
+  type: z.enum(["paper", "ebook", "audiobook"]),
+  link: z.string().url(),
+});
+
+const BuyLinksArraySchema = z.array(BuyLinkSchema);
+
+// Validate buy links with runtime checking
+const typedBuyLinks = safeValidateProps(BuyLinksArraySchema, book.buy || [], [], "BooksDetailPage.buyLinks");
+
+// Categories and genres are already properly typed from findBySlug functions
+// No need for type assertions - they return the correct CollectionEntry types
+const typedCategories = categories;
+const typedGenres = genres;
 
 const authorWithGender =
   author?.data.gender === "male"
@@ -164,7 +194,7 @@ const genreLabel = lang === "en" ? "Genre" : "Género";
       </div>
       <div class="book__content__content">
         <!-- Pagefind title meta -->
-        <span data-pagefind-meta="title" style="display: none;">{book.title}</span>
+        <span data-pagefind-meta="title" class="pagefind-meta">{book.title}</span>
         <PostTitle title={book.title} date={book.date} lang={lang} />
         <div class="book__content__content__data">
           <div class="book__content__content__data_pages">

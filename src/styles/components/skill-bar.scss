@@ -16,6 +16,7 @@ $height: 35px;
     height: $height;
     padding: 0 10px;
     font-weight: bold;
+    background-color: var(--skill-dark-color, #2a9e3c);
   }
 
   &__box {
@@ -25,6 +26,8 @@ $height: 35px;
 
     &__level {
       height: $height;
+      background-color: var(--skill-color, #34d44a);
+      width: var(--skill-width, 0%);
     }
 
     &__percent {

@@ -12,12 +12,15 @@ const darkColor = darken(color, 25);
 const clampedWidth = Math.min(100, Math.max(0, width));
 ---
 
-<div class="skill-bar">
-  <div class="skill-bar__text" style={`background-color: ${darkColor}`}>
+<div
+  class="skill-bar"
+  style={`--skill-color: ${color}; --skill-dark-color: ${darkColor}; --skill-width: ${clampedWidth}%`}
+>
+  <div class="skill-bar__text">
     {text}
   </div>
   <div class="skill-bar__box">
-    <div class="skill-bar__box__level" style={`background-color: ${color}; width: ${clampedWidth}%`}></div>
+    <div class="skill-bar__box__level"></div>
     <div class="skill-bar__box__percent">{clampedWidth}%</div>
   </div>
 </div>

@@ -20,8 +20,10 @@
  * @param {boolean} [filled] - Whether the icon should be filled (only for star/heart)
  */
 
-interface Props {
-  name: string;
+import { iconLogger } from "@/utils/logger";
+
+export interface Props {
+  name: keyof typeof icons;
   class?: string;
   size?: "xs" | "sm" | "md" | "lg" | "xl";
   filled?: boolean;
@@ -101,7 +103,7 @@ const viewBox = "0 0 24 24";
 const iconPath = icons[name];
 
 if (!iconPath) {
-  console.warn(`[Icon] Icon "${name}" not found. Available icons:`, Object.keys(icons).join(", "));
+  iconLogger.warn(`Icon "${name}" not found. Available icons:`, Object.keys(icons).join(", "));
 }
 
 // Size mapping

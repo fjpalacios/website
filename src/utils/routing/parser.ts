@@ -19,6 +19,8 @@ import {
 import { safeValidateParsedRoute, type ValidatedParsedRoute } from "@/config/unified-routing-schema";
 import type { Language } from "@/utils/routes";
 
+import { routingLogger } from "../logger";
+
 /**
  * Parsed route result
  */
@@ -193,7 +195,7 @@ export function safeParseRoute(lang: Language, routePath: string | undefined): P
     return parseRoute(lang, routePath);
   } catch (error) {
     if (error instanceof RouteParseError) {
-      console.warn(`[Routing] Failed to parse route: ${error.message}`, {
+      routingLogger.warn(`Failed to parse route: ${error.message}`, {
         lang: error.lang,
         path: error.path,
         segments: error.segments,

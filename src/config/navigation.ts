@@ -9,6 +9,8 @@
  * @module config/navigation
  */
 
+import { buildLogger } from "@/utils/logger";
+
 /**
  * Match strategy for determining if a navigation item is active
  * - "exact": Path must match exactly (for home, about)
@@ -293,7 +295,7 @@ export async function hasContentInLanguage(routeKey: RouteKey, lang: "es" | "en"
     }
 
     // If no fallback exists, log warning and return false
-    console.warn(`Failed to check content for ${routeKey} in ${lang}:`, error);
+    buildLogger.warn(`Failed to check content for ${routeKey} in ${lang}:`, error);
     return false;
   }
 }

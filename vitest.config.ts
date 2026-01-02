@@ -39,4 +39,7 @@ export default defineConfig({
     },
     extensions: [".mjs", ".js", ".ts", ".jsx", ".tsx", ".json"],
   },
+  define: {
+    "import.meta.env.DEV": true,
+  },
 });

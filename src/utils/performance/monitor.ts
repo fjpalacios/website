@@ -38,15 +38,17 @@
  * **Output Example:**
  * ```
  * [Performance] Summary:
- *   total-route-generation                      64.00ms
- *   routes-es                                   35.00ms
- *   parallel-generation-es                      29.00ms
- *   routes-en                                   29.00ms
- *   TOTAL                                      192.00ms
+ * ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+ *   books-es                                    42.00ms
+ *   posts-es                                     8.00ms
+ * ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+ *   TOTAL                                      200.00ms
  * ```
  *
  * @module performance/monitor
  */
+
+import { perfLogger } from "../logger";
 
 interface PerformanceMetrics {
   name: string;
@@ -85,7 +87,7 @@ class PerformanceMonitor {
   end(name: string): number | null {
     const metric = this.metrics.get(name);
     if (!metric) {
-      console.warn(`[Performance] No start time found for: ${name}`);
+      perfLogger.warn(`No start time found for: ${name}`);
       return null;
     }
 
@@ -127,7 +129,7 @@ class PerformanceMonitor {
       return result;
     } finally {
       const duration = this.end(name);
-      console.log(`[Performance] ${name}: ${duration}ms`);
+      perfLogger.info(`${name}: ${duration}ms`);
     }
   }
 
@@ -154,7 +156,7 @@ class PerformanceMonitor {
       return result;
     } finally {
       const duration = this.end(name);
-      console.log(`[Performance] ${name}: ${duration}ms`);
+      perfLogger.info(`${name}: ${duration}ms`);
     }
   }
 
@@ -204,24 +206,24 @@ class PerformanceMonitor {
     const metrics = this.getMetrics().filter((m) => m.duration !== undefined);
 
     if (metrics.length === 0) {
-      console.log("[Performance] No metrics recorded");
+      perfLogger.info("No metrics recorded");
       return;
     }
 
-    console.log("\n[Performance] Summary:");
-    console.log("━".repeat(60));
+    perfLogger.info("\nSummary:");
+    perfLogger.info("━".repeat(60));
 
     // Sort by duration (longest first)
     metrics.sort((a, b) => (b.duration || 0) - (a.duration || 0));
 
     metrics.forEach((metric) => {
       const duration = metric.duration?.toFixed(2) || "N/A";
-      console.log(`  ${metric.name.padEnd(40)} ${duration.padStart(8)}ms`);
+      perfLogger.info(`  ${metric.name.padEnd(40)} ${duration.padStart(8)}ms`);
     });
 
-    console.log("━".repeat(60));
-    console.log(`  ${"TOTAL".padEnd(40)} ${this.getTotalDuration().toFixed(2).padStart(8)}ms`);
-    console.log("");
+    perfLogger.info("━".repeat(60));
+    perfLogger.info(`  ${"TOTAL".padEnd(40)} ${this.getTotalDuration().toFixed(2).padStart(8)}ms`);
+    perfLogger.info("");
   }
 
   /**

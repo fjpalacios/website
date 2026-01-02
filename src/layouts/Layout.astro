@@ -246,7 +246,9 @@ const baseUrl = t(lang, "metaData.url");
                     }
                   }, timings.copyFeedbackMs);
                 } catch (err) {
-                  console.error("Failed to copy code:", err);
+                  if (import.meta.env.DEV) {
+                    console.error("Failed to copy code:", err);
+                  }
                 }
               });
 
@@ -262,7 +264,9 @@ const baseUrl = t(lang, "metaData.url");
               pre.style.position = "relative";
               pre.appendChild(toolbar);
             } catch (error) {
-              console.error("Error setting up code block:", error);
+              if (import.meta.env.DEV) {
+                console.error("Error setting up code block:", error);
+              }
             }
           });
         }

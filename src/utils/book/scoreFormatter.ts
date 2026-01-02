@@ -5,6 +5,8 @@
  * in a consistent way across the application.
  */
 
+import { buildLogger } from "../logger";
+
 /**
  * Formats book score as emoji representation
  *
@@ -28,7 +30,7 @@ export function renderScoreEmoji(score: number | "fav"): string {
 
   // Validate numeric score
   if (typeof score !== "number" || score < 1 || score > 5) {
-    console.warn(`Invalid score: ${score}. Must be 1-5 or "fav"`);
+    buildLogger.warn(`Invalid score: ${score}. Must be 1-5 or "fav"`);
     return "☆☆☆☆☆"; // Return empty stars for invalid score
   }
 

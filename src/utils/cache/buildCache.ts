@@ -18,33 +18,10 @@
  * 2. Subsequent calls: Cache hit → Return stored result instantly
  * 3. After build: Cache is cleared automatically
  *
- * **Performance Benefits:**
- * - Avoid duplicate content collection queries (50%+ cache hit rate observed)
- * - Reduce redundant data transformations
- * - Minimize I/O operations
- * - Faster build times (~3-5% improvement)
- *
- * **Cache Characteristics:**
- * - **Scope:** Build-time only (not runtime)
- * - **Storage:** In-memory Map (no persistence needed)
- * - **Lifetime:** Single build execution
- * - **Thread Safety:** Not needed (builds are single-threaded)
- * - **Size:** No limit (cleared after build)
- *
- * **Usage Example:**
- * ```ts
- * // Direct cache usage
- * const books = await buildCache.getOrCompute(
- *   'collection:books:en',
- *   () => getCollection('books', { filter: ... })
- * );
- *
- * // Via helper functions (recommended)
- * const books = await getCachedCollection('books', 'en', getAllBooksForLanguage);
- * ```
- *
  * @module cache/buildCache
  */
+
+import { buildLogger } from "../logger";
 
 type CacheKey = string;
 type CacheValue = unknown;
@@ -264,5 +241,5 @@ export function generateTaxonomyCacheKey(taxonomyType: string, lang: string, wit
  */
 export function logCacheStats(): void {
   const stats = buildCache.getStats();
-  console.log(`[Build Cache] Stats:`, stats);
+  buildLogger.info(`Cache Stats:`, stats);
 }

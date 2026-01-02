@@ -20,6 +20,31 @@
 /* eslint-disable import/order */
 
 import type { ImageMetadata } from "astro";
+import { imageLogger } from "./logger";
+
+// ============================================================================
+// ERROR HANDLING
+// ============================================================================
+
+/**
+ * Custom error for missing images
+ * Thrown in strict mode when an image is not found
+ */
+export class ImageNotFoundError extends Error {
+  constructor(
+    public imagePath: string,
+    public imageType: "book-cover" | "author-picture" | "tutorial-cover" | "post-cover",
+  ) {
+    super(`[ImageNotFound] ${imageType}: ${imagePath}`);
+    this.name = "ImageNotFoundError";
+  }
+}
+
+/**
+ * Check if we're in strict image mode (CI environment)
+ * In strict mode, missing images throw errors instead of falling back to defaults
+ */
+const STRICT_IMAGE_MODE = typeof import.meta !== "undefined" && import.meta.env?.CI === "true";
 
 // ============================================================================
 // BOOK COVER IMAGES
@@ -178,7 +203,13 @@ export function getBookCoverImage(coverPath: string | undefined, lang: "es" | "e
     ?.replace(/\.(jpg|jpeg|png|webp)$/i, "");
 
   if (!filename || !bookCovers[filename]) {
-    console.warn(`Book cover not found: ${coverPath} (filename: ${filename})`);
+    const message = `Book cover not found: ${coverPath} (filename: ${filename})`;
+
+    if (STRICT_IMAGE_MODE) {
+      throw new ImageNotFoundError(coverPath, "book-cover");
+    }
+
+    imageLogger.warn(message);
     return lang === "es" ? defaultImages.bookDefaultEs : defaultImages.bookDefaultEn;
   }
 
@@ -209,7 +240,13 @@ export function getAuthorPictureImage(picturePath: string | undefined): ImageMet
     : picturePath;
 
   if (!slug || !authorPictures[slug]) {
-    console.warn(`Author picture not found: ${picturePath} (slug: ${slug})`);
+    const message = `Author picture not found: ${picturePath} (slug: ${slug})`;
+
+    if (STRICT_IMAGE_MODE) {
+      throw new ImageNotFoundError(picturePath, "author-picture");
+    }
+
+    imageLogger.warn(message);
     return undefined;
   }
 
@@ -238,7 +275,10 @@ export function getTutorialCoverImage(coverPath: string | undefined): ImageMetad
     ?.replace(/\.(jpg|jpeg|png|webp)$/i, "");
 
   if (!filename || !tutorialCovers[filename]) {
-    console.warn(`Custom tutorials covers not yet implemented. Using default for: ${coverPath}`);
+    const message = `Custom tutorials covers not yet implemented. Using default for: ${coverPath}`;
+
+    // Note: We don't throw in strict mode for tutorials/posts yet since custom covers are not implemented
+    imageLogger.warn(message);
     return defaultImages.tutorialDefault;
   }
 
@@ -267,7 +307,10 @@ export function getPostCoverImage(coverPath: string | undefined): ImageMetadata 
     ?.replace(/\.(jpg|jpeg|png|webp)$/i, "");
 
   if (!filename || !postCovers[filename]) {
-    console.warn(`Custom posts covers not yet implemented. Using default for: ${coverPath}`);
+    const message = `Custom posts covers not yet implemented. Using default for: ${coverPath}`;
+
+    // Note: We don't throw in strict mode for tutorials/posts yet since custom covers are not implemented
+    imageLogger.warn(message);
     return defaultImages.postDefault;
   }
 

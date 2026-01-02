@@ -34,6 +34,7 @@ import { getTemplate } from "@/config/templateMap";
 // Utilities
 import { logCacheStats } from "@/utils/cache/buildCache";
 import { getContact } from "@/utils/content/contact";
+import { routingLogger } from "@/utils/logger";
 import { performanceMonitor } from "@/utils/performance/monitor";
 import {
   generateContentTypeWithPaginationRoutes,
@@ -80,7 +81,7 @@ export const getStaticPaths: GetStaticPaths = async () => {
     try {
       return await generator();
     } catch (error) {
-      console.error(`[Unified Routing] Error generating routes for ${context}:`, error);
+      routingLogger.error(`Error generating routes for ${context}:`, error);
       // Return empty array to allow build to continue with other routes
       // This prevents a single content type error from breaking the entire build
       return [];
@@ -174,7 +175,7 @@ export const getStaticPaths: GetStaticPaths = async () => {
       );
       paths.push(...postsRoutes);
     } catch (error) {
-      console.error(`[Unified Routing] Error generating routes for posts (${lang}):`, error);
+      routingLogger.error(`Error generating routes for posts (${lang}):`, error);
     }
     performanceMonitor.end(`posts-${lang}`);
 
@@ -200,7 +201,7 @@ export const getStaticPaths: GetStaticPaths = async () => {
         }),
       );
     } catch (error) {
-      console.error(`[Unified Routing] Error generating routes for about (${lang}):`, error);
+      routingLogger.error(`Error generating routes for about (${lang}):`, error);
     }
 
     // FEEDS PAGE
@@ -214,7 +215,7 @@ export const getStaticPaths: GetStaticPaths = async () => {
         }),
       );
     } catch (error) {
-      console.error(`[Unified Routing] Error generating routes for feeds (${lang}):`, error);
+      routingLogger.error(`Error generating routes for feeds (${lang}):`, error);
     }
 
     performanceMonitor.end(`static-${lang}`);
@@ -223,7 +224,7 @@ export const getStaticPaths: GetStaticPaths = async () => {
 
   performanceMonitor.end("total-route-generation");
 
-  console.log(`[Unified Routing] Generated ${paths.length} paths (all content types + taxonomies + static pages)`);
+  routingLogger.info(`Generated ${paths.length} paths (all content types + taxonomies + static pages)`);
 
   // Log performance and cache statistics
   performanceMonitor.printSummary();
