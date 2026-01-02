@@ -21,6 +21,7 @@ import { buildCategoryUrl, buildCourseUrl, buildTutorialsIndexUrl } from "@utils
 import { getCollection, render, type CollectionEntry } from "astro:content";
 
 import type { ContactItem } from "@/types/content";
+import { findCategoriesBySlug } from "@/utils/blog";
 
 interface Props {
   lang: "en" | "es";
@@ -31,6 +32,10 @@ interface Props {
 const { lang, tutorialEntry, contact } = Astro.props;
 const tutorial = tutorialEntry.data;
 const { Content } = await render(tutorialEntry);
+
+// Get categories from taxonomy collection
+const allCategories = await getCollection("categories");
+const categories = findCategoriesBySlug(allCategories, tutorial.categories);
 
 // Cover image with fallback (returns ImageMetadata for optimization)
 const coverImage = getTutorialCoverImage(tutorial.cover);
@@ -88,6 +93,7 @@ const currentUrl = new URL(Astro.url.pathname, baseUrl).href;
 const twitterUsername = t(lang, "metaData.twitterUsername");
 
 // Build JSON-LD schema for tutorial article
+const categoryLabel = lang === "en" ? "Category" : "Categoría";
 const tutorialSchema: Record<string, unknown> = {
   "@context": "https://schema.org",
   "@type": "TechArticle",
@@ -169,11 +175,19 @@ if (course) {
     <section class="tutorial__info">
       <Icon name="folder" size="md" class="tutorial__info__icon" />
       <ul class="tutorial__info__text">
-        <li>
-          <a href={buildCategoryUrl(lang, tutorial.category)} class="tutorial__info__text__item" title="Category">
-            {t(lang, `categories.${tutorial.category}`)}
-          </a>
-        </li>
+        {
+          categories.map((category) => (
+            <li>
+              <a
+                href={buildCategoryUrl(lang, category.data.category_slug)}
+                class="tutorial__info__text__item"
+                title={categoryLabel}
+              >
+                {category.data.name}
+              </a>
+            </li>
+          ))
+        }
       </ul>
     </section>
 

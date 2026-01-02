@@ -19,9 +19,10 @@ import { t } from "@locales";
 import { getPostCoverImage } from "@utils/imageImports";
 import { IMAGE_DIMENSIONS, RESPONSIVE_SIZES } from "@utils/images";
 import { buildCategoryUrl } from "@utils/routes";
-import { render, type CollectionEntry } from "astro:content";
+import { getCollection, render, type CollectionEntry } from "astro:content";
 
 import type { ContactItem } from "@/types/content";
+import { findCategoriesBySlug } from "@/utils/blog";
 
 interface Props {
   lang: "en" | "es";
@@ -32,6 +33,10 @@ interface Props {
 const { lang, postEntry, contact } = Astro.props;
 const post = postEntry.data;
 const { Content } = await render(postEntry);
+
+// Get categories from taxonomy collection
+const allCategories = await getCollection("categories");
+const categories = findCategoriesBySlug(allCategories, post.categories);
 
 // Cover image with fallback (returns ImageMetadata for optimization)
 const coverImage = getPostCoverImage(post.cover);
@@ -44,6 +49,7 @@ const currentUrl = new URL(Astro.url.pathname, baseUrl).href;
 const twitterUsername = t(lang, "metaData.twitterUsername");
 
 // Build JSON-LD schema for article
+const categoryLabel = lang === "en" ? "Category" : "Categoría";
 const articleSchema: Record<string, unknown> = {
   "@context": "https://schema.org",
   "@type": "BlogPosting",
@@ -101,11 +107,19 @@ if (post.updated) {
     <section class="post__info">
       <Icon name="folder" size="md" class="post__info__icon" />
       <ul class="post__info__text">
-        <li>
-          <a href={buildCategoryUrl(lang, post.category)} class="post__info__text__item" title="Category">
-            {t(lang, `categories.${post.category}`)}
-          </a>
-        </li>
+        {
+          categories.map((category) => (
+            <li>
+              <a
+                href={buildCategoryUrl(lang, category.data.category_slug)}
+                class="post__info__text__item"
+                title={categoryLabel}
+              >
+                {category.data.name}
+              </a>
+            </li>
+          ))
+        }
       </ul>
     </section>
   </main>
