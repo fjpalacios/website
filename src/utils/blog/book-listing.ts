@@ -14,7 +14,7 @@ export interface BookSummary {
   score: number;
   language: "es" | "en";
   date: Date;
-  cover: string;
+  cover: string | undefined;
   pages: number;
   authorName?: string;
   authorSlug?: string;
@@ -23,8 +23,14 @@ export interface BookSummary {
 /**
  * Normalize cover path to absolute URL
  * Converts relative paths like "./covers/book.jpg" to "/images/books/book.jpg"
+ * Returns undefined if no cover is provided (component will use default)
  */
-function normalizeCoverPath(cover: string): string {
+function normalizeCoverPath(cover: string | undefined): string | undefined {
+  // Return undefined if no cover provided (let component handle default)
+  if (!cover) {
+    return undefined;
+  }
+
   if (cover.startsWith("http") || cover.startsWith("/")) {
     return cover;
   }

@@ -42,7 +42,7 @@ export const booksSchema = z
     book_card: z.string().url().optional(), // megustaleer.com link
 
     // Images
-    cover: z.string(), // Relative path to cover image
+    cover: z.string().optional(), // Relative path to cover image (fallback to default if not provided)
     book_cover: z.string().optional(), // Original book cover filename
 
     // i18n
