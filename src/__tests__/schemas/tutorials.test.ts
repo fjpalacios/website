@@ -137,63 +137,9 @@ describe("Tutorials Collection Schema", () => {
       categories: ["test"],
     };
 
-    it("should accept optional difficulty field", () => {
-      const withDifficulty = { ...baseTutorial, difficulty: "intermediate" };
-      expect(() => tutorialsSchema.parse(withDifficulty)).not.toThrow();
-    });
-
-    it("should accept all difficulty levels", () => {
-      expect(() => tutorialsSchema.parse({ ...baseTutorial, difficulty: "beginner" })).not.toThrow();
-      expect(() => tutorialsSchema.parse({ ...baseTutorial, difficulty: "intermediate" })).not.toThrow();
-      expect(() => tutorialsSchema.parse({ ...baseTutorial, difficulty: "advanced" })).not.toThrow();
-    });
-
-    it("should reject invalid difficulty level", () => {
-      expect(() => tutorialsSchema.parse({ ...baseTutorial, difficulty: "expert" })).toThrow();
-    });
-
-    it("should accept optional estimated_time", () => {
-      const withTime = { ...baseTutorial, estimated_time: 45 };
-      expect(() => tutorialsSchema.parse(withTime)).not.toThrow();
-    });
-
-    it("should reject negative estimated_time", () => {
-      expect(() => tutorialsSchema.parse({ ...baseTutorial, estimated_time: -10 })).toThrow();
-    });
-
-    it("should reject zero estimated_time", () => {
-      expect(() => tutorialsSchema.parse({ ...baseTutorial, estimated_time: 0 })).toThrow();
-    });
-
     it("should accept optional course field", () => {
       const withCourse = { ...baseTutorial, course: "react-fundamentals" };
       expect(() => tutorialsSchema.parse(withCourse)).not.toThrow();
-    });
-
-    it("should accept optional github_repo", () => {
-      const withRepo = {
-        ...baseTutorial,
-        github_repo: "https://github.com/user/repo",
-      };
-      expect(() => tutorialsSchema.parse(withRepo)).not.toThrow();
-    });
-
-    it("should reject invalid github_repo URL", () => {
-      expect(() => tutorialsSchema.parse({ ...baseTutorial, github_repo: "not-a-url" })).toThrow();
-    });
-
-    it("should accept optional demo_url", () => {
-      const withDemo = { ...baseTutorial, demo_url: "https://example.com/demo" };
-      expect(() => tutorialsSchema.parse(withDemo)).not.toThrow();
-    });
-
-    it("should reject invalid demo_url", () => {
-      expect(() => tutorialsSchema.parse({ ...baseTutorial, demo_url: "not-a-url" })).toThrow();
-    });
-
-    it("should accept optional featured_image", () => {
-      const withImage = { ...baseTutorial, featured_image: "./image.jpg" };
-      expect(() => tutorialsSchema.parse(withImage)).not.toThrow();
     });
 
     it("should accept optional update_date", () => {

@@ -61,7 +61,7 @@ function main() {
     console.error("❌ Error: dist/pagefind not found!");
     console.error('   Run "bun run build" first to generate Pagefind index.');
     console.error("   Then run this script to copy assets to public/");
-    // eslint-disable-next-line no-undef
+
     process.exit(1);
   }
 

@@ -107,25 +107,6 @@ describe("Categories Collection Schema", () => {
       const withEmptyDescription = { ...baseCategory, description: "" };
       expect(() => categoriesSchema.parse(withEmptyDescription)).not.toThrow();
     });
-
-    it("should accept optional icon field", () => {
-      const withIcon = { ...baseCategory, icon: "book" };
-      expect(() => categoriesSchema.parse(withIcon)).not.toThrow();
-    });
-
-    it("should accept optional color field", () => {
-      const withColor = { ...baseCategory, color: "#3b82f6" };
-      expect(() => categoriesSchema.parse(withColor)).not.toThrow();
-    });
-
-    it("should accept optional order field", () => {
-      const withOrder = { ...baseCategory, order: 1 };
-      expect(() => categoriesSchema.parse(withOrder)).not.toThrow();
-    });
-
-    it("should reject negative order", () => {
-      expect(() => categoriesSchema.parse({ ...baseCategory, order: -1 })).toThrow();
-    });
   });
 
   describe("Edge cases", () => {
@@ -154,10 +135,6 @@ describe("Categories Collection Schema", () => {
       const numericSlug = "category-123";
       expect(() => categoriesSchema.parse({ ...baseCategory, category_slug: numericSlug })).not.toThrow();
     });
-
-    it("should handle large order numbers", () => {
-      expect(() => categoriesSchema.parse({ ...baseCategory, order: 999 })).not.toThrow();
-    });
   });
 
   describe("Real-world examples", () => {
@@ -167,9 +144,6 @@ describe("Categories Collection Schema", () => {
         category_slug: "book-reviews",
         description: "Reviews and opinions about fiction and non-fiction books",
         language: "en",
-        icon: "book-open",
-        color: "#3b82f6",
-        order: 1,
       };
 
       expect(() => categoriesSchema.parse(bookReviews)).not.toThrow();
@@ -181,9 +155,6 @@ describe("Categories Collection Schema", () => {
         category_slug: "tutoriales",
         description: "Tutoriales de programación y desarrollo web",
         language: "es",
-        icon: "code",
-        color: "#10b981",
-        order: 2,
       };
 
       expect(() => categoriesSchema.parse(tutorials)).not.toThrow();
@@ -195,8 +166,6 @@ describe("Categories Collection Schema", () => {
         category_slug: "web-development",
         description: "Articles about web development, frontend, backend, and DevOps",
         language: "en",
-        icon: "globe",
-        order: 3,
       };
 
       expect(() => categoriesSchema.parse(development)).not.toThrow();
@@ -218,9 +187,6 @@ describe("Categories Collection Schema", () => {
         category_slug: "year-in-review",
         description: "Annual summaries and retrospectives",
         language: "en",
-        icon: "calendar",
-        color: "#f59e0b",
-        order: 10,
       };
 
       expect(() => categoriesSchema.parse(yearReview)).not.toThrow();
@@ -259,55 +225,6 @@ describe("Categories Collection Schema", () => {
 
       expect(() => categoriesSchema.parse(englishVersion)).not.toThrow();
       expect(() => categoriesSchema.parse(spanishVersion)).not.toThrow();
-    });
-  });
-
-  describe("UI metadata", () => {
-    it("should support icon for visual representation", () => {
-      const withIcon = {
-        name: "Programming",
-        category_slug: "programming",
-        language: "en",
-        icon: "code-bracket",
-      };
-
-      expect(() => categoriesSchema.parse(withIcon)).not.toThrow();
-    });
-
-    it("should support color for category styling", () => {
-      const withColor = {
-        name: "Design",
-        category_slug: "design",
-        language: "en",
-        color: "#ec4899",
-      };
-
-      expect(() => categoriesSchema.parse(withColor)).not.toThrow();
-    });
-
-    it("should support order for category sorting", () => {
-      const withOrder = {
-        name: "Featured",
-        category_slug: "featured",
-        language: "en",
-        order: 0, // First in list
-      };
-
-      expect(() => categoriesSchema.parse(withOrder)).not.toThrow();
-    });
-
-    it("should support all UI metadata together", () => {
-      const fullUI = {
-        name: "Tutorials",
-        category_slug: "tutorials",
-        description: "Step-by-step programming tutorials",
-        language: "en",
-        icon: "academic-cap",
-        color: "#8b5cf6",
-        order: 2,
-      };
-
-      expect(() => categoriesSchema.parse(fullUI)).not.toThrow();
     });
   });
 });
