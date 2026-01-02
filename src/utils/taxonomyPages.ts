@@ -174,7 +174,12 @@ export async function generateTaxonomyDetailPaths(config: TaxonomyConfig, lang: 
     const taxonomySlug = taxonomyItem.data[config.slugField];
 
     // Check if this taxonomy item exists in the target language
-    const hasTargetContent = targetTaxonomySlugs.has(taxonomySlug);
+    // If item has i18n field, use it to find the translated slug
+    // Otherwise, fall back to checking if the same slug exists in target language
+    const translationSlug = taxonomyItem.data.i18n;
+    const hasTargetContent = translationSlug
+      ? targetTaxonomySlugs.has(translationSlug)
+      : targetTaxonomySlugs.has(taxonomySlug);
 
     // Filter content by taxonomy
     const taxonomyContent = allContent.filter((item) => {

@@ -1,8 +1,5 @@
 {
   "name": "Planeta",
   "publisher_slug": "planeta",
-  "language": "es",
-  "description": "Spanish publishing house, one of the largest in Spain and Latin America",
-  "website": "https://www.planetadelibros.com",
-  "country": "Spain"
+  "language": "es"
 }

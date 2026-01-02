@@ -2,7 +2,5 @@
   "name": "Thriller",
   "genre_slug": "thriller",
   "language": "en",
-  "description": "Fast-paced fiction featuring tension, suspense, and excitement",
-  "parent": "fiction",
   "i18n": "suspense"
 }

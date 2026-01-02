@@ -2,9 +2,5 @@
   "name": "Reto de Lectura 2017",
   "challenge_slug": "reto-lectura-2017",
   "language": "es",
-  "description": "Meta personal de lectura para 2017",
-  "start_date": "2017-01-01",
-  "end_date": "2017-12-31",
-  "goal": 30,
   "i18n": "2017-reading-challenge"
 }

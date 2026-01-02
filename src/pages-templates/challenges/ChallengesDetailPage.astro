@@ -90,7 +90,14 @@ const itemListSchema = generateItemListSchema(
 );
 ---
 
-<Layout lang={lang} title={pageTitle} description={description} contact={contact} hasTargetContent={hasTargetContent}>
+<Layout
+  lang={lang}
+  title={pageTitle}
+  description={description}
+  contact={contact}
+  translationSlug={challenge.data.i18n}
+  hasTargetContent={hasTargetContent}
+>
   <script slot="schema" type="application/ld+json" set:html={JSON.stringify(itemListSchema)} />
 
   <Breadcrumbs items={breadcrumbs} lang={lang} />

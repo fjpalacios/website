@@ -1,8 +1,5 @@
 {
   "name": "Penguin Random House",
   "publisher_slug": "penguin-random-house",
-  "language": "en",
-  "description": "Global trade book publisher with over 250 independent imprints and brands",
-  "website": "https://www.penguinrandomhouse.com",
-  "country": "United States"
+  "language": "en"
 }

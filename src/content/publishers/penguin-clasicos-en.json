@@ -1,8 +1,5 @@
 {
   "name": "Penguin Classics",
   "publisher_slug": "penguin-classics",
-  "language": "en",
-  "description": "Penguin Random House imprint specializing in publishing classic literature from around the world",
-  "website": "https://www.penguinrandomhouse.com/books/penguin-classics/",
-  "country": "United Kingdom"
+  "language": "en"
 }

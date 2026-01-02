@@ -76,3 +76,16 @@ export function findCategoriesBySlug(
     .map((slug) => categories.find((category) => category.data.category_slug === slug))
     .filter((category): category is CollectionEntry<"categories"> => category !== undefined);
 }
+
+/**
+ * Find a series by its slug
+ * @param series - Array of series entries
+ * @param seriesSlug - The series_slug reference from a book
+ * @returns The series entry or undefined if not found
+ */
+export function findSeriesBySlug(
+  series: CollectionEntry<"series">[],
+  seriesSlug: string,
+): CollectionEntry<"series"> | undefined {
+  return series.find((s) => s.data.series_slug === seriesSlug);
+}

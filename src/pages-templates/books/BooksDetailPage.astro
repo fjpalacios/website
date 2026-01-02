@@ -20,7 +20,7 @@ import { t } from "@locales";
 import type { ContactItem } from "@types/content";
 import { getBookCoverImage } from "@utils/imageImports";
 import { IMAGE_DIMENSIONS } from "@utils/images";
-import { buildAuthorUrl, buildCategoryUrl, buildGenreUrl, buildPublisherUrl, buildScoreUrl } from "@utils/routes";
+import { buildAuthorUrl, buildCategoryUrl, buildGenreUrl, buildPublisherUrl } from "@utils/routes";
 import { render, type CollectionEntry } from "astro:content";
 
 interface Props {
@@ -38,18 +38,26 @@ const { Content } = await render(bookEntry);
 // We need to reload them here because Astro components can't access arbitrary props
 import { getCollection } from "astro:content";
 
-import { findAuthorBySlug, findPublisherBySlug, findGenresBySlug, findCategoriesBySlug } from "@/utils/blog";
-import { buildBooksIndexUrl } from "@/utils/routes";
+import {
+  findAuthorBySlug,
+  findPublisherBySlug,
+  findGenresBySlug,
+  findCategoriesBySlug,
+  findSeriesBySlug,
+} from "@/utils/blog";
+import { buildBooksIndexUrl, buildSeriesUrl } from "@/utils/routes";
 
 const allAuthors = await getCollection("authors");
 const allPublishers = await getCollection("publishers");
 const allGenres = await getCollection("genres");
 const allCategories = await getCollection("categories");
+const allSeries = await getCollection("series");
 
 const author = findAuthorBySlug(allAuthors, book.author, lang as "en" | "es");
 const publisher = book.publisher ? findPublisherBySlug(allPublishers, book.publisher) : null;
 const genres = findGenresBySlug(allGenres, book.genres);
 const categories = findCategoriesBySlug(allCategories, book.categories);
+const series = book.series ? findSeriesBySlug(allSeries, book.series) : null;
 
 // Get optimized book cover image
 const bookCoverImage = getBookCoverImage(book.book_cover || book.cover, lang as "en" | "es");
@@ -127,8 +135,6 @@ const reviewLabel = lang === "en" ? "Review" : "Reseña";
 const paperbackLabel = lang === "en" ? "Paperback" : "Tapa blanda";
 const ebookLabel = lang === "en" ? "eBook" : "eBook";
 const audiobookLabel = lang === "en" ? "Audiobook" : "Audiolibro";
-const scoreLabel = lang === "en" ? "Score" : "Puntuación";
-const favoriteLabel = lang === "en" ? "Favorite" : "Favorito";
 const categoryLabel = lang === "en" ? "Category" : "Categoría";
 const genreLabel = lang === "en" ? "Genre" : "Género";
 ---
@@ -250,11 +256,15 @@ const genreLabel = lang === "en" ? "Genre" : "Género";
             </li>
           )
         }
-        <li>
-          <a href={buildScoreUrl(lang, book.score)} title={scoreLabel}>
-            {book.score === "fav" ? favoriteLabel : `${book.score}/5`}
-          </a>
-        </li>
+        {
+          series && book.series_order && (
+            <li>
+              <a href={buildSeriesUrl(lang, series.data.series_slug)}>
+                {series.data.name} ({book.series_order})
+              </a>
+            </li>
+          )
+        }
       </ul>
     </section>
     <section class="book__info" data-pagefind-ignore>

@@ -3,8 +3,5 @@
   "category_slug": "tutoriales",
   "language": "es",
   "i18n": "tutorials",
-  "description": "Tutoriales de programación y desarrollo web",
-  "icon": "code",
-  "color": "#2563eb",
-  "order": 2
+  "description": "Tutoriales de programación y desarrollo web"
 }

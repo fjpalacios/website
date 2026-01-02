@@ -2,7 +2,5 @@
   "name": "Intriga",
   "genre_slug": "intriga",
   "language": "es",
-  "description": "Ficción que se centra en el misterio y los giros argumentales",
-  "parent": "ficcion",
   "i18n": "mystery"
 }

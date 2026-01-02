@@ -2,11 +2,12 @@ import type { CollectionEntry } from "astro:content";
 import { describe, expect, it } from "vitest";
 
 /**
- * Tests for taxonomyPages.ts filtering logic
+ * Tests for taxonomyPages.ts filtering logic and i18n support
  *
  * Tests the category filtering logic that handles:
  * - All content types now use array fields (categories, genres, etc.)
  * - Singular fields for unique relationships (author, publisher, series)
+ * - i18n field usage for taxonomy translations
  */
 
 describe("taxonomyPages filtering logic", () => {
@@ -185,6 +186,143 @@ describe("taxonomyPages filtering logic", () => {
       const matches = config.isSingular && value === taxonomySlug;
 
       expect(matches).toBe(false);
+    });
+  });
+
+  describe("i18n field handling for translations", () => {
+    it("should check if i18n slug exists in target language", () => {
+      // Simulating the logic from taxonomyPages.ts:177
+      // ES genre: { genre_slug: "ficcion", i18n: "fiction" }
+      const taxonomyItem = {
+        data: {
+          genre_slug: "ficcion",
+          i18n: "fiction",
+          name: "Ficción",
+          language: "es",
+        },
+      };
+
+      // EN genres available: ["fiction", "horror", "thriller"]
+      const targetTaxonomySlugs = new Set(["fiction", "horror", "thriller"]);
+
+      // Logic that should be used (FIXED version)
+      const translationSlug = taxonomyItem.data.i18n;
+      const hasTargetContent = translationSlug
+        ? targetTaxonomySlugs.has(translationSlug)
+        : targetTaxonomySlugs.has(taxonomyItem.data.genre_slug);
+
+      expect(hasTargetContent).toBe(true);
+    });
+
+    it("should return false when i18n slug does not exist in target language", () => {
+      // ES genre: { genre_slug: "biografia", i18n: "biography" }
+      const taxonomyItem = {
+        data: {
+          genre_slug: "biografia",
+          i18n: "biography",
+          name: "Biografía",
+          language: "es",
+        },
+      };
+
+      // EN genres available: ["fiction", "horror", "thriller"]
+      // NOTE: "biography" is NOT in the list
+      const targetTaxonomySlugs = new Set(["fiction", "horror", "thriller"]);
+
+      const translationSlug = taxonomyItem.data.i18n;
+      const hasTargetContent = translationSlug
+        ? targetTaxonomySlugs.has(translationSlug)
+        : targetTaxonomySlugs.has(taxonomyItem.data.genre_slug);
+
+      expect(hasTargetContent).toBe(false);
+    });
+
+    it("should fallback to slug matching when i18n field is missing", () => {
+      // ES genre: { genre_slug: "poetry" } (no i18n field, same slug in both languages)
+      const taxonomyItem = {
+        data: {
+          genre_slug: "poetry",
+          name: "Poesía",
+          language: "es",
+        },
+      };
+
+      // EN genres available: ["poetry", "fiction", "horror"]
+      const targetTaxonomySlugs = new Set(["poetry", "fiction", "horror"]);
+
+      const translationSlug = taxonomyItem.data.i18n;
+      const hasTargetContent = translationSlug
+        ? targetTaxonomySlugs.has(translationSlug)
+        : targetTaxonomySlugs.has(taxonomyItem.data.genre_slug);
+
+      expect(hasTargetContent).toBe(true);
+    });
+
+    it("should demonstrate the BUG that was fixed", () => {
+      // This test shows what the OLD (buggy) code was doing
+      const taxonomyItem = {
+        data: {
+          genre_slug: "ficcion",
+          i18n: "fiction",
+          name: "Ficción",
+          language: "es",
+        },
+      };
+
+      const targetTaxonomySlugs = new Set(["fiction", "horror", "thriller"]);
+
+      // ❌ OLD BUGGY CODE: checking same slug instead of i18n
+      const hasBuggyLogic = targetTaxonomySlugs.has(taxonomyItem.data.genre_slug);
+      expect(hasBuggyLogic).toBe(false); // BUG: returns false even though translation exists
+
+      // ✅ FIXED CODE: checking i18n slug
+      const translationSlug = taxonomyItem.data.i18n;
+      const hasFixedLogic = translationSlug
+        ? targetTaxonomySlugs.has(translationSlug)
+        : targetTaxonomySlugs.has(taxonomyItem.data.genre_slug);
+      expect(hasFixedLogic).toBe(true); // CORRECT: returns true
+    });
+
+    it("should work with categories i18n", () => {
+      // ES: { category_slug: "libros", i18n: "books" }
+      const taxonomyItem = {
+        data: {
+          category_slug: "libros",
+          i18n: "books",
+          name: "Libros",
+          language: "es",
+        },
+      };
+
+      const targetTaxonomySlugs = new Set(["books", "tutorials", "reviews"]);
+
+      const translationSlug = taxonomyItem.data.i18n;
+      const hasTargetContent = translationSlug
+        ? targetTaxonomySlugs.has(translationSlug)
+        : targetTaxonomySlugs.has(taxonomyItem.data.category_slug);
+
+      expect(hasTargetContent).toBe(true);
+    });
+
+    it("should work with challenges i18n", () => {
+      // ES: { challenge_slug: "reto-lectura-2017", i18n: "2017-reading-challenge" }
+      const taxonomyItem = {
+        data: {
+          challenge_slug: "reto-lectura-2017",
+          i18n: "2017-reading-challenge",
+          name: "Reto de Lectura 2017",
+          language: "es",
+        },
+      };
+
+      const targetTaxonomySlugs = new Set(["2017-reading-challenge", "2018-reading-challenge"]);
+
+      const translationSlug = taxonomyItem.data.i18n;
+      const hasTargetContent = translationSlug
+        ? targetTaxonomySlugs.has(translationSlug)
+        : targetTaxonomySlugs.has(taxonomyItem.data.challenge_slug);
+
+      expect(hasTargetContent).toBe(true);
     });
   });
 });

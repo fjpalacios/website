@@ -2,7 +2,5 @@
   "name": "Horror",
   "genre_slug": "horror",
   "language": "en",
-  "description": "Fiction intended to scare, unsettle, or horrify the reader",
-  "parent": "fiction",
   "i18n": "terror"
 }

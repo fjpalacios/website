@@ -2,7 +2,5 @@
   "name": "Mystery",
   "genre_slug": "mystery",
   "language": "en",
-  "description": "Fiction that focuses on mystery and plot twists",
-  "parent": "fiction",
   "i18n": "intriga"
 }

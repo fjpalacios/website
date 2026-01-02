@@ -1,8 +1,5 @@
 {
   "name": "Penguin Clásicos",
   "publisher_slug": "penguin-clasicos",
-  "language": "es",
-  "description": "Sello editorial de Penguin Random House especializado en la publicación de clásicos de la literatura universal",
-  "website": "https://www.penguinlibros.com/es/colecciones/penguin-clasicos",
-  "country": "Spain"
+  "language": "es"
 }

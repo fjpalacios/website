@@ -13,7 +13,14 @@ export { getPageCount, paginateItems, getPaginationInfo, type PaginationInfo } f
 export { sortByDate, filterByLanguage, groupByYear, type CollectionItem, type GroupedByYear } from "./collections";
 
 // Book utilities
-export { findBookBySlug, findAuthorBySlug, findPublisherBySlug, findGenresBySlug, findCategoriesBySlug } from "./books";
+export {
+  findBookBySlug,
+  findAuthorBySlug,
+  findPublisherBySlug,
+  findGenresBySlug,
+  findCategoriesBySlug,
+  findSeriesBySlug,
+} from "./books";
 export { prepareBookSummary, type BookSummary } from "./book-listing";
 
 // Author utilities

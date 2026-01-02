@@ -1,8 +1,5 @@
 {
   "name": "Debolsillo",
   "publisher_slug": "debolsillo",
-  "language": "es",
-  "description": "Spanish publishing imprint of Penguin Random House specializing in pocket editions",
-  "website": "https://www.penguinlibros.com/es/debolsillo",
-  "country": "Spain"
+  "language": "es"
 }

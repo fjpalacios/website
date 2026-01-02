@@ -2,7 +2,5 @@
   "name": "Crimen",
   "genre_slug": "crimen",
   "language": "es",
-  "description": "Ficción centrada en actividades criminales e investigaciones",
-  "parent": "ficcion",
   "i18n": "crime"
 }

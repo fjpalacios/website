@@ -508,6 +508,7 @@ describe("Books Collection Schema", () => {
       const bookWithSeries = {
         ...bookWithNull,
         series: "fjallbacka",
+        series_order: 1, // Required when series is defined
       };
 
       expect(() => booksSchema.parse(bookWithNull)).not.toThrow();

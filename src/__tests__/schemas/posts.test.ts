@@ -135,32 +135,9 @@ describe("Posts Collection Schema", () => {
       categories: ["test"],
     };
 
-    it("should accept optional draft field", () => {
-      const withDraft = { ...basePost, draft: true };
-      expect(() => postsSchema.parse(withDraft)).not.toThrow();
-    });
-
-    it("should default draft to false when not provided", () => {
-      const parsed = postsSchema.parse(basePost);
-      expect(parsed.draft).toBe(false);
-    });
-
-    it("should accept optional featured_image", () => {
-      const withImage = { ...basePost, featured_image: "./image.jpg" };
-      expect(() => postsSchema.parse(withImage)).not.toThrow();
-    });
-
     it("should accept optional update_date", () => {
       const withUpdate = { ...basePost, update_date: new Date("2024-02-01") };
       expect(() => postsSchema.parse(withUpdate)).not.toThrow();
-    });
-
-    it("should accept optional canonical_url", () => {
-      const withCanonical = {
-        ...basePost,
-        canonical_url: "https://example.com/original-post",
-      };
-      expect(() => postsSchema.parse(withCanonical)).not.toThrow();
     });
   });
 

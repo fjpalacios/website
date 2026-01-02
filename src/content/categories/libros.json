@@ -3,8 +3,5 @@
   "category_slug": "libros",
   "language": "es",
   "i18n": "books",
-  "description": "Contenido relacionado con libros",
-  "icon": "book",
-  "color": "#8B4513",
-  "order": 1
+  "description": "Contenido relacionado con libros"
 }
