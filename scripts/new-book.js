@@ -12,9 +12,9 @@
  * Optional:
  *   --lang         Language (es|en) - default: es
  *   --isbn         ISBN number
- *   --pages        Number of pages
+ *   --pages        Number of pages (default: 300)
  *   --publisher    Publisher name (will be created if doesn't exist)
- *   --score        Score (1-5|fav)
+ *   --score        Score (1-5, default: 3)
  *   --genres       Comma-separated genre names (will be created if don't exist)
  *   --categories   Comma-separated category names (will be created if don't exist)
  *   --interactive  Run in interactive mode
@@ -140,13 +140,7 @@ name: "${name}"
 author_slug: "${slugify(name)}"
 language: "${lang}"
 # gender: "male"
-# birth_year: 1970
-# nationality: "American"
 # picture: "/images/authors/${slugify(name)}.jpg"
-# website: "https://example.com"
-# twitter: "@author"
-# goodreads: "https://www.goodreads.com/author/show/123"
-# wikipedia: "https://en.wikipedia.org/wiki/${name.replace(/ /g, "_")}"
 i18n: "${lang === "es" ? "en" : "es"}"
 ---
 
@@ -173,9 +167,7 @@ function createPublisherIfNotExists(name, lang) {
     name: name,
     publisher_slug: slug,
     language: lang,
-    description: `${name} publishing house`,
-    // website: "https://example.com",
-    // country: "Spain"
+    i18n: lang === "es" ? slug : slug, // Will need manual correction
   };
 
   fs.writeFileSync(filePath, JSON.stringify(data, null, 2) + "\n", "utf8");
@@ -198,16 +190,8 @@ function createGenreIfNotExists(name, lang) {
     name: name,
     genre_slug: slug,
     language: lang,
-    description: `${name} genre`,
-    // parent: "ficcion"
+    i18n: slug, // Will need manual correction
   };
-
-  // If lang is 'es', try to suggest i18n
-  if (lang === "es") {
-    data.i18n = slug; // Will need manual correction
-  } else {
-    data.i18n = slug; // Will need manual correction
-  }
 
   fs.writeFileSync(filePath, JSON.stringify(data, null, 2) + "\n", "utf8");
   console.log(`   ✨ Created genre: ${name} (${slug})`);
@@ -260,8 +244,8 @@ excerpt: "${excerpt || "Breve resumen del libro..."}"
 language: "${lang}"
 i18n: ""
 synopsis: "${synopsis || "Sinopsis completa del libro..."}"
-${score ? `score: ${score}` : "# score: 5"}
-${pages ? `pages: ${pages}` : "# pages: 300"}
+score: ${score || 3}
+pages: ${pages || 300}
 ${isbn ? `isbn: "${isbn}"` : '# isbn: "9781234567890"'}
 author: "${author}"
 ${publisher ? `publisher: "${publisher}"` : `# publisher: "publisher-slug" # Add publisher or use --publisher flag`}
@@ -300,7 +284,7 @@ Tu conclusión final sobre el libro...
 
 ---
 
-**Puntuación:** ${score ? (score === "fav" ? "⭐ Favorito" : `${score}/5`) : "Por definir"}
+**Puntuación:** ${score || 3}/5
 `;
 }
 
@@ -333,9 +317,17 @@ async function interactiveMode() {
   const author = await question(rl, "Author name (will be created if doesn't exist): ");
   const lang = (await question(rl, "Language (es|en) [default: es]: ")) || "es";
   const isbn = await question(rl, "ISBN (optional): ");
-  const pages = await question(rl, "Number of pages (optional): ");
+  const pagesInput = await question(rl, "Number of pages [default: 300]: ");
   const publisher = await question(rl, "Publisher name (optional, will be created if doesn't exist): ");
-  const score = await question(rl, "Score (1-5|fav) (optional): ");
+  const scoreInput = await question(rl, "Score (1-5) [default: 3]: ");
+
+  // Validate and parse numeric inputs
+  const pages = pagesInput ? parseInt(pagesInput) : 300;
+  let score = scoreInput ? parseInt(scoreInput) : 3;
+  if (score < 1 || score > 5 || isNaN(score)) {
+    console.log("⚠️  Invalid score, using default: 3");
+    score = 3;
+  }
   const genresInput = await question(rl, "Genres (comma-separated names, optional): ");
   const categoriesInput = await question(rl, "Categories (comma-separated names) [default: libros, resenas]: ");
 
@@ -367,9 +359,9 @@ async function interactiveMode() {
     lang,
     author,
     isbn: isbn || null,
-    pages: pages || null,
+    pages,
     publisher: publisher || null,
-    score: score || null,
+    score,
     genres,
     categories,
     synopsis: null,
@@ -398,6 +390,20 @@ async function main() {
     const date = getTodayDate();
     const lang = args.lang || "es";
 
+    // Validate and parse numeric inputs
+    let pages = args.pages ? parseInt(args.pages) : 300;
+    let score = args.score ? parseInt(args.score) : 3;
+
+    if (isNaN(pages) || pages <= 0) {
+      console.log("⚠️  Invalid pages value, using default: 300");
+      pages = 300;
+    }
+
+    if (isNaN(score) || score < 1 || score > 5) {
+      console.log("⚠️  Invalid score (must be 1-5), using default: 3");
+      score = 3;
+    }
+
     data = {
       title: args.title,
       slug,
@@ -405,9 +411,9 @@ async function main() {
       lang,
       author: args.author,
       isbn: args.isbn || null,
-      pages: args.pages || null,
+      pages,
       publisher: args.publisher || null,
-      score: args.score || null,
+      score,
       genres: args.genres ? args.genres.split(",").map((g) => g.trim()) : null,
       categories: args.categories
         ? args.categories.split(",").map((c) => c.trim())

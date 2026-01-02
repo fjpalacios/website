@@ -11,7 +11,6 @@
  * Optional:
  *   --lang         Language (es|en) - default: es
  *   --categories   Comma-separated category names (will be created if don't exist)
- *   --tags         Comma-separated tag names
  *   --interactive  Run in interactive mode
  *
  * Features:
@@ -139,7 +138,7 @@ function createCategoryIfNotExists(name, lang) {
 
 // Template for new post
 function getPostTemplate(data) {
-  const { title, slug, date, lang, categories, tags, excerpt } = data;
+  const { title, slug, date, lang, categories, excerpt } = data;
 
   return `---
 title: "${title}"
@@ -148,8 +147,6 @@ date: ${date}
 excerpt: "${excerpt || "Breve resumen del post..."}"
 language: "${lang}"
 i18n: ""
-category: "${categories && categories.length > 0 ? categories[0] : "publicaciones"}"
-tags: [${tags && tags.length > 0 ? tags.map((t) => `"${t}"`).join(", ") : ""}]
 categories: [${categories && categories.length > 0 ? categories.map((c) => `"${c}"`).join(", ") : '"publicaciones"'}]
 cover: "/images/defaults/post-default-${lang}.jpg"
 ---
@@ -203,7 +200,6 @@ async function interactiveMode() {
   const title = await question(rl, "Post title: ");
   const lang = (await question(rl, "Language (es|en) [default: es]: ")) || "es";
   const categoriesInput = await question(rl, "Categories (comma-separated names) [default: publicaciones/posts]: ");
-  const tagsInput = await question(rl, "Tags (comma-separated, optional): ");
 
   const categories = categoriesInput
     ? categoriesInput
@@ -213,13 +209,6 @@ async function interactiveMode() {
     : lang === "es"
       ? ["publicaciones"]
       : ["posts"];
-
-  const tags = tagsInput
-    ? tagsInput
-        .split(",")
-        .map((t) => t.trim())
-        .filter(Boolean)
-    : [];
 
   rl.close();
 
@@ -232,7 +221,6 @@ async function interactiveMode() {
     date,
     lang,
     categories,
-    tags,
     excerpt: null,
   };
 }
@@ -268,7 +256,6 @@ async function main() {
         : lang === "es"
           ? ["publicaciones"]
           : ["posts"],
-      tags: args.tags ? args.tags.split(",").map((t) => t.trim()) : [],
       excerpt: null,
     };
   }

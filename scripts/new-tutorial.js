@@ -12,7 +12,6 @@
  *   --lang         Language (es|en) - default: es
  *   --course       Course name (will be created if doesn't exist)
  *   --categories   Comma-separated category names (will be created if don't exist)
- *   --tags         Comma-separated tag names
  *   --interactive  Run in interactive mode
  *
  * Features:
@@ -163,7 +162,7 @@ function createCourseIfNotExists(name, lang) {
 }
 
 function getTutorialTemplate(data) {
-  const { title, slug, date, lang, course, categories, tags, excerpt } = data;
+  const { title, slug, date, lang, course, categories, excerpt } = data;
 
   return `---
 title: "${title}"
@@ -173,8 +172,6 @@ excerpt: "${excerpt || "Breve resumen del tutorial..."}"
 language: "${lang}"
 i18n: ""
 ${course ? `course: "${course}"` : '# course: "course-slug" # Optional: link to a course'}
-category: "${categories && categories.length > 0 ? categories[0] : "tutoriales"}"
-tags: [${tags && tags.length > 0 ? tags.map((t) => `"${t}"`).join(", ") : ""}]
 categories: [${categories && categories.length > 0 ? categories.map((c) => `"${c}"`).join(", ") : '"tutoriales"'}]
 cover: "/images/defaults/tutorial-default-${lang}.jpg"
 ---
@@ -244,7 +241,6 @@ async function interactiveMode() {
   const lang = (await question(rl, "Language (es|en) [default: es]: ")) || "es";
   const course = await question(rl, "Course name (optional, will be created if doesn't exist): ");
   const categoriesInput = await question(rl, "Categories (comma-separated names) [default: tutoriales/tutorials]: ");
-  const tagsInput = await question(rl, "Tags (comma-separated, optional): ");
 
   const categories = categoriesInput
     ? categoriesInput
@@ -254,13 +250,6 @@ async function interactiveMode() {
     : lang === "es"
       ? ["tutoriales"]
       : ["tutorials"];
-
-  const tags = tagsInput
-    ? tagsInput
-        .split(",")
-        .map((t) => t.trim())
-        .filter(Boolean)
-    : [];
 
   rl.close();
 
@@ -274,7 +263,6 @@ async function interactiveMode() {
     lang,
     course: course || null,
     categories,
-    tags,
     excerpt: null,
   };
 }
@@ -309,7 +297,6 @@ async function main() {
         : lang === "es"
           ? ["tutoriales"]
           : ["tutorials"],
-      tags: args.tags ? args.tags.split(",").map((t) => t.trim()) : [],
       excerpt: null,
     };
   }
