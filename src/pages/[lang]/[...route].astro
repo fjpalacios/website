@@ -1,6 +1,6 @@
 ---
 /**
- * Unified Dynamic Routing - All Content Types & Taxonomies (Phase 6 Refactored)
+ * Unified Dynamic Routing - All Content Types & Taxonomies
  *
  * Configuration-driven router that eliminates repetitive code patterns.
  *
@@ -13,14 +13,15 @@
  *
  * This replaces 52 duplicate page files with 1 unified router + 25 templates.
  *
- * Phase 4 Optimization: Extracted route generation logic to utilities
- * Phase 5.2 Optimization: Added caching and parallel generation for performance
- * Phase 6 Optimization: Config-driven approach + dynamic template mapping
+ * Architecture:
+ * - Route generation extracted to modular generators in @/utils/routeGenerators/
+ * - Template selection via config-driven mapping in @/config/templateMap
+ * - Content type configuration centralized in @/config/routeConfig
+ * - Build-time caching for performance in @/utils/cache/
  *
- * @see src/utils/routeGenerators/
- * @see src/utils/cache/
- * @see src/config/templateMap.ts
- * @see src/config/routeConfig.ts
+ * @see src/utils/routeGenerators/ - Modular route generators
+ * @see src/config/templateMap.ts - Template selection configuration
+ * @see src/config/routeConfig.ts - Content type configuration
  */
 
 import type { GetStaticPaths } from "astro";
@@ -31,19 +32,16 @@ import { getRouteSegment } from "@/config/routeSegments";
 import { getTemplate } from "@/config/templateMap";
 // Contact data
 // Utilities
-import { paginateItems, getPageCount } from "@/utils/blog";
 import { logCacheStats } from "@/utils/cache/buildCache";
-import { getCachedCollection } from "@/utils/cache/cachedLoaders";
 import { getContact } from "@/utils/content/contact";
 import { performanceMonitor } from "@/utils/performance/monitor";
-import { getAllContentForLanguage, POSTS_PER_PAGE, generatePostDetailPaths } from "@/utils/postsPages";
 import {
   generateContentTypeWithPaginationRoutes,
   generateTaxonomyRoutes,
   generateStaticPageRoute,
+  generatePostsRoutes,
 } from "@/utils/routeGenerators";
 import { getLanguages } from "@/utils/routes";
-import { generateItemListSchema } from "@/utils/schemas/itemList";
 import { TAXONOMY_CONFIGS } from "@/utils/taxonomyPages";
 
 /**
@@ -87,34 +85,6 @@ export const getStaticPaths: GetStaticPaths = async () => {
       // This prevents a single content type error from breaking the entire build
       return [];
     }
-  };
-
-  /**
-   * Maps content type to Schema.org type and route segment
-   * Used for mixed content (posts that can be BlogPosting, TechArticle, or Book)
-   */
-  const CONTENT_TYPE_MAPPING = {
-    book: {
-      schemaType: "Book" as const,
-      routeKey: "books" as const,
-    },
-    tutorial: {
-      schemaType: "TechArticle" as const,
-      routeKey: "tutorials" as const,
-    },
-    post: {
-      schemaType: "BlogPosting" as const,
-      routeKey: "posts" as const,
-    },
-  } as const;
-
-  /**
-   * Get content type mapping for schema generation
-   * @param contentType The content type from post data
-   * @returns Schema type and route key for the content
-   */
-  const getContentTypeMapping = (contentType: string) => {
-    return CONTENT_TYPE_MAPPING[contentType as keyof typeof CONTENT_TYPE_MAPPING] || CONTENT_TYPE_MAPPING.post;
   };
 
   // =================================================================
@@ -189,89 +159,20 @@ export const getStaticPaths: GetStaticPaths = async () => {
 
     // =================================================================
     // POSTS - Special case (mixed content: posts + tutorials + books)
-    // Cannot use generic generator due to complex schema mapping
+    // Uses dedicated generator due to complex schema mapping
     // =================================================================
     performanceMonitor.start(`posts-${lang}`);
     try {
-      const routeSegment = getRouteSegment("posts", lang);
-      const pageSegment = getRouteSegment("page", lang);
-
-      // ⚡ Performance: Fetch both languages in parallel using cached loaders
-      const [sortedContent, targetContent] = await Promise.all([
-        getCachedCollection("posts", lang, getAllContentForLanguage),
-        getCachedCollection("posts", targetLang, getAllContentForLanguage),
-      ]);
-
-      const hasTargetContent = targetContent.length > 0;
-      const totalPages = getPageCount(sortedContent.length, POSTS_PER_PAGE);
-
-      // 1. LIST PAGE
-      const posts = paginateItems(sortedContent, 1, POSTS_PER_PAGE);
-
-      // Generate ItemList schema for mixed content
-      const itemListSchema = generateItemListSchema(
-        posts.map((post) => {
-          // Use mapping helper to get schema type and route key
-          const { schemaType, routeKey } = getContentTypeMapping(post.type);
-          const localizedRouteSegment = getRouteSegment(routeKey, lang);
-
-          return {
-            name: post.title,
-            url: `/${lang}/${localizedRouteSegment}/${post.slug}/`,
-            type: schemaType,
-            description: post.excerpt,
-          };
-        }),
-        "https://fjp.es",
-      );
-
-      paths.push({
-        params: { lang, route: routeSegment },
-        props: {
-          contentType: "posts",
-          pageType: "list",
-          lang,
-          posts,
-          currentPage: 1,
-          totalPages,
-          itemListSchema,
-          contact,
-          hasTargetContent,
-        },
-      });
-
-      // 2. PAGINATION PAGES
-      for (let page = 2; page <= totalPages; page++) {
-        const paginatedPosts = paginateItems(sortedContent, page, POSTS_PER_PAGE);
-
-        paths.push({
-          params: { lang, route: `${routeSegment}/${pageSegment}/${page}` },
-          props: {
-            contentType: "posts",
-            pageType: "pagination",
+      const postsRoutes = await safeGenerateRoutes(
+        async () =>
+          generatePostsRoutes({
             lang,
-            posts: paginatedPosts,
-            currentPage: page,
-            totalPages,
+            targetLang,
             contact,
-            hasTargetContent,
-          },
-        });
-      }
-
-      // 3. DETAIL PAGES (only for "posts" collection, not books/tutorials)
-      const postDetailPaths = await generatePostDetailPaths(lang, contact);
-      for (const { slug, props } of postDetailPaths) {
-        paths.push({
-          params: { lang, route: `${routeSegment}/${slug}` },
-          props: {
-            contentType: "posts",
-            pageType: "detail",
-            ...props,
-            hasTargetContent,
-          },
-        });
-      }
+          }),
+        `posts (${lang})`,
+      );
+      paths.push(...postsRoutes);
     } catch (error) {
       console.error(`[Unified Routing] Error generating routes for posts (${lang}):`, error);
     }

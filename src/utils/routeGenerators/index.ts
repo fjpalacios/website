@@ -14,5 +14,8 @@ export type { TaxonomyGeneratorConfig } from "./taxonomy";
 export { generateStaticPageRoute } from "./staticPage";
 export type { StaticPageConfig } from "./staticPage";
 
+export { generatePostsRoutes } from "./posts";
+export type { PostsGeneratorConfig } from "./posts";
+
 // Re-export common types
 export type { GeneratedPath } from "./contentTypeWithPagination";
