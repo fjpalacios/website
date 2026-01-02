@@ -11,7 +11,7 @@ describe("Tutorials Collection Schema", () => {
         date: new Date("2024-01-15"),
         excerpt: "Learn TypeScript from scratch with practical examples",
         language: "en",
-        category: "programming",
+        categories: ["programming"],
         difficulty: "beginner",
         estimated_time: 30,
         draft: false,
@@ -27,7 +27,7 @@ describe("Tutorials Collection Schema", () => {
         date: new Date("2024-01-15"),
         excerpt: "Aprende TypeScript desde cero con ejemplos prácticos",
         language: "es",
-        category: "programacion",
+        categories: ["programacion"],
       };
 
       expect(() => tutorialsSchema.parse(spanishTutorial)).not.toThrow();
@@ -40,7 +40,7 @@ describe("Tutorials Collection Schema", () => {
         date: new Date("2024-01-15"),
         excerpt: "Learn Git basics in minutes",
         language: "en",
-        category: "version-control",
+        categories: ["version-control"],
       };
 
       expect(() => tutorialsSchema.parse(minimalTutorial)).not.toThrow();
@@ -54,7 +54,7 @@ describe("Tutorials Collection Schema", () => {
       date: new Date("2024-01-15"),
       excerpt: "Test excerpt",
       language: "es",
-      category: "test",
+      categories: ["test"],
     };
 
     it("should require title", () => {
@@ -83,7 +83,7 @@ describe("Tutorials Collection Schema", () => {
     });
 
     it("should require category", () => {
-      const { category: _category, ...tutorialWithoutCategory } = baseTutorial;
+      const { categories: _categories, ...tutorialWithoutCategory } = baseTutorial;
       expect(() => tutorialsSchema.parse(tutorialWithoutCategory)).toThrow();
     });
   });
@@ -95,7 +95,7 @@ describe("Tutorials Collection Schema", () => {
       date: new Date("2024-01-15"),
       excerpt: "Test excerpt",
       language: "es",
-      category: "test",
+      categories: ["test"],
     };
 
     it("should reject empty title", () => {
@@ -123,7 +123,7 @@ describe("Tutorials Collection Schema", () => {
     });
 
     it("should reject empty category", () => {
-      expect(() => tutorialsSchema.parse({ ...baseTutorial, category: "" })).toThrow();
+      expect(() => tutorialsSchema.parse({ ...baseTutorial, categories: [""] })).toThrow();
     });
   });
 
@@ -134,7 +134,7 @@ describe("Tutorials Collection Schema", () => {
       date: new Date("2024-01-15"),
       excerpt: "Test excerpt",
       language: "es",
-      category: "test",
+      categories: ["test"],
     };
 
     it("should accept optional difficulty field", () => {
@@ -209,7 +209,7 @@ describe("Tutorials Collection Schema", () => {
       date: "2024-01-15",
       excerpt: "Test excerpt",
       language: "es",
-      category: "test",
+      categories: ["test"],
     };
 
     it("should coerce string date to Date object", () => {
@@ -231,7 +231,7 @@ describe("Tutorials Collection Schema", () => {
       date: new Date("2024-01-15"),
       excerpt: "Test excerpt",
       language: "es",
-      category: "test",
+      categories: ["test"],
     };
 
     it("should handle very long title", () => {
@@ -257,7 +257,7 @@ describe("Tutorials Collection Schema", () => {
         date: new Date("2024-01-10"),
         excerpt: "Learn the fundamentals of JavaScript variables and data types",
         language: "en",
-        category: "javascript",
+        categories: ["javascript"],
         difficulty: "beginner",
         estimated_time: 20,
         draft: false,
@@ -273,7 +273,7 @@ describe("Tutorials Collection Schema", () => {
         date: new Date("2024-02-15"),
         excerpt: "Master compound component pattern in React",
         language: "en",
-        category: "react",
+        categories: ["react"],
         difficulty: "advanced",
         estimated_time: 45,
         github_repo: "https://github.com/example/react-compound-components",
@@ -292,7 +292,7 @@ describe("Tutorials Collection Schema", () => {
         date: new Date("2024-03-01"),
         excerpt: "Una introducción completa a Git para principiantes",
         language: "es",
-        category: "control-versiones",
+        categories: ["control-versiones"],
         difficulty: "beginner",
         estimated_time: 25,
         featured_image: "./git-intro.png",
@@ -309,7 +309,7 @@ describe("Tutorials Collection Schema", () => {
         date: new Date("2024-06-01"),
         excerpt: "Docker tutorial still being written",
         language: "en",
-        category: "devops",
+        categories: ["devops"],
         draft: true,
       };
 
@@ -324,7 +324,7 @@ describe("Tutorials Collection Schema", () => {
         update_date: new Date("2024-01-15"),
         excerpt: "Learn Node.js from scratch (Updated for Node.js 20)",
         language: "en",
-        category: "nodejs",
+        categories: ["nodejs"],
         difficulty: "beginner",
         estimated_time: 35,
         draft: false,

@@ -37,6 +37,7 @@ interface Props {
   }>;
   currentPage: number;
   totalPages: number;
+  totalItems: number; // Total items across all pages
   contact: ContactItem[];
   hasTargetContent: boolean;
   authorsWithCounts: Array<{
@@ -51,6 +52,7 @@ const {
   content,
   currentPage,
   totalPages,
+  totalItems,
   contact,
   hasTargetContent,
   authorsWithCounts,
@@ -62,9 +64,9 @@ const pageTitle = `${authorTitle}: ${author.data.name}`;
 const basePath = buildAuthorUrl(lang, author.data.author_slug);
 
 // SEO description
-const translationKey = content.length === 1 ? "taxonomy.author.bookCount_one" : "taxonomy.author.bookCount_other";
+const translationKey = totalItems === 1 ? "taxonomy.author.bookCount_one" : "taxonomy.author.bookCount_other";
 const description = t(lang, translationKey)
-  .replace("{{count}}", content.length.toString())
+  .replace("{{count}}", totalItems.toString())
   .replace("{{name}}", author.data.name);
 
 // Build breadcrumbs

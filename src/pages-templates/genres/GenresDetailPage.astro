@@ -37,6 +37,7 @@ interface Props {
   }>;
   currentPage: number;
   totalPages: number;
+  totalItems: number; // Total items across all pages
   contact: ContactItem[];
   hasTargetContent: boolean;
   genresWithCounts: Array<{
@@ -51,6 +52,7 @@ const {
   content,
   currentPage,
   totalPages,
+  totalItems,
   contact,
   hasTargetContent,
   genresWithCounts,
@@ -60,9 +62,9 @@ const pageTitle = `${t(lang, "pages.genre")}: ${genre.data.name}`;
 const basePath = buildGenreUrl(lang, genre.data.genre_slug);
 
 // SEO description
-const translationKey = content.length === 1 ? "taxonomy.genre.bookCount_one" : "taxonomy.genre.bookCount_other";
+const translationKey = totalItems === 1 ? "taxonomy.genre.bookCount_one" : "taxonomy.genre.bookCount_other";
 const description = t(lang, translationKey)
-  .replace("{{count}}", content.length.toString())
+  .replace("{{count}}", totalItems.toString())
   .replace("{{name}}", genre.data.name);
 
 // Build breadcrumbs

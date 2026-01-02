@@ -11,7 +11,7 @@ describe("Posts Collection Schema", () => {
         date: new Date("2024-01-15"),
         excerpt: "Este es mi primer post donde hablo sobre desarrollo web",
         language: "es",
-        category: "development",
+        categories: ["development"],
         draft: false,
       };
 
@@ -25,7 +25,7 @@ describe("Posts Collection Schema", () => {
         date: new Date("2024-01-15"),
         excerpt: "This is my first post about web development",
         language: "en",
-        category: "development",
+        categories: ["development"],
       };
 
       expect(() => postsSchema.parse(englishPost)).not.toThrow();
@@ -38,7 +38,7 @@ describe("Posts Collection Schema", () => {
         date: new Date("2024-01-15"),
         excerpt: "Short excerpt",
         language: "es",
-        category: "general",
+        categories: ["general"],
       };
 
       expect(() => postsSchema.parse(minimalPost)).not.toThrow();
@@ -52,7 +52,7 @@ describe("Posts Collection Schema", () => {
       date: new Date("2024-01-15"),
       excerpt: "Test excerpt",
       language: "es",
-      category: "test",
+      categories: ["test"],
     };
 
     it("should require title", () => {
@@ -81,7 +81,7 @@ describe("Posts Collection Schema", () => {
     });
 
     it("should require category", () => {
-      const { category: _category, ...postWithoutCategory } = basePost;
+      const { categories: _categories, ...postWithoutCategory } = basePost;
       expect(() => postsSchema.parse(postWithoutCategory)).toThrow();
     });
   });
@@ -93,7 +93,7 @@ describe("Posts Collection Schema", () => {
       date: new Date("2024-01-15"),
       excerpt: "Test excerpt",
       language: "es",
-      category: "test",
+      categories: ["test"],
     };
 
     it("should reject empty title", () => {
@@ -121,7 +121,7 @@ describe("Posts Collection Schema", () => {
     });
 
     it("should reject empty category", () => {
-      expect(() => postsSchema.parse({ ...basePost, category: "" })).toThrow();
+      expect(() => postsSchema.parse({ ...basePost, categories: [""] })).toThrow();
     });
   });
 
@@ -132,7 +132,7 @@ describe("Posts Collection Schema", () => {
       date: new Date("2024-01-15"),
       excerpt: "Test excerpt",
       language: "es",
-      category: "test",
+      categories: ["test"],
     };
 
     it("should accept optional draft field", () => {
@@ -171,7 +171,7 @@ describe("Posts Collection Schema", () => {
       date: "2024-01-15",
       excerpt: "Test excerpt",
       language: "es",
-      category: "test",
+      categories: ["test"],
     };
 
     it("should coerce string date to Date object", () => {
@@ -193,7 +193,7 @@ describe("Posts Collection Schema", () => {
       date: new Date("2024-01-15"),
       excerpt: "Test excerpt",
       language: "es",
-      category: "test",
+      categories: ["test"],
     };
 
     it("should handle very long title", () => {
@@ -225,7 +225,7 @@ describe("Posts Collection Schema", () => {
         date: new Date("2023-12-31"),
         excerpt: "Un repaso por las mejores lecturas del año, con reseñas y recomendaciones",
         language: "es",
-        category: "books",
+        categories: ["books"],
         draft: false,
       };
 
@@ -239,7 +239,7 @@ describe("Posts Collection Schema", () => {
         date: new Date("2024-01-10"),
         excerpt: "Learn the basics of TypeScript and how to use it in your projects",
         language: "en",
-        category: "tutorials",
+        categories: ["tutorials"],
         featured_image: "./typescript-intro.png",
         draft: false,
       };
@@ -254,7 +254,7 @@ describe("Posts Collection Schema", () => {
         date: new Date("2024-06-01"),
         excerpt: "This post is still being written",
         language: "es",
-        category: "development",
+        categories: ["development"],
         draft: true,
       };
 
@@ -268,7 +268,7 @@ describe("Posts Collection Schema", () => {
         date: new Date("2024-03-15"),
         excerpt: "A deep dive into async/await in JavaScript",
         language: "en",
-        category: "development",
+        categories: ["development"],
         canonical_url: "https://dev.to/author/understanding-async-await",
         draft: false,
       };
@@ -284,7 +284,7 @@ describe("Posts Collection Schema", () => {
         update_date: new Date("2024-01-15"),
         excerpt: "Learn React from scratch (Updated for React 18)",
         language: "en",
-        category: "tutorials",
+        categories: ["tutorials"],
         draft: false,
       };
 

@@ -179,9 +179,13 @@ export async function generateTaxonomyDetailPaths(config: TaxonomyConfig, lang: 
     // Filter content by taxonomy
     const taxonomyContent = allContent.filter((item) => {
       const value = item.data[config.contentField];
+
+      // Handle singular fields (e.g., author, publisher)
       if (config.isSingular) {
         return value === taxonomySlug;
       }
+
+      // Handle plural fields (e.g., categories, genres)
       return Array.isArray(value) && value.includes(taxonomySlug);
     });
 
@@ -211,8 +215,9 @@ export async function generateTaxonomyDetailPaths(config: TaxonomyConfig, lang: 
       return dateB.getTime() - dateA.getTime();
     });
 
-    // Calculate total pages
-    const totalPages = Math.ceil(taxonomyContent.length / ITEMS_PER_PAGE);
+    // Calculate total pages and items
+    const totalItems = taxonomyContent.length;
+    const totalPages = Math.ceil(totalItems / ITEMS_PER_PAGE);
 
     // Generate path for each page
     for (let page = 1; page <= Math.max(1, totalPages); page++) {
@@ -230,6 +235,7 @@ export async function generateTaxonomyDetailPaths(config: TaxonomyConfig, lang: 
           content: transformedContent,
           currentPage: page,
           totalPages: Math.max(1, totalPages),
+          totalItems, // Total items in taxonomy (across all pages)
           lang,
           contact,
           hasTargetContent, // Add this prop for language switcher

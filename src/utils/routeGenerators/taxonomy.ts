@@ -23,6 +23,7 @@
  * @module routeGenerators/taxonomy
  */
 
+import { getRouteSegment } from "@/config/routeSegments";
 import type { TaxonomyConfig } from "@/utils/taxonomyPages";
 import {
   getTaxonomyItemsWithCount,
@@ -124,15 +125,21 @@ export async function generateTaxonomyRoutes(config: TaxonomyGeneratorConfig): P
   // 2. DETAIL PAGES (with pagination for related content)
   const detailPaths = await generateTaxonomyDetailPaths(taxonomyConfig, lang, contact);
 
-  for (const { slug, props } of detailPaths) {
+  // Get localized "page" segment for pagination URLs
+  const pageSegment = getRouteSegment("page", lang);
+
+  for (const { slug, page, props } of detailPaths) {
     // Add taxonomy items to props for sidebar
     const enhancedProps = {
       ...props,
       [itemsPropsKey]: itemsWithContent,
     };
 
+    // Build route: for page 1 just use slug, for page 2+ add /{pageSegment}/{number}
+    const route = page ? `${routeSegment}/${slug}/${pageSegment}/${page}` : `${routeSegment}/${slug}`;
+
     paths.push({
-      params: { lang, route: `${routeSegment}/${slug}` },
+      params: { lang, route },
       props: {
         contentType,
         pageType: "detail",

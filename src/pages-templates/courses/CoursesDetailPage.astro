@@ -37,6 +37,7 @@ interface Props {
   }>;
   currentPage: number;
   totalPages: number;
+  totalItems: number; // Total items across all pages
   contact: ContactItem[];
   hasTargetContent: boolean;
   coursesWithCounts: Array<{
@@ -51,6 +52,7 @@ const {
   content,
   currentPage,
   totalPages,
+  totalItems,
   contact,
   hasTargetContent,
   coursesWithCounts,
@@ -60,10 +62,9 @@ const pageTitle = `${t(lang, "pages.course")}: ${course.data.name}`;
 const basePath = buildCourseUrl(lang, course.data.course_slug);
 
 // SEO description
-const translationKey =
-  content.length === 1 ? "taxonomy.course.tutorialCount_one" : "taxonomy.course.tutorialCount_other";
+const translationKey = totalItems === 1 ? "taxonomy.course.tutorialCount_one" : "taxonomy.course.tutorialCount_other";
 const description = t(lang, translationKey)
-  .replace("{{count}}", content.length.toString())
+  .replace("{{count}}", totalItems.toString())
   .replace("{{name}}", course.data.name);
 
 // Build breadcrumbs

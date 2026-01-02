@@ -22,11 +22,11 @@ export const booksSchema = z.object({
   // Relationships (using strings for now, will be references later)
   author: z.string(), // reference to authors collection
   publisher: z.string().optional(), // reference to publishers collection
-  genres: z.array(z.string()).default([]), // references to genres collection
+  genres: z.array(z.string().min(1)).default([]), // references to genres collection
   series: z.string().nullable().optional(), // reference to series collection
   series_order: z.number().positive().optional(), // Order within the series (Book 1, 2, 3...)
-  challenges: z.array(z.string()).default([]), // references to challenges collection
-  categories: z.array(z.string()).default([]), // references to categories collection
+  challenges: z.array(z.string().min(1)).default([]), // references to challenges collection
+  categories: z.array(z.string().min(1)).default([]), // references to categories collection
 
   // External links
   buy: z
@@ -58,7 +58,7 @@ export const postsSchema = z.object({
   language: z.enum(["es", "en"]),
 
   // Post-specific metadata
-  category: z.string().min(1), // reference to categories collection
+  categories: z.array(z.string().min(1)).min(1), // references to categories collection (now array like books)
   draft: z.boolean().default(false),
 
   // Optional metadata
@@ -85,7 +85,7 @@ export const tutorialsSchema = z.object({
   language: z.enum(["es", "en"]),
 
   // Tutorial-specific metadata
-  category: z.string().min(1), // reference to categories collection
+  categories: z.array(z.string().min(1)).min(1), // references to categories collection (now array like books)
   draft: z.boolean().default(false),
   difficulty: z.enum(["beginner", "intermediate", "advanced"]).optional(),
   estimated_time: z.number().positive().optional(), // Time in minutes
