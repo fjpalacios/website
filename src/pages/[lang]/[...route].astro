@@ -14,224 +14,36 @@
  * This replaces 52 duplicate page files with 1 unified router + 25 templates.
  *
  * Architecture:
- * - Route generation extracted to modular generators in @/utils/routeGenerators/
+ * - Route generation orchestrated by @/utils/routing/pathGeneration
+ * - Modular generators in @/utils/routeGenerators/
  * - Template selection via config-driven mapping in @/config/templateMap
  * - Content type configuration centralized in @/config/routeConfig
  * - Build-time caching for performance in @/utils/cache/
  *
+ * @see src/utils/routing/pathGeneration.ts - Path generation orchestrator
  * @see src/utils/routeGenerators/ - Modular route generators
  * @see src/config/templateMap.ts - Template selection configuration
  * @see src/config/routeConfig.ts - Content type configuration
  */
 
-import type { GetStaticPaths } from "astro";
-
-// Configuration
-import { CONTENT_TYPE_CONFIGS, TAXONOMY_TYPES } from "@/config/routeConfig";
-import { getRouteSegment } from "@/config/routeSegments";
+// Template mapping
 import { getTemplate } from "@/config/templateMap";
-// Contact data
-// Utilities
-import { logCacheStats } from "@/utils/cache/buildCache";
-import { getContact } from "@/utils/content/contact";
-import { routingLogger } from "@/utils/logger";
-import { performanceMonitor } from "@/utils/performance/monitor";
-import {
-  generateContentTypeWithPaginationRoutes,
-  generateTaxonomyRoutes,
-  generateStaticPageRoute,
-  generatePostsRoutes,
-} from "@/utils/routeGenerators";
-import { getLanguages } from "@/utils/routes";
-import { TAXONOMY_CONFIGS } from "@/utils/taxonomyPages";
+// Path generation
+import { generateAllPaths } from "@/utils/routing/pathGeneration";
 
 /**
- * Generates all static paths for the unified dynamic router
+ * Static path generation
  *
- * This function is the heart of the routing system. It generates all page paths
- * for both languages (ES/EN) including:
- * - Content with pagination (Books, Tutorials, Posts)
- * - Taxonomies (Authors, Publishers, Genres, etc.)
- * - Static pages (About, Feeds)
+ * Delegates to the centralized path generation orchestrator which handles:
+ * - Parallel generation of content types and taxonomies
+ * - Sequential generation of posts (mixed content)
+ * - Static pages (about, feeds)
+ * - Performance monitoring and caching
+ * - Error handling and logging
  *
- * Performance optimizations:
- * - Parallel generation of independent content types
- * - Build-time caching to avoid duplicate queries
- * - Performance monitoring to track generation time
- * - Configuration-driven approach eliminates code duplication
- *
- * @returns Array of static paths with params and props for each page
+ * @see src/utils/routing/pathGeneration.ts
  */
-export const getStaticPaths: GetStaticPaths = async () => {
-  performanceMonitor.start("total-route-generation");
-
-  const languages = getLanguages();
-  const paths: { params: { lang: string; route: string }; props: Record<string, unknown> }[] = [];
-
-  /**
-   * Helper function to safely generate routes with error handling
-   * @param generator Function that generates routes
-   * @param context Description of what's being generated (for error messages)
-   * @returns Array of generated paths, or empty array if generation fails
-   */
-  const safeGenerateRoutes = async (
-    generator: () => Promise<Array<{ params: { lang: string; route: string }; props: Record<string, unknown> }>>,
-    context: string,
-  ): Promise<Array<{ params: { lang: string; route: string }; props: Record<string, unknown> }>> => {
-    try {
-      return await generator();
-    } catch (error) {
-      routingLogger.error(`Error generating routes for ${context}:`, error);
-      // Return empty array to allow build to continue with other routes
-      // This prevents a single content type error from breaking the entire build
-      return [];
-    }
-  };
-
-  // =================================================================
-  // LANGUAGE-SPECIFIC ROUTE GENERATION
-  // =================================================================
-  // Process each language independently (ES and EN)
-  // Each iteration generates all routes for one language
-
-  for (const lang of languages) {
-    performanceMonitor.start(`routes-${lang}`);
-
-    // Load contact data for current language
-    const contact = getContact(lang);
-    // Determine target language for translation availability checks
-    const targetLang = lang === "en" ? "es" : "en";
-
-    // =================================================================
-    // PARALLEL ROUTE GENERATION - Phase 5.2 Optimization
-    // =================================================================
-    // Generate independent content types in parallel for better performance
-    // Books, Tutorials, and Taxonomies can be generated simultaneously
-
-    performanceMonitor.start(`parallel-generation-${lang}`);
-
-    // Build parallel generators for all content types
-    const parallelGenerators = [
-      // Generate routes for all configured content types (books, tutorials)
-      ...Object.values(CONTENT_TYPE_CONFIGS).map((config) =>
-        safeGenerateRoutes(
-          async () =>
-            generateContentTypeWithPaginationRoutes({
-              lang,
-              targetLang,
-              routeSegment: getRouteSegment(config.routeKey, lang),
-              pageSegment: getRouteSegment("page", lang),
-              contentType: config.contentType,
-              getAllItems: config.getAllItems,
-              itemsPerPage: config.itemsPerPage,
-              generateDetailPaths: config.generateDetailPaths,
-              contact,
-              schemaType: config.schemaType,
-              extractItemData: config.extractItemData,
-            }),
-          `${config.contentType} (${lang})`,
-        ),
-      ),
-
-      // Generate routes for all taxonomies
-      ...TAXONOMY_TYPES.map((taxonomyType) =>
-        safeGenerateRoutes(
-          async () =>
-            generateTaxonomyRoutes({
-              taxonomyConfig: TAXONOMY_CONFIGS[taxonomyType],
-              lang,
-              targetLang,
-              routeSegment: getRouteSegment(taxonomyType, lang),
-              contentType: taxonomyType,
-              contact,
-              itemsPropsKey: `${taxonomyType}WithCounts` as const,
-            }),
-          `${taxonomyType} (${lang})`,
-        ),
-      ),
-    ];
-
-    // Execute all generators in parallel
-    const allRoutes = await Promise.all(parallelGenerators);
-    performanceMonitor.end(`parallel-generation-${lang}`);
-
-    // Flatten and add all generated routes
-    paths.push(...allRoutes.flat());
-
-    // =================================================================
-    // POSTS - Special case (mixed content: posts + tutorials + books)
-    // Uses dedicated generator due to complex schema mapping
-    // =================================================================
-    performanceMonitor.start(`posts-${lang}`);
-    try {
-      const postsRoutes = await safeGenerateRoutes(
-        async () =>
-          generatePostsRoutes({
-            lang,
-            targetLang,
-            contact,
-          }),
-        `posts (${lang})`,
-      );
-      paths.push(...postsRoutes);
-    } catch (error) {
-      routingLogger.error(`Error generating routes for posts (${lang}):`, error);
-    }
-    performanceMonitor.end(`posts-${lang}`);
-
-    // =================================================================
-    // STATIC PAGES - About and Feeds
-    // =================================================================
-    performanceMonitor.start(`static-${lang}`);
-
-    // ABOUT PAGE
-    try {
-      const aboutContent =
-        lang === "en"
-          ? await import("@content/en/about.ts").then((mod) => mod.about)
-          : await import("@content/es/about.ts").then((mod) => mod.about);
-
-      paths.push(
-        ...generateStaticPageRoute({
-          lang,
-          routeSegment: getRouteSegment("about", lang),
-          contentType: "about",
-          contact,
-          content: aboutContent,
-        }),
-      );
-    } catch (error) {
-      routingLogger.error(`Error generating routes for about (${lang}):`, error);
-    }
-
-    // FEEDS PAGE
-    try {
-      paths.push(
-        ...generateStaticPageRoute({
-          lang,
-          routeSegment: getRouteSegment("feeds", lang),
-          contentType: "feeds",
-          contact,
-        }),
-      );
-    } catch (error) {
-      routingLogger.error(`Error generating routes for feeds (${lang}):`, error);
-    }
-
-    performanceMonitor.end(`static-${lang}`);
-    performanceMonitor.end(`routes-${lang}`);
-  }
-
-  performanceMonitor.end("total-route-generation");
-
-  routingLogger.info(`Generated ${paths.length} paths (all content types + taxonomies + static pages)`);
-
-  // Log performance and cache statistics
-  performanceMonitor.printSummary();
-  logCacheStats();
-
-  return paths;
-};
+export const getStaticPaths = generateAllPaths;
 
 // =================================================================
 // DYNAMIC TEMPLATE SELECTION

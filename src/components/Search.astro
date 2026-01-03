@@ -45,9 +45,17 @@ const { lang } = Astro.props;
   @use "../styles/components/search";
 </style>
 
-<script is:inline define:vars={{ searchInputFocusDelay: TIMINGS.SEARCH_INPUT_FOCUS_MS }}>
+<!-- Inject config variables -->
+<script
+  is:inline
+  set:html={`window.__SEARCH_CONFIG__ = ${JSON.stringify({ searchInputFocusDelay: TIMINGS.SEARCH_INPUT_FOCUS_MS })};`}
+/>
+
+<!-- Main search modal script -->
+<script>
   // This script runs on every page load (including view transitions)
   (function () {
+    const searchInputFocusDelay = window.__SEARCH_CONFIG__?.searchInputFocusDelay || 300;
     let pagefindUI = null;
     let pagefindCSSLoaded = false;
 

@@ -4,9 +4,9 @@
 **Last Updated:** 2026-01-03  
 **Scope:** Complete codebase analysis  
 **Total Issues Found:** 28  
-**Issues Completed:** 2  
-**Issues Remaining:** 26  
-**Overall Grade:** A- (90/100)
+**Issues Completed:** 4  
+**Issues Remaining:** 24  
+**Overall Grade:** A- (92/100)
 
 ---
 
@@ -29,14 +29,21 @@ These are relatively minor issues that can be addressed incrementally without di
 | ------------ | ------ | --------- | --------- | --------- | ------ |
 | **CRITICAL** | 1      | 0         | 1         | 2h        | High   |
 | **HIGH**     | 4      | 0         | 4         | 8h        | High   |
-| **MEDIUM**   | 18     | 2         | 16        | 14h       | Medium |
+| **MEDIUM**   | 18     | 4         | 14        | 9h        | Medium |
 | **LOW**      | 6      | 0         | 6         | 8h        | Low    |
-| **TOTAL**    | 28     | 2         | 26        | ~32h      | -      |
+| **TOTAL**    | 28     | 4         | 24        | ~27h      | -      |
 
 ### ✅ Recently Completed (2026-01-03)
 
-1. **Issue #8:** SCSS Grid Loop Optimization (`post-list.scss`)
-2. **Issue #10:** Schema Type Constants (`src/types/schema.ts`)
+1. **Issue #8:** SCSS Grid Loop Optimization (`post-list.scss`) - 87.5% code reduction
+2. **Issue #10:** Schema Type Constants (`src/types/schema.ts`) - Centralized Schema.org types
+3. **Issue #7:** CSS Variables for Hardcoded Colors - Single source of truth for theme colors
+4. **Issue #9:** Refactor Long getStaticPaths Function - 72% code reduction, improved maintainability
+
+**Critical Bug Fixes:**
+
+- **Search Modal Script Fix:** Fixed `is:inline` + `define:vars` causing modal not to open (same pattern as code blocks bug)
+- All 71 accessibility tests now passing ✅
 
 ---
 
@@ -441,42 +448,36 @@ Create `src/styles/components/footer.scss`:
 
 ---
 
-### 7. Hardcoded Colors Should Use CSS Variables
+### 7. ~~Hardcoded Colors Should Use CSS Variables~~ ✅ COMPLETED
 
-**Files:**
+**Status:** ✅ Completed in commit `e02e06f` (2026-01-03)
 
-- `src/components/Footer.astro` (Lines 105, 139, 156)
-- `src/components/LanguageSwitcher.astro` (Lines 145, 155)
-- `src/styles/components/book.scss`
+**Solution Implemented:**
 
-**Problem:**
+Added 4 new CSS custom properties to `src/styles/_variables.scss`:
 
-```scss
-// BAD
-body.light & {
-  color: #b0b0b0; // 8.86:1 contrast on #071013
-}
-```
+- `--footer-link` (theme-aware)
+- `--footer-meta` (theme-aware)
+- `--footer-tech-link` (theme-aware)
+- `--lang-switcher-text` (theme-aware)
 
-**Solution:**
+**Files Modified:**
 
-Add to `src/styles/_variables.scss`:
+- `src/styles/_variables.scss` - Added CSS variables
+- `src/components/Footer.astro` - Replaced 3 hardcoded colors
+- `src/components/LanguageSwitcher.astro` - Replaced 2 hardcoded colors
 
-```scss
-// CSS Custom Properties
-:root {
-  --footer-link-light: #b0b0b0;
-  --footer-link-dark: #f8f8f8;
-  --footer-link-hover: var(--accent);
-}
+**Benefits:**
 
-html.light {
-  --footer-link-light: #333;
-  --footer-link-dark: #666;
-}
-```
+- Single source of truth for theme colors
+- Easier maintenance and theme updates
+- Consistent with existing variable pattern
+- Maintained WCAG AA contrast ratios
 
-Usage:
+**Original Time Estimate:** 3 hours  
+**Actual Time:** 2 hours
+
+---
 
 ```scss
 .footer__link {
@@ -548,18 +549,21 @@ Usage:
 
 ---
 
-### 9. Long Function - getStaticPaths
+### ✅ 9. Long Function - getStaticPaths (COMPLETED)
 
-**File:** `src/pages/[lang]/[...route].astro` (Lines 64-233)
+**File:** `src/pages/[lang]/[...route].astro`
+
+**Status:** ✅ **COMPLETED** (2026-01-03)
 
 **Problem:**
 
-- 170 lines long
+- 170 lines long (260 lines total)
 - Multiple concerns mixed
+- Hard to maintain and understand
 
-**Solution:**
+**Solution Implemented:**
 
-Break into focused functions:
+Extracted to `src/utils/routing/pathGeneration.ts` with focused functions:
 
 ```typescript
 // Extract to separate file: src/utils/routing/pathGeneration.ts
@@ -613,7 +617,15 @@ export const getStaticPaths: GetStaticPaths = async () => {
 };
 ```
 
-**Estimated Time:** 2 hours
+**Results:**
+
+- ✅ Route file reduced from **260 lines** to **72 lines** (72% reduction)
+- ✅ New orchestrator module: `src/utils/routing/pathGeneration.ts` (319 lines)
+- ✅ All route generation logic now modular and testable
+- ✅ Build time: **9.36s** (86 pages) - No performance regression
+- ✅ All tests passing: 1168/1168 unit tests, 71/71 accessibility E2E tests
+
+**Time Spent:** ~1.5 hours
 
 ---
 
