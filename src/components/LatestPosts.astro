@@ -20,6 +20,7 @@
 
 import Icon from "@components/Icon.astro";
 import Title from "@components/Title.astro";
+import "@styles/components/latest-posts.scss";
 import { t } from "@locales";
 import type { PostSummary } from "@utils/blog";
 import { getLatestPosts } from "@utils/content/getLatestPosts";
@@ -104,20 +105,3 @@ const allPostsUrl = buildIndexUrl("posts", lang);
     </main>
   )
 }
-
-<style lang="scss">
-  .latest-posts {
-    &__list {
-      &__post {
-        &__title {
-          display: flex;
-          align-items: center;
-
-          &__badge {
-            margin-right: 0.75rem;
-          }
-        }
-      }
-    }
-  }
-</style>

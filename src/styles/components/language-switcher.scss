@@ -1,0 +1,82 @@
+/**
+ * LanguageSwitcher Component Styles
+ * 
+ * Toggle button for switching between Spanish and English.
+ * Uses BEM methodology.
+ * 
+ * Features:
+ * - Matches theme-switcher and search-button design
+ * - WCAG AAA touch targets (44x44px) on mobile
+ * - Compact design on desktop
+ * - Scale hover effect
+ * - Disabled state support
+ * - Explicit colors for WCAG AA compliance
+ * 
+ * @component language-switcher
+ */
+
+@use "../mixins" as *;
+
+.language-switcher {
+  // Match theme-switcher and search-button exactly
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  background: transparent;
+  border: none;
+  font-family: inherit;
+  font-size: inherit;
+  line-height: inherit;
+  color: inherit;
+  transition: transform 0.2s ease;
+  // Mobile: Large touch targets (WCAG 2.1 Level AAA: 44x44px)
+  min-width: 44px;
+  min-height: 44px;
+  padding: 10px;
+
+  // Desktop: More compact
+  @include small-and-up {
+    min-width: auto;
+    min-height: auto;
+    padding: 4px; // Match theme-switcher and search-button
+  }
+
+  &:hover:not(:disabled) {
+    transform: scale(1.15); // Match theme-switcher and search-button
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+    border-radius: 4px;
+  }
+
+  &:disabled {
+    cursor: not-allowed;
+    opacity: 0.6; // Applied to entire button for consistency
+  }
+
+  // Text display (like __icon in theme/search)
+  &__text {
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    line-height: 1;
+    user-select: none;
+    display: block;
+    // Explicit colors for WCAG AA compliance
+    color: var(--lang-switcher-text);
+
+    @include small-and-up {
+      font-size: 14px;
+    }
+  }
+
+  // Light theme override
+  :global(body.light) & {
+    &__text {
+      color: var(--lang-switcher-text);
+    }
+  }
+}
