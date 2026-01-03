@@ -10,6 +10,7 @@
  * @see docs/ROUTE_MAPPING.md
  */
 
+import { PAGINATION_CONFIG } from "@/config/pagination";
 import { routingLogger } from "@/utils/logger";
 import type { Language } from "@/utils/routes";
 
@@ -144,7 +145,7 @@ export const CONTENT_TYPES: Record<string, ContentTypeConfig> = {
     features: {
       hasPagination: true,
       hasRSS: true,
-      itemsPerPage: 12,
+      itemsPerPage: PAGINATION_CONFIG.books,
       showRelated: true,
       searchable: true,
     },
@@ -176,7 +177,7 @@ export const CONTENT_TYPES: Record<string, ContentTypeConfig> = {
     features: {
       hasPagination: true,
       hasRSS: true,
-      itemsPerPage: 12,
+      itemsPerPage: PAGINATION_CONFIG.tutorials,
       showRelated: true,
       searchable: true,
     },
@@ -207,7 +208,7 @@ export const CONTENT_TYPES: Record<string, ContentTypeConfig> = {
     features: {
       hasPagination: true,
       hasRSS: false,
-      itemsPerPage: 12,
+      itemsPerPage: PAGINATION_CONFIG.posts,
       showRelated: true,
       searchable: true,
     },
