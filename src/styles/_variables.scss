@@ -45,6 +45,12 @@ $gray-medium: var(--gray-medium);
 $gray-dark: var(--gray-dark);
 $gray-darker: var(--gray-darker);
 
+// Component-specific colors (theme-aware)
+$footer-link: var(--footer-link);
+$footer-meta: var(--footer-meta);
+$footer-tech-link: var(--footer-tech-link);
+$lang-switcher-text: var(--lang-switcher-text);
+
 // Responsive breakpoint variables
 // Mobile-first approach
 $breakpoint-small: 768px; // Tablet and up
@@ -97,6 +103,14 @@ $container-max-width: 1400px; // Maximum width for main content container
   --gray-medium: #7a7a7a;
   --gray-dark: #636363;
   --gray-darker: #333;
+
+  // Footer colors - Dark theme
+  --footer-link: var(--text); // #f8f8f8
+  --footer-meta: var(--cursive-color); // #c8c8c8
+  --footer-tech-link: var(--text); // #f8f8f8
+
+  // Language switcher colors - Dark theme
+  --lang-switcher-text: #f8f8f8;
 }
 
 // Light theme values
@@ -137,6 +151,14 @@ $container-max-width: 1400px; // Maximum width for main content container
   --gray-medium: #7a7a7a;
   --gray-dark: #6a6a6a;
   --gray-darker: #284b63;
+
+  // Footer colors - Light theme (on dark footer background #071013)
+  --footer-link: #b0b0b0; // 8.86:1 contrast on #071013
+  --footer-meta: #b0b0b0; // 8.86:1 contrast on #071013
+  --footer-tech-link: #d0d0d0; // 12.46:1 contrast on #071013
+
+  // Language switcher colors - Light theme
+  --lang-switcher-text: #284b63;
 }
 
 // Set default dark theme on html element to prevent FOUC
@@ -179,6 +201,14 @@ html {
   --gray-dark: #636363;
   --gray-darker: #333;
 
+  // Footer colors - Dark theme
+  --footer-link: var(--text); // #f8f8f8
+  --footer-meta: var(--cursive-color); // #c8c8c8
+  --footer-tech-link: var(--text); // #f8f8f8
+
+  // Language switcher colors - Dark theme
+  --lang-switcher-text: #f8f8f8;
+
   &.light {
     --accent: #0056b3;
     --background: #fbfef9; // Off-white page background
@@ -216,6 +246,14 @@ html {
     --gray-medium: #7a7a7a;
     --gray-dark: #6a6a6a;
     --gray-darker: #284b63;
+
+    // Footer colors - Light theme (on dark footer background #071013)
+    --footer-link: #b0b0b0; // 8.86:1 contrast on #071013
+    --footer-meta: #b0b0b0; // 8.86:1 contrast on #071013
+    --footer-tech-link: #d0d0d0; // 12.46:1 contrast on #071013
+
+    // Language switcher colors - Light theme
+    --lang-switcher-text: #284b63;
   }
 }
 

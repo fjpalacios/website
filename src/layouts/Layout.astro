@@ -176,17 +176,18 @@ const baseUrl = t(lang, "metaData.url");
     <Search lang={lang} />
     <script
       is:inline
-      define:vars={{
-        copyText: t(lang, "codeBlock.copy"),
-        copiedText: t(lang, "codeBlock.copied"),
-        copyFeedbackMs: TIMINGS.CODE_COPY_FEEDBACK_MS,
-      }}
-    >
+      set:html={`
       // Store translations and timings in global scope
-      window.__CODE_BLOCK_I18N__ = { copyText, copiedText };
-      window.__CODE_BLOCK_TIMINGS__ = { copyFeedbackMs };
-    </script>
-    <script is:inline>
+      window.__CODE_BLOCK_I18N__ = { 
+        copyText: ${JSON.stringify(t(lang, "codeBlock.copy"))}, 
+        copiedText: ${JSON.stringify(t(lang, "codeBlock.copied"))} 
+      };
+      window.__CODE_BLOCK_TIMINGS__ = { 
+        copyFeedbackMs: ${TIMINGS.CODE_COPY_FEEDBACK_MS} 
+      };
+    `}
+    />
+    <script>
       // Add copy buttons and language labels to Prism code blocks
       (function () {
         function setupCodeBlocks() {

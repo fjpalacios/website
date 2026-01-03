@@ -142,7 +142,7 @@ const flagLabel = t(lang, targetLang === "es" ? "menu.toSpanish" : "menu.toEngli
       user-select: none;
       display: block;
       // Explicit colors for WCAG AA compliance
-      color: #f8f8f8;
+      color: var(--lang-switcher-text);
 
       @include small-and-up {
         font-size: 14px;
@@ -152,7 +152,7 @@ const flagLabel = t(lang, targetLang === "es" ? "menu.toSpanish" : "menu.toEngli
     // Light theme override
     :global(body.light) & {
       &__text {
-        color: #284b63;
+        color: var(--lang-switcher-text);
       }
     }
   }

@@ -102,7 +102,7 @@ const itemsWithUrls = footerItems.map((item) => ({
 
       // Light theme needs lighter colors on dark footer background
       :global(body.light) & {
-        color: #b0b0b0; // 8.86:1 contrast on #071013
+        color: var(--footer-link);
       }
 
       &:hover,
@@ -136,7 +136,7 @@ const itemsWithUrls = footerItems.map((item) => ({
 
       // Light theme needs lighter colors on dark footer background
       :global(body.light) & {
-        color: #b0b0b0; // 8.86:1 contrast on #071013
+        color: var(--footer-meta);
         opacity: 1;
       }
     }
@@ -153,7 +153,7 @@ const itemsWithUrls = footerItems.map((item) => ({
 
       // Light theme needs lighter colors on dark footer background
       :global(body.light) & {
-        color: #d0d0d0; // 12.46:1 contrast on #071013
+        color: var(--footer-tech-link);
       }
 
       &:hover,
