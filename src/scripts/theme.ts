@@ -61,6 +61,11 @@ export function switchTheme(): void {
 }
 
 export function initTheme(): void {
+  // Guard: ensure we're in a browser environment
+  if (typeof document === "undefined" || !document.body) {
+    return;
+  }
+
   const theme = getSavedTheme();
 
   // Check if theme class is explicitly set on body
