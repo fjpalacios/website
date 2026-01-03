@@ -104,18 +104,22 @@ describe("Rating Component", () => {
     expect(content).toContain("showText");
   });
 
-  it("should have SCSS styles", () => {
+  it("should import external SCSS file", () => {
     const content = fs.readFileSync(componentPath, "utf-8");
 
-    // Check for style tag with lang="scss"
-    expect(content).toContain('<style lang="scss">');
+    // Check for SCSS import
+    expect(content).toContain('import "@styles/components/rating.scss"');
   });
 
-  it("should use CSS custom properties for theming", () => {
-    const content = fs.readFileSync(componentPath, "utf-8");
+  it("should have external SCSS file with CSS custom properties", () => {
+    const scssPath = path.resolve(__dirname, "../../styles/components/rating.scss");
 
-    // Check for CSS variables
-    expect(content).toContain("var(--");
+    // Check SCSS file exists
+    expect(fs.existsSync(scssPath)).toBe(true);
+
+    // Check for CSS variables in SCSS file
+    const scssContent = fs.readFileSync(scssPath, "utf-8");
+    expect(scssContent).toContain("var(--");
   });
 
   it("should differentiate filled vs empty icons", () => {

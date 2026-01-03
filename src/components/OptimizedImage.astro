@@ -36,6 +36,7 @@
 
 import type { ImageMetadata } from "astro";
 import { Image } from "astro:assets";
+import "@styles/components/optimized-image.scss";
 
 interface Props {
   /**
@@ -155,11 +156,3 @@ if (!isImportedImage && (!width || !height)) {
   densities={densities}
   sizes={sizes}
 />
-
-<style>
-  /* Ensure images are responsive by default */
-  img {
-    max-width: 100%;
-    height: auto;
-  }
-</style>

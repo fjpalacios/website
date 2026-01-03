@@ -16,9 +16,12 @@
     min-height: 20px;
   }
 
+  h1,
   h2 {
     font-size: 1.17em;
     margin: 0.5em 0;
+    display: flex;
+    align-items: center;
 
     @include medium-and-up {
       font-weight: 100;
@@ -27,5 +30,9 @@
 
   &__icon {
     margin-right: 0.6rem;
+  }
+
+  &__pagefind-meta {
+    display: none;
   }
 }

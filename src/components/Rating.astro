@@ -13,6 +13,7 @@
  */
 
 import Icon from "@components/Icon.astro";
+import "@styles/components/rating.scss";
 
 interface Props {
   score: number | "fav";
@@ -54,37 +55,3 @@ const scoreText = isFavorite ? (lang === "en" ? "Favorite" : "Favorito") : `${nu
   </div>
   {showText && <span class="rating__text">{scoreText}</span>}
 </div>
-
-<style lang="scss">
-  .rating {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.5rem;
-
-    &__stars {
-      display: flex;
-      gap: 0.125rem;
-    }
-
-    &__icon {
-      &--filled {
-        color: var(--accent);
-      }
-
-      &--empty {
-        color: var(--text-light);
-      }
-    }
-
-    &--favorite {
-      .rating__icon--filled {
-        color: var(--primary);
-      }
-    }
-
-    &__text {
-      font-size: 0.875rem;
-      color: var(--text);
-    }
-  }
-</style>

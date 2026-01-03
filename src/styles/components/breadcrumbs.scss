@@ -65,3 +65,8 @@
     margin-bottom: 15px;
   }
 }
+
+// Light theme: override hover color for better contrast on dark breadcrumb background
+body.light .breadcrumbs__link:hover {
+  color: #ffffff !important; // White for maximum contrast
+}
