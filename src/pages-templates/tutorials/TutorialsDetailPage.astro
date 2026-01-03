@@ -22,6 +22,7 @@ import { getCollection, render, type CollectionEntry } from "astro:content";
 
 import type { ContactItem } from "@/types/content";
 import { findCategoriesBySlug } from "@/utils/blog";
+import { getCollectionByLanguage } from "@/utils/content/getCollectionByLanguage";
 
 interface Props {
   lang: "en" | "es";
@@ -34,7 +35,7 @@ const tutorial = tutorialEntry.data;
 const { Content } = await render(tutorialEntry);
 
 // Get categories from taxonomy collection (filtered by language)
-const allCategories = await getCollection("categories", (c) => c.data.language === lang);
+const allCategories = await getCollectionByLanguage("categories", lang);
 const categories = findCategoriesBySlug(allCategories, tutorial.categories);
 
 // Cover image with fallback (returns ImageMetadata for optimization)
@@ -43,7 +44,7 @@ const coverImage = getTutorialCoverImage(tutorial.cover);
 const coverImagePath = tutorial.cover || "/images/defaults/tutorial-default.jpg";
 
 // Get course info if exists (filtered by language)
-const allCourses = tutorial.course ? await getCollection("courses", (c) => c.data.language === lang) : [];
+const allCourses = tutorial.course ? await getCollectionByLanguage("courses", lang) : [];
 const course = tutorial.course ? allCourses.find((c) => c.data.course_slug === tutorial.course) : null;
 
 // Get course navigation (previous/next tutorials) if tutorial has order and belongs to a course

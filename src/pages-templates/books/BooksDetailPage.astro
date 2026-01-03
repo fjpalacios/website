@@ -58,8 +58,6 @@ const { Content } = await render(bookEntry);
 
 // Get related data from props (already loaded in getStaticPaths)
 // We need to reload them here because Astro components can't access arbitrary props
-import { getCollection } from "astro:content";
-
 import {
   findAuthorBySlug,
   findPublisherBySlug,
@@ -68,12 +66,13 @@ import {
   findSeriesBySlug,
 } from "@/utils/blog";
 import { buildBooksIndexUrl, buildSeriesUrl } from "@/utils/routes";
+import { getAllFromCollection, getCollectionByLanguage } from "@/utils/content/getCollectionByLanguage";
 
-const allAuthors = await getCollection("authors");
-const allPublishers = await getCollection("publishers", (p) => p.data.language === lang);
-const allGenres = await getCollection("genres", (g) => g.data.language === lang);
-const allCategories = await getCollection("categories", (c) => c.data.language === lang);
-const allSeries = await getCollection("series", (s) => s.data.language === lang);
+const allAuthors = await getAllFromCollection("authors");
+const allPublishers = await getCollectionByLanguage("publishers", lang);
+const allGenres = await getCollectionByLanguage("genres", lang);
+const allCategories = await getCollectionByLanguage("categories", lang);
+const allSeries = await getCollectionByLanguage("series", lang);
 
 const author = findAuthorBySlug(allAuthors, book.author, lang);
 const publisher = book.publisher ? findPublisherBySlug(allPublishers, book.publisher) : null;

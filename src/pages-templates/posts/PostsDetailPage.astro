@@ -19,10 +19,11 @@ import { t } from "@locales";
 import { getPostCoverImage } from "@utils/imageImports";
 import { IMAGE_DIMENSIONS, RESPONSIVE_SIZES } from "@utils/images";
 import { buildCategoryUrl } from "@utils/routes";
-import { getCollection, render, type CollectionEntry } from "astro:content";
+import { render, type CollectionEntry } from "astro:content";
 
 import type { ContactItem } from "@/types/content";
 import { findCategoriesBySlug } from "@/utils/blog";
+import { getCollectionByLanguage } from "@/utils/content/getCollectionByLanguage";
 
 interface Props {
   lang: "en" | "es";
@@ -35,7 +36,7 @@ const post = postEntry.data;
 const { Content } = await render(postEntry);
 
 // Get categories from taxonomy collection (filtered by language)
-const allCategories = await getCollection("categories", (c) => c.data.language === lang);
+const allCategories = await getCollectionByLanguage("categories", lang);
 const categories = findCategoriesBySlug(allCategories, post.categories);
 
 // Cover image with fallback (returns ImageMetadata for optimization)
