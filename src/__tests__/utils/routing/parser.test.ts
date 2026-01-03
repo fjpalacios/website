@@ -9,6 +9,7 @@ import type { PageType } from "@/config/unified-routing";
 import {
   parseRoute,
   safeParseRoute,
+  validateParsedRoute,
   buildRoute,
   matchRoute,
   getContentTypeRoutes,
@@ -619,5 +620,73 @@ describe("integration: parse and build roundtrip", () => {
     const rebuilt = buildRoute(parsed.lang, parsed.contentTypeId, parsed.pageType);
 
     expect(rebuilt).toBe(original);
+  });
+});
+
+describe("validateParsedRoute()", () => {
+  it("should validate and return correct parsed route", () => {
+    const parsed = parseRoute("en", "books");
+    const validated = validateParsedRoute(parsed);
+
+    expect(validated.lang).toBe("en");
+    expect(validated.contentTypeId).toBe("books");
+    expect(validated.pageType).toBe("list");
+    expect(validated.segments).toEqual(["books"]);
+  });
+
+  it("should validate detail page with slug", () => {
+    const parsed = parseRoute("es", "libros/mi-libro");
+    const validated = validateParsedRoute(parsed);
+
+    expect(validated.lang).toBe("es");
+    expect(validated.contentTypeId).toBe("books");
+    expect(validated.pageType).toBe("detail");
+    expect(validated.slug).toBe("mi-libro");
+  });
+
+  it("should validate pagination page with page number", () => {
+    const parsed = parseRoute("en", "books/page/3");
+    const validated = validateParsedRoute(parsed);
+
+    expect(validated.lang).toBe("en");
+    expect(validated.pageType).toBe("pagination");
+    expect(validated.pageNumber).toBe(3);
+  });
+
+  it("should throw error for invalid parsed route", () => {
+    const invalidParsed = {
+      lang: "invalid-lang", // Invalid language
+      contentTypeId: "books",
+      config: {} as never,
+      pageType: "list" as PageType,
+      segments: ["books"],
+    };
+
+    expect(() => validateParsedRoute(invalidParsed as never)).toThrow(/Parsed route validation failed/);
+  });
+
+  it("should throw error with detailed issues", () => {
+    const invalidParsed = {
+      lang: "en",
+      contentTypeId: "books",
+      config: {} as never,
+      pageType: "pagination" as PageType,
+      pageNumber: -1, // Invalid: negative page number
+      segments: ["books", "page", "-1"],
+    };
+
+    expect(() => validateParsedRoute(invalidParsed as never)).toThrow(/pageNumber/);
+  });
+
+  it("should throw error for missing required fields", () => {
+    const invalidParsed = {
+      lang: "en",
+      // Missing contentTypeId
+      config: {} as never,
+      pageType: "list" as PageType,
+      segments: ["books"],
+    };
+
+    expect(() => validateParsedRoute(invalidParsed as never)).toThrow(/validation failed/);
   });
 });

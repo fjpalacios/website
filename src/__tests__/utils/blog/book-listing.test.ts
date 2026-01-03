@@ -79,4 +79,46 @@ describe("prepareBookSummary", () => {
 
     expect(summary.pages).toBe(300);
   });
+
+  it("should return undefined for missing cover", () => {
+    const bookWithoutCover = {
+      ...mockBook,
+      data: {
+        ...mockBook.data,
+        cover: undefined,
+      },
+    } as CollectionEntry<"books">;
+
+    const summary = prepareBookSummary(bookWithoutCover);
+
+    expect(summary.cover).toBeUndefined();
+  });
+
+  it("should preserve absolute URL paths starting with http", () => {
+    const bookWithAbsoluteUrl = {
+      ...mockBook,
+      data: {
+        ...mockBook.data,
+        cover: "https://example.com/image.jpg",
+      },
+    } as CollectionEntry<"books">;
+
+    const summary = prepareBookSummary(bookWithAbsoluteUrl);
+
+    expect(summary.cover).toBe("https://example.com/image.jpg");
+  });
+
+  it("should preserve absolute paths starting with /", () => {
+    const bookWithAbsolutePath = {
+      ...mockBook,
+      data: {
+        ...mockBook.data,
+        cover: "/static/images/book.jpg",
+      },
+    } as CollectionEntry<"books">;
+
+    const summary = prepareBookSummary(bookWithAbsolutePath);
+
+    expect(summary.cover).toBe("/static/images/book.jpg");
+  });
 });

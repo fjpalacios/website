@@ -11,6 +11,7 @@ import {
   findPublisherBySlug,
   findGenresBySlug,
   findCategoriesBySlug,
+  findSeriesBySlug,
 } from "@/utils/blog/books";
 
 // Mock book data for testing
@@ -121,6 +122,28 @@ const mockCategories: CollectionEntry<"categories">[] = [
   },
 ] as CollectionEntry<"categories">[];
 
+// Mock series data
+const mockSeries: CollectionEntry<"series">[] = [
+  {
+    id: "the-dark-tower.json",
+    collection: "series",
+    data: {
+      name: "The Dark Tower",
+      series_slug: "the-dark-tower",
+      language: "en" as const,
+    },
+  },
+  {
+    id: "harry-potter.json",
+    collection: "series",
+    data: {
+      name: "Harry Potter",
+      series_slug: "harry-potter",
+      language: "en" as const,
+    },
+  },
+] as CollectionEntry<"series">[];
+
 describe("findBookBySlug", () => {
   it("should return a book when slug matches", () => {
     const book = findBookBySlug(mockBooks, "apocalipsis-stephen-king");
@@ -204,5 +227,24 @@ describe("findCategoriesBySlug", () => {
     const categories = findCategoriesBySlug(mockCategories, ["book-reviews", "non-existent-category"]);
     expect(categories).toHaveLength(1);
     expect(categories.map((c) => c.data.name)).toContain("Book Reviews");
+  });
+});
+
+describe("findSeriesBySlug", () => {
+  it("should return series when slug matches", () => {
+    const series = findSeriesBySlug(mockSeries, "the-dark-tower");
+    expect(series).toBeDefined();
+    expect(series?.data.name).toBe("The Dark Tower");
+  });
+
+  it("should return undefined when series slug is invalid", () => {
+    const series = findSeriesBySlug(mockSeries, "non-existent-series");
+    expect(series).toBeUndefined();
+  });
+
+  it("should match by series_slug field", () => {
+    const series = findSeriesBySlug(mockSeries, "harry-potter");
+    expect(series).toBeDefined();
+    expect(series?.data.series_slug).toBe("harry-potter");
   });
 });
