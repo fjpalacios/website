@@ -258,7 +258,6 @@ buy:
 genres: [${genres && genres.length > 0 ? genres.map((g) => `"${g}"`).join(", ") : '"ficcion"'}]
 # challenges: ["reto-lectura-2025"]
 categories: [${categories && categories.length > 0 ? categories.map((c) => `"${c}"`).join(", ") : lang === "es" ? '"libros", "resenas"' : '"books", "reviews"'}]
-cover: "/images/defaults/book-default-${lang}.jpg"
 book_cover: "/images/books/${slug}.jpg"
 ---
 
@@ -280,12 +279,7 @@ Describe los personajes principales del libro...
 
 ## Conclusión
 
-Tu conclusión final sobre el libro...
-
----
-
-**Puntuación:** ${score || 3}/5
-`;
+Tu conclusión final sobre el libro...`;
 }
 
 // Parse command line arguments

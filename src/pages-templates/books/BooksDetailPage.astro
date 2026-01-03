@@ -70,10 +70,10 @@ import {
 import { buildBooksIndexUrl, buildSeriesUrl } from "@/utils/routes";
 
 const allAuthors = await getCollection("authors");
-const allPublishers = await getCollection("publishers");
-const allGenres = await getCollection("genres");
-const allCategories = await getCollection("categories");
-const allSeries = await getCollection("series");
+const allPublishers = await getCollection("publishers", (p) => p.data.language === lang);
+const allGenres = await getCollection("genres", (g) => g.data.language === lang);
+const allCategories = await getCollection("categories", (c) => c.data.language === lang);
+const allSeries = await getCollection("series", (s) => s.data.language === lang);
 
 const author = findAuthorBySlug(allAuthors, book.author, lang);
 const publisher = book.publisher ? findPublisherBySlug(allPublishers, book.publisher) : null;
@@ -282,7 +282,9 @@ const genreLabel = lang === "en" ? "Genre" : "Género";
         {
           publisher && (
             <li>
-              <a href={buildPublisherUrl(lang, publisher.data.publisher_slug)}>{publisher.data.name}</a>
+              <a href={buildPublisherUrl(lang, publisher.data.publisher_slug)} title={publisherLabel}>
+                {publisher.data.name}
+              </a>
             </li>
           )
         }

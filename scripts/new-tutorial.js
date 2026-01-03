@@ -173,7 +173,6 @@ language: "${lang}"
 i18n: ""
 ${course ? `course: "${course}"` : '# course: "course-slug" # Optional: link to a course'}
 categories: [${categories && categories.length > 0 ? categories.map((c) => `"${c}"`).join(", ") : '"tutoriales"'}]
-cover: "/images/defaults/tutorial-default-${lang}.jpg"
 ---
 
 ## Introducción

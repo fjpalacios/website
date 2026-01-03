@@ -29,6 +29,7 @@
  * @module routeGenerators/contentTypeWithPagination
  */
 
+import { type SchemaType } from "@/types/schema";
 import { paginateItems, getPageCount } from "@/utils/blog";
 import { getCachedCollection } from "@/utils/cache/cachedLoaders";
 import { generateItemListSchema } from "@/utils/schemas/itemList";
@@ -68,7 +69,7 @@ export interface ContentTypeWithPaginationConfig<T> {
   contact: unknown;
 
   /** Schema.org type for ItemList schema (used for SEO) */
-  schemaType: "Book" | "TechArticle" | "BlogPosting";
+  schemaType: SchemaType;
 
   /** Function to extract necessary data from each item for schema generation */
   extractItemData: (item: T) => { name: string; slug: string; excerpt: string };

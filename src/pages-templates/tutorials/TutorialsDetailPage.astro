@@ -33,8 +33,8 @@ const { lang, tutorialEntry, contact } = Astro.props;
 const tutorial = tutorialEntry.data;
 const { Content } = await render(tutorialEntry);
 
-// Get categories from taxonomy collection
-const allCategories = await getCollection("categories");
+// Get categories from taxonomy collection (filtered by language)
+const allCategories = await getCollection("categories", (c) => c.data.language === lang);
 const categories = findCategoriesBySlug(allCategories, tutorial.categories);
 
 // Cover image with fallback (returns ImageMetadata for optimization)
@@ -42,8 +42,8 @@ const coverImage = getTutorialCoverImage(tutorial.cover);
 // Keep original path for meta tags (Layout expects string)
 const coverImagePath = tutorial.cover || "/images/defaults/tutorial-default.jpg";
 
-// Get course info if exists
-const allCourses = tutorial.course ? await getCollection("courses") : [];
+// Get course info if exists (filtered by language)
+const allCourses = tutorial.course ? await getCollection("courses", (c) => c.data.language === lang) : [];
 const course = tutorial.course ? allCourses.find((c) => c.data.course_slug === tutorial.course) : null;
 
 // Get course navigation (previous/next tutorials) if tutorial has order and belongs to a course
@@ -94,6 +94,7 @@ const twitterUsername = t(lang, "metaData.twitterUsername");
 
 // Build JSON-LD schema for tutorial article
 const categoryLabel = lang === "en" ? "Category" : "Categoría";
+const courseLabel = lang === "en" ? "Course" : "Curso";
 const tutorialSchema: Record<string, unknown> = {
   "@context": "https://schema.org",
   "@type": "TechArticle",
@@ -163,7 +164,7 @@ if (course) {
           <Icon name="graduation-cap" size="md" class="tutorial__info__icon" />
           <ul class="tutorial__info__text">
             <li>
-              <a href={buildCourseUrl(lang, course.data.course_slug)} title="Course">
+              <a href={buildCourseUrl(lang, course.data.course_slug)} title={courseLabel}>
                 {course.data.name}
               </a>
             </li>

@@ -34,8 +34,8 @@ const { lang, postEntry, contact } = Astro.props;
 const post = postEntry.data;
 const { Content } = await render(postEntry);
 
-// Get categories from taxonomy collection
-const allCategories = await getCollection("categories");
+// Get categories from taxonomy collection (filtered by language)
+const allCategories = await getCollection("categories", (c) => c.data.language === lang);
 const categories = findCategoriesBySlug(allCategories, post.categories);
 
 // Cover image with fallback (returns ImageMetadata for optimization)

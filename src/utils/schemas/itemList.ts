@@ -6,10 +6,12 @@
  * @see https://developers.google.com/search/docs/appearance/structured-data/carousel
  */
 
+import type { SchemaType } from "@/types/schema";
+
 interface ItemListItem {
   name: string;
   url: string;
-  type?: "Book" | "BlogPosting" | "TechArticle" | "Thing";
+  type?: SchemaType | "Thing";
   description?: string;
 }
 

@@ -148,7 +148,6 @@ excerpt: "${excerpt || "Breve resumen del post..."}"
 language: "${lang}"
 i18n: ""
 categories: [${categories && categories.length > 0 ? categories.map((c) => `"${c}"`).join(", ") : '"publicaciones"'}]
-cover: "/images/defaults/post-default-${lang}.jpg"
 ---
 
 import BookLink from "@components/blog/BookLink.astro";

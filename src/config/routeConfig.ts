@@ -13,8 +13,8 @@
  * @module config/routeConfig
  */
 
+import { SCHEMA_TYPES, type SchemaType } from "@/types/schema";
 import { getAllBooksForLanguage, BOOKS_PER_PAGE, generateBookDetailPaths } from "@/utils/booksPages";
-import type { SchemaType } from "@/utils/schemas/itemList";
 import { getAllTutorialsForLanguage, TUTORIALS_PER_PAGE, generateTutorialDetailPaths } from "@/utils/tutorialsPages";
 
 /**
@@ -73,7 +73,7 @@ export const CONTENT_TYPE_CONFIGS: Record<string, ContentTypeConfig> = {
     getAllItems: getAllBooksForLanguage,
     itemsPerPage: BOOKS_PER_PAGE,
     generateDetailPaths: generateBookDetailPaths,
-    schemaType: "Book",
+    schemaType: SCHEMA_TYPES.BOOK,
     extractItemData: (book) => ({
       name: book.title || "",
       slug: book.slug,
@@ -86,7 +86,7 @@ export const CONTENT_TYPE_CONFIGS: Record<string, ContentTypeConfig> = {
     getAllItems: getAllTutorialsForLanguage,
     itemsPerPage: TUTORIALS_PER_PAGE,
     generateDetailPaths: generateTutorialDetailPaths,
-    schemaType: "TechArticle",
+    schemaType: SCHEMA_TYPES.TECH_ARTICLE,
     extractItemData: (tutorial) => ({
       name: tutorial.title || "",
       slug: tutorial.slug,

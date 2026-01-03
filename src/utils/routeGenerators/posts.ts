@@ -25,6 +25,7 @@
  */
 
 import { getRouteSegment } from "@/config/routeSegments";
+import { SCHEMA_TYPES } from "@/types/schema";
 import { paginateItems, getPageCount } from "@/utils/blog";
 import { getCachedCollection } from "@/utils/cache/cachedLoaders";
 import { getAllContentForLanguage, POSTS_PER_PAGE, generatePostDetailPaths } from "@/utils/postsPages";
@@ -36,15 +37,15 @@ import { generateItemListSchema } from "@/utils/schemas/itemList";
  */
 const CONTENT_TYPE_MAPPING = {
   book: {
-    schemaType: "Book" as const,
+    schemaType: SCHEMA_TYPES.BOOK,
     routeKey: "books" as const,
   },
   tutorial: {
-    schemaType: "TechArticle" as const,
+    schemaType: SCHEMA_TYPES.TECH_ARTICLE,
     routeKey: "tutorials" as const,
   },
   post: {
-    schemaType: "BlogPosting" as const,
+    schemaType: SCHEMA_TYPES.BLOG_POSTING,
     routeKey: "posts" as const,
   },
 } as const;

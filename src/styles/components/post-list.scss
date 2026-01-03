@@ -43,46 +43,13 @@
         .text-area {
           min-height: 65px;
         }
-      }
 
-      &:nth-child(1) {
-        grid-area: post-1;
-      }
-
-      &:nth-child(2) {
-        grid-area: post-2;
-      }
-
-      &:nth-child(3) {
-        grid-area: post-3;
-      }
-
-      &:nth-child(4) {
-        grid-area: post-4;
-      }
-
-      &:nth-child(5) {
-        grid-area: post-5;
-      }
-
-      &:nth-child(6) {
-        grid-area: post-6;
-      }
-
-      &:nth-child(7) {
-        grid-area: post-7;
-      }
-
-      &:nth-child(8) {
-        grid-area: post-8;
-      }
-
-      &:nth-child(9) {
-        grid-area: post-9;
-      }
-
-      &:nth-child(10) {
-        grid-area: post-10;
+        // Generate grid areas dynamically
+        @for $i from 1 through 10 {
+          &:nth-child(#{$i}) {
+            grid-area: post-#{$i};
+          }
+        }
       }
     }
 
