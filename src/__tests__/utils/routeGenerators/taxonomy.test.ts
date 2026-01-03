@@ -7,6 +7,7 @@
 
 import { describe, expect, test, vi } from "vitest";
 
+import { createMockAuthor, createMockContact, createMockTaxonomy } from "@/__tests__/__helpers__";
 import { generateTaxonomyRoutes } from "@/utils/routeGenerators/taxonomy";
 import type { TaxonomyConfig } from "@/utils/taxonomyPages";
 
@@ -22,7 +23,7 @@ import { getTaxonomyItemsWithCount, hasTargetContent, generateTaxonomyDetailPath
 
 describe("generateTaxonomyRoutes", () => {
   // Mock data
-  const mockContact = { name: "Test Contact" };
+  const mockContact = createMockContact({ name: "Test Contact" });
 
   const mockTaxonomyConfig: TaxonomyConfig = {
     collectionName: "authors",
@@ -30,35 +31,9 @@ describe("generateTaxonomyRoutes", () => {
     countRelatedContent: vi.fn(),
   };
 
-  const mockAuthorStephenKing = {
-    id: "stephen-king",
-    slug: "stephen-king",
-    collection: "authors" as const,
-    data: {
-      name: "Stephen King",
-      slug: "stephen-king",
-    },
-  };
-
-  const mockAuthorJKRowling = {
-    id: "jk-rowling",
-    slug: "jk-rowling",
-    collection: "authors" as const,
-    data: {
-      name: "J.K. Rowling",
-      slug: "jk-rowling",
-    },
-  };
-
-  const mockGenreFiction = {
-    id: "fiction",
-    slug: "fiction",
-    collection: "genres" as const,
-    data: {
-      name: "Fiction",
-      slug: "fiction",
-    },
-  };
+  const mockAuthorStephenKing = createMockAuthor("stephen-king", "Stephen King");
+  const mockAuthorJKRowling = createMockAuthor("jk-rowling", "J.K. Rowling");
+  const mockGenreFiction = createMockTaxonomy("genres", "fiction", "Fiction");
 
   // Helper to setup default mocks
   function setupDefaultMocks() {

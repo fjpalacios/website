@@ -12,6 +12,7 @@
 
 import { describe, test, expect, vi, beforeEach } from "vitest";
 
+import { createMockBook, createMockBooks, createMockContact, type MockBook } from "@/__tests__/__helpers__";
 import { buildCache } from "@/utils/cache/buildCache";
 import {
   generateContentTypeWithPaginationRoutes,
@@ -31,31 +32,7 @@ beforeEach(() => {
 // MOCK DATA
 // ============================================================================
 
-interface MockBook {
-  id: string;
-  data: {
-    title: string;
-    post_slug: string;
-    excerpt: string;
-    language: "es" | "en";
-  };
-}
-
-const createMockBook = (id: number, lang: "es" | "en" = "es", i18n?: string): MockBook => ({
-  id: `book-${id}`,
-  data: {
-    title: `Book Title ${id}`,
-    post_slug: `book-slug-${id}`,
-    excerpt: `Excerpt for book ${id}`,
-    language: lang,
-    ...(i18n && { i18n }),
-  },
-});
-
-const mockContact = {
-  name: "Test User",
-  email: "test@example.com",
-};
+const mockContact = createMockContact();
 
 // ============================================================================
 // HELPER: Create Config
@@ -155,7 +132,7 @@ describe("generateContentTypeWithPaginationRoutes - Basic Generation", () => {
   });
 
   test("should generate list page for exactly 10 items (no pagination)", async () => {
-    const mockBooks = Array.from({ length: 10 }, (_, i) => createMockBook(i + 1, "es"));
+    const mockBooks = createMockBooks(10, "es");
 
     const config = createConfig<MockBook>({
       lang: "es",
@@ -188,7 +165,7 @@ describe("generateContentTypeWithPaginationRoutes - Basic Generation", () => {
   });
 
   test("should generate pagination for 11 items (2 pages)", async () => {
-    const mockBooks = Array.from({ length: 11 }, (_, i) => createMockBook(i + 1, "es"));
+    const mockBooks = createMockBooks(11, "es");
 
     const config = createConfig<MockBook>({
       lang: "es",
@@ -235,7 +212,7 @@ describe("generateContentTypeWithPaginationRoutes - Basic Generation", () => {
   });
 
   test("should generate multiple pagination pages for 25 items (3 pages)", async () => {
-    const mockBooks = Array.from({ length: 25 }, (_, i) => createMockBook(i + 1, "es"));
+    const mockBooks = createMockBooks(25, "es");
 
     const config = createConfig<MockBook>({
       lang: "es",
@@ -276,7 +253,7 @@ describe("generateContentTypeWithPaginationRoutes - Basic Generation", () => {
 
 describe("generateContentTypeWithPaginationRoutes - Language Handling", () => {
   test("should generate Spanish routes with correct segments", async () => {
-    const mockBooks = Array.from({ length: 3 }, (_, i) => createMockBook(i + 1, "es"));
+    const mockBooks = createMockBooks(3, "es");
 
     const config = createConfig<MockBook>({
       lang: "es",
@@ -307,7 +284,7 @@ describe("generateContentTypeWithPaginationRoutes - Language Handling", () => {
   });
 
   test("should generate English routes with correct segments", async () => {
-    const mockBooks = Array.from({ length: 3 }, (_, i) => createMockBook(i + 1, "en"));
+    const mockBooks = createMockBooks(3, "en");
 
     const config = createConfig<MockBook>({
       lang: "en",
@@ -381,7 +358,7 @@ describe("generateContentTypeWithPaginationRoutes - Language Handling", () => {
 
 describe("generateContentTypeWithPaginationRoutes - Detail Pages", () => {
   test("should generate detail pages with correct routes", async () => {
-    const mockBooks = [createMockBook(1, "es", "the-hobbit"), createMockBook(2, "es", "1984-book")];
+    const mockBooks = [createMockBook(1, "es", { i18n: "the-hobbit" }), createMockBook(2, "es", { i18n: "1984-book" })];
 
     const mockTargetBooks = [{ slug: "the-hobbit" }, { slug: "1984-book" }];
 
@@ -422,7 +399,7 @@ describe("generateContentTypeWithPaginationRoutes - Detail Pages", () => {
   });
 
   test("should merge detail page props correctly", async () => {
-    const mockBook = createMockBook(1, "es", "test-book-en");
+    const mockBook = createMockBook(1, "es", { i18n: "test-book-en" });
 
     const detailProps = {
       bookEntry: mockBook,
@@ -492,7 +469,7 @@ describe("generateContentTypeWithPaginationRoutes - Props Validation", () => {
   });
 
   test("pagination page should have all required props", async () => {
-    const mockBooks = Array.from({ length: 11 }, (_, i) => createMockBook(i + 1, "es"));
+    const mockBooks = createMockBooks(11, "es");
 
     const config = createConfig<MockBook>({
       lang: "es",
@@ -650,7 +627,7 @@ describe("generateContentTypeWithPaginationRoutes - Schema Generation", () => {
 
 describe("generateContentTypeWithPaginationRoutes - Edge Cases", () => {
   test("should handle custom itemsPerPage value", async () => {
-    const mockBooks = Array.from({ length: 7 }, (_, i) => createMockBook(i + 1, "es"));
+    const mockBooks = createMockBooks(7, "es");
 
     const config = createConfig<MockBook>({
       lang: "es",
@@ -672,7 +649,7 @@ describe("generateContentTypeWithPaginationRoutes - Edge Cases", () => {
   });
 
   test("should handle exactly 20 items with itemsPerPage=10 (2 full pages)", async () => {
-    const mockBooks = Array.from({ length: 20 }, (_, i) => createMockBook(i + 1, "es"));
+    const mockBooks = createMockBooks(20, "es");
 
     const config = createConfig<MockBook>({
       lang: "es",
@@ -693,7 +670,7 @@ describe("generateContentTypeWithPaginationRoutes - Edge Cases", () => {
   });
 
   test("should handle 21 items (2 full pages + 1 item on page 3)", async () => {
-    const mockBooks = Array.from({ length: 21 }, (_, i) => createMockBook(i + 1, "es"));
+    const mockBooks = createMockBooks(21, "es");
 
     const config = createConfig<MockBook>({
       lang: "es",
@@ -745,7 +722,7 @@ describe("generateContentTypeWithPaginationRoutes - Edge Cases", () => {
 
   test("should pass contact to all page types", async () => {
     const customContact = { name: "Custom", email: "custom@test.com" };
-    const mockBooks = Array.from({ length: 11 }, (_, i) => createMockBook(i + 1, "es"));
+    const mockBooks = createMockBooks(11, "es");
 
     const config = createConfig<MockBook>({
       lang: "es",
@@ -776,7 +753,7 @@ describe("generateContentTypeWithPaginationRoutes - Edge Cases", () => {
 describe("generateContentTypeWithPaginationRoutes - Integration", () => {
   test("should generate complete route structure for realistic scenario", async () => {
     // Realistic scenario: 35 books, 10 per page = 4 pages
-    const mockBooks = Array.from({ length: 35 }, (_, i) => createMockBook(i + 1, "es"));
+    const mockBooks = createMockBooks(35, "es");
 
     const config = createConfig<MockBook>({
       lang: "es",
