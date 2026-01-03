@@ -1,7 +1,6 @@
 ---
 import { t } from "@locales";
 import { buildDetailPageUrl, buildHomeUrl, buildStaticPageUrl, isHomePage } from "@utils/translation-url";
-import "@styles/components/language-switcher.scss";
 
 interface Props {
   lang: "es" | "en";
@@ -90,3 +89,7 @@ const flagLabel = t(lang, targetLang === "es" ? "menu.toSpanish" : "menu.toEngli
   // Run on initial load and after each View Transition
   document.addEventListener("astro:page-load", setupLanguageSwitcher);
 </script>
+
+<style lang="scss">
+  @use "../styles/components/language-switcher";
+</style>

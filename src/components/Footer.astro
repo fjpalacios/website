@@ -2,7 +2,6 @@
 import { getFooterItems } from "@config/navigation";
 import { t } from "@locales";
 import { buildLocalizedPath } from "@utils/routes";
-import "@styles/components/footer.scss";
 
 interface Props {
   lang: string;
@@ -47,3 +46,7 @@ const itemsWithUrls = footerItems.map((item) => ({
     </div>
   </div>
 </footer>
+
+<style lang="scss">
+  @use "../styles/components/footer";
+</style>
