@@ -1,6 +1,5 @@
 ---
 import { TIMINGS } from "../config/timings";
-import "@styles/components/search.scss";
 
 /**
  * Search component using Pagefind
@@ -41,6 +40,10 @@ const { lang } = Astro.props;
     <div class="search-modal__container" id="search"></div>
   </div>
 </div>
+
+<style lang="scss">
+  @use "../styles/components/search";
+</style>
 
 <!-- Inject config variables -->
 <script
