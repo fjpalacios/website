@@ -105,7 +105,7 @@ function findEntityByName(collectionDir, name, lang, fileExtension = ".json") {
         if (json.name && json.name.toLowerCase() === name.toLowerCase()) {
           return file.replace(".json", "");
         }
-      } catch (e) {
+      } catch {
         // Skip invalid JSON
       }
     } else if (fileExtension === ".mdx") {

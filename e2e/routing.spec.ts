@@ -126,7 +126,7 @@ test.describe("Taxonomy Routes - Authors", () => {
     await page.goto("/es/autores/stephen-king/pagina/2/");
 
     // Page should load successfully (or 404 if no page 2)
-    const response = await page.waitForLoadState("networkidle");
+    await page.waitForLoadState("networkidle");
 
     // If pagination exists, check it
     const hasPagination = await page

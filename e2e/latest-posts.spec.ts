@@ -500,7 +500,6 @@ test.describe("LatestPosts Component", () => {
       await page.goto(SPANISH_HOME);
       await page.waitForLoadState("networkidle");
 
-      const latestPosts = page.locator(".latest-posts");
       const posts = page.locator(".latest-posts__list__post");
       const count = await posts.count();
 
@@ -581,7 +580,6 @@ test.describe("LatestPosts Component", () => {
       await page.goto(SPANISH_HOME);
       await page.waitForLoadState("networkidle");
 
-      const latestPosts = page.locator(".latest-posts");
       const posts = page.locator(".latest-posts__list__post");
       const count = await posts.count();
 

@@ -23,11 +23,8 @@
 
 import type { GetStaticPaths } from "astro";
 
-// Configuration
 import { CONTENT_TYPE_CONFIGS, TAXONOMY_TYPES } from "@/config/routeConfig";
 import { getRouteSegment } from "@/config/routeSegments";
-
-// Utilities
 import { logCacheStats } from "@/utils/cache/buildCache";
 import { getContact } from "@/utils/content/contact";
 import type { ContactItem } from "@/utils/content/contact";

@@ -60,7 +60,7 @@ function getTodayDate() {
 }
 
 // Helper to check if entity exists and get its slug
-function findEntityByName(collectionDir, name, lang) {
+function findEntityByName(collectionDir, name) {
   if (!name) return null;
 
   const contentDir = path.join(process.cwd(), "src", "content", collectionDir);
@@ -93,7 +93,7 @@ function findEntityByName(collectionDir, name, lang) {
       if (json.name && json.name.toLowerCase() === name.toLowerCase()) {
         return file.replace(".json", "");
       }
-    } catch (e) {
+    } catch {
       // Skip invalid JSON
     }
   }

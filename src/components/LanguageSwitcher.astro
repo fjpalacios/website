@@ -69,7 +69,7 @@ const flagLabel = t(lang, targetLang === "es" ? "menu.toSpanish" : "menu.toEngli
     }
 
     // Create new handler
-    const handler = (e) => {
+    const handler = () => {
       const baseUrl = button.getAttribute("data-lang-url");
       const currentSearch = window.location.search;
       const currentHash = window.location.hash;
