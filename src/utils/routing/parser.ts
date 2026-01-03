@@ -17,6 +17,7 @@ import {
   type PageType,
 } from "@/config/unified-routing";
 import { safeValidateParsedRoute, type ValidatedParsedRoute } from "@/config/unified-routing-schema";
+import { RouteParseError } from "@/utils/errors";
 import type { Language } from "@/utils/routes";
 
 import { routingLogger } from "../logger";
@@ -47,20 +48,8 @@ export interface ParsedRoute {
   segments: string[];
 }
 
-/**
- * Parse error
- */
-export class RouteParseError extends Error {
-  constructor(
-    message: string,
-    public readonly lang: string,
-    public readonly path: string,
-    public readonly segments: string[],
-  ) {
-    super(message);
-    this.name = "RouteParseError";
-  }
-}
+// RouteParseError moved to @/utils/errors for centralization
+export { RouteParseError } from "@/utils/errors";
 
 /**
  * Parse a route path into structured data

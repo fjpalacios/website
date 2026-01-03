@@ -44,6 +44,7 @@ import FeedsPage from "@/pages-templates/static/FeedsPage.astro";
 import TutorialsDetailPage from "@/pages-templates/tutorials/TutorialsDetailPage.astro";
 import TutorialsListPage from "@/pages-templates/tutorials/TutorialsListPage.astro";
 import TutorialsPaginationPage from "@/pages-templates/tutorials/TutorialsPaginationPage.astro";
+import { TemplateNotFoundError } from "@/utils/errors";
 
 /**
  * Page type discriminator
@@ -70,6 +71,12 @@ export type ContentType =
   | "feeds";
 
 /**
+ * TemplateNotFoundError moved to @/utils/errors for centralization
+ * Re-exported here for backward compatibility
+ */
+export { TemplateNotFoundError } from "@/utils/errors";
+
+/**
  * Template map structure
  * Maps content type + page type to Astro component
  */
@@ -93,72 +100,79 @@ type TemplateMap = {
  * - Static pages only have "static" type
  * - Taxonomies don't have pagination
  */
-export const templateMap: TemplateMap = {
-  // Content with pagination
+const templateMap: TemplateMap = {
+  // Content Types - Books
   books: {
     list: BooksListPage,
     pagination: BooksPaginationPage,
     detail: BooksDetailPage,
   },
+
+  // Content Types - Tutorials
   tutorials: {
     list: TutorialsListPage,
     pagination: TutorialsPaginationPage,
     detail: TutorialsDetailPage,
   },
+
+  // Content Types - Posts
   posts: {
     list: PostsListPage,
     pagination: PostsPaginationPage,
     detail: PostsDetailPage,
   },
 
-  // Taxonomies (list + detail only)
+  // Taxonomies - Authors
   authors: {
     list: AuthorsListPage,
     detail: AuthorsDetailPage,
   },
+
+  // Taxonomies - Publishers
   publishers: {
     list: PublishersListPage,
     detail: PublishersDetailPage,
   },
+
+  // Taxonomies - Genres
   genres: {
     list: GenresListPage,
     detail: GenresDetailPage,
   },
+
+  // Taxonomies - Categories
   categories: {
     list: CategoriesListPage,
     detail: CategoriesDetailPage,
   },
+
+  // Taxonomies - Series
   series: {
     list: SeriesListPage,
     detail: SeriesDetailPage,
   },
+
+  // Taxonomies - Challenges
   challenges: {
     list: ChallengesListPage,
     detail: ChallengesDetailPage,
   },
+
+  // Taxonomies - Courses
   courses: {
     list: CoursesListPage,
     detail: CoursesDetailPage,
   },
 
-  // Static pages
+  // Static Pages
   about: {
     static: AboutPage,
   },
+
   feeds: {
     static: FeedsPage,
   },
 };
-
-/**
- * Validation error for template selection
- */
-export class TemplateNotFoundError extends Error {
-  constructor(contentType: ContentType, pageType: PageType) {
-    super(`No template found for contentType="${contentType}" and pageType="${pageType}"`);
-    this.name = "TemplateNotFoundError";
-  }
-}
 
 /**
  * Get template component for a given content type and page type

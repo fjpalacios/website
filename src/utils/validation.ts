@@ -34,22 +34,13 @@
 
 import { z } from "zod";
 
-/**
- * Validation error thrown when props don't match schema
- */
-export class PropsValidationError extends Error {
-  constructor(
-    public componentName: string,
-    public errors: z.ZodIssue[],
-  ) {
-    const errorMessages = errors?.length
-      ? errors.map((err) => `  - ${err.path.join(".")}: ${err.message}`).join("\n")
-      : "  - Unknown validation error";
+import { PropsValidationError } from "@/utils/errors";
 
-    super(`[${componentName}] Invalid props:\n${errorMessages}`);
-    this.name = "PropsValidationError";
-  }
-}
+/**
+ * PropsValidationError moved to @/utils/errors for centralization
+ * Re-exported here for backward compatibility
+ */
+export { PropsValidationError } from "@/utils/errors";
 
 /**
  * Validates component props against a Zod schema

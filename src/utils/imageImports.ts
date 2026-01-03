@@ -20,6 +20,8 @@
 /* eslint-disable import/order */
 
 import type { ImageMetadata } from "astro";
+
+import { ImageNotFoundError } from "@/utils/errors";
 import { imageLogger } from "./logger";
 
 // ============================================================================
@@ -27,18 +29,10 @@ import { imageLogger } from "./logger";
 // ============================================================================
 
 /**
- * Custom error for missing images
- * Thrown in strict mode when an image is not found
+ * ImageNotFoundError moved to @/utils/errors for centralization
+ * Re-exported here for backward compatibility
  */
-export class ImageNotFoundError extends Error {
-  constructor(
-    public imagePath: string,
-    public imageType: "book-cover" | "author-picture" | "tutorial-cover" | "post-cover",
-  ) {
-    super(`[ImageNotFound] ${imageType}: ${imagePath}`);
-    this.name = "ImageNotFoundError";
-  }
-}
+export { ImageNotFoundError } from "@/utils/errors";
 
 /**
  * Check if we're in strict image mode (CI environment)
