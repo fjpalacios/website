@@ -151,18 +151,112 @@ export const templateMap: TemplateMap = {
 };
 
 /**
+ * Validation error for template selection
+ */
+export class TemplateNotFoundError extends Error {
+  constructor(contentType: ContentType, pageType: PageType) {
+    super(`No template found for contentType="${contentType}" and pageType="${pageType}"`);
+    this.name = "TemplateNotFoundError";
+  }
+}
+
+/**
  * Get template component for a given content type and page type
  *
  * @param contentType - The content type (e.g., "books", "authors")
  * @param pageType - The page type (e.g., "list", "detail")
- * @returns Astro component or undefined if not found
+ * @returns Astro component
+ * @throws {TemplateNotFoundError} If template is not found
  *
  * @example
  * ```typescript
  * const Component = getTemplate("books", "list");
  * // Returns: BooksListPage
+ *
+ * getTemplate("books", "static"); // Throws TemplateNotFoundError
  * ```
  */
-export function getTemplate(contentType: ContentType, pageType: PageType): AstroComponentFactory | undefined {
-  return templateMap[contentType]?.[pageType];
+export function getTemplate(contentType: ContentType, pageType: PageType): AstroComponentFactory {
+  const template = templateMap[contentType]?.[pageType];
+
+  if (!template) {
+    throw new TemplateNotFoundError(contentType, pageType);
+  }
+
+  return template;
+}
+
+/**
+ * Safely get template component without throwing errors
+ *
+ * @param contentType - The content type (e.g., "books", "authors")
+ * @param pageType - The page type (e.g., "list", "detail")
+ * @returns Astro component or null if not found
+ *
+ * @example
+ * ```typescript
+ * const Component = safeGetTemplate("books", "list");
+ * if (Component) {
+ *   // Use component
+ * }
+ * ```
+ */
+export function safeGetTemplate(contentType: ContentType, pageType: PageType): AstroComponentFactory | null {
+  return templateMap[contentType]?.[pageType] ?? null;
+}
+
+/**
+ * Check if a template exists for the given content type and page type
+ *
+ * @param contentType - The content type to check
+ * @param pageType - The page type to check
+ * @returns true if template exists, false otherwise
+ *
+ * @example
+ * ```typescript
+ * if (hasTemplate("books", "list")) {
+ *   // Safe to use getTemplate
+ * }
+ * ```
+ */
+export function hasTemplate(contentType: ContentType, pageType: PageType): boolean {
+  return templateMap[contentType]?.[pageType] !== undefined;
+}
+
+/**
+ * Get all available page types for a content type
+ *
+ * @param contentType - The content type
+ * @returns Array of available page types
+ *
+ * @example
+ * ```typescript
+ * getAvailablePageTypes("books"); // ["list", "pagination", "detail"]
+ * getAvailablePageTypes("authors"); // ["list", "detail"]
+ * ```
+ */
+export function getAvailablePageTypes(contentType: ContentType): PageType[] {
+  const templates = templateMap[contentType];
+  if (!templates) return [];
+
+  return Object.keys(templates) as PageType[];
+}
+
+/**
+ * Validate that a template exists and throw descriptive error if not
+ *
+ * @param contentType - The content type
+ * @param pageType - The page type
+ * @throws {TemplateNotFoundError} If template doesn't exist
+ *
+ * @example
+ * ```typescript
+ * validateTemplate("books", "list"); // No error
+ * validateTemplate("books", "static"); // Throws with helpful message
+ * ```
+ */
+export function validateTemplate(contentType: ContentType, pageType: PageType): void {
+  if (!hasTemplate(contentType, pageType)) {
+    throw new TemplateNotFoundError(contentType, pageType);
+  }
 }

@@ -27,7 +27,7 @@
  */
 
 // Template mapping
-import { getTemplate } from "@/config/templateMap";
+import { safeGetTemplate } from "@/config/templateMap";
 // Path generation
 import { generateAllPaths } from "@/utils/routing/pathGeneration";
 
@@ -54,7 +54,7 @@ export const getStaticPaths = generateAllPaths;
 const { pageType, contentType } = Astro.props;
 
 // Get the appropriate template component
-const Template = getTemplate(contentType, pageType);
+const Template = safeGetTemplate(contentType, pageType);
 ---
 
 {
