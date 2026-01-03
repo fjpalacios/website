@@ -162,5 +162,20 @@ export default defineConfig({
         "@config": path.resolve(__dirname, "./src/config"),
       },
     },
+    build: {
+      // Bundle all CSS into a single file for better performance
+      cssCodeSplit: false,
+      rollupOptions: {
+        output: {
+          // Consolidate CSS files into a single bundle
+          assetFileNames: (assetInfo) => {
+            if (assetInfo.name?.endsWith(".css")) {
+              return "_astro/styles.[hash].css";
+            }
+            return "_astro/[name].[hash][extname]";
+          },
+        },
+      },
+    },
   },
 });
