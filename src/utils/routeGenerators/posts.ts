@@ -25,8 +25,9 @@
  */
 
 import { getRouteSegment } from "@/config/routeSegments";
+import type { ContactItem, LanguageKey } from "@/types/content";
 import { SCHEMA_TYPES } from "@/types/schema";
-import { paginateItems, getPageCount } from "@/utils/blog";
+import { paginateItems, getPageCount, type PostSummary } from "@/utils/blog";
 import { getCachedCollection } from "@/utils/cache/cachedLoaders";
 import { getAllContentForLanguage, POSTS_PER_PAGE, generatePostDetailPaths } from "@/utils/postsPages";
 import { generateItemListSchema } from "@/utils/schemas/itemList";
@@ -70,13 +71,13 @@ export interface GeneratedPath {
  */
 export interface PostsGeneratorConfig {
   /** Current language code (e.g., 'en', 'es') */
-  lang: string;
+  lang: LanguageKey;
 
   /** Target language for checking if translations exist */
-  targetLang: string;
+  targetLang: LanguageKey;
 
   /** Contact information for the current language */
-  contact: unknown;
+  contact: ContactItem[];
 }
 
 /**
@@ -121,13 +122,15 @@ export async function generatePostsRoutes(config: PostsGeneratorConfig): Promise
 
   const paths: GeneratedPath[] = [];
 
-  const routeSegment = getRouteSegment("posts", lang);
-  const pageSegment = getRouteSegment("page", lang);
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Language literal union type assertion
+  const routeSegment = getRouteSegment("posts", lang as any);
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Language literal union type assertion
+  const pageSegment = getRouteSegment("page", lang as any);
 
   // ⚡ Performance: Fetch both languages in parallel using cached loaders
   const [sortedContent, targetContent] = await Promise.all([
-    getCachedCollection("posts", lang, getAllContentForLanguage),
-    getCachedCollection("posts", targetLang, getAllContentForLanguage),
+    getCachedCollection("posts", lang, getAllContentForLanguage as (lang: string) => Promise<PostSummary[]>),
+    getCachedCollection("posts", targetLang, getAllContentForLanguage as (lang: string) => Promise<PostSummary[]>),
   ]);
 
   const hasTargetContent = targetContent.length > 0;
@@ -142,7 +145,8 @@ export async function generatePostsRoutes(config: PostsGeneratorConfig): Promise
     posts.map((post) => {
       // Use mapping helper to get schema type and route key
       const { schemaType, routeKey } = getContentTypeMapping(post.type);
-      const localizedRouteSegment = getRouteSegment(routeKey, lang);
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Language literal union type assertion
+      const localizedRouteSegment = getRouteSegment(routeKey, lang as any);
 
       return {
         name: post.title,

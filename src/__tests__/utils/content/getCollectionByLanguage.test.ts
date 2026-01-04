@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any -- Test file with mock data requires any for flexibility */
 import { describe, it, expect, vi } from "vitest";
 
 import { getCollectionByLanguage, getAllFromCollection } from "@/utils/content/getCollectionByLanguage";
@@ -17,11 +18,11 @@ describe("getCollectionByLanguage", () => {
       { data: { language: "es", slug: "cat-3" } },
     ];
 
-    vi.mocked(getCollection).mockImplementation(async (collection, filter) => {
+    vi.mocked(getCollection).mockImplementation(async (collection: any, filter?: any) => {
       if (filter) {
-        return mockCategories.filter(filter);
+        return mockCategories.filter(filter) as any;
       }
-      return mockCategories;
+      return mockCategories as any;
     });
 
     const result = await getCollectionByLanguage("categories", "es");
@@ -39,11 +40,11 @@ describe("getCollectionByLanguage", () => {
       { data: { language: "es", slug: "pub-3" } },
     ];
 
-    vi.mocked(getCollection).mockImplementation(async (collection, filter) => {
+    vi.mocked(getCollection).mockImplementation(async (collection: any, filter?: any) => {
       if (filter) {
-        return mockPublishers.filter(filter);
+        return mockPublishers.filter(filter) as any;
       }
-      return mockPublishers;
+      return mockPublishers as any;
     });
 
     const result = await getCollectionByLanguage("publishers", "en");
@@ -56,11 +57,11 @@ describe("getCollectionByLanguage", () => {
   it("should filter genres by language", async () => {
     const mockGenres = [{ data: { language: "es", slug: "genre-1" } }, { data: { language: "es", slug: "genre-2" } }];
 
-    vi.mocked(getCollection).mockImplementation(async (collection, filter) => {
+    vi.mocked(getCollection).mockImplementation(async (collection: any, filter?: any) => {
       if (filter) {
-        return mockGenres.filter(filter);
+        return mockGenres.filter(filter) as any;
       }
-      return mockGenres;
+      return mockGenres as any;
     });
 
     const result = await getCollectionByLanguage("genres", "es");
@@ -71,11 +72,11 @@ describe("getCollectionByLanguage", () => {
   it("should filter series by language", async () => {
     const mockSeries = [{ data: { language: "en", slug: "series-1" } }, { data: { language: "es", slug: "series-2" } }];
 
-    vi.mocked(getCollection).mockImplementation(async (collection, filter) => {
+    vi.mocked(getCollection).mockImplementation(async (collection: any, filter?: any) => {
       if (filter) {
-        return mockSeries.filter(filter);
+        return mockSeries.filter(filter) as any;
       }
-      return mockSeries;
+      return mockSeries as any;
     });
 
     const result = await getCollectionByLanguage("series", "en");
@@ -90,11 +91,11 @@ describe("getCollectionByLanguage", () => {
       { data: { language: "en", slug: "course-2" } },
     ];
 
-    vi.mocked(getCollection).mockImplementation(async (collection, filter) => {
+    vi.mocked(getCollection).mockImplementation(async (collection: any, filter?: any) => {
       if (filter) {
-        return mockCourses.filter(filter);
+        return mockCourses.filter(filter) as any;
       }
-      return mockCourses;
+      return mockCourses as any;
     });
 
     const result = await getCollectionByLanguage("courses", "es");
@@ -106,11 +107,11 @@ describe("getCollectionByLanguage", () => {
   it("should filter challenges by language", async () => {
     const mockChallenges = [{ data: { language: "en", slug: "challenge-1" } }];
 
-    vi.mocked(getCollection).mockImplementation(async (collection, filter) => {
+    vi.mocked(getCollection).mockImplementation(async (collection: any, filter?: any) => {
       if (filter) {
-        return mockChallenges.filter(filter);
+        return mockChallenges.filter(filter) as any;
       }
-      return mockChallenges;
+      return mockChallenges as any;
     });
 
     const result = await getCollectionByLanguage("challenges", "en");
@@ -121,11 +122,11 @@ describe("getCollectionByLanguage", () => {
   it("should filter posts by language", async () => {
     const mockPosts = [{ data: { language: "es", title: "Post 1" } }, { data: { language: "en", title: "Post 2" } }];
 
-    vi.mocked(getCollection).mockImplementation(async (collection, filter) => {
+    vi.mocked(getCollection).mockImplementation(async (collection: any, filter?: any) => {
       if (filter) {
-        return mockPosts.filter(filter);
+        return mockPosts.filter(filter) as any;
       }
-      return mockPosts;
+      return mockPosts as any;
     });
 
     const result = await getCollectionByLanguage("posts", "es");
@@ -140,11 +141,11 @@ describe("getCollectionByLanguage", () => {
       { data: { language: "en", title: "Tutorial 2" } },
     ];
 
-    vi.mocked(getCollection).mockImplementation(async (collection, filter) => {
+    vi.mocked(getCollection).mockImplementation(async (collection: any, filter?: any) => {
       if (filter) {
-        return mockTutorials.filter(filter);
+        return mockTutorials.filter(filter) as any;
       }
-      return mockTutorials;
+      return mockTutorials as any;
     });
 
     const result = await getCollectionByLanguage("tutorials", "en");
@@ -155,11 +156,11 @@ describe("getCollectionByLanguage", () => {
   it("should return empty array when no matches", async () => {
     const mockData = [{ data: { language: "es" } }];
 
-    vi.mocked(getCollection).mockImplementation(async (collection, filter) => {
+    vi.mocked(getCollection).mockImplementation(async (collection: any, filter?: any) => {
       if (filter) {
-        return mockData.filter(filter);
+        return mockData.filter(filter) as any;
       }
-      return mockData;
+      return mockData as any;
     });
 
     const result = await getCollectionByLanguage("categories", "en");
@@ -172,7 +173,7 @@ describe("getAllFromCollection", () => {
   it("should get all authors without filtering", async () => {
     const mockAuthors = [{ data: { name: "Author 1" } }, { data: { name: "Author 2" } }];
 
-    vi.mocked(getCollection).mockResolvedValue(mockAuthors);
+    vi.mocked(getCollection).mockResolvedValue(mockAuthors as any);
 
     const result = await getAllFromCollection("authors");
 
@@ -184,7 +185,7 @@ describe("getAllFromCollection", () => {
   it("should get all books without filtering", async () => {
     const mockBooks = [{ data: { title: "Book 1" } }, { data: { title: "Book 2" } }, { data: { title: "Book 3" } }];
 
-    vi.mocked(getCollection).mockResolvedValue(mockBooks);
+    vi.mocked(getCollection).mockResolvedValue(mockBooks as any);
 
     const result = await getAllFromCollection("books");
 

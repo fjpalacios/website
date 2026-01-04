@@ -204,27 +204,48 @@ describe("Mock Data Builders", () => {
     it("should create contact with default values", () => {
       const contact = createMockContact();
 
-      expect(contact.name).toBe("Test User");
-      expect(contact.email).toBe("test@example.com");
+      expect(Array.isArray(contact)).toBe(true);
+      expect(contact.length).toBe(1);
+      expect(contact[0].name).toBe("Email");
+      expect(contact[0].link).toBe("mailto:test@example.com");
+      expect(contact[0].icon).toBe("mail");
+      expect(contact[0].text).toBe("test@example.com");
     });
 
     it("should accept overrides", () => {
-      const contact = createMockContact({
-        name: "John Doe",
-        email: "john@example.com",
-        website: "https://johndoe.com",
-      });
+      const contact = createMockContact([
+        {
+          name: "Email",
+          link: "mailto:john@example.com",
+          icon: "mail",
+          text: "john@example.com",
+        },
+        {
+          name: "Website",
+          link: "https://johndoe.com",
+          icon: "globe",
+          text: "johndoe.com",
+        },
+      ]);
 
-      expect(contact.name).toBe("John Doe");
-      expect(contact.email).toBe("john@example.com");
-      expect(contact.website).toBe("https://johndoe.com");
+      expect(contact.length).toBe(2);
+      expect(contact[0].link).toBe("mailto:john@example.com");
+      expect(contact[1].link).toBe("https://johndoe.com");
     });
 
     it("should partially override", () => {
-      const contact = createMockContact({ name: "Jane Doe" });
+      const contact = createMockContact([
+        {
+          name: "Custom Email",
+          link: "mailto:jane@example.com",
+          icon: "mail",
+          text: "jane@example.com",
+        },
+      ]);
 
-      expect(contact.name).toBe("Jane Doe");
-      expect(contact.email).toBe("test@example.com");
+      expect(contact.length).toBe(1);
+      expect(contact[0].name).toBe("Custom Email");
+      expect(contact[0].text).toBe("jane@example.com");
     });
   });
 });

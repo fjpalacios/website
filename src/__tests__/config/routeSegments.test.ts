@@ -1,6 +1,7 @@
 /**
  * Tests for route segments configuration
  */
+/* eslint-disable @typescript-eslint/no-explicit-any -- Test file requires any for testing invalid inputs */
 
 import { describe, expect, it } from "vitest";
 
@@ -165,8 +166,9 @@ describe("routeSegments configuration", () => {
     });
 
     it("should throw error for invalid language", () => {
-      // @ts-expect-error - Testing runtime behavior with invalid language
-      expect(() => getRouteSegment("books", "fr")).toThrow();
+      // Testing runtime behavior with invalid language
+
+      expect(() => getRouteSegment("books", "fr" as any)).toThrow();
     });
 
     it("should be case-sensitive for keys", () => {

@@ -7,7 +7,7 @@
  * @module utils/translation-availability
  */
 
-import { t } from "@locales";
+import { t } from "@/locales";
 
 /**
  * Check if the given path represents a static page

@@ -2,7 +2,6 @@
 // These utilities help retrieve and process book data for the book detail page
 
 import type { CollectionEntry } from "astro:content";
-import type { CollectionEntry } from "astro:content";
 import { describe, it, expect } from "vitest";
 
 import {

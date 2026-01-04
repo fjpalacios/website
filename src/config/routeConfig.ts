@@ -13,6 +13,7 @@
  * @module config/routeConfig
  */
 
+import type { ContactItem } from "@/types/content";
 import { SCHEMA_TYPES, type SchemaType } from "@/types/schema";
 import { getAllBooksForLanguage, BOOKS_PER_PAGE, generateBookDetailPaths } from "@/utils/booksPages";
 import { getAllTutorialsForLanguage, TUTORIALS_PER_PAGE, generateTutorialDetailPaths } from "@/utils/tutorialsPages";
@@ -32,7 +33,7 @@ export interface ContentTypeConfig {
   /** Function to generate detail page paths */
   generateDetailPaths: (
     lang: string,
-    contact: unknown,
+    contact: ContactItem[],
   ) => Promise<Array<{ slug: string; props: Record<string, unknown> }>>;
   /** Schema.org type for structured data */
   schemaType: SchemaType;

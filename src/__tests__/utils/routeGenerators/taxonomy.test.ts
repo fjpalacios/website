@@ -23,12 +23,14 @@ import { getTaxonomyItemsWithCount, hasTargetContent, generateTaxonomyDetailPath
 
 describe("generateTaxonomyRoutes", () => {
   // Mock data
-  const mockContact = createMockContact({ name: "Test Contact" });
+  const mockContact = createMockContact();
 
   const mockTaxonomyConfig: TaxonomyConfig = {
-    collectionName: "authors",
-    getRelatedContent: vi.fn(),
-    countRelatedContent: vi.fn(),
+    collection: "authors",
+    slugField: "author_slug",
+    contentCollections: ["books"],
+    contentField: "author",
+    isSingular: true,
   };
 
   const mockAuthorStephenKing = createMockAuthor("stephen-king", "Stephen King");
@@ -369,9 +371,10 @@ describe("generateTaxonomyRoutes", () => {
 
       const routes = await generateTaxonomyRoutes({
         taxonomyConfig: {
-          collectionName: "genres",
-          getRelatedContent: vi.fn(),
-          countRelatedContent: vi.fn(),
+          collection: "genres",
+          slugField: "genre_slug",
+          contentCollections: ["books"],
+          contentField: "genres",
         },
         lang: "en",
         targetLang: "es",
@@ -414,9 +417,11 @@ describe("generateTaxonomyRoutes", () => {
 
       const routes = await generateTaxonomyRoutes({
         taxonomyConfig: {
-          collectionName: "publishers",
-          getRelatedContent: vi.fn(),
-          countRelatedContent: vi.fn(),
+          collection: "publishers",
+          slugField: "publisher_slug",
+          contentCollections: ["books"],
+          contentField: "publisher",
+          isSingular: true,
         },
         lang: "en",
         targetLang: "es",
@@ -457,9 +462,10 @@ describe("generateTaxonomyRoutes", () => {
 
       const routes = await generateTaxonomyRoutes({
         taxonomyConfig: {
-          collectionName: "categories",
-          getRelatedContent: vi.fn(),
-          countRelatedContent: vi.fn(),
+          collection: "categories",
+          slugField: "category_slug",
+          contentCollections: ["posts", "tutorials", "books"],
+          contentField: "categories",
         },
         lang: "en",
         targetLang: "es",

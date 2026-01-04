@@ -8,6 +8,7 @@
  *
  * Note: These tests simulate real data structures but don't require astro:content
  */
+/* eslint-disable @typescript-eslint/no-explicit-any -- Test file requires any for simulating real data */
 
 import { describe, expect, it } from "vitest";
 
@@ -24,9 +25,12 @@ interface MockGenre {
 /**
  * Simulates the i18n checking logic from taxonomyPages.ts:177
  */
-function checkHasTargetContent(currentItem: { genre_slug: string; i18n?: string }, targetSlugs: Set<string>): boolean {
+function checkHasTargetContent(currentItem: any, targetSlugs: Set<string>): boolean {
   const translationSlug = currentItem.i18n;
-  return translationSlug ? targetSlugs.has(translationSlug) : targetSlugs.has(currentItem.genre_slug);
+  // Get the slug property (could be genre_slug, category_slug, challenge_slug, etc.)
+  const slugKey = Object.keys(currentItem).find((k) => k.endsWith("_slug"));
+  const itemSlug = slugKey ? currentItem[slugKey] : "";
+  return translationSlug ? targetSlugs.has(translationSlug) : targetSlugs.has(itemSlug);
 }
 
 describe("taxonomyPages integration - i18n logic simulation", () => {

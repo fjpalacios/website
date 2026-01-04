@@ -29,6 +29,7 @@
  * @module routeGenerators/contentTypeWithPagination
  */
 
+import type { ContactItem } from "@/types/content";
 import { type SchemaType } from "@/types/schema";
 import { paginateItems, getPageCount } from "@/utils/blog";
 import { getCachedCollection } from "@/utils/cache/cachedLoaders";
@@ -62,11 +63,11 @@ export interface ContentTypeWithPaginationConfig<T> {
   /** Function to generate detail page routes for individual items */
   generateDetailPaths: (
     lang: string,
-    contact: unknown,
+    contact: ContactItem[],
   ) => Promise<Array<{ slug: string; props: Record<string, unknown> }>>;
 
   /** Contact information for the current language */
-  contact: unknown;
+  contact: ContactItem[];
 
   /** Schema.org type for ItemList schema (used for SEO) */
   schemaType: SchemaType;
@@ -205,9 +206,9 @@ export async function generateContentTypeWithPaginationRoutes<T>(
     // Check if this entry has an i18n field and if that translation exists in target language
     const entryKey = Object.keys(props).find((k) => k.endsWith("Entry")) || "";
     const entry = props[entryKey] as { data?: { i18n?: string } } | undefined;
-    const hasSpecificTranslation = entry?.data?.i18n
-      ? targetItems.some((item: { slug: string }) => item.slug === entry.data.i18n)
-      : false;
+    const hasSpecificTranslation =
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Dynamic collection item access
+      entry?.data?.i18n && entry.data.i18n ? targetItems.some((item: any) => item.slug === entry.data!.i18n) : false;
 
     paths.push({
       params: { lang, route: `${routeSegment}/${slug}` },

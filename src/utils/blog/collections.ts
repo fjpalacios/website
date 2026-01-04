@@ -3,7 +3,8 @@
  */
 
 export interface CollectionItem {
-  slug: string;
+  id?: string; // Astro 5 uses id
+  slug?: string; // Legacy property for compatibility
   data: {
     title: string;
     date: Date;

@@ -20,12 +20,15 @@ export async function getAllTutorialsForLanguage(lang: string): Promise<Tutorial
   const allTutorials = await getCollection("tutorials");
 
   // Filter by language and exclude drafts
-  const langTutorials = filterByLanguage(allTutorials, lang).filter((tutorial) => !tutorial.data.draft);
+  // @ts-expect-error - Astro 5 data type inference limitation, runtime schema ensures draft exists
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Astro content collection type inference limitation
+  const langTutorials = filterByLanguage(allTutorials, lang).filter((tutorial) => !(tutorial.data as any).draft);
 
   // Sort by date (newest first)
   const sortedTutorials = sortByDate(langTutorials, "desc");
 
   // Prepare summaries
+  // @ts-expect-error - Astro 5 CollectionEntry type compatibility with helper functions
   return sortedTutorials.map((tutorial) => prepareTutorialSummary(tutorial));
 }
 

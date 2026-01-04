@@ -4,6 +4,7 @@ import {
   getMenuItems,
   hasContentInLanguage,
   type NavigationItem,
+  type RouteKey,
 } from "@config/navigation";
 import { describe, expect, test } from "vitest";
 
@@ -482,7 +483,7 @@ describe("navigation config", () => {
       // Items that should be in both (based on current config)
       // Menu has: home, about, posts
       // Footer has: about, posts, tutorials, books, feeds, categories, etc.
-      const commonItems = ["about", "posts"];
+      const commonItems: RouteKey[] = ["about", "posts"];
 
       commonItems.forEach((item) => {
         expect(menuRouteKeys.has(item)).toBe(true);

@@ -51,7 +51,7 @@ const mockBooks: CollectionEntry<"books">[] = [
     body: "",
     render: async () => ({ Content: () => null, headings: [], remarkPluginFrontmatter: {} }),
   },
-] as CollectionEntry<"books">[];
+] as unknown as CollectionEntry<"books">[];
 
 const mockPosts: CollectionEntry<"posts">[] = [
   {
@@ -70,7 +70,7 @@ const mockPosts: CollectionEntry<"posts">[] = [
     body: "",
     render: async () => ({ Content: () => null, headings: [], remarkPluginFrontmatter: {} }),
   },
-] as CollectionEntry<"posts">[];
+] as unknown as CollectionEntry<"posts">[];
 
 const mockTutorials: CollectionEntry<"tutorials">[] = [
   {
@@ -90,7 +90,7 @@ const mockTutorials: CollectionEntry<"tutorials">[] = [
     body: "",
     render: async () => ({ Content: () => null, headings: [], remarkPluginFrontmatter: {} }),
   },
-] as CollectionEntry<"tutorials">[];
+] as unknown as CollectionEntry<"tutorials">[];
 
 describe("rss/generator", () => {
   describe("buildContentUrl", () => {

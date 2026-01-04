@@ -41,7 +41,7 @@ describe("getLatestPosts utility", () => {
     test("should accept language and maxItems parameters", () => {
       const content = fs.readFileSync(utilPath, "utf-8");
 
-      expect(content).toContain("language: string");
+      expect(content).toMatch(/language:\s*"es"\s*\|\s*"en"/);
       expect(content).toContain("maxItems: number");
     });
 
@@ -115,14 +115,18 @@ describe("getLatestPosts utility", () => {
       const content = fs.readFileSync(utilPath, "utf-8");
 
       // Should filter out drafts from posts
-      expect(content).toMatch(/langPosts.*filter.*!.*\.data\.draft/s);
+      expect(content).toMatch(
+        /filterByLanguage\(allPosts,\s*language\)\.filter\(\(post\)\s*=>\s*!\(post\.data\s+as\s+any\)\.draft\)/s,
+      );
     });
 
     test("should exclude draft tutorials", () => {
       const content = fs.readFileSync(utilPath, "utf-8");
 
       // Should filter out drafts from tutorials
-      expect(content).toMatch(/langTutorials.*filter.*!.*\.data\.draft/s);
+      expect(content).toMatch(
+        /filterByLanguage\(allTutorials,\s*language\)\.filter\(\(tutorial\)\s*=>\s*!\(tutorial\.data\s+as\s+any\)\.draft\)/s,
+      );
     });
 
     test("should not filter books (no draft field)", () => {
@@ -138,17 +142,17 @@ describe("getLatestPosts utility", () => {
       const content = fs.readFileSync(utilPath, "utf-8");
 
       expect(content).toContain('type: "post" as const');
-      expect(content).toContain("post.data.post_slug");
+      expect(content).toMatch(/slug:\s*\(post\.data\s+as\s+any\)\.post_slug/);
       expect(content).toContain("post.data.title");
       expect(content).toContain("post.data.date");
-      expect(content).toContain("post.data.excerpt");
+      expect(content).toMatch(/excerpt:\s*\(post\.data\s+as\s+any\)\.excerpt/);
     });
 
     test("should map tutorials with correct structure", () => {
       const content = fs.readFileSync(utilPath, "utf-8");
 
       expect(content).toContain('type: "tutorial" as const');
-      expect(content).toContain("tutorial.data.post_slug");
+      expect(content).toMatch(/slug:\s*\(tutorial\.data\s+as\s+any\)\.post_slug/);
       expect(content).toContain("tutorial.data.title");
     });
 
@@ -163,13 +167,15 @@ describe("getLatestPosts utility", () => {
     test("should handle cover/featured_image fallback for posts", () => {
       const content = fs.readFileSync(utilPath, "utf-8");
 
-      expect(content).toContain("post.data.cover || post.data.featured_image");
+      expect(content).toMatch(/\(post\.data\s+as\s+any\)\.cover\s*\|\|\s*\(post\.data\s+as\s+any\)\.featured_image/);
     });
 
     test("should handle cover/featured_image fallback for tutorials", () => {
       const content = fs.readFileSync(utilPath, "utf-8");
 
-      expect(content).toContain("tutorial.data.cover || tutorial.data.featured_image");
+      expect(content).toMatch(
+        /\(tutorial\.data\s+as\s+any\)\.cover\s*\|\|\s*\(tutorial\.data\s+as\s+any\)\.featured_image/,
+      );
     });
   });
 

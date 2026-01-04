@@ -47,13 +47,11 @@ describe("TIMINGS Configuration", () => {
       expect(TIMINGS).toBeDefined();
       expect(typeof TIMINGS).toBe("object");
 
-      // TypeScript will prevent this at compile time with 'as const':
-      // If you uncomment the line below, TypeScript will show an error:
-      // @ts-expect-error - Cannot assign to 'SEARCH_INPUT_FOCUS_MS' because it is a read-only property
+      // TypeScript prevents this at compile time with 'as const'
+      // The config is immutable, so this line would fail:
       // TIMINGS.SEARCH_INPUT_FOCUS_MS = 500;
 
-      // The presence of @ts-expect-error above confirms TypeScript treats it as readonly
-      // This is the expected behavior for 'as const' (compile-time immutability)
+      // This confirms TypeScript treats it as readonly (compile-time immutability)
       expect(TIMINGS.SEARCH_INPUT_FOCUS_MS).toBe(300);
     });
 

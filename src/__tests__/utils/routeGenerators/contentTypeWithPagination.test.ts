@@ -9,10 +9,12 @@
  * - Edge cases (empty content, single item, exact boundaries)
  * - Props validation
  */
+/* eslint-disable @typescript-eslint/no-explicit-any -- Test file requires any for mock data */
 
 import { describe, test, expect, vi, beforeEach } from "vitest";
 
 import { createMockBook, createMockBooks, createMockContact, type MockBook } from "@/__tests__/__helpers__";
+import type { ContactItem } from "@/types/content";
 import { buildCache } from "@/utils/cache/buildCache";
 import {
   generateContentTypeWithPaginationRoutes,
@@ -55,11 +57,11 @@ const createConfig = <T>(overrides: PartialConfig<T>): ContentTypeWithPagination
     schemaType: (overrides.schemaType as "Book" | "TechArticle" | "BlogPosting") || "Book",
     extractItemData:
       overrides.extractItemData ||
-      ((item: MockBook) => ({
+      (((item: any) => ({
         name: item.data.title,
         slug: item.data.post_slug,
         excerpt: item.data.excerpt,
-      })),
+      })) as any),
   };
 };
 
@@ -721,7 +723,14 @@ describe("generateContentTypeWithPaginationRoutes - Edge Cases", () => {
   });
 
   test("should pass contact to all page types", async () => {
-    const customContact = { name: "Custom", email: "custom@test.com" };
+    const customContact: ContactItem[] = [
+      {
+        name: "Custom Email",
+        link: "mailto:custom@test.com",
+        icon: "mail",
+        text: "custom@test.com",
+      },
+    ];
     const mockBooks = createMockBooks(11, "es");
 
     const config = createConfig<MockBook>({

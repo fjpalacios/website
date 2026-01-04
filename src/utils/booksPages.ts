@@ -21,14 +21,18 @@ export async function getAllBooksForLanguage(lang: string): Promise<BookSummary[
   const allAuthors = await getCollection("authors");
 
   // Filter by language and exclude drafts
-  const langBooks = filterByLanguage(allBooks, lang).filter((book) => !book.data.draft);
+  // @ts-expect-error - Astro 5 data type inference limitation, runtime schema ensures draft exists
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Astro content collection type inference limitation
+  const langBooks = filterByLanguage(allBooks, lang).filter((book) => !(book.data as any).draft);
 
   // Sort by date (newest first)
   const sortedBooks = sortByDate(langBooks, "desc");
 
   // Prepare summaries with author info
   return sortedBooks.map((book) => {
-    const author = findAuthorBySlug(allAuthors, book.data.author, lang as "es" | "en");
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Astro content collection type inference limitation
+    const author = findAuthorBySlug(allAuthors, (book.data as any).author, lang as "es" | "en");
+    // @ts-expect-error - Astro 5 CollectionEntry type compatibility with helper functions
     return prepareBookSummary(book, author);
   });
 }

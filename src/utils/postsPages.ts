@@ -23,20 +23,25 @@ export const POSTS_PER_PAGE = PAGINATION_CONFIG.posts;
 /**
  * Get all content for a language, combined and sorted
  */
-export async function getAllContentForLanguage(lang: string): Promise<PostSummary[]> {
+export async function getAllContentForLanguage(lang: "es" | "en"): Promise<PostSummary[]> {
   // Get all content types
   const allPosts = await getCollection("posts");
   const allTutorials = await getCollection("tutorials");
   const allBooks = await getCollection("books");
 
   // Filter by language and exclude drafts
-  const langPosts = filterByLanguage(allPosts, lang).filter((post) => !post.data.draft);
-  const langTutorials = filterByLanguage(allTutorials, lang).filter((tutorial) => !tutorial.data.draft);
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Dynamic content collection field access
+  const langPosts = filterByLanguage(allPosts, lang).filter((post) => !(post.data as any).draft);
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Dynamic content collection field access
+  const langTutorials = filterByLanguage(allTutorials, lang).filter((tutorial) => !(tutorial.data as any).draft);
   const langBooks = filterByLanguage(allBooks, lang);
 
   // Prepare summaries
+  // @ts-expect-error - Astro 5 CollectionEntry type compatibility with helper functions
   const postSummaries: PostSummary[] = langPosts.map((post) => preparePostSummary(post));
+  // @ts-expect-error - Astro 5 CollectionEntry type compatibility with helper functions
   const tutorialSummaries: PostSummary[] = langTutorials.map((tutorial) => prepareTutorialSummary(tutorial));
+  // @ts-expect-error - Astro 5 CollectionEntry type compatibility with helper functions
   const bookSummaries: PostSummary[] = langBooks.map((book) => prepareBookSummary(book));
 
   // Combine all content
@@ -53,7 +58,7 @@ export async function getAllContentForLanguage(lang: string): Promise<PostSummar
 /**
  * Generate static paths for posts index page (page 1)
  */
-export async function generatePostsIndexPaths(lang: string, contact: ContactItem[]) {
+export async function generatePostsIndexPaths(lang: "es" | "en", contact: ContactItem[]) {
   const currentPage = 1;
   const sortedContent = await getAllContentForLanguage(lang);
   const totalPages = getPageCount(sortedContent.length, POSTS_PER_PAGE);
@@ -77,7 +82,7 @@ export async function generatePostsIndexPaths(lang: string, contact: ContactItem
 /**
  * Generate static paths for posts pagination pages (page 2+)
  */
-export async function generatePostsPaginationPaths(lang: string, contact: ContactItem[]) {
+export async function generatePostsPaginationPaths(lang: "es" | "en", contact: ContactItem[]) {
   const sortedContent = await getAllContentForLanguage(lang);
 
   return generatePaginationPaths({

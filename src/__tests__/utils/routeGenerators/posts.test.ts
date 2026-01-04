@@ -13,16 +13,21 @@
 
 import { describe, test, expect } from "vitest";
 
+import type { ContactItem } from "@/types/content";
 import type { PostsGeneratorConfig } from "@/utils/routeGenerators/posts";
 
 // ============================================================================
 // MOCK DATA
 // ============================================================================
 
-const mockContact = {
-  name: "Test User",
-  email: "test@example.com",
-};
+const mockContact: ContactItem[] = [
+  {
+    name: "Email",
+    link: "mailto:test@example.com",
+    icon: "mail",
+    text: "test@example.com",
+  },
+];
 
 // ============================================================================
 // HELPER: Create Config
@@ -65,11 +70,20 @@ describe("generatePostsRoutes - Configuration Validation", () => {
   });
 
   test("should include contact info", () => {
-    const customContact = {
-      name: "Custom User",
-      email: "custom@example.com",
-      website: "https://example.com",
-    };
+    const customContact: ContactItem[] = [
+      {
+        name: "Email",
+        link: "mailto:custom@example.com",
+        icon: "mail",
+        text: "custom@example.com",
+      },
+      {
+        name: "Website",
+        link: "https://example.com",
+        icon: "globe",
+        text: "example.com",
+      },
+    ];
 
     const config = createConfig({
       lang: "en",
@@ -81,9 +95,14 @@ describe("generatePostsRoutes - Configuration Validation", () => {
   });
 
   test("should handle minimal contact info", () => {
-    const minimalContact = {
-      name: "Min",
-    };
+    const minimalContact: ContactItem[] = [
+      {
+        name: "Email",
+        link: "mailto:min@example.com",
+        icon: "mail",
+        text: "min@example.com",
+      },
+    ];
 
     const config = createConfig({
       lang: "en",
@@ -181,16 +200,32 @@ describe("generatePostsRoutes - Interface Compliance", () => {
   });
 
   test("should accept arbitrary contact object structure", () => {
-    const complexContact = {
-      name: "John Doe",
-      email: "john@example.com",
-      website: "https://example.com",
-      social: {
-        twitter: "@johndoe",
-        github: "johndoe",
+    const complexContact: ContactItem[] = [
+      {
+        name: "Email",
+        link: "mailto:john@example.com",
+        icon: "mail",
+        text: "john@example.com",
       },
-      additionalInfo: "Some info",
-    };
+      {
+        name: "Website",
+        link: "https://example.com",
+        icon: "globe",
+        text: "example.com",
+      },
+      {
+        name: "Twitter",
+        link: "https://twitter.com/johndoe",
+        icon: "twitter",
+        text: "@johndoe",
+      },
+      {
+        name: "GitHub",
+        link: "https://github.com/johndoe",
+        icon: "github",
+        text: "johndoe",
+      },
+    ];
 
     const config = createConfig({
       lang: "en",
@@ -217,8 +252,8 @@ describe("generatePostsRoutes - Edge Cases", () => {
     expect(config.targetLang).toBe("en");
   });
 
-  test("should handle empty contact object", () => {
-    const emptyContact = {};
+  test("should handle empty contact array", () => {
+    const emptyContact: ContactItem[] = [];
 
     const config = createConfig({
       lang: "en",
@@ -229,8 +264,15 @@ describe("generatePostsRoutes - Edge Cases", () => {
     expect(config.contact).toEqual(emptyContact);
   });
 
-  test("should preserve contact object reference", () => {
-    const contact = { name: "Test" };
+  test("should preserve contact array reference", () => {
+    const contact: ContactItem[] = [
+      {
+        name: "Test",
+        link: "mailto:test@example.com",
+        icon: "mail",
+        text: "test@example.com",
+      },
+    ];
 
     const config = createConfig({
       lang: "en",

@@ -1,4 +1,4 @@
-import type { AboutData } from "@types/content";
+import type { AboutData } from "@/types/content";
 
 export const about: AboutData = {
   me: `

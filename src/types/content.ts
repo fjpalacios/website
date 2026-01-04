@@ -1,3 +1,8 @@
+/**
+ * Language keys supported by the application
+ */
+export type LanguageKey = "en" | "es";
+
 export interface ContactItem {
   name: string;
   link: string;

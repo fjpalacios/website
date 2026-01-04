@@ -10,7 +10,8 @@
 
 import { contact as contactEN } from "@content/en/contact";
 import { contact as contactES } from "@content/es/contact";
-import type { ContactItem } from "@types/content";
+
+import type { ContactItem } from "@/types/content";
 
 /**
  * Get contact information for a specific language

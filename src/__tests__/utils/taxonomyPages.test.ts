@@ -242,6 +242,7 @@ describe("taxonomyPages filtering logic", () => {
       const taxonomyItem = {
         data: {
           genre_slug: "poetry",
+          i18n: undefined as string | undefined,
           name: "Poesía",
           language: "es",
         },

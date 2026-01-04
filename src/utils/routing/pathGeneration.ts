@@ -25,9 +25,9 @@ import type { GetStaticPaths } from "astro";
 
 import { CONTENT_TYPE_CONFIGS, TAXONOMY_TYPES } from "@/config/routeConfig";
 import { getRouteSegment } from "@/config/routeSegments";
+import type { ContactItem, LanguageKey } from "@/types/content";
 import { logCacheStats } from "@/utils/cache/buildCache";
 import { getContact } from "@/utils/content/contact";
-import type { ContactItem } from "@/utils/content/contact";
 import { routingLogger } from "@/utils/logger";
 import { performanceMonitor } from "@/utils/performance/monitor";
 import {
@@ -75,8 +75,8 @@ async function safeGenerateRoutes(
  * @returns Array of generator promises
  */
 function buildContentTypeGenerators(
-  lang: string,
-  targetLang: string,
+  lang: LanguageKey,
+  targetLang: LanguageKey,
   contact: ContactItem[],
 ): Promise<GeneratedPath[]>[] {
   return Object.values(CONTENT_TYPE_CONFIGS).map((config) =>
@@ -111,7 +111,11 @@ function buildContentTypeGenerators(
  * @param contact - Contact information for the current language
  * @returns Array of generator promises
  */
-function buildTaxonomyGenerators(lang: string, targetLang: string, contact: ContactItem[]): Promise<GeneratedPath[]>[] {
+function buildTaxonomyGenerators(
+  lang: LanguageKey,
+  targetLang: LanguageKey,
+  contact: ContactItem[],
+): Promise<GeneratedPath[]>[] {
   return TAXONOMY_TYPES.map((taxonomyType) =>
     safeGenerateRoutes(
       async () =>
@@ -141,8 +145,8 @@ function buildTaxonomyGenerators(lang: string, targetLang: string, contact: Cont
  * @returns Flattened array of all generated paths
  */
 async function generateParallelRoutes(
-  lang: string,
-  targetLang: string,
+  lang: LanguageKey,
+  targetLang: LanguageKey,
   contact: ContactItem[],
 ): Promise<GeneratedPath[]> {
   performanceMonitor.start(`parallel-generation-${lang}`);
@@ -170,7 +174,11 @@ async function generateParallelRoutes(
  * @param contact - Contact information for the current language
  * @returns Array of generated paths for posts
  */
-async function generatePostsPaths(lang: string, targetLang: string, contact: ContactItem[]): Promise<GeneratedPath[]> {
+async function generatePostsPaths(
+  lang: LanguageKey,
+  targetLang: LanguageKey,
+  contact: ContactItem[],
+): Promise<GeneratedPath[]> {
   performanceMonitor.start(`posts-${lang}`);
 
   const paths = await safeGenerateRoutes(
@@ -197,7 +205,7 @@ async function generatePostsPaths(lang: string, targetLang: string, contact: Con
  * @param contact - Contact information for the current language
  * @returns Array of generated paths for static pages
  */
-async function generateStaticRoutes(lang: string, contact: ContactItem[]): Promise<GeneratedPath[]> {
+async function generateStaticRoutes(lang: LanguageKey, contact: ContactItem[]): Promise<GeneratedPath[]> {
   performanceMonitor.start(`static-${lang}`);
 
   const paths: GeneratedPath[] = [];
@@ -251,11 +259,11 @@ async function generateStaticRoutes(lang: string, contact: ContactItem[]): Promi
  * @param lang - Language code to generate routes for
  * @returns Array of all generated paths for this language
  */
-async function generateLanguageRoutes(lang: string): Promise<GeneratedPath[]> {
+async function generateLanguageRoutes(lang: LanguageKey): Promise<GeneratedPath[]> {
   performanceMonitor.start(`routes-${lang}`);
 
   const contact = getContact(lang);
-  const targetLang = lang === "en" ? "es" : "en";
+  const targetLang: LanguageKey = lang === "en" ? "es" : "en";
   const paths: GeneratedPath[] = [];
 
   // Phase 1: Parallel generation (content types + taxonomies)

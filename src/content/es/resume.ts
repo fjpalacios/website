@@ -1,4 +1,4 @@
-import type { ResumeData } from "@types/content";
+import type { ResumeData } from "@/types/content";
 
 export const resume: ResumeData = {
   experience: [

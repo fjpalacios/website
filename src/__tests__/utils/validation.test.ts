@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any -- Test file requires any for mocking Zod issues */
 import { describe, expect, it, vi } from "vitest";
 import { z } from "zod";
 
@@ -206,7 +207,7 @@ describe("validation", () => {
 
   describe("PropsValidationError", () => {
     it("should format error message with component name", () => {
-      const errors: z.ZodIssue[] = [
+      const errors = [
         {
           code: "invalid_type",
           expected: "string",
@@ -214,7 +215,7 @@ describe("validation", () => {
           path: ["title"],
           message: "Expected string, received number",
         },
-      ];
+      ] as any;
 
       const error = new PropsValidationError("TestComponent", errors);
 
@@ -224,7 +225,7 @@ describe("validation", () => {
     });
 
     it("should include multiple errors", () => {
-      const errors: z.ZodIssue[] = [
+      const errors = [
         {
           code: "invalid_type",
           expected: "string",
@@ -239,7 +240,7 @@ describe("validation", () => {
           path: ["count"],
           message: "Expected number",
         },
-      ];
+      ] as any;
 
       const error = new PropsValidationError("TestComponent", errors);
 

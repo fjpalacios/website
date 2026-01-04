@@ -289,7 +289,7 @@ describe("Test Assertion Helpers", () => {
     });
 
     it("should pass for empty array", () => {
-      expect(() => assertAllMatchSchema([], { id: expect.any(String) })).not.toThrow();
+      expect(() => assertAllMatchSchema([] as { id: string }[], { id: expect.any(String) })).not.toThrow();
     });
   });
 });

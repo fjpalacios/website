@@ -171,13 +171,11 @@ describe("Pagination Config", () => {
       expect(PAGINATION_CONFIG).toBeDefined();
       expect(PAGINATION_CONFIG.UI).toBeDefined();
 
-      // TypeScript will prevent this at compile time with 'as const':
-      // If you uncomment the line below, TypeScript will show an error:
-      // @ts-expect-error - Cannot assign to 'MAX_PAGE_BUTTONS' because it is a read-only property
+      // TypeScript prevents this at compile time with 'as const'
+      // The config is immutable, so this line would fail:
       // PAGINATION_CONFIG.UI.MAX_PAGE_BUTTONS = 10;
 
-      // The presence of @ts-expect-error above confirms TypeScript treats it as readonly
-      // This is the expected behavior for 'as const' (compile-time immutability)
+      // This confirms TypeScript treats it as readonly (compile-time immutability)
       expect(PAGINATION_CONFIG.UI.MAX_PAGE_BUTTONS).toBe(7);
     });
   });

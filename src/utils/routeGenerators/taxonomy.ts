@@ -104,7 +104,8 @@ export async function generateTaxonomyRoutes(config: TaxonomyGeneratorConfig): P
   // Sort alphabetically by name for consistent ordering
   const itemsWithContent = itemsData
     .filter(({ count }) => count > 0)
-    .sort((a, b) => a.item.data.name.localeCompare(b.item.data.name));
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Dynamic taxonomy data access
+    .sort((a, b) => (a.item.data as any).name.localeCompare((b.item.data as any).name));
 
   // Check if target language has any content for translation links
   const hasTargetContent = await checkHasTargetContent(taxonomyConfig, targetLang);
@@ -123,10 +124,12 @@ export async function generateTaxonomyRoutes(config: TaxonomyGeneratorConfig): P
   });
 
   // 2. DETAIL PAGES (with pagination for related content)
-  const detailPaths = await generateTaxonomyDetailPaths(taxonomyConfig, lang, contact);
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any -- ContactItem[] type assertion
+  const detailPaths = await generateTaxonomyDetailPaths(taxonomyConfig, lang, contact as any);
 
   // Get localized "page" segment for pagination URLs
-  const pageSegment = getRouteSegment("page", lang);
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Language literal union type assertion
+  const pageSegment = getRouteSegment("page", lang as any);
 
   for (const { slug, page, props } of detailPaths) {
     // Add taxonomy items to props for sidebar

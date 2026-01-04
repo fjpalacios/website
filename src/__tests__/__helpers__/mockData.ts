@@ -287,29 +287,31 @@ export const createMockTutorial = (
 });
 
 // ============================================================================
-// MOCK CONTACT DATA
+// CONTACT HELPERS
 // ============================================================================
 
-export interface MockContact {
-  name: string;
-  email: string;
-  website?: string;
-}
+import type { ContactItem } from "@/types/content";
+
+export type MockContact = ContactItem[];
 
 /**
  * Create mock contact data
  *
  * @param overrides - Optional property overrides
- * @returns MockContact object
+ * @returns MockContact array
  *
  * @example
  * ```typescript
  * const contact = createMockContact();
- * const customContact = createMockContact({ name: "John Doe", email: "john@example.com" });
+ * const customContact = createMockContact([{ name: "Email", link: "mailto:john@example.com", icon: "mail", text: "john@example.com" }]);
  * ```
  */
-export const createMockContact = (overrides: Partial<MockContact> = {}): MockContact => ({
-  name: "Test User",
-  email: "test@example.com",
-  ...overrides,
-});
+export const createMockContact = (overrides?: ContactItem[]): MockContact =>
+  overrides || [
+    {
+      name: "Email",
+      link: "mailto:test@example.com",
+      icon: "mail",
+      text: "test@example.com",
+    },
+  ];

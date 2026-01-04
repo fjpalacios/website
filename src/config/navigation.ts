@@ -282,10 +282,21 @@ export async function hasContentInLanguage(routeKey: RouteKey, lang: "es" | "en"
   try {
     // Try to dynamically import the collection (only available in Astro build)
     const { getCollection } = await import("astro:content");
-    const entries = await getCollection(collectionName);
+    const entries = await getCollection(
+      collectionName as
+        | "posts"
+        | "tutorials"
+        | "books"
+        | "authors"
+        | "categories"
+        | "genres"
+        | "publishers"
+        | "challenges"
+        | "courses",
+    );
 
     // Check if any entry exists for this language
-    const hasContent = entries.some((entry) => entry.data.language === lang);
+    const hasContent = entries.some((entry) => (entry.data as { language?: string }).language === lang);
     return hasContent;
   } catch (error) {
     // If astro:content is not available (e.g., in tests), use fallback

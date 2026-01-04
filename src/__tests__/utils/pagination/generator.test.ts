@@ -128,12 +128,12 @@ describe("pagination/generator", () => {
       expect(paths).toHaveLength(2);
 
       // Page 2 should have items 6-10
-      expect(paths[0].props.items[0].id).toBe(6);
-      expect(paths[0].props.items[4].id).toBe(10);
+      expect((paths[0].props.items as MockItem[])[0].id).toBe(6);
+      expect((paths[0].props.items as MockItem[])[4].id).toBe(10);
 
       // Page 3 should have items 11-15
-      expect(paths[1].props.items[0].id).toBe(11);
-      expect(paths[1].props.items[4].id).toBe(15);
+      expect((paths[1].props.items as MockItem[])[0].id).toBe(11);
+      expect((paths[1].props.items as MockItem[])[4].id).toBe(15);
     });
 
     it("should use custom itemsKey in props", () => {

@@ -78,6 +78,7 @@ export const TAXONOMY_CONFIGS: Record<string, TaxonomyConfig> = {
  */
 export async function getAllTaxonomyItems(config: TaxonomyConfig, lang: string) {
   const items = await getCollection(config.collection);
+  // @ts-expect-error - Astro 5 CollectionEntry type compatibility with filterByLanguage
   return filterByLanguage(items, lang);
 }
 
@@ -89,7 +90,9 @@ export async function getAllContentForTaxonomy(config: TaxonomyConfig, lang: str
 
   for (const collectionName of config.contentCollections) {
     const collection = await getCollection(collectionName);
+    // @ts-expect-error - Astro 5 CollectionEntry type compatibility with filterByLanguage
     const filtered = filterByLanguage(collection, lang);
+    // @ts-expect-error - Astro 5 CollectionEntry array push type mismatch
     allContent.push(...filtered);
   }
 
@@ -105,7 +108,8 @@ export function countItemsForTaxonomy(
   config: TaxonomyConfig,
 ): number {
   return content.filter((item) => {
-    const value = item.data[config.contentField];
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Dynamic taxonomy field access
+    const value = (item.data as any)[config.contentField];
     if (config.isSingular) {
       return value === taxonomySlug;
     }
@@ -121,7 +125,8 @@ export async function getTaxonomyItemsWithCount(config: TaxonomyConfig, lang: st
   const content = await getAllContentForTaxonomy(config, lang);
 
   return taxonomyItems.map((item) => {
-    const slug = item.data[config.slugField];
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Dynamic taxonomy field access
+    const slug = (item.data as any)[config.slugField];
     const count = countItemsForTaxonomy(content, slug, config);
     return { item, count };
   });
@@ -135,7 +140,8 @@ export async function hasTargetContent(config: TaxonomyConfig, targetLang: strin
   const targetContent = await getAllContentForTaxonomy(config, targetLang);
 
   return targetItems.some((item) => {
-    const slug = item.data[config.slugField];
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Dynamic taxonomy field access
+    const slug = (item.data as any)[config.slugField];
     const count = countItemsForTaxonomy(targetContent, slug, config);
     return count > 0;
   });
@@ -150,7 +156,8 @@ export function prepareContentSummary(
   if (item.collection === "posts") {
     return preparePostSummary(item as CollectionEntry<"posts">);
   } else if (item.collection === "tutorials") {
-    return prepareTutorialSummary(item as CollectionEntry<"tutorials">);
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Tutorial summary return type compatibility
+    return prepareTutorialSummary(item as CollectionEntry<"tutorials">) as any;
   } else {
     return prepareBookSummary(item as CollectionEntry<"books">);
   }
@@ -166,24 +173,28 @@ export async function generateTaxonomyDetailPaths(config: TaxonomyConfig, lang: 
   // Get target language items to check if translation exists
   const targetLang = lang === "es" ? "en" : "es";
   const targetTaxonomyItems = await getAllTaxonomyItems(config, targetLang);
-  const targetTaxonomySlugs = new Set(targetTaxonomyItems.map((item) => item.data[config.slugField]));
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Dynamic taxonomy field access
+  const targetTaxonomySlugs = new Set(targetTaxonomyItems.map((item) => (item.data as any)[config.slugField]));
 
   const paths = [];
 
   for (const taxonomyItem of taxonomyItems) {
-    const taxonomySlug = taxonomyItem.data[config.slugField];
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Dynamic taxonomy field access
+    const taxonomySlug = (taxonomyItem.data as any)[config.slugField];
 
     // Check if this taxonomy item exists in the target language
     // If item has i18n field, use it to find the translated slug
     // Otherwise, fall back to checking if the same slug exists in target language
-    const translationSlug = taxonomyItem.data.i18n;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Dynamic taxonomy field access
+    const translationSlug = (taxonomyItem.data as any).i18n;
     const hasTargetContent = translationSlug
       ? targetTaxonomySlugs.has(translationSlug)
       : targetTaxonomySlugs.has(taxonomySlug);
 
     // Filter content by taxonomy
     const taxonomyContent = allContent.filter((item) => {
-      const value = item.data[config.contentField];
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Dynamic taxonomy field access
+      const value = (item.data as any)[config.contentField];
 
       // Handle singular fields (e.g., author, publisher)
       if (config.isSingular) {
@@ -200,8 +211,10 @@ export async function generateTaxonomyDetailPaths(config: TaxonomyConfig, lang: 
     taxonomyContent.sort((a, b) => {
       if (config.collection === "courses") {
         // If both have order field, sort by order ascending
-        const orderA = a.collection === "tutorials" ? a.data.order : undefined;
-        const orderB = b.collection === "tutorials" ? b.data.order : undefined;
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Dynamic field access for ordering
+        const orderA = a.collection === "tutorials" ? (a.data as any).order : undefined;
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Dynamic field access for ordering
+        const orderB = b.collection === "tutorials" ? (b.data as any).order : undefined;
 
         if (orderA !== undefined && orderB !== undefined) {
           return orderA - orderB;

@@ -38,7 +38,7 @@ describe("cachedLoaders", () => {
       const mockBooks = [{ id: "book1" }];
       const mockLoader = vi.fn().mockResolvedValue(mockBooks);
 
-      vi.mocked(buildCache.getOrCompute).mockImplementation(async (_key: string, fn: () => Promise<unknown[]>) => {
+      vi.mocked(buildCache.getOrCompute).mockImplementation(async (_key: string, fn: () => Promise<unknown>) => {
         return fn();
       });
 
@@ -77,7 +77,7 @@ describe("cachedLoaders", () => {
       const mockTutorials = [{ id: "tutorial1" }];
       const mockLoader = vi.fn().mockResolvedValue(mockTutorials);
 
-      vi.mocked(buildCache.getOrCompute).mockImplementation(async (_key: string, fn: () => Promise<unknown[]>) => {
+      vi.mocked(buildCache.getOrCompute).mockImplementation(async (_key: string, fn: () => Promise<unknown>) => {
         return fn();
       });
 
@@ -104,7 +104,7 @@ describe("cachedLoaders", () => {
       const mockPosts = [{ id: "post1" }];
       const mockLoader = vi.fn().mockResolvedValue(mockPosts);
 
-      vi.mocked(buildCache.getOrCompute).mockImplementation(async (_key: string, fn: () => Promise<unknown[]>) => {
+      vi.mocked(buildCache.getOrCompute).mockImplementation(async (_key: string, fn: () => Promise<unknown>) => {
         return fn();
       });
 

@@ -3,6 +3,7 @@
  *
  * @module __tests__/utils/errors.test
  */
+/* eslint-disable @typescript-eslint/no-explicit-any -- Test file requires any for mocking Zod issues */
 
 import { describe, expect, it } from "vitest";
 
@@ -70,7 +71,7 @@ describe("Centralized Error Classes", () => {
       const zodIssues = [
         { path: ["lang"], message: "Invalid enum value", code: "invalid_enum_value" as const },
         { path: ["posts"], message: "Required", code: "invalid_type" as const },
-      ];
+      ] as any;
 
       const error = new PropsValidationError("PostList", zodIssues);
 
@@ -90,7 +91,7 @@ describe("Centralized Error Classes", () => {
           message: "String must contain at least 1 character(s)",
           code: "too_small" as const,
         },
-      ];
+      ] as any;
 
       const error = new PropsValidationError("AuthorCard", zodIssues);
 

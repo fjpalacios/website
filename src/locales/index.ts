@@ -32,8 +32,8 @@ export function t(lang: string, key: string): string {
   let value: Translations | string | Record<string, unknown> = trans;
 
   for (const k of keys) {
-    if (value && typeof value === "object") {
-      value = value[k as keyof typeof value];
+    if (value && typeof value === "object" && k in value) {
+      value = (value as Record<string, unknown>)[k] as Translations | string | Record<string, unknown>;
     } else {
       return key; // Path not found, return original key
     }
