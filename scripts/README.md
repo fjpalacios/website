@@ -468,6 +468,75 @@ If needed, create publisher file in `src/content/publishers/{slug}.json`:
 
 ---
 
+## 🎨 Image Generation Script
+
+Generate Open Graph images with custom text or logos for social media sharing.
+
+### Generate Image with Text
+
+```bash
+# Using npm script (recommended)
+bun run generate:og text "hello world" "#1a7f8f" output.jpg
+
+# Or directly with bash
+./scripts/generate-og-image.sh text "hello world" "#1a7f8f" output.jpg
+
+# Multi-line text (automatically splits at >20 characters)
+bun run generate:og text "learn to code from scratch" "#5a3e85" output.jpg
+```
+
+### Generate Image with Logo
+
+```bash
+# Using npm script (recommended)
+bun run generate:og logo path/to/logo.png "#F05032" output.jpg
+
+# Or directly with bash
+./scripts/generate-og-image.sh logo path/to/logo.png "#F05032" output.jpg
+
+# With SVG logo (limited support)
+bun run generate:og logo path/to/logo.svg "#336699" output.jpg
+```
+
+**Important:** For best results, use **PNG logos with transparency** in white or light colors. The script works well with pre-prepared logos. SVG support is limited due to ImageMagick transparency rendering issues.
+
+**Features:**
+
+- ✅ **Dimensions**: 1840x720px (optimized for Open Graph)
+- ✅ **Typography**: Press Start 2P (pixel/retro style)
+- ✅ **Border**: Semi-transparent black (21% opacity, 90px width)
+- ✅ **Auto text splitting**: Long text automatically splits into two lines
+- ✅ **Logo handling**: Works best with PNG logos (350x350px when resized)
+- ✅ **Custom colors**: Any hex color for background
+
+**Text Mode:**
+
+- Single line: 72pt font size
+- Two lines: 72pt font size (auto-detected when text >20 chars)
+- Divides text at space closest to middle
+
+**Logo Mode:**
+
+- Logo resized to 350x350px and centered
+- Best results with PNG logos that have transparency
+- White or light-colored logos recommended for contrast
+- SVG support is limited (transparency rendering issues with ImageMagick)
+
+**Examples:**
+
+```bash
+# Git tutorial image
+bun run generate:og logo git-logo.svg "#F05032" git-tutorial.jpg
+
+# Book review image
+bun run generate:og text "the hobbit review" "#8B4513" hobbit-og.jpg
+
+# Multi-line course image
+bun run generate:og text "learn javascript from scratch" "#F7DF1E" js-course.jpg
+```
+
+---
+
 ## 📚 Additional Resources
 
 - [Astro Content Collections](https://docs.astro.build/en/guides/content-collections/)
