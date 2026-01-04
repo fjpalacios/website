@@ -4,6 +4,7 @@
 # Usage:
 #   ./scripts/generate-og-image.sh text "Your text here" "#FF5733" output.jpg
 #   ./scripts/generate-og-image.sh logo path/to/logo.svg "#FF5733" output.jpg
+#   ./scripts/generate-og-image.sh logo path/to/logo.svg "gradient:rgb(45,65,95)-rgb(60,85,120)-rgb(45,65,95)" output.jpg
 
 set -e
 
@@ -15,8 +16,9 @@ OUTPUT="$4"
 # Default values
 WIDTH=1840
 HEIGHT=720
-BORDER_SIZE=90
+BORDER_SIZE=100
 BORDER_OPACITY=0.21
+BORDER_DARKEN=21  # Percentage to darken border for gradients
 FONT="Press-Start-2P-Regular"
 FONT_SIZE=72
 TEXT_COLOR="white"
@@ -26,7 +28,16 @@ if [ -z "$MODE" ] || [ -z "$CONTENT" ] || [ -z "$BG_COLOR" ] || [ -z "$OUTPUT" ]
     echo "Usage:"
     echo "  Text mode: $0 text \"Your text\" \"#COLOR\" output.jpg"
     echo "  Logo mode: $0 logo path/to/logo.svg \"#COLOR\" output.jpg"
+    echo "  Gradient mode: $0 logo path/to/logo.svg \"gradient:rgb(R,G,B)-rgb(R,G,B)-rgb(R,G,B)\" output.jpg"
     exit 1
+fi
+
+# Detect if BG_COLOR is a gradient or solid color
+if [[ "$BG_COLOR" == gradient:* ]]; then
+    USE_GRADIENT=true
+    GRADIENT_SPEC="${BG_COLOR#gradient:}"
+else
+    USE_GRADIENT=false
 fi
 
 # Create temporary directory
@@ -35,6 +46,31 @@ mkdir -p "$TMP_DIR"
 
 # Cleanup on exit
 trap "rm -rf $TMP_DIR" EXIT
+
+# Function to create base image with background and border
+create_base_image() {
+    local output_file="$1"
+    
+    if [ "$USE_GRADIENT" = true ]; then
+        # Create base gradient
+        magick -size ${WIDTH}x${HEIGHT} gradient:"$GRADIENT_SPEC" "$TMP_DIR/base_gradient.jpg"
+        
+        # Darken entire image for border effect (more visible)
+        magick "$TMP_DIR/base_gradient.jpg" -fill black -colorize ${BORDER_DARKEN}% "$TMP_DIR/darkened_full.jpg"
+        
+        # Create inner gradient (lighter, original colors)
+        magick -size $((WIDTH - 2*BORDER_SIZE))x$((HEIGHT - 2*BORDER_SIZE)) gradient:"$GRADIENT_SPEC" "$TMP_DIR/inner_gradient.jpg"
+        
+        # Composite inner over darkened base to create border effect
+        magick "$TMP_DIR/darkened_full.jpg" "$TMP_DIR/inner_gradient.jpg" -geometry +${BORDER_SIZE}+${BORDER_SIZE} -composite "$output_file"
+    else
+        # Create solid color background with border
+        magick -size ${WIDTH}x${HEIGHT} xc:"$BG_COLOR" \
+          -fill "rgba(0,0,0,$BORDER_OPACITY)" -draw "rectangle 0,0 $WIDTH,$HEIGHT" \
+          -fill "$BG_COLOR" -draw "rectangle $BORDER_SIZE,$BORDER_SIZE $((WIDTH-BORDER_SIZE)),$((HEIGHT-BORDER_SIZE))" \
+          "$output_file"
+    fi
+}
 
 if [ "$MODE" = "text" ]; then
     # Text mode
@@ -74,10 +110,7 @@ if [ "$MODE" = "text" ]; then
         MULTILINE_FONT_SIZE=72
         
         # Create base image with border
-        magick -size ${WIDTH}x${HEIGHT} xc:"$BG_COLOR" \
-          -fill "rgba(0,0,0,$BORDER_OPACITY)" -draw "rectangle 0,0 $WIDTH,$HEIGHT" \
-          -fill "$BG_COLOR" -draw "rectangle $BORDER_SIZE,$BORDER_SIZE $((WIDTH-BORDER_SIZE)),$((HEIGHT-BORDER_SIZE))" \
-          "$TMP_DIR/base.jpg"
+        create_base_image "$TMP_DIR/base.jpg"
         
         # Add first line of text
         magick "$TMP_DIR/base.jpg" \
@@ -92,9 +125,9 @@ if [ "$MODE" = "text" ]; then
           "$OUTPUT"
     else
         # Single line text
-        magick -size ${WIDTH}x${HEIGHT} xc:"$BG_COLOR" \
-          -fill "rgba(0,0,0,$BORDER_OPACITY)" -draw "rectangle 0,0 $WIDTH,$HEIGHT" \
-          -fill "$BG_COLOR" -draw "rectangle $BORDER_SIZE,$BORDER_SIZE $((WIDTH-BORDER_SIZE)),$((HEIGHT-BORDER_SIZE))" \
+        create_base_image "$TMP_DIR/base.jpg"
+        
+        magick "$TMP_DIR/base.jpg" \
           -font "$FONT" -pointsize $FONT_SIZE -fill "$TEXT_COLOR" \
           -gravity center -annotate +0+0 "$TEXT" \
           "$OUTPUT"
@@ -113,18 +146,15 @@ elif [ "$MODE" = "logo" ]; then
     # Note: Use a white logo for best contrast against colored backgrounds
     LOGO_EXT="${LOGO_PATH##*.}"
     if [ "$LOGO_EXT" = "svg" ]; then
-        magick "$LOGO_PATH" -background none -resize 350x350 "$TMP_DIR/logo.png"
+        magick "$LOGO_PATH" -background none -resize 400x400 "$TMP_DIR/logo.png"
         LOGO_TO_USE="$TMP_DIR/logo.png"
     else
-        magick "$LOGO_PATH" -resize 350x350 "$TMP_DIR/logo.png"
+        magick "$LOGO_PATH" -resize 400x400 "$TMP_DIR/logo.png"
         LOGO_TO_USE="$TMP_DIR/logo.png"
     fi
     
     # Create base image with border
-    magick -size ${WIDTH}x${HEIGHT} xc:"$BG_COLOR" \
-      -fill "rgba(0,0,0,$BORDER_OPACITY)" -draw "rectangle 0,0 $WIDTH,$HEIGHT" \
-      -fill "$BG_COLOR" -draw "rectangle $BORDER_SIZE,$BORDER_SIZE $((WIDTH-BORDER_SIZE)),$((HEIGHT-BORDER_SIZE))" \
-      "$TMP_DIR/base.jpg"
+    create_base_image "$TMP_DIR/base.jpg"
     
     # Composite logo on top
     magick "$TMP_DIR/base.jpg" "$LOGO_TO_USE" -gravity center -compose over -composite "$OUTPUT"
