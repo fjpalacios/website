@@ -1,20 +1,42 @@
-import en from "./en/common.json";
-import es from "./es/common.json";
+import { getLanguageCodes, isValidLanguage, getDefaultLanguage } from "@/config/languages";
 
-type Translations = typeof es;
+// Dynamically import translations for all configured languages
+const translationsModules = import.meta.glob<{ default: Record<string, unknown> }>("./**/common.json", { eager: true });
 
-const translations: Record<string, Translations> = {
-  es,
-  en,
-};
+// Build translations object from imported modules
+const translations: Record<string, Record<string, unknown>> = {};
+const languageCodes = getLanguageCodes();
+
+for (const [path, module] of Object.entries(translationsModules)) {
+  // Extract language code from path: ./es/common.json -> es
+  const match = path.match(/\/([^/]+)\/common\.json$/);
+  if (match) {
+    const lang = match[1];
+    if (isValidLanguage(lang)) {
+      translations[lang] = module.default;
+    }
+  }
+}
+
+// Validate that all configured languages have translation files
+for (const lang of languageCodes) {
+  if (!translations[lang]) {
+    console.warn(
+      `Warning: Language "${lang}" is configured but has no translation file at src/locales/${lang}/common.json`,
+    );
+  }
+}
+
+type Translations = (typeof translations)[keyof typeof translations];
 
 /**
  * Gets translations for a given language
- * @param lang - Language code (es/en)
- * @returns Translation object for the specified language, defaults to Spanish if not found
+ * @param lang - Language code (es/en/...)
+ * @returns Translation object for the specified language, defaults to default language if not found
  */
 export function getTranslations(lang: string): Translations {
-  return translations[lang] || translations.es;
+  const defaultLang = getDefaultLanguage().code;
+  return (translations[lang] as Translations) || (translations[defaultLang] as Translations);
 }
 
 /**

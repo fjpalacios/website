@@ -9,6 +9,7 @@
  * @module config/navigation
  */
 
+import { getLanguageCodes, type LanguageKey } from "@/config/languages";
 import { buildLogger } from "@/utils/logger";
 
 /**
@@ -69,7 +70,7 @@ export interface NavigationItem {
    * @example ["es"] - Only Spanish
    * @example ["es", "en"] - Both languages
    */
-  visibleIn?: ("es" | "en")[];
+  visibleIn?: LanguageKey[];
 
   /**
    * Whether to show this item in the main navigation menu
@@ -198,10 +199,10 @@ const NAVIGATION_ITEMS: readonly NavigationItem[] = [
  * STATIC PAGES: Always available in specified languages (don't need content check)
  * DYNAMIC PAGES: Need content collection check to determine availability
  */
-const STATIC_PAGES: Readonly<Record<string, ("es" | "en")[] | undefined>> = {
-  home: ["es", "en"], // Static page - always both languages
-  about: ["es", "en"], // Static page - always both languages
-  feeds: ["es", "en"], // RSS feeds aggregator - always both languages
+const STATIC_PAGES: Readonly<Record<string, LanguageKey[] | undefined>> = {
+  home: getLanguageCodes(), // Static page - all languages
+  about: getLanguageCodes(), // Static page - all languages
+  feeds: getLanguageCodes(), // RSS feeds aggregator - all languages
 };
 
 /**
@@ -230,7 +231,7 @@ const ROUTE_TO_COLLECTION: Readonly<Partial<Record<RouteKey, string>>> = {
  * - Spanish: All collections have content
  * - English: Only books (1), authors (4), categories (4), genres (6), publishers (2), courses (2)
  */
-const CONTENT_AVAILABILITY_FALLBACK: Readonly<Partial<Record<RouteKey, ("es" | "en")[]>>> = {
+const CONTENT_AVAILABILITY_FALLBACK: Readonly<Partial<Record<RouteKey, LanguageKey[]>>> = {
   posts: ["es"],
   tutorials: ["es"],
   books: ["es", "en"],
@@ -265,7 +266,7 @@ const CONTENT_AVAILABILITY_FALLBACK: Readonly<Partial<Record<RouteKey, ("es" | "
  * await hasContentInLanguage("tutorials", "en") // false (no English tutorials)
  * ```
  */
-export async function hasContentInLanguage(routeKey: RouteKey, lang: "es" | "en"): Promise<boolean> {
+export async function hasContentInLanguage(routeKey: RouteKey, lang: LanguageKey): Promise<boolean> {
   // Check if it's a static page first
   const staticAvailability = STATIC_PAGES[routeKey];
   if (staticAvailability !== undefined) {
@@ -356,7 +357,7 @@ export function getAllNavigationItems(): NavigationItem[] {
  * // Example: home, about, posts, tutorials, books, categories, ... (no challenges)
  * ```
  */
-export function getMenuItems(lang: "es" | "en"): NavigationItem[] {
+export function getMenuItems(lang: LanguageKey): NavigationItem[] {
   return NAVIGATION_ITEMS.filter(
     (item) =>
       item.showInMenu !== false && // Explicitly shown in menu (default true)
@@ -393,7 +394,7 @@ export function getMenuItems(lang: "es" | "en"): NavigationItem[] {
  * // Will exclude sections without English content (tutorials, series, courses, challenges)
  * ```
  */
-export async function getFooterItems(lang: "es" | "en"): Promise<NavigationItem[]> {
+export async function getFooterItems(lang: LanguageKey): Promise<NavigationItem[]> {
   // First filter by basic criteria (showInFooter, visibleIn)
   const candidateItems = NAVIGATION_ITEMS.filter(
     (item) =>

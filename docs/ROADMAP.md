@@ -1,6 +1,6 @@
 # Website Roadmap
 
-**Last Updated:** January 3, 2026  
+**Last Updated:** January 5, 2026  
 **Branch:** `feature/blog-foundation`
 
 ## Current Status
@@ -9,8 +9,8 @@
 
 - Unified router handling 86 dynamic paths
 - 25 reusable page templates
-- Full i18n support (ES/EN)
-- 1,545 tests passing (1,118 unit + 427 E2E)
+- Full i18n support (ES/EN) with **centralized language configuration**
+- 1,401 tests passing (1,401 unit tests - E2E pending)
 - Lighthouse 100/100 on all metrics
 - Build: 86 pages in ~9 seconds
 
@@ -40,6 +40,7 @@ All core features implemented:
 - Accessibility (WCAG AAA)
 - Performance optimization
 - Testing infrastructure
+- **i18n automation system** ⭐ NEW (Jan 5, 2026)
 
 ### Phase 6: Content Migration 🔴
 
@@ -108,11 +109,41 @@ Tasks:
 
 ## Future Enhancements (Post-Launch)
 
-### Optional: Third Language Support
+### Optional: Third Language Support ✅ READY
 
-Add Catalan, French, or Portuguese support.
+**Status:** Architecture complete + scaffolding script (Jan 5, 2026)
 
-**Effort:** 8-12 hours (architecture already ready)
+Adding a new language now takes **10-15 minutes** with the automated script:
+
+```bash
+bun run new:language fr "Français" --with-content
+```
+
+**What it does:**
+
+1. Creates translation file (from English template)
+2. Creates static pages with correct language code
+3. Creates content folders (optional)
+4. Shows exact manual steps needed
+
+**Then you just:**
+
+1. Add language config (2 min - copy from script)
+2. Translate strings (10-15 min)
+3. Run validation (1 min)
+
+**Key improvements:**
+
+- ✅ Auto-generated TypeScript types
+- ✅ Dynamic schema validators
+- ✅ Centralized URL segments
+- ✅ Validation script included
+- ✅ Scaffolding script for automation
+- ✅ Comprehensive documentation
+
+See: `docs/ADDING_LANGUAGES.md` for step-by-step guide.
+
+**Effort to add language:** 10-15 minutes (down from 3-4 hours)
 
 ### Optional: Analytics Dashboard
 

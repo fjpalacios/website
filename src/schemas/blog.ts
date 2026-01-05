@@ -3,6 +3,24 @@
 
 import { z } from "zod";
 
+import { getLanguageCodes } from "@/config/languages";
+
+/**
+ * Create a dynamic language enum validator
+ * This automatically includes all configured languages
+ */
+function createLanguageEnum() {
+  const languages = getLanguageCodes();
+  if (languages.length === 0) {
+    throw new Error("No languages configured in src/config/languages.ts");
+  }
+  // z.enum requires at least 2 values, use type assertion for single language
+  return languages.length === 1 ? z.literal(languages[0]) : z.enum(languages as [string, string, ...string[]]);
+}
+
+// Create the language validator
+const languageSchema = createLanguageEnum();
+
 // Books collection schema
 export const booksSchema = z
   .object({
@@ -11,7 +29,7 @@ export const booksSchema = z
     post_slug: z.string(),
     date: z.coerce.date(),
     excerpt: z.string(),
-    language: z.enum(["es", "en"]),
+    language: languageSchema,
 
     // Book-specific metadata
     synopsis: z.string(),

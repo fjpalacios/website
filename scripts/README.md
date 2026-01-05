@@ -16,6 +16,58 @@ Automation scripts to improve developer experience and content management.
 
 ## 📝 Content Creation Scripts
 
+### Create a New Language
+
+```bash
+# Basic (no content folders)
+bun run new:language <code> "<label>"
+
+# With content folders
+bun run new:language <code> "<label>" --with-content
+
+# Set as default language
+bun run new:language <code> "<label>" --default
+```
+
+**Options:**
+
+- `<code>` (required): ISO 639-1 language code (2 letters: `fr`, `pt`, `ca`, etc.)
+- `<label>` (required): Native language name (e.g., `"Français"`, `"Português"`)
+- `--with-content`: Create content folders (books, posts, tutorials, etc.)
+- `--default`: Set this language as the default/fallback
+
+**Examples:**
+
+```bash
+# French without content folders
+bun run new:language fr "Français"
+
+# Portuguese with content folders
+bun run new:language pt "Português" --with-content
+
+# Catalan as default language
+bun run new:language ca "Català" --default --with-content
+```
+
+**What it does:**
+
+- ✅ Creates translation file (`src/locales/{code}/common.json`)
+- ✅ Creates static pages (`src/pages/{code}/*.astro`)
+- ✅ Creates content folders (if `--with-content` flag)
+- ✅ Shows exact instructions for remaining manual steps
+
+**Then you just need to:**
+
+1. Add language config to `src/config/languages.ts` (copy from script output)
+2. Translate strings in `src/locales/{code}/common.json`
+3. Run validation: `bun run validate:languages`
+
+**Time:** ~10-15 minutes total (down from 3-4 hours)
+
+**See also:** `docs/ADDING_LANGUAGES.md` for detailed guide
+
+---
+
 ### Create a New Book
 
 ```bash
@@ -138,7 +190,28 @@ bun run new:tutorial -- \
 
 ---
 
-## ✅ Content Validation Script
+## ✅ Content Validation Scripts
+
+### Validate Languages
+
+Validate that all configured languages have the required files and folders.
+
+```bash
+bun run validate:languages
+```
+
+**Checks performed:**
+
+- ✅ Translation files exist (`src/locales/{code}/common.json`)
+- ✅ Static pages exist (`src/pages/{code}/`)
+- ✅ Critical pages exist (`index.astro`)
+
+**Exit codes:**
+
+- `0` - Validation passed
+- `1` - Validation failed (missing required files)
+
+### Validate Content
 
 Validate all content files for correctness and consistency.
 
