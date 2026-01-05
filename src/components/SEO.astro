@@ -12,12 +12,14 @@
 import { t } from "@locales";
 import { getCanonicalSegment, getLocalizedRoute, type RouteSegment } from "@utils/routes";
 
+import { getAlternateLang, getOGLocale, getUrlSegment, type LanguageKey } from "@/config/languages";
+
 interface Props {
   title: string;
   description: string;
   image?: string;
   type?: "website" | "article" | "book";
-  lang: "es" | "en";
+  lang: LanguageKey;
   translationSlug?: string;
   schema?: Record<string, unknown>;
   // Pagination support for rel=prev/next
@@ -47,8 +49,8 @@ const twitterUsername = t(lang, "metaData.twitterUsername");
 const currentPath = Astro.url.pathname;
 const canonicalUrl = `${siteUrl}${currentPath}`;
 
-// Build alternate language URL
-const alternateLang = lang === "es" ? "en" : "es";
+// Build alternate language URL using centralized helper
+const alternateLang = getAlternateLang(lang);
 let alternateUrl: string | null = null;
 
 if (translationSlug) {
@@ -98,8 +100,8 @@ if (translationSlug) {
 // Convert image URL to absolute if needed
 const absoluteImageUrl = image ? (image.startsWith("http") ? image : `${siteUrl}${image}`) : null;
 
-// Map language to OG locale format
-const ogLocale = lang === "es" ? "es_ES" : "en_US";
+// Map language to OG locale format using centralized helper
+const ogLocale = getOGLocale(lang);
 
 // Build default JSON-LD schema if none provided
 const defaultSchema = {
@@ -113,8 +115,8 @@ const defaultSchema = {
 
 const finalSchema = schema || defaultSchema;
 
-// Build pagination URLs for rel=prev/next
-const pageSegment = lang === "es" ? "pagina" : "page";
+// Build pagination URLs for rel=prev/next using centralized config
+const pageSegment = getUrlSegment(lang, "page");
 let prevUrl: string | null = null;
 let nextUrl: string | null = null;
 

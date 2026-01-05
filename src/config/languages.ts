@@ -217,5 +217,58 @@ export function getAllUrlSegments(lang: LanguageKey): LanguageConfig["urlSegment
   return config.urlSegments;
 }
 
+/**
+ * Get the alternate language for language switching
+ * Returns the first available language that is not the current one.
+ * Useful for bilingual sites with language switcher components.
+ *
+ * @param lang - Current language code
+ * @returns Alternate language code
+ *
+ * @example
+ * getAlternateLang("es") // => "en"
+ * getAlternateLang("en") // => "es"
+ */
+export function getAlternateLang(lang: LanguageKey): LanguageKey {
+  const languages = getLanguageCodes();
+  const alternate = languages.find((l) => l !== lang);
+  return alternate ?? lang;
+}
+
+/**
+ * Get full locale code for date formatting (BCP 47 format)
+ *
+ * @param lang - Language key
+ * @returns Full locale code for Intl API (e.g., "es-ES", "en-US")
+ *
+ * @example
+ * getLocaleCode("es") // => "es-ES"
+ * getLocaleCode("en") // => "en-US"
+ */
+export function getLocaleCode(lang: LanguageKey): string {
+  // Map language codes to full locale codes
+  const localeMap: Record<LanguageKey, string> = {
+    es: "es-ES",
+    en: "en-US",
+  };
+
+  return localeMap[lang] ?? "en-US";
+}
+
+/**
+ * Get Open Graph locale format
+ * Converts BCP 47 locale to Open Graph format (underscore instead of hyphen)
+ *
+ * @param lang - Language key
+ * @returns OG locale format (e.g., "es_ES", "en_US")
+ *
+ * @example
+ * getOGLocale("es") // => "es_ES"
+ * getOGLocale("en") // => "en_US"
+ */
+export function getOGLocale(lang: LanguageKey): string {
+  return getLocaleCode(lang).replace("-", "_");
+}
+
 // Export the configuration for direct access (read-only)
 export { LANGUAGE_CONFIG };

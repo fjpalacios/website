@@ -2,16 +2,18 @@
 import { t } from "@locales";
 import { buildDetailPageUrl, buildHomeUrl, buildStaticPageUrl, isHomePage } from "@utils/translation-url";
 
+import { getAlternateLang, getDefaultLanguageCode, type LanguageKey } from "@/config/languages";
+
 interface Props {
-  lang: "es" | "en";
+  lang: LanguageKey;
   translationSlug?: string; // Slug of the translated version (from i18n field)
   disabled?: boolean; // True if translation doesn't exist
 }
 
 const { lang, translationSlug, disabled = false } = Astro.props;
 
-// Determine target language
-const targetLang = lang === "es" ? "en" : "es";
+// Determine target language using centralized helper
+const targetLang = getAlternateLang(lang);
 const currentPath = Astro.url.pathname;
 
 // Build translated URL using the translationSlug if provided
@@ -40,7 +42,7 @@ const translatedUrl = disabled ? "#" : getTranslatedUrl();
 
 // Language label and code
 const langCode = targetLang.toUpperCase();
-const flagLabel = t(lang, targetLang === "es" ? "menu.toSpanish" : "menu.toEnglish");
+const flagLabel = t(lang, targetLang === getDefaultLanguageCode() ? "menu.toSpanish" : "menu.toEnglish");
 ---
 
 <button

@@ -9,8 +9,10 @@ import { t } from "@locales";
 import type { ContactItem } from "@types/content";
 import { ViewTransitions } from "astro:transitions";
 
+import { getUrlSegment, type LanguageKey } from "@/config/languages";
+
 interface Props {
-  lang: string;
+  lang: LanguageKey;
   title?: string;
   description?: string;
   contact: ContactItem[];
@@ -82,19 +84,19 @@ const baseUrl = t(lang, "metaData.url");
       rel="alternate"
       type="application/rss+xml"
       title={`${t(lang, "title")} - ${t(lang, "feeds.general")}`}
-      href={lang === "es" ? "/es/rss.xml" : "/en/rss.xml"}
+      href={`/${lang}/rss.xml`}
     />
     <link
       rel="alternate"
       type="application/rss+xml"
       title={`${t(lang, "title")} - ${t(lang, "feeds.books")}`}
-      href={lang === "es" ? "/es/libros/rss.xml" : "/en/books/rss.xml"}
+      href={`/${lang}/${getUrlSegment(lang, "books")}/rss.xml`}
     />
     <link
       rel="alternate"
       type="application/rss+xml"
       title={`${t(lang, "title")} - ${t(lang, "feeds.tutorials")}`}
-      href={lang === "es" ? "/es/tutoriales/rss.xml" : "/en/tutorials/rss.xml"}
+      href={`/${lang}/${getUrlSegment(lang, "tutorials")}/rss.xml`}
     />
 
     <ViewTransitions />

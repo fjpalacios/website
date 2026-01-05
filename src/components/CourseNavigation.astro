@@ -21,6 +21,8 @@ import Icon from "@components/Icon.astro";
 import { t } from "@locales";
 import { buildTutorialUrl } from "@utils/routes";
 
+import type { LanguageKey } from "@/config/languages";
+
 interface TutorialInfo {
   title: string;
   slug: string;
@@ -30,7 +32,7 @@ interface TutorialInfo {
 interface Props {
   previousTutorial?: TutorialInfo;
   nextTutorial?: TutorialInfo;
-  lang: "es" | "en";
+  lang: LanguageKey;
   courseName: string;
 }
 
@@ -46,11 +48,9 @@ const previousUrl = previousTutorial ? buildTutorialUrl(lang, previousTutorial.s
 const nextUrl = nextTutorial ? buildTutorialUrl(lang, nextTutorial.slug) : null;
 
 // Localized labels
-const previousLabel =
-  t(lang, "courseNavigation.previous") || (lang === "es" ? "Tutorial anterior" : "Previous tutorial");
-const nextLabel = t(lang, "courseNavigation.next") || (lang === "es" ? "Siguiente tutorial" : "Next tutorial");
-const continueLabel =
-  t(lang, "courseNavigation.continue") || (lang === "es" ? "Continúa aprendiendo" : "Continue learning");
+const previousLabel = t(lang, "courseNavigation.previous");
+const nextLabel = t(lang, "courseNavigation.next");
+const continueLabel = t(lang, "courseNavigation.continue");
 ---
 
 <nav class="course-navigation" aria-label={`${courseName} navigation`}>

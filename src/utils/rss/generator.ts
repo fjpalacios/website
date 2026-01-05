@@ -5,7 +5,7 @@
 
 import type { CollectionEntry } from "astro:content";
 
-import { getDefaultLanguageCode } from "@/config/languages";
+import { getDefaultLanguageCode, getUrlSegment } from "@/config/languages";
 import type { LanguageKey } from "@/types";
 
 /**
@@ -56,17 +56,17 @@ export function buildContentUrl(item: ContentItem, lang: LanguageKey): string {
   const slug = item.data.post_slug;
   const collection = item.collection;
 
-  // Build URL pattern based on collection type
+  // Build URL pattern based on collection type using centralized config
   if (collection === "books") {
-    return lang === "es" ? `/es/libros/${slug}` : `/en/books/${slug}`;
+    return `/${lang}/${getUrlSegment(lang, "books")}/${slug}`;
   }
 
   if (collection === "tutorials") {
-    return lang === "es" ? `/es/tutoriales/${slug}` : `/en/tutorials/${slug}`;
+    return `/${lang}/${getUrlSegment(lang, "tutorials")}/${slug}`;
   }
 
   // Default to posts for any other collection type
-  return lang === "es" ? `/es/publicaciones/${slug}` : `/en/posts/${slug}`;
+  return `/${lang}/${getUrlSegment(lang, "posts")}/${slug}`;
 }
 
 /**

@@ -1,5 +1,5 @@
 ---
-import { type LanguageKey } from "@/config/languages";
+import { getDefaultLanguageCode, type LanguageKey } from "@/config/languages";
 
 import { TIMINGS } from "../config/timings";
 import { t } from "../locales";
@@ -28,6 +28,20 @@ const searchTranslations = {
   oneResult: t(lang, "search.oneResult"),
   searching: t(lang, "search.searching"),
 };
+
+// Pagefind-specific translations not in common.json
+const pagefindTranslations: Record<LanguageKey, { altSearch: string; searchSuggestion: string }> = {
+  es: {
+    altSearch: "No se encontraron resultados para [SEARCH_TERM]. Mostrando resultados para [DIFFERENT_TERM]",
+    searchSuggestion: "No se encontraron resultados para [SEARCH_TERM]. Intenta una de las siguientes búsquedas:",
+  },
+  en: {
+    altSearch: "No results for [SEARCH_TERM]. Showing results for [DIFFERENT_TERM] instead",
+    searchSuggestion: "No results for [SEARCH_TERM]. Try one of the following searches:",
+  },
+};
+
+const pagefindLabels = pagefindTranslations[lang] ?? pagefindTranslations[getDefaultLanguageCode()];
 ---
 
 <!-- Search Modal -->
@@ -137,14 +151,8 @@ const searchTranslations = {
             one_result: translations.oneResult
               ? translations.oneResult.replace("{{count}}", "[COUNT]")
               : "[COUNT] result",
-            alt_search:
-              lang === "es"
-                ? "No se encontraron resultados para [SEARCH_TERM]. Mostrando resultados para [DIFFERENT_TERM]"
-                : "No results for [SEARCH_TERM]. Showing results for [DIFFERENT_TERM] instead",
-            search_suggestion:
-              lang === "es"
-                ? "No se encontraron resultados para [SEARCH_TERM]. Intenta una de las siguientes búsquedas:"
-                : "No results for [SEARCH_TERM]. Try one of the following searches:",
+            alt_search: pagefindLabels.altSearch,
+            search_suggestion: pagefindLabels.searchSuggestion,
             searching: translations.searching || "Searching...",
           },
         });

@@ -82,11 +82,12 @@ describe("SEO Component", () => {
       expect(content).toMatch(/type.*=.*['"](website|article|book)['"]/);
     });
 
-    it("should include og:locale meta tag based on language", () => {
+    it("should include og:locale using centralized getOGLocale helper", () => {
       const content = fs.readFileSync(componentPath, "utf-8");
 
       expect(content).toContain('property="og:locale"');
-      expect(content).toMatch(/es[_-]ES|en[_-]US/);
+      // Should use getOGLocale() function from centralized config
+      expect(content).toMatch(/getOGLocale\(lang\)/);
     });
   });
 
@@ -164,11 +165,11 @@ describe("SEO Component", () => {
       expect(content).toMatch(/translationSlug|alternateUrl.*&&|if.*alternate/);
     });
 
-    it("should use correct language codes", () => {
+    it("should use centralized language system via getAlternateLang", () => {
       const content = fs.readFileSync(componentPath, "utf-8");
 
-      // Should map lang to proper language codes
-      expect(content).toMatch(/['"](es|en)['"]/);
+      // Should use getAlternateLang() for alternate language calculation
+      expect(content).toMatch(/getAlternateLang\(lang\)/);
     });
 
     it("should render hreflang for current language", () => {
@@ -232,10 +233,11 @@ describe("SEO Component", () => {
   });
 
   describe("Type Safety", () => {
-    it("should define lang as union type", () => {
+    it("should define lang using centralized LanguageKey type", () => {
       const content = fs.readFileSync(componentPath, "utf-8");
 
-      expect(content).toMatch(/lang:\s*['"](es|en)['"].*\|.*['"](es|en)['"]/);
+      // Should use LanguageKey type from centralized config
+      expect(content).toMatch(/lang:\s*LanguageKey/);
     });
 
     it("should define type as union of allowed OG types", () => {

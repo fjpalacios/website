@@ -1,6 +1,7 @@
 import type { CollectionEntry } from "astro:content";
 import { getCollection } from "astro:content";
 
+import { getAlternateLang } from "@/config/languages";
 import { PAGINATION_CONFIG } from "@/config/pagination";
 import type { ContactItem, LanguageKey } from "@/types";
 import { filterByLanguage, prepareBookSummary, preparePostSummary, prepareTutorialSummary } from "@/utils/blog";
@@ -207,7 +208,7 @@ export async function generateTaxonomyDetailPaths(config: TaxonomyConfig, lang: 
   const allContent = await getAllContentForTaxonomy(config, lang);
 
   // Get target language items to check if translation exists
-  const targetLang = lang === "es" ? "en" : "es";
+  const targetLang = getAlternateLang(lang);
   const targetTaxonomyItems = await getAllTaxonomyItems(config, targetLang);
   // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Dynamic taxonomy field access
   const targetTaxonomySlugs = new Set(targetTaxonomyItems.map((item) => (item.data as any)[config.slugField]));

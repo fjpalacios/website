@@ -2,7 +2,7 @@
  * Date formatting utilities for the blog
  */
 
-import { getDefaultLanguageCode } from "@/config/languages";
+import { getDefaultLanguageCode, getLocaleCode } from "@/config/languages";
 import type { LanguageKey } from "@/types";
 
 /**
@@ -41,7 +41,7 @@ export function formatVintageDate(
   const datetime = date.toISOString().split("T")[0];
 
   // Accessible text for screen readers
-  const aria = date.toLocaleDateString(lang === "es" ? "es-ES" : "en-US", {
+  const aria = date.toLocaleDateString(getLocaleCode(lang), {
     year: "numeric",
     month: "long",
     day: "numeric",

@@ -5,6 +5,7 @@
 
 import { getCollection } from "astro:content";
 
+import { getAlternateLang } from "@/config/languages";
 import { PAGINATION_CONFIG } from "@/config/pagination";
 import type { ContactItem, LanguageKey } from "@/types";
 import {
@@ -64,7 +65,7 @@ export async function generatePostsIndexPaths(lang: LanguageKey, contact: Contac
   const paginatedPosts = paginateItems(sortedContent, currentPage, POSTS_PER_PAGE);
 
   // Check if alternate language version has content (for language switcher)
-  const targetLang = lang === "es" ? "en" : "es";
+  const targetLang = getAlternateLang(lang);
   const targetContent = await getAllContentForLanguage(targetLang);
   const hasTargetContent = targetContent.length > 0;
 

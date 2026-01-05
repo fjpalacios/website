@@ -11,6 +11,7 @@
 import { contact as contactEN } from "@content/en/contact";
 import { contact as contactES } from "@content/es/contact";
 
+import { getDefaultLanguageCode } from "@/config/languages";
 import type { LanguageKey } from "@/types";
 import type { ContactItem } from "@/types/content";
 
@@ -38,7 +39,12 @@ import type { ContactItem } from "@/types/content";
  * @see ContactItem type definition in @types/content
  */
 export function getContact(lang: LanguageKey): ContactItem[] {
+  // Map language-specific contact data
+  const contactMap: Record<LanguageKey, ContactItem[]> = {
+    es: contactES,
+    en: contactEN,
+  };
+
   // Return a shallow copy to prevent accidental mutations
-  // of the original contact data
-  return lang === "es" ? [...contactES] : [...contactEN];
+  return [...(contactMap[lang] ?? contactMap[getDefaultLanguageCode()])];
 }

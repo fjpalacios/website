@@ -1,4 +1,6 @@
 ---
+import type { LanguageKey } from "@/config/languages";
+
 import { t } from "../locales";
 
 export interface BreadcrumbItem {
@@ -8,13 +10,14 @@ export interface BreadcrumbItem {
 
 interface Props {
   items: BreadcrumbItem[];
-  lang: "es" | "en";
+  lang: LanguageKey;
 }
 
 const { items, lang } = Astro.props;
 
 // Build Schema.org BreadcrumbList JSON-LD
-const baseUrl = lang === "es" ? "https://www.fcpalacios.dev" : "https://www.fcpalacios.dev";
+// Base URL is language-agnostic for this site
+const baseUrl = t(lang, "metaData.url");
 
 const breadcrumbSchema = {
   "@context": "https://schema.org",
