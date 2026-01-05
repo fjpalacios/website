@@ -63,7 +63,7 @@ const itemListSchema = generateItemListSchema(
 
     {
       tutorials.length > 0 ? (
-        <PostList posts={tutorials} lang={lang} />
+        <PostList posts={tutorials} lang={lang} showOrderBadges={true} />
       ) : (
         <div class="empty-state">
           <p>{t(lang, "emptyState.tutorials")}</p>

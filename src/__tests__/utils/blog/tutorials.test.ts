@@ -82,4 +82,77 @@ describe("prepareTutorialSummary", () => {
     const advanced = prepareTutorialSummary(mockTutorialWithOptional);
     expect(advanced.difficulty).toBe("advanced");
   });
+
+  describe("with courses", () => {
+    const mockCourses = [
+      {
+        data: {
+          course_slug: "javascript-fundamentals",
+          name: "JavaScript Fundamentals",
+          language: "en",
+          description: "Learn JS basics",
+        },
+      },
+      {
+        data: {
+          course_slug: "domina-git-desde-cero",
+          name: "Domina Git desde Cero",
+          language: "es",
+          description: "Aprende Git",
+        },
+      },
+    ] as CollectionEntry<"courses">[];
+
+    it("should include courseName when tutorial belongs to a course", () => {
+      const summary = prepareTutorialSummary(mockTutorialWithOptional, mockCourses);
+
+      expect(summary.course).toBe("javascript-fundamentals");
+      expect(summary.courseName).toBe("JavaScript Fundamentals");
+    });
+
+    it("should return undefined courseName when tutorial has no course field", () => {
+      const summary = prepareTutorialSummary(mockTutorial, mockCourses);
+
+      expect(summary.course).toBeUndefined();
+      expect(summary.courseName).toBeUndefined();
+    });
+
+    it("should return undefined courseName when courses array not provided", () => {
+      const summary = prepareTutorialSummary(mockTutorialWithOptional);
+
+      expect(summary.course).toBe("javascript-fundamentals");
+      expect(summary.courseName).toBeUndefined();
+    });
+
+    it("should return undefined courseName when course not found in courses array", () => {
+      const tutorialWithUnknownCourse = {
+        ...mockTutorialWithOptional,
+        data: {
+          ...mockTutorialWithOptional.data,
+          course: "non-existent-course",
+        },
+      } as CollectionEntry<"tutorials">;
+
+      const summary = prepareTutorialSummary(tutorialWithUnknownCourse, mockCourses);
+
+      expect(summary.course).toBe("non-existent-course");
+      expect(summary.courseName).toBeUndefined();
+    });
+
+    it("should match course by course_slug field", () => {
+      const tutorialWithGitCourse = {
+        ...mockTutorialWithOptional,
+        data: {
+          ...mockTutorialWithOptional.data,
+          course: "domina-git-desde-cero",
+          language: "es" as const,
+        },
+      } as CollectionEntry<"tutorials">;
+
+      const summary = prepareTutorialSummary(tutorialWithGitCourse, mockCourses);
+
+      expect(summary.course).toBe("domina-git-desde-cero");
+      expect(summary.courseName).toBe("Domina Git desde Cero");
+    });
+  });
 });

@@ -1,0 +1,51 @@
+/**
+ * Course Badge Styles
+ * 
+ * Rectangular badge that displays the course name for tutorials.
+ * Uses BEM methodology for class naming.
+ * Mobile-first approach with responsive adjustments.
+ */
+
+@use "../mixins" as *;
+@use "../variables" as *;
+
+.course-badge {
+  // Typography (mobile-first)
+  font-size: 0.625rem; // 10px
+  font-weight: 600;
+  line-height: 1.2;
+  text-align: left;
+
+  // Visual
+  background-color: rgba(0, 0, 0, 0.8);
+  color: #ffffff;
+  padding: 0.25rem 0.5rem;
+  border-radius: 0.25rem;
+
+  // Layout
+  display: inline-block;
+  max-width: calc(100% - 1.5rem);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+
+  // Shadow for better visibility
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+
+  // Responsive typography
+  @include medium-and-up {
+    font-size: 0.75rem; // 12px
+    padding: 0.375rem 0.75rem;
+  }
+
+  @include large {
+    font-size: 0.875rem; // 14px
+  }
+}
+
+// Dark theme variant
+[data-theme="dark"] .course-badge {
+  background-color: rgba(255, 255, 255, 0.15);
+  backdrop-filter: blur(10px);
+  color: #ffffff;
+}

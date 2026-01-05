@@ -16,8 +16,13 @@ export const TUTORIALS_PER_PAGE = PAGINATION_CONFIG.tutorials;
  * Get all tutorials for a language, sorted by date
  */
 export async function getAllTutorialsForLanguage(lang: string): Promise<TutorialSummary[]> {
-  // Get all tutorials
+  // Get all tutorials and courses
   const allTutorials = await getCollection("tutorials");
+  const allCourses = await getCollection("courses");
+
+  // Filter courses by language
+  // @ts-expect-error - Astro 5 CollectionEntry type compatibility
+  const langCourses = filterByLanguage(allCourses, lang);
 
   // Filter by language and exclude drafts
   // @ts-expect-error - Astro 5 data type inference limitation, runtime schema ensures draft exists
@@ -27,9 +32,9 @@ export async function getAllTutorialsForLanguage(lang: string): Promise<Tutorial
   // Sort by date (newest first)
   const sortedTutorials = sortByDate(langTutorials, "desc");
 
-  // Prepare summaries
+  // Prepare summaries with course information
   // @ts-expect-error - Astro 5 CollectionEntry type compatibility with helper functions
-  return sortedTutorials.map((tutorial) => prepareTutorialSummary(tutorial));
+  return sortedTutorials.map((tutorial) => prepareTutorialSummary(tutorial, langCourses));
 }
 
 /**

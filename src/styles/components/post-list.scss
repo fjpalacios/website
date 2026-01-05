@@ -57,7 +57,7 @@
       &__image-wrapper {
         position: relative;
 
-        // Position badge at top-right corner of image
+        // Order badge positioning (top-right corner)
         .tutorial-order-badge {
           position: absolute;
           top: 0.75rem;
@@ -66,6 +66,19 @@
 
           // Add subtle shadow for better visibility
           box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+        }
+
+        // Course badge positioning (bottom-left corner)
+        .course-badge {
+          position: absolute;
+          bottom: 0.5rem;
+          left: 0.5rem;
+          z-index: 1;
+
+          @include medium-and-up {
+            bottom: 0.75rem;
+            left: 0.75rem;
+          }
         }
       }
     }

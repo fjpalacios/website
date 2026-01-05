@@ -1,0 +1,28 @@
+---
+/**
+ * Course Badge Component
+ *
+ * Displays a badge with the course name on tutorial listing images.
+ * Used in tutorial listings to show which course a tutorial belongs to.
+ *
+ * Features:
+ * - Positioned at bottom-left of tutorial image
+ * - Responsive text sizing
+ * - Accessible with proper ARIA labels
+ * - Theme-aware styling
+ *
+ * @prop {string} courseName - The course name to display
+ * @prop {string} courseSlug - The course slug for potential linking
+ */
+
+interface Props {
+  courseName: string;
+  courseSlug: string;
+}
+
+const { courseName, courseSlug } = Astro.props;
+---
+
+<span class="course-badge" role="img" aria-label={`Course: ${courseName}`} data-course-slug={courseSlug}>
+  {courseName}
+</span>
