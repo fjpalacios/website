@@ -3,7 +3,7 @@
  * Script to create a new book entry with automatic entity creation
  *
  * Usage:
- *   node scripts/new-book.js --title "Book Title" --author "author-name" [options]
+ *   bun run new:book --title "Book Title" --author "author-name" [options]
  *
  * Required:
  *   --title        Book title
@@ -27,212 +27,30 @@
  *   - Smart slug generation
  *
  * Examples:
- *   node scripts/new-book.js --interactive
- *   node scripts/new-book.js --title "El nombre del viento" --author "Patrick Rothfuss" --lang es
+ *   bun run new:book --interactive
+ *   bun run new:book --title "El nombre del viento" --author "Patrick Rothfuss" --lang es
  */
 
 import fs from "fs";
 import path from "path";
-import readline from "readline";
 
-// Helper to create readline interface
-function createInterface() {
-  return readline.createInterface({
-    input: process.stdin,
-    output: process.stdout,
-  });
-}
+import type { LanguageKey } from "@/types/content";
 
-// Helper to ask question
-function question(rl, query) {
-  return new Promise((resolve) => rl.question(query, resolve));
-}
+import type { BookData } from "./shared-types";
+import {
+  createInterface,
+  question,
+  slugify,
+  getTodayDate,
+  createAuthorIfNotExists,
+  createPublisherIfNotExists,
+  createGenreIfNotExists,
+  createCategoryIfNotExists,
+  parseArgs,
+  isValidLanguage,
+} from "./shared-utils";
 
-// Helper to slugify text
-function slugify(text) {
-  return text
-    .toString()
-    .toLowerCase()
-    .normalize("NFD") // Normalize to decomposed form
-    .replace(/[\u0300-\u036f]/g, "") // Remove diacritics
-    .replace(/[^a-z0-9\s-]/g, "") // Remove invalid chars
-    .trim()
-    .replace(/\s+/g, "-") // Replace spaces with -
-    .replace(/-+/g, "-"); // Replace multiple - with single -
-}
-
-// Helper to get today's date in YYYY-MM-DD format
-function getTodayDate() {
-  const today = new Date();
-  const year = today.getFullYear();
-  const month = String(today.getMonth() + 1).padStart(2, "0");
-  const day = String(today.getDate()).padStart(2, "0");
-  return `${year}-${month}-${day}`;
-}
-
-// Helper to check if entity exists and get its slug
-function findEntityByName(collectionDir, name, lang, fileExtension = ".json") {
-  if (!name) return null;
-
-  const contentDir = path.join(process.cwd(), "src", "content", collectionDir);
-  if (!fs.existsSync(contentDir)) {
-    return null;
-  }
-
-  const files = fs.readdirSync(contentDir);
-  const slug = slugify(name);
-
-  // Try exact slug match first
-  for (const file of files) {
-    if (!file.endsWith(fileExtension)) continue;
-
-    const baseName = file.replace(fileExtension, "");
-    if (baseName === slug || baseName === `${slug}-${lang}`) {
-      return baseName;
-    }
-  }
-
-  // Try to find by reading file content
-  for (const file of files) {
-    if (!file.endsWith(fileExtension)) continue;
-
-    const filePath = path.join(contentDir, file);
-    const content = fs.readFileSync(filePath, "utf8");
-
-    if (fileExtension === ".json") {
-      try {
-        const json = JSON.parse(content);
-        if (json.name && json.name.toLowerCase() === name.toLowerCase()) {
-          return file.replace(".json", "");
-        }
-      } catch {
-        // Skip invalid JSON
-      }
-    } else if (fileExtension === ".mdx") {
-      // Parse frontmatter
-      const frontmatterMatch = content.match(/^---\n([\s\S]*?)\n---/);
-      if (frontmatterMatch) {
-        const frontmatter = frontmatterMatch[1];
-        const nameMatch = frontmatter.match(/^name:\s*"?([^"\n]+)"?/m);
-        if (nameMatch && nameMatch[1].toLowerCase() === name.toLowerCase()) {
-          return file.replace(".mdx", "");
-        }
-      }
-    }
-  }
-
-  return null;
-}
-
-// Helper to create author if not exists
-function createAuthorIfNotExists(name, lang) {
-  const existingSlug = findEntityByName("authors", name, lang, ".mdx");
-  if (existingSlug) {
-    console.log(`   ℹ️  Author found: ${name} (${existingSlug})`);
-    return existingSlug;
-  }
-
-  const slug = `${slugify(name)}-${lang}`;
-  const filePath = path.join(process.cwd(), "src", "content", "authors", `${slug}.mdx`);
-
-  const template = `---
-name: "${name}"
-author_slug: "${slugify(name)}"
-language: "${lang}"
-# gender: "male"
-# picture: "/images/authors/${slugify(name)}.jpg"
-i18n: "${lang === "es" ? "en" : "es"}"
----
-
-Write the author's biography here...
-`;
-
-  fs.writeFileSync(filePath, template, "utf8");
-  console.log(`   ✨ Created author: ${name} (${slug})`);
-  return slug;
-}
-
-// Helper to create publisher if not exists
-function createPublisherIfNotExists(name, lang) {
-  const existingSlug = findEntityByName("publishers", name, lang);
-  if (existingSlug) {
-    console.log(`   ℹ️  Publisher found: ${name} (${existingSlug})`);
-    return existingSlug;
-  }
-
-  const slug = slugify(name);
-  const filePath = path.join(process.cwd(), "src", "content", "publishers", `${slug}.json`);
-
-  const data = {
-    name: name,
-    publisher_slug: slug,
-    language: lang,
-    i18n: lang === "es" ? slug : slug, // Will need manual correction
-  };
-
-  fs.writeFileSync(filePath, JSON.stringify(data, null, 2) + "\n", "utf8");
-  console.log(`   ✨ Created publisher: ${name} (${slug})`);
-  return slug;
-}
-
-// Helper to create genre if not exists
-function createGenreIfNotExists(name, lang) {
-  const existingSlug = findEntityByName("genres", name, lang);
-  if (existingSlug) {
-    console.log(`   ℹ️  Genre found: ${name} (${existingSlug})`);
-    return existingSlug;
-  }
-
-  const slug = slugify(name);
-  const filePath = path.join(process.cwd(), "src", "content", "genres", `${slug}.json`);
-
-  const data = {
-    name: name,
-    genre_slug: slug,
-    language: lang,
-    i18n: slug, // Will need manual correction
-  };
-
-  fs.writeFileSync(filePath, JSON.stringify(data, null, 2) + "\n", "utf8");
-  console.log(`   ✨ Created genre: ${name} (${slug})`);
-  return slug;
-}
-
-// Helper to create category if not exists
-function createCategoryIfNotExists(name, lang) {
-  const existingSlug = findEntityByName("categories", name, lang);
-  if (existingSlug) {
-    console.log(`   ℹ️  Category found: ${name} (${existingSlug})`);
-    return existingSlug;
-  }
-
-  const slug = slugify(name);
-  const filePath = path.join(process.cwd(), "src", "content", "categories", `${slug}.json`);
-
-  const data = {
-    name: name,
-    category_slug: slug,
-    language: lang,
-    description: `Content related to ${name}`,
-    // icon: "book",
-    // color: "#8B4513",
-    // order: 1
-  };
-
-  // If lang is 'es', try to suggest i18n
-  if (lang === "es") {
-    data.i18n = slug; // Will need manual correction
-  } else {
-    data.i18n = slug; // Will need manual correction
-  }
-
-  fs.writeFileSync(filePath, JSON.stringify(data, null, 2) + "\n", "utf8");
-  console.log(`   ✨ Created category: ${name} (${slug})`);
-  return slug;
-}
-
-// Template for new book
-function getBookTemplate(data) {
+function getBookTemplate(data: BookData): string {
   const { title, slug, date, lang, author, isbn, pages, publisher, score, genres, categories, synopsis, excerpt } =
     data;
 
@@ -282,26 +100,7 @@ Describe los personajes principales del libro...
 Tu conclusión final sobre el libro...`;
 }
 
-// Parse command line arguments
-function parseArgs() {
-  const args = process.argv.slice(2);
-  const options = {};
-
-  for (let i = 0; i < args.length; i++) {
-    const arg = args[i];
-    if (arg.startsWith("--")) {
-      const key = arg.slice(2);
-      const value = args[i + 1];
-      options[key] = value;
-      i++; // Skip next arg
-    }
-  }
-
-  return options;
-}
-
-// Interactive mode
-async function interactiveMode() {
+async function interactiveMode(): Promise<BookData> {
   const rl = createInterface();
 
   console.log("\n📚 Creating a new book entry (interactive mode)");
@@ -309,11 +108,13 @@ async function interactiveMode() {
 
   const title = await question(rl, "Book title: ");
   const author = await question(rl, "Author name (will be created if doesn't exist): ");
-  const lang = (await question(rl, "Language (es|en) [default: es]: ")) || "es";
+  const langInput = (await question(rl, "Language (es|en) [default: es]: ")) || "es";
   const isbn = await question(rl, "ISBN (optional): ");
   const pagesInput = await question(rl, "Number of pages [default: 300]: ");
   const publisher = await question(rl, "Publisher name (optional, will be created if doesn't exist): ");
   const scoreInput = await question(rl, "Score (1-5) [default: 3]: ");
+
+  const lang: LanguageKey = isValidLanguage(langInput) ? langInput : "es";
 
   // Validate and parse numeric inputs
   const pages = pagesInput ? parseInt(pagesInput) : 300;
@@ -363,11 +164,10 @@ async function interactiveMode() {
   };
 }
 
-// Main function
-async function main() {
+async function main(): Promise<void> {
   const args = parseArgs();
 
-  let data;
+  let data: BookData;
 
   if (args.interactive) {
     data = await interactiveMode();
@@ -375,14 +175,15 @@ async function main() {
     // Validate required args
     if (!args.title || !args.author) {
       console.error("❌ Error: --title and --author are required\n");
-      console.log('Usage: node scripts/new-book.js --title "Book Title" --author "Author Name"');
-      console.log("Or run in interactive mode: node scripts/new-book.js --interactive\n");
+      console.log('Usage: bun run new:book --title "Book Title" --author "Author Name"');
+      console.log("Or run in interactive mode: bun run new:book --interactive\n");
       process.exit(1);
     }
 
     const slug = slugify(args.title);
     const date = getTodayDate();
-    const lang = args.lang || "es";
+    const langInput = args.lang || "es";
+    const lang: LanguageKey = isValidLanguage(langInput) ? langInput : "es";
 
     // Validate and parse numeric inputs
     let pages = args.pages ? parseInt(args.pages) : 300;
@@ -425,19 +226,19 @@ async function main() {
   const authorSlug = createAuthorIfNotExists(data.author, data.lang);
 
   // Create or find publisher (if provided)
-  let publisherSlug = null;
+  let publisherSlug: string | null = null;
   if (data.publisher) {
     publisherSlug = createPublisherIfNotExists(data.publisher, data.lang);
   }
 
   // Create or find genres (if provided)
-  let genreSlugs = null;
+  let genreSlugs: string[] | null = null;
   if (data.genres && data.genres.length > 0) {
     genreSlugs = data.genres.map((genre) => createGenreIfNotExists(genre, data.lang));
   }
 
   // Create or find categories
-  let categorySlugs = [];
+  let categorySlugs: string[] = [];
   if (data.categories && data.categories.length > 0) {
     categorySlugs = data.categories.map((category) => createCategoryIfNotExists(category, data.lang));
   }
@@ -482,7 +283,7 @@ async function main() {
   console.log();
 }
 
-main().catch((error) => {
+main().catch((error: Error) => {
   console.error("❌ Error:", error.message);
   process.exit(1);
 });

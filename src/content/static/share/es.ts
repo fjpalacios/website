@@ -1,4 +1,4 @@
-export default `
+const shareContent: string = `
   <p>
     Si has llegado hasta aquí y tienes algo que decir puedes escribirme por
     <a href="https://twitter.com/fjpalacios">Twitter</a> o enviarme un
@@ -10,3 +10,5 @@ export default `
     o <a href="mailto:?subject=%TITLE%&body=%TITLE%: %URL%">correo electrónico</a>.
   </p>
   `;
+
+export default shareContent;

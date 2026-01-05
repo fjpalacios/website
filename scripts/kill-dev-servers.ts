@@ -7,7 +7,12 @@
 
 import { execSync } from "child_process";
 
-const processesToKill = [
+interface ProcessToKill {
+  name: string;
+  pattern: string;
+}
+
+const processesToKill: ProcessToKill[] = [
   { name: "astro dev", pattern: "astro dev" },
   { name: "vite", pattern: "vite" },
   { name: "astro preview", pattern: "astro preview" },

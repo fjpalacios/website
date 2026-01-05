@@ -11,15 +11,15 @@
  * - i18n translations consistency
  *
  * Usage:
- *   node scripts/validate-content.js [type]
+ *   bun run validate:content [type]
  *
  * Arguments:
  *   type   Content type to validate (books|posts|tutorials|all) - default: all
  *
  * Examples:
- *   node scripts/validate-content.js
- *   node scripts/validate-content.js books
- *   node scripts/validate-content.js posts
+ *   bun run validate:content
+ *   bun run validate:content books
+ *   bun run validate:content posts
  */
 
 import fs from "fs";
@@ -35,28 +35,31 @@ const publicPath = path.join(__dirname, "..", "public");
 let errors = 0;
 let warnings = 0;
 
-// Helper to log errors
-function logError(file, message) {
+type ContentType = "books" | "posts" | "tutorials" | "all";
+
+interface Frontmatter {
+  [key: string]: string;
+}
+
+function logError(file: string, message: string): void {
   console.error(`❌ ERROR [${file}]: ${message}`);
   errors++;
 }
 
-// Helper to log warnings
-function logWarning(file, message) {
+function logWarning(file: string, message: string): void {
   console.warn(`⚠️  WARNING [${file}]: ${message}`);
   warnings++;
 }
 
-// Helper to extract frontmatter
-function extractFrontmatter(content) {
+function extractFrontmatter(content: string): Frontmatter | null {
   const match = content.match(/^---\n([\s\S]*?)\n---/);
   if (!match) return null;
 
-  const frontmatter = {};
+  const frontmatter: Frontmatter = {};
   const lines = match[1].split("\n");
 
-  let currentKey = null;
-  let currentValue = [];
+  let currentKey: string | null = null;
+  let currentValue: string[] = [];
 
   for (const line of lines) {
     if (line.startsWith("#")) continue; // Skip comments
@@ -85,8 +88,7 @@ function extractFrontmatter(content) {
   return frontmatter;
 }
 
-// Validate book
-function validateBook(file, content) {
+function validateBook(file: string, content: string): void {
   const frontmatter = extractFrontmatter(content);
   if (!frontmatter) {
     logError(file, "No frontmatter found");
@@ -107,16 +109,28 @@ function validateBook(file, content) {
   }
 
   // Validate language
-  if (frontmatter.language && !["es", "en"].includes(frontmatter.language.replace(/"/g, ""))) {
-    logError(file, `Invalid language: ${frontmatter.language} (expected "es" or "en")`);
+  if (frontmatter.language) {
+    const lang = frontmatter.language.replace(/"/g, "") as string;
+    if (lang !== "es" && lang !== "en") {
+      logError(file, `Invalid language: ${frontmatter.language} (expected "es" or "en")`);
+    }
   }
 
   // Check author exists
-  if (frontmatter.author) {
+  if (frontmatter.author && frontmatter.language) {
     const authorSlug = frontmatter.author.replace(/"/g, "");
-    const authorPath = path.join(contentPath, "authors", `${authorSlug}.json`);
-    if (!fs.existsSync(authorPath)) {
-      logWarning(file, `Author not found: ${authorSlug}`);
+    const lang = frontmatter.language.replace(/"/g, "");
+
+    // Authors are stored with language suffix: {slug}-{lang}.mdx
+    const authorPathWithLang = path.join(contentPath, "authors", `${authorSlug}-${lang}.mdx`);
+    const authorPathNoLang = path.join(contentPath, "authors", `${authorSlug}.mdx`);
+    const authorPathJson = path.join(contentPath, "authors", `${authorSlug}.json`);
+
+    if (!fs.existsSync(authorPathWithLang) && !fs.existsSync(authorPathNoLang) && !fs.existsSync(authorPathJson)) {
+      logWarning(
+        file,
+        `Author not found: ${authorSlug} (looked for ${authorSlug}-${lang}.mdx, ${authorSlug}.mdx, ${authorSlug}.json)`,
+      );
     }
   }
 
@@ -149,8 +163,7 @@ function validateBook(file, content) {
   }
 }
 
-// Validate post
-function validatePost(file, content) {
+function validatePost(file: string, content: string): void {
   const frontmatter = extractFrontmatter(content);
   if (!frontmatter) {
     logError(file, "No frontmatter found");
@@ -171,8 +184,11 @@ function validatePost(file, content) {
   }
 
   // Validate language
-  if (frontmatter.language && !["es", "en"].includes(frontmatter.language.replace(/"/g, ""))) {
-    logError(file, `Invalid language: ${frontmatter.language} (expected "es" or "en")`);
+  if (frontmatter.language) {
+    const lang = frontmatter.language.replace(/"/g, "") as string;
+    if (lang !== "es" && lang !== "en") {
+      logError(file, `Invalid language: ${frontmatter.language} (expected "es" or "en")`);
+    }
   }
 
   // Check excerpt
@@ -181,8 +197,7 @@ function validatePost(file, content) {
   }
 }
 
-// Validate tutorial
-function validateTutorial(file, content) {
+function validateTutorial(file: string, content: string): void {
   const frontmatter = extractFrontmatter(content);
   if (!frontmatter) {
     logError(file, "No frontmatter found");
@@ -203,8 +218,11 @@ function validateTutorial(file, content) {
   }
 
   // Validate language
-  if (frontmatter.language && !["es", "en"].includes(frontmatter.language.replace(/"/g, ""))) {
-    logError(file, `Invalid language: ${frontmatter.language} (expected "es" or "en")`);
+  if (frontmatter.language) {
+    const lang = frontmatter.language.replace(/"/g, "") as string;
+    if (lang !== "es" && lang !== "en") {
+      logError(file, `Invalid language: ${frontmatter.language} (expected "es" or "en")`);
+    }
   }
 
   // Check course exists (if specified)
@@ -224,8 +242,7 @@ function validateTutorial(file, content) {
   }
 }
 
-// Validate directory
-function validateDirectory(type, validator) {
+function validateDirectory(type: string, validator: (file: string, content: string) => void): void {
   const dirPath = path.join(contentPath, type);
 
   if (!fs.existsSync(dirPath)) {
@@ -244,9 +261,8 @@ function validateDirectory(type, validator) {
   }
 }
 
-// Main
-function main() {
-  const type = process.argv[2] || "all";
+function main(): void {
+  const type = (process.argv[2] || "all") as ContentType;
 
   console.log("🔍 Content Validator\n");
   console.log(`Validating: ${type === "all" ? "all content types" : type}\n`);

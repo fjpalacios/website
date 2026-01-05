@@ -2,6 +2,8 @@
 
 Automation scripts to improve developer experience and content management.
 
+> **📝 Note:** All scripts are written in TypeScript with full type safety and run via `tsx` (TypeScript executor). You don't need to compile them manually - just run them directly with `bun run`.
+
 ## ✨ New Features
 
 **All scripts now support automatic entity creation!**

@@ -3,7 +3,7 @@
  * Script to create a new tutorial entry with automatic entity creation
  *
  * Usage:
- *   node scripts/new-tutorial.js --title "Tutorial Title" [options]
+ *   bun run new:tutorial --title "Tutorial Title" [options]
  *
  * Required:
  *   --title        Tutorial title
@@ -20,148 +20,28 @@
  *   - Smart slug generation
  *
  * Examples:
- *   node scripts/new-tutorial.js --interactive
- *   node scripts/new-tutorial.js --title "Cómo usar Git" --lang es --course "Domina Git desde cero"
+ *   bun run new:tutorial --interactive
+ *   bun run new:tutorial --title "Cómo usar Git" --lang es --course "Domina Git desde cero"
  */
 
 import fs from "fs";
 import path from "path";
-import readline from "readline";
 
-function createInterface() {
-  return readline.createInterface({
-    input: process.stdin,
-    output: process.stdout,
-  });
-}
+import type { LanguageKey } from "@/types/content";
 
-function question(rl, query) {
-  return new Promise((resolve) => rl.question(query, resolve));
-}
+import type { TutorialData } from "./shared-types";
+import {
+  createInterface,
+  question,
+  slugify,
+  getTodayDate,
+  createCategoryIfNotExists,
+  createCourseIfNotExists,
+  parseArgs,
+  isValidLanguage,
+} from "./shared-utils";
 
-function slugify(text) {
-  return text
-    .toString()
-    .toLowerCase()
-    .normalize("NFD")
-    .replace(/[\u0300-\u036f]/g, "")
-    .replace(/[^a-z0-9\s-]/g, "")
-    .trim()
-    .replace(/\s+/g, "-")
-    .replace(/-+/g, "-");
-}
-
-function getTodayDate() {
-  const today = new Date();
-  const year = today.getFullYear();
-  const month = String(today.getMonth() + 1).padStart(2, "0");
-  const day = String(today.getDate()).padStart(2, "0");
-  return `${year}-${month}-${day}`;
-}
-
-// Helper to check if entity exists and get its slug
-function findEntityByName(collectionDir, name) {
-  if (!name) return null;
-
-  const contentDir = path.join(process.cwd(), "src", "content", collectionDir);
-  if (!fs.existsSync(contentDir)) {
-    return null;
-  }
-
-  const files = fs.readdirSync(contentDir);
-  const slug = slugify(name);
-
-  // Try exact slug match first
-  for (const file of files) {
-    if (!file.endsWith(".json")) continue;
-
-    const baseName = file.replace(".json", "");
-    if (baseName === slug) {
-      return baseName;
-    }
-  }
-
-  // Try to find by reading file content
-  for (const file of files) {
-    if (!file.endsWith(".json")) continue;
-
-    const filePath = path.join(contentDir, file);
-    const content = fs.readFileSync(filePath, "utf8");
-
-    try {
-      const json = JSON.parse(content);
-      if (json.name && json.name.toLowerCase() === name.toLowerCase()) {
-        return file.replace(".json", "");
-      }
-    } catch {
-      // Skip invalid JSON
-    }
-  }
-
-  return null;
-}
-
-// Helper to create category if not exists
-function createCategoryIfNotExists(name, lang) {
-  const existingSlug = findEntityByName("categories", name, lang);
-  if (existingSlug) {
-    console.log(`   ℹ️  Category found: ${name} (${existingSlug})`);
-    return existingSlug;
-  }
-
-  const slug = slugify(name);
-  const filePath = path.join(process.cwd(), "src", "content", "categories", `${slug}.json`);
-
-  const data = {
-    name: name,
-    category_slug: slug,
-    language: lang,
-    description: `Content related to ${name}`,
-  };
-
-  if (lang === "es") {
-    data.i18n = slug;
-  } else {
-    data.i18n = slug;
-  }
-
-  fs.writeFileSync(filePath, JSON.stringify(data, null, 2) + "\n", "utf8");
-  console.log(`   ✨ Created category: ${name} (${slug})`);
-  return slug;
-}
-
-// Helper to create course if not exists
-function createCourseIfNotExists(name, lang) {
-  const existingSlug = findEntityByName("courses", name, lang);
-  if (existingSlug) {
-    console.log(`   ℹ️  Course found: ${name} (${existingSlug})`);
-    return existingSlug;
-  }
-
-  const slug = slugify(name);
-  const filePath = path.join(process.cwd(), "src", "content", "courses", `${slug}.json`);
-
-  const data = {
-    name: name,
-    course_slug: slug,
-    language: lang,
-    description: `Course about ${name}`,
-    difficulty: "beginner",
-    // duration: 900
-  };
-
-  if (lang === "es") {
-    data.i18n = slug;
-  } else {
-    data.i18n = slug;
-  }
-
-  fs.writeFileSync(filePath, JSON.stringify(data, null, 2) + "\n", "utf8");
-  console.log(`   ✨ Created course: ${name} (${slug})`);
-  return slug;
-}
-
-function getTutorialTemplate(data) {
+function getTutorialTemplate(data: TutorialData): string {
   const { title, slug, date, lang, course, categories, excerpt } = data;
 
   return `---
@@ -213,33 +93,20 @@ Resume lo que se ha aprendido en este tutorial...
 `;
 }
 
-function parseArgs() {
-  const args = process.argv.slice(2);
-  const options = {};
-
-  for (let i = 0; i < args.length; i++) {
-    const arg = args[i];
-    if (arg.startsWith("--")) {
-      const key = arg.slice(2);
-      const value = args[i + 1];
-      options[key] = value;
-      i++;
-    }
-  }
-
-  return options;
-}
-
-async function interactiveMode() {
+async function interactiveMode(): Promise<TutorialData> {
   const rl = createInterface();
 
   console.log("\n🎓 Creating a new tutorial entry (interactive mode)");
   console.log("💡 Tip: Course and categories will be auto-created if they don't exist\n");
 
   const title = await question(rl, "Tutorial title: ");
-  const lang = (await question(rl, "Language (es|en) [default: es]: ")) || "es";
+  const langInput = (await question(rl, "Language (es|en) [default: es]: ")) || "es";
   const course = await question(rl, "Course name (optional, will be created if doesn't exist): ");
   const categoriesInput = await question(rl, "Categories (comma-separated names) [default: tutoriales/tutorials]: ");
+
+  rl.close();
+
+  const lang: LanguageKey = isValidLanguage(langInput) ? langInput : "es";
 
   const categories = categoriesInput
     ? categoriesInput
@@ -249,8 +116,6 @@ async function interactiveMode() {
     : lang === "es"
       ? ["tutoriales"]
       : ["tutorials"];
-
-  rl.close();
 
   const slug = slugify(title);
   const date = getTodayDate();
@@ -266,24 +131,25 @@ async function interactiveMode() {
   };
 }
 
-async function main() {
+async function main(): Promise<void> {
   const args = parseArgs();
 
-  let data;
+  let data: TutorialData;
 
   if (args.interactive) {
     data = await interactiveMode();
   } else {
     if (!args.title) {
       console.error("❌ Error: --title is required\n");
-      console.log('Usage: node scripts/new-tutorial.js --title "Tutorial Title"');
-      console.log("Or run in interactive mode: node scripts/new-tutorial.js --interactive\n");
+      console.log('Usage: bun run new:tutorial --title "Tutorial Title"');
+      console.log("Or run in interactive mode: bun run new:tutorial --interactive\n");
       process.exit(1);
     }
 
     const slug = slugify(args.title);
     const date = getTodayDate();
-    const lang = args.lang || "es";
+    const langInput = args.lang || "es";
+    const lang: LanguageKey = isValidLanguage(langInput) ? langInput : "es";
 
     data = {
       title: args.title,
@@ -303,13 +169,13 @@ async function main() {
   console.log("\n🔍 Processing entities...\n");
 
   // Create or find course (if provided)
-  let courseSlug = null;
+  let courseSlug: string | null = null;
   if (data.course) {
     courseSlug = createCourseIfNotExists(data.course, data.lang);
   }
 
   // Create or find categories
-  let categorySlugs = [];
+  let categorySlugs: string[] = [];
   if (data.categories && data.categories.length > 0) {
     categorySlugs = data.categories.map((category) => createCategoryIfNotExists(category, data.lang));
   }
@@ -347,7 +213,7 @@ async function main() {
   console.log();
 }
 
-main().catch((error) => {
+main().catch((error: Error) => {
   console.error("❌ Error:", error.message);
   process.exit(1);
 });

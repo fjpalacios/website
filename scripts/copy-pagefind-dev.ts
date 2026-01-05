@@ -7,10 +7,10 @@
  * during development because Pagefind only runs after build.
  *
  * Usage:
- *   bun run scripts/copy-pagefind-dev.js
+ *   bun run scripts/copy-pagefind-dev.ts
  *
  * Or add to dev workflow:
- *   "dev": "bun run scripts/copy-pagefind-dev.js && astro dev"
+ *   "dev": "bun run scripts/copy-pagefind-dev.ts && astro dev"
  */
 
 import fs from "fs";
@@ -27,7 +27,7 @@ const publicPagefind = path.join(projectRoot, "public", "pagefind");
 /**
  * Recursively copy directory
  */
-function copyDirectory(src, dest) {
+function copyDirectory(src: string, dest: string): void {
   // Create destination directory
   if (!fs.existsSync(dest)) {
     fs.mkdirSync(dest, { recursive: true });
@@ -53,7 +53,7 @@ function copyDirectory(src, dest) {
 /**
  * Main execution
  */
-function main() {
+function main(): void {
   console.log("🔍 Copying Pagefind assets for development...");
 
   // Check if dist/pagefind exists
