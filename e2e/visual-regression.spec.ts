@@ -517,6 +517,51 @@ test.describe("Visual Regression - Taxonomies", () => {
       animations: "disabled",
     });
   });
+
+  test("should match series listing desktop light", async ({ page }) => {
+    await page.setViewportSize(VIEWPORTS.desktop);
+    await page.goto("/es/series/");
+    await waitForPageStable(page);
+
+    await expect(page).toHaveScreenshot("series-listing-desktop-light.png", {
+      fullPage: true,
+      animations: "disabled",
+    });
+  });
+
+  test("should match series detail with order badges desktop light", async ({ page }) => {
+    await page.setViewportSize(VIEWPORTS.desktop);
+    await page.goto("/es/series/fjallbacka/");
+    await waitForPageStable(page);
+
+    await expect(page).toHaveScreenshot("series-detail-desktop-light.png", {
+      fullPage: true,
+      animations: "disabled",
+    });
+  });
+
+  test("should match series detail with order badges desktop dark", async ({ page }) => {
+    await page.setViewportSize(VIEWPORTS.desktop);
+    await page.goto("/es/series/fjallbacka/");
+    await waitForPageStable(page);
+    await activateDarkTheme(page);
+
+    await expect(page).toHaveScreenshot("series-detail-desktop-dark.png", {
+      fullPage: true,
+      animations: "disabled",
+    });
+  });
+
+  test("should match series detail with order badges mobile light", async ({ page }) => {
+    await page.setViewportSize(VIEWPORTS.mobile);
+    await page.goto("/es/series/fjallbacka/");
+    await waitForPageStable(page);
+
+    await expect(page).toHaveScreenshot("series-detail-mobile-light.png", {
+      fullPage: true,
+      animations: "disabled",
+    });
+  });
 });
 
 // ============================================================================
