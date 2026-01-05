@@ -14,22 +14,22 @@ jobs:
     name: Update bun.lock
     runs-on: ubuntu-latest
     if: github.actor == 'dependabot[bot]'
-    
+
     steps:
       - name: Checkout PR branch
         uses: actions/checkout@v6
         with:
           ref: ${{ github.head_ref }}
-          token: ${{ secrets.GITHUB_TOKEN }}
-      
+          token: ${{ secrets.PAT_TOKEN }}
+
       - name: Setup Bun
         uses: oven-sh/setup-bun@v2
         with:
           bun-version: latest
-      
+
       - name: Install dependencies and update lockfile
         run: bun install
-      
+
       - name: Check for lockfile changes
         id: check
         run: |
@@ -40,7 +40,7 @@ jobs:
             echo "Lockfile needs update 🔧"
             echo "changed=true" >> $GITHUB_OUTPUT
           fi
-      
+
       - name: Commit updated lockfile
         if: steps.check.outputs.changed == 'true'
         run: |
@@ -49,15 +49,15 @@ jobs:
           git add bun.lock
           git commit -m "chore: update bun.lock for dependency sync"
           git push
-      
+
       - name: Comment on PR
         if: steps.check.outputs.changed == 'true'
         run: |
           gh pr comment "$PR_URL" --body "🤖 **Lockfile Auto-Fix**
-          
+
           I've automatically updated \`bun.lock\` to sync with the dependency changes in \`package.json\`.
-          
+
           The CI checks will now re-run with the updated lockfile."
         env:
           PR_URL: ${{ github.event.pull_request.html_url }}
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_TOKEN: ${{ secrets.PAT_TOKEN }}
