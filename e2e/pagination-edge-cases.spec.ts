@@ -230,8 +230,8 @@ test.describe("Pagination - Edge Cases", () => {
       if ((await nextButton.count()) > 0) {
         await nextButton.click();
 
-        // Should be on page 2
-        await page.waitForURL("**/pagina/2/**");
+        // Should be on page 2 (with or without trailing slash)
+        await page.waitForURL("**/pagina/2{,/}");
         expect(page.url()).toContain("/pagina/2");
       }
     });
@@ -245,8 +245,8 @@ test.describe("Pagination - Edge Cases", () => {
       if ((await prevButton.count()) > 0) {
         await prevButton.click();
 
-        // Should be back on page 1 (base URL without /pagina/1)
-        await page.waitForURL("**/libros/");
+        // Should be back on page 1 (base URL without /pagina/1, with or without trailing slash)
+        await page.waitForURL("**/libros{,/}");
         expect(page.url()).not.toContain("/pagina/");
       }
     });

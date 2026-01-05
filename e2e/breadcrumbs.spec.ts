@@ -81,13 +81,13 @@ test.describe("Breadcrumbs", () => {
       expect(breadcrumbSchema?.itemListElement[0]["@type"]).toBe("ListItem");
       expect(breadcrumbSchema?.itemListElement[0].position).toBe(1);
       expect(breadcrumbSchema?.itemListElement[0].name).toBe("Inicio");
-      expect(breadcrumbSchema?.itemListElement[0].item).toBe("https://www.fcpalacios.dev/es");
+      expect(breadcrumbSchema?.itemListElement[0].item).toBe("https://fjp.es/es");
 
       // Check second item (Books)
       expect(breadcrumbSchema?.itemListElement[1]["@type"]).toBe("ListItem");
       expect(breadcrumbSchema?.itemListElement[1].position).toBe(2);
       expect(breadcrumbSchema?.itemListElement[1].name).toBe("Libros");
-      expect(breadcrumbSchema?.itemListElement[1].item).toBe("https://www.fcpalacios.dev/es/libros");
+      expect(breadcrumbSchema?.itemListElement[1].item).toBe("https://fjp.es/es/libros");
 
       // Check third item (Current page - no item URL)
       expect(breadcrumbSchema?.itemListElement[2]["@type"]).toBe("ListItem");

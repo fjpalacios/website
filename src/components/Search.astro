@@ -83,6 +83,7 @@ const pagefindLabels = pagefindTranslations[lang] ?? pagefindTranslations[getDef
   set:html={`window.__SEARCH_CONFIG__ = ${JSON.stringify({
     searchInputFocusDelay: TIMINGS.SEARCH_INPUT_FOCUS_MS,
     translations: searchTranslations,
+    pagefindLabels: pagefindLabels,
     lang,
     defaultLang: "${getDefaultLanguageCode()}",
   })};`}
@@ -91,25 +92,37 @@ const pagefindLabels = pagefindTranslations[lang] ?? pagefindTranslations[getDef
 <!-- Main search modal script -->
 <script>
   // This script runs on every page load (including view transitions)
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  declare const window: Window & { __SEARCH_CONFIG__?: any; PagefindUI?: any };
+  interface PagefindUIInstance {
+    new (options: { element: string; bundlePath?: string }): unknown;
+  }
+
+  interface SearchConfig {
+    searchInputFocusDelay?: number;
+    translations?: Record<string, string>;
+    pagefindLabels?: Record<string, string>;
+  }
+
+  declare const window: Window & {
+    __SEARCH_CONFIG__?: SearchConfig;
+    PagefindUI?: PagefindUIInstance;
+    __PAGEFIND_INITIALIZED__?: boolean;
+    __PAGEFIND_CSS_LOADED__?: boolean;
+    __pagefindUI?: unknown;
+  };
 
   (function () {
     const config = window.__SEARCH_CONFIG__ || {};
     const searchInputFocusDelay = config.searchInputFocusDelay || 300;
     const translations = config.translations || {};
-    const lang = config.lang || config.defaultLang || "en";
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    let pagefindUI: any = null;
-    let pagefindCSSLoaded = false;
+    const pagefindLabels = config.pagefindLabels || {};
 
-    // Ensure Pagefind CSS is loaded
+    // Ensure Pagefind CSS is loaded (global state)
     function ensurePagefindCSS() {
-      if (pagefindCSSLoaded) return;
+      if (window.__PAGEFIND_CSS_LOADED__) return;
 
       const existingLink = document.querySelector('link[href*="pagefind-ui.css"]');
       if (existingLink) {
-        pagefindCSSLoaded = true;
+        window.__PAGEFIND_CSS_LOADED__ = true;
         return;
       }
 
@@ -118,22 +131,53 @@ const pagefindLabels = pagefindTranslations[lang] ?? pagefindTranslations[getDef
       link.rel = "stylesheet";
       link.href = "/pagefind/pagefind-ui.css";
       link.onload = () => {
-        pagefindCSSLoaded = true;
+        window.__PAGEFIND_CSS_LOADED__ = true;
       };
       document.head.appendChild(link);
     }
 
-    function initializePagefind() {
-      if (pagefindUI) return; // Already initialized
+    // Load Pagefind JS dynamically
+    async function loadPagefindJS() {
+      if (window.PagefindUI) return; // Already loaded
+
+      return new Promise<void>((resolve, reject) => {
+        const script = document.createElement("script");
+        script.src = "/pagefind/pagefind-ui.js";
+        script.async = true;
+        script.onload = () => resolve();
+        script.onerror = () => reject(new Error("Failed to load Pagefind JS"));
+        document.head.appendChild(script);
+      });
+    }
+
+    async function initializePagefind() {
+      // Use global state to prevent multiple initializations
+      if (window.__PAGEFIND_INITIALIZED__) return;
+      if (window.__pagefindUI) return; // Already initialized
 
       const searchContainer = document.getElementById("search");
-      if (!searchContainer || !window.PagefindUI) return;
+      if (!searchContainer) return;
 
-      // Ensure CSS is loaded before initializing
+      // Clear container to avoid duplicates
+      searchContainer.innerHTML = "";
+
+      // Ensure CSS is loaded
       ensurePagefindCSS();
 
+      // Load Pagefind JS if not already loaded
       try {
-        pagefindUI = new window.PagefindUI({
+        await loadPagefindJS();
+      } catch (error) {
+        if (import.meta.env.DEV) {
+          console.error("Failed to load Pagefind JS:", error);
+        }
+        return;
+      }
+
+      if (!window.PagefindUI) return;
+
+      try {
+        window.__pagefindUI = new window.PagefindUI({
           element: "#search",
           showSubResults: false, // Disable sub-results to avoid duplicates
           showImages: false,
@@ -156,6 +200,9 @@ const pagefindLabels = pagefindTranslations[lang] ?? pagefindTranslations[getDef
             searching: translations.searching || "Searching...",
           },
         });
+
+        // Mark as initialized
+        window.__PAGEFIND_INITIALIZED__ = true;
       } catch (error) {
         if (import.meta.env.DEV) {
           console.error("Error initializing Pagefind:", error);
@@ -286,48 +333,77 @@ const pagefindLabels = pagefindTranslations[lang] ?? pagefindTranslations[getDef
       }
     }
 
-    // Setup event listeners
-    function setupSearchListeners() {
-      // Keyboard shortcut (Cmd+K / Ctrl+K)
-      document.addEventListener("keydown", function (e) {
-        if ((e.metaKey || e.ctrlKey) && e.key === "k") {
-          e.preventDefault();
-          openSearch();
-        }
+    // Keyboard shortcut handler (single instance)
+    function handleKeydown(e: KeyboardEvent) {
+      if ((e.metaKey || e.ctrlKey) && e.key === "k") {
+        e.preventDefault();
+        openSearch();
+      }
 
-        // ESC to close
-        if (e.key === "Escape") {
-          closeSearch();
-        }
-      });
+      // ESC to close
+      if (e.key === "Escape") {
+        closeSearch();
+      }
+    }
+
+    // Setup event listeners (only once)
+    function setupSearchListeners() {
+      // Remove existing listeners to avoid duplicates
+      document.removeEventListener("keydown", handleKeydown);
+
+      // Add keyboard shortcut
+      document.addEventListener("keydown", handleKeydown);
 
       // Button click (from menu)
       const searchButton = document.getElementById("search-toggle");
       if (searchButton) {
-        searchButton.addEventListener("click", openSearch);
+        // Remove old listener if exists
+        const newSearchButton = searchButton.cloneNode(true) as HTMLElement;
+        searchButton.parentNode?.replaceChild(newSearchButton, searchButton);
+        newSearchButton.addEventListener("click", openSearch);
       }
 
       // Close button
       const closeButton = document.querySelector(".search-modal__close");
       if (closeButton) {
-        closeButton.addEventListener("click", closeSearch);
+        // Remove old listener if exists
+        const newCloseButton = closeButton.cloneNode(true) as HTMLElement;
+        closeButton.parentNode?.replaceChild(newCloseButton, closeButton);
+        newCloseButton.addEventListener("click", closeSearch);
       }
 
       // Click backdrop to close
       const backdrop = document.querySelector(".search-modal__backdrop");
       if (backdrop) {
-        backdrop.addEventListener("click", closeSearch);
+        // Remove old listener if exists
+        const newBackdrop = backdrop.cloneNode(true) as HTMLElement;
+        backdrop.parentNode?.replaceChild(newBackdrop, backdrop);
+        newBackdrop.addEventListener("click", closeSearch);
       }
     }
 
     // Run on initial page load and after view transitions
     if (document.addEventListener) {
       document.addEventListener("astro:page-load", setupSearchListeners);
+      // Pre-load Pagefind assets on page load for better UX
+      document.addEventListener("astro:page-load", function () {
+        ensurePagefindCSS();
+        loadPagefindJS().catch(() => {
+          // Silent fail - will retry when modal opens
+        });
+      });
     }
 
     // If astro:page-load already fired or not available, run immediately
     if (document.readyState === "complete" || document.readyState === "interactive") {
       setTimeout(setupSearchListeners, 1);
+      // Pre-load Pagefind assets
+      setTimeout(function () {
+        ensurePagefindCSS();
+        loadPagefindJS().catch(() => {
+          // Silent fail - will retry when modal opens
+        });
+      }, 100);
     }
   })();
 </script>

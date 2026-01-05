@@ -105,9 +105,8 @@ const baseUrl = t(lang, "metaData.url");
     </style>
     <title>{metaTitle}</title>
 
-    <!-- Pagefind CSS and JS -->
-    <link rel="stylesheet" href="/pagefind/pagefind-ui.css" />
-    <script is:inline src="/pagefind/pagefind-ui.js"></script>
+    <!-- Pagefind CSS (loaded on demand) -->
+    <!-- Pagefind JS will be loaded dynamically when search modal opens -->
 
     <script is:inline>
       // Prevent FOUC (Flash of Unstyled Content) by applying theme before render
