@@ -227,12 +227,15 @@ const ROUTE_TO_COLLECTION: Readonly<Partial<Record<RouteKey, string>>> = {
  * This is used when astro:content is not available (e.g., in Vitest)
  * Update this when adding/removing content in different languages
  *
- * Current state (2025-12-27):
+ * Note: "posts" section checks are special - they aggregate posts+tutorials+books
+ * (see hasContentInLanguage implementation for details)
+ *
+ * Current state (2025-01-05):
  * - Spanish: All collections have content
- * - English: Only books (1), authors (4), categories (4), genres (6), publishers (2), courses (2)
+ * - English: Only books (14), authors (4), categories (4), genres (6), publishers (2), courses (2)
  */
 const CONTENT_AVAILABILITY_FALLBACK: Readonly<Partial<Record<RouteKey, LanguageKey[]>>> = {
-  posts: ["es"],
+  posts: ["es"], // Only used for individual posts check in fallback
   tutorials: ["es"],
   books: ["es", "en"],
   series: ["es"],
@@ -251,6 +254,11 @@ const CONTENT_AVAILABILITY_FALLBACK: Readonly<Partial<Record<RouteKey, LanguageK
  * For dynamic pages: Checks if content collection has entries for that language
  *                    Falls back to CONTENT_AVAILABILITY_FALLBACK in test environments
  *
+ * Special case for "posts":
+ *   The posts section (/es/publicaciones/ or /en/posts/) is an aggregated blog page
+ *   that shows ALL content types (posts + tutorials + books). Therefore, it checks
+ *   if ANY of these three collections have content in the requested language.
+ *
  * @param routeKey - The route key to check
  * @param lang - Language code ("es" or "en")
  * @returns true if content exists or page is static, false otherwise
@@ -264,6 +272,9 @@ const CONTENT_AVAILABILITY_FALLBACK: Readonly<Partial<Record<RouteKey, LanguageK
  * // Dynamic content check (uses Astro collections in build, fallback in tests)
  * await hasContentInLanguage("tutorials", "es") // true (has Spanish tutorials)
  * await hasContentInLanguage("tutorials", "en") // false (no English tutorials)
+ *
+ * // Special aggregated check for posts section
+ * await hasContentInLanguage("posts", "en") // true (has books in English, even if no posts)
  * ```
  */
 export async function hasContentInLanguage(routeKey: RouteKey, lang: LanguageKey): Promise<boolean> {
@@ -273,7 +284,37 @@ export async function hasContentInLanguage(routeKey: RouteKey, lang: LanguageKey
     return staticAvailability.includes(lang);
   }
 
-  // For dynamic pages, check the corresponding collection
+  // Special case: "posts" section is an aggregated blog page
+  // It shows posts + tutorials + books, so check all three collections
+  if (routeKey === "posts") {
+    try {
+      const { getCollection } = await import("astro:content");
+
+      // Check posts, tutorials, and books collections
+      const [postsEntries, tutorialsEntries, booksEntries] = await Promise.all([
+        getCollection("posts"),
+        getCollection("tutorials"),
+        getCollection("books"),
+      ]);
+
+      // Check if ANY of the three collections has content in this language
+      const hasPostsContent = postsEntries.some((entry) => entry.data.language === lang);
+      const hasTutorialsContent = tutorialsEntries.some((entry) => entry.data.language === lang);
+      const hasBooksContent = booksEntries.some((entry) => entry.data.language === lang);
+
+      return hasPostsContent || hasTutorialsContent || hasBooksContent;
+    } catch {
+      // Fallback for test environments
+      // If ANY of posts/tutorials/books has content in this language, show the section
+      const hasPostsFallback = CONTENT_AVAILABILITY_FALLBACK.posts?.includes(lang) ?? false;
+      const hasTutorialsFallback = CONTENT_AVAILABILITY_FALLBACK.tutorials?.includes(lang) ?? false;
+      const hasBooksFallback = CONTENT_AVAILABILITY_FALLBACK.books?.includes(lang) ?? false;
+
+      return hasPostsFallback || hasTutorialsFallback || hasBooksFallback;
+    }
+  }
+
+  // For other dynamic pages, check the corresponding collection
   const collectionName = ROUTE_TO_COLLECTION[routeKey];
   if (!collectionName) {
     // Unknown route - default to true (fail open)

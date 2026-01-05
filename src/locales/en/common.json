@@ -71,12 +71,6 @@
     "next": "Next »",
     "prev": "« Previous"
   },
-  "paginator": {
-    "prev": "« Previous",
-    "next": "Next »",
-    "page": "Page",
-    "of": "of"
-  },
   "allCategories": "All categories",
   "allGenres": "All genres",
   "allPublishers": "All publishers",
@@ -178,6 +172,10 @@
     "searching": "Searching..."
   },
   "paginator": {
+    "prev": "« Previous",
+    "next": "Next »",
+    "page": "Page",
+    "of": "of",
     "ariaLabel": "Pagination",
     "firstPage": "First page",
     "previousPage": "Previous page",

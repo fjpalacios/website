@@ -395,6 +395,9 @@ describe("navigation config", () => {
       // - publishers: 2 EN publishers (JSON)
       // - courses: 2 EN courses (JSON)
       // - posts, tutorials, series, challenges: 0 EN content
+      //
+      // IMPORTANT: "posts" route is special - it's an aggregated blog page
+      // that shows posts + tutorials + books, so it checks all three collections
 
       expect(await hasContentInLanguage("books", "en")).toBe(true); // 1 EN book
       expect(await hasContentInLanguage("authors", "en")).toBe(true); // 4 EN authors
@@ -403,7 +406,7 @@ describe("navigation config", () => {
       expect(await hasContentInLanguage("publishers", "en")).toBe(true); // 2 EN publishers
       expect(await hasContentInLanguage("courses", "en")).toBe(true); // 2 EN courses
 
-      expect(await hasContentInLanguage("posts", "en")).toBe(false); // No EN posts
+      expect(await hasContentInLanguage("posts", "en")).toBe(true); // true because EN books exist (aggregated page)
       expect(await hasContentInLanguage("tutorials", "en")).toBe(false); // No EN tutorials
       expect(await hasContentInLanguage("series", "en")).toBe(false); // No EN series
       expect(await hasContentInLanguage("challenges", "en")).toBe(false); // No EN challenges
