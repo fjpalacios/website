@@ -3,7 +3,7 @@ import path from "path";
 import { fileURLToPath } from "url";
 
 import mdx from "@astrojs/mdx";
-import sitemap from "@astrojs/sitemap";
+import sitemap, { ChangeFreqEnum } from "@astrojs/sitemap";
 import { defineConfig } from "astro/config";
 import rehypePrism from "rehype-prism-plus";
 
@@ -37,7 +37,7 @@ export default defineConfig({
         // Home pages - highest priority
         if (url === "https://fjp.es/es/" || url === "https://fjp.es/en/") {
           item.priority = 1.0;
-          item.changefreq = "daily";
+          item.changefreq = ChangeFreqEnum.DAILY;
         }
 
         // Content detail pages (books, tutorials, posts) - high priority
@@ -51,10 +51,10 @@ export default defineConfig({
           // Skip pagination pages
           if (url.includes("/pagina/") || url.includes("/page/")) {
             item.priority = 0.3;
-            item.changefreq = "weekly";
+            item.changefreq = ChangeFreqEnum.WEEKLY;
           } else {
             item.priority = 0.8;
-            item.changefreq = "monthly";
+            item.changefreq = ChangeFreqEnum.MONTHLY;
           }
         }
 
@@ -75,7 +75,7 @@ export default defineConfig({
           url.includes("/courses/")
         ) {
           item.priority = 0.7;
-          item.changefreq = "weekly";
+          item.changefreq = ChangeFreqEnum.WEEKLY;
         }
 
         // Index/listing pages - medium priority
@@ -101,19 +101,19 @@ export default defineConfig({
           url.endsWith("/courses/")
         ) {
           item.priority = 0.6;
-          item.changefreq = "weekly";
+          item.changefreq = ChangeFreqEnum.WEEKLY;
         }
 
         // Static pages (about, feeds) - lower priority
         else if (url.includes("/acerca-de") || url.includes("/about") || url.includes("/feeds")) {
           item.priority = 0.5;
-          item.changefreq = "monthly";
+          item.changefreq = ChangeFreqEnum.MONTHLY;
         }
 
         // Default for any other pages
         else {
           item.priority = 0.5;
-          item.changefreq = "monthly";
+          item.changefreq = ChangeFreqEnum.MONTHLY;
         }
 
         return item;

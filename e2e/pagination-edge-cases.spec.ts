@@ -455,10 +455,10 @@ test.describe("Pagination - Edge Cases", () => {
 
       // Add a marker to check if page reloads
       await page.evaluate(() => {
-        (window as Record<string, number>).pageLoadMarker = Date.now();
+        (window as unknown as Record<string, number>).pageLoadMarker = Date.now();
       });
 
-      const marker1 = await page.evaluate(() => (window as Record<string, number>).pageLoadMarker);
+      const marker1 = await page.evaluate(() => (window as unknown as Record<string, number>).pageLoadMarker);
 
       // Click next page
       const nextButton = page.locator('a[rel="next"]').first();
@@ -468,7 +468,7 @@ test.describe("Pagination - Edge Cases", () => {
 
         // Marker should be cleared (full page reload)
         // OR preserved if using SPA navigation
-        const marker2 = await page.evaluate(() => (window as Record<string, number>).pageLoadMarker);
+        const marker2 = await page.evaluate(() => (window as unknown as Record<string, number>).pageLoadMarker);
 
         // Either it's a full reload (undefined) or preserved (same value)
         if (marker2 !== undefined) {

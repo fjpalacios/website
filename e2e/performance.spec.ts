@@ -32,6 +32,18 @@
 import { test, expect, type Page } from "@playwright/test";
 
 /**
+ * Web Vitals metrics interface
+ */
+interface WebVitalsMetrics {
+  lcp?: number;
+  fcp?: number;
+  cls?: number;
+  ttfb?: number;
+  domContentLoaded?: number;
+  loadComplete?: number;
+}
+
+/**
  * Performance budgets (in bytes)
  */
 const PERFORMANCE_BUDGETS = {
@@ -97,7 +109,7 @@ const WEB_VITALS_THRESHOLDS = {
 /**
  * Helper to collect Web Vitals metrics using PerformanceObserver
  */
-async function collectWebVitals(page: Page) {
+async function collectWebVitals(page: Page): Promise<WebVitalsMetrics> {
   return await page.evaluate(() => {
     return new Promise((resolve) => {
       const metrics: Record<string, number> = {};

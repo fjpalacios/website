@@ -39,7 +39,7 @@
 - [ ] Coverage maintained above 95% (`bun run test:coverage`)
 - [ ] Manual testing completed
 
-### Manual Testing Steps:
+### Manual Testing Steps
 
 1. Describe the first manual test step (e.g., "Open the application and navigate to the updated page").
 2. Describe the second manual test step (e.g., "Perform the action being changed, such as submitting the form").
@@ -49,9 +49,9 @@
 
 <!-- Add screenshots for UI changes -->
 
-### Before:
+### Before
 
-### After:
+### After
 
 ## Checklist
 

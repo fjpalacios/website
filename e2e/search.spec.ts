@@ -1,17 +1,20 @@
 import { type Page, expect, test } from "@playwright/test";
 
 /**
+ * Extend Window interface to include PagefindUI
+ */
+declare global {
+  interface Window {
+    PagefindUI: unknown;
+  }
+}
+
+/**
  * Helper function to wait for Pagefind to be ready and indexed
  */
 async function waitForPagefindReady(page: Page) {
   // Wait for Pagefind library to load
-  await page.waitForFunction(
-    () => {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      return typeof (window as any).PagefindUI !== "undefined";
-    },
-    { timeout: 10000 },
-  );
+  await page.waitForFunction(() => typeof window.PagefindUI !== "undefined", { timeout: 10000 });
 
   // Additional wait for index to be ready
   await page.waitForTimeout(1500);
