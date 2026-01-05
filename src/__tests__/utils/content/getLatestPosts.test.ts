@@ -41,7 +41,7 @@ describe("getLatestPosts utility", () => {
     test("should accept language and maxItems parameters", () => {
       const content = fs.readFileSync(utilPath, "utf-8");
 
-      expect(content).toMatch(/language:\s*"es"\s*\|\s*"en"/);
+      expect(content).toMatch(/language:\s*LanguageKey/);
       expect(content).toContain("maxItems: number");
     });
 

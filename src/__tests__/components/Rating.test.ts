@@ -19,7 +19,7 @@ describe("Rating Component", () => {
     // Check for Props interface with required fields
     expect(content).toContain("interface Props");
     expect(content).toContain('score: number | "fav"');
-    expect(content).toContain('lang: "es" | "en"');
+    expect(content).toContain("lang: LanguageKey");
     expect(content).toContain("showText?:");
     expect(content).toContain("size?:");
   });

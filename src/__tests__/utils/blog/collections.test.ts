@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 
+import type { LanguageKey } from "@/types";
 import {
   sortByDate,
   filterByLanguage,
@@ -9,7 +10,7 @@ import {
 } from "@/utils/blog/collections";
 
 // Mock data for testing
-const createMockItem = (id: number, date: Date, language: "es" | "en"): CollectionItem => ({
+const createMockItem = (id: number, date: Date, language: LanguageKey): CollectionItem => ({
   slug: `item-${id}`,
   data: {
     title: `Item ${id}`,

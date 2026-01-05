@@ -410,7 +410,7 @@ test.describe("SEO ItemList Schema - Taxonomy Detail Pages", () => {
       validateItemListStructure(itemListSchema, "TechArticle");
     });
 
-    test("should have ItemList schema on English course page", async ({ page }) => {
+    test("should have ItemList schema on English course page", async ({ page: _page }) => {
       // Note: Currently no courses exist in English, but the courses listing page exists
       // This test validates that empty course detail pages would have correct schema structure
       // Skip for now since no specific course pages exist in English

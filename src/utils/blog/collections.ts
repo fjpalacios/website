@@ -2,13 +2,15 @@
  * Collection utilities for blog content
  */
 
+import type { LanguageKey } from "@/types";
+
 export interface CollectionItem {
   id?: string; // Astro 5 uses id
   slug?: string; // Legacy property for compatibility
   data: {
     title: string;
     date: Date;
-    language: "es" | "en";
+    language: LanguageKey;
   };
 }
 
@@ -28,7 +30,7 @@ export interface GroupedByYear {
  * sortByDate(items, 'desc') // Newest first (default)
  * sortByDate(items, 'asc') // Oldest first
  */
-export function sortByDate(items: CollectionItem[], order: "asc" | "desc" = "desc"): CollectionItem[] {
+export function sortByDate<T extends CollectionItem>(items: T[], order: "asc" | "desc" = "desc"): T[] {
   if (order !== "asc" && order !== "desc") {
     throw new Error('Order must be "asc" or "desc"');
   }
@@ -52,14 +54,14 @@ export function sortByDate(items: CollectionItem[], order: "asc" | "desc" = "des
  * Filter collection items by language
  *
  * @param items - Array of collection items
- * @param language - Language code ('es' or 'en')
+ * @param language - Target language
  * @returns Filtered array of items matching the language
  *
  * @example
  * filterByLanguage(items, 'es') // Only Spanish items
  * filterByLanguage(items, 'en') // Only English items
  */
-export function filterByLanguage(items: CollectionItem[], language: "es" | "en"): CollectionItem[] {
+export function filterByLanguage<T extends CollectionItem>(items: T[], language: LanguageKey): T[] {
   return items.filter((item) => item.data.language === language);
 }
 

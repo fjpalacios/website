@@ -3,6 +3,8 @@
 
 import type { CollectionEntry } from "astro:content";
 
+import type { LanguageKey } from "@/types";
+
 /**
  * Book summary for listing pages
  */
@@ -12,7 +14,7 @@ export interface BookSummary {
   slug: string;
   excerpt: string;
   score: number;
-  language: "es" | "en";
+  language: LanguageKey;
   date: Date;
   cover: string | undefined;
   pages: number;

@@ -8,6 +8,8 @@
 
 import { expect } from "vitest";
 
+import type { LanguageKey } from "@/types";
+
 // ============================================================================
 // ROUTE ASSERTIONS
 // ============================================================================
@@ -157,7 +159,7 @@ export function assertItemsHaveLanguage(items: Array<{ data: { language: string 
  * assertRouteLanguage(route.params, "en");
  * ```
  */
-export function assertRouteLanguage(params: Record<string, unknown>, expectedLang: "es" | "en"): void {
+export function assertRouteLanguage(params: Record<string, unknown>, expectedLang: LanguageKey): void {
   expect(params).toHaveProperty("lang", expectedLang);
 }
 

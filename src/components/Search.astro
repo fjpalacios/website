@@ -1,4 +1,6 @@
 ---
+import { type LanguageKey } from "@/config/languages";
+
 import { TIMINGS } from "../config/timings";
 import { t } from "../locales";
 
@@ -7,7 +9,7 @@ import { t } from "../locales";
  * Provides instant search with language filtering
  */
 interface Props {
-  lang: "es" | "en";
+  lang: LanguageKey;
 }
 
 const { lang } = Astro.props;
@@ -68,6 +70,7 @@ const searchTranslations = {
     searchInputFocusDelay: TIMINGS.SEARCH_INPUT_FOCUS_MS,
     translations: searchTranslations,
     lang,
+    defaultLang: "${getDefaultLanguageCode()}",
   })};`}
 />
 
@@ -81,7 +84,7 @@ const searchTranslations = {
     const config = window.__SEARCH_CONFIG__ || {};
     const searchInputFocusDelay = config.searchInputFocusDelay || 300;
     const translations = config.translations || {};
-    const lang = config.lang || "es";
+    const lang = config.lang || config.defaultLang || "en";
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     let pagefindUI: any = null;
     let pagefindCSSLoaded = false;

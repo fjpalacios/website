@@ -6,6 +6,7 @@
 import { getCollection } from "astro:content";
 
 import { PAGINATION_CONFIG } from "@/config/pagination";
+import type { LanguageKey } from "@/types";
 import type { ContactItem } from "@/types/content";
 import { filterByLanguage, findAuthorBySlug, prepareBookSummary, sortByDate, type BookSummary } from "@/utils/blog";
 import { generateDetailPaths, generatePaginationPaths } from "@/utils/pagination/generator";
@@ -32,8 +33,7 @@ export async function getAllBooksForLanguage(lang: string): Promise<BookSummary[
   // Prepare summaries with author and series info
   return sortedBooks.map((book) => {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Astro content collection type inference limitation
-    const author = findAuthorBySlug(allAuthors, (book.data as any).author, lang as "es" | "en");
-    // @ts-expect-error - Astro 5 CollectionEntry type compatibility with helper functions
+    const author = findAuthorBySlug(allAuthors, (book.data as any).author, lang as LanguageKey);
     return prepareBookSummary(book, author, allSeries);
   });
 }

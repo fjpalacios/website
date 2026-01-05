@@ -1,14 +1,16 @@
 ---
 import { getCollection, getEntry } from "astro:content";
 
+import { getDefaultLanguageCode, type LanguageKey } from "@/config/languages";
+
 import BookLink from "./BookLink.astro";
 
 interface Props {
   year: number;
-  language?: "es" | "en";
+  language?: LanguageKey;
 }
 
-const { year, language = "es" } = Astro.props;
+const { year, language = getDefaultLanguageCode() } = Astro.props;
 
 // Get all books from the specified year and language
 const allBooks = await getCollection("books", ({ data }) => {

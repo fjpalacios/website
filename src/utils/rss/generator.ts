@@ -5,6 +5,9 @@
 
 import type { CollectionEntry } from "astro:content";
 
+import { getDefaultLanguageCode } from "@/config/languages";
+import type { LanguageKey } from "@/types";
+
 /**
  * Configuration for RSS feed metadata
  */
@@ -12,7 +15,7 @@ export interface RSSFeedConfig {
   title: string;
   description: string;
   site: string;
-  language?: "es" | "en";
+  language?: LanguageKey;
 }
 
 /**
@@ -49,7 +52,7 @@ type ContentItem = CollectionEntry<"books"> | CollectionEntry<"posts"> | Collect
  * @param lang - Language code (es or en)
  * @returns Relative URL path for the content item
  */
-export function buildContentUrl(item: ContentItem, lang: "es" | "en"): string {
+export function buildContentUrl(item: ContentItem, lang: LanguageKey): string {
   const slug = item.data.post_slug;
   const collection = item.collection;
 
@@ -158,7 +161,7 @@ export function generateBilingualFeed(
     site,
     // No customData at feed level for bilingual feeds
     items: allContent.map((item) => {
-      const lang = (item.data.language || "es") as "es" | "en";
+      const lang = (item.data.language || getDefaultLanguageCode()) as LanguageKey;
 
       return {
         title: `[${lang.toUpperCase()}] ${item.data.title}`,

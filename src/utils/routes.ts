@@ -3,6 +3,8 @@
  * Following SEO best practices: all URLs should be in the content's language
  */
 
+import { getLanguageCodes, isValidLanguage as isValidLang, type LanguageKey } from "@/config/languages";
+
 export type RouteSegment =
   | "posts"
   | "tutorials"
@@ -299,25 +301,25 @@ export function buildCoursesIndexUrl(lang: string): string {
  * Language utilities for dynamic routes
  */
 
-export type Language = "es" | "en";
+export type Language = LanguageKey;
 
 /**
  * Get all supported languages
  */
-export function getLanguages(): Language[] {
-  return ["es", "en"];
+export function getLanguages(): LanguageKey[] {
+  return getLanguageCodes();
 }
 
 /**
  * Get default language
  */
-export function getDefaultLanguage(): Language {
-  return "es";
+export function getDefaultLanguage(): LanguageKey {
+  return getLanguageCodes()[0];
 }
 
 /**
  * Validate if a language code is supported
  */
-export function isValidLanguage(lang: string): lang is Language {
-  return getLanguages().includes(lang as Language);
+export function isValidLanguage(lang: string): lang is LanguageKey {
+  return isValidLang(lang);
 }

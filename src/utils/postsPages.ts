@@ -6,7 +6,7 @@
 import { getCollection } from "astro:content";
 
 import { PAGINATION_CONFIG } from "@/config/pagination";
-import type { ContactItem } from "@/types/content";
+import type { ContactItem, LanguageKey } from "@/types";
 import {
   filterByLanguage,
   getPageCount,
@@ -14,7 +14,7 @@ import {
   prepareBookSummary,
   preparePostSummary,
   prepareTutorialSummary,
-  type PostSummary,
+  type ContentSummary,
 } from "@/utils/blog";
 import { generateDetailPaths, generatePaginationPaths } from "@/utils/pagination/generator";
 
@@ -23,7 +23,7 @@ export const POSTS_PER_PAGE = PAGINATION_CONFIG.posts;
 /**
  * Get all content for a language, combined and sorted
  */
-export async function getAllContentForLanguage(lang: "es" | "en"): Promise<PostSummary[]> {
+export async function getAllContentForLanguage(lang: LanguageKey): Promise<ContentSummary[]> {
   // Get all content types
   const allPosts = await getCollection("posts");
   const allTutorials = await getCollection("tutorials");
@@ -39,14 +39,9 @@ export async function getAllContentForLanguage(lang: "es" | "en"): Promise<PostS
   const langBooks = filterByLanguage(allBooks, lang);
 
   // Prepare summaries with course/series context
-  // @ts-expect-error - Astro 5 CollectionEntry type compatibility with helper functions
-  const postSummaries: PostSummary[] = langPosts.map((post) => preparePostSummary(post));
-  // @ts-expect-error - Astro 5 CollectionEntry type compatibility with helper functions
-  const tutorialSummaries: PostSummary[] = langTutorials.map((tutorial) =>
-    prepareTutorialSummary(tutorial, allCourses),
-  );
-  // @ts-expect-error - Astro 5 CollectionEntry type compatibility with helper functions
-  const bookSummaries: PostSummary[] = langBooks.map((book) => prepareBookSummary(book, undefined, allSeries));
+  const postSummaries = langPosts.map((post) => preparePostSummary(post));
+  const tutorialSummaries = langTutorials.map((tutorial) => prepareTutorialSummary(tutorial, allCourses));
+  const bookSummaries = langBooks.map((book) => prepareBookSummary(book, undefined, allSeries));
 
   // Combine all content
   const allContent = [...postSummaries, ...tutorialSummaries, ...bookSummaries];
@@ -62,7 +57,7 @@ export async function getAllContentForLanguage(lang: "es" | "en"): Promise<PostS
 /**
  * Generate static paths for posts index page (page 1)
  */
-export async function generatePostsIndexPaths(lang: "es" | "en", contact: ContactItem[]) {
+export async function generatePostsIndexPaths(lang: LanguageKey, contact: ContactItem[]) {
   const currentPage = 1;
   const sortedContent = await getAllContentForLanguage(lang);
   const totalPages = getPageCount(sortedContent.length, POSTS_PER_PAGE);
@@ -86,7 +81,7 @@ export async function generatePostsIndexPaths(lang: "es" | "en", contact: Contac
 /**
  * Generate static paths for posts pagination pages (page 2+)
  */
-export async function generatePostsPaginationPaths(lang: "es" | "en", contact: ContactItem[]) {
+export async function generatePostsPaginationPaths(lang: LanguageKey, contact: ContactItem[]) {
   const sortedContent = await getAllContentForLanguage(lang);
 
   return generatePaginationPaths({

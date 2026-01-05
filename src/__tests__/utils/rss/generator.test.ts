@@ -6,6 +6,7 @@
 import type { CollectionEntry } from "astro:content";
 import { describe, expect, it } from "vitest";
 
+import type { LanguageKey } from "@/types";
 import {
   generateRSSFeed,
   generateSingleCollectionFeed,
@@ -210,7 +211,7 @@ describe("rss/generator", () => {
         title: "Books",
         description: "Books",
         site: "https://fjp.es",
-        language: "fr" as "es" | "en",
+        language: "fr" as LanguageKey,
       };
 
       const feed = generateSingleCollectionFeed(mockBooks, config);
@@ -397,7 +398,7 @@ describe("rss/generator", () => {
     it("should handle items with missing language (defaults to 'es')", () => {
       const itemWithoutLang = {
         ...mockBooks[0],
-        data: { ...mockBooks[0].data, language: undefined as unknown as "es" | "en" },
+        data: { ...mockBooks[0].data, language: undefined as unknown as LanguageKey },
       };
 
       const url = buildContentUrl(itemWithoutLang, "es");

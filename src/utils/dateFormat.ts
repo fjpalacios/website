@@ -2,6 +2,9 @@
  * Date formatting utilities for the blog
  */
 
+import { getDefaultLanguageCode } from "@/config/languages";
+import type { LanguageKey } from "@/types";
+
 /**
  * Converts a month number (1-12) to Roman numerals
  */
@@ -21,7 +24,7 @@ function monthToRoman(month: number): string {
  */
 export function formatVintageDate(
   date: Date,
-  lang: "es" | "en" = "es",
+  lang: LanguageKey = getDefaultLanguageCode(),
 ): {
   visual: string;
   aria: string;

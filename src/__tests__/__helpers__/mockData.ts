@@ -7,6 +7,8 @@
  * @module __tests__/__helpers__/mockData
  */
 
+import type { LanguageKey } from "@/types";
+
 // ============================================================================
 // MOCK BOOK DATA
 // ============================================================================
@@ -19,7 +21,7 @@ export interface MockBook {
     title: string;
     post_slug: string;
     excerpt: string;
-    language: "es" | "en";
+    language: LanguageKey;
     i18n?: string;
     author?: string;
     publisher?: string;
@@ -45,7 +47,7 @@ export interface MockBook {
  */
 export const createMockBook = (
   id: number,
-  lang: "es" | "en" = "es",
+  lang: LanguageKey = "es",
   overrides: Partial<MockBook["data"]> = {},
 ): MockBook => ({
   id: `book-${id}`,
@@ -76,7 +78,7 @@ export const createMockBook = (
  */
 export const createMockBooks = (
   count: number,
-  lang: "es" | "en" = "es",
+  lang: LanguageKey = "es",
   factory?: (index: number) => Partial<MockBook["data"]>,
 ): MockBook[] => {
   return Array.from({ length: count }, (_, i) => createMockBook(i + 1, lang, factory?.(i + 1)));
@@ -93,7 +95,7 @@ export interface MockAuthor {
   data: {
     name: string;
     slug: string;
-    language?: "es" | "en";
+    language?: LanguageKey;
     bio?: string;
     i18n?: string;
   };
@@ -139,7 +141,7 @@ export interface MockTaxonomy {
   data: {
     name: string;
     slug: string;
-    language?: "es" | "en";
+    language?: LanguageKey;
     description?: string;
     i18n?: string;
   };
@@ -188,7 +190,7 @@ export interface MockPost {
     title: string;
     post_slug: string;
     excerpt: string;
-    language: "es" | "en";
+    language: LanguageKey;
     published_date: Date;
     i18n?: string;
     categories?: string[];
@@ -211,7 +213,7 @@ export interface MockPost {
  */
 export const createMockPost = (
   id: number,
-  lang: "es" | "en" = "es",
+  lang: LanguageKey = "es",
   overrides: Partial<MockPost["data"]> = {},
 ): MockPost => ({
   id: `post-${id}`,
@@ -237,7 +239,7 @@ export const createMockPost = (
  */
 export const createMockPosts = (
   count: number,
-  lang: "es" | "en" = "es",
+  lang: LanguageKey = "es",
   factory?: (index: number) => Partial<MockPost["data"]>,
 ): MockPost[] => {
   return Array.from({ length: count }, (_, i) => createMockPost(i + 1, lang, factory?.(i + 1)));
@@ -255,7 +257,7 @@ export interface MockTutorial {
     title: string;
     post_slug: string;
     excerpt: string;
-    language: "es" | "en";
+    language: LanguageKey;
     i18n?: string;
     categories?: string[];
   };
@@ -271,7 +273,7 @@ export interface MockTutorial {
  */
 export const createMockTutorial = (
   id: number,
-  lang: "es" | "en" = "es",
+  lang: LanguageKey = "es",
   overrides: Partial<MockTutorial["data"]> = {},
 ): MockTutorial => ({
   id: `tutorial-${id}`,

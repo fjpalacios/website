@@ -2,7 +2,7 @@ import type { CollectionEntry } from "astro:content";
 import { getCollection } from "astro:content";
 
 import { PAGINATION_CONFIG } from "@/config/pagination";
-import type { ContactItem } from "@/types/content";
+import type { ContactItem, LanguageKey } from "@/types";
 import { filterByLanguage, prepareBookSummary, preparePostSummary, prepareTutorialSummary } from "@/utils/blog";
 import type { BookSummary, PostSummary } from "@/utils/blog";
 import { extractContentDate } from "@/utils/content-date";
@@ -76,23 +76,20 @@ export const TAXONOMY_CONFIGS: Record<string, TaxonomyConfig> = {
 /**
  * Get all taxonomy items for a language
  */
-export async function getAllTaxonomyItems(config: TaxonomyConfig, lang: string) {
+export async function getAllTaxonomyItems(config: TaxonomyConfig, lang: LanguageKey) {
   const items = await getCollection(config.collection);
-  // @ts-expect-error - Astro 5 CollectionEntry type compatibility with filterByLanguage
   return filterByLanguage(items, lang);
 }
 
 /**
  * Get all content that uses a specific taxonomy
  */
-export async function getAllContentForTaxonomy(config: TaxonomyConfig, lang: string) {
+export async function getAllContentForTaxonomy(config: TaxonomyConfig, lang: LanguageKey) {
   const allContent: Array<CollectionEntry<"posts"> | CollectionEntry<"tutorials"> | CollectionEntry<"books">> = [];
 
   for (const collectionName of config.contentCollections) {
     const collection = await getCollection(collectionName);
-    // @ts-expect-error - Astro 5 CollectionEntry type compatibility with filterByLanguage
     const filtered = filterByLanguage(collection, lang);
-    // @ts-expect-error - Astro 5 CollectionEntry array push type mismatch
     allContent.push(...filtered);
   }
 
@@ -120,7 +117,7 @@ export function countItemsForTaxonomy(
 /**
  * Get taxonomy items with content count
  */
-export async function getTaxonomyItemsWithCount(config: TaxonomyConfig, lang: string) {
+export async function getTaxonomyItemsWithCount(config: TaxonomyConfig, lang: LanguageKey) {
   const taxonomyItems = await getAllTaxonomyItems(config, lang);
   const content = await getAllContentForTaxonomy(config, lang);
 
@@ -135,7 +132,7 @@ export async function getTaxonomyItemsWithCount(config: TaxonomyConfig, lang: st
 /**
  * Check if target language has content for this taxonomy
  */
-export async function hasTargetContent(config: TaxonomyConfig, targetLang: string): Promise<boolean> {
+export async function hasTargetContent(config: TaxonomyConfig, targetLang: LanguageKey): Promise<boolean> {
   const targetItems = await getAllTaxonomyItems(config, targetLang);
   const targetContent = await getAllContentForTaxonomy(config, targetLang);
 
@@ -205,7 +202,7 @@ function sortByDate(
 /**
  * Generate static paths for taxonomy detail pages
  */
-export async function generateTaxonomyDetailPaths(config: TaxonomyConfig, lang: string, contact: ContactItem[]) {
+export async function generateTaxonomyDetailPaths(config: TaxonomyConfig, lang: LanguageKey, contact: ContactItem[]) {
   const taxonomyItems = await getAllTaxonomyItems(config, lang);
   const allContent = await getAllContentForTaxonomy(config, lang);
 

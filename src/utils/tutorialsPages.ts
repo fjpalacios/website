@@ -33,7 +33,6 @@ export async function getAllTutorialsForLanguage(lang: string): Promise<Tutorial
   const sortedTutorials = sortByDate(langTutorials, "desc");
 
   // Prepare summaries with course information
-  // @ts-expect-error - Astro 5 CollectionEntry type compatibility with helper functions
   return sortedTutorials.map((tutorial) => prepareTutorialSummary(tutorial, langCourses));
 }
 

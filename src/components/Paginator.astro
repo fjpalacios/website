@@ -1,6 +1,8 @@
 ---
 import { getLocalizedRoute } from "@utils/routes";
 
+import { getDefaultLanguageCode, type LanguageKey } from "@/config/languages";
+
 import { PAGINATION_CONFIG } from "../config/pagination";
 import { t } from "../locales";
 
@@ -8,10 +10,10 @@ interface Props {
   currentPage: number;
   totalPages: number;
   basePath: string;
-  lang?: "es" | "en";
+  lang?: LanguageKey;
 }
 
-const { currentPage, totalPages, basePath, lang = "es" } = Astro.props;
+const { currentPage, totalPages, basePath, lang = getDefaultLanguageCode() } = Astro.props;
 const { MAX_PAGE_BUTTONS, FIRST_PAGE, MIN_GAP_FOR_ELLIPSIS } = PAGINATION_CONFIG.UI;
 
 // Get localized "page" segment

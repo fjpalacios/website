@@ -14,6 +14,8 @@ import { filterByLanguage } from "@utils/blog";
 import type { PostSummary } from "@utils/blog";
 import { getCollection } from "astro:content";
 
+import type { LanguageKey } from "@/types";
+
 /**
  * Get the latest posts from all content collections
  *
@@ -30,7 +32,7 @@ import { getCollection } from "astro:content";
  * const latestPosts = await getLatestPosts("en", 10);
  * ```
  */
-export async function getLatestPosts(language: "es" | "en", maxItems: number = 4): Promise<PostSummary[]> {
+export async function getLatestPosts(language: LanguageKey, maxItems: number = 4): Promise<PostSummary[]> {
   // Handle edge case: limit of 0
   if (maxItems === 0) {
     return [];

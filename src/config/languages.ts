@@ -158,6 +158,14 @@ export function getDefaultLanguage(): LanguageConfig {
 }
 
 /**
+ * Get the default language code
+ * @returns Default language code (e.g., "es")
+ */
+export function getDefaultLanguageCode(): LanguageKey {
+  return getDefaultLanguage().code as LanguageKey;
+}
+
+/**
  * Check if a language code is valid
  * @param lang - Language code to check
  * @returns true if language exists

@@ -254,7 +254,7 @@ function generateHelper(category: keyof typeof IMAGE_CATEGORIES, images: ImageFi
   if (hasLangFallback) {
     lines.push(`export function ${helperName}(`);
     lines.push(`  coverPath: string | undefined,`);
-    lines.push(`  lang: 'es' | 'en' = 'es'`);
+    lines.push(`  lang: LanguageKey = getDefaultLanguageCode()`);
     lines.push(`): ImageMetadata {`);
   } else if (category === "authors") {
     lines.push(`export function ${helperName}(`);
@@ -287,7 +287,9 @@ function generateHelper(category: keyof typeof IMAGE_CATEGORIES, images: ImageFi
     lines.push("  if (!coverPath) {");
 
     if (hasLangFallback) {
-      lines.push("    return lang === 'es' ? defaultImages.bookDefaultEs : defaultImages.bookDefaultEn;");
+      lines.push(
+        "    return lang === getDefaultLanguageCode() ? defaultImages.bookDefaultEs : defaultImages.bookDefaultEn;",
+      );
     } else {
       const defaultKey = category === "tutorials" ? "tutorialDefault" : "postDefault";
       lines.push(`    return defaultImages.${defaultKey};`);
@@ -311,7 +313,9 @@ function generateHelper(category: keyof typeof IMAGE_CATEGORIES, images: ImageFi
     }
 
     if (hasLangFallback) {
-      lines.push("    return lang === 'es' ? defaultImages.bookDefaultEs : defaultImages.bookDefaultEn;");
+      lines.push(
+        "    return lang === getDefaultLanguageCode() ? defaultImages.bookDefaultEs : defaultImages.bookDefaultEn;",
+      );
     } else {
       const defaultKey = category === "tutorials" ? "tutorialDefault" : "postDefault";
       lines.push(`    return defaultImages.${defaultKey};`);
@@ -406,6 +410,7 @@ function generateFile(): string {
   lines.push(" */");
   lines.push("");
   lines.push("import type { ImageMetadata } from 'astro';");
+  lines.push("import { getDefaultLanguageCode, type LanguageKey } from '@/config/languages';");
   lines.push("");
 
   // Scan and generate for each category

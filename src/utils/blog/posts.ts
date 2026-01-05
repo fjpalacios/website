@@ -3,6 +3,8 @@
 
 import type { CollectionEntry } from "astro:content";
 
+import type { LanguageKey } from "@/types";
+
 /**
  * Post summary for listing pages
  */
@@ -11,7 +13,7 @@ export interface PostSummary {
   title: string;
   slug: string;
   excerpt: string;
-  language: "es" | "en";
+  language: LanguageKey;
   date: Date;
   category: string;
   draft: boolean;

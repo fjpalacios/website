@@ -11,6 +11,7 @@
 import { contact as contactEN } from "@content/en/contact";
 import { contact as contactES } from "@content/es/contact";
 
+import type { LanguageKey } from "@/types";
 import type { ContactItem } from "@/types/content";
 
 /**
@@ -20,7 +21,7 @@ import type { ContactItem } from "@/types/content";
  * in the specified language. Each call returns a new array to prevent
  * accidental mutations.
  *
- * @param lang - Language code ("es" or "en")
+ * @param lang - Language code
  * @returns Array of contact items for the specified language
  *
  * @example
@@ -36,7 +37,7 @@ import type { ContactItem } from "@/types/content";
  *
  * @see ContactItem type definition in @types/content
  */
-export function getContact(lang: "es" | "en"): ContactItem[] {
+export function getContact(lang: LanguageKey): ContactItem[] {
   // Return a shallow copy to prevent accidental mutations
   // of the original contact data
   return lang === "es" ? [...contactES] : [...contactEN];

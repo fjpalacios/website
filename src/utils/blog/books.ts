@@ -3,6 +3,8 @@
 
 import type { CollectionEntry } from "astro:content";
 
+import type { LanguageKey } from "@/types";
+
 /**
  * Find a book by its slug
  * @param books - Array of book entries
@@ -17,13 +19,13 @@ export function findBookBySlug(books: CollectionEntry<"books">[], slug: string):
  * Find an author by their slug and language
  * @param authors - Array of author entries
  * @param authorSlug - The author_slug reference from a book
- * @param lang - Language to filter by ("es" or "en")
+ * @param lang - Language to filter by
  * @returns The author entry or undefined if not found
  */
 export function findAuthorBySlug(
   authors: CollectionEntry<"authors">[],
   authorSlug: string,
-  lang?: "es" | "en",
+  lang?: LanguageKey,
 ): CollectionEntry<"authors"> | undefined {
   return authors.find(
     (author) => author.data.author_slug === authorSlug && (lang ? author.data.language === lang : true),

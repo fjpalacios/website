@@ -24,6 +24,7 @@
  */
 
 import { getRouteSegment } from "@/config/routeSegments";
+import type { LanguageKey } from "@/types";
 import type { TaxonomyConfig } from "@/utils/taxonomyPages";
 import {
   getTaxonomyItemsWithCount,
@@ -39,10 +40,10 @@ export interface TaxonomyGeneratorConfig {
   taxonomyConfig: TaxonomyConfig;
 
   /** Current language code (e.g., 'en', 'es') */
-  lang: string;
+  lang: LanguageKey;
 
   /** Target language for checking if translations exist */
-  targetLang: string;
+  targetLang: LanguageKey;
 
   /** Localized route segment (e.g., 'authors' in EN, 'autores' in ES) */
   routeSegment: string;

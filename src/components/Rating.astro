@@ -7,19 +7,21 @@
  *
  * @component
  * @param {number | "fav"} score - Numeric score (1-5) or "fav" for favorites
- * @param {"es" | "en"} lang - Language for aria-labels and text
+ * @param {LanguageKey} lang - Language for aria-labels and text
  * @param {boolean} [showText] - Whether to show text representation of score
  * @param {"xs" | "sm" | "md" | "lg" | "xl"} [size] - Icon size variant
  */
 
 import Icon from "@components/Icon.astro";
 
+import type { LanguageKey } from "@/types";
+
 import { t } from "../locales";
 import "@styles/components/rating.scss";
 
 interface Props {
   score: number | "fav";
-  lang: "es" | "en";
+  lang: LanguageKey;
   showText?: boolean;
   size?: "xs" | "sm" | "md" | "lg" | "xl";
 }

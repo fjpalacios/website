@@ -3,6 +3,8 @@
 
 import type { CollectionEntry } from "astro:content";
 
+import type { LanguageKey } from "@/types";
+
 /**
  * Author summary for author pages
  */
@@ -10,7 +12,7 @@ export interface AuthorSummary {
   name: string;
   slug: string;
   bio: string;
-  language: "es" | "en";
+  language: LanguageKey;
   birthYear?: number;
   deathYear?: number;
   nationality?: string;

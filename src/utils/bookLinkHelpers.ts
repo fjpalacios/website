@@ -6,6 +6,8 @@
 import { buildBookUrl } from "@utils/routes";
 import type { CollectionEntry } from "astro:content";
 
+import type { LanguageKey } from "@/types";
+
 /**
  * Detect language from URL pathname
  * @param pathname - URL pathname (e.g., "/en/books/the-stand" or "/es/libros/apocalipsis")
@@ -16,7 +18,7 @@ import type { CollectionEntry } from "astro:content";
  * detectLanguageFromUrl("/es/libros/apocalipsis") // "es"
  * detectLanguageFromUrl("/unknown/path") // "es" (default)
  */
-export const detectLanguageFromUrl = (pathname: string): "es" | "en" => {
+export const detectLanguageFromUrl = (pathname: string): LanguageKey => {
   return pathname.startsWith("/en/") ? "en" : "es";
 };
 
@@ -37,7 +39,7 @@ export const parseTitle = (titleStr: string) => {
 export const findBook = (
   books: CollectionEntry<"books">[],
   title: string,
-  lang: "es" | "en",
+  lang: LanguageKey,
 ): CollectionEntry<"books"> | undefined => {
   // Parse the search title to extract just the book name (without author)
   const searchTitle = parseTitle(title).bookTitle;
@@ -68,6 +70,6 @@ export const generateDisplayTitle = (title: string, full: boolean, book?: Collec
 /**
  * Generate book URL if book exists
  */
-export const generateBookUrl = (book: CollectionEntry<"books"> | undefined, lang: "es" | "en"): string | null => {
+export const generateBookUrl = (book: CollectionEntry<"books"> | undefined, lang: LanguageKey): string | null => {
   return book ? buildBookUrl(lang, book.data.post_slug) : null;
 };

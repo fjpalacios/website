@@ -1,1 +1,1 @@
-export type { LanguageKey } from "./content";
+export type { ContactItem, LanguageKey } from "./content";

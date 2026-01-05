@@ -10,6 +10,8 @@
 
 import { z } from "zod";
 
+import type { LanguageKey } from "@/types";
+
 /**
  * Language schema
  */
@@ -271,7 +273,7 @@ export function safeValidateParsedRoute(route: unknown) {
  * @param value - Value to check
  * @returns True if value is a valid language
  */
-export function isValidLanguage(value: unknown): value is "es" | "en" {
+export function isValidLanguage(value: unknown): value is LanguageKey {
   return LanguageSchema.safeParse(value).success;
 }
 

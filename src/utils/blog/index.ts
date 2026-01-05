@@ -31,3 +31,14 @@ export { prepareTutorialSummary, type TutorialSummary } from "./tutorials";
 
 // Post utilities
 export { preparePostSummary, type PostSummary } from "./posts";
+
+// Import types for creating union
+import type { BookSummary } from "./book-listing";
+import type { PostSummary } from "./posts";
+import type { TutorialSummary } from "./tutorials";
+
+/**
+ * Union type for all content summaries (posts, tutorials, books)
+ * Used in combined listings like /publicaciones/
+ */
+export type ContentSummary = PostSummary | TutorialSummary | BookSummary;
