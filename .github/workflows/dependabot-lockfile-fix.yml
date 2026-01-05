@@ -13,7 +13,7 @@ jobs:
   fix-lockfile:
     name: Update bun.lock
     runs-on: ubuntu-latest
-    if: github.actor == 'dependabot[bot]' || github.actor == 'fjpalacios'
+    if: github.actor == 'dependabot[bot]'
 
     steps:
       - name: Checkout PR branch
