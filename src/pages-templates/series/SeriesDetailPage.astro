@@ -21,19 +21,14 @@ import { buildSeriesUrl, buildSeriesIndexUrl } from "@utils/routes";
 import type { CollectionEntry } from "astro:content";
 
 import type { ContactItem } from "@/types/content";
+import type { BookSummary } from "@/utils/blog";
 import type { Language } from "@/utils/routes";
 import { generateItemListSchema } from "@/utils/schemas/itemList";
 
 interface Props {
   lang: Language;
   taxonomyItem: CollectionEntry<"series">;
-  content: Array<{
-    type: string;
-    title: string;
-    slug: string;
-    excerpt: string;
-    publishedAt: Date;
-  }>;
+  content: BookSummary[];
   currentPage: number;
   totalPages: number;
   totalItems: number; // Total items across all pages
@@ -107,7 +102,7 @@ const itemListSchema = generateItemListSchema(
   <p class="sr-only" aria-hidden="true">{description}</p>
 
   <div data-pagefind-ignore>
-    <PostList posts={content} lang={lang} />
+    <PostList posts={content} lang={lang} showOrderBadges={true} />
   </div>
 
   <Paginator currentPage={currentPage} totalPages={totalPages} basePath={basePath} lang={lang} />

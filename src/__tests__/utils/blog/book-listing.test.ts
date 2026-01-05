@@ -121,4 +121,24 @@ describe("prepareBookSummary", () => {
 
     expect(summary.cover).toBe("/static/images/book.jpg");
   });
+
+  it("should include series_order when present", () => {
+    const bookWithSeriesOrder = {
+      ...mockBook,
+      data: {
+        ...mockBook.data,
+        series_order: 3,
+      },
+    } as CollectionEntry<"books">;
+
+    const summary = prepareBookSummary(bookWithSeriesOrder);
+
+    expect(summary.series_order).toBe(3);
+  });
+
+  it("should return undefined series_order when not present", () => {
+    const summary = prepareBookSummary(mockBook);
+
+    expect(summary.series_order).toBeUndefined();
+  });
 });

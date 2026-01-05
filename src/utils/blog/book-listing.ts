@@ -18,6 +18,7 @@ export interface BookSummary {
   pages: number;
   authorName?: string;
   authorSlug?: string;
+  series_order?: number;
 }
 
 /**
@@ -62,5 +63,6 @@ export function prepareBookSummary(book: CollectionEntry<"books">, author?: Coll
     pages: book.data.pages,
     authorName: author?.data.name,
     authorSlug: author?.data.author_slug,
+    series_order: book.data.series_order,
   };
 }

@@ -164,6 +164,45 @@ export function prepareContentSummary(
 }
 
 /**
+ * Sort content by order field (for courses and series)
+ * @returns Negative if a comes first, positive if b comes first, 0 if should fall back to date
+ */
+function sortByOrderField(
+  a: CollectionEntry<"posts"> | CollectionEntry<"tutorials"> | CollectionEntry<"books">,
+  b: CollectionEntry<"posts"> | CollectionEntry<"tutorials"> | CollectionEntry<"books">,
+  orderField: "order" | "series_order",
+): number | null {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Dynamic field access for ordering
+  const orderA = (a.data as any)[orderField];
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Dynamic field access for ordering
+  const orderB = (b.data as any)[orderField];
+
+  // If both have order field, sort by order ascending
+  if (orderA !== undefined && orderB !== undefined) {
+    return orderA - orderB;
+  }
+
+  // If only one has order, prioritize the one with order
+  if (orderA !== undefined) return -1;
+  if (orderB !== undefined) return 1;
+
+  // Neither has order, fall back to date sorting
+  return null;
+}
+
+/**
+ * Sort content by date (descending)
+ */
+function sortByDate(
+  a: CollectionEntry<"posts"> | CollectionEntry<"tutorials"> | CollectionEntry<"books">,
+  b: CollectionEntry<"posts"> | CollectionEntry<"tutorials"> | CollectionEntry<"books">,
+): number {
+  const dateA = extractContentDate(a);
+  const dateB = extractContentDate(b);
+  return dateB.getTime() - dateA.getTime();
+}
+
+/**
  * Generate static paths for taxonomy detail pages
  */
 export async function generateTaxonomyDetailPaths(config: TaxonomyConfig, lang: string, contact: ContactItem[]) {
@@ -206,31 +245,20 @@ export async function generateTaxonomyDetailPaths(config: TaxonomyConfig, lang: 
     });
 
     // Sort content
-    // For courses: sort by order field (ascending), then by date (descending) as fallback
+    // For courses: sort by order field (tutorials), then by date (descending) as fallback
+    // For series: sort by series_order field (books), then by date (descending) as fallback
     // For other taxonomies: sort by date (descending)
     taxonomyContent.sort((a, b) => {
-      if (config.collection === "courses") {
-        // If both have order field, sort by order ascending
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Dynamic field access for ordering
-        const orderA = a.collection === "tutorials" ? (a.data as any).order : undefined;
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Dynamic field access for ordering
-        const orderB = b.collection === "tutorials" ? (b.data as any).order : undefined;
-
-        if (orderA !== undefined && orderB !== undefined) {
-          return orderA - orderB;
-        }
-
-        // If only one has order, prioritize the one with order
-        if (orderA !== undefined) return -1;
-        if (orderB !== undefined) return 1;
-
-        // If neither has order, fall back to date descending
+      if (config.collection === "courses" && a.collection === "tutorials" && b.collection === "tutorials") {
+        const orderSort = sortByOrderField(a, b, "order");
+        if (orderSort !== null) return orderSort;
+      } else if (config.collection === "series" && a.collection === "books" && b.collection === "books") {
+        const orderSort = sortByOrderField(a, b, "series_order");
+        if (orderSort !== null) return orderSort;
       }
 
       // Default: sort by date descending
-      const dateA = extractContentDate(a);
-      const dateB = extractContentDate(b);
-      return dateB.getTime() - dateA.getTime();
+      return sortByDate(a, b);
     });
 
     // Calculate total pages and items

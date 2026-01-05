@@ -67,7 +67,18 @@ function getItemDimensions(item: ListItem) {
       posts.map((post) => {
         const dimensions = getItemDimensions(post);
         const showOrderBadge =
-          showOrderBadges && post.type === "tutorial" && "order" in post && post.order !== undefined;
+          showOrderBadges &&
+          ((post.type === "tutorial" && "order" in post && post.order !== undefined) ||
+            (post.type === "book" && "series_order" in post && post.series_order !== undefined));
+
+        // Get the order number based on content type
+        const orderNumber =
+          post.type === "tutorial" && "order" in post
+            ? (post as TutorialSummary).order
+            : post.type === "book" && "series_order" in post
+              ? (post as BookSummary).series_order
+              : undefined;
+
         return (
           <a href={getItemUrl(post)}>
             <section class="blog__grid__post">
@@ -80,7 +91,7 @@ function getItemDimensions(item: ListItem) {
                   sizes={RESPONSIVE_SIZES.HALF_WIDTH}
                   loading="lazy"
                 />
-                {showOrderBadge && <TutorialOrderBadge order={(post as TutorialSummary).order!} />}
+                {showOrderBadge && orderNumber !== undefined && <TutorialOrderBadge order={orderNumber} />}
               </div>
               <PostTitle title={post.title} date={post.date} lang={lang} headingLevel="h2" />
               <div class="text-area">
