@@ -163,5 +163,66 @@
     "navigation": "Site navigation",
     "allRightsReserved": "All rights reserved",
     "builtWith": "Built with"
+  },
+  "search": {
+    "modalTitle": "Search the site",
+    "closeButton": "Close search",
+    "placeholder": "Search the blog...",
+    "clearButton": "Clear",
+    "loadMore": "Load more results",
+    "label": "Search this site",
+    "filters": "Filters",
+    "noResults": "No results for",
+    "manyResults": "{{count}} results",
+    "oneResult": "{{count}} result",
+    "searching": "Searching..."
+  },
+  "paginator": {
+    "ariaLabel": "Pagination",
+    "firstPage": "First page",
+    "previousPage": "Previous page",
+    "nextPage": "Next page",
+    "lastPage": "Last page",
+    "pageNumber": "Page {{number}}",
+    "pageLowercase": "page"
+  },
+  "rating": {
+    "favorite": "Rated as favorite",
+    "outOfFive": "Rated {{score}} out of 5 stars",
+    "favoriteText": "Favorite"
+  },
+  "badges": {
+    "course": "Course: {{name}}",
+    "series": "Series: {{name}}",
+    "tutorialOrder": "Tutorial {{order}}"
+  },
+  "breadcrumbs": {
+    "ariaLabel": "breadcrumb"
+  },
+  "share": {
+    "title": "Get Involved"
+  },
+  "bookDetail": {
+    "pages": "Pages",
+    "buy": "Buy",
+    "details": "Book details",
+    "synopsis": "Synopsis",
+    "paperback": "Paperback",
+    "ebook": "eBook",
+    "audiobook": "Audiobook"
+  },
+  "pageDescriptions": {
+    "books": "Book reviews",
+    "tutorials": "Web development tutorials and guides",
+    "posts": "Articles, tutorials and book reviews",
+    "postsShort": "Articles and tutorials about web development"
+  },
+  "rss": {
+    "mainTitle": "fjp.es - Blog (All Languages)",
+    "mainDescription": "Personal blog about books, programming and technology",
+    "booksTitle": "fjp.es - Book Reviews",
+    "booksDescription": "Reviews and opinions about fiction, horror, thriller and more",
+    "tutorialsTitle": "fjp.es - Programming Tutorials",
+    "tutorialsDescription": "Tutorials about JavaScript, Git, web development and more"
   }
 }

@@ -163,5 +163,66 @@
     "navigation": "Navegación del sitio",
     "allRightsReserved": "Todos los derechos reservados",
     "builtWith": "Hecho con"
+  },
+  "search": {
+    "modalTitle": "Buscar en el sitio",
+    "closeButton": "Cerrar búsqueda",
+    "placeholder": "Buscar en el blog...",
+    "clearButton": "Limpiar",
+    "loadMore": "Cargar más resultados",
+    "label": "Buscar en este sitio",
+    "filters": "Filtros",
+    "noResults": "No se encontraron resultados para",
+    "manyResults": "{{count}} resultados",
+    "oneResult": "{{count}} resultado",
+    "searching": "Buscando..."
+  },
+  "paginator": {
+    "ariaLabel": "Paginación",
+    "firstPage": "Primera página",
+    "previousPage": "Página anterior",
+    "nextPage": "Página siguiente",
+    "lastPage": "Última página",
+    "pageNumber": "Página {{number}}",
+    "pageLowercase": "página"
+  },
+  "rating": {
+    "favorite": "Marcado como favorito",
+    "outOfFive": "Puntuación {{score}} de 5 estrellas",
+    "favoriteText": "Favorito"
+  },
+  "badges": {
+    "course": "Curso: {{name}}",
+    "series": "Series: {{name}}",
+    "tutorialOrder": "Tutorial {{order}}"
+  },
+  "breadcrumbs": {
+    "ariaLabel": "migas de pan"
+  },
+  "share": {
+    "title": "Colabora"
+  },
+  "bookDetail": {
+    "pages": "Páginas",
+    "buy": "Comprar",
+    "details": "Detalles del libro",
+    "synopsis": "Sinopsis",
+    "paperback": "Tapa blanda",
+    "ebook": "eBook",
+    "audiobook": "Audiolibro"
+  },
+  "pageDescriptions": {
+    "books": "Reseñas de libros",
+    "tutorials": "Tutoriales y guías de desarrollo web",
+    "posts": "Artículos, tutoriales y reseñas de libros",
+    "postsShort": "Artículos y tutoriales sobre desarrollo web"
+  },
+  "rss": {
+    "mainTitle": "fjp.es - Blog (Todos los idiomas)",
+    "mainDescription": "Blog personal sobre libros, programación y tecnología",
+    "booksTitle": "fjp.es - Reseñas de Libros",
+    "booksDescription": "Reseñas y opiniones sobre libros de ficción, terror, suspense y más",
+    "tutorialsTitle": "fjp.es - Tutoriales de Programación",
+    "tutorialsDescription": "Tutoriales sobre JavaScript, Git, desarrollo web y más"
   }
 }

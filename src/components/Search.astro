@@ -1,5 +1,6 @@
 ---
 import { TIMINGS } from "../config/timings";
+import { t } from "../locales";
 
 /**
  * Search component using Pagefind
@@ -10,6 +11,21 @@ interface Props {
 }
 
 const { lang } = Astro.props;
+
+// Prepare translations for inline script
+const searchTranslations = {
+  modalTitle: t(lang, "search.modalTitle"),
+  closeButton: t(lang, "search.closeButton"),
+  placeholder: t(lang, "search.placeholder"),
+  clear: t(lang, "search.clearButton"),
+  loadMore: t(lang, "search.loadMore"),
+  searchLabel: t(lang, "search.label"),
+  filters: t(lang, "search.filters"),
+  noResults: t(lang, "search.noResults"),
+  manyResults: t(lang, "search.manyResults"),
+  oneResult: t(lang, "search.oneResult"),
+  searching: t(lang, "search.searching"),
+};
 ---
 
 <!-- Search Modal -->
@@ -18,9 +34,9 @@ const { lang } = Astro.props;
   <div class="search-modal__content" role="dialog" aria-modal="true" aria-labelledby="search-title">
     <div class="search-modal__header">
       <h2 id="search-title" class="sr-only">
-        {lang === "es" ? "Buscar en el sitio" : "Search the site"}
+        {searchTranslations.modalTitle}
       </h2>
-      <button class="search-modal__close" type="button" aria-label="Close search">
+      <button class="search-modal__close" type="button" aria-label={searchTranslations.closeButton}>
         <svg
           xmlns="http://www.w3.org/2000/svg"
           width="24"
@@ -45,18 +61,29 @@ const { lang } = Astro.props;
   @use "../styles/components/search";
 </style>
 
-<!-- Inject config variables -->
+<!-- Inject config variables and translations -->
 <script
   is:inline
-  set:html={`window.__SEARCH_CONFIG__ = ${JSON.stringify({ searchInputFocusDelay: TIMINGS.SEARCH_INPUT_FOCUS_MS })};`}
+  set:html={`window.__SEARCH_CONFIG__ = ${JSON.stringify({
+    searchInputFocusDelay: TIMINGS.SEARCH_INPUT_FOCUS_MS,
+    translations: searchTranslations,
+    lang,
+  })};`}
 />
 
 <!-- Main search modal script -->
 <script>
   // This script runs on every page load (including view transitions)
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  declare const window: Window & { __SEARCH_CONFIG__?: any; PagefindUI?: any };
+
   (function () {
-    const searchInputFocusDelay = window.__SEARCH_CONFIG__?.searchInputFocusDelay || 300;
-    let pagefindUI = null;
+    const config = window.__SEARCH_CONFIG__ || {};
+    const searchInputFocusDelay = config.searchInputFocusDelay || 300;
+    const translations = config.translations || {};
+    const lang = config.lang || "es";
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    let pagefindUI: any = null;
     let pagefindCSSLoaded = false;
 
     // Ensure Pagefind CSS is loaded
@@ -88,9 +115,6 @@ const { lang } = Astro.props;
       // Ensure CSS is loaded before initializing
       ensurePagefindCSS();
 
-      // Get lang from body data attribute
-      const lang = document.body.dataset.lang || "es";
-
       try {
         pagefindUI = new window.PagefindUI({
           element: "#search",
@@ -98,15 +122,18 @@ const { lang } = Astro.props;
           showImages: false,
           excerptLength: 15,
           translations: {
-            placeholder: lang === "es" ? "Buscar en el blog..." : "Search the blog...",
-            clear_search: lang === "es" ? "Limpiar" : "Clear",
-            load_more: lang === "es" ? "Cargar más resultados" : "Load more results",
-            search_label: lang === "es" ? "Buscar en este sitio" : "Search this site",
-            filters_label: lang === "es" ? "Filtros" : "Filters",
-            zero_results:
-              lang === "es" ? "No se encontraron resultados para [SEARCH_TERM]" : "No results for [SEARCH_TERM]",
-            many_results: lang === "es" ? "[COUNT] resultados" : "[COUNT] results",
-            one_result: lang === "es" ? "[COUNT] resultado" : "[COUNT] result",
+            placeholder: translations.placeholder || "Search...",
+            clear_search: translations.clear || "Clear",
+            load_more: translations.loadMore || "Load more",
+            search_label: translations.searchLabel || "Search",
+            filters_label: translations.filters || "Filters",
+            zero_results: `${translations.noResults || "No results for"} [SEARCH_TERM]`,
+            many_results: translations.manyResults
+              ? translations.manyResults.replace("{{count}}", "[COUNT]")
+              : "[COUNT] results",
+            one_result: translations.oneResult
+              ? translations.oneResult.replace("{{count}}", "[COUNT]")
+              : "[COUNT] result",
             alt_search:
               lang === "es"
                 ? "No se encontraron resultados para [SEARCH_TERM]. Mostrando resultados para [DIFFERENT_TERM]"
@@ -115,7 +142,7 @@ const { lang } = Astro.props;
               lang === "es"
                 ? "No se encontraron resultados para [SEARCH_TERM]. Intenta una de las siguientes búsquedas:"
                 : "No results for [SEARCH_TERM]. Try one of the following searches:",
-            searching: lang === "es" ? "Buscando..." : "Searching...",
+            searching: translations.searching || "Searching...",
           },
         });
       } catch (error) {
@@ -126,23 +153,25 @@ const { lang } = Astro.props;
     }
 
     // Focus trap implementation
-    let focusTrapHandler = null;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    let focusTrapHandler: any = null;
 
-    function setupFocusTrap(modal) {
+    function setupFocusTrap(modal: HTMLElement) {
       const focusableSelectors =
         'button:not([disabled]), [href], input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])';
 
       function getFocusableElements() {
         const elements = modal.querySelectorAll(focusableSelectors);
         return Array.from(elements).filter((el) => {
+          const htmlEl = el as HTMLElement;
           // Ensure element is visible and not a hidden screen reader element
-          const isVisible = el.offsetWidth > 0 && el.offsetHeight > 0;
-          const isInsideModal = modal.contains(el);
+          const isVisible = htmlEl.offsetWidth > 0 && htmlEl.offsetHeight > 0;
+          const isInsideModal = modal.contains(htmlEl);
           return isVisible && isInsideModal;
         });
       }
 
-      function handleKeyDown(e) {
+      function handleKeyDown(e: KeyboardEvent) {
         // Only trap Tab key
         if (e.key !== "Tab") return;
 
@@ -152,8 +181,8 @@ const { lang } = Astro.props;
         const focusableElements = getFocusableElements();
         if (focusableElements.length === 0) return;
 
-        const firstElement = focusableElements[0];
-        const lastElement = focusableElements[focusableElements.length - 1];
+        const firstElement = focusableElements[0] as HTMLElement;
+        const lastElement = focusableElements[focusableElements.length - 1] as HTMLElement;
         const activeElement = document.activeElement;
 
         // Shift+Tab on first element: go to last
@@ -172,20 +201,20 @@ const { lang } = Astro.props;
       }
 
       // Additional focus guard: if focus escapes modal, bring it back
-      function handleFocusIn(e) {
+      function handleFocusIn(e: FocusEvent) {
         // Only trap if modal is open
         if (modal.getAttribute("aria-hidden") === "true") return;
 
         const target = e.target;
 
         // If focus is outside modal, redirect to first focusable element
-        if (!modal.contains(target)) {
+        if (!modal.contains(target as Node)) {
           e.preventDefault();
           e.stopPropagation();
 
           const focusableElements = getFocusableElements();
           if (focusableElements.length > 0) {
-            focusableElements[0].focus();
+            (focusableElements[0] as HTMLElement).focus();
           }
         }
       }
@@ -197,7 +226,7 @@ const { lang } = Astro.props;
       document.addEventListener("focusin", focusTrapHandler.focusin, true);
     }
 
-    function removeFocusTrap(_modal) {
+    function removeFocusTrap(_modal: HTMLElement) {
       if (focusTrapHandler) {
         document.removeEventListener("keydown", focusTrapHandler.keydown, true);
         document.removeEventListener("focusin", focusTrapHandler.focusin, true);
@@ -220,12 +249,12 @@ const { lang } = Astro.props;
 
         // Focus search input after a short delay (from TIMINGS.SEARCH_INPUT_FOCUS_MS)
         setTimeout(function () {
-          const input = modal.querySelector(".pagefind-ui__search-input");
+          const input = modal.querySelector(".pagefind-ui__search-input") as HTMLInputElement;
           if (input) {
             input.focus();
           } else {
             // If Pagefind hasn't initialized yet, focus close button
-            const closeButton = modal.querySelector(".search-modal__close");
+            const closeButton = modal.querySelector(".search-modal__close") as HTMLButtonElement;
             if (closeButton) {
               closeButton.focus();
             }

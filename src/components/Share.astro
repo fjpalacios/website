@@ -4,10 +4,12 @@ import Title from "@components/Title.astro";
 import shareEn from "@/content/static/share/en.js";
 import shareEs from "@/content/static/share/es.js";
 
+import { t } from "../locales";
+
 interface Props {
   title: string;
   url: string;
-  lang: string;
+  lang: "es" | "en";
   twitterUsername: string;
 }
 
@@ -21,11 +23,9 @@ const message = shareContent
   .replace(/%TITLE%/g, title)
   .replace(/%URL%/g, url)
   .replace(/%TWITTER%/g, twitterUsername.replace("@", ""));
-
-const titleText = lang === "es" ? "Colabora" : "Get Involved";
 ---
 
 <section class="share">
-  <Title title={titleText} />
+  <Title title={t(lang, "share.title")} />
   <div class="text-area" set:html={message} />
 </section>

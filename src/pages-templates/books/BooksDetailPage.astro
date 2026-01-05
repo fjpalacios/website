@@ -16,7 +16,7 @@ import Rating from "@components/Rating.astro";
 import SectionTitle from "@components/SectionTitle.astro";
 import Share from "@components/Share.astro";
 import Layout from "@layouts/Layout.astro";
-import { t } from "@locales";
+import { t } from "../../locales";
 import type { ContactItem } from "@types/content";
 import { getBookCoverImage } from "@utils/imageImports";
 import { IMAGE_DIMENSIONS } from "@utils/images";
@@ -155,15 +155,15 @@ if (publisher) {
 }
 
 // Translations
-const pagesLabel = lang === "en" ? "Pages" : "Páginas";
-const buyLabel = lang === "en" ? "Buy" : "Comprar";
+const pagesLabel = t(lang, "bookDetail.pages");
+const buyLabel = t(lang, "bookDetail.buy");
 const publisherLabel = lang === "en" ? "Publisher" : "Editorial";
-const bookDetailsLabel = lang === "en" ? "Book details" : "Detalles del libro";
-const synopsisLabel = lang === "en" ? "Synopsis" : "Sinopsis";
+const bookDetailsLabel = t(lang, "bookDetail.details");
+const synopsisLabel = t(lang, "bookDetail.synopsis");
 const reviewLabel = lang === "en" ? "Review" : "Reseña";
-const paperbackLabel = lang === "en" ? "Paperback" : "Tapa blanda";
-const ebookLabel = lang === "en" ? "eBook" : "eBook";
-const audiobookLabel = lang === "en" ? "Audiobook" : "Audiolibro";
+const paperbackLabel = t(lang, "bookDetail.paperback");
+const ebookLabel = t(lang, "bookDetail.ebook");
+const audiobookLabel = t(lang, "bookDetail.audiobook");
 const categoryLabel = lang === "en" ? "Category" : "Categoría";
 const genreLabel = lang === "en" ? "Genre" : "Género";
 ---

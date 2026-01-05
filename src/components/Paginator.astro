@@ -1,8 +1,8 @@
 ---
-import { t } from "@locales";
 import { getLocalizedRoute } from "@utils/routes";
 
 import { PAGINATION_CONFIG } from "../config/pagination";
+import { t } from "../locales";
 
 interface Props {
   currentPage: number;
@@ -80,18 +80,26 @@ function getPageUrl(page: number): string {
 
 {
   showPaginator && (
-    <nav class="paginator" aria-label="Pagination">
+    <nav class="paginator" aria-label={t(lang, "paginator.ariaLabel")}>
       <div class="paginator__controls">
         {/* First page button */}
         {currentPage > FIRST_PAGE + 1 && (
-          <a href={firstUrl} class="paginator__button paginator__button--first" aria-label="First page">
+          <a
+            href={firstUrl}
+            class="paginator__button paginator__button--first"
+            aria-label={t(lang, "paginator.firstPage")}
+          >
             «
           </a>
         )}
 
         {/* Previous button */}
         {showPrev && (
-          <a href={prevUrl} class="paginator__button paginator__button--prev" aria-label="Previous page">
+          <a
+            href={prevUrl}
+            class="paginator__button paginator__button--prev"
+            aria-label={t(lang, "paginator.previousPage")}
+          >
             {t(lang, "paginator.prev")}
           </a>
         )}
@@ -108,11 +116,19 @@ function getPageUrl(page: number): string {
             const url = getPageUrl(pageNum);
 
             return isCurrentPage ? (
-              <span class="paginator__page paginator__page--current" aria-current="page" aria-label={`Page ${pageNum}`}>
+              <span
+                class="paginator__page paginator__page--current"
+                aria-current="page"
+                aria-label={t(lang, "paginator.pageNumber", { number: pageNum.toString() })}
+              >
                 {pageNum}
               </span>
             ) : (
-              <a href={url} class="paginator__page" aria-label={`Page ${pageNum}`}>
+              <a
+                href={url}
+                class="paginator__page"
+                aria-label={t(lang, "paginator.pageNumber", { number: pageNum.toString() })}
+              >
                 {pageNum}
               </a>
             );
@@ -121,14 +137,22 @@ function getPageUrl(page: number): string {
 
         {/* Next button */}
         {showNext && (
-          <a href={nextUrl} class="paginator__button paginator__button--next" aria-label="Next page">
+          <a
+            href={nextUrl}
+            class="paginator__button paginator__button--next"
+            aria-label={t(lang, "paginator.nextPage")}
+          >
             {t(lang, "paginator.next")}
           </a>
         )}
 
         {/* Last page button */}
         {currentPage < totalPages - 1 && (
-          <a href={lastUrl} class="paginator__button paginator__button--last" aria-label="Last page">
+          <a
+            href={lastUrl}
+            class="paginator__button paginator__button--last"
+            aria-label={t(lang, "paginator.lastPage")}
+          >
             »
           </a>
         )}

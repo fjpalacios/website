@@ -4,12 +4,14 @@ import { getCollection } from "astro:content";
 
 import { generateSingleCollectionFeed } from "@/utils/rss/generator";
 
+import { t } from "../../../locales";
+
 export async function GET(context: APIContext) {
   const allTutorials = await getCollection("tutorials");
 
   const feedData = generateSingleCollectionFeed(allTutorials, {
-    title: "fjp.es - Tutoriales de Programación",
-    description: "Tutoriales sobre JavaScript, Git, desarrollo web y más",
+    title: t("es", "rss.tutorialsTitle"),
+    description: t("es", "rss.tutorialsDescription"),
     site: context.site!.toString(),
     language: "es",
   });

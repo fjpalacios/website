@@ -109,17 +109,19 @@ function getItemDimensions(item: ListItem) {
                   sizes={RESPONSIVE_SIZES.HALF_WIDTH}
                   loading="lazy"
                 />
-                {showOrderBadge && orderNumber !== undefined && <TutorialOrderBadge order={orderNumber} />}
+                {showOrderBadge && orderNumber !== undefined && <TutorialOrderBadge order={orderNumber} lang={lang} />}
                 {showCourseBadge && (
                   <CourseBadge
                     courseName={(post as TutorialSummary).courseName!}
                     courseSlug={(post as TutorialSummary).course!}
+                    lang={lang}
                   />
                 )}
                 {showSeriesBadge && (
                   <SeriesBadge
                     seriesName={(post as BookSummary).seriesName!}
                     seriesSlug={(post as BookSummary).series!}
+                    lang={lang}
                   />
                 )}
               </div>

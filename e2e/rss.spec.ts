@@ -153,7 +153,10 @@ test.describe("RSS Feeds", () => {
       const response = await page.goto("/rss.xml");
       const content = await response?.text();
 
-      expect(content).toContain("All Languages");
+      // Check for translated bilingual feed title (either EN or ES)
+      const hasBilingualTitle = content?.includes("All Languages") || content?.includes("Todos los idiomas");
+      expect(hasBilingualTitle).toBe(true);
+
       expect(content).toContain("[ES]"); // Spanish content prefix
       expect(content).toContain("[EN]"); // English content prefix
       expect(content).toContain("<language>es</language>");

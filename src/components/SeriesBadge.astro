@@ -14,16 +14,25 @@
  *
  * @prop {string} seriesName - The series name to display
  * @prop {string} seriesSlug - The series slug for potential linking
+ * @prop {string} lang - Language for aria-label
  */
+
+import { t } from "../locales";
 
 interface Props {
   seriesName: string;
   seriesSlug: string;
+  lang: "es" | "en";
 }
 
-const { seriesName, seriesSlug } = Astro.props;
+const { seriesName, seriesSlug, lang } = Astro.props;
 ---
 
-<span class="series-badge" role="img" aria-label={`Series: ${seriesName}`} data-series-slug={seriesSlug}>
+<span
+  class="series-badge"
+  role="img"
+  aria-label={t(lang, "badges.series", { name: seriesName })}
+  data-series-slug={seriesSlug}
+>
   {seriesName}
 </span>

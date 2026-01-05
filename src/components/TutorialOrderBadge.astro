@@ -12,16 +12,24 @@
  *
  * @prop {number} order - The tutorial's order number (1, 2, 3, etc.)
  * @prop {string} [size] - Badge size variant: 'small' | 'medium' | 'large' (default: 'medium')
+ * @prop {string} lang - Language for aria-label
  */
+
+import { t } from "../locales";
 
 interface Props {
   order: number;
   size?: "small" | "medium" | "large";
+  lang: "es" | "en";
 }
 
-const { order, size = "medium" } = Astro.props;
+const { order, size = "medium", lang } = Astro.props;
 ---
 
-<span class={`tutorial-order-badge tutorial-order-badge--${size}`} role="img" aria-label={`Tutorial ${order}`}>
+<span
+  class={`tutorial-order-badge tutorial-order-badge--${size}`}
+  role="img"
+  aria-label={t(lang, "badges.tutorialOrder", { order: order.toString() })}
+>
   {order}
 </span>

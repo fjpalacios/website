@@ -13,16 +13,25 @@
  *
  * @prop {string} courseName - The course name to display
  * @prop {string} courseSlug - The course slug for potential linking
+ * @prop {string} lang - Language for aria-label
  */
+
+import { t } from "../locales";
 
 interface Props {
   courseName: string;
   courseSlug: string;
+  lang: "es" | "en";
 }
 
-const { courseName, courseSlug } = Astro.props;
+const { courseName, courseSlug, lang } = Astro.props;
 ---
 
-<span class="course-badge" role="img" aria-label={`Course: ${courseName}`} data-course-slug={courseSlug}>
+<span
+  class="course-badge"
+  role="img"
+  aria-label={t(lang, "badges.course", { name: courseName })}
+  data-course-slug={courseSlug}
+>
   {courseName}
 </span>

@@ -1,4 +1,6 @@
 ---
+import { t } from "../locales";
+
 export interface BreadcrumbItem {
   label: string;
   url?: string; // undefined for current page
@@ -6,7 +8,7 @@ export interface BreadcrumbItem {
 
 interface Props {
   items: BreadcrumbItem[];
-  lang: string;
+  lang: "es" | "en";
 }
 
 const { items, lang } = Astro.props;
@@ -26,7 +28,7 @@ const breadcrumbSchema = {
 };
 ---
 
-<nav class="breadcrumbs" aria-label="breadcrumb" data-pagefind-ignore>
+<nav class="breadcrumbs" aria-label={t(lang, "breadcrumbs.ariaLabel")} data-pagefind-ignore>
   <ol class="breadcrumbs__list">
     {
       items.map((item, _index) => (

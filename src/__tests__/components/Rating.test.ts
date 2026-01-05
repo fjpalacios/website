@@ -76,14 +76,10 @@ describe("Rating Component", () => {
   it("should generate proper aria-label", () => {
     const content = fs.readFileSync(componentPath, "utf-8");
 
-    // Check for aria-label generation
+    // Check for aria-label generation with i18n
     expect(content).toContain("aria-label");
-    expect(content).toContain("Rated");
-    expect(content).toContain("out of 5 stars");
-    expect(content).toContain("Puntuación");
-    expect(content).toContain("de 5 estrellas");
-    expect(content).toContain("Favorite");
-    expect(content).toContain("Favorito");
+    expect(content).toContain('t(lang, "rating.favorite")');
+    expect(content).toContain('t(lang, "rating.outOfFive"');
   });
 
   it("should support size variants", () => {
@@ -148,9 +144,8 @@ describe("Rating Component", () => {
   it("should provide correct score text for favorites", () => {
     const content = fs.readFileSync(componentPath, "utf-8");
 
-    // Check for favorite text generation
-    expect(content).toContain('"Favorite"');
-    expect(content).toContain('"Favorito"');
+    // Check for favorite text translation calls
+    expect(content).toContain('t(lang, "rating.favoriteText")');
   });
 
   it("should provide correct score text for numeric scores", () => {

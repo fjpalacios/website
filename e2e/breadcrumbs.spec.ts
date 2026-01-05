@@ -184,7 +184,11 @@ test.describe("Breadcrumbs", () => {
       await page.goto("/es/libros/area-81-stephen-king");
 
       const breadcrumbsNav = page.locator("nav.breadcrumbs");
-      await expect(breadcrumbsNav).toHaveAttribute("aria-label", "breadcrumb");
+      const ariaLabel = await breadcrumbsNav.getAttribute("aria-label");
+
+      // Should have aria-label (either "breadcrumb" in EN or "migas de pan" in ES)
+      expect(ariaLabel).toBeTruthy();
+      expect(["breadcrumb", "migas de pan"]).toContain(ariaLabel);
     });
   });
 

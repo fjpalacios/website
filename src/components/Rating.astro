@@ -13,6 +13,8 @@
  */
 
 import Icon from "@components/Icon.astro";
+
+import { t } from "../locales";
 import "@styles/components/rating.scss";
 
 interface Props {
@@ -29,15 +31,11 @@ const numericScore = isFavorite ? 5 : score;
 
 // Generate aria-label
 const ariaLabel = isFavorite
-  ? lang === "en"
-    ? "Rated as favorite"
-    : "Marcado como favorito"
-  : lang === "en"
-    ? `Rated ${numericScore} out of 5 stars`
-    : `Puntuación ${numericScore} de 5 estrellas`;
+  ? t(lang, "rating.favorite")
+  : t(lang, "rating.outOfFive", { score: numericScore.toString() });
 
 // Generate score text
-const scoreText = isFavorite ? (lang === "en" ? "Favorite" : "Favorito") : `${numericScore}/5`;
+const scoreText = isFavorite ? t(lang, "rating.favoriteText") : `${numericScore}/5`;
 ---
 
 <div class={`rating rating--${size} ${isFavorite ? "rating--favorite" : ""}`} role="img" aria-label={ariaLabel}>
