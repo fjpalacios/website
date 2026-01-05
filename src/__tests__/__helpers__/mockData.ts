@@ -8,6 +8,7 @@
  */
 
 import type { LanguageKey } from "@/types";
+import type { ContactItem } from "@/types/content";
 
 // ============================================================================
 // MOCK BOOK DATA
@@ -291,8 +292,6 @@ export const createMockTutorial = (
 // ============================================================================
 // CONTACT HELPERS
 // ============================================================================
-
-import type { ContactItem } from "@/types/content";
 
 export type MockContact = ContactItem[];
 

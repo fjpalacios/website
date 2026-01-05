@@ -41,14 +41,6 @@ import rabiaStephenKing from "@/assets/books/rabia-stephen-king.jpg";
 import revivalStephenKing from "@/assets/books/revival-stephen-king.jpg";
 import theStandStephenKing from "@/assets/books/the-stand-stephen-king.jpg";
 import todoEstoTeDare from "@/assets/books/todo-esto-te-dare.jpg";
-// ============================================================================
-// AUTHOR PICTURE IMAGES
-// ============================================================================
-
-// ============================================================================
-// DEFAULT IMAGES
-// ============================================================================
-
 import bookDefaultEn from "@/assets/defaults/book-default-en.jpg";
 import bookDefaultEs from "@/assets/defaults/book-default-es.jpg";
 import postDefault from "@/assets/defaults/post-default.jpg";

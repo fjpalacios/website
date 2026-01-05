@@ -10,7 +10,6 @@ import { describe, expect, test, vi } from "vitest";
 import { createMockAuthor, createMockContact, createMockTaxonomy } from "@/__tests__/__helpers__";
 import { generateTaxonomyRoutes } from "@/utils/routeGenerators/taxonomy";
 import type { TaxonomyConfig } from "@/utils/taxonomyPages";
-
 // Mock the taxonomyPages module
 vi.mock("@/utils/taxonomyPages", () => ({
   getTaxonomyItemsWithCount: vi.fn(),
@@ -19,7 +18,7 @@ vi.mock("@/utils/taxonomyPages", () => ({
 }));
 
 // Import mocked functions
-import { getTaxonomyItemsWithCount, hasTargetContent, generateTaxonomyDetailPaths } from "@/utils/taxonomyPages";
+import { generateTaxonomyDetailPaths, getTaxonomyItemsWithCount, hasTargetContent } from "@/utils/taxonomyPages";
 
 describe("generateTaxonomyRoutes", () => {
   // Mock data
