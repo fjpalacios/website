@@ -16,9 +16,10 @@ export const BOOKS_PER_PAGE = PAGINATION_CONFIG.books;
  * Get all books for a language, sorted by date
  */
 export async function getAllBooksForLanguage(lang: string): Promise<BookSummary[]> {
-  // Get all books and authors
+  // Get all books, authors, and series
   const allBooks = await getCollection("books");
   const allAuthors = await getCollection("authors");
+  const allSeries = await getCollection("series");
 
   // Filter by language and exclude drafts
   // @ts-expect-error - Astro 5 data type inference limitation, runtime schema ensures draft exists
@@ -28,12 +29,12 @@ export async function getAllBooksForLanguage(lang: string): Promise<BookSummary[
   // Sort by date (newest first)
   const sortedBooks = sortByDate(langBooks, "desc");
 
-  // Prepare summaries with author info
+  // Prepare summaries with author and series info
   return sortedBooks.map((book) => {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Astro content collection type inference limitation
     const author = findAuthorBySlug(allAuthors, (book.data as any).author, lang as "es" | "en");
     // @ts-expect-error - Astro 5 CollectionEntry type compatibility with helper functions
-    return prepareBookSummary(book, author);
+    return prepareBookSummary(book, author, allSeries);
   });
 }
 

@@ -11,13 +11,13 @@ import Title from "@components/Title.astro";
 import Layout from "@layouts/Layout.astro";
 import { t } from "@locales";
 import type { ContactItem } from "@types/content";
-import type { CollectionEntry } from "astro:content";
 
+import type { BookSummary } from "@/utils/blog";
 import { buildBooksIndexUrl } from "@/utils/routes";
 
 interface Props {
   lang: string;
-  books: CollectionEntry<"books">[];
+  books: BookSummary[];
   currentPage: number;
   totalPages: number;
   itemListSchema: Record<string, unknown>;
@@ -49,7 +49,7 @@ const basePath = buildBooksIndexUrl(lang);
 
     {
       books.length > 0 ? (
-        <PostList posts={books} lang={lang} />
+        <PostList posts={books} lang={lang} showOrderBadges={true} />
       ) : (
         <div class="empty-state">
           <p>{t(lang, "emptyState.books")}</p>

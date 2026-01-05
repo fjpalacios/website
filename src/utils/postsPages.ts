@@ -28,6 +28,8 @@ export async function getAllContentForLanguage(lang: "es" | "en"): Promise<PostS
   const allPosts = await getCollection("posts");
   const allTutorials = await getCollection("tutorials");
   const allBooks = await getCollection("books");
+  const allCourses = await getCollection("courses");
+  const allSeries = await getCollection("series");
 
   // Filter by language and exclude drafts
   // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Dynamic content collection field access
@@ -36,13 +38,15 @@ export async function getAllContentForLanguage(lang: "es" | "en"): Promise<PostS
   const langTutorials = filterByLanguage(allTutorials, lang).filter((tutorial) => !(tutorial.data as any).draft);
   const langBooks = filterByLanguage(allBooks, lang);
 
-  // Prepare summaries
+  // Prepare summaries with course/series context
   // @ts-expect-error - Astro 5 CollectionEntry type compatibility with helper functions
   const postSummaries: PostSummary[] = langPosts.map((post) => preparePostSummary(post));
   // @ts-expect-error - Astro 5 CollectionEntry type compatibility with helper functions
-  const tutorialSummaries: PostSummary[] = langTutorials.map((tutorial) => prepareTutorialSummary(tutorial));
+  const tutorialSummaries: PostSummary[] = langTutorials.map((tutorial) =>
+    prepareTutorialSummary(tutorial, allCourses),
+  );
   // @ts-expect-error - Astro 5 CollectionEntry type compatibility with helper functions
-  const bookSummaries: PostSummary[] = langBooks.map((book) => prepareBookSummary(book));
+  const bookSummaries: PostSummary[] = langBooks.map((book) => prepareBookSummary(book, undefined, allSeries));
 
   // Combine all content
   const allContent = [...postSummaries, ...tutorialSummaries, ...bookSummaries];

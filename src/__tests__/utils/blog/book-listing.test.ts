@@ -141,4 +141,96 @@ describe("prepareBookSummary", () => {
 
     expect(summary.series_order).toBeUndefined();
   });
+
+  describe("with series", () => {
+    const mockSeries = [
+      {
+        data: {
+          series_slug: "fantasy-trilogy",
+          name: "The Fantasy Trilogy",
+          language: "en",
+          description: "An epic fantasy series",
+        },
+      },
+      {
+        data: {
+          series_slug: "mystery-series",
+          name: "Mystery Adventures",
+          language: "es",
+          description: "Una serie de misterio",
+        },
+      },
+    ] as CollectionEntry<"series">[];
+
+    it("should include seriesName when book belongs to a series", () => {
+      const bookWithSeries = {
+        ...mockBook,
+        data: {
+          ...mockBook.data,
+          series: "fantasy-trilogy",
+          series_order: 1,
+        },
+      } as CollectionEntry<"books">;
+
+      const summary = prepareBookSummary(bookWithSeries, undefined, mockSeries);
+
+      expect(summary.series).toBe("fantasy-trilogy");
+      expect(summary.seriesName).toBe("The Fantasy Trilogy");
+      expect(summary.series_order).toBe(1);
+    });
+
+    it("should return undefined seriesName when book has no series field", () => {
+      const summary = prepareBookSummary(mockBook, undefined, mockSeries);
+
+      expect(summary.series).toBeUndefined();
+      expect(summary.seriesName).toBeUndefined();
+    });
+
+    it("should return undefined seriesName when series array not provided", () => {
+      const bookWithSeries = {
+        ...mockBook,
+        data: {
+          ...mockBook.data,
+          series: "fantasy-trilogy",
+        },
+      } as CollectionEntry<"books">;
+
+      const summary = prepareBookSummary(bookWithSeries);
+
+      expect(summary.series).toBe("fantasy-trilogy");
+      expect(summary.seriesName).toBeUndefined();
+    });
+
+    it("should return undefined seriesName when series not found in series array", () => {
+      const bookWithUnknownSeries = {
+        ...mockBook,
+        data: {
+          ...mockBook.data,
+          series: "non-existent-series",
+        },
+      } as CollectionEntry<"books">;
+
+      const summary = prepareBookSummary(bookWithUnknownSeries, undefined, mockSeries);
+
+      expect(summary.series).toBe("non-existent-series");
+      expect(summary.seriesName).toBeUndefined();
+    });
+
+    it("should match series by series_slug field", () => {
+      const bookWithMysterySeries = {
+        ...mockBook,
+        data: {
+          ...mockBook.data,
+          series: "mystery-series",
+          series_order: 2,
+          language: "es" as const,
+        },
+      } as CollectionEntry<"books">;
+
+      const summary = prepareBookSummary(bookWithMysterySeries, undefined, mockSeries);
+
+      expect(summary.series).toBe("mystery-series");
+      expect(summary.seriesName).toBe("Mystery Adventures");
+    });
+  });
 });

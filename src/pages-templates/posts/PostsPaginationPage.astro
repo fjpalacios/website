@@ -55,7 +55,7 @@ const basePath = `/${lang}/${t(lang, "routes.posts")}`;
   {
     posts.length > 0 ? (
       <div data-pagefind-ignore>
-        <PostList posts={posts} lang={lang} />
+        <PostList posts={posts} lang={lang} showOrderBadges={true} />
       </div>
     ) : (
       <div class="empty-state">
