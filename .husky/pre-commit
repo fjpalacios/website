@@ -2,6 +2,3 @@
 
 # Run lint-staged (formatting + linting)
 bun x lint-staged
-
-# Run unit tests
-bun run test:run

@@ -1,0 +1,71 @@
+@use "../mixins" as *;
+@use "../variables" as *;
+
+.post-title {
+  display: flex;
+  align-items: center; // Center items vertically
+  justify-content: space-between;
+  gap: 1.5rem; // Increased gap for better separation
+  margin-bottom: 20px;
+  padding: 10px 20px;
+  transition: all 0.45s ease;
+  background-color: $primary;
+  color: $inverted-text;
+
+  h1,
+  h2 {
+    margin: 0; // Remove margin for better vertical alignment
+    font-size: 15px;
+    font-weight: 600; // Bold to make it stand out
+    line-height: 1.4;
+    flex: 1 1 auto; // Allow to grow and shrink
+    min-width: 0; // Allow text to shrink below content size
+    word-wrap: break-word; // Break long words if needed
+    padding: 17px 0 13px; // Move spacing to padding
+
+    @include small {
+      font-size: 16px;
+    }
+
+    @include medium {
+      font-size: 17px;
+    }
+
+    @include medium-and-up {
+      font-weight: 600; // Keep bold on larger screens
+    }
+
+    @include large {
+      font-size: 18px;
+    }
+  }
+
+  time {
+    margin: 0; // Remove margin for better alignment
+    padding: 17px 0 13px; // Match h2 padding
+    font-family: "Courier New", monospace;
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    white-space: nowrap; // Prevent date from wrapping
+    flex: 0 0 auto; // Don't grow or shrink, stay at content size
+    min-width: fit-content; // Ensure it never gets smaller than content
+
+    @include medium-and-up {
+      font-weight: 400;
+      font-size: 14px;
+    }
+  }
+
+  // Legacy support for old <p> dates
+  p {
+    margin: 17px 0 13px;
+    white-space: nowrap;
+    flex: 0 0 auto;
+    min-width: fit-content;
+
+    @include medium-and-up {
+      font-weight: 100;
+    }
+  }
+}

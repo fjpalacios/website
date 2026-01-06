@@ -1,0 +1,178 @@
+---
+/**
+ * SEO Component - Comprehensive metadata management
+ *
+ * Handles:
+ * - Open Graph tags for social media sharing
+ * - Twitter Card tags
+ * - Canonical URLs and hreflang for i18n
+ * - JSON-LD structured data for search engines
+ */
+
+import { t } from "@locales";
+import { getCanonicalSegment, getLocalizedRoute, type RouteSegment } from "@utils/routes";
+
+import { getAlternateLang, getOGLocale, getUrlSegment, type LanguageKey } from "@/config/languages";
+
+interface Props {
+  title: string;
+  description: string;
+  image?: string;
+  type?: "website" | "article" | "book";
+  lang: LanguageKey;
+  translationSlug?: string;
+  schema?: Record<string, unknown>;
+  // Pagination support for rel=prev/next
+  currentPage?: number;
+  totalPages?: number;
+  basePath?: string;
+}
+
+const {
+  title,
+  description,
+  image,
+  type = "website",
+  lang,
+  translationSlug,
+  schema,
+  currentPage,
+  totalPages,
+  basePath,
+} = Astro.props;
+
+// Get site metadata from locales
+const siteUrl = t(lang, "metaData.url");
+const twitterUsername = t(lang, "metaData.twitterUsername");
+
+// Build canonical URL
+const currentPath = Astro.url.pathname;
+const canonicalUrl = `${siteUrl}${currentPath}`;
+
+// Build alternate language URL using centralized helper
+const alternateLang = getAlternateLang(lang);
+let alternateUrl: string | null = null;
+
+if (translationSlug) {
+  // Dynamic content (posts, books, etc) with specific slug
+  // Extract the content type from current path to build correct alternate URL
+  const pathParts = currentPath.split("/").filter(Boolean);
+
+  if (pathParts.length > 1) {
+    const currentLang = pathParts[0];
+    const localizedSegment = pathParts[1]; // e.g., "libros" or "books"
+    const canonicalSegment = getCanonicalSegment(localizedSegment, currentLang);
+
+    if (canonicalSegment) {
+      // Translate segment to target language
+      const translatedSegment = getLocalizedRoute(canonicalSegment as RouteSegment, alternateLang);
+      // Build full URL: https://fjp.es/en/books/slug/
+      alternateUrl = `${siteUrl}/${alternateLang}/${translatedSegment}/${translationSlug}/`;
+    }
+  }
+} else {
+  // Static pages - auto-translate the route
+  const pathParts = currentPath.split("/").filter(Boolean);
+
+  if (pathParts.length > 0) {
+    const currentLang = pathParts[0];
+    const localizedSegment = pathParts[1];
+
+    if (localizedSegment) {
+      // Get canonical segment from localized path
+      const canonicalSegment = getCanonicalSegment(localizedSegment, currentLang);
+
+      if (canonicalSegment) {
+        // Translate to target language
+        const translatedSegment = getLocalizedRoute(canonicalSegment as RouteSegment, alternateLang);
+
+        // Rebuild path with remaining segments (always add trailing slash)
+        const remainingParts = pathParts.slice(2);
+        alternateUrl = `${siteUrl}/${alternateLang}/${translatedSegment}${remainingParts.length ? "/" + remainingParts.join("/") : "/"}`;
+      }
+    } else if (pathParts.length === 1) {
+      // Home page: /es → /en
+      alternateUrl = `${siteUrl}/${alternateLang}/`;
+    }
+  }
+}
+
+// Convert image URL to absolute if needed
+const absoluteImageUrl = image ? (image.startsWith("http") ? image : `${siteUrl}${image}`) : null;
+
+// Map language to OG locale format using centralized helper
+const ogLocale = getOGLocale(lang);
+
+// Build default JSON-LD schema if none provided
+const defaultSchema = {
+  "@context": "https://schema.org",
+  "@type": "WebPage",
+  name: title,
+  description: description,
+  url: canonicalUrl,
+  inLanguage: lang,
+};
+
+const finalSchema = schema || defaultSchema;
+
+// Build pagination URLs for rel=prev/next using centralized config
+const pageSegment = getUrlSegment(lang, "page");
+let prevUrl: string | null = null;
+let nextUrl: string | null = null;
+
+if (currentPage && totalPages && basePath) {
+  // Previous page URL
+  if (currentPage > 1) {
+    if (currentPage === 2) {
+      // Page 2 should link back to base URL (page 1)
+      prevUrl = `${siteUrl}${basePath}/`;
+    } else {
+      // Page 3+ should link to paginated URL
+      prevUrl = `${siteUrl}${basePath}/${pageSegment}/${currentPage - 1}/`;
+    }
+  }
+
+  // Next page URL
+  if (currentPage < totalPages) {
+    nextUrl = `${siteUrl}${basePath}/${pageSegment}/${currentPage + 1}/`;
+  }
+}
+---
+
+<!-- Open Graph / Facebook -->
+<meta property="og:type" content={type} />
+<meta property="og:url" content={canonicalUrl} />
+<meta property="og:title" content={title} />
+<meta property="og:description" content={description} />
+<meta property="og:locale" content={ogLocale} />
+{absoluteImageUrl && <meta property="og:image" content={absoluteImageUrl} />}
+
+<!-- Twitter -->
+<meta name="twitter:card" content="summary_large_image" />
+<meta name="twitter:site" content={twitterUsername} />
+<meta name="twitter:title" content={title} />
+<meta name="twitter:description" content={description} />
+{absoluteImageUrl && <meta name="twitter:image" content={absoluteImageUrl} />}
+
+<!-- Canonical URL -->
+<link rel="canonical" href={canonicalUrl} />
+
+<!-- Pagination: rel=prev/next links -->
+{prevUrl && <link rel="prev" href={prevUrl} />}
+{nextUrl && <link rel="next" href={nextUrl} />}
+
+<!-- Robots directive for deep pagination (pages > 5) -->
+{currentPage && currentPage > 5 && <meta name="robots" content="noindex, follow" />}
+
+<!-- Hreflang tags for alternate languages -->
+{
+  alternateUrl && (
+    <>
+      <link rel="alternate" hreflang={lang} href={canonicalUrl} />
+      <link rel="alternate" hreflang={alternateLang} href={alternateUrl} />
+    </>
+  )
+}
+
+<!-- JSON-LD Structured Data -->
+<script type="application/ld+json" set:html={JSON.stringify(finalSchema)} />

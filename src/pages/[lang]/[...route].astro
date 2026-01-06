@@ -1,0 +1,71 @@
+---
+/**
+ * Unified Dynamic Routing - All Content Types & Taxonomies
+ *
+ * Configuration-driven router that eliminates repetitive code patterns.
+ *
+ * Handles all main content type pages:
+ * - Books: /en/books, /es/libros (list, pagination, detail)
+ * - Tutorials: /en/tutorials, /es/tutoriales (list, pagination, detail)
+ * - Posts: /en/posts, /es/publicaciones (list, pagination, detail - mixed content)
+ * - Taxonomies: Authors, Publishers, Genres, Categories, Series, Challenges, Courses
+ * - Static: About, Feeds
+ *
+ * This replaces 52 duplicate page files with 1 unified router + 25 templates.
+ *
+ * Architecture:
+ * - Route generation orchestrated by @/utils/routing/pathGeneration
+ * - Modular generators in @/utils/routeGenerators/
+ * - Template selection via config-driven mapping in @/config/templateMap
+ * - Content type configuration centralized in @/config/routeConfig
+ * - Build-time caching for performance in @/utils/cache/
+ *
+ * @see src/utils/routing/pathGeneration.ts - Path generation orchestrator
+ * @see src/utils/routeGenerators/ - Modular route generators
+ * @see src/config/templateMap.ts - Template selection configuration
+ * @see src/config/routeConfig.ts - Content type configuration
+ */
+
+// Template mapping
+import { safeGetTemplate } from "@/config/templateMap";
+// Path generation
+import { generateAllPaths } from "@/utils/routing/pathGeneration";
+
+/**
+ * Static path generation
+ *
+ * Delegates to the centralized path generation orchestrator which handles:
+ * - Parallel generation of content types and taxonomies
+ * - Sequential generation of posts (mixed content)
+ * - Static pages (about, feeds)
+ * - Performance monitoring and caching
+ * - Error handling and logging
+ *
+ * @see src/utils/routing/pathGeneration.ts
+ */
+export const getStaticPaths = generateAllPaths;
+
+// =================================================================
+// DYNAMIC TEMPLATE SELECTION
+// =================================================================
+// Use template map to select the correct component based on contentType + pageType
+// This replaces 47 lines of conditional rendering with a single lookup
+
+const { pageType, contentType } = Astro.props;
+
+// Get the appropriate template component
+const Template = safeGetTemplate(contentType, pageType);
+---
+
+{
+  Template ? (
+    <Template {...Astro.props} />
+  ) : (
+    <div>
+      <h1>404 - Template Not Found</h1>
+      <p>
+        No template found for contentType="{contentType}" and pageType="{pageType}"
+      </p>
+    </div>
+  )
+}

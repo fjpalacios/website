@@ -1,0 +1,87 @@
+---
+/**
+ * Course Navigation Component
+ *
+ * Displays previous/next tutorial navigation within a course.
+ * Used in tutorial detail pages to provide sequential learning flow.
+ *
+ * Features:
+ * - CTA-style buttons for engaging navigation
+ * - Responsive layout (stacked on mobile, side-by-side on desktop)
+ * - Only shows available links (previous, next, or both)
+ * - Accessible with proper ARIA labels
+ *
+ * @prop {object} [previousTutorial] - Previous tutorial data (title, slug, order)
+ * @prop {object} [nextTutorial] - Next tutorial data (title, slug, order)
+ * @prop {string} lang - Language code ('es' | 'en')
+ * @prop {string} courseName - Course name for context
+ */
+
+import Icon from "@components/Icon.astro";
+import { t } from "@locales";
+import { buildTutorialUrl } from "@utils/routes";
+
+import type { LanguageKey } from "@/config/languages";
+
+interface TutorialInfo {
+  title: string;
+  slug: string;
+  order: number;
+}
+
+interface Props {
+  previousTutorial?: TutorialInfo;
+  nextTutorial?: TutorialInfo;
+  lang: LanguageKey;
+  courseName: string;
+}
+
+const { previousTutorial, nextTutorial, lang, courseName } = Astro.props;
+
+// Only render if at least one navigation link exists
+if (!previousTutorial && !nextTutorial) {
+  return null;
+}
+
+// Build URLs
+const previousUrl = previousTutorial ? buildTutorialUrl(lang, previousTutorial.slug) : null;
+const nextUrl = nextTutorial ? buildTutorialUrl(lang, nextTutorial.slug) : null;
+
+// Localized labels
+const previousLabel = t(lang, "courseNavigation.previous");
+const nextLabel = t(lang, "courseNavigation.next");
+const continueLabel = t(lang, "courseNavigation.continue");
+---
+
+<nav class="course-navigation" aria-label={`${courseName} navigation`}>
+  <div class="course-navigation__container">
+    {
+      previousUrl && previousTutorial && (
+        <a href={previousUrl} class="course-navigation__link course-navigation__link--previous">
+          <div class="course-navigation__icon">
+            <Icon name="chevron-left" size="md" />
+          </div>
+          <div class="course-navigation__content">
+            <span class="course-navigation__label">{previousLabel}</span>
+            <span class="course-navigation__title">{previousTutorial.title}</span>
+          </div>
+        </a>
+      )
+    }
+
+    {
+      nextUrl && nextTutorial && (
+        <a href={nextUrl} class="course-navigation__link course-navigation__link--next">
+          <div class="course-navigation__content">
+            <span class="course-navigation__label">{nextLabel}</span>
+            <span class="course-navigation__title">{nextTutorial.title}</span>
+            <span class="course-navigation__subtitle">{continueLabel}</span>
+          </div>
+          <div class="course-navigation__icon">
+            <Icon name="chevron-right" size="md" />
+          </div>
+        </a>
+      )
+    }
+  </div>
+</nav>

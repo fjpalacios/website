@@ -1,4 +1,4 @@
-import type { ResumeData } from "@types/content";
+import type { ResumeData } from "@/types/content";
 
 export const resume: ResumeData = {
   experience: [
@@ -143,7 +143,7 @@ export const resume: ResumeData = {
     {
       name: "sargantanacode.es",
       desc: `Aplicación web para enseñar a programar<br />
-      Actualmente todo el contenido de esa web ha sido migrado al blog de esta página`,
+      Actualmente todo el contenido de esa web ha sido migrado a fjp.es`,
       languages: ["html5", "scss", "rubyonrails"],
     },
     {
@@ -151,7 +151,7 @@ export const resume: ResumeData = {
       url: "https://fjp.es",
       desc: `Página web personal y blog<br />
       Es además una aplicación de código abierto; código disponible en GitHub`,
-      languages: ["gatsbyjs", "html5", "scss"],
+      languages: ["astro", "html5", "scss"],
     },
   ],
   volunteering: [

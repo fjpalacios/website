@@ -1,0 +1,33 @@
+---
+/**
+ * AuthorLink Component
+ * Creates internal links to author pages within MDX content
+ *
+ * Usage in MDX:
+ * <AuthorLink name="Stephen King" />
+ *
+ * Props:
+ * - name: Author name (must match exactly, case-sensitive)
+ */
+
+import { findAuthor, generateAuthorUrl, detectLanguageFromUrl } from "@utils/authorLinkHelpers";
+import { getCollection } from "astro:content";
+
+interface Props {
+  name: string;
+}
+
+const { name } = Astro.props;
+
+// Detect current language from URL (default to "es" if not found)
+const currentLang = detectLanguageFromUrl(Astro.url.pathname);
+
+// Query all authors and find the matching one
+const allAuthors = await getCollection("authors");
+const author = findAuthor(allAuthors, name);
+
+// Generate URL if author exists
+const authorUrl = generateAuthorUrl(author, currentLang);
+---
+
+{authorUrl ? <a href={authorUrl}>{name}</a> : <Fragment>{name}</Fragment>}

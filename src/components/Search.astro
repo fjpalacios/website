@@ -1,0 +1,409 @@
+---
+import { getDefaultLanguageCode, type LanguageKey } from "@/config/languages";
+
+import { TIMINGS } from "../config/timings";
+import { t } from "../locales";
+
+/**
+ * Search component using Pagefind
+ * Provides instant search with language filtering
+ */
+interface Props {
+  lang: LanguageKey;
+}
+
+const { lang } = Astro.props;
+
+// Prepare translations for inline script
+const searchTranslations = {
+  modalTitle: t(lang, "search.modalTitle"),
+  closeButton: t(lang, "search.closeButton"),
+  placeholder: t(lang, "search.placeholder"),
+  clear: t(lang, "search.clearButton"),
+  loadMore: t(lang, "search.loadMore"),
+  searchLabel: t(lang, "search.label"),
+  filters: t(lang, "search.filters"),
+  noResults: t(lang, "search.noResults"),
+  manyResults: t(lang, "search.manyResults"),
+  oneResult: t(lang, "search.oneResult"),
+  searching: t(lang, "search.searching"),
+};
+
+// Pagefind-specific translations not in common.json
+const pagefindTranslations: Record<LanguageKey, { altSearch: string; searchSuggestion: string }> = {
+  es: {
+    altSearch: "No se encontraron resultados para [SEARCH_TERM]. Mostrando resultados para [DIFFERENT_TERM]",
+    searchSuggestion: "No se encontraron resultados para [SEARCH_TERM]. Intenta una de las siguientes búsquedas:",
+  },
+  en: {
+    altSearch: "No results for [SEARCH_TERM]. Showing results for [DIFFERENT_TERM] instead",
+    searchSuggestion: "No results for [SEARCH_TERM]. Try one of the following searches:",
+  },
+};
+
+const pagefindLabels = pagefindTranslations[lang] ?? pagefindTranslations[getDefaultLanguageCode()];
+---
+
+<!-- Search Modal -->
+<div class="search-modal" id="searchModal" aria-hidden="true">
+  <div class="search-modal__backdrop"></div>
+  <div class="search-modal__content" role="dialog" aria-modal="true" aria-labelledby="search-title">
+    <div class="search-modal__header">
+      <h2 id="search-title" class="sr-only">
+        {searchTranslations.modalTitle}
+      </h2>
+      <button class="search-modal__close" type="button" aria-label={searchTranslations.closeButton}>
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          width="24"
+          height="24"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        >
+          <line x1="18" y1="6" x2="6" y2="18"></line>
+          <line x1="6" y1="6" x2="18" y2="18"></line>
+        </svg>
+      </button>
+    </div>
+    <div class="search-modal__container" id="search"></div>
+  </div>
+</div>
+
+<style lang="scss">
+  @use "../styles/components/search";
+</style>
+
+<!-- Inject config variables and translations -->
+<script
+  is:inline
+  set:html={`window.__SEARCH_CONFIG__ = ${JSON.stringify({
+    searchInputFocusDelay: TIMINGS.SEARCH_INPUT_FOCUS_MS,
+    translations: searchTranslations,
+    pagefindLabels: pagefindLabels,
+    lang,
+    defaultLang: "${getDefaultLanguageCode()}",
+  })};`}
+/>
+
+<!-- Main search modal script -->
+<script>
+  // This script runs on every page load (including view transitions)
+  interface PagefindUIInstance {
+    new (options: { element: string; bundlePath?: string }): unknown;
+  }
+
+  interface SearchConfig {
+    searchInputFocusDelay?: number;
+    translations?: Record<string, string>;
+    pagefindLabels?: Record<string, string>;
+  }
+
+  declare const window: Window & {
+    __SEARCH_CONFIG__?: SearchConfig;
+    PagefindUI?: PagefindUIInstance;
+    __PAGEFIND_INITIALIZED__?: boolean;
+    __PAGEFIND_CSS_LOADED__?: boolean;
+    __pagefindUI?: unknown;
+  };
+
+  (function () {
+    const config = window.__SEARCH_CONFIG__ || {};
+    const searchInputFocusDelay = config.searchInputFocusDelay || 300;
+    const translations = config.translations || {};
+    const pagefindLabels = config.pagefindLabels || {};
+
+    // Ensure Pagefind CSS is loaded (global state)
+    function ensurePagefindCSS() {
+      if (window.__PAGEFIND_CSS_LOADED__) return;
+
+      const existingLink = document.querySelector('link[href*="pagefind-ui.css"]');
+      if (existingLink) {
+        window.__PAGEFIND_CSS_LOADED__ = true;
+        return;
+      }
+
+      // If CSS link doesn't exist or failed to load, add it
+      const link = document.createElement("link");
+      link.rel = "stylesheet";
+      link.href = "/pagefind/pagefind-ui.css";
+      link.onload = () => {
+        window.__PAGEFIND_CSS_LOADED__ = true;
+      };
+      document.head.appendChild(link);
+    }
+
+    // Load Pagefind JS dynamically
+    async function loadPagefindJS() {
+      if (window.PagefindUI) return; // Already loaded
+
+      return new Promise<void>((resolve, reject) => {
+        const script = document.createElement("script");
+        script.src = "/pagefind/pagefind-ui.js";
+        script.async = true;
+        script.onload = () => resolve();
+        script.onerror = () => reject(new Error("Failed to load Pagefind JS"));
+        document.head.appendChild(script);
+      });
+    }
+
+    async function initializePagefind() {
+      // Use global state to prevent multiple initializations
+      if (window.__PAGEFIND_INITIALIZED__) return;
+      if (window.__pagefindUI) return; // Already initialized
+
+      const searchContainer = document.getElementById("search");
+      if (!searchContainer) return;
+
+      // Clear container to avoid duplicates
+      searchContainer.innerHTML = "";
+
+      // Ensure CSS is loaded
+      ensurePagefindCSS();
+
+      // Load Pagefind JS if not already loaded
+      try {
+        await loadPagefindJS();
+      } catch (error) {
+        if (import.meta.env.DEV) {
+          console.error("Failed to load Pagefind JS:", error);
+        }
+        return;
+      }
+
+      if (!window.PagefindUI) return;
+
+      try {
+        window.__pagefindUI = new window.PagefindUI({
+          element: "#search",
+          showSubResults: false, // Disable sub-results to avoid duplicates
+          showImages: false,
+          excerptLength: 15,
+          translations: {
+            placeholder: translations.placeholder || "Search...",
+            clear_search: translations.clear || "Clear",
+            load_more: translations.loadMore || "Load more",
+            search_label: translations.searchLabel || "Search",
+            filters_label: translations.filters || "Filters",
+            zero_results: `${translations.noResults || "No results for"} [SEARCH_TERM]`,
+            many_results: translations.manyResults
+              ? translations.manyResults.replace("{{count}}", "[COUNT]")
+              : "[COUNT] results",
+            one_result: translations.oneResult
+              ? translations.oneResult.replace("{{count}}", "[COUNT]")
+              : "[COUNT] result",
+            alt_search: pagefindLabels.altSearch,
+            search_suggestion: pagefindLabels.searchSuggestion,
+            searching: translations.searching || "Searching...",
+          },
+        });
+
+        // Mark as initialized
+        window.__PAGEFIND_INITIALIZED__ = true;
+      } catch (error) {
+        if (import.meta.env.DEV) {
+          console.error("Error initializing Pagefind:", error);
+        }
+      }
+    }
+
+    // Focus trap implementation
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    let focusTrapHandler: any = null;
+
+    function setupFocusTrap(modal: HTMLElement) {
+      const focusableSelectors =
+        'button:not([disabled]), [href], input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])';
+
+      function getFocusableElements() {
+        const elements = modal.querySelectorAll(focusableSelectors);
+        return Array.from(elements).filter((el) => {
+          const htmlEl = el as HTMLElement;
+          // Ensure element is visible and not a hidden screen reader element
+          const isVisible = htmlEl.offsetWidth > 0 && htmlEl.offsetHeight > 0;
+          const isInsideModal = modal.contains(htmlEl);
+          return isVisible && isInsideModal;
+        });
+      }
+
+      function handleKeyDown(e: KeyboardEvent) {
+        // Only trap Tab key
+        if (e.key !== "Tab") return;
+
+        // Only trap if modal is open
+        if (modal.getAttribute("aria-hidden") === "true") return;
+
+        const focusableElements = getFocusableElements();
+        if (focusableElements.length === 0) return;
+
+        const firstElement = focusableElements[0] as HTMLElement;
+        const lastElement = focusableElements[focusableElements.length - 1] as HTMLElement;
+        const activeElement = document.activeElement;
+
+        // Shift+Tab on first element: go to last
+        if (e.shiftKey && activeElement === firstElement) {
+          e.preventDefault();
+          lastElement.focus();
+          return;
+        }
+
+        // Tab on last element: go to first
+        if (!e.shiftKey && activeElement === lastElement) {
+          e.preventDefault();
+          firstElement.focus();
+          return;
+        }
+      }
+
+      // Additional focus guard: if focus escapes modal, bring it back
+      function handleFocusIn(e: FocusEvent) {
+        // Only trap if modal is open
+        if (modal.getAttribute("aria-hidden") === "true") return;
+
+        const target = e.target;
+
+        // If focus is outside modal, redirect to first focusable element
+        if (!modal.contains(target as Node)) {
+          e.preventDefault();
+          e.stopPropagation();
+
+          const focusableElements = getFocusableElements();
+          if (focusableElements.length > 0) {
+            (focusableElements[0] as HTMLElement).focus();
+          }
+        }
+      }
+
+      focusTrapHandler = { keydown: handleKeyDown, focusin: handleFocusIn };
+
+      // Add both listeners
+      document.addEventListener("keydown", focusTrapHandler.keydown, true);
+      document.addEventListener("focusin", focusTrapHandler.focusin, true);
+    }
+
+    function removeFocusTrap(_modal: HTMLElement) {
+      if (focusTrapHandler) {
+        document.removeEventListener("keydown", focusTrapHandler.keydown, true);
+        document.removeEventListener("focusin", focusTrapHandler.focusin, true);
+        focusTrapHandler = null;
+      }
+    }
+
+    // Open modal
+    function openSearch() {
+      const modal = document.getElementById("searchModal");
+      if (modal) {
+        modal.setAttribute("aria-hidden", "false");
+        document.body.style.overflow = "hidden";
+
+        // Setup focus trap IMMEDIATELY (before Pagefind initializes)
+        setupFocusTrap(modal);
+
+        // Initialize Pagefind if not already done
+        initializePagefind();
+
+        // Focus search input after a short delay (from TIMINGS.SEARCH_INPUT_FOCUS_MS)
+        setTimeout(function () {
+          const input = modal.querySelector(".pagefind-ui__search-input") as HTMLInputElement;
+          if (input) {
+            input.focus();
+          } else {
+            // If Pagefind hasn't initialized yet, focus close button
+            const closeButton = modal.querySelector(".search-modal__close") as HTMLButtonElement;
+            if (closeButton) {
+              closeButton.focus();
+            }
+          }
+        }, searchInputFocusDelay);
+      }
+    }
+
+    // Close modal
+    function closeSearch() {
+      const modal = document.getElementById("searchModal");
+      if (modal) {
+        modal.setAttribute("aria-hidden", "true");
+        document.body.style.overflow = "";
+
+        // Remove focus trap
+        removeFocusTrap(modal);
+      }
+    }
+
+    // Keyboard shortcut handler (single instance)
+    function handleKeydown(e: KeyboardEvent) {
+      if ((e.metaKey || e.ctrlKey) && e.key === "k") {
+        e.preventDefault();
+        openSearch();
+      }
+
+      // ESC to close
+      if (e.key === "Escape") {
+        closeSearch();
+      }
+    }
+
+    // Setup event listeners (only once)
+    function setupSearchListeners() {
+      // Remove existing listeners to avoid duplicates
+      document.removeEventListener("keydown", handleKeydown);
+
+      // Add keyboard shortcut
+      document.addEventListener("keydown", handleKeydown);
+
+      // Button click (from menu)
+      const searchButton = document.getElementById("search-toggle");
+      if (searchButton) {
+        // Remove old listener if exists
+        const newSearchButton = searchButton.cloneNode(true) as HTMLElement;
+        searchButton.parentNode?.replaceChild(newSearchButton, searchButton);
+        newSearchButton.addEventListener("click", openSearch);
+      }
+
+      // Close button
+      const closeButton = document.querySelector(".search-modal__close");
+      if (closeButton) {
+        // Remove old listener if exists
+        const newCloseButton = closeButton.cloneNode(true) as HTMLElement;
+        closeButton.parentNode?.replaceChild(newCloseButton, closeButton);
+        newCloseButton.addEventListener("click", closeSearch);
+      }
+
+      // Click backdrop to close
+      const backdrop = document.querySelector(".search-modal__backdrop");
+      if (backdrop) {
+        // Remove old listener if exists
+        const newBackdrop = backdrop.cloneNode(true) as HTMLElement;
+        backdrop.parentNode?.replaceChild(newBackdrop, backdrop);
+        newBackdrop.addEventListener("click", closeSearch);
+      }
+    }
+
+    // Run on initial page load and after view transitions
+    if (document.addEventListener) {
+      document.addEventListener("astro:page-load", setupSearchListeners);
+      // Pre-load Pagefind assets on page load for better UX
+      document.addEventListener("astro:page-load", function () {
+        ensurePagefindCSS();
+        loadPagefindJS().catch(() => {
+          // Silent fail - will retry when modal opens
+        });
+      });
+    }
+
+    // If astro:page-load already fired or not available, run immediately
+    if (document.readyState === "complete" || document.readyState === "interactive") {
+      setTimeout(setupSearchListeners, 1);
+      // Pre-load Pagefind assets
+      setTimeout(function () {
+        ensurePagefindCSS();
+        loadPagefindJS().catch(() => {
+          // Silent fail - will retry when modal opens
+        });
+      }, 100);
+    }
+  })();
+</script>

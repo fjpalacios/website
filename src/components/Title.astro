@@ -1,11 +1,29 @@
 ---
+import Icon from "@components/Icon.astro";
+import "@styles/components/title.scss";
+
 interface Props {
   title: string;
+  icon?: string; // Optional icon name (e.g., "book", "file-text")
+  srOnly?: boolean; // Screen reader only - visually hidden
+  useAsPagefindTitle?: boolean; // Use this title for Pagefind indexing
+  headingLevel?: "h1" | "h2"; // Allow specifying heading level
 }
 
-const { title } = Astro.props;
+const { title, icon, srOnly = false, useAsPagefindTitle = false, headingLevel = "h2" } = Astro.props;
+const HeadingTag = headingLevel;
 ---
 
-<div class="title">
-  <h3>{title}</h3>
+<div class:list={["title", { "sr-only": srOnly }]}>
+  {
+    useAsPagefindTitle && (
+      <span data-pagefind-meta="title" class="title__pagefind-meta">
+        {title}
+      </span>
+    )
+  }
+  <HeadingTag>
+    {icon && <Icon name={icon} size="md" class="title__icon" />}
+    {title}
+  </HeadingTag>
 </div>

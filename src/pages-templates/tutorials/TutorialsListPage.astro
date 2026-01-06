@@ -1,0 +1,88 @@
+---
+/**
+ * Tutorials List Page Template
+ * Displays the first page of tutorials list (page 1)
+ *
+ * Used by: /en/tutorials/ and /es/tutoriales/
+ * Features: ItemList schema, pagination, language switcher
+ */
+
+import Paginator from "@components/Paginator.astro";
+import PostList from "@components/PostList.astro";
+import Title from "@components/Title.astro";
+import Layout from "@layouts/Layout.astro";
+import { t } from "@locales";
+
+import type { ContactItem } from "@/types/content";
+import type { TutorialSummary } from "@/utils/blog";
+import { generateItemListSchema } from "@/utils/schemas/itemList";
+
+interface Props {
+  lang: "en" | "es";
+  tutorials: TutorialSummary[];
+  currentPage: number;
+  totalPages: number;
+  contact: ContactItem[];
+  hasTargetContent: boolean;
+}
+
+const { lang, tutorials, currentPage, totalPages, contact, hasTargetContent } = Astro.props;
+
+const pageTitle = t(lang, "pages.tutorials");
+const pageDescription = lang === "en" ? "Web development tutorials and guides" : "Tutoriales y guías de desarrollo web";
+
+// Build base path for pagination
+const basePath = `/${lang}/${t(lang, "routes.tutorials")}`;
+
+// Generate ItemList schema for SEO
+const itemListSchema = generateItemListSchema(
+  tutorials.map((tutorial) => ({
+    name: tutorial.title,
+    url: `${basePath}/${tutorial.slug}/`,
+    type: "TechArticle",
+    description: tutorial.excerpt,
+  })),
+  Astro.site ? Astro.site.toString() : "https://fjp.es",
+);
+---
+
+<Layout
+  lang={lang}
+  title={pageTitle}
+  description={pageDescription}
+  contact={contact}
+  hasTargetContent={hasTargetContent}
+  currentPage={currentPage}
+  totalPages={totalPages}
+  basePath={basePath}
+>
+  <Title title={pageTitle} icon="graduation-cap" />
+
+  <div data-pagefind-ignore>
+    <script type="application/ld+json" set:html={JSON.stringify(itemListSchema)} />
+
+    {
+      tutorials.length > 0 ? (
+        <PostList posts={tutorials} lang={lang} showOrderBadges={true} />
+      ) : (
+        <div class="empty-state">
+          <p>{t(lang, "emptyState.tutorials")}</p>
+        </div>
+      )
+    }
+  </div>
+
+  <Paginator currentPage={currentPage} totalPages={totalPages} basePath={basePath} lang={lang} />
+</Layout>
+
+<style lang="scss">
+  @use "@/styles/mixins" as *;
+  @use "@/styles/variables" as *;
+
+  .empty-state {
+    grid-column: span 12;
+    text-align: center;
+    padding: 4rem 2rem;
+    color: $cursive-color;
+  }
+</style>

@@ -62,23 +62,38 @@
   }
 
   &__contact {
-    display: grid;
+    display: flex;
     grid-area: contact;
-    grid-template-columns: repeat(auto-fit, 20px);
-    justify-content: space-between;
-    align-content: space-around;
-    margin-top: 20px;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: center;
+    gap: 24px; // Spacing between icons on mobile
+    margin-top: 10px;
     font-size: 0.8em;
 
+    @include small-and-up {
+      // Tablet: icons occupy full width with auto-fit
+      display: grid;
+      grid-template-columns: repeat(auto-fit, 20px);
+      justify-content: space-between;
+      gap: 0;
+      margin-top: 10px;
+    }
+
     @include medium-and-up {
+      // XL: back to original 2-column layout
       grid-template-columns: repeat(2, 150px);
       justify-content: end;
       margin-top: 0;
     }
 
     @include print {
+      display: grid;
       grid-template-columns: repeat(2, 120px);
       margin-top: 0;
+      gap: 0;
+      justify-content: space-between;
+      align-content: space-between;
     }
 
     &__item {
@@ -86,18 +101,42 @@
 
       a {
         display: flex;
+        align-items: center;
+        justify-content: center;
         color: $header-link;
+        text-decoration: none;
+        min-width: 44px;
+        min-height: 44px;
 
-        i {
-          margin-right: 0.5em;
-          font-size: 1.5em;
+        @include small-and-up {
+          min-width: auto;
+          min-height: auto;
+        }
+
+        @include medium-and-up {
+          justify-content: flex-start;
+        }
+
+        @include print {
+          justify-content: flex-start;
+          min-width: auto;
+          min-height: auto;
+        }
+
+        // Hide text on mobile, show only on desktop
+        span:not(.header__contact__icon) {
+          display: none;
 
           @include medium-and-up {
-            font-size: 1em;
+            display: block;
+            margin: 0;
+            padding: 0;
           }
 
           @include print {
-            font-size: 1em;
+            display: block;
+            margin: 0;
+            padding: 0;
           }
         }
 
@@ -118,15 +157,47 @@
         }
       }
     }
+
+    &__icon {
+      width: 20px;
+      height: 20px;
+      min-width: 20px;
+      margin-right: 0;
+      display: block;
+      flex-shrink: 0;
+
+      @include medium-and-up {
+        width: 16px;
+        height: 16px;
+        min-width: 16px;
+        margin-right: 0.5em;
+      }
+
+      @include print {
+        width: 16px;
+        height: 16px;
+        min-width: 16px;
+        margin-right: 0.5em;
+      }
+    }
   }
 }
 
+// Hide phone and website on screen, show only on print
 @include screen {
-  .phone {
+  .header__contact__item:has(a[href^="tel:"]) {
     display: none;
   }
 
-  .globe {
+  .header__contact__item:has(a[href*="fjp.es"]) {
     display: none;
+  }
+}
+
+// Hide Twitter on print
+@include print {
+  .header__contact__item:has(a[href*="twitter.com"]),
+  .header__contact__item:has(a[href*="x.com"]) {
+    display: none !important;
   }
 }

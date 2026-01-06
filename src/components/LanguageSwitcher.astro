@@ -1,0 +1,97 @@
+---
+import { t } from "@locales";
+import { buildDetailPageUrl, buildHomeUrl, buildStaticPageUrl, isHomePage } from "@utils/translation-url";
+
+import { getAlternateLang, getDefaultLanguageCode, type LanguageKey } from "@/config/languages";
+
+interface Props {
+  lang: LanguageKey;
+  translationSlug?: string; // Slug of the translated version (from i18n field)
+  disabled?: boolean; // True if translation doesn't exist
+}
+
+const { lang, translationSlug, disabled = false } = Astro.props;
+
+// Determine target language using centralized helper
+const targetLang = getAlternateLang(lang);
+const currentPath = Astro.url.pathname;
+
+// Build translated URL using the translationSlug if provided
+function getTranslatedUrl(): string {
+  const pathParts = currentPath.split("/").filter(Boolean);
+
+  // Home page
+  if (isHomePage(pathParts)) {
+    return buildHomeUrl(targetLang);
+  }
+
+  // pathParts: ["es", "libros", "slug"] or ["en", "books", "slug"]
+  const currentLang = pathParts[0];
+  const localizedSegment = pathParts[1];
+
+  // Detail page with translation slug
+  if (translationSlug) {
+    return buildDetailPageUrl(localizedSegment, translationSlug, currentLang, targetLang);
+  }
+
+  // Static or listing page without translation slug
+  return buildStaticPageUrl(pathParts, currentLang, targetLang);
+}
+
+const translatedUrl = disabled ? "#" : getTranslatedUrl();
+
+// Language label and code
+const langCode = targetLang.toUpperCase();
+const flagLabel = t(lang, targetLang === getDefaultLanguageCode() ? "menu.toSpanish" : "menu.toEnglish");
+---
+
+<button
+  type="button"
+  class="language-switcher"
+  data-lang-url={translatedUrl}
+  disabled={disabled}
+  aria-label={flagLabel}
+  title={flagLabel}
+>
+  <span class="language-switcher__text">{langCode}</span>
+</button>
+
+<script>
+  // Preserve hash and query params when switching languages
+  // This runs on the client side to capture hash fragments (which aren't sent to server)
+  function setupLanguageSwitcher() {
+    const button = document.querySelector(".language-switcher");
+
+    if (!button || button.disabled) return;
+
+    // Remove any existing listener to avoid duplicates
+    const existingHandler = button.__langSwitchHandler;
+    if (existingHandler) {
+      button.removeEventListener("click", existingHandler);
+    }
+
+    // Create new handler
+    const handler = () => {
+      const baseUrl = button.getAttribute("data-lang-url");
+      const currentSearch = window.location.search;
+      const currentHash = window.location.hash;
+      const targetUrl = baseUrl + currentSearch + currentHash;
+
+      window.location.href = targetUrl;
+    };
+
+    // Store handler reference and add listener
+    button.__langSwitchHandler = handler;
+    button.addEventListener("click", handler);
+
+    // Mark as ready for E2E tests
+    button.setAttribute("data-lang-switcher-ready", "true");
+  }
+
+  // Run on initial load and after each View Transition
+  document.addEventListener("astro:page-load", setupLanguageSwitcher);
+</script>
+
+<style lang="scss">
+  @use "../styles/components/language-switcher";
+</style>

@@ -1,0 +1,31 @@
+.rating {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+
+  &__stars {
+    display: flex;
+    gap: 0.125rem;
+  }
+
+  &__icon {
+    &--filled {
+      color: var(--accent);
+    }
+
+    &--empty {
+      color: var(--text-light);
+    }
+  }
+
+  &--favorite {
+    .rating__icon--filled {
+      color: var(--primary);
+    }
+  }
+
+  &__text {
+    font-size: 0.875rem;
+    color: var(--text);
+  }
+}

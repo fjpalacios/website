@@ -1,0 +1,62 @@
+---
+/**
+ * Series List Page Template
+ * Phase 3: Unified i18n Routing System
+ *
+ * Displays all series with book counts, sorted alphabetically.
+ * Used by the unified router for both EN and ES variants.
+ */
+
+import TaxonomyList from "@components/TaxonomyList.astro";
+import Title from "@components/Title.astro";
+import Layout from "@layouts/Layout.astro";
+import { t } from "@locales";
+import type { CollectionEntry } from "astro:content";
+
+import type { ContactItem } from "@/types/content";
+import type { Language } from "@/utils/routes";
+
+interface Props {
+  lang: Language;
+  itemsWithContent: Array<{
+    item: CollectionEntry<"series">;
+    count: number;
+  }>;
+  contact: ContactItem[];
+  hasTargetContent: boolean;
+}
+
+const { lang, itemsWithContent, contact, hasTargetContent } = Astro.props;
+
+const pageTitle = t(lang, "pages.series");
+const pageDescription = t(lang, "allSeries");
+---
+
+<Layout
+  lang={lang}
+  title={pageTitle}
+  description={pageDescription}
+  contact={contact}
+  hasTargetContent={hasTargetContent}
+>
+  <Title title={pageTitle} icon="book-open" />
+
+  <div data-pagefind-ignore>
+    {
+      itemsWithContent.length > 0 ? (
+        <TaxonomyList
+          items={itemsWithContent}
+          title={t(lang, "allSeries")}
+          lang={lang}
+          routeKey="series"
+          slugField="series_slug"
+          showCount={true}
+        />
+      ) : (
+        <div class="empty-state">
+          <p>{t(lang, "emptyState.series")}</p>
+        </div>
+      )
+    }
+  </div>
+</Layout>

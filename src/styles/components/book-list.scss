@@ -1,0 +1,32 @@
+@use "../mixins" as *;
+@use "../variables" as *;
+
+.book-list {
+  &__stats {
+    background: $primary;
+    padding: 1rem 1.5rem;
+    border-radius: 8px;
+    margin-bottom: 2rem;
+    display: inline-block;
+    border-left: 4px solid $accent;
+
+    &-text {
+      color: $text;
+    }
+
+    &-number {
+      color: $accent;
+      font-weight: bold;
+      font-size: 1.2rem;
+    }
+  }
+
+  &__grid {
+    @include content-grid;
+    margin-bottom: 3rem;
+  }
+
+  &__empty {
+    @include empty-state;
+  }
+}

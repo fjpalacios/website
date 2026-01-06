@@ -89,28 +89,53 @@ test.describe("Social Media & SEO Meta Tags", () => {
     test("should have valid JSON-LD schema on Spanish home", async ({ page }) => {
       await page.goto("/es/");
 
-      const jsonLd = await page.locator('script[type="application/ld+json"]').textContent();
-      expect(jsonLd).toBeTruthy();
+      const jsonLdScripts = await page.locator('script[type="application/ld+json"]').all();
+      expect(jsonLdScripts.length).toBeGreaterThan(0);
 
-      const schema = JSON.parse(jsonLd!);
-      expect(schema["@context"]).toBe("https://schema.org");
-      expect(schema["@type"]).toBe("Person");
-      expect(schema.name).toBe("Francisco Javier Palacios Pérez");
-      expect(schema.jobTitle).toBe("Desarrollador de software");
-      expect(schema.url).toBe("https://fjp.es");
-      expect(schema.sameAs).toContain("https://www.linkedin.com/in/fjpalacios/");
-      expect(schema.sameAs).toContain("https://github.com/fjpalacios");
-      expect(schema.address.addressLocality).toBe("Valencia");
-      expect(schema.address.addressCountry).toBe("ES");
+      // Find the Person schema
+      let personSchema = null;
+      for (const script of jsonLdScripts) {
+        const content = await script.textContent();
+        if (content) {
+          const schema = JSON.parse(content);
+          if (schema["@type"] === "Person") {
+            personSchema = schema;
+            break;
+          }
+        }
+      }
+
+      expect(personSchema).toBeTruthy();
+      expect(personSchema!["@context"]).toBe("https://schema.org");
+      expect(personSchema!.name).toBe("Francisco Javier Palacios Pérez");
+      expect(personSchema!.jobTitle).toBe("Desarrollador de software");
+      expect(personSchema!.url).toBe("https://fjp.es");
+      expect(personSchema!.sameAs).toContain("https://www.linkedin.com/in/fjpalacios/");
+      expect(personSchema!.sameAs).toContain("https://github.com/fjpalacios");
+      expect(personSchema!.address.addressLocality).toBe("Valencia");
+      expect(personSchema!.address.addressCountry).toBe("ES");
     });
 
     test("should have valid JSON-LD schema on English home", async ({ page }) => {
       await page.goto("/en/");
 
-      const jsonLd = await page.locator('script[type="application/ld+json"]').textContent();
-      const schema = JSON.parse(jsonLd!);
+      const jsonLdScripts = await page.locator('script[type="application/ld+json"]').all();
 
-      expect(schema.jobTitle).toBe("Software Developer");
+      // Find the Person schema
+      let personSchema = null;
+      for (const script of jsonLdScripts) {
+        const content = await script.textContent();
+        if (content) {
+          const schema = JSON.parse(content);
+          if (schema["@type"] === "Person") {
+            personSchema = schema;
+            break;
+          }
+        }
+      }
+
+      expect(personSchema).toBeTruthy();
+      expect(personSchema!.jobTitle).toBe("Software Developer");
     });
   });
 

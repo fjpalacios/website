@@ -1,0 +1,53 @@
+/**
+ * Series Badge Styles
+ * 
+ * Rectangular badge that displays the series name for books.
+ * Uses BEM methodology for class naming.
+ * Mobile-first approach with responsive adjustments.
+ * 
+ * Color scheme: Earthy/brown tone to distinguish from course badges (black/white)
+ */
+
+@use "../mixins" as *;
+@use "../variables" as *;
+
+.series-badge {
+  // Typography (mobile-first)
+  font-size: 0.625rem; // 10px
+  font-weight: 600;
+  line-height: 1.2;
+  text-align: left;
+
+  // Visual - Earthy/brown tone for distinction
+  background-color: rgba(101, 67, 33, 0.9); // Dark brown
+  color: #f5f5dc; // Beige text
+  padding: 0.25rem 0.5rem;
+  border-radius: 0.25rem;
+
+  // Layout
+  display: inline-block;
+  max-width: calc(100% - 1.5rem);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+
+  // Shadow for better visibility
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+
+  // Responsive typography
+  @include medium-and-up {
+    font-size: 0.75rem; // 12px
+    padding: 0.375rem 0.75rem;
+  }
+
+  @include large {
+    font-size: 0.875rem; // 14px
+  }
+}
+
+// Dark theme variant - slightly lighter brown with better contrast
+[data-theme="dark"] .series-badge {
+  background-color: rgba(139, 90, 43, 0.85); // Lighter brown for dark mode
+  backdrop-filter: blur(10px);
+  color: #faf0e6; // Linen (slightly warmer white)
+}

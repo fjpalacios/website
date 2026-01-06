@@ -1,0 +1,133 @@
+---
+/**
+ * Courses Detail Page Template
+ * Phase 3: Unified i18n Routing System
+ *
+ * Displays individual course with all tutorials.
+ * Includes pagination if course has many tutorials.
+ * Shows sidebar with all courses for navigation.
+ *
+ * Used by the unified router for both EN and ES variants.
+ */
+
+import Breadcrumbs, { type BreadcrumbItem } from "@components/Breadcrumbs.astro";
+import Paginator from "@components/Paginator.astro";
+import PostList from "@components/PostList.astro";
+import TaxonomyList from "@components/TaxonomyList.astro";
+import Title from "@components/Title.astro";
+import Layout from "@layouts/Layout.astro";
+import { t } from "@locales";
+import { buildCourseUrl, buildCoursesIndexUrl } from "@utils/routes";
+import type { CollectionEntry } from "astro:content";
+
+import type { ContactItem } from "@/types/content";
+import type { Language } from "@/utils/routes";
+import { generateItemListSchema } from "@/utils/schemas/itemList";
+
+interface Props {
+  lang: Language;
+  taxonomyItem: CollectionEntry<"courses">;
+  content: Array<{
+    type: string;
+    title: string;
+    slug: string;
+    excerpt: string;
+    publishedAt: Date;
+    order?: number;
+  }>;
+  currentPage: number;
+  totalPages: number;
+  totalItems: number; // Total items across all pages
+  contact: ContactItem[];
+  hasTargetContent: boolean;
+  coursesWithCounts: Array<{
+    item: CollectionEntry<"courses">;
+    count: number;
+  }>;
+}
+
+const {
+  lang,
+  taxonomyItem: course,
+  content,
+  currentPage,
+  totalPages,
+  totalItems,
+  contact,
+  hasTargetContent,
+  coursesWithCounts,
+} = Astro.props;
+
+const pageTitle = `${t(lang, "pages.course")}: ${course.data.name}`;
+const basePath = buildCourseUrl(lang, course.data.course_slug);
+
+// SEO description
+const translationKey = totalItems === 1 ? "taxonomy.course.tutorialCount_one" : "taxonomy.course.tutorialCount_other";
+const description = t(lang, translationKey)
+  .replace("{{count}}", totalItems.toString())
+  .replace("{{name}}", course.data.name);
+
+// Build breadcrumbs
+const breadcrumbs: BreadcrumbItem[] = [
+  { label: t(lang, "pages.home"), url: `/${lang}` },
+  { label: t(lang, "pages.courses"), url: buildCoursesIndexUrl(lang) },
+  { label: course.data.name }, // Current page, no URL
+];
+
+// Generate ItemList schema for SEO
+const itemListSchema = generateItemListSchema(
+  content.map((item) => {
+    const schemaType = item.type === "book" ? "Book" : item.type === "tutorial" ? "TechArticle" : "BlogPosting";
+    const routeKey = item.type === "book" ? "books" : item.type === "tutorial" ? "tutorials" : "posts";
+
+    return {
+      name: item.title,
+      url: `/${lang}/${t(lang, `routes.${routeKey}`)}/${item.slug}/`,
+      type: schemaType,
+      description: item.excerpt,
+    };
+  }),
+  Astro.site ? Astro.site.toString() : "https://fjp.es",
+);
+---
+
+<Layout
+  lang={lang}
+  title={pageTitle}
+  description={description}
+  contact={contact}
+  translationSlug={course.data.i18n}
+  hasTargetContent={hasTargetContent}
+>
+  <script slot="schema" type="application/ld+json" set:html={JSON.stringify(itemListSchema)} />
+
+  <Breadcrumbs items={breadcrumbs} lang={lang} />
+  <Title title={pageTitle} srOnly={true} useAsPagefindTitle={true} />
+
+  <!-- Course description -->
+  {
+    course.data.description && (
+      <div class="course-description" data-pagefind-body>
+        <p>{course.data.description}</p>
+      </div>
+    )
+  }
+
+  <!-- Short indexable description for Pagefind -->
+  <p class="sr-only" aria-hidden="true">{description}</p>
+
+  <div data-pagefind-ignore>
+    <PostList posts={content} lang={lang} showOrderBadges={true} />
+  </div>
+
+  <Paginator currentPage={currentPage} totalPages={totalPages} basePath={basePath} lang={lang} />
+
+  <TaxonomyList
+    items={coursesWithCounts}
+    title={t(lang, "allCourses")}
+    lang={lang}
+    routeKey="courses"
+    slugField="course_slug"
+    showCount={true}
+  />
+</Layout>

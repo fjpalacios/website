@@ -1,0 +1,72 @@
+@use "../variables" as *;
+@use "../mixins" as *;
+
+.breadcrumbs {
+  background-color: $primary;
+  color: $inverted-text;
+  padding: 10px 20px;
+  margin-bottom: 20px;
+  transition: all 0.45s ease;
+  font-size: 0.875rem; // 14px
+  line-height: 1.5;
+
+  @include print {
+    display: none; // Hide breadcrumbs in print
+  }
+
+  &__list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px; // Reduced from 10px for tighter spacing
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    align-items: center;
+  }
+
+  &__item {
+    display: flex;
+    align-items: center;
+
+    &:not(:last-child)::after {
+      content: ">";
+      color: $accent;
+      margin-left: 8px; // Reduced from 10px
+      font-weight: normal;
+    }
+  }
+
+  &__link {
+    color: $inverted-text;
+    text-decoration: none;
+    transition: color 0.45s ease;
+
+    &:hover {
+      color: $accent;
+      text-decoration: underline;
+    }
+
+    &:focus {
+      outline: 2px solid $accent;
+      outline-offset: 2px;
+      border-radius: 2px;
+    }
+  }
+
+  &__current {
+    color: $inverted-text; // Same as links to avoid confusion (not clickable)
+    font-weight: 600; // Bold to emphasize it's the current page
+  }
+
+  // Responsive: adjust padding on smaller screens
+  @media (max-width: 480px) {
+    font-size: 0.8125rem; // 13px
+    padding: 8px 15px;
+    margin-bottom: 15px;
+  }
+}
+
+// Light theme: override hover color for better contrast on dark breadcrumb background
+body.light .breadcrumbs__link:hover {
+  color: #ffffff !important; // White for maximum contrast
+}

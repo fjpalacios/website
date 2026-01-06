@@ -1,0 +1,38 @@
+---
+/**
+ * Series Badge Component
+ *
+ * Displays a badge with the series name on book listing images.
+ * Used in book listings to show which series a book belongs to.
+ *
+ * Features:
+ * - Positioned at bottom-left of book image
+ * - Responsive text sizing
+ * - Accessible with proper ARIA labels
+ * - Theme-aware styling
+ * - Different color from course badge for visual distinction
+ *
+ * @prop {string} seriesName - The series name to display
+ * @prop {string} seriesSlug - The series slug for potential linking
+ * @prop {string} lang - Language for aria-label
+ */
+
+import { t } from "../locales";
+
+interface Props {
+  seriesName: string;
+  seriesSlug: string;
+  lang: "es" | "en";
+}
+
+const { seriesName, seriesSlug, lang } = Astro.props;
+---
+
+<span
+  class="series-badge"
+  role="img"
+  aria-label={t(lang, "badges.series", { name: seriesName })}
+  data-series-slug={seriesSlug}
+>
+  {seriesName}
+</span>

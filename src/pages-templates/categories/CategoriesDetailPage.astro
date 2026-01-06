@@ -1,0 +1,123 @@
+---
+/**
+ * Categories Detail Page Template
+ * Phase 3: Unified i18n Routing System
+ *
+ * Displays individual category with all content (posts, tutorials, books).
+ * Includes pagination if category has many items.
+ * Shows sidebar with all categories for navigation.
+ *
+ * Used by the unified router for both EN and ES variants.
+ */
+
+import Breadcrumbs, { type BreadcrumbItem } from "@components/Breadcrumbs.astro";
+import Paginator from "@components/Paginator.astro";
+import PostList from "@components/PostList.astro";
+import TaxonomyList from "@components/TaxonomyList.astro";
+import Title from "@components/Title.astro";
+import Layout from "@layouts/Layout.astro";
+import { t } from "@locales";
+import { buildCategoryUrl, buildCategoriesIndexUrl } from "@utils/routes";
+import type { CollectionEntry } from "astro:content";
+
+import type { ContactItem } from "@/types/content";
+import type { Language } from "@/utils/routes";
+import { generateItemListSchema } from "@/utils/schemas/itemList";
+
+interface Props {
+  lang: Language;
+  taxonomyItem: CollectionEntry<"categories">;
+  content: Array<{
+    type: string;
+    title: string;
+    slug: string;
+    excerpt: string;
+    publishedAt: Date;
+  }>;
+  currentPage: number;
+  totalPages: number;
+  totalItems: number; // Total items across all pages
+  contact: ContactItem[];
+  hasTargetContent: boolean;
+  categoriesWithCounts: Array<{
+    item: CollectionEntry<"categories">;
+    count: number;
+  }>;
+}
+
+const {
+  lang,
+  taxonomyItem: category,
+  content,
+  currentPage,
+  totalPages,
+  totalItems,
+  contact,
+  hasTargetContent,
+  categoriesWithCounts,
+} = Astro.props;
+
+const pageTitle = `${t(lang, "pages.category")}: ${category.data.name}`;
+const basePath = buildCategoryUrl(lang, category.data.category_slug);
+
+// SEO description
+const translationKey = totalItems === 1 ? "taxonomy.category.itemCount_one" : "taxonomy.category.itemCount_other";
+const description = t(lang, translationKey)
+  .replace("{{count}}", totalItems.toString())
+  .replace("{{name}}", category.data.name);
+
+// Build breadcrumbs
+const breadcrumbs: BreadcrumbItem[] = [
+  { label: t(lang, "pages.home"), url: `/${lang}` },
+  { label: t(lang, "pages.categories"), url: buildCategoriesIndexUrl(lang) },
+  { label: category.data.name }, // Current page, no URL
+];
+
+// Generate ItemList schema for SEO
+const itemListSchema = generateItemListSchema(
+  content.map((item) => {
+    const schemaType = item.type === "book" ? "Book" : item.type === "tutorial" ? "TechArticle" : "BlogPosting";
+    const routeKey = item.type === "book" ? "books" : item.type === "tutorial" ? "tutorials" : "posts";
+
+    return {
+      name: item.title,
+      url: `/${lang}/${t(lang, `routes.${routeKey}`)}/${item.slug}/`,
+      type: schemaType,
+      description: item.excerpt,
+    };
+  }),
+  Astro.site ? Astro.site.toString() : "https://fjp.es",
+);
+---
+
+<Layout
+  lang={lang}
+  title={pageTitle}
+  description={description}
+  contact={contact}
+  translationSlug={category.data.i18n}
+  hasTargetContent={hasTargetContent}
+>
+  <script slot="schema" type="application/ld+json" set:html={JSON.stringify(itemListSchema)} />
+
+  <Breadcrumbs items={breadcrumbs} lang={lang} />
+  <Title title={pageTitle} srOnly={true} useAsPagefindTitle={true} />
+
+  <!-- Short indexable description for Pagefind -->
+  <p class="sr-only" aria-hidden="true">{description}</p>
+
+  <div data-pagefind-ignore>
+    <PostList posts={content} lang={lang} />
+  </div>
+
+  <Paginator currentPage={currentPage} totalPages={totalPages} basePath={basePath} lang={lang} />
+
+  <TaxonomyList
+    items={categoriesWithCounts}
+    title={t(lang, "allCategories")}
+    lang={lang}
+    routeKey="categories"
+    slugField="category_slug"
+    showCount={true}
+  />
+</Layout>

@@ -1,0 +1,169 @@
+---
+import { getLocalizedRoute } from "@utils/routes";
+
+import { getDefaultLanguageCode, type LanguageKey } from "@/config/languages";
+
+import { PAGINATION_CONFIG } from "../config/pagination";
+import { t } from "../locales";
+
+interface Props {
+  currentPage: number;
+  totalPages: number;
+  basePath: string;
+  lang?: LanguageKey;
+}
+
+const { currentPage, totalPages, basePath, lang = getDefaultLanguageCode() } = Astro.props;
+const { MAX_PAGE_BUTTONS, FIRST_PAGE, MIN_GAP_FOR_ELLIPSIS } = PAGINATION_CONFIG.UI;
+
+// Get localized "page" segment
+const pageSegment = getLocalizedRoute("page", lang);
+
+// Build URLs for prev/next pages
+// Always use /{pageSegment}/N format for consistency, except for page 1 which is the base path
+const prevUrl = currentPage === FIRST_PAGE + 1 ? basePath : `${basePath}/${pageSegment}/${currentPage - 1}`;
+const nextUrl = `${basePath}/${pageSegment}/${currentPage + 1}`;
+const firstUrl = basePath;
+const lastUrl = `${basePath}/${pageSegment}/${totalPages}`;
+
+const showPrev = currentPage > FIRST_PAGE;
+const showNext = currentPage < totalPages;
+const showPaginator = totalPages > FIRST_PAGE;
+
+// Generate page number array with smart truncation
+// Examples:
+// - [1, 2, 3, 4, 5] for 5 pages
+// - [1, "...", 5, 6, [7], 8, 9, "...", 20] for page 7 of 20
+function getPageNumbers(): (number | string)[] {
+  if (totalPages <= MAX_PAGE_BUTTONS) {
+    // Show all pages if MAX_PAGE_BUTTONS or less
+    return Array.from({ length: totalPages }, (_, i) => i + FIRST_PAGE);
+  }
+
+  const pages: (number | string)[] = [];
+
+  // Always show first page
+  pages.push(FIRST_PAGE);
+
+  // Calculate range around current page
+  const rangeStart = Math.max(FIRST_PAGE + 1, currentPage - 1);
+  const rangeEnd = Math.min(totalPages - 1, currentPage + 1);
+
+  // Add ellipsis after first page if needed
+  if (rangeStart > FIRST_PAGE + MIN_GAP_FOR_ELLIPSIS) {
+    pages.push("...");
+  }
+
+  // Add pages around current page
+  for (let i = rangeStart; i <= rangeEnd; i++) {
+    pages.push(i);
+  }
+
+  // Add ellipsis before last page if needed
+  if (rangeEnd < totalPages - MIN_GAP_FOR_ELLIPSIS) {
+    pages.push("...");
+  }
+
+  // Always show last page
+  if (totalPages > FIRST_PAGE) {
+    pages.push(totalPages);
+  }
+
+  return pages;
+}
+
+const pageNumbers = getPageNumbers();
+
+// Helper to build page URL
+function getPageUrl(page: number): string {
+  return page === FIRST_PAGE ? basePath : `${basePath}/${pageSegment}/${page}`;
+}
+---
+
+{
+  showPaginator && (
+    <nav class="paginator" aria-label={t(lang, "paginator.ariaLabel")}>
+      <div class="paginator__controls">
+        {/* First page button */}
+        {currentPage > FIRST_PAGE + 1 && (
+          <a
+            href={firstUrl}
+            class="paginator__button paginator__button--first"
+            aria-label={t(lang, "paginator.firstPage")}
+          >
+            «
+          </a>
+        )}
+
+        {/* Previous button */}
+        {showPrev && (
+          <a
+            href={prevUrl}
+            class="paginator__button paginator__button--prev"
+            aria-label={t(lang, "paginator.previousPage")}
+          >
+            {t(lang, "paginator.prev")}
+          </a>
+        )}
+
+        {/* Page numbers */}
+        <div class="paginator__pages">
+          {pageNumbers.map((page) => {
+            if (page === "...") {
+              return <span class="paginator__ellipsis">...</span>;
+            }
+
+            const pageNum = page as number;
+            const isCurrentPage = pageNum === currentPage;
+            const url = getPageUrl(pageNum);
+
+            return isCurrentPage ? (
+              <span
+                class="paginator__page paginator__page--current"
+                aria-current="page"
+                aria-label={t(lang, "paginator.pageNumber", { number: pageNum.toString() })}
+              >
+                {pageNum}
+              </span>
+            ) : (
+              <a
+                href={url}
+                class="paginator__page"
+                aria-label={t(lang, "paginator.pageNumber", { number: pageNum.toString() })}
+              >
+                {pageNum}
+              </a>
+            );
+          })}
+        </div>
+
+        {/* Next button */}
+        {showNext && (
+          <a
+            href={nextUrl}
+            class="paginator__button paginator__button--next"
+            aria-label={t(lang, "paginator.nextPage")}
+          >
+            {t(lang, "paginator.next")}
+          </a>
+        )}
+
+        {/* Last page button */}
+        {currentPage < totalPages - 1 && (
+          <a
+            href={lastUrl}
+            class="paginator__button paginator__button--last"
+            aria-label={t(lang, "paginator.lastPage")}
+          >
+            »
+          </a>
+        )}
+      </div>
+
+      {/* Page info */}
+      <div class="paginator__info">
+        {`${t(lang, "paginator.page")} ${currentPage} ${t(lang, "paginator.of")} ${totalPages}`}
+      </div>
+    </nav>
+  )
+}

@@ -1,15 +1,49 @@
 @use "./mixins" as *;
+@use "./variables" as *;
+
+html {
+  overflow-y: scroll;
+}
 
 .container {
   display: grid;
   grid-template-columns: repeat(12, 1fr);
   align-items: initial;
   width: calc(100vw - 40px);
-  max-width: 1400px;
+  max-width: $container-max-width;
   padding: 20px;
+  margin: 0 auto;
 
   @include print {
     width: 90vw;
     padding: 0;
   }
+}
+
+#app-wrapper {
+  display: grid;
+  align-items: center;
+  justify-content: center;
+}
+
+.content {
+  grid-column: span 12;
+}
+
+// Screen reader only - visually hidden but accessible
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border-width: 0;
+}
+
+// Pagefind metadata - hidden from visual display but indexed by Pagefind
+.pagefind-meta {
+  display: none;
 }

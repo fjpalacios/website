@@ -1,0 +1,107 @@
+---
+/**
+ * LatestPosts Component
+ *
+ * Displays the N most recent blog posts (books, posts, tutorials) for the current language.
+ * Used on homepage to show recent activity.
+ *
+ * Features:
+ * - Queries all content types (books, posts, tutorials)
+ * - Filters by current page language
+ * - Sorts by date DESC
+ * - Displays title, date (vintage format), and excerpt
+ * - Hidden in print view (for CV generation)
+ * - Uses BEM methodology for styling
+ *
+ * @component
+ * @param {number} limit - Number of posts to display (default: 4)
+ * @param {string} lang - Language code ('es' | 'en')
+ */
+
+import Icon from "@components/Icon.astro";
+import Title from "@components/Title.astro";
+import "@styles/components/latest-posts.scss";
+import { t } from "@locales";
+import type { PostSummary } from "@utils/blog";
+import { getLatestPosts } from "@utils/content/getLatestPosts";
+import { formatVintageDate } from "@utils/dateFormat";
+import { buildBookUrl, buildPostUrl, buildTutorialUrl, buildIndexUrl } from "@utils/routes";
+
+interface Props {
+  limit?: number;
+  lang: "es" | "en";
+}
+
+const { limit = 4, lang } = Astro.props;
+
+/**
+ * Get the correct URL based on content type
+ */
+function getContentUrl(item: PostSummary): string {
+  switch (item.type) {
+    case "book":
+      return buildBookUrl(item.language, item.slug);
+    case "tutorial":
+      return buildTutorialUrl(item.language, item.slug);
+    case "post":
+    default:
+      return buildPostUrl(item.language, item.slug);
+  }
+}
+
+/**
+ * Get the correct icon name based on content type
+ */
+function getContentIconName(type: PostSummary["type"]): string {
+  switch (type) {
+    case "book":
+      return "book";
+    case "tutorial":
+      return "graduation-cap";
+    case "post":
+    default:
+      return "file-text";
+  }
+}
+
+// Fetch latest posts using utility function
+const latestPosts = await getLatestPosts(lang, limit);
+
+// Build URL for "View all posts" link
+const allPostsUrl = buildIndexUrl("posts", lang);
+---
+
+{
+  latestPosts.length > 0 && (
+    <main class="latest-posts">
+      <Title title={t(lang, "latestBlogPosts")} />
+      <section class="latest-posts__list">
+        {latestPosts.map((post) => {
+          const url = getContentUrl(post);
+          const formattedDate = formatVintageDate(post.date, lang);
+          const iconName = getContentIconName(post.type);
+
+          return (
+            <section class="latest-posts__list__post">
+              <section class="latest-posts__list__post__title">
+                <Icon name={iconName} class="latest-posts__list__post__title__badge" size="md" />
+                <a href={url}>{post.title}</a>
+              </section>
+              <section class="latest-posts__list__post__date">
+                <time datetime={formattedDate.datetime} aria-label={formattedDate.aria}>
+                  {formattedDate.visual}
+                </time>
+              </section>
+              <section class="latest-posts__list__post__excerpt">{post.excerpt}</section>
+            </section>
+          );
+        })}
+      </section>
+      <footer class="latest-posts__footer">
+        <a href={allPostsUrl} class="latest-posts__footer__link">
+          {t(lang, "viewAllPosts")}
+        </a>
+      </footer>
+    </main>
+  )
+}

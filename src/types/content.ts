@@ -1,3 +1,9 @@
+/**
+ * Language keys supported by the application
+ * Auto-generated from src/config/languages.ts
+ */
+export type { LanguageKey } from "@/config/languages";
+
 export interface ContactItem {
   name: string;
   link: string;

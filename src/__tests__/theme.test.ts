@@ -9,13 +9,25 @@ import {
   switchTheme,
   initTheme,
 } from "@scripts/theme";
-import { describe, it, expect, beforeEach } from "vitest";
+import { describe, it, expect, beforeEach, vi } from "vitest";
 
 describe("Theme utilities", () => {
   beforeEach(() => {
-    // Clear localStorage and reset DOM
-    localStorage.clear();
-    document.body.className = "";
+    // Clear localStorage if available (happy-dom provides it)
+    if (typeof localStorage !== "undefined") {
+      localStorage.clear();
+    }
+
+    // Reset DOM - ensure document.body exists
+    if (typeof document !== "undefined" && document.body) {
+      document.body.className = "";
+      if (document.documentElement) {
+        document.documentElement.className = "";
+      }
+    }
+
+    // Clear all mocks
+    vi.clearAllMocks();
   });
 
   describe("getTheme", () => {
@@ -108,34 +120,30 @@ describe("Theme utilities", () => {
   describe("initTheme", () => {
     it("should initialize theme from localStorage", () => {
       localStorage.setItem(THEME_KEY, "light");
-      const selector = document.createElement("input");
-      selector.type = "checkbox";
-      selector.id = "selector";
-      document.body.appendChild(selector);
+      const button = document.createElement("button");
+      button.id = "theme-toggle";
+      document.body.appendChild(button);
 
       initTheme();
 
       expect(document.body.classList.contains("light")).toBe(true);
-      expect(selector.checked).toBe(false);
 
-      document.body.removeChild(selector);
+      document.body.removeChild(button);
     });
 
     it("should initialize with default theme when no saved theme exists", () => {
-      const selector = document.createElement("input");
-      selector.type = "checkbox";
-      selector.id = "selector";
-      document.body.appendChild(selector);
+      const button = document.createElement("button");
+      button.id = "theme-toggle";
+      document.body.appendChild(button);
 
       initTheme();
 
       expect(document.body.classList.contains(DEFAULT_THEME)).toBe(true);
-      expect(selector.checked).toBe(DEFAULT_THEME === "dark");
 
-      document.body.removeChild(selector);
+      document.body.removeChild(button);
     });
 
-    it("should work when selector element doesn't exist", () => {
+    it("should work when button element doesn't exist", () => {
       localStorage.setItem(THEME_KEY, "light");
 
       // Should not throw
@@ -143,23 +151,22 @@ describe("Theme utilities", () => {
       expect(document.body.classList.contains("light")).toBe(true);
     });
 
-    it("should attach click event listener to selector", () => {
+    it("should attach click event listener to button", () => {
       localStorage.setItem(THEME_KEY, "dark");
-      const selector = document.createElement("input");
-      selector.type = "checkbox";
-      selector.id = "selector";
-      document.body.appendChild(selector);
+      const button = document.createElement("button");
+      button.id = "theme-toggle";
+      document.body.appendChild(button);
 
       initTheme();
 
       // Simulate click
-      selector.click();
+      button.click();
 
       // Theme should have switched
       expect(document.body.classList.contains("light")).toBe(true);
       expect(localStorage.getItem(THEME_KEY)).toBe("light");
 
-      document.body.removeChild(selector);
+      document.body.removeChild(button);
     });
   });
 });

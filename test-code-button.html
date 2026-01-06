@@ -1,0 +1,131 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Test Code Button</title>
+    <style>
+      body {
+        padding: 20px;
+        background: #1a1a1a;
+        color: #fff;
+        font-family: monospace;
+      }
+
+      pre[class*="language-"] {
+        position: relative;
+        margin: 1.5rem -20px;
+        padding: 3rem 1rem 1rem 4rem;
+        background: #192734;
+        width: calc(100% + 40px);
+      }
+
+      .code-toolbar {
+        position: absolute;
+        top: 0;
+        left: 20px;
+        width: calc(100% - 40px);
+        height: 2.5rem;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 0 0.75rem;
+        background: #192734;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        z-index: 10;
+        box-sizing: border-box;
+      }
+
+      .code-language-label {
+        font-size: 0.75rem;
+        font-weight: 600;
+        color: rgba(255, 255, 255, 0.7);
+        text-transform: uppercase;
+      }
+
+      .code-copy-button {
+        width: 32px;
+        height: 32px;
+        padding: 0;
+        margin: 0;
+        background: rgba(255, 255, 255, 0.1);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        border-radius: 6px;
+        color: rgba(255, 255, 255, 0.8);
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+
+      .code-copy-button:hover {
+        background: rgba(255, 255, 255, 0.2);
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Test Code Block with Copy Button</h1>
+
+    <pre class="language-javascript"><code>let userName = "John";
+let userAge = 30;
+let isActive = true;</code></pre>
+
+    <script>
+      function setupCodeBlocks() {
+        console.log("setupCodeBlocks called");
+        const codeBlocks = document.querySelectorAll('pre[class*="language-"]');
+        console.log("Found code blocks:", codeBlocks.length);
+
+        codeBlocks.forEach((pre, index) => {
+          console.log(`Processing block ${index}:`, pre);
+
+          // Skip if already setup
+          if (pre.querySelector(".code-toolbar")) {
+            console.log("Already has toolbar, skipping");
+            return;
+          }
+
+          // Create toolbar container
+          const toolbar = document.createElement("div");
+          toolbar.className = "code-toolbar";
+          console.log("Created toolbar:", toolbar);
+
+          // Extract language
+          const languageClass = Array.from(pre.classList).find((cls) => cls.startsWith("language-"));
+          const language = languageClass ? languageClass.replace("language-", "") : "text";
+          console.log("Language:", language);
+
+          // Create language label
+          const langLabel = document.createElement("span");
+          langLabel.className = "code-language-label";
+          langLabel.textContent = language;
+
+          // Create copy button
+          const button = document.createElement("button");
+          button.className = "code-copy-button";
+          button.setAttribute("type", "button");
+          button.textContent = "📋";
+
+          console.log("Created button:", button);
+
+          // Add elements to toolbar
+          toolbar.appendChild(langLabel);
+          toolbar.appendChild(button);
+
+          // Add toolbar to pre element
+          pre.style.position = "relative";
+          pre.appendChild(toolbar);
+
+          console.log("Toolbar appended to pre");
+        });
+      }
+
+      // Run setup
+      if (document.readyState === "loading") {
+        document.addEventListener("DOMContentLoaded", setupCodeBlocks);
+      } else {
+        setupCodeBlocks();
+      }
+    </script>
+  </body>
+</html>

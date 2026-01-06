@@ -1,0 +1,111 @@
+@use "../mixins" as *;
+@use "../variables" as *;
+
+.blog {
+  grid-column: span 12;
+
+  &__grid {
+    display: flex;
+    flex-direction: column;
+
+    @include medium-and-up {
+      display: grid;
+      grid-template-areas:
+        "post-1 post-2"
+        "post-3 post-4"
+        "post-5 post-6"
+        "post-7 post-8"
+        "post-9 post-10";
+      grid-template-columns: repeat(auto-fit, calc(50% - 20px));
+      column-gap: 40px;
+    }
+
+    > a {
+      transition: all 0.5s ease;
+    }
+
+    > * {
+      margin-bottom: 40px;
+      overflow: hidden;
+      transition: all 0.45s ease;
+      border: 2px solid $primary;
+      color: $text;
+      break-inside: avoid;
+
+      img {
+        width: 100%;
+        height: auto;
+        display: block;
+        object-fit: cover;
+      }
+
+      @include medium-and-up {
+        .text-area {
+          min-height: 65px;
+        }
+
+        // Generate grid areas dynamically
+        @for $i from 1 through 10 {
+          &:nth-child(#{$i}) {
+            grid-area: post-#{$i};
+          }
+        }
+      }
+    }
+
+    &__post {
+      &__image-wrapper {
+        position: relative;
+
+        // Order badge positioning (top-right corner)
+        .tutorial-order-badge {
+          position: absolute;
+          top: 0.75rem;
+          right: 0.75rem;
+          z-index: 1;
+
+          // Add subtle shadow for better visibility
+          box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+        }
+
+        // Course badge positioning (bottom-left corner)
+        .course-badge {
+          position: absolute;
+          bottom: 0.5rem;
+          left: 0.5rem;
+          z-index: 1;
+
+          @include medium-and-up {
+            bottom: 0.75rem;
+            left: 0.75rem;
+          }
+        }
+
+        // Series badge positioning (bottom-left corner, same as course badge)
+        .series-badge {
+          position: absolute;
+          bottom: 0.5rem;
+          left: 0.5rem;
+          z-index: 1;
+
+          @include medium-and-up {
+            bottom: 0.75rem;
+            left: 0.75rem;
+          }
+        }
+      }
+    }
+  }
+}
+
+.dark .blog__grid > a:hover {
+  box-shadow:
+    8px 14px 8px rgba(139, 144, 149, 0.08),
+    1px 3px 8px rgba(139, 144, 149, 0.08);
+}
+
+.light .blog__grid > a:hover {
+  box-shadow:
+    8px 14px 8px rgba(39, 44, 49, 0.08),
+    1px 3px 8px rgba(39, 44, 49, 0.08);
+}

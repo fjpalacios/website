@@ -1,4 +1,4 @@
-import type { ContactItem } from "@types/content";
+import type { ContactItem } from "@/types/content";
 
 export const contact: ContactItem[] = [
   {
@@ -16,7 +16,13 @@ export const contact: ContactItem[] = [
   {
     name: "GitHub",
     link: "https://github.com/fjpalacios",
-    icon: "github-circled",
+    icon: "github",
+    text: "fjpalacios",
+  },
+  {
+    name: "Twitter",
+    link: "https://twitter.com/fjpalacios",
+    icon: "twitter",
     text: "fjpalacios",
   },
   {
@@ -28,7 +34,7 @@ export const contact: ContactItem[] = [
   {
     name: "Location",
     link: "https://osm.org/go/b_qODpV--",
-    icon: "location",
+    icon: "map-pin",
     text: "Valencia, ES",
   },
   {

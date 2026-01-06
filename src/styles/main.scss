@@ -1,4 +1,7 @@
-@use "normalize.css";
+// Import normalize.css via wrapper (must be first)
+@use "./normalize";
+
+// SCSS modules
 @use "./variables";
 @use "./mixins";
 @use "./layout";
@@ -8,11 +11,34 @@
 @use "./components/layout" as component-layout;
 @use "./components/header";
 @use "./components/menu";
-@use "./components/language-switcher";
 @use "./components/theme-switcher";
+@use "./components/breadcrumbs";
 @use "./components/title";
+@use "./components/post-title";
 @use "./components/text-area";
 @use "./components/basic-list";
 @use "./components/languages-list";
 @use "./components/resume";
 @use "./components/about";
+@use "./components/post";
+@use "./components/post-list";
+@use "./components/tutorial";
+@use "./components/tutorial-list";
+@use "./components/tutorial-order-badge";
+@use "./components/course-badge";
+@use "./components/series-badge";
+@use "./components/book";
+@use "./components/book-list";
+@use "./components/author";
+@use "./components/section-title";
+@use "./components/author-info";
+@use "./components/share";
+@use "./components/taxonomy-list";
+@use "./components/paginator";
+@use "./components/code-blocks";
+@use "./components/spoiler";
+@use "./components/skill-bar";
+@use "./components/course";
+@use "./components/course-navigation";
+@use "./components/search";
+@use "./components/latest-posts";

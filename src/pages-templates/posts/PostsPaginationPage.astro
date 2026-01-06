@@ -1,0 +1,80 @@
+---
+/**
+ * Posts Pagination Page Template
+ * Displays paginated mixed content (posts + tutorials + books) (page 2+)
+ *
+ * Used by: /en/posts/page/[N]/ and /es/publicaciones/pagina/[N]/
+ * Features: Pagination navigation
+ *
+ * NOTE: This page shows ALL content types combined (posts, tutorials, books)
+ * sorted by date, providing a unified timeline view.
+ */
+
+import Paginator from "@components/Paginator.astro";
+import PostList from "@components/PostList.astro";
+import Title from "@components/Title.astro";
+import Layout from "@layouts/Layout.astro";
+import { t } from "@locales";
+
+import type { ContactItem } from "@/types/content";
+import type { PostSummary } from "@/utils/blog";
+
+interface Props {
+  lang: "en" | "es";
+  posts: PostSummary[];
+  currentPage: number;
+  totalPages: number;
+  contact: ContactItem[];
+}
+
+const { lang, posts, currentPage, totalPages, contact } = Astro.props;
+
+// Add page number to title and description for SEO
+const baseTitle = "📝 " + t(lang, "pages.posts");
+const pageNumberText = lang === "en" ? `Page ${currentPage}` : `Página ${currentPage}`;
+const pageTitle = `${baseTitle} - ${pageNumberText}`;
+const baseDescription =
+  lang === "en" ? "Articles and tutorials about web development" : "Artículos y tutoriales sobre desarrollo web";
+const pageDescription = `${baseDescription} - ${lang === "en" ? `page ${currentPage}` : `página ${currentPage}`}`;
+
+// Build base path for pagination
+const basePath = `/${lang}/${t(lang, "routes.posts")}`;
+---
+
+<Layout
+  lang={lang}
+  title={pageTitle}
+  description={pageDescription}
+  contact={contact}
+  currentPage={currentPage}
+  totalPages={totalPages}
+  basePath={basePath}
+>
+  <Title title={pageTitle} />
+
+  {
+    posts.length > 0 ? (
+      <div data-pagefind-ignore>
+        <PostList posts={posts} lang={lang} showOrderBadges={true} />
+      </div>
+    ) : (
+      <div class="empty-state">
+        <p>{t(lang, "emptyState.posts")}</p>
+      </div>
+    )
+  }
+
+  <Paginator currentPage={currentPage} totalPages={totalPages} basePath={basePath} lang={lang} />
+</Layout>
+
+<style lang="scss">
+  @use "@/styles/mixins" as *;
+  @use "@/styles/variables" as *;
+
+  .empty-state {
+    grid-column: span 12;
+    text-align: center;
+    padding: 4rem 2rem;
+    color: $cursive-color;
+  }
+</style>

@@ -6,6 +6,9 @@ import unusedImports from "eslint-plugin-unused-imports";
 import globals from "globals";
 import tseslint from "typescript-eslint";
 
+// Custom rules for Astro script safety
+import astroScriptSafety from "./eslint-rules/index.js";
+
 export default tseslint.config(
   {
     ignores: ["**/public", "**/dist", "**/dist/*", "**/tests/*", "coverage", ".astro/*", "node_modules/*"],
@@ -20,8 +23,13 @@ export default tseslint.config(
     plugins: {
       import: importPlugin,
       "unused-imports": unusedImports,
+      "astro-script-safety": astroScriptSafety,
     },
     rules: {
+      // Custom Astro script safety rules
+      "astro-script-safety/no-inline-define-vars": "error",
+
+      // Unused imports
       "no-unused-vars": "off", // Disable the base rule, redundant with unused-imports plugin
       "@typescript-eslint/no-unused-vars": "off", // Disable the base rule, redundant with unused-imports plugin
       "unused-imports/no-unused-imports": "error",
@@ -48,6 +56,26 @@ export default tseslint.config(
               position: "after",
             },
           ],
+        },
+      ],
+    },
+  },
+  // Configuration for Node.js scripts
+  {
+    files: ["scripts/**/*.js"],
+    languageOptions: {
+      ecmaVersion: "latest",
+      globals: { ...globals.node },
+    },
+    rules: {
+      "no-console": "off", // Allow console in CLI scripts
+      "unused-imports/no-unused-vars": [
+        "warn",
+        {
+          vars: "all",
+          varsIgnorePattern: "^_",
+          args: "after-used",
+          argsIgnorePattern: "^_|^e$", // Also ignore 'e' in catch blocks
         },
       ],
     },

@@ -2,6 +2,8 @@
 import { t } from "@locales";
 import type { ContactItem } from "@types/content";
 
+import Icon from "./Icon.astro";
+
 interface Props {
   lang: string;
   contact: ContactItem[];
@@ -10,16 +12,16 @@ interface Props {
 const { lang, contact } = Astro.props;
 ---
 
-<header class="header">
-  <h1 class="header__title">{t(lang, "title")}</h1>
-  <h2 class="header__subtitle">{t(lang, "subtitle")}</h2>
+<header class="header" data-pagefind-ignore>
+  <div class="header__title">{t(lang, "title")}</div>
+  <div class="header__subtitle">{t(lang, "subtitle")}</div>
   <div class="header__contact">
     {
       contact.map((item) => (
-        <div class={`header__contact__item ${item.icon}`}>
-          <a href={item.link} target="_blank" rel="noreferrer">
-            <i class={`icon-${item.icon}`} />
-            <p>{item.text}</p>
+        <div class="header__contact__item">
+          <a href={item.link} target="_blank" rel="noreferrer" aria-label={item.name}>
+            <Icon name={item.icon} class="header__contact__icon" />
+            <span>{item.text}</span>
           </a>
         </div>
       ))

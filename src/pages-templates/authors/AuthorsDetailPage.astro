@@ -1,0 +1,132 @@
+---
+/**
+ * Authors Detail Page Template
+ * Phase 3: Unified i18n Routing System
+ *
+ * Displays individual author information with their books.
+ * Includes pagination if author has many books.
+ * Shows sidebar with all authors for navigation.
+ *
+ * Used by the unified router for both EN and ES variants.
+ */
+
+import AuthorInfo from "@components/AuthorInfo.astro";
+import Breadcrumbs, { type BreadcrumbItem } from "@components/Breadcrumbs.astro";
+import Paginator from "@components/Paginator.astro";
+import PostList from "@components/PostList.astro";
+import TaxonomyList from "@components/TaxonomyList.astro";
+import Title from "@components/Title.astro";
+import Layout from "@layouts/Layout.astro";
+import { t } from "@locales";
+import { buildAuthorUrl, buildAuthorsIndexUrl } from "@utils/routes";
+import type { CollectionEntry } from "astro:content";
+
+import type { ContactItem } from "@/types/content";
+import type { Language } from "@/utils/routes";
+import { generateItemListSchema } from "@/utils/schemas/itemList";
+
+interface Props {
+  lang: Language;
+  taxonomyItem: CollectionEntry<"authors">;
+  content: Array<{
+    type: string;
+    title: string;
+    slug: string;
+    excerpt: string;
+    publishedAt: Date;
+  }>;
+  currentPage: number;
+  totalPages: number;
+  totalItems: number; // Total items across all pages
+  contact: ContactItem[];
+  hasTargetContent: boolean;
+  authorsWithCounts: Array<{
+    item: CollectionEntry<"authors">;
+    count: number;
+  }>;
+}
+
+const {
+  lang,
+  taxonomyItem: author,
+  content,
+  currentPage,
+  totalPages,
+  totalItems,
+  contact,
+  hasTargetContent,
+  authorsWithCounts,
+} = Astro.props;
+
+// Get gender-specific title
+const authorTitle = author.data.gender === "male" ? t(lang, "pages.authorMale") : t(lang, "pages.authorFemale");
+const pageTitle = `${authorTitle}: ${author.data.name}`;
+const basePath = buildAuthorUrl(lang, author.data.author_slug);
+
+// SEO description
+const translationKey = totalItems === 1 ? "taxonomy.author.bookCount_one" : "taxonomy.author.bookCount_other";
+const description = t(lang, translationKey)
+  .replace("{{count}}", totalItems.toString())
+  .replace("{{name}}", author.data.name);
+
+// Build breadcrumbs
+const breadcrumbs: BreadcrumbItem[] = [
+  { label: t(lang, "pages.home"), url: `/${lang}` },
+  { label: t(lang, "pages.authors"), url: buildAuthorsIndexUrl(lang) },
+  { label: author.data.name }, // Current page, no URL
+];
+
+// Generate ItemList schema for SEO
+const itemListSchema = generateItemListSchema(
+  content.map((item) => {
+    // Map content type to Schema.org type
+    const schemaType = item.type === "book" ? "Book" : item.type === "tutorial" ? "TechArticle" : "BlogPosting";
+    const routeKey = item.type === "book" ? "books" : item.type === "tutorial" ? "tutorials" : "posts";
+
+    return {
+      name: item.title,
+      url: `/${lang}/${t(lang, `routes.${routeKey}`)}/${item.slug}/`,
+      type: schemaType,
+      description: item.excerpt,
+    };
+  }),
+  Astro.site ? Astro.site.toString() : "https://fjp.es",
+);
+---
+
+<Layout
+  lang={lang}
+  title={pageTitle}
+  description={description}
+  contact={contact}
+  translationSlug={author.data.i18n}
+  shortTitle={true}
+  hasTargetContent={hasTargetContent}
+>
+  <script slot="schema" type="application/ld+json" set:html={JSON.stringify(itemListSchema)} />
+
+  <Breadcrumbs items={breadcrumbs} lang={lang} />
+  <Title title={pageTitle} srOnly={true} useAsPagefindTitle={true} headingLevel="h1" />
+
+  <!-- Short indexable description for Pagefind -->
+  <p class="sr-only" aria-hidden="true">{description}</p>
+
+  <div class="author-detail-page__author-section" data-pagefind-ignore>
+    <AuthorInfo author={author} border={true} />
+  </div>
+
+  <div data-pagefind-ignore>
+    <PostList posts={content} lang={lang} />
+  </div>
+
+  <Paginator currentPage={currentPage} totalPages={totalPages} basePath={basePath} lang={lang} />
+
+  <TaxonomyList
+    items={authorsWithCounts}
+    title={t(lang, "allAuthors")}
+    lang={lang}
+    routeKey="authors"
+    slugField="author_slug"
+    showCount={true}
+  />
+</Layout>

@@ -1,0 +1,31 @@
+@use "../variables" as *;
+
+.spoiler {
+  transition: all 500ms cubic-bezier(0.25, 0.25, 0.75, 0.75);
+  color: transparent !important;
+  text-shadow: 0 0 5px $text;
+
+  * {
+    color: transparent !important;
+    text-shadow: 0 0 5px $text;
+    transition: all 500ms cubic-bezier(0.25, 0.25, 0.75, 0.75);
+  }
+
+  &:hover {
+    color: $text !important;
+    text-shadow: none;
+
+    * {
+      text-shadow: none;
+    }
+
+    em {
+      color: $cursive-color !important;
+    }
+
+    strong,
+    code {
+      color: $text !important;
+    }
+  }
+}

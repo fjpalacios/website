@@ -1,1 +1,10 @@
-<meta http-equiv="refresh" content="0;url=/es/" />
+---
+// Detect browser language from Accept-Language header
+// If Spanish is detected -> /es/, otherwise -> /en/
+const acceptLanguage = Astro.request.headers.get("accept-language") || "";
+const isSpanish = acceptLanguage.toLowerCase().includes("es");
+const targetLang = isSpanish ? "es" : "en";
+
+// Server-side redirect (better for SEO and performance)
+return Astro.redirect(`/${targetLang}/`, 302);
+---

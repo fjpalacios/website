@@ -1,0 +1,212 @@
+---
+/**
+ * Tutorials Detail Page Template
+ * Displays a single tutorial with metadata and course relationship
+ *
+ * Used by: /en/tutorials/[slug]/ and /es/tutoriales/[slug]/
+ * Features: Breadcrumbs, course relationship, categories, cover image, schema.org
+ */
+
+import Breadcrumbs, { type BreadcrumbItem } from "@components/Breadcrumbs.astro";
+import CourseNavigation from "@components/CourseNavigation.astro";
+import Icon from "@components/Icon.astro";
+import OptimizedImage from "@components/OptimizedImage.astro";
+import PostTitle from "@components/PostTitle.astro";
+import Share from "@components/Share.astro";
+import Layout from "@layouts/Layout.astro";
+import { t } from "@locales";
+import { getTutorialCoverImage } from "@utils/imageImports";
+import { IMAGE_DIMENSIONS, RESPONSIVE_SIZES } from "@utils/images";
+import { buildCategoryUrl, buildCourseUrl, buildTutorialsIndexUrl } from "@utils/routes";
+import { getCollection, render, type CollectionEntry } from "astro:content";
+
+import type { ContactItem } from "@/types/content";
+import { findCategoriesBySlug } from "@/utils/blog";
+import { getCollectionByLanguage } from "@/utils/content/getCollectionByLanguage";
+
+interface Props {
+  lang: "en" | "es";
+  tutorialEntry: CollectionEntry<"tutorials">;
+  contact: ContactItem[];
+}
+
+const { lang, tutorialEntry, contact } = Astro.props;
+const tutorial = tutorialEntry.data;
+const { Content } = await render(tutorialEntry);
+
+// Get categories from taxonomy collection (filtered by language)
+const allCategories = await getCollectionByLanguage("categories", lang);
+const categories = findCategoriesBySlug(allCategories, tutorial.categories);
+
+// Cover image with fallback (returns ImageMetadata for optimization)
+const coverImage = getTutorialCoverImage(tutorial.cover);
+// Keep original path for meta tags (Layout expects string)
+const coverImagePath = tutorial.cover || "/images/defaults/tutorial-default.jpg";
+
+// Get course info if exists (filtered by language)
+const allCourses = tutorial.course ? await getCollectionByLanguage("courses", lang) : [];
+const course = tutorial.course ? allCourses.find((c) => c.data.course_slug === tutorial.course) : null;
+
+// Get course navigation (previous/next tutorials) if tutorial has order and belongs to a course
+let previousTutorial = null;
+let nextTutorial = null;
+
+if (tutorial.course && tutorial.order !== undefined) {
+  // Get all tutorials from the same course
+  const allTutorials = await getCollection("tutorials", (t) => {
+    return t.data.language === lang && t.data.course === tutorial.course && t.data.order !== undefined;
+  });
+
+  // Sort by order ascending
+  allTutorials.sort((a, b) => (a.data.order || 0) - (b.data.order || 0));
+
+  // Find previous tutorial (order - 1)
+  const prevTutorial = allTutorials.find((t) => t.data.order === tutorial.order! - 1);
+  if (prevTutorial) {
+    previousTutorial = {
+      title: prevTutorial.data.title,
+      slug: prevTutorial.data.post_slug,
+      order: prevTutorial.data.order!,
+    };
+  }
+
+  // Find next tutorial (order + 1)
+  const nextTut = allTutorials.find((t) => t.data.order === tutorial.order! + 1);
+  if (nextTut) {
+    nextTutorial = {
+      title: nextTut.data.title,
+      slug: nextTut.data.post_slug,
+      order: nextTut.data.order!,
+    };
+  }
+}
+
+// Build breadcrumbs
+const breadcrumbs: BreadcrumbItem[] = [
+  { label: t(lang, "pages.home"), url: `/${lang}` },
+  { label: t(lang, "pages.tutorials"), url: buildTutorialsIndexUrl(lang) },
+  { label: tutorial.title }, // Current page, no URL
+];
+
+// Share component data
+const baseUrl = t(lang, "metaData.url");
+const currentUrl = new URL(Astro.url.pathname, baseUrl).href;
+const twitterUsername = t(lang, "metaData.twitterUsername");
+
+// Build JSON-LD schema for tutorial article
+const categoryLabel = lang === "en" ? "Category" : "Categoría";
+const courseLabel = lang === "en" ? "Course" : "Curso";
+const tutorialSchema: Record<string, unknown> = {
+  "@context": "https://schema.org",
+  "@type": "TechArticle",
+  headline: tutorial.title,
+  description: tutorial.excerpt,
+  image: coverImagePath,
+  datePublished: tutorial.date.toISOString(),
+  author: {
+    "@type": "Person",
+    name: t(lang, "title"),
+  },
+  publisher: {
+    "@type": "Person",
+    name: t(lang, "title"),
+  },
+  inLanguage: lang,
+};
+
+// Add modified date if available
+if (tutorial.updated) {
+  tutorialSchema.dateModified = tutorial.updated.toISOString();
+}
+
+// Add course as part of series if available
+if (course) {
+  tutorialSchema.isPartOf = {
+    "@type": "CreativeWorkSeries",
+    name: course.data.name,
+  };
+}
+---
+
+<Layout
+  lang={lang}
+  title={tutorial.title}
+  description={tutorial.excerpt}
+  contact={contact}
+  translationSlug={tutorial.i18n}
+  image={coverImagePath}
+  type="article"
+  schema={tutorialSchema}
+>
+  <Breadcrumbs items={breadcrumbs} lang={lang} />
+  <main class="tutorial">
+    <section class="tutorial__content">
+      <div class="cover-image-wrapper">
+        <OptimizedImage
+          src={coverImage}
+          alt={tutorial.title}
+          width={IMAGE_DIMENSIONS.POST_COVER_MEDIUM.width}
+          height={IMAGE_DIMENSIONS.POST_COVER_MEDIUM.height}
+          sizes={RESPONSIVE_SIZES.FULL_WIDTH}
+          loading="eager"
+        />
+      </div>
+      <!-- Pagefind title meta -->
+      <span data-pagefind-meta="title" class="pagefind-meta">{tutorial.title}</span>
+      <PostTitle title={tutorial.title} date={tutorial.date} lang={lang} />
+      <div class="text-area">
+        <Content />
+      </div>
+    </section>
+
+    {
+      course && (
+        <section class="tutorial__info">
+          <Icon name="graduation-cap" size="md" class="tutorial__info__icon" />
+          <ul class="tutorial__info__text">
+            <li>
+              <a href={buildCourseUrl(lang, course.data.course_slug)} title={courseLabel}>
+                {course.data.name}
+              </a>
+            </li>
+          </ul>
+        </section>
+      )
+    }
+
+    <section class="tutorial__info">
+      <Icon name="folder" size="md" class="tutorial__info__icon" />
+      <ul class="tutorial__info__text">
+        {
+          categories.map((category) => (
+            <li>
+              <a
+                href={buildCategoryUrl(lang, category.data.category_slug)}
+                class="tutorial__info__text__item"
+                title={categoryLabel}
+              >
+                {category.data.name}
+              </a>
+            </li>
+          ))
+        }
+      </ul>
+    </section>
+
+    {
+      course && (previousTutorial || nextTutorial) && (
+        <CourseNavigation
+          previousTutorial={previousTutorial}
+          nextTutorial={nextTutorial}
+          lang={lang}
+          courseName={course.data.name}
+        />
+      )
+    }
+  </main>
+  <Share title={tutorial.title} url={currentUrl} lang={lang} twitterUsername={twitterUsername} />
+</Layout>
+
+<style lang="scss">
+  @use "@/styles/components/tutorial.scss";
+</style>

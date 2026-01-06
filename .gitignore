@@ -30,3 +30,12 @@ coverage/
 playwright-report/
 test-results/
 /playwright/.cache/
+
+# pagefind (generated, copied from dist/ for dev)
+/public/pagefind/
+
+# lighthouse (local development only)
+lighthouserc.json
+lighthouse-reports/
+.lighthouseci/
+lighthouse-baseline-report.txt

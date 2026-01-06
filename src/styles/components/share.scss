@@ -1,0 +1,7 @@
+@use "../variables";
+
+.share {
+  margin-top: 40px;
+  overflow: hidden;
+  border: 2px solid variables.$primary;
+}

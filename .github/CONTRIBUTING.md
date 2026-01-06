@@ -115,7 +115,7 @@ Follow [Conventional Commits](https://www.conventionalcommits.org/):
 [optional footer]
 ```
 
-### Types:
+### Types
 
 - `feat`: New feature
 - `fix`: Bug fix
@@ -127,7 +127,7 @@ Follow [Conventional Commits](https://www.conventionalcommits.org/):
 - `ci`: CI/CD changes
 - `perf`: Performance improvements
 
-### Examples:
+### Examples
 
 ```bash
 git commit -m "feat(auth): add login functionality"
@@ -233,9 +233,8 @@ For critical production issues:
 
 ## Getting Help
 
-- **Issues**: https://github.com/fjpalacios/website/issues
-- **Discussions**: https://github.com/fjpalacios/website/discussions
-- **Email**: (add your email if desired)
+- **Issues**: <https://github.com/fjpalacios/website/issues>
+- **Discussions**: <https://github.com/fjpalacios/website/discussions>
 
 ## Resources
 

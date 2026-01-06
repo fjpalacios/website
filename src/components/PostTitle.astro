@@ -1,0 +1,23 @@
+---
+import { getDefaultLanguageCode, type LanguageKey } from "@/config/languages";
+import { formatVintageDate } from "@/utils/dateFormat";
+
+interface Props {
+  title: string;
+  date: Date;
+  lang?: LanguageKey;
+  headingLevel?: "h1" | "h2" | "h3"; // Allow specifying heading level
+}
+
+const { title, date, lang = getDefaultLanguageCode(), headingLevel = "h1" } = Astro.props;
+const HeadingTag = headingLevel;
+
+const formattedDate = formatVintageDate(date, lang);
+---
+
+<div class="post-title">
+  <HeadingTag>{title}</HeadingTag>
+  <time datetime={formattedDate.datetime} aria-label={formattedDate.aria}>
+    {formattedDate.visual}
+  </time>
+</div>

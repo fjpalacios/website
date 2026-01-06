@@ -1,0 +1,52 @@
+---
+import { getFooterItems } from "@config/navigation";
+import { t } from "@locales";
+import { buildLocalizedPath } from "@utils/routes";
+
+interface Props {
+  lang: string;
+}
+
+const { lang } = Astro.props;
+
+// Get footer navigation items (excludes home, only shows items with content)
+const footerItems = await getFooterItems(lang);
+
+// Build items with URLs and labels
+const itemsWithUrls = footerItems.map((item) => ({
+  url: item.routeKey === "home" ? `/${lang}` : buildLocalizedPath(lang, item.routeKey),
+  label: t(lang, `pages.${item.id}`),
+  id: item.id,
+}));
+---
+
+<footer class="footer">
+  <div class="footer__container">
+    <!-- Navigation Links -->
+    <nav class="footer__nav" aria-label={t(lang, "footer.navigation")}>
+      <ul class="footer__links">
+        {
+          itemsWithUrls.map((item) => (
+            <li class="footer__link-item">
+              <a href={item.url} class="footer__link">
+                {item.label}
+              </a>
+            </li>
+          ))
+        }
+      </ul>
+    </nav>
+
+    <!-- Tech Stack / Built With -->
+    <div class="footer__meta">
+      <p class="footer__built-with">
+        {t(lang, "footer.builtWith")}
+        <a href="https://astro.build" class="footer__tech-link" rel="noopener noreferrer" target="_blank">Astro</a>
+      </p>
+    </div>
+  </div>
+</footer>
+
+<style lang="scss">
+  @use "../styles/components/footer";
+</style>

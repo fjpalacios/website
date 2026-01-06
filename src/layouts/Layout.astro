@@ -1,28 +1,59 @@
 ---
+import Footer from "@components/Footer.astro";
 import Header from "@components/Header.astro";
 import Menu from "@components/Menu.astro";
+import Search from "@components/Search.astro";
+import SEO from "@components/SEO.astro";
+import { TIMINGS } from "@config/timings";
 import { t } from "@locales";
 import type { ContactItem } from "@types/content";
 import { ViewTransitions } from "astro:transitions";
 
+import { getUrlSegment, type LanguageKey } from "@/config/languages";
+
 interface Props {
-  lang: string;
+  lang: LanguageKey;
   title?: string;
   description?: string;
   contact: ContactItem[];
+  translationSlug?: string; // Slug of the translated version (from i18n field)
+  hasTargetContent?: boolean; // Whether target language has content (for index pages)
+  shortTitle?: boolean; // Use short title without site name suffix (for taxonomy pages)
+  // SEO-specific props
+  image?: string;
+  type?: "website" | "article" | "book";
+  schema?: Record<string, unknown>;
+  // Pagination props for rel=prev/next
+  currentPage?: number;
+  totalPages?: number;
+  basePath?: string;
 }
 
-const { lang, title, description, contact } = Astro.props;
+const {
+  lang,
+  title,
+  description,
+  contact,
+  translationSlug,
+  hasTargetContent,
+  shortTitle = false,
+  image,
+  type = "website",
+  schema,
+  currentPage,
+  totalPages,
+  basePath,
+} = Astro.props;
 const currentPath = Astro.url.pathname;
 
 // Build full title: "Page Title - Name" or just "Name" for home
+// For taxonomy pages with shortTitle=true, use only the title without site name
 const fullName = t(lang, "title");
-const metaTitle = title ? `${title} - ${fullName}` : fullName;
+const metaTitle = shortTitle ? title || fullName : title ? `${title} - ${fullName}` : fullName;
 const metaDescription = description || t(lang, "metaData.description");
-const metaImage = t(lang, "metaData.image");
+const metaImage = image || t(lang, "metaData.image");
 // Build full URL with current path
 const baseUrl = t(lang, "metaData.url");
-const metaUrl = new URL(currentPath, baseUrl).href;
 ---
 
 <!doctype html>
@@ -31,29 +62,64 @@ const metaUrl = new URL(currentPath, baseUrl).href;
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="description" content={metaDescription} />
-    <meta property="og:title" content={metaTitle} />
-    <meta property="og:description" content={metaDescription} />
-    <meta property="og:image" content={metaImage} />
-    <meta property="og:url" content={metaUrl} />
-    <meta property="og:type" content="website" />
-    <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:title" content={metaTitle} />
-    <meta name="twitter:description" content={metaDescription} />
-    <meta name="twitter:image" content={metaImage} />
+
+    <!-- SEO Component: Open Graph, Twitter Cards, Canonical, Hreflang, JSON-LD -->
+    <SEO
+      title={metaTitle}
+      description={metaDescription}
+      image={metaImage}
+      type={type}
+      lang={lang}
+      translationSlug={translationSlug}
+      schema={schema}
+      currentPage={currentPage}
+      totalPages={totalPages}
+      basePath={basePath}
+    />
+
     <link rel="icon" type="image/x-icon" href="/favicon.ico" />
-    <link rel="stylesheet" href="/fontello/css/fontello.css" />
+
+    <!-- RSS Feeds - Autodiscovery -->
+    <link
+      rel="alternate"
+      type="application/rss+xml"
+      title={`${t(lang, "title")} - ${t(lang, "feeds.general")}`}
+      href={`/${lang}/rss.xml`}
+    />
+    <link
+      rel="alternate"
+      type="application/rss+xml"
+      title={`${t(lang, "title")} - ${t(lang, "feeds.books")}`}
+      href={`/${lang}/${getUrlSegment(lang, "books")}/rss.xml`}
+    />
+    <link
+      rel="alternate"
+      type="application/rss+xml"
+      title={`${t(lang, "title")} - ${t(lang, "feeds.tutorials")}`}
+      href={`/${lang}/${getUrlSegment(lang, "tutorials")}/rss.xml`}
+    />
+
     <ViewTransitions />
+    <style is:global lang="scss">
+      @use "../styles/main";
+    </style>
     <title>{metaTitle}</title>
+
+    <!-- Pagefind CSS (loaded on demand) -->
+    <!-- Pagefind JS will be loaded dynamically when search modal opens -->
+
     <script is:inline>
       // Prevent FOUC (Flash of Unstyled Content) by applying theme before render
+      // This must execute synchronously before body rendering
       (function () {
         const theme = localStorage.getItem("theme") || "dark";
+        // Apply to html immediately (already available)
         document.documentElement.classList.add(theme);
-        if (document.body) {
-          document.body.classList.add(theme);
-        }
+        // Also set a data attribute for CSS to use
+        document.documentElement.setAttribute("data-theme", theme);
       })();
     </script>
+    <!-- Person schema for site owner (site-wide, not page-specific) -->
     <script
       type="application/ld+json"
       set:html={JSON.stringify({
@@ -70,19 +136,146 @@ const metaUrl = new URL(currentPath, baseUrl).href;
         },
       })}
     />
-    <style is:global lang="scss">
-      @use "../styles/main";
-    </style>
   </head>
-  <body>
+  <body data-lang={lang}>
+    <script is:inline>
+      // Apply theme to body as soon as it's available (prevents FOUC)
+      (function () {
+        const theme = localStorage.getItem("theme") || "dark";
+        document.body.classList.add(theme);
+      })();
+    </script>
+    <!-- Screen reader announcements for code copy actions -->
+    <div id="code-copy-status" role="status" aria-live="polite" aria-atomic="true" class="sr-only"></div>
     <div class="layout-wrapper">
       <div class="container">
-        <Menu lang={lang} currentPath={currentPath} />
+        <Menu
+          lang={lang}
+          currentPath={currentPath}
+          translationSlug={translationSlug}
+          hasTargetContent={hasTargetContent}
+          data-pagefind-ignore
+        />
         <Header lang={lang} contact={contact} />
-        <div class="content">
+        <!-- Named slot for JSON-LD schemas (outside pagefind-body to avoid indexing) -->
+        <slot name="schema" />
+        <div class="content" data-pagefind-body>
           <slot />
         </div>
+        <!-- Footer Navigation -->
+        <Footer lang={lang} />
       </div>
     </div>
+    <!-- Search Modal (global, accessible from menu) -->
+    <Search lang={lang} />
+    <script
+      is:inline
+      set:html={`
+      // Store translations and timings in global scope
+      window.__CODE_BLOCK_I18N__ = { 
+        copyText: ${JSON.stringify(t(lang, "codeBlock.copy"))}, 
+        copiedText: ${JSON.stringify(t(lang, "codeBlock.copied"))} 
+      };
+      window.__CODE_BLOCK_TIMINGS__ = { 
+        copyFeedbackMs: ${TIMINGS.CODE_COPY_FEEDBACK_MS} 
+      };
+    `}
+    />
+    <script>
+      // Add copy buttons and language labels to Prism code blocks
+      (function () {
+        function setupCodeBlocks() {
+          const codeBlocks = document.querySelectorAll('pre[class*="language-"]');
+
+          // Get translations from global scope
+          const i18n = window.__CODE_BLOCK_I18N__ || { copyText: "Copy code", copiedText: "Copied" };
+          const timings = window.__CODE_BLOCK_TIMINGS__ || { copyFeedbackMs: 2000 };
+
+          codeBlocks.forEach((pre) => {
+            // Skip if already setup
+            if (pre.querySelector(".code-toolbar")) {
+              return;
+            }
+
+            try {
+              // Extract language from class
+              const languageClass = Array.from(pre.classList).find((cls) => cls.startsWith("language-"));
+              const language = languageClass ? languageClass.replace("language-", "") : "text";
+
+              // Create language label
+              const langLabel = document.createElement("span");
+              langLabel.className = "code-language-label";
+              langLabel.textContent = language;
+
+              // Create copy button
+              const button = document.createElement("button");
+              button.className = "code-copy-button";
+              button.setAttribute("aria-label", i18n.copyText);
+              button.setAttribute("type", "button");
+
+              // Lucide clipboard icon
+              button.innerHTML = `<svg class="code-copy-button__icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="8" height="4" x="8" y="2" rx="1" ry="1"/><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/></svg>`;
+
+              button.addEventListener("click", async () => {
+                const code = pre.querySelector("code");
+                if (!code) return;
+
+                try {
+                  await navigator.clipboard.writeText(code.textContent || "");
+                  // Lucide check icon
+                  button.innerHTML = `<svg class="code-copy-button__icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>`;
+                  button.classList.add("copied");
+
+                  // Announce to screen readers
+                  const statusEl = document.getElementById("code-copy-status");
+                  if (statusEl) {
+                    statusEl.textContent = i18n.copiedText;
+                  }
+
+                  setTimeout(() => {
+                    // Reset to clipboard icon
+                    button.innerHTML = `<svg class="code-copy-button__icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="8" height="4" x="8" y="2" rx="1" ry="1"/><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/></svg>`;
+                    button.classList.remove("copied");
+                    if (statusEl) {
+                      statusEl.textContent = "";
+                    }
+                  }, timings.copyFeedbackMs);
+                } catch (err) {
+                  if (import.meta.env.DEV) {
+                    console.error("Failed to copy code:", err);
+                  }
+                }
+              });
+
+              // Create toolbar container
+              const toolbar = document.createElement("div");
+              toolbar.className = "code-toolbar";
+
+              // Add elements to toolbar
+              toolbar.appendChild(langLabel);
+              toolbar.appendChild(button);
+
+              // Add toolbar to pre element
+              pre.style.position = "relative";
+              pre.appendChild(toolbar);
+            } catch (error) {
+              if (import.meta.env.DEV) {
+                console.error("Error setting up code block:", error);
+              }
+            }
+          });
+        }
+
+        // Run setup
+        if (document.readyState === "loading") {
+          document.addEventListener("DOMContentLoaded", setupCodeBlocks);
+        } else {
+          setupCodeBlocks();
+        }
+
+        // Run on Astro page transitions
+        document.addEventListener("astro:page-load", setupCodeBlocks);
+      })();
+    </script>
   </body>
 </html>

@@ -1,0 +1,57 @@
+---
+/**
+ * Rating Component
+ *
+ * Displays book ratings using SVG icons (stars for numeric scores, hearts for favorites).
+ * Provides consistent visual representation across all platforms.
+ *
+ * @component
+ * @param {number | "fav"} score - Numeric score (1-5) or "fav" for favorites
+ * @param {LanguageKey} lang - Language for aria-labels and text
+ * @param {boolean} [showText] - Whether to show text representation of score
+ * @param {"xs" | "sm" | "md" | "lg" | "xl"} [size] - Icon size variant
+ */
+
+import Icon from "@components/Icon.astro";
+
+import type { LanguageKey } from "@/types";
+
+import { t } from "../locales";
+import "@styles/components/rating.scss";
+
+interface Props {
+  score: number | "fav";
+  lang: LanguageKey;
+  showText?: boolean;
+  size?: "xs" | "sm" | "md" | "lg" | "xl";
+}
+
+const { score, lang, showText = false, size = "md" } = Astro.props;
+
+const isFavorite = score === "fav";
+const numericScore = isFavorite ? 5 : score;
+
+// Generate aria-label
+const ariaLabel = isFavorite
+  ? t(lang, "rating.favorite")
+  : t(lang, "rating.outOfFive", { score: numericScore.toString() });
+
+// Generate score text
+const scoreText = isFavorite ? t(lang, "rating.favoriteText") : `${numericScore}/5`;
+---
+
+<div class={`rating rating--${size} ${isFavorite ? "rating--favorite" : ""}`} role="img" aria-label={ariaLabel}>
+  <div class="rating__stars">
+    {
+      Array.from({ length: 5 }, (_, i) => {
+        const starIndex = i + 1;
+        const iconName = isFavorite ? "heart" : "star";
+        const isFilled = starIndex <= numericScore;
+        const iconClass = isFilled ? "rating__icon--filled" : "rating__icon--empty";
+
+        return <Icon name={iconName} class={`rating__icon ${iconClass}`} size={size} filled={isFilled} />;
+      })
+    }
+  </div>
+  {showText && <span class="rating__text">{scoreText}</span>}
+</div>

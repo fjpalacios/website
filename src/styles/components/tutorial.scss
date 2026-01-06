@@ -1,0 +1,49 @@
+@use "../mixins" as *;
+@use "../variables" as *;
+
+.tutorial {
+  @include content-detail-base;
+
+  &__content {
+    @include content-wrapper;
+
+    > .cover-image-wrapper {
+      @include cover-image-wrapper;
+    }
+
+    .text-area {
+      @include text-area-images;
+      @include text-area-headers;
+    }
+  }
+
+  &__info {
+    @include info-section;
+    margin-bottom: 10px;
+
+    &__text {
+      @include inline-list;
+
+      &__item {
+        text-transform: capitalize;
+      }
+
+      // Accessibility: Links should have permanent underline for consistency
+      a {
+        text-decoration: underline;
+        text-underline-offset: 2px;
+
+        &:hover,
+        &:focus {
+          text-decoration: underline;
+          text-decoration-thickness: 2px; // Thicker underline for visual feedback
+          text-decoration-color: $accent;
+        }
+      }
+    }
+  }
+}
+
+i {
+  @include icon-responsive;
+}

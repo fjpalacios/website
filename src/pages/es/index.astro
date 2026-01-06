@@ -1,18 +1,22 @@
 ---
 import BasicList from "@components/BasicList.astro";
 import LanguagesList from "@components/LanguagesList.astro";
+import LatestPosts from "@components/LatestPosts.astro";
 import TextArea from "@components/TextArea.astro";
 import Title from "@components/Title.astro";
-import { contact } from "@content/es/contact";
 import { resume } from "@content/es/resume";
 import Layout from "@layouts/Layout.astro";
 import { t } from "@locales";
+import { getContact } from "@utils/content/contact";
 
 const lang = "es";
+const contact = getContact(lang);
 ---
 
 <Layout lang={lang} contact={contact}>
   <main class="resume">
+    <h1 class="sr-only">{t(lang, "title")}</h1>
+    <LatestPosts limit={4} lang={lang} />
     <section class="resume__main-block">
       <Title title={t(lang, "resume.me")} />
       <TextArea text={resume.me} />

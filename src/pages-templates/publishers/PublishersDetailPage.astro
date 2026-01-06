@@ -1,0 +1,116 @@
+---
+/**
+ * Publishers Detail Page Template
+ * Phase 3: Unified i18n Routing System
+ *
+ * Displays individual publisher information with their books.
+ * Includes pagination if publisher has many books.
+ * Shows sidebar with all publishers for navigation.
+ *
+ * Used by the unified router for both EN and ES variants.
+ */
+
+import Breadcrumbs, { type BreadcrumbItem } from "@components/Breadcrumbs.astro";
+import Paginator from "@components/Paginator.astro";
+import PostList from "@components/PostList.astro";
+import TaxonomyList from "@components/TaxonomyList.astro";
+import Title from "@components/Title.astro";
+import Layout from "@layouts/Layout.astro";
+import { t } from "@locales";
+import { buildPublisherUrl, buildPublishersIndexUrl } from "@utils/routes";
+import type { CollectionEntry } from "astro:content";
+
+import type { ContactItem } from "@/types/content";
+import type { Language } from "@/utils/routes";
+import { generateItemListSchema } from "@/utils/schemas/itemList";
+
+interface Props {
+  lang: Language;
+  taxonomyItem: CollectionEntry<"publishers">;
+  content: Array<{
+    type: string;
+    title: string;
+    slug: string;
+    excerpt: string;
+    publishedAt: Date;
+  }>;
+  currentPage: number;
+  totalPages: number;
+  totalItems: number; // Total items across all pages
+  contact: ContactItem[];
+  hasTargetContent: boolean;
+  publishersWithCounts: Array<{
+    item: CollectionEntry<"publishers">;
+    count: number;
+  }>;
+}
+
+const {
+  lang,
+  taxonomyItem: publisher,
+  content,
+  currentPage,
+  totalPages,
+  totalItems,
+  contact,
+  hasTargetContent,
+  publishersWithCounts,
+} = Astro.props;
+
+const pageTitle = `${t(lang, "pages.publisher")}: ${publisher.data.name}`;
+const basePath = buildPublisherUrl(lang, publisher.data.publisher_slug);
+
+// SEO description
+const translationKey = totalItems === 1 ? "taxonomy.publisher.bookCount_one" : "taxonomy.publisher.bookCount_other";
+const description = t(lang, translationKey)
+  .replace("{{count}}", totalItems.toString())
+  .replace("{{name}}", publisher.data.name);
+
+// Build breadcrumbs
+const breadcrumbs: BreadcrumbItem[] = [
+  { label: t(lang, "pages.home"), url: `/${lang}` },
+  { label: t(lang, "pages.publishers"), url: buildPublishersIndexUrl(lang) },
+  { label: publisher.data.name }, // Current page, no URL
+];
+
+// Generate ItemList schema for SEO
+const itemListSchema = generateItemListSchema(
+  content.map((item) => {
+    const schemaType = item.type === "book" ? "Book" : item.type === "tutorial" ? "TechArticle" : "BlogPosting";
+    const routeKey = item.type === "book" ? "books" : item.type === "tutorial" ? "tutorials" : "posts";
+
+    return {
+      name: item.title,
+      url: `/${lang}/${t(lang, `routes.${routeKey}`)}/${item.slug}/`,
+      type: schemaType,
+      description: item.excerpt,
+    };
+  }),
+  Astro.site ? Astro.site.toString() : "https://fjp.es",
+);
+---
+
+<Layout lang={lang} title={pageTitle} description={description} contact={contact} hasTargetContent={hasTargetContent}>
+  <script slot="schema" type="application/ld+json" set:html={JSON.stringify(itemListSchema)} />
+
+  <Breadcrumbs items={breadcrumbs} lang={lang} />
+  <Title title={pageTitle} srOnly={true} useAsPagefindTitle={true} headingLevel="h1" />
+
+  <!-- Short indexable description for Pagefind -->
+  <p class="sr-only" aria-hidden="true">{description}</p>
+
+  <div data-pagefind-ignore>
+    <PostList posts={content} lang={lang} />
+  </div>
+
+  <Paginator currentPage={currentPage} totalPages={totalPages} basePath={basePath} lang={lang} />
+
+  <TaxonomyList
+    items={publishersWithCounts}
+    title={t(lang, "allPublishers")}
+    lang={lang}
+    routeKey="publishers"
+    slugField="publisher_slug"
+    showCount={true}
+  />
+</Layout>

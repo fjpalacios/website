@@ -1,0 +1,62 @@
+---
+/**
+ * Categories List Page Template
+ * Phase 3: Unified i18n Routing System
+ *
+ * Displays all categories with content counts, sorted alphabetically.
+ * Used by the unified router for both EN and ES variants.
+ */
+
+import TaxonomyList from "@components/TaxonomyList.astro";
+import Title from "@components/Title.astro";
+import Layout from "@layouts/Layout.astro";
+import { t } from "@locales";
+import type { CollectionEntry } from "astro:content";
+
+import type { ContactItem } from "@/types/content";
+import type { Language } from "@/utils/routes";
+
+interface Props {
+  lang: Language;
+  itemsWithContent: Array<{
+    item: CollectionEntry<"categories">;
+    count: number;
+  }>;
+  contact: ContactItem[];
+  hasTargetContent: boolean;
+}
+
+const { lang, itemsWithContent, contact, hasTargetContent } = Astro.props;
+
+const pageTitle = t(lang, "pages.categories");
+const pageDescription = t(lang, "allCategories");
+---
+
+<Layout
+  lang={lang}
+  title={pageTitle}
+  description={pageDescription}
+  contact={contact}
+  hasTargetContent={hasTargetContent}
+>
+  <Title title={pageTitle} icon="tag" />
+
+  <div data-pagefind-ignore>
+    {
+      itemsWithContent.length > 0 ? (
+        <TaxonomyList
+          items={itemsWithContent}
+          title={t(lang, "allCategories")}
+          lang={lang}
+          routeKey="categories"
+          slugField="category_slug"
+          showCount={true}
+        />
+      ) : (
+        <div class="empty-state">
+          <p>{t(lang, "emptyState.categories")}</p>
+        </div>
+      )
+    }
+  </div>
+</Layout>

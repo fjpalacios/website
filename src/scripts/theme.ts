@@ -26,12 +26,30 @@ export function getSavedTheme(): Theme {
   return DEFAULT_THEME;
 }
 
+export function updateThemeIcon(): void {
+  if (typeof document === "undefined") return;
+
+  // Icons are toggled via CSS based on html[data-theme] attribute
+  // No JavaScript manipulation needed, but we keep this function
+  // for potential future icon updates or animations
+}
+
 export function applyTheme(theme: Theme): void {
   if (typeof document === "undefined") return;
 
   const oldTheme = invertTheme(theme);
+
+  // Apply to both html and body to prevent FOUC
+  document.documentElement.classList.remove(oldTheme);
+  document.documentElement.classList.add(theme);
+
+  // Update data-theme attribute on html for CSS selectors
+  document.documentElement.setAttribute("data-theme", theme);
+
   document.body.classList.remove(oldTheme);
   document.body.classList.add(theme);
+
+  updateThemeIcon();
 }
 
 export function switchTheme(): void {
@@ -43,17 +61,31 @@ export function switchTheme(): void {
 }
 
 export function initTheme(): void {
+  // Guard: ensure we're in a browser environment
+  if (typeof document === "undefined" || !document.body) {
+    return;
+  }
+
   const theme = getSavedTheme();
-  applyTheme(theme);
+
+  // Check if theme class is explicitly set on body
+  const hasThemeClass = document.body.classList.contains("dark") || document.body.classList.contains("light");
+
+  // Apply theme if not explicitly set, or if it differs from saved theme
+  if (!hasThemeClass || getTheme() !== theme) {
+    applyTheme(theme);
+  } else {
+    // Theme is already applied, just update icon
+    updateThemeIcon();
+  }
 
   // Save default theme if not already saved
   if (typeof localStorage !== "undefined" && !localStorage.getItem(THEME_KEY)) {
     saveTheme(theme);
   }
 
-  const selector = document.getElementById("selector") as HTMLInputElement;
-  if (selector) {
-    selector.checked = theme === "dark";
-    selector.addEventListener("click", switchTheme);
+  const button = document.getElementById("theme-toggle");
+  if (button) {
+    button.addEventListener("click", switchTheme);
   }
 }

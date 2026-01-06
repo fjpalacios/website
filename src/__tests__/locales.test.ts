@@ -1,5 +1,6 @@
-import { getTranslations, t } from "@locales";
 import { describe, it, expect } from "vitest";
+
+import { getTranslations, t } from "@/locales";
 
 describe("Locales utilities", () => {
   describe("getTranslations", () => {

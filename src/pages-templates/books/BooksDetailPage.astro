@@ -1,0 +1,337 @@
+---
+/**
+ * Books Detail Page Template
+ * Reusable template for book detail pages
+ * Used by unified routing system
+ */
+
+/* eslint-disable import/order */
+
+import AuthorInfo from "@components/AuthorInfo.astro";
+import Breadcrumbs, { type BreadcrumbItem } from "@components/Breadcrumbs.astro";
+import Icon from "@components/Icon.astro";
+import OptimizedImage from "@components/OptimizedImage.astro";
+import PostTitle from "@components/PostTitle.astro";
+import Rating from "@components/Rating.astro";
+import SectionTitle from "@components/SectionTitle.astro";
+import Share from "@components/Share.astro";
+import Layout from "@layouts/Layout.astro";
+import { t } from "../../locales";
+import type { ContactItem } from "@types/content";
+import { getBookCoverImage } from "@utils/imageImports";
+import { IMAGE_DIMENSIONS } from "@utils/images";
+import { buildAuthorUrl, buildCategoryUrl, buildGenreUrl, buildPublisherUrl } from "@utils/routes";
+import { safeValidateProps, CommonSchemas } from "@utils/validation";
+import { render, type CollectionEntry } from "astro:content";
+import { z } from "zod";
+
+interface Props {
+  bookEntry: CollectionEntry<"books">;
+  lang: string;
+  contact: ContactItem[];
+  hasTargetContent: boolean;
+}
+
+// Validate Props at runtime
+const PropsSchema = z.object({
+  bookEntry: z.any(), // CollectionEntry is complex, skip for now
+  lang: CommonSchemas.language,
+  contact: z.array(z.any()),
+  hasTargetContent: z.boolean(),
+});
+
+const validatedProps = safeValidateProps(
+  PropsSchema,
+  Astro.props,
+  {
+    bookEntry: Astro.props.bookEntry,
+    lang: "es" as const,
+    contact: Astro.props.contact || [],
+    hasTargetContent: false,
+  },
+  "BooksDetailPage",
+);
+
+const { bookEntry, lang, contact, hasTargetContent } = validatedProps;
+const book = bookEntry.data;
+const { Content } = await render(bookEntry);
+
+// Get related data from props (already loaded in getStaticPaths)
+// We need to reload them here because Astro components can't access arbitrary props
+import {
+  findAuthorBySlug,
+  findPublisherBySlug,
+  findGenresBySlug,
+  findCategoriesBySlug,
+  findSeriesBySlug,
+} from "@/utils/blog";
+import { buildBooksIndexUrl, buildSeriesUrl } from "@/utils/routes";
+import { getAllFromCollection, getCollectionByLanguage } from "@/utils/content/getCollectionByLanguage";
+
+const allAuthors = await getAllFromCollection("authors");
+const allPublishers = await getCollectionByLanguage("publishers", lang);
+const allGenres = await getCollectionByLanguage("genres", lang);
+const allCategories = await getCollectionByLanguage("categories", lang);
+const allSeries = await getCollectionByLanguage("series", lang);
+
+const author = findAuthorBySlug(allAuthors, book.author, lang);
+const publisher = book.publisher ? findPublisherBySlug(allPublishers, book.publisher) : null;
+const genres = findGenresBySlug(allGenres, book.genres);
+const categories = findCategoriesBySlug(allCategories, book.categories);
+const series = book.series ? findSeriesBySlug(allSeries, book.series) : null;
+
+// Get optimized book cover image
+const bookCoverImage = getBookCoverImage(book.book_cover || book.cover, lang);
+
+// Runtime validation schemas
+const BuyLinkSchema = z.object({
+  type: z.enum(["paper", "ebook", "audiobook"]),
+  link: z.string().url(),
+});
+
+const BuyLinksArraySchema = z.array(BuyLinkSchema);
+
+// Validate buy links with runtime checking
+const typedBuyLinks = safeValidateProps(BuyLinksArraySchema, book.buy || [], [], "BooksDetailPage.buyLinks");
+
+// Categories and genres are already properly typed from findBySlug functions
+// No need for type assertions - they return the correct CollectionEntry types
+const typedCategories = categories;
+const typedGenres = genres;
+
+const authorWithGender =
+  author?.data.gender === "male"
+    ? lang === "en"
+      ? "The author"
+      : "El autor"
+    : lang === "en"
+      ? "The author"
+      : "La autora";
+
+// Build breadcrumbs
+const breadcrumbs: BreadcrumbItem[] = [
+  { label: t(lang, "pages.home"), url: `/${lang}` },
+  { label: t(lang, "pages.books"), url: buildBooksIndexUrl(lang) },
+  { label: book.title },
+];
+
+// Share component data
+const baseUrl = t(lang, "metaData.url");
+const currentUrl = new URL(Astro.url.pathname, baseUrl).href;
+const twitterUsername = t(lang, "metaData.twitterUsername");
+
+// Build JSON-LD schema for book
+const bookSchema: Record<string, unknown> = {
+  "@context": "https://schema.org",
+  "@type": "Book",
+  name: book.title,
+  author: {
+    "@type": "Person",
+    name: author?.data.name || book.author,
+  },
+  inLanguage: lang,
+  review: {
+    "@type": "Review",
+    reviewRating: {
+      "@type": "Rating",
+      ratingValue: book.score === "fav" ? 5 : book.score,
+      bestRating: 5,
+    },
+    author: {
+      "@type": "Person",
+      name: t(lang, "title"),
+    },
+    datePublished: book.date.toISOString(),
+  },
+};
+
+if (book.isbn) bookSchema.isbn = book.isbn;
+if (book.pages) bookSchema.numberOfPages = book.pages;
+if (publisher) {
+  bookSchema.publisher = {
+    "@type": "Organization",
+    name: publisher.data.name,
+  };
+}
+
+// Translations
+const pagesLabel = t(lang, "bookDetail.pages");
+const buyLabel = t(lang, "bookDetail.buy");
+const publisherLabel = lang === "en" ? "Publisher" : "Editorial";
+const bookDetailsLabel = t(lang, "bookDetail.details");
+const synopsisLabel = t(lang, "bookDetail.synopsis");
+const reviewLabel = lang === "en" ? "Review" : "Reseña";
+const paperbackLabel = t(lang, "bookDetail.paperback");
+const ebookLabel = t(lang, "bookDetail.ebook");
+const audiobookLabel = t(lang, "bookDetail.audiobook");
+const categoryLabel = lang === "en" ? "Category" : "Categoría";
+const genreLabel = lang === "en" ? "Genre" : "Género";
+---
+
+<Layout
+  lang={lang}
+  title={`${book.title} - ${t(lang, "book.review")}`}
+  contact={contact}
+  translationSlug={book.i18n}
+  image={book.book_cover || book.cover}
+  type="book"
+  schema={bookSchema}
+  hasTargetContent={hasTargetContent}
+>
+  <Breadcrumbs items={breadcrumbs} lang={lang} />
+  <main class="book">
+    <section class="book__content">
+      <div class="book__content__cover">
+        <OptimizedImage
+          src={bookCoverImage}
+          alt={book.title}
+          width={IMAGE_DIMENSIONS.BOOK_COVER_SMALL.width}
+          height={IMAGE_DIMENSIONS.BOOK_COVER_SMALL.height}
+          loading="eager"
+        />
+        <Rating score={book.score} lang={lang} size="sm" />
+      </div>
+      <div class="book__content__content">
+        <!-- Pagefind title meta -->
+        <span data-pagefind-meta="title" class="pagefind-meta">{book.title}</span>
+        <PostTitle title={book.title} date={book.date} lang={lang} />
+        <div class="book__content__content__data">
+          <div class="book__content__content__data_pages">
+            <strong>{pagesLabel}</strong>: {book.pages}
+          </div>
+          <div class="book__content__content__data__isbn">
+            {
+              book.isbn ? (
+                <>
+                  <strong>ISBN</strong>: {book.isbn}
+                </>
+              ) : book.asin ? (
+                <>
+                  <strong>ASIN</strong>: {book.asin}
+                </>
+              ) : null
+            }
+          </div>
+          {
+            typedBuyLinks.length > 0 && (
+              <div class="book__content__content__data__buy">
+                <strong>{buyLabel}</strong>:
+                <ul>
+                  {typedBuyLinks.map((buyLink) => (
+                    <li>
+                      <a href={buyLink.link} target="_blank" rel="nofollow">
+                        {buyLink.type === "paper"
+                          ? paperbackLabel
+                          : buyLink.type === "ebook"
+                            ? ebookLabel
+                            : audiobookLabel}
+                      </a>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )
+          }
+          {
+            publisher && (
+              <div class="book__content__content__data__publisher">
+                <strong>{publisherLabel}</strong>:
+                <ul>
+                  <li>
+                    <a href={buildPublisherUrl(lang, publisher.data.publisher_slug)}>{publisher.data.name}</a>
+                  </li>
+                  {book.book_card && (
+                    <li>
+                      <a href={book.book_card} target="_blank" rel="nofollow">
+                        {bookDetailsLabel}
+                      </a>
+                    </li>
+                  )}
+                </ul>
+              </div>
+            )
+          }
+        </div>
+        <SectionTitle title={synopsisLabel} />
+        <div class="text-area">
+          <p>{book.synopsis}</p>
+        </div>
+        <div data-pagefind-ignore>
+          {author && <SectionTitle title={authorWithGender} />}
+          {author && <AuthorInfo author={author} border={false} />}
+        </div>
+        <SectionTitle title={reviewLabel} />
+        <div class="text-area">
+          <Content />
+        </div>
+      </div>
+    </section>
+    <section class="book__info" data-pagefind-ignore>
+      <Icon name="book" size="md" class="book__info__icon" />
+      <ul class="book__info__text">
+        {
+          author && (
+            <li>
+              <a href={buildAuthorUrl(lang, author.data.author_slug)} title={authorWithGender}>
+                {author.data.name}
+              </a>
+            </li>
+          )
+        }
+        {
+          publisher && (
+            <li>
+              <a href={buildPublisherUrl(lang, publisher.data.publisher_slug)} title={publisherLabel}>
+                {publisher.data.name}
+              </a>
+            </li>
+          )
+        }
+        {
+          series && book.series_order && (
+            <li>
+              <a href={buildSeriesUrl(lang, series.data.series_slug)}>
+                {series.data.name} ({book.series_order})
+              </a>
+            </li>
+          )
+        }
+      </ul>
+    </section>
+    <section class="book__info" data-pagefind-ignore>
+      <Icon name="folder" size="md" class="book__info__icon" />
+      <ul class="book__info__text">
+        {
+          typedCategories.map((category) => (
+            <li>
+              <a
+                href={buildCategoryUrl(lang, category.data.category_slug)}
+                class="book__info__text__item"
+                title={categoryLabel}
+              >
+                {category.data.name}
+              </a>
+            </li>
+          ))
+        }
+      </ul>
+    </section>
+    {
+      typedGenres.length > 0 && (
+        <section class="book__info" data-pagefind-ignore>
+          <Icon name="bookmark" size="md" class="book__info__icon" />
+          <ul class="book__info__text">
+            {typedGenres.map((genre) => (
+              <li>
+                <a href={buildGenreUrl(lang, genre.data.genre_slug)} title={genreLabel}>
+                  {genre.data.name}
+                </a>
+              </li>
+            ))}
+          </ul>
+        </section>
+      )
+    }
+  </main>
+  <Share title={book.title} url={currentUrl} lang={lang} twitterUsername={twitterUsername} />
+</Layout>

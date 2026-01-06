@@ -1,0 +1,76 @@
+---
+/**
+ * Tutorials Pagination Page Template
+ * Displays paginated tutorials list (page 2+)
+ *
+ * Used by: /en/tutorials/page/[N]/ and /es/tutoriales/pagina/[N]/
+ * Features: Pagination navigation
+ */
+
+import Paginator from "@components/Paginator.astro";
+import PostList from "@components/PostList.astro";
+import Title from "@components/Title.astro";
+import Layout from "@layouts/Layout.astro";
+import { t } from "@locales";
+
+import type { ContactItem } from "@/types/content";
+import type { TutorialSummary } from "@/utils/blog";
+
+interface Props {
+  lang: "en" | "es";
+  tutorials: TutorialSummary[];
+  currentPage: number;
+  totalPages: number;
+  contact: ContactItem[];
+}
+
+const { lang, tutorials, currentPage, totalPages, contact } = Astro.props;
+
+// Add page number to title and description for SEO
+const baseTitle = "📚 " + t(lang, "pages.tutorials");
+const pageNumberText = lang === "en" ? `Page ${currentPage}` : `Página ${currentPage}`;
+const pageTitle = `${baseTitle} - ${pageNumberText}`;
+const baseDescription = lang === "en" ? "Web development tutorials and guides" : "Tutoriales y guías de desarrollo web";
+const pageDescription = `${baseDescription} - ${lang === "en" ? `page ${currentPage}` : `página ${currentPage}`}`;
+
+// Build base path for pagination
+const basePath = `/${lang}/${t(lang, "routes.tutorials")}`;
+---
+
+<Layout
+  lang={lang}
+  title={pageTitle}
+  description={pageDescription}
+  contact={contact}
+  currentPage={currentPage}
+  totalPages={totalPages}
+  basePath={basePath}
+>
+  <Title title={pageTitle} />
+
+  {
+    tutorials.length > 0 ? (
+      <div data-pagefind-ignore>
+        <PostList posts={tutorials} lang={lang} showOrderBadges={true} />
+      </div>
+    ) : (
+      <div class="empty-state">
+        <p>{t(lang, "emptyState.tutorials")}</p>
+      </div>
+    )
+  }
+
+  <Paginator currentPage={currentPage} totalPages={totalPages} basePath={basePath} lang={lang} />
+</Layout>
+
+<style lang="scss">
+  @use "@/styles/mixins" as *;
+  @use "@/styles/variables" as *;
+
+  .empty-state {
+    grid-column: span 12;
+    text-align: center;
+    padding: 4rem 2rem;
+    color: $cursive-color;
+  }
+</style>

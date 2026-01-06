@@ -1,0 +1,52 @@
+@use "../mixins" as *;
+@use "../variables" as *;
+
+.post {
+  @include content-detail-base;
+
+  &__content {
+    @include content-wrapper;
+
+    > .cover-image-wrapper {
+      @include cover-image-wrapper;
+    }
+
+    .text-area {
+      @include text-area-images;
+      @include text-area-headers;
+      @include blockquote-style;
+    }
+  }
+
+  &__info {
+    @include info-section;
+
+    &__text {
+      @include inline-list;
+
+      &__item {
+        text-transform: capitalize;
+      }
+
+      // Accessibility: Links should have permanent underline for consistency
+      a {
+        text-decoration: underline;
+        text-underline-offset: 2px;
+
+        &:hover,
+        &:focus {
+          text-decoration: underline;
+          text-decoration-thickness: 2px; // Thicker underline for visual feedback
+          text-decoration-color: $accent;
+        }
+      }
+    }
+  }
+}
+
+i {
+  @include icon-responsive;
+}
+
+// Blockquote adjustments for light theme
+@include blockquote-light-theme(".text-area blockquote");

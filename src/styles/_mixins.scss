@@ -1,29 +1,37 @@
+// Responsive breakpoint mixins
+// Mobile-first approach with breakpoints matching the original design
+//
+// Usage:
+// @include small-and-up { /* styles for >= 768px */ }
+// @include medium-and-up { /* styles for >= 1024px */ }
+@use "./variables" as *;
+
 @mixin small {
-  @media only screen and (min-width: 768px) and (max-width: 991px) {
+  @media only screen and (min-width: $breakpoint-small) and (max-width: $breakpoint-small-max) {
     @content;
   }
 }
 
 @mixin small-and-up {
-  @media only screen and (min-width: 768px) {
+  @media only screen and (min-width: $breakpoint-small) {
     @content;
   }
 }
 
 @mixin medium {
-  @media only screen and (min-width: 992px) and (max-width: 1199px) {
+  @media only screen and (min-width: $breakpoint-medium) and (max-width: $breakpoint-medium-max) {
     @content;
   }
 }
 
 @mixin medium-and-up {
-  @media only screen and (min-width: 992px) {
+  @media only screen and (min-width: $breakpoint-medium) {
     @content;
   }
 }
 
 @mixin large {
-  @media only screen and (min-width: 1200px) {
+  @media only screen and (min-width: $breakpoint-large) {
     @content;
   }
 }
@@ -37,5 +45,229 @@
 @mixin screen {
   @media only screen {
     @content;
+  }
+}
+
+// Content Detail Mixins
+// =====================
+// Shared styles for content detail pages (post, tutorial, book)
+//
+// These mixins eliminate code duplication and ensure consistency across
+// different content types. When creating a new content detail page, use
+// these mixins as building blocks.
+//
+// Example usage:
+//   .new-content-type {
+//     @include content-detail-base;
+//
+//     &__content {
+//       @include content-wrapper;
+//
+//       .text-area {
+//         @include text-area-images;
+//         @include blockquote-style;
+//       }
+//     }
+//   }
+
+// Base layout for content detail pages (post, tutorial, book)
+@mixin content-detail-base {
+  display: grid;
+  grid-column: span 6;
+}
+
+// Cover image wrapper with aspect ratio 1840x720
+// Used in: post, tutorial
+// Note: book uses a different layout with book cover on the side
+@mixin cover-image-wrapper {
+  position: relative;
+  width: 100%;
+  padding-bottom: 39.13%; // Aspect ratio of 1840x720 (720/1840 * 100)
+  overflow: hidden;
+
+  > img {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center;
+  }
+}
+
+// Content wrapper with primary border
+// Used in: post, tutorial
+// Note: book applies border differently due to custom layout
+@mixin content-wrapper {
+  margin-bottom: 20px;
+  overflow: hidden;
+  border: 2px solid $primary;
+}
+
+// Images inside text-area (full width bleed effect)
+// Makes images extend beyond content padding for visual impact
+// Used in: post, tutorial, book
+@mixin text-area-images {
+  img {
+    width: calc(100% + 40px) !important;
+    margin: 0 -20px !important;
+  }
+}
+
+// Headers inside text-area with bottom border
+// Used in: post, tutorial
+// Note: book uses custom h4 styling with gradient background
+@mixin text-area-headers {
+  h2,
+  h3 {
+    margin: 2em 0 0.7em;
+    padding-bottom: 0.3em;
+    border-bottom: 1px solid $text;
+    font-size: 1em;
+  }
+}
+
+// Blockquote styling with decorative opening quote
+// Used in: post, book
+// Note: tutorial doesn't typically include quotes
+// Always pair with @include blockquote-light-theme() for theme support
+@mixin blockquote-style {
+  blockquote {
+    font-style: normal;
+    margin: 0.25em 0 20px 0;
+    padding: 0.25em 40px;
+    line-height: 1.45;
+    position: relative;
+    border: none;
+    color: $gray-light;
+    display: flow-root;
+
+    &::before {
+      content: "\201C";
+      display: block;
+      position: absolute;
+      left: 0;
+      top: -15px;
+      font-size: 80px;
+      font-style: italic;
+      font-family: Georgia, serif;
+      color: $gray-medium;
+    }
+
+    p {
+      margin: 0;
+      padding: 1vh 0 0 2vh;
+      text-align: left;
+    }
+
+    cite {
+      display: block;
+      margin-top: -7px;
+      color: $gray-light;
+      font-style: normal;
+      text-align: right;
+    }
+  }
+}
+
+// Blockquote light theme adjustments
+// Provides proper contrast for blockquotes in light theme
+// Parameters:
+//   $selector: The CSS selector path to the blockquote element
+// Example: @include blockquote-light-theme(".text-area blockquote");
+@mixin blockquote-light-theme($selector) {
+  body.light #{$selector} {
+    color: $gray-medium;
+
+    &::before {
+      color: $gray-medium;
+    }
+
+    cite {
+      color: $gray-light;
+    }
+  }
+}
+
+// Info section layout (icon + text metadata)
+// Creates a grid with icon column (20px) and text content
+// Used in: post, tutorial, book (for category, genre, etc.)
+@mixin info-section {
+  display: grid;
+  grid-template-columns: 20px 1fr;
+  align-content: center;
+  padding: 0 20px;
+  column-gap: 1vw;
+}
+
+// Inline list items for metadata display
+// Removes default list styling and displays items horizontally
+// Used in: post, tutorial, book (for categories, genres, etc.)
+@mixin inline-list {
+  margin: 0;
+  padding-left: 0;
+  list-style: none;
+
+  li {
+    display: inline-block;
+    padding-right: 1vw;
+  }
+}
+
+// Responsive icon sizing
+// Reduces icon size on larger screens for better proportions
+// Used in: post, tutorial, book
+@mixin icon-responsive {
+  font-size: 1em;
+
+  @include medium-and-up {
+    font-size: 0.8em;
+  }
+}
+
+// Content List Mixins
+// ===================
+// Shared styles for list pages (book-list, tutorial-list)
+
+// Responsive grid for content cards
+// Creates a 1-column layout on mobile, 2 on tablet, 3 on desktop
+// Used in: book-list, tutorial-list
+@mixin content-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 2rem;
+
+  @include small-and-up {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  @include medium-and-up {
+    grid-template-columns: repeat(3, 1fr);
+  }
+
+  @include large {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+// Empty state styling for when no content is available
+// Used in: book-list
+@mixin empty-state {
+  text-align: center;
+  padding: 4rem 2rem;
+  background: $primary;
+  border-radius: 12px;
+
+  &-title {
+    color: $text;
+    font-size: 1.5rem;
+    margin-bottom: 1rem;
+    opacity: 0.6;
+  }
+
+  &-text {
+    color: $text;
+    opacity: 0.4;
   }
 }

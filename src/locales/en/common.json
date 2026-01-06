@@ -10,7 +10,8 @@
   "menu": {
     "toEnglish": "Switch to English language",
     "toSpanish": "Switch to Spanish language",
-    "switchTheme": "Switch Theme"
+    "switchTheme": "Switch Theme",
+    "search": "Search"
   },
   "resume": {
     "me": "About me",
@@ -23,10 +24,203 @@
   },
   "pages": {
     "home": "Home",
-    "about": "About me"
+    "about": "About me",
+    "posts": "Posts",
+    "tutorials": "Tutorials",
+    "books": "Books",
+    "feeds": "RSS",
+    "categories": "Categories",
+    "category": "Category",
+    "genres": "Genres",
+    "genre": "Genre",
+    "publishers": "Publishers",
+    "publisher": "Publisher",
+    "series": "Series",
+    "serie": "Serie",
+    "challenges": "Challenges",
+    "challenge": "Challenge",
+    "authors": "Authors",
+    "author": "Author",
+    "authorMale": "Author",
+    "authorFemale": "Author",
+    "courses": "Courses",
+    "course": "Course"
+  },
+  "routes": {
+    "posts": "posts",
+    "tutorials": "tutorials",
+    "books": "books",
+    "feeds": "feeds",
+    "categories": "categories",
+    "genres": "genres",
+    "publishers": "publishers",
+    "series": "series",
+    "challenges": "challenges",
+    "authors": "authors",
+    "author": "author",
+    "courses": "courses",
+    "about": "about"
   },
   "about": {
     "me": "About me",
     "internet": "Internet"
+  },
+  "pagination": {
+    "page": "Page",
+    "of": "of",
+    "next": "Next »",
+    "prev": "« Previous"
+  },
+  "allCategories": "All categories",
+  "allGenres": "All genres",
+  "allPublishers": "All publishers",
+  "allSeries": "All series",
+  "allChallenges": "All challenges",
+  "allAuthors": "All authors",
+  "allCourses": "All courses",
+  "latestBlogPosts": "Latest Blog Posts",
+  "viewAllPosts": "View all posts",
+  "categories": {
+    "books": "Books",
+    "tutorials": "Tutorials",
+    "development": "Development"
+  },
+  "emptyState": {
+    "books": "No books available at the moment. Check back soon!",
+    "posts": "No posts available at the moment. Check back soon!",
+    "tutorials": "No tutorials available at the moment. Check back soon!",
+    "categories": "No categories available at the moment.",
+    "genres": "No genres available at the moment.",
+    "publishers": "No publishers available at the moment.",
+    "series": "No series available at the moment.",
+    "challenges": "No challenges available at the moment.",
+    "authors": "No authors available at the moment.",
+    "courses": "No courses available at the moment."
+  },
+  "codeBlock": {
+    "copy": "Copy code",
+    "copied": "Copied"
+  },
+  "book": {
+    "spoilerAlert": "Spoiler alert",
+    "review": "Book Review"
+  },
+  "taxonomy": {
+    "author": {
+      "bookCount_one": "{{count}} book by {{name}} reviewed on the blog",
+      "bookCount_other": "{{count}} books by {{name}} reviewed on the blog"
+    },
+    "category": {
+      "itemCount_one": "{{count}} item in this category",
+      "itemCount_other": "{{count}} items in this category"
+    },
+    "genre": {
+      "bookCount_one": "{{count}} book in this genre",
+      "bookCount_other": "{{count}} books in this genre"
+    },
+    "publisher": {
+      "bookCount_one": "{{count}} book from this publisher",
+      "bookCount_other": "{{count}} books from this publisher"
+    },
+    "series": {
+      "bookCount_one": "{{count}} book in this series",
+      "bookCount_other": "{{count}} books in this series"
+    },
+    "challenge": {
+      "bookCount_one": "{{count}} book in this challenge",
+      "bookCount_other": "{{count}} books in this challenge"
+    },
+    "course": {
+      "tutorialCount_one": "{{count}} tutorial in this course",
+      "tutorialCount_other": "{{count}} tutorials in this course"
+    }
+  },
+  "courseNavigation": {
+    "previous": "Previous tutorial",
+    "next": "Next tutorial",
+    "continue": "Continue learning"
+  },
+  "feeds": {
+    "title": "RSS Feeds",
+    "description": "Subscribe to our RSS feeds to receive the latest updates",
+    "general": "General Feed",
+    "generalDescription": "All content published on the site",
+    "books": "Books Feed",
+    "booksDescription": "Reviews and opinions about books from various genres",
+    "tutorials": "Tutorials Feed",
+    "tutorialsDescription": "Tutorials about programming and software development",
+    "whatIsRss": "What is RSS?",
+    "whatIsRssDescription": "RSS is a technology that allows you to subscribe to websites and receive updates automatically. You can use readers like Feedly, Inoreader or NewsBlur to manage your subscriptions.",
+    "subscribeButton": "Subscribe"
+  },
+  "footer": {
+    "navigation": "Site navigation",
+    "allRightsReserved": "All rights reserved",
+    "builtWith": "Built with"
+  },
+  "search": {
+    "modalTitle": "Search the site",
+    "closeButton": "Close search",
+    "placeholder": "Search the blog...",
+    "clearButton": "Clear",
+    "loadMore": "Load more results",
+    "label": "Search this site",
+    "filters": "Filters",
+    "noResults": "No results for",
+    "manyResults": "{{count}} results",
+    "oneResult": "{{count}} result",
+    "searching": "Searching..."
+  },
+  "paginator": {
+    "prev": "« Previous",
+    "next": "Next »",
+    "page": "Page",
+    "of": "of",
+    "ariaLabel": "Pagination",
+    "firstPage": "First page",
+    "previousPage": "Previous page",
+    "nextPage": "Next page",
+    "lastPage": "Last page",
+    "pageNumber": "Page {{number}}",
+    "pageLowercase": "page"
+  },
+  "rating": {
+    "favorite": "Rated as favorite",
+    "outOfFive": "Rated {{score}} out of 5 stars",
+    "favoriteText": "Favorite"
+  },
+  "badges": {
+    "course": "Course: {{name}}",
+    "series": "Series: {{name}}",
+    "tutorialOrder": "Tutorial {{order}}"
+  },
+  "breadcrumbs": {
+    "ariaLabel": "breadcrumb"
+  },
+  "share": {
+    "title": "Get Involved"
+  },
+  "bookDetail": {
+    "pages": "Pages",
+    "buy": "Buy",
+    "details": "Book details",
+    "synopsis": "Synopsis",
+    "paperback": "Paperback",
+    "ebook": "eBook",
+    "audiobook": "Audiobook"
+  },
+  "pageDescriptions": {
+    "books": "Book reviews",
+    "tutorials": "Web development tutorials and guides",
+    "posts": "Articles, tutorials and book reviews",
+    "postsShort": "Articles and tutorials about web development"
+  },
+  "rss": {
+    "mainTitle": "fjp.es - Blog (All Languages)",
+    "mainDescription": "Personal blog about books, programming and technology",
+    "booksTitle": "fjp.es - Book Reviews",
+    "booksDescription": "Reviews and opinions about fiction, horror, thriller and more",
+    "tutorialsTitle": "fjp.es - Programming Tutorials",
+    "tutorialsDescription": "Tutorials about JavaScript, Git, web development and more"
   }
 }

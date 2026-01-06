@@ -1,0 +1,151 @@
+@use "@/styles/mixins" as *;
+@use "@/styles/variables" as *;
+
+.feeds-page {
+  grid-column: span 12;
+
+  &__section {
+    margin-bottom: 40px;
+    overflow: hidden;
+    transition: all 0.45s ease;
+    border: 2px solid $primary;
+    break-inside: avoid;
+
+    @include print {
+      margin-bottom: 10px;
+    }
+  }
+}
+
+// Global styles for feed items inside TextArea component (legacy support)
+// AND new .feeds-list container
+// Note: :global() is required because HTML is dynamically injected via TextArea
+:global(.text-area),
+.feeds-page .feeds-list {
+  :global(.feed-item),
+  .feed-item {
+    padding-bottom: 20px;
+    margin-bottom: 20px;
+    border-bottom: 1px solid $primary;
+
+    &:last-child {
+      border-bottom: none;
+      margin-bottom: 0;
+      padding-bottom: 0;
+    }
+
+    :global(.feed-item__header),
+    .feed-item__header {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+      margin-bottom: 15px;
+    }
+
+    :global(.feed-item__icon),
+    .feed-item__icon {
+      // For emoji (legacy)
+      font-size: 2.5em;
+      line-height: 1;
+
+      // For SVG icons (new)
+      width: 2rem;
+      height: 2rem;
+      flex-shrink: 0;
+      color: $accent;
+    }
+
+    :global(.feed-item__title),
+    .feed-item__title {
+      margin: 0;
+      padding: 0;
+      color: $text; // Use text color instead of accent to avoid confusion with links
+      font-size: 1.3em;
+      font-weight: 600;
+      text-transform: uppercase;
+    }
+
+    :global(.feed-item__description),
+    .feed-item__description {
+      margin: 0 0 15px 0;
+      padding: 0;
+      color: $cursive-color;
+      line-height: 1.7;
+      text-align: justify;
+      text-justify: inter-word;
+    }
+
+    :global(.feed-item__link),
+    .feed-item__link {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 20px;
+      background-color: $primary;
+      color: $text;
+      text-decoration: none;
+      text-transform: uppercase;
+      font-size: 0.9em;
+      font-weight: 600;
+      letter-spacing: 0.5px;
+      transition: all 0.3s ease;
+      border: 2px solid $primary;
+
+      // Light theme needs better contrast
+      :global(body.light) & {
+        background-color: $primary;
+        color: $gray-lighter; // 12.46:1 contrast on #071013
+        border-color: $primary;
+      }
+
+      &:hover {
+        background-color: $accent;
+        border-color: $accent;
+        color: $background;
+
+        // Light theme hover: white text on accent color
+        :global(body.light) & {
+          color: $code-syntax-white; // White on accent (#0c7298) = 4.67:1 contrast
+        }
+      }
+
+      &:focus {
+        outline: 2px solid $accent;
+        outline-offset: 2px;
+      }
+    }
+
+    :global(.feed-item__icon-rss),
+    .feed-item__icon-rss {
+      width: 14px;
+      height: 14px;
+    }
+  }
+}
+
+@media (max-width: 768px) {
+  :global(.text-area),
+  .feeds-page .feeds-list {
+    :global(.feed-item),
+    .feed-item {
+      :global(.feed-item__header),
+      .feed-item__header {
+        flex-direction: column;
+        text-align: center;
+        gap: 10px;
+      }
+
+      :global(.feed-item__icon),
+      .feed-item__icon {
+        font-size: 2em;
+        width: 1.75rem;
+        height: 1.75rem;
+      }
+
+      :global(.feed-item__title),
+      .feed-item__title {
+        font-size: 1.2em;
+      }
+    }
+  }
+}

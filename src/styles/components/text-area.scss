@@ -1,5 +1,5 @@
-@use "../variables" as *;
 @use "../mixins" as *;
+@use "../variables" as *;
 
 .text-area {
   margin-bottom: 20px;
@@ -8,6 +8,22 @@
   @include print {
     margin-bottom: 10px;
     padding: 0 10px;
+  }
+
+  // Accessibility: Links inside text content must be distinguishable
+  // WCAG 2.1 Level AA requires either sufficient color contrast (3:1)
+  // or a non-color distinguishing feature like underline
+  p a,
+  li a {
+    text-decoration: underline;
+    text-underline-offset: 2px;
+
+    &:hover,
+    &:focus {
+      text-decoration: underline;
+      text-decoration-thickness: 2px; // Thicker underline on hover for visual feedback
+      text-decoration-color: $accent;
+    }
   }
 
   &__content {

@@ -1,0 +1,189 @@
+@use "../mixins" as *;
+@use "../variables" as *;
+
+.book {
+  grid-column: span 6;
+
+  &__content {
+    display: grid;
+    margin-bottom: 20px;
+    row-gap: 3vw;
+    justify-items: center;
+
+    @include small-and-up {
+      grid-template-columns: 120px 1fr;
+      align-content: center;
+      margin-bottom: 20px;
+      column-gap: 1vw;
+    }
+
+    &__cover {
+      width: 100px;
+      text-align: center;
+
+      @include small-and-up {
+        width: 120px;
+      }
+
+      img {
+        width: 100%;
+        height: auto;
+        margin: 0 auto;
+        aspect-ratio: 2 / 3; // Standard book cover ratio, prevents CLS
+      }
+    }
+
+    &__content {
+      border: 2px solid $primary;
+
+      &__data {
+        padding: 0 20px 20px;
+
+        @include small-and-up {
+          display: grid;
+          grid-template-columns: 1fr 1fr;
+          justify-content: center;
+          margin-top: -20px;
+          padding: 0 20px 20px;
+          text-align: center;
+        }
+
+        &__buy,
+        &__publisher {
+          display: flex;
+
+          @include small-and-up {
+            align-items: center;
+            justify-content: center;
+          }
+        }
+
+        > * {
+          margin-top: 20px;
+        }
+
+        // Accessibility: Links should have permanent underline for consistency
+        a {
+          text-decoration: underline;
+          text-underline-offset: 2px;
+          display: inline-block;
+          // Mobile-first default: Adequate touch target size for WCAG AAA compliance (44x44px minimum)
+          min-height: 44px;
+          padding: 12px 8px;
+
+          &:hover,
+          &:focus {
+            text-decoration: underline;
+            text-decoration-thickness: 2px; // Thicker underline for visual feedback
+            text-decoration-color: $accent;
+          }
+
+          // Tablet and up: Reduce padding where touch targets aren't as critical
+          @include small-and-up {
+            min-height: auto;
+            padding: 8px 4px;
+          }
+        }
+      }
+
+      .text-area {
+        @include text-area-images;
+        @include blockquote-style;
+      }
+
+      h3,
+      h4 {
+        margin: 20px 0 20px -20px;
+        padding: 4px 11px 5px 20px;
+        font-size: 1em;
+        background-image: linear-gradient(to right, $primary, $background);
+        color: $inverted-text;
+
+        @include medium-and-up {
+          padding: 4px 11px 2px 20px;
+          font-weight: 100;
+        }
+      }
+    }
+  }
+
+  &__info {
+    @include info-section;
+    margin-bottom: 10px;
+
+    @include small-and-up {
+      margin-left: 135px;
+    }
+
+    &__text {
+      @include inline-list;
+
+      &__item {
+        text-transform: capitalize;
+      }
+
+      // Accessibility: Links should have permanent underline for consistency
+      a {
+        text-decoration: underline;
+        text-underline-offset: 2px;
+
+        &:hover,
+        &:focus {
+          text-decoration: underline;
+          text-decoration-thickness: 2px; // Thicker underline for visual feedback
+          text-decoration-color: $accent;
+        }
+      }
+    }
+  }
+}
+
+.score {
+  margin-top: 10px;
+  font-size: 1.1em; // Slightly larger than regular text
+  text-align: center;
+  width: 100%;
+  color: $accent; // Use accent color for stars
+  letter-spacing: 1px; // Small spacing between stars
+
+  @include small-and-up {
+    font-size: 1.2em;
+  }
+}
+
+// Note: book__info uses @include inline-list from mixins
+// Only book__content__content__data needs custom list styling
+.book__content__content__data {
+  ul {
+    margin: 0;
+    padding-left: 10px;
+    list-style: none;
+
+    @include small-and-up {
+      li {
+        display: inline-block;
+        padding-right: 1vw;
+
+        &::after {
+          content: "-";
+          padding-left: 1vw;
+        }
+
+        &:last-of-type {
+          padding-right: 0;
+
+          &::after {
+            content: "";
+          }
+        }
+      }
+    }
+  }
+}
+
+i {
+  @include icon-responsive;
+}
+
+// Blockquote adjustments for light theme
+@include blockquote-light-theme(".book__content__content .text-area blockquote");

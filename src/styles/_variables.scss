@@ -1,32 +1,270 @@
-@use "./mixins" as *;
-
+// Theme color variables
 $accent: var(--accent);
 $background: var(--background);
 $primary: var(--primary);
 $text: var(--text);
+$cursive-color: var(--cursive-color);
 $inverted-text: var(--inverted-text);
 $header-link: var(--header-link);
+$code: var(--code);
 
+// ========================================
+// SEMANTIC COLOR VARIABLES
+// ========================================
+
+// Border colors (theme-aware)
+$border-light: var(--border-light);
+$border-medium: var(--border-medium);
+$border-dark: var(--border-dark);
+
+// Shadow colors (theme-aware)
+$shadow-light: var(--shadow-light);
+$shadow-medium: var(--shadow-medium);
+$shadow-dark: var(--shadow-dark);
+
+// Code syntax highlighting (fixed for both themes)
+$code-syntax-pink: var(--code-syntax-pink);
+$code-syntax-line-numbers: var(--code-syntax-line-numbers);
+$code-syntax-success: var(--code-syntax-success);
+$code-syntax-white: var(--code-syntax-white);
+
+// Inline code (theme-aware)
+$inline-code-bg: var(--inline-code-bg);
+$inline-code-text: var(--inline-code-text);
+$inline-code-border: var(--inline-code-border);
+
+// Overlay/backdrop colors (theme-aware)
+$overlay-light: var(--overlay-light);
+$overlay-dark: var(--overlay-dark);
+
+// Neutral grays (theme-independent)
+$gray-lightest: var(--gray-lightest);
+$gray-lighter: var(--gray-lighter);
+$gray-light: var(--gray-light);
+$gray-medium: var(--gray-medium);
+$gray-dark: var(--gray-dark);
+$gray-darker: var(--gray-darker);
+
+// Component-specific colors (theme-aware)
+$footer-link: var(--footer-link);
+$footer-meta: var(--footer-meta);
+$footer-tech-link: var(--footer-tech-link);
+$lang-switcher-text: var(--lang-switcher-text);
+
+// Responsive breakpoint variables
+// Mobile-first approach
+$breakpoint-small: 768px; // Tablet and up
+$breakpoint-medium: 992px; // Desktop and up
+$breakpoint-large: 1200px; // Large desktop and up
+
+// Derived breakpoint values for convenience
+$breakpoint-mobile-max: $breakpoint-small - 1; // 767px (mobile only)
+$breakpoint-small-max: $breakpoint-medium - 1; // 991px (tablet only)
+$breakpoint-medium-max: $breakpoint-large - 1; // 1199px (desktop only)
+
+// Layout variables
+$container-max-width: 1400px; // Maximum width for main content container
+
+// Dark theme values (default)
 %dark {
   --accent: #efbb35;
   --background: #11151c;
   --primary: #192734;
   --text: #f8f8f8;
+  --cursive-color: #c8c8c8;
   --inverted-text: var(--text);
   --header-link: var(--text);
+  --code: #8be9fd; // Cyan for better contrast on dark backgrounds
+
+  // Semantic colors - Dark theme
+  --border-light: rgba(255, 255, 255, 0.1);
+  --border-medium: rgba(255, 255, 255, 0.15);
+  --border-dark: rgba(255, 255, 255, 0.2);
+
+  --shadow-light: rgba(0, 0, 0, 0.1);
+  --shadow-medium: rgba(0, 0, 0, 0.2);
+  --shadow-dark: rgba(0, 0, 0, 0.3);
+
+  --code-syntax-pink: #ff6ac1;
+  --code-syntax-line-numbers: #8b95a8;
+  --code-syntax-success: #4ade80;
+  --code-syntax-white: #ffffff;
+
+  --inline-code-bg: var(--primary); // #192734
+  --inline-code-text: var(--code); // #8be9fd
+  --inline-code-border: var(--border-medium);
+
+  --overlay-light: rgba(0, 0, 0, 0.4);
+  --overlay-dark: rgba(0, 0, 0, 0.6);
+
+  --gray-lightest: #eee;
+  --gray-lighter: #ddd;
+  --gray-light: #9a9a9a;
+  --gray-medium: #7a7a7a;
+  --gray-dark: #636363;
+  --gray-darker: #333;
+
+  // Footer colors - Dark theme
+  --footer-link: var(--text); // #f8f8f8
+  --footer-meta: var(--cursive-color); // #c8c8c8
+  --footer-tech-link: var(--text); // #f8f8f8
+
+  // Language switcher colors - Dark theme
+  --lang-switcher-text: #f8f8f8;
 }
 
+// Light theme values
 %light {
-  --accent: #23b5d3;
-  --background: #fbfef9;
-  --primary: #071013;
+  --accent: #0056b3; // Bootstrap blue for better vibrancy (8.59:1 contrast on #fbfef9)
+  --background: #fbfef9; // Off-white page background
+  --primary: #071013; // Dark color (kept for compatibility, overridden where needed)
   --text: #284b63;
-  --inverted-text: var(--background);
+  --cursive-color: #6a6a6a; // Medium gray for WCAG AA compliance (5.32:1 contrast on #fbfef9)
+  --inverted-text: var(--background); // Light color for dark backgrounds
   --header-link: var(--inverted-text);
+  --code: #d63384; // Pink for inline code
+
+  // Semantic colors - Light theme
+  --border-light: rgba(0, 0, 0, 0.08);
+  --border-medium: rgba(0, 0, 0, 0.12);
+  --border-dark: rgba(0, 0, 0, 0.15);
+
+  --shadow-light: rgba(0, 0, 0, 0.05);
+  --shadow-medium: rgba(0, 0, 0, 0.1);
+  --shadow-dark: rgba(0, 0, 0, 0.15);
+
+  --code-syntax-pink: #ff6ac1;
+  --code-syntax-line-numbers: #8b95a8;
+  --code-syntax-success: #16a34a;
+  --code-syntax-white: #ffffff;
+
+  --inline-code-bg: rgba(0, 86, 179, 0.08);
+  --inline-code-text: #d63384;
+  --inline-code-border: rgba(0, 86, 179, 0.12);
+
+  --overlay-light: rgba(0, 0, 0, 0.2);
+  --overlay-dark: rgba(0, 0, 0, 0.4);
+
+  --gray-lightest: #f8f9fa;
+  --gray-lighter: #e9ecef;
+  --gray-light: #999999;
+  --gray-medium: #7a7a7a;
+  --gray-dark: #6a6a6a;
+  --gray-darker: #284b63;
+
+  // Footer colors - Light theme (on dark footer background #071013)
+  --footer-link: #b0b0b0; // 8.86:1 contrast on #071013
+  --footer-meta: #b0b0b0; // 8.86:1 contrast on #071013
+  --footer-tech-link: #d0d0d0; // 12.46:1 contrast on #071013
+
+  // Language switcher colors - Light theme
+  --lang-switcher-text: #284b63;
 }
 
+// Set default dark theme on html element to prevent FOUC
+// Define variables directly (not using @extend) to ensure they're in the compiled CSS
+html {
+  --accent: #efbb35;
+  --background: #11151c;
+  --primary: #192734;
+  --text: #f8f8f8;
+  --cursive-color: #c8c8c8;
+  --inverted-text: var(--text);
+  --header-link: var(--text);
+  --code: #8be9fd; // Cyan for better contrast on dark backgrounds
+
+  // Semantic colors - Dark theme
+  --border-light: rgba(255, 255, 255, 0.1);
+  --border-medium: rgba(255, 255, 255, 0.15);
+  --border-dark: rgba(255, 255, 255, 0.2);
+
+  --shadow-light: rgba(0, 0, 0, 0.1);
+  --shadow-medium: rgba(0, 0, 0, 0.2);
+  --shadow-dark: rgba(0, 0, 0, 0.3);
+
+  --code-syntax-pink: #ff6ac1;
+  --code-syntax-line-numbers: #8b95a8;
+  --code-syntax-success: #4ade80;
+  --code-syntax-white: #ffffff;
+
+  --inline-code-bg: var(--primary); // #192734
+  --inline-code-text: var(--code); // #8be9fd
+  --inline-code-border: var(--border-medium);
+
+  --overlay-light: rgba(0, 0, 0, 0.4);
+  --overlay-dark: rgba(0, 0, 0, 0.6);
+
+  --gray-lightest: #eee;
+  --gray-lighter: #ddd;
+  --gray-light: #9a9a9a;
+  --gray-medium: #7a7a7a;
+  --gray-dark: #636363;
+  --gray-darker: #333;
+
+  // Footer colors - Dark theme
+  --footer-link: var(--text); // #f8f8f8
+  --footer-meta: var(--cursive-color); // #c8c8c8
+  --footer-tech-link: var(--text); // #f8f8f8
+
+  // Language switcher colors - Dark theme
+  --lang-switcher-text: #f8f8f8;
+
+  &.light {
+    --accent: #0056b3;
+    --background: #fbfef9; // Off-white page background
+    --primary: #071013; // Dark color (kept for compatibility, overridden where needed)
+    --text: #284b63;
+    --cursive-color: #6a6a6a;
+    --inverted-text: var(--background); // Light color for dark backgrounds
+    --header-link: var(--inverted-text);
+    --code: #d63384; // Pink for inline code
+
+    // Semantic colors - Light theme
+    --border-light: rgba(0, 0, 0, 0.08);
+    --border-medium: rgba(0, 0, 0, 0.12);
+    --border-dark: rgba(0, 0, 0, 0.15);
+
+    --shadow-light: rgba(0, 0, 0, 0.05);
+    --shadow-medium: rgba(0, 0, 0, 0.1);
+    --shadow-dark: rgba(0, 0, 0, 0.15);
+
+    --code-syntax-pink: #ff6ac1;
+    --code-syntax-line-numbers: #8b95a8;
+    --code-syntax-success: #16a34a;
+    --code-syntax-white: #ffffff;
+
+    --inline-code-bg: rgba(0, 86, 179, 0.08);
+    --inline-code-text: #d63384;
+    --inline-code-border: rgba(0, 86, 179, 0.12);
+
+    --overlay-light: rgba(0, 0, 0, 0.2);
+    --overlay-dark: rgba(0, 0, 0, 0.4);
+
+    --gray-lightest: #f8f9fa;
+    --gray-lighter: #e9ecef;
+    --gray-light: #999999;
+    --gray-medium: #7a7a7a;
+    --gray-dark: #6a6a6a;
+    --gray-darker: #284b63;
+
+    // Footer colors - Light theme (on dark footer background #071013)
+    --footer-link: #b0b0b0; // 8.86:1 contrast on #071013
+    --footer-meta: #b0b0b0; // 8.86:1 contrast on #071013
+    --footer-tech-link: #d0d0d0; // 12.46:1 contrast on #071013
+
+    // Language switcher colors - Light theme
+    --lang-switcher-text: #284b63;
+  }
+}
+
+// Apply theme to body based on class (inherits from html)
 body {
-  @extend %dark;
+  // Code syntax highlighting variables
+  --deckgo-highlight-code-background: var(--primary);
+  --deckgo-highlight-code-padding: 20px;
+  --deckgo-highlight-code-color: #f8f8f8;
+  --deckgo-highlight-code-margin: 20px 0 20px -20px;
+  --deckgo-highlight-code-container-width: calc(100% + 40px);
 
   &.dark {
     @extend %dark;
@@ -35,7 +273,8 @@ body {
   &.light {
     @extend %light;
 
-    @include print {
+    // Print-specific overrides
+    @media only print {
       --background: #fff;
       --primary: #000;
       --text: var(--primary);
