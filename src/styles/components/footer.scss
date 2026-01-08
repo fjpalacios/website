@@ -75,6 +75,16 @@
       color: var(--footer-link);
     }
 
+    // Active state - subtle indication
+    &--active {
+      color: var(--text);
+      font-weight: 500;
+
+      :global(body.light) & {
+        color: var(--footer-tech-link);
+      }
+    }
+
     &:hover,
     &:focus {
       color: var(--accent);

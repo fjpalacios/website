@@ -1,0 +1,74 @@
+@use "../variables" as *;
+@use "../mixins" as *;
+
+// Library-style taxonomy list with columns (generic for all taxonomies)
+.taxonomy-list-grouped {
+  grid-column: span 12;
+  margin-bottom: 40px;
+  padding: 2rem;
+  border: 2px solid $primary;
+
+  @media only print {
+    margin-bottom: 10px;
+    padding: 1rem;
+  }
+}
+
+.letter-section {
+  &:not(:first-child) {
+    margin-top: 3rem;
+  }
+
+  &__header {
+    font-size: 1.5rem;
+    color: $text;
+    font-weight: 700;
+    margin-bottom: 1rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid $primary;
+    letter-spacing: 0.1em;
+  }
+
+  &__items {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 1rem;
+    margin-top: 1.5rem;
+
+    @include small-and-up {
+      grid-template-columns: repeat(2, 1fr);
+    }
+
+    @include medium-and-up {
+      grid-template-columns: repeat(3, 1fr);
+    }
+
+    @media only print {
+      grid-template-columns: repeat(2, 1fr);
+      gap: 0.5rem;
+    }
+  }
+}
+
+.taxonomy-item {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+
+  &__name {
+    color: $text;
+    text-decoration: none;
+    font-weight: 500;
+    transition: color 0.2s ease;
+
+    &:hover {
+      color: $accent;
+    }
+  }
+
+  &__count {
+    color: $cursive-color;
+    font-size: 0.9rem;
+    opacity: 0.8;
+  }
+}

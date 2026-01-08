@@ -34,7 +34,7 @@ export const parseTitle = (titleStr: string) => {
 };
 
 /**
- * Find a book by title (supports partial matching) and language
+ * Find a book by title (case-insensitive partial matching) and language
  */
 export const findBook = (
   books: CollectionEntry<"books">[],
@@ -42,9 +42,9 @@ export const findBook = (
   lang: LanguageKey,
 ): CollectionEntry<"books"> | undefined => {
   // Parse the search title to extract just the book name (without author)
-  const searchTitle = parseTitle(title).bookTitle;
+  const searchTitle = parseTitle(title).bookTitle.toLowerCase();
 
-  return books.find((b) => b.data.title.includes(searchTitle) && b.data.language === lang);
+  return books.find((b) => b.data.title.toLowerCase().includes(searchTitle) && b.data.language === lang);
 };
 
 /**

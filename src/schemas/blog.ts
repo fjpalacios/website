@@ -32,9 +32,9 @@ export const booksSchema = z
     language: languageSchema,
 
     // Book-specific metadata
-    synopsis: z.string(),
-    score: z.number().int().min(1).max(5),
-    pages: z.number().positive(),
+    synopsis: z.string().optional(),
+    score: z.union([z.number().int().min(1).max(5), z.literal("fav")]),
+    pages: z.number().positive().optional(),
     isbn: z.string().optional(),
     asin: z.string().optional(),
 
@@ -125,6 +125,9 @@ export const authorsSchema = z.object({
   name: z.string().min(1),
   author_slug: z.string().min(1),
   language: z.enum(["es", "en"]),
+
+  // Sorting (optional - if not provided, sorts by full name)
+  sortName: z.string().optional(), // Last name(s) for proper alphabetical sorting
 
   // Optional personal information
   gender: z.enum(["male", "female", "other"]).optional(),

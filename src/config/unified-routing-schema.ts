@@ -34,7 +34,7 @@ export const TemplateNameSchema = z.enum([
   "ContentList",
   "ContentDetail",
   "ContentPagination",
-  "TaxonomyList",
+  "TaxonomyListGrouped",
   "TaxonomyDetail",
   "StaticPage",
   "RSSFeed",

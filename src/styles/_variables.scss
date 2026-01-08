@@ -50,6 +50,7 @@ $footer-link: var(--footer-link);
 $footer-meta: var(--footer-meta);
 $footer-tech-link: var(--footer-tech-link);
 $lang-switcher-text: var(--lang-switcher-text);
+$rating-favorite: var(--rating-favorite);
 
 // Responsive breakpoint variables
 // Mobile-first approach
@@ -111,6 +112,9 @@ $container-max-width: 1400px; // Maximum width for main content container
 
   // Language switcher colors - Dark theme
   --lang-switcher-text: #f8f8f8;
+
+  // Rating colors - Dark theme
+  --rating-favorite: #ef4444; // Red for favorite hearts (Tailwind red-500 for dark bg)
 }
 
 // Light theme values
@@ -159,6 +163,9 @@ $container-max-width: 1400px; // Maximum width for main content container
 
   // Language switcher colors - Light theme
   --lang-switcher-text: #284b63;
+
+  // Rating colors - Light theme
+  --rating-favorite: #dc2626; // Red for favorite hearts (Tailwind red-600 for light bg)
 }
 
 // Set default dark theme on html element to prevent FOUC
@@ -209,6 +216,9 @@ html {
   // Language switcher colors - Dark theme
   --lang-switcher-text: #f8f8f8;
 
+  // Rating colors - Dark theme
+  --rating-favorite: #ef4444; // Red for favorite hearts (Tailwind red-500 for dark bg)
+
   &.light {
     --accent: #0056b3;
     --background: #fbfef9; // Off-white page background
@@ -254,6 +264,9 @@ html {
 
     // Language switcher colors - Light theme
     --lang-switcher-text: #284b63;
+
+    // Rating colors - Light theme
+    --rating-favorite: #dc2626; // Red for favorite hearts (Tailwind red-600 for light bg)
   }
 }
 

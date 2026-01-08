@@ -1,0 +1,34 @@
+---
+/**
+ * SeriesLink Component
+ * Creates internal links to series pages within MDX content
+ *
+ * Usage in MDX:
+ * <SeriesLink name="Harry Potter" />
+ * <SeriesLink name="El Señor de los Anillos" />
+ *
+ * Props:
+ * - name: Series name (must match exactly, case-sensitive)
+ */
+
+import { findSeries, generateSeriesUrl, detectLanguageFromUrl } from "@utils/seriesLinkHelpers";
+import { getCollection } from "astro:content";
+
+interface Props {
+  name: string;
+}
+
+const { name } = Astro.props;
+
+// Detect current language from URL (default to "es" if not found)
+const currentLang = detectLanguageFromUrl(Astro.url.pathname);
+
+// Query all series and find the matching one
+const allSeries = await getCollection("series");
+const series = findSeries(allSeries, name);
+
+// Generate URL if series exists
+const seriesUrl = generateSeriesUrl(series, currentLang);
+---
+
+{seriesUrl ? <a href={seriesUrl}>{name}</a> : <Fragment>{name}</Fragment>}

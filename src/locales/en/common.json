@@ -78,6 +78,12 @@
   "allChallenges": "All challenges",
   "allAuthors": "All authors",
   "allCourses": "All courses",
+  "bookCount": {
+    "singular": "book",
+    "plural": "books"
+  },
+  "author": "author",
+  "authors": "authors",
   "latestBlogPosts": "Latest Blog Posts",
   "viewAllPosts": "View all posts",
   "categories": {
@@ -135,6 +141,10 @@
       "tutorialCount_other": "{{count}} tutorials in this course"
     }
   },
+  "genreTypes": {
+    "fiction": "Fiction",
+    "nonFiction": "Non-fiction"
+  },
   "courseNavigation": {
     "previous": "Previous tutorial",
     "next": "Next tutorial",
@@ -161,12 +171,13 @@
   "search": {
     "modalTitle": "Search the site",
     "closeButton": "Close search",
-    "placeholder": "Search the blog...",
+    "placeholder": "Search authors...",
     "clearButton": "Clear",
     "loadMore": "Load more results",
     "label": "Search this site",
     "filters": "Filters",
-    "noResults": "No results for",
+    "noResults": "No authors found",
+    "authors": "Search authors",
     "manyResults": "{{count}} results",
     "oneResult": "{{count}} result",
     "searching": "Searching..."
@@ -205,8 +216,8 @@
     "buy": "Buy",
     "details": "Book details",
     "synopsis": "Synopsis",
-    "paperback": "Paperback",
-    "ebook": "eBook",
+    "paperback": "Physical",
+    "ebook": "Digital",
     "audiobook": "Audiobook"
   },
   "pageDescriptions": {
@@ -222,5 +233,14 @@
     "booksDescription": "Reviews and opinions about fiction, horror, thriller and more",
     "tutorialsTitle": "fjp.es - Programming Tutorials",
     "tutorialsDescription": "Tutorials about JavaScript, Git, web development and more"
+  },
+  "notFound": {
+    "title": "404 - Page not found",
+    "description": "Sorry, the page you're looking for doesn't exist.",
+    "heading": "404",
+    "subtitle": "Page not found",
+    "message": "Sorry, the page you're looking for doesn't exist or has been moved.",
+    "redirect": "You will be redirected to the home page in {{seconds}} seconds...",
+    "button": "Go to home page now"
   }
 }

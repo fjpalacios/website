@@ -34,7 +34,7 @@ export type TemplateName =
   | "ContentList"
   | "ContentDetail"
   | "ContentPagination"
-  | "TaxonomyList"
+  | "TaxonomyListGrouped"
   | "TaxonomyDetail"
   | "StaticPage"
   | "RSSFeed";
@@ -236,7 +236,7 @@ export const CONTENT_TYPES: Record<string, ContentTypeConfig> = {
       es: "autores",
     },
     templates: {
-      list: "TaxonomyList",
+      list: "TaxonomyListGrouped",
       detail: "TaxonomyDetail",
     },
     features: {
@@ -265,7 +265,7 @@ export const CONTENT_TYPES: Record<string, ContentTypeConfig> = {
       es: "editoriales",
     },
     templates: {
-      list: "TaxonomyList",
+      list: "TaxonomyListGrouped",
       detail: "TaxonomyDetail",
     },
     features: {
@@ -294,7 +294,7 @@ export const CONTENT_TYPES: Record<string, ContentTypeConfig> = {
       es: "generos",
     },
     templates: {
-      list: "TaxonomyList",
+      list: "TaxonomyListGrouped",
       detail: "TaxonomyDetail",
     },
     features: {
@@ -323,7 +323,7 @@ export const CONTENT_TYPES: Record<string, ContentTypeConfig> = {
       es: "categorias",
     },
     templates: {
-      list: "TaxonomyList",
+      list: "TaxonomyListGrouped",
       detail: "TaxonomyDetail",
     },
     features: {
@@ -352,7 +352,7 @@ export const CONTENT_TYPES: Record<string, ContentTypeConfig> = {
       es: "series",
     },
     templates: {
-      list: "TaxonomyList",
+      list: "TaxonomyListGrouped",
       detail: "TaxonomyDetail",
     },
     features: {
@@ -381,7 +381,7 @@ export const CONTENT_TYPES: Record<string, ContentTypeConfig> = {
       es: "retos",
     },
     templates: {
-      list: "TaxonomyList",
+      list: "TaxonomyListGrouped",
       detail: "TaxonomyDetail",
     },
     features: {
@@ -410,7 +410,7 @@ export const CONTENT_TYPES: Record<string, ContentTypeConfig> = {
       es: "cursos",
     },
     templates: {
-      list: "TaxonomyList",
+      list: "TaxonomyListGrouped",
       detail: "TaxonomyDetail",
     },
     features: {

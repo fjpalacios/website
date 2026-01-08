@@ -1,0 +1,93 @@
+---
+/**
+ * Taxonomy List Grouped - Generic component for all taxonomies
+ * Displays items grouped alphabetically by first letter in a library-style grid layout
+ * Supports sortName field for complex names (like authors with last names)
+ */
+import { t } from "@locales";
+import type { CollectionEntry } from "astro:content";
+
+interface Props {
+  items: Array<{
+    item: CollectionEntry<"authors" | "books" | "categories" | "genres" | "publishers" | "series" | "challenges">;
+    count: number;
+  }>;
+  title: string;
+  lang: string;
+  routeKey: string;
+  slugField: string;
+}
+
+const { items, lang, routeKey, slugField } = Astro.props;
+
+const itemsWithContent = items.filter(({ count }) => count > 0);
+const basePath = t(lang, `routes.${routeKey}`);
+
+// Pre-calculate translations for count labels
+const countSingular = t(lang, "bookCount.singular");
+const countPlural = t(lang, "bookCount.plural");
+
+// Helper function to get first letter for grouping
+function getInitialLetter(
+  item: CollectionEntry<"authors" | "books" | "categories" | "genres" | "publishers" | "series" | "challenges">,
+): string {
+  // Use sortName if available (for authors), otherwise use name
+  const nameForSorting = item.data.sortName || item.data.name;
+
+  // Remove any comma and get first word
+  const cleanName = nameForSorting.replace(",", "").trim();
+  const parts = cleanName.split(/\s+/);
+  const firstWord = parts[0];
+
+  return firstWord.charAt(0).toUpperCase();
+}
+
+// Sort by sortName (if exists) or name
+const sortedItems = [...itemsWithContent].sort((a, b) => {
+  const aSort = a.item.data.sortName || a.item.data.name;
+  const bSort = b.item.data.sortName || b.item.data.name;
+  return aSort.localeCompare(bSort);
+});
+
+// Group by first letter
+const groupedItems = sortedItems.reduce(
+  (acc, item) => {
+    const initial = getInitialLetter(item.item);
+    if (!acc[initial]) {
+      acc[initial] = [];
+    }
+    acc[initial].push(item);
+    return acc;
+  },
+  {} as Record<string, typeof sortedItems>,
+);
+
+// Sort letters alphabetically
+const sortedLetters = Object.keys(groupedItems).sort();
+---
+
+<section class="taxonomy-list-grouped">
+  {
+    sortedLetters.map((letter) => (
+      <div class="letter-section">
+        <h3 class="letter-section__header">{letter}</h3>
+        <div class="letter-section__items">
+          {groupedItems[letter].map(({ item, count }) => {
+            const slug = item.data[slugField];
+            const countLabel = count === 1 ? countSingular : countPlural;
+            return (
+              <div class="taxonomy-item">
+                <a href={`/${lang}/${basePath}/${slug}`} class="taxonomy-item__name">
+                  {item.data.name}
+                </a>
+                <span class="taxonomy-item__count">
+                  ({count} {countLabel})
+                </span>
+              </div>
+            );
+          })}
+        </div>
+      </div>
+    ))
+  }
+</section>

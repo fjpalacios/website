@@ -46,9 +46,10 @@ describe("authorLinkHelpers", () => {
       expect(result).toBeUndefined();
     });
 
-    test("should be case sensitive", () => {
+    test("should be case insensitive", () => {
       const result = findAuthor(mockAuthors, "stephen king");
-      expect(result).toBeUndefined();
+      expect(result).toBeDefined();
+      expect(result?.data.name).toBe("Stephen King");
     });
 
     test("should not match partial names", () => {

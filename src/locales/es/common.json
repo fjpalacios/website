@@ -78,6 +78,12 @@
   "allChallenges": "Todos los retos",
   "allAuthors": "Todos los autores",
   "allCourses": "Todos los cursos",
+  "bookCount": {
+    "singular": "libro",
+    "plural": "libros"
+  },
+  "author": "autor",
+  "authors": "autores",
   "latestBlogPosts": "Últimas publicaciones del blog",
   "viewAllPosts": "Ver todas las publicaciones",
   "categories": {
@@ -135,6 +141,10 @@
       "tutorialCount_other": "{{count}} tutoriales en este curso"
     }
   },
+  "genreTypes": {
+    "fiction": "Ficción",
+    "nonFiction": "No ficción"
+  },
   "courseNavigation": {
     "previous": "Tutorial anterior",
     "next": "Siguiente tutorial",
@@ -161,12 +171,13 @@
   "search": {
     "modalTitle": "Buscar en el sitio",
     "closeButton": "Cerrar búsqueda",
-    "placeholder": "Buscar en el blog...",
+    "placeholder": "Buscar autores...",
     "clearButton": "Limpiar",
     "loadMore": "Cargar más resultados",
     "label": "Buscar en este sitio",
     "filters": "Filtros",
-    "noResults": "No se encontraron resultados para",
+    "noResults": "No se encontraron autores",
+    "authors": "Buscar autores",
     "manyResults": "{{count}} resultados",
     "oneResult": "{{count}} resultado",
     "searching": "Buscando..."
@@ -205,8 +216,8 @@
     "buy": "Comprar",
     "details": "Detalles del libro",
     "synopsis": "Sinopsis",
-    "paperback": "Tapa blanda",
-    "ebook": "eBook",
+    "paperback": "Físico",
+    "ebook": "Digital",
     "audiobook": "Audiolibro"
   },
   "pageDescriptions": {
@@ -222,5 +233,14 @@
     "booksDescription": "Reseñas y opiniones sobre libros de ficción, terror, suspense y más",
     "tutorialsTitle": "fjp.es - Tutoriales de Programación",
     "tutorialsDescription": "Tutoriales sobre JavaScript, Git, desarrollo web y más"
+  },
+  "notFound": {
+    "title": "404 - Página no encontrada",
+    "description": "Lo sentimos, la página que buscas no existe.",
+    "heading": "404",
+    "subtitle": "Página no encontrada",
+    "message": "Lo sentimos, la página que buscas no existe o ha sido movida.",
+    "redirect": "Serás redirigido a la página de inicio en {{seconds}} segundos...",
+    "button": "Ir a la página de inicio ahora"
   }
 }

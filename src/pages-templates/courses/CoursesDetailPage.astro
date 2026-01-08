@@ -13,7 +13,7 @@
 import Breadcrumbs, { type BreadcrumbItem } from "@components/Breadcrumbs.astro";
 import Paginator from "@components/Paginator.astro";
 import PostList from "@components/PostList.astro";
-import TaxonomyList from "@components/TaxonomyList.astro";
+import TaxonomyListGrouped from "@components/TaxonomyListGrouped.astro";
 import Title from "@components/Title.astro";
 import Layout from "@layouts/Layout.astro";
 import { t } from "@locales";
@@ -122,12 +122,11 @@ const itemListSchema = generateItemListSchema(
 
   <Paginator currentPage={currentPage} totalPages={totalPages} basePath={basePath} lang={lang} />
 
-  <TaxonomyList
+  <TaxonomyListGrouped
     items={coursesWithCounts}
     title={t(lang, "allCourses")}
     lang={lang}
     routeKey="courses"
     slugField="course_slug"
-    showCount={true}
   />
 </Layout>

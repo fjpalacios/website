@@ -23,13 +23,14 @@ export const detectLanguageFromUrl = (pathname: string): LanguageKey => {
 };
 
 /**
- * Find an author by exact name match
+ * Find an author by case-insensitive name match
  */
 export const findAuthor = (
   authors: CollectionEntry<"authors">[],
   name: string,
 ): CollectionEntry<"authors"> | undefined => {
-  return authors.find((a) => a.data.name === name);
+  const searchName = name.toLowerCase();
+  return authors.find((a) => a.data.name.toLowerCase() === searchName);
 };
 
 /**
