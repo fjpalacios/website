@@ -13,20 +13,27 @@ i18n: "obtaining-and-cloning-new-commits-from-a-git-repository"
 
 import { InlineImage } from "@components/blog";
 
-Ya tenemos nuestro flamante y [nuevo repositorio en GitHub](es/article/creating-our-first-repository-on-github/), ahora vamos con uno de los principales propósitos de tener un repositorio en un *servidor* remoto: poder trabajar desde varias máquinas una misma persona o un grupo de trabajo compuesto por varias personas. Para emular este comportamiento en lugar de trabajar desde dos máquinas diferentes lo haremos desde dos carpetas diferentes. En nuestro caso el proyecto que subimos a GitHub en el anterior artículo lo tenemos en la carpeta **test** y en un alarde de originalidad crearemos la carpeta **test2** que será *nuestra otra máquina*.
+Ya tenemos nuestro flamante y [nuevo repositorio en GitHub](es/article/creating-our-first-repository-on-github/), ahora vamos con uno de los principales propósitos de tener un repositorio en un _servidor_ remoto: poder trabajar desde varias máquinas una misma persona o un grupo de trabajo compuesto por varias personas. Para emular este comportamiento en lugar de trabajar desde dos máquinas diferentes lo haremos desde dos carpetas diferentes. En nuestro caso el proyecto que subimos a GitHub en el anterior artículo lo tenemos en la carpeta **test** y en un alarde de originalidad crearemos la carpeta **test2** que será _nuestra otra máquina_.
 
 Cuando vemos un repositorio en GitHub que queremos tener en nuestra máquina por el motivo que sea sólo tenemos que hacer click en el botón **Clone or download** y asegurarnos, tal como dijimos en el artículo anterior, de que elegimos la opción de clonar mediante SSH (es la mejor elección y en el futuro explicaremos por qué).
 
-<InlineImage type="tutorial" src="/images/tutorials/inline/clonando-repositorio-github.jpeg" alt="Clonando un repositorio de GitHub" />
+<InlineImage
+  type="tutorial"
+  src="/images/tutorials/inline/clonando-repositorio-github.jpeg"
+  alt="Clonando un repositorio de GitHub"
+/>
 
-Tenemos que copiar la dirección de Git que nos aparece en el campo de texto y pegarla en la terminal dentro de este comando: `git clone git@github.com:fjpalacios/test.git test2` en el que, como supondréis, **test2** es la carpeta en la que queremos que *descargue* nuestro repositorio (por defecto usaría test, que es como se llama el repositorio).
+Tenemos que copiar la dirección de Git que nos aparece en el campo de texto y pegarla en la terminal dentro de este comando: `git clone git@github.com:fjpalacios/test.git test2` en el que, como supondréis, **test2** es la carpeta en la que queremos que _descargue_ nuestro repositorio (por defecto usaría test, que es como se llama el repositorio).
+
 ```bash
 Cloning into 'test2'...
 remote: Counting objects: 3, done.
 remote: Total 3 (delta 0), reused 3 (delta 0), pack-reused 0
 Receiving objects: 100% (3/3), done.
 ```
+
 Ahora supongamos que otro miembro del equipo, o nosotros desde la otra máquina (carpeta **test**), hacemos cambios en el repositorio original… por tanto, este nuevo repositorio que acabamos de clonar ya no estaría actualizado.
+
 ```bash
 $ echo "This is a test file" > test.txt
 $ git add .
@@ -46,7 +53,9 @@ Total 3 (delta 0), reused 0 (delta 0)
 To github.com:fjpalacios/test.git
    9da799a..d40c331  master -> master
 ```
-Ahora nos vamos al repositorio clonado (carpeta **test2**) y ahí debería estar nuestro fichero recién creado… ¿no? Aunque la respuesta a esta pregunta ya se puede deducir, porque si así fuese no estaríamos haciendo este tutorial. Probamos no obstante con el comando `ls` para listar los archivos existentes… Y en efecto sólo nos dice que existe el archivo **README.md** que era el único que había en el momento de haber clonado el repositorio. Fácil de solucionar este *problema*:
+
+Ahora nos vamos al repositorio clonado (carpeta **test2**) y ahí debería estar nuestro fichero recién creado… ¿no? Aunque la respuesta a esta pregunta ya se puede deducir, porque si así fuese no estaríamos haciendo este tutorial. Probamos no obstante con el comando `ls` para listar los archivos existentes… Y en efecto sólo nos dice que existe el archivo **README.md** que era el único que había en el momento de haber clonado el repositorio. Fácil de solucionar este _problema_:
+
 ```bash
 $ git pull origin master
 
@@ -63,7 +72,8 @@ Fast-forward
  1 file changed, 1 insertion(+)
  create mode 100644 test.txt
 ```
-Y ahora si ejecutamos el comando `ls` podremos ver como ya sí tenemos el nuevo archivo (tantos archivos nuevos o modificados como hubiesen en realidad). Si trabajamos solos es fácil saber cuándo en una de nuestras máquinas tenemos cambios que en la otra no tenemos, pero cuando trabajamos en equipo esto puede ser más difícil por tanto es conveniente antes de hacer cualquier modificación preguntarle a Git si tiene *alguna novedad para nosotros*.
+
+Y ahora si ejecutamos el comando `ls` podremos ver como ya sí tenemos el nuevo archivo (tantos archivos nuevos o modificados como hubiesen en realidad). Si trabajamos solos es fácil saber cuándo en una de nuestras máquinas tenemos cambios que en la otra no tenemos, pero cuando trabajamos en equipo esto puede ser más difícil por tanto es conveniente antes de hacer cualquier modificación preguntarle a Git si tiene _alguna novedad para nosotros_.
 
 Como información complementaria: si estuviésemos trabajando con varias ramas y quisiésemos obtener las novedades de todas ellas, en lugar de especificar una rama concreta en el comando utilizaríamos el parámetro **--all**; es decir: `git pull origin --all`.
 

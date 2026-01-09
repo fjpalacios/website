@@ -11,32 +11,36 @@ cover: "/images/tutorials/cabecera-git.jpg"
 i18n: "como-deshacer-commits-git"
 ---
 
-In [How to recover files after modifying them thanks to Git](/en/article/how-to-recover-files-after-modifying-them-thanks-to-git/) we already learned what to do in some cases where we have screwed up by modifying a file in the wrong way. But what can we do when we've already *committed* what is wrong? We'll try to explain it.
+In [How to recover files after modifying them thanks to Git](/en/article/how-to-recover-files-after-modifying-them-thanks-to-git/) we already learned what to do in some cases where we have screwed up by modifying a file in the wrong way. But what can we do when we've already _committed_ what is wrong? We'll try to explain it.
 
-We wanted to wait for this moment to explain this point because the procedure is quite different depending on what was done with that *commit*: if it's still in our local machine or if it has already sent to a remote node (to GitHub, for example). Git has the `reset` command (already used in the article linked at the beginning) and `revert`, serving both to undo a *commit* but each one of them in a different way. While `revert` can be used both when a *commit* is still in our local machine as when already it has been *pushed* to a remote node, `reset` **only should be used** when the *commit* is still in our local machine. Now we will explain it in detail.
+We wanted to wait for this moment to explain this point because the procedure is quite different depending on what was done with that _commit_: if it's still in our local machine or if it has already sent to a remote node (to GitHub, for example). Git has the `reset` command (already used in the article linked at the beginning) and `revert`, serving both to undo a _commit_ but each one of them in a different way. While `revert` can be used both when a _commit_ is still in our local machine as when already it has been _pushed_ to a remote node, `reset` **only should be used** when the _commit_ is still in our local machine. Now we will explain it in detail.
 
 ### Introduction
-In Git a *pointer* is assigned to all the *commits* (actually almost everything in Git works based on pointers, but better we will not go into excessive detail) that we can see with the `git log` command which is displayed a list of everything we've been doing in our Git repository. Without parameters it's a somewhat basic statement so we recommend you to run it at least with `git log --oneline --decorate` parameters, and if you want to see a tree structure mode then add the parameter *--graph*, like `git log --oneline --decorate --graph` to see more precisely which branch derives each of our commits.
 
-Well, when you see this log you will have noticed that there is a **HEAD** pointer, which refers to the most recent *commit*.
+In Git a _pointer_ is assigned to all the _commits_ (actually almost everything in Git works based on pointers, but better we will not go into excessive detail) that we can see with the `git log` command which is displayed a list of everything we've been doing in our Git repository. Without parameters it's a somewhat basic statement so we recommend you to run it at least with `git log --oneline --decorate` parameters, and if you want to see a tree structure mode then add the parameter _--graph_, like `git log --oneline --decorate --graph` to see more precisely which branch derives each of our commits.
+
+Well, when you see this log you will have noticed that there is a **HEAD** pointer, which refers to the most recent _commit_.
 
 And after this introduction we can continue.
 
 ### Reset
-`reset` is a destructive command that undoes *commits* drastically: as if they had never existed. And, as we said, it may be what we are looking for when we still have the *commits* only on our local machine, but never if we've already used the `git push` command because many conflicts can happen if we are working in a team and someone has already *pulled* new *commits* that *magically* have disappeared from one of the nodes. In short, better not think about it.
 
-If the error is in the last *commit*, using the `git reset HEAD~1` command (if the 1 is replaced by a 2 it would be the second to last *commit* sent) the **HEAD** pointer would no longer point to the last *commit* but to the previous one, and leave us these changes as modified files but without even be added to the *cue* for the next *commit* (`git add` command).
+`reset` is a destructive command that undoes _commits_ drastically: as if they had never existed. And, as we said, it may be what we are looking for when we still have the _commits_ only on our local machine, but never if we've already used the `git push` command because many conflicts can happen if we are working in a team and someone has already _pulled_ new _commits_ that _magically_ have disappeared from one of the nodes. In short, better not think about it.
 
-Although using the `reset` command parameters we can use the *--soft* parameter so when we undoing the *commit* it leaves modified files in the *stage* like `git reset --soft HEAD~1` and this is useful, for example, if the changes we have made are not incorrect but we forgot to add some file to the *commit*, or we have added more files than necessary. That is: it would only remove the `git commit` command.
+If the error is in the last _commit_, using the `git reset HEAD~1` command (if the 1 is replaced by a 2 it would be the second to last _commit_ sent) the **HEAD** pointer would no longer point to the last _commit_ but to the previous one, and leave us these changes as modified files but without even be added to the _cue_ for the next _commit_ (`git add` command).
 
-And if we feel brave we can use the *--hard* parameter like in `git reset --hard HEAD~1` which is the most destructive way of this command, because it undoes the *commit*, cleans the *stage* and deletes all file modifications without being able to recover any of the changes we have made.
+Although using the `reset` command parameters we can use the _--soft_ parameter so when we undoing the _commit_ it leaves modified files in the _stage_ like `git reset --soft HEAD~1` and this is useful, for example, if the changes we have made are not incorrect but we forgot to add some file to the _commit_, or we have added more files than necessary. That is: it would only remove the `git commit` command.
+
+And if we feel brave we can use the _--hard_ parameter like in `git reset --hard HEAD~1` which is the most destructive way of this command, because it undoes the _commit_, cleans the _stage_ and deletes all file modifications without being able to recover any of the changes we have made.
 
 ### Revert
-The main difference between `reset` and `revert` is that as we have seen `reset` makes it look like the *commit* never existed, while `revert` creates another *commit* reversing all *commit* changes. And this is what makes it the only valid option if we've already sent the *commit* to a remote node, because the remote will *know* that changes have been undone and there is no conflict here.
 
-`revert` command doesn't change any pointer but creates new *commits* instead that only undo the previously changes (it deletes added lines and it adds the deleted lines again), so if we want to revert the last *commit* it's no longer necessary to refer to the *commit* preceding the last *commit* relative to **HEAD** as we did before with the *~1* but simply **HEAD** because it's the *commit* we want to undo, and we would do it by running the `git revert HEAD` command that would create a new *commit* with the name (if we don't change it manually) *Revert "Name of the undone commit"*.
+The main difference between `reset` and `revert` is that as we have seen `reset` makes it look like the _commit_ never existed, while `revert` creates another _commit_ reversing all _commit_ changes. And this is what makes it the only valid option if we've already sent the _commit_ to a remote node, because the remote will _know_ that changes have been undone and there is no conflict here.
 
-With `reset` command we could undo multiple *commits*, no matter how many of them, because the pointer changes, and everything is ready. With `revert` we can also get it, but if we run the learned command multiple times, for multiple *commits* that we want to undo, the *history* would be filled with *commits* created by the `revert` command and it no would be nice. Fortunately there is a solution with the use of parameters. Let's get dirty with our [repository for this Git course](https://github.com/sargantanacode/git-tutorial):
+`revert` command doesn't change any pointer but creates new _commits_ instead that only undo the previously changes (it deletes added lines and it adds the deleted lines again), so if we want to revert the last _commit_ it's no longer necessary to refer to the _commit_ preceding the last _commit_ relative to **HEAD** as we did before with the _~1_ but simply **HEAD** because it's the _commit_ we want to undo, and we would do it by running the `git revert HEAD` command that would create a new _commit_ with the name (if we don't change it manually) _Revert "Name of the undone commit"_.
+
+With `reset` command we could undo multiple _commits_, no matter how many of them, because the pointer changes, and everything is ready. With `revert` we can also get it, but if we run the learned command multiple times, for multiple _commits_ that we want to undo, the _history_ would be filled with _commits_ created by the `revert` command and it no would be nice. Fortunately there is a solution with the use of parameters. Let's get dirty with our [repository for this Git course](https://github.com/sargantanacode/git-tutorial):
+
 ```bash
 $ touch js.js
 $ git add js.js
@@ -45,7 +49,7 @@ $ git commit -m "Adding a JS file"
 [master 99ef7fc] Adding a JS file
  1 file changed, 0 insertions(+), 0 deletions(-)
  create mode 100644 js.js
- 
+
 $ touch js2.js
 $ git add js2.js
 $ git commit -m "Adding a second JS file"
@@ -54,7 +58,9 @@ $ git commit -m "Adding a second JS file"
  1 file changed, 0 insertions(+), 0 deletions(-)
  create mode 100644 js2.js
 ```
-Right now, in our case, the **b8813f9** *commit* would correspond to our **HEAD** and the **99ef7fc** *commit* to our **HEAD~1**. We could undo them elegantly in a single *commit* with the `git revert --no-commit HEAD` command and if we want to know what exactly happened we can use the `git status` command:
+
+Right now, in our case, the **b8813f9** _commit_ would correspond to our **HEAD** and the **99ef7fc** _commit_ to our **HEAD~1**. We could undo them elegantly in a single _commit_ with the `git revert --no-commit HEAD` command and if we want to know what exactly happened we can use the `git status` command:
+
 ```bash
 On branch master
 You are currently reverting commit b8813f9.
@@ -66,7 +72,9 @@ Changes to be committed:
 
         deleted:    js2.js
 ```
-But now let's go for the second *commit* that we want to undo with `git revert --no-commit HEAD~1` and let's run `git status` one more time:
+
+But now let's go for the second _commit_ that we want to undo with `git revert --no-commit HEAD~1` and let's run `git status` one more time:
+
 ```bash
 On branch master
 You are currently reverting commit 99ef7fc.
@@ -79,21 +87,26 @@ Changes to be committed:
         deleted:    js.js
         deleted:    js2.js
 ```
-And we've already finished undoing *commits*, so we can already execute the command that offers us in the third line the `status` command: `git revert --continue' ending the succession of undone *commits*.
+
+And we've already finished undoing _commits_, so we can already execute the command that offers us in the third line the `status` command: `git revert --continue' ending the succession of undone _commits_.
+
 ```bash
 [master 0056e96] Revert "Adding a JS file"
  2 files changed, 0 insertions(+), 0 deletions(-)
  delete mode 100644 js.js
  delete mode 100644 js2.js
 ```
-And if we check the Git log as we learned at the beginning we'll see that our *history* is like this:
+
+And if we check the Git log as we learned at the beginning we'll see that our _history_ is like this:
+
 ```bash
 * 0056e96 (HEAD -> master) Revert "Adding a JS file"
 * b8813f9 Adding a second JS file
 * 99ef7fc Adding a JS file
 ```
-Ready to be able to securely send these undone *commits* to a remote node.
 
-In any case, logically, we always have the option to correct errors and add a new *commit* with those errors corrected. That's a matter of taste.
+Ready to be able to securely send these undone _commits_ to a remote node.
+
+In any case, logically, we always have the option to correct errors and add a new _commit_ with those errors corrected. That's a matter of taste.
 
 We are saying goodbye to this article, but not before sharing our typical farewell with you: never stop programming!

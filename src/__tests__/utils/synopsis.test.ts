@@ -4,7 +4,7 @@
 
 import { describe, expect, it } from "vitest";
 
-import { processSynopsis, sanitizeSynopsis } from "../synopsis";
+import { processSynopsis, sanitizeSynopsis } from "../../utils/synopsis";
 
 describe("processSynopsis", () => {
   it("converts italic markdown to <em> tags", () => {

@@ -48,7 +48,7 @@ const allSeries = await getCollection("series");
 const allChallenges = await getCollection("challenges");
 
 // Calculate all stats
-const totalBooks = getTotalBooks(allBooks, lang);
+const _totalBooks = getTotalBooks(allBooks, lang);
 
 const scoreDistribution = getScoreDistribution(allBooks, lang);
 const authorsByGender = getAuthorsByGender(allBooks, allAuthors, lang);
@@ -73,10 +73,10 @@ const booksInLanguage = allBooks.filter((book) => book.data.language === lang);
 const femaleAuthorSlugs = new Set(authorsByGender.female.map((author) => author.data.author_slug));
 const maleAuthorSlugs = new Set(authorsByGender.male.map((author) => author.data.author_slug));
 
-const femaleBooks = booksInLanguage.filter((book) => femaleAuthorSlugs.has(book.data.author)).length;
-const maleBooks = booksInLanguage.filter((book) => maleAuthorSlugs.has(book.data.author)).length;
-const femaleAuthorsCount = authorsByGender.female.length;
-const maleAuthorsCount = authorsByGender.male.length;
+const _femaleBooks = booksInLanguage.filter((book) => femaleAuthorSlugs.has(book.data.author)).length;
+const _maleBooks = booksInLanguage.filter((book) => maleAuthorSlugs.has(book.data.author)).length;
+const _femaleAuthorsCount = authorsByGender.female.length;
+const _maleAuthorsCount = authorsByGender.male.length;
 ---
 
 <div class="taxonomy-list-grouped">

@@ -15,34 +15,41 @@ import { InlineImage } from "@components/blog";
 
 Estamos aprendiendo un montón de cosas nuevas para dominar Git, pero hasta este momento ni mención a la versiones de nuestros proyectos. Sabemos que vais muy adelantados en vuestro proyecto y que gracias a Git estáis trabajando de forma mucho más eficiente. Estáis a punto de publicar la versión 0.1 de vuestro proyecto, para que la gente pueda probarlo y dejaros sus opiniones, pero… ¿Cómo diablos creamos una nueva versión de nuestro software en Git? ¡Vamos a ello!
 
-En Git existe una función para añadir *tags* a nuestros *commits*, que no son más que unos punteros (como **HEAD** o cada una de las ramas, como ya vimos) que nos permiten referenciar un *commit* que queremos que queremos poder lozalizar y acceder fácilmente. En realidad podemos crear *tags* para cualquier *commit* que queramos poder localizar rápidamente una vez que haya pasado el tiempo, pero es cierto que generalmente esta función es utilizada para lanzamientos de versiones de nuestras aplicaciones.
+En Git existe una función para añadir _tags_ a nuestros _commits_, que no son más que unos punteros (como **HEAD** o cada una de las ramas, como ya vimos) que nos permiten referenciar un _commit_ que queremos que queremos poder lozalizar y acceder fácilmente. En realidad podemos crear _tags_ para cualquier _commit_ que queramos poder localizar rápidamente una vez que haya pasado el tiempo, pero es cierto que generalmente esta función es utilizada para lanzamientos de versiones de nuestras aplicaciones.
 
-A saber: existen dos tipos de *tags*, los anotados (*annotated tags*) y los no anotados (*lightweight tags*).
+A saber: existen dos tipos de _tags_, los anotados (_annotated tags_) y los no anotados (_lightweight tags_).
 
 ### Tags no anotados
-Primero veremos los no anotados, que son los más fáciles. Este tipo de *tags* son los que suelen utilizarse para poder localizar un *commit* especialmente relevante pero que no sea un lanzamiento de una nueva versión. ¿Por qué? Porque sólo se le puede poner una etiqueta con un nombre, nada más. Es una especie de recordatorio, usualmente temporal.
 
-Si el *tag* se quiere añadir al *commit* más reciente basta con añadir el comando `git tag v0.1` y si utilizamos el comando `git log --oneline --decorate` veremos que ahora nuestro **HEAD** también tiene el puntero **tag: v0.1**; si queremos añadir un *tag* a un *commit* anterior también se puede, bien poniendo el *hash* del *commit* (el *código* que referencia al *commit* situado en primer lugar en el comando `log`) o, como ya hemos aprendido a hacerlo, referenciándolo de forma relativa desde el *commit* más reciente (*HEAD*), por ejemplo: `git tag v0.1 HEAD~2`.
+Primero veremos los no anotados, que son los más fáciles. Este tipo de _tags_ son los que suelen utilizarse para poder localizar un _commit_ especialmente relevante pero que no sea un lanzamiento de una nueva versión. ¿Por qué? Porque sólo se le puede poner una etiqueta con un nombre, nada más. Es una especie de recordatorio, usualmente temporal.
+
+Si el _tag_ se quiere añadir al _commit_ más reciente basta con añadir el comando `git tag v0.1` y si utilizamos el comando `git log --oneline --decorate` veremos que ahora nuestro **HEAD** también tiene el puntero **tag: v0.1**; si queremos añadir un _tag_ a un _commit_ anterior también se puede, bien poniendo el _hash_ del _commit_ (el _código_ que referencia al _commit_ situado en primer lugar en el comando `log`) o, como ya hemos aprendido a hacerlo, referenciándolo de forma relativa desde el _commit_ más reciente (_HEAD_), por ejemplo: `git tag v0.1 HEAD~2`.
 
 ### Tags anotados
-Por así decirlo, un *tag* anotado es como un *commit* ya que es tratado como un objeto y en él podemos añadir un mensaje en el que expliquemos el motivo de haber añadido ese *tag*, además queda constancia de la fecha en que se añadió y quién lo añadió; es por esto que es ideal para versionar nuestro código, ya que queda todo mucho más detallado y en el mensaje podemos escribir cuáles son los cambios que añade esa nueva versión.
 
-El comando es muy similar al que ya hemos aprendido, sólo que añadiéndole parámetros. Si queremos escribir un mensaje corto, podemos hacerlo como en los *commits*: `git tag -a v0.1 -m "Testing Git tags"` aunque si queréis escribir un mensaje más largo, lo cual es recomendable, bastaría con escribir `git tag -a v0.1` y en ese momento aparecería el editor de texto que hayamos configurado para poder escribir todo lo que queramos. Lógicamente también podemos escribir *tags* anotados para *commits* anteriores, por ejemplo: `git tag -a v0.1 -m "Testing Git tags" HEAD~2`
+Por así decirlo, un _tag_ anotado es como un _commit_ ya que es tratado como un objeto y en él podemos añadir un mensaje en el que expliquemos el motivo de haber añadido ese _tag_, además queda constancia de la fecha en que se añadió y quién lo añadió; es por esto que es ideal para versionar nuestro código, ya que queda todo mucho más detallado y en el mensaje podemos escribir cuáles son los cambios que añade esa nueva versión.
+
+El comando es muy similar al que ya hemos aprendido, sólo que añadiéndole parámetros. Si queremos escribir un mensaje corto, podemos hacerlo como en los _commits_: `git tag -a v0.1 -m "Testing Git tags"` aunque si queréis escribir un mensaje más largo, lo cual es recomendable, bastaría con escribir `git tag -a v0.1` y en ese momento aparecería el editor de texto que hayamos configurado para poder escribir todo lo que queramos. Lógicamente también podemos escribir _tags_ anotados para _commits_ anteriores, por ejemplo: `git tag -a v0.1 -m "Testing Git tags" HEAD~2`
 
 ### Listar tags
-También podemos obtener una lista de todos los *tags* que hayamos añadido, y la forma más fácil es mediante el comando `git tag`. Fácil, ¿eh? Bueno, ¿y si tienes ya un desarrollo maduro y tienes muchísimas versiones? ¡Esa lista sería interminable! Pues afortunadamente existe una forma de filtrar los resultados. Si queremos filtrar los *tags* añadidos de las versiones 0.&#42; podríamos utilizar el comando `git tag -l "v0.*"`.
+
+También podemos obtener una lista de todos los _tags_ que hayamos añadido, y la forma más fácil es mediante el comando `git tag`. Fácil, ¿eh? Bueno, ¿y si tienes ya un desarrollo maduro y tienes muchísimas versiones? ¡Esa lista sería interminable! Pues afortunadamente existe una forma de filtrar los resultados. Si queremos filtrar los _tags_ añadidos de las versiones 0.\* podríamos utilizar el comando `git tag -l "v0.*"`.
 
 ### Obtener más información sobre un tag
-Si nuestro *tag* fue anotado, con el comando `git show v0.1` podremos ver toda la información relacionada con el *tag* pero también con el *commit* al que hace referencia; si nuestro *tag* fue no anotado, entonces sólo del *commit* al que hace referencia porque sobre el *tag* no habría ninguna información que obtener.
+
+Si nuestro _tag_ fue anotado, con el comando `git show v0.1` podremos ver toda la información relacionada con el _tag_ pero también con el _commit_ al que hace referencia; si nuestro _tag_ fue no anotado, entonces sólo del _commit_ al que hace referencia porque sobre el _tag_ no habría ninguna información que obtener.
 
 ### Eliminar tags
+
 En cualquier momento podemos eliminar un tag, sea anotado o no, con el mismo comando: `git tag -d v0.1`. Este comando no necesita más explicación.
 
 ### Enviar un tag a un nodo remoto
-Si queréis enviar un determinado *tag* a un nodo remoto (si no sabéis lo que es un remoto echad un vistazo a [Creando nuestro primer repositorio en GitHub](/es/article/creating-our-first-repository-on-github/)) se hace de la misma forma a como enviaríamos una nueva rama: `git push origin v0.1` y si tenéis más de un *tag* que queréis enviar podéis ejecutar el comando `git push origin --tags` para enviarlos todos con un único comando.
+
+Si queréis enviar un determinado _tag_ a un nodo remoto (si no sabéis lo que es un remoto echad un vistazo a [Creando nuestro primer repositorio en GitHub](/es/article/creating-our-first-repository-on-github/)) se hace de la misma forma a como enviaríamos una nueva rama: `git push origin v0.1` y si tenéis más de un _tag_ que queréis enviar podéis ejecutar el comando `git push origin --tags` para enviarlos todos con un único comando.
 
 ### Trabajando con los tags en nodos remotos
-Al enviar *tags* a nodos remotos como [GitHub](https://github.com/) o [GitLab](https://gitlab.com/) conseguimos ofrecer a los usuarios que visiten nuestros proyectos la información de que una nueva versión fue lanzada pero además poder descargársela fácilmente, que para más comodidad todo esto se crea de forma automática. En GitHub, por ejemplo, cuando se envía un nuevo *tag* éste aparece obviamente en la sección de *tags*, pero también en la de *releases*, con lo que crear una nueva versión de nuestra aplicación para que los usuarios puedan descargársela es cuestión de un momento.
+
+Al enviar _tags_ a nodos remotos como [GitHub](https://github.com/) o [GitLab](https://gitlab.com/) conseguimos ofrecer a los usuarios que visiten nuestros proyectos la información de que una nueva versión fue lanzada pero además poder descargársela fácilmente, que para más comodidad todo esto se crea de forma automática. En GitHub, por ejemplo, cuando se envía un nuevo _tag_ éste aparece obviamente en la sección de _tags_, pero también en la de _releases_, con lo que crear una nueva versión de nuestra aplicación para que los usuarios puedan descargársela es cuestión de un momento.
 
 <InlineImage type="tutorial" src="/images/tutorials/inline/seccion-tags-github.jpeg" alt="Sección de tags en GitHub" />
 

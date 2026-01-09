@@ -9,64 +9,85 @@ cover: "/images/tutorials/cabecera-apple.jpg"
 i18n: "how-to-install-zsh-oh-my-zsh-macos"
 ---
 
-Para quienes no quieran complicarse la vida en exceso, tenemos la suerte de que macOS viene con una serie de *shell* preinstaladas, aunque como es habitual la que viene por defecto siempre es *bash*. Y entre esas *shell* preinstaladas se encuentra *zsh*. ¿Ventajas e inconvenientes de esto? La ventaja es clara: lo único que hay que hacer es activarla; el inconveniente, obvio: al ser la versión que viene por defecto nunca estará tan actualizada como si nosotros instalamos una que podamos ir actualizando conforme se publiquen nuevas versiones. Cosa de cada cual optar por lo que prefiera.
+Para quienes no quieran complicarse la vida en exceso, tenemos la suerte de que macOS viene con una serie de _shell_ preinstaladas, aunque como es habitual la que viene por defecto siempre es _bash_. Y entre esas _shell_ preinstaladas se encuentra _zsh_. ¿Ventajas e inconvenientes de esto? La ventaja es clara: lo único que hay que hacer es activarla; el inconveniente, obvio: al ser la versión que viene por defecto nunca estará tan actualizada como si nosotros instalamos una que podamos ir actualizando conforme se publiquen nuevas versiones. Cosa de cada cual optar por lo que prefiera.
 
 ### Instalando una versión más reciente de zsh
+
 Empezamos por esta parte no porque queremos influenciaros sutilmente para que os deis cuenta de que es mejor que instaléis la versión más reciente, que también, sino porque una vez instalada esta versión los pasos para activar una y otra son los mismos salvo la ruta en la que se encuentra la versión elegida, cosa que veremos más adelante.
 
 Aunque macOS no tiene por defecto un gestor de paquetes mediante línea de comandos, como sí lo tienen las distribuciones Linux basadas en Unix, existe uno que pese a no ser oficial es de uso muy extendido; estamos hablando de [Homebrew](https://brew.sh/index_es.html). Para instalarlo, si todavía no está instalado, es tan sencillo como ejecutar este comando:
+
 ```bash
 $ /usr/bin/ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
 ```
+
 Después, tal y como haríamos en cualquier distribución linux, actualizaríamos los repositorios para asegurarnos de que descargaremos las últimas versiones de los paquetes que queramos instalar:
+
 ```bash
 $ brew update
 ```
-Para darnos cuenta de que realmente merecerá la pena todo este proceso y que realmente estaremos instalando una versión más reciente de *zsh* podemos comprobarlo mirando cuál es la versión que tenemos preinstalada en nuestro ordenador y cuál es la que está en los repositorios de Homebrew.
+
+Para darnos cuenta de que realmente merecerá la pena todo este proceso y que realmente estaremos instalando una versión más reciente de _zsh_ podemos comprobarlo mirando cuál es la versión que tenemos preinstalada en nuestro ordenador y cuál es la que está en los repositorios de Homebrew.
+
 ```bash
 $ zsh --version
 $ brew info zsh
 ```
+
 En el momento de escribir este artículo la versión preinstalada en macOS High Sierra es la 5.3, y en los repositorios de Homebrew se encuentra la 5.4.2. Vamos a instalarla:
+
 ```bash
 $ brew install zsh
 ```
-Ahora necesitamos decirle a macOS que tenemos una nueva *shell* instalada y que es seguro *confiar* en ella; para ello tenemos que editar el archivo `/etc/shells` y añadir la ruta `/usr/local/bin/zsh` al final de la lista. En esta ruta se encuentra un enlace simbólico apuntando a la ruta en que Homebrew instala todos los paquetes. Puedes elegir un editor de tu elección, pero asegúrate de lanzarlo siempre con permisos *root*.
+
+Ahora necesitamos decirle a macOS que tenemos una nueva _shell_ instalada y que es seguro _confiar_ en ella; para ello tenemos que editar el archivo `/etc/shells` y añadir la ruta `/usr/local/bin/zsh` al final de la lista. En esta ruta se encuentra un enlace simbólico apuntando a la ruta en que Homebrew instala todos los paquetes. Puedes elegir un editor de tu elección, pero asegúrate de lanzarlo siempre con permisos _root_.
+
 ```bash
 # vim /etc/shells
 ```
 
 ### Estableciendo zsh como shell por defecto
-A partir de aquí la única diferencia entre haber optado por la versión preinstalada en macOS o por instalar una nueva será la ruta en que se encuentra *zsh*.
 
-Ahora tenemos dos opciones: establecer mediante un comando que el usuario con el que hayamos iniciado sesión siempre inicie sesión con la *shell zsh* o configurar la aplicación que utilicemos para visualizar la consola de comandos para que inicie sesión con esa *shell*. Es más práctica la primera opción pero cada cual que elija.
+A partir de aquí la única diferencia entre haber optado por la versión preinstalada en macOS o por instalar una nueva será la ruta en que se encuentra _zsh_.
+
+Ahora tenemos dos opciones: establecer mediante un comando que el usuario con el que hayamos iniciado sesión siempre inicie sesión con la _shell zsh_ o configurar la aplicación que utilicemos para visualizar la consola de comandos para que inicie sesión con esa _shell_. Es más práctica la primera opción pero cada cual que elija.
 
 #### Mediante comando
-Para establecer por defecto el uso de *zsh* mediante comando sería, en caso de usar la versión por defecto:
+
+Para establecer por defecto el uso de _zsh_ mediante comando sería, en caso de usar la versión por defecto:
+
 ```bash
 $ chsh -s /bin/zsh
 ```
+
 Y en caso de haber instalado la versión de Homebrew:
+
 ```bash
 $ chsh -s /usr/local/bin/zsh
 ```
-Y si en el futuro queremos volver a *bash* sería tan fácil como:
+
+Y si en el futuro queremos volver a _bash_ sería tan fácil como:
+
 ```bash
 $ chsh -s /bin/bash
 ```
 
 #### Configurando la aplicación
-Terminal es la app por defecto de macOS para visualizar la consola de comandos, para indicarle que queremos iniciar sesión con *zsh* en vez de con *bash* tenemos que dirigirnos a las preferencias de la aplicación y, dentro de la pestaña General, en la sección **Las *shell* se abren con:** marcamos **Comando (ruta completa)** y escribimos la ruta de la versión de *zsh* que estemos utilizando, ya vistas anteriormente.
 
-Aunque no es la que viene por defecto, iTerm2 también es una app muy utilizada para este fin, sobre todo por sus múltiples opciones de configuración y porque tiene una mejor visualización de colores; para configurar iTerm2 para que se inicie con *zsh* en lugar de *bash* hay que abrir las preferencias, entrar en la pestaña Profiles y en la sección **Command** seleccionar **Command** y escribir la ruta de nuestra versión de *zsh*.
+Terminal es la app por defecto de macOS para visualizar la consola de comandos, para indicarle que queremos iniciar sesión con _zsh_ en vez de con _bash_ tenemos que dirigirnos a las preferencias de la aplicación y, dentro de la pestaña General, en la sección **Las _shell_ se abren con:** marcamos **Comando (ruta completa)** y escribimos la ruta de la versión de _zsh_ que estemos utilizando, ya vistas anteriormente.
 
-Como veis, si utilizáis diferentes aplicaciones, o puede que en el futuro instaléis otras para probarlas, estar configurando cada una de ellas para que inicie con *zsh* puede ser un poco tedioso, por lo que es más recomendable ejecutar el comando, que funcionará correctamente en cualquier caso.
+Aunque no es la que viene por defecto, iTerm2 también es una app muy utilizada para este fin, sobre todo por sus múltiples opciones de configuración y porque tiene una mejor visualización de colores; para configurar iTerm2 para que se inicie con _zsh_ en lugar de _bash_ hay que abrir las preferencias, entrar en la pestaña Profiles y en la sección **Command** seleccionar **Command** y escribir la ruta de nuestra versión de _zsh_.
+
+Como veis, si utilizáis diferentes aplicaciones, o puede que en el futuro instaléis otras para probarlas, estar configurando cada una de ellas para que inicie con _zsh_ puede ser un poco tedioso, por lo que es más recomendable ejecutar el comando, que funcionará correctamente en cualquier caso.
 
 ### Instalando Oh My ZSH!
-Sin duda, lo que hace que *zsh* sea lo que es es contar con *Oh My ZSH!*, aparte de una comunidad de desarrolladores volcada en implementar nuevas características, nuevos temas de colores, nuevos plugins… ¡Llegó el momento de sacarle pleno partido a nuestra terminal! Para instalar *Oh My ZSH!* es tan sencillo como ejecutar este comando:
+
+Sin duda, lo que hace que _zsh_ sea lo que es es contar con _Oh My ZSH!_, aparte de una comunidad de desarrolladores volcada en implementar nuevas características, nuevos temas de colores, nuevos plugins… ¡Llegó el momento de sacarle pleno partido a nuestra terminal! Para instalar _Oh My ZSH!_ es tan sencillo como ejecutar este comando:
+
 ```bash
 $ sh -c "$(curl -fsSL https://raw.github.com/robbyrussell/oh-my-zsh/master/tools/install.sh)"
 ```
-A partir de este momento toda la configurazión tanto de *zsh* como de *Oh My ZSH!* la tendréis en un archivo que se habrá generado automáticamente en `~/.zshrc` desde el que podréis [cambiar el tema del prompt](https://github.com/robbyrussell/oh-my-zsh/wiki/Themes), [añadir plugins de Oh My ZSH!](https://github.com/robbyrussell/oh-my-zsh/wiki/Plugins), etc.
+
+A partir de este momento toda la configurazión tanto de _zsh_ como de _Oh My ZSH!_ la tendréis en un archivo que se habrá generado automáticamente en `~/.zshrc` desde el que podréis [cambiar el tema del prompt](https://github.com/robbyrussell/oh-my-zsh/wiki/Themes), [añadir plugins de Oh My ZSH!](https://github.com/robbyrussell/oh-my-zsh/wiki/Plugins), etc.
 
 Y como no puede faltar nuestra despedida por excelencia: ¡nunca dejéis de programar!

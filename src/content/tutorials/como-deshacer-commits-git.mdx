@@ -11,32 +11,36 @@ cover: "/images/tutorials/cabecera-git.jpg"
 i18n: "how-to-undo-commits-in-git"
 ---
 
-En el artículo [Cómo recuperar ficheros tras modificarlos gracias a Git](/es/article/how-to-recover-files-after-modifying-them-thanks-to-git/) ya vimos qué hacer en algunos casos en los que hemos metido la pata modificando un archivo de forma errónea. ¿Pero qué podemos hacer cuando ya hemos hecho *commit* a aquello que está incorrecto? Aquí trataremos de explicártelo.
+En el artículo [Cómo recuperar ficheros tras modificarlos gracias a Git](/es/article/how-to-recover-files-after-modifying-them-thanks-to-git/) ya vimos qué hacer en algunos casos en los que hemos metido la pata modificando un archivo de forma errónea. ¿Pero qué podemos hacer cuando ya hemos hecho _commit_ a aquello que está incorrecto? Aquí trataremos de explicártelo.
 
-Hemos querido esperar a este momento para explicar este punto porque el procedimiento es bastante diferente dependiendo de qué se haya hecho con ese *commit*: si está todavía en nuestro equipo local o si ya se ha enviado a un nodo remoto (a GitHub, por ejemplo). Git dispone de los comandos `reset` (que ya vimos un poco por encima en el artículo mencionado al principio) y `revert`, que sirven ambos para deshacer *commits* pero cada uno de ellos de una forma diferente. Mientras que `revert` podemos usarlo tanto cuando un *commit* esté en local como cuando ya haya sido sincronizado con algún nodo remoto, `reset` **sólo debe ser usado** cuando el *commit* esté todavía en local. Ahora lo explicaremos detalladamente.
+Hemos querido esperar a este momento para explicar este punto porque el procedimiento es bastante diferente dependiendo de qué se haya hecho con ese _commit_: si está todavía en nuestro equipo local o si ya se ha enviado a un nodo remoto (a GitHub, por ejemplo). Git dispone de los comandos `reset` (que ya vimos un poco por encima en el artículo mencionado al principio) y `revert`, que sirven ambos para deshacer _commits_ pero cada uno de ellos de una forma diferente. Mientras que `revert` podemos usarlo tanto cuando un _commit_ esté en local como cuando ya haya sido sincronizado con algún nodo remoto, `reset` **sólo debe ser usado** cuando el _commit_ esté todavía en local. Ahora lo explicaremos detalladamente.
 
 ### Introducción
-En Git a todos los *commits* que hacemos se les van aplicando *punteros* (en realidad casi todo en Git funciona a base de punteros, pero dejémoslo ahí) que podremos ver con el comando `git log` donde se mostrará una lista de todo lo que hemos ido realizando dentro de nuestro repositorio Git. Sin parámetros éste es un comando un poco *espartano* por lo que os recomiendo ejecutarlo al menos con los parámetros `git log --oneline --decorate` y si queréis ver una estructura en modo árbol pues añadid el parámetro *--graph*: `git log --oneline --decorate --graph` para ver de forma más precisa de qué rama deriva cada uno de nuestros commits.
 
-Bien, al ver este log os habréis dado cuenta de que hay un puntero llamado **HEAD**, que hace referencia al *commit* más reciente que hayamos hecho.
+En Git a todos los _commits_ que hacemos se les van aplicando _punteros_ (en realidad casi todo en Git funciona a base de punteros, pero dejémoslo ahí) que podremos ver con el comando `git log` donde se mostrará una lista de todo lo que hemos ido realizando dentro de nuestro repositorio Git. Sin parámetros éste es un comando un poco _espartano_ por lo que os recomiendo ejecutarlo al menos con los parámetros `git log --oneline --decorate` y si queréis ver una estructura en modo árbol pues añadid el parámetro _--graph_: `git log --oneline --decorate --graph` para ver de forma más precisa de qué rama deriva cada uno de nuestros commits.
+
+Bien, al ver este log os habréis dado cuenta de que hay un puntero llamado **HEAD**, que hace referencia al _commit_ más reciente que hayamos hecho.
 
 Y después de esta introducción ya podemos seguir.
 
 ### Reset
-`reset` es un comando destructivo que deshace los *commits* de forma drástica: como si nunca hubiesen existido. Y eso, como dijimos, puede ser lo que buscamos cuando todavía nosotros tenemos los *commits* únicamente en nuestro equipo local, pero en ningún caso lo será en caso de que ya hayamos ejecutado el comando `git push` pues los conflictos que puede ocasionar son enormes en caso de que estemos trabajando en equipo y alguien ya tenga esos *commits* en su proyecto pero que *misteriosamente* hayan desaparecido de uno de los nodos. En fin, mejor ni imaginárselo.
 
-Si el error está en el último *commit*, utilizando el comando `git reset HEAD~1` (si se sustituye el 1 por un 2 sería el antepenúltimo *commit* enviado) el puntero **HEAD** ya no apuntaría al hasta entonces último *commit* sino al anterior, y nos dejaría las modificaciones de ese *commit* como archivos modificados pero sin siquiera estar añadidos a la *cola* para el próximo *commit* (comando `git add`).
+`reset` es un comando destructivo que deshace los _commits_ de forma drástica: como si nunca hubiesen existido. Y eso, como dijimos, puede ser lo que buscamos cuando todavía nosotros tenemos los _commits_ únicamente en nuestro equipo local, pero en ningún caso lo será en caso de que ya hayamos ejecutado el comando `git push` pues los conflictos que puede ocasionar son enormes en caso de que estemos trabajando en equipo y alguien ya tenga esos _commits_ en su proyecto pero que _misteriosamente_ hayan desaparecido de uno de los nodos. En fin, mejor ni imaginárselo.
 
-Utilizando los parámetros del comando `reset` podemos hacer uso del parámetro *--soft* para que al deshacer el *commit* sí deje los cambios en el *stage*: `git reset --soft HEAD~1` y esto es útil, por ejemplo, si los cambios que hemos hecho no son incorrectos pero se nos ha olvidado algún archivo por añadir al *commit* o hemos añadido más archivos de los necesarios; es decir: sólo eliminaría el comando `git commit`.
+Si el error está en el último _commit_, utilizando el comando `git reset HEAD~1` (si se sustituye el 1 por un 2 sería el antepenúltimo _commit_ enviado) el puntero **HEAD** ya no apuntaría al hasta entonces último _commit_ sino al anterior, y nos dejaría las modificaciones de ese _commit_ como archivos modificados pero sin siquiera estar añadidos a la _cola_ para el próximo _commit_ (comando `git add`).
 
-Y si nos gusta vivir al límite podemos usar el parámetro *--hard*: `git reset --hard HEAD~1` que es la forma más destrictiva de este comando, ya que deshace el *commit*, limpia el *stage* y además todos los archivos quedan como estaban previamente a ese *commit* y sin posibilidad de recuperar ninguno de los cambios realizados.
+Utilizando los parámetros del comando `reset` podemos hacer uso del parámetro _--soft_ para que al deshacer el _commit_ sí deje los cambios en el _stage_: `git reset --soft HEAD~1` y esto es útil, por ejemplo, si los cambios que hemos hecho no son incorrectos pero se nos ha olvidado algún archivo por añadir al _commit_ o hemos añadido más archivos de los necesarios; es decir: sólo eliminaría el comando `git commit`.
+
+Y si nos gusta vivir al límite podemos usar el parámetro _--hard_: `git reset --hard HEAD~1` que es la forma más destrictiva de este comando, ya que deshace el _commit_, limpia el _stage_ y además todos los archivos quedan como estaban previamente a ese _commit_ y sin posibilidad de recuperar ninguno de los cambios realizados.
 
 ### Revert
-La principal diferencia entre `reset` y `revert` es que como ya hemos visto `reset` hace como si el *commit* jamás hubiese existido, mientras que `revert` crea otro *commit* revirtiendo todos los cambios en el *commit* que hayamos especificado. Y es esto lo que hace que sea la única opción válida si ya hemos enviado el *commit* a un remoto, porque el remoto ya sabrá, cuando enviemos éste, que los cambios se han deshecho y no habrá ningún conflicto.
 
-Trabajando con `revert` ya no se cambian punteros sino que se crean nuevos *commits* que únicamente deshacen los cambios previamente realizados (las líneas añadidas las elimina y las líneas que ese *commit* eliminaba las añade de nuevo), así que si queremos revertir el último *commit* ya no es necesario referirse al penúltimo *commit* de forma relativa a **HEAD** como hacíamos antes con el *~1* sino simplemente **HEAD** que es el *commit* que queremos deshacer, y lo haríamos ejecutando el comando `git revert HEAD`que crearía un nuevo *commit* con el nombre (si no lo cambiamos manualmente) *Revert: "Nombre del commit deshecho"*.
+La principal diferencia entre `reset` y `revert` es que como ya hemos visto `reset` hace como si el _commit_ jamás hubiese existido, mientras que `revert` crea otro _commit_ revirtiendo todos los cambios en el _commit_ que hayamos especificado. Y es esto lo que hace que sea la única opción válida si ya hemos enviado el _commit_ a un remoto, porque el remoto ya sabrá, cuando enviemos éste, que los cambios se han deshecho y no habrá ningún conflicto.
 
-Con `reset` podíamos deshacer múltiples *commits*, no importa cuántos ya que se cambia el puntero y listo. Con `revert` también podemos sólo que si aplicamos el comando aprendido múltiples veces, para múltiples *commits* de los que queramos deshacernos, el *historial de cambios* quedaría repleto de *commits* creados por el comando `revert` y no sería especialmente bonito. Afortunadamente hay una solución con el uso de parámetros. Vamos a ponernos creativos en nuestro [repositorio para este curso de Git](https://github.com/sargantanacode/git-tutorial):
+Trabajando con `revert` ya no se cambian punteros sino que se crean nuevos _commits_ que únicamente deshacen los cambios previamente realizados (las líneas añadidas las elimina y las líneas que ese _commit_ eliminaba las añade de nuevo), así que si queremos revertir el último _commit_ ya no es necesario referirse al penúltimo _commit_ de forma relativa a **HEAD** como hacíamos antes con el _~1_ sino simplemente **HEAD** que es el _commit_ que queremos deshacer, y lo haríamos ejecutando el comando `git revert HEAD`que crearía un nuevo _commit_ con el nombre (si no lo cambiamos manualmente) _Revert: "Nombre del commit deshecho"_.
+
+Con `reset` podíamos deshacer múltiples _commits_, no importa cuántos ya que se cambia el puntero y listo. Con `revert` también podemos sólo que si aplicamos el comando aprendido múltiples veces, para múltiples _commits_ de los que queramos deshacernos, el _historial de cambios_ quedaría repleto de _commits_ creados por el comando `revert` y no sería especialmente bonito. Afortunadamente hay una solución con el uso de parámetros. Vamos a ponernos creativos en nuestro [repositorio para este curso de Git](https://github.com/sargantanacode/git-tutorial):
+
 ```bash
 $ touch js.js
 $ git add js.js
@@ -45,7 +49,7 @@ $ git commit -m "Adding a JS file"
 [master 99ef7fc] Adding a JS file
  1 file changed, 0 insertions(+), 0 deletions(-)
  create mode 100644 js.js
- 
+
 $ touch js2.js
 $ git add js2.js
 $ git commit -m "Adding a second JS file"
@@ -54,7 +58,9 @@ $ git commit -m "Adding a second JS file"
  1 file changed, 0 insertions(+), 0 deletions(-)
  create mode 100644 js2.js
 ```
-Ahora mismo, en nuestro caso, el *commit* **b8813f9** correspondería a nuestro **HEAD** y el *commit* **99ef7fc** a nuestro **HEAD~1**. Podríamos deshacernos de ellos de forma elegante en un único *commit* con el comando `git revert --no-commit HEAD` y si queremos saber qué ha pasado exactamente podemos apoyarnos del comando `git status`:
+
+Ahora mismo, en nuestro caso, el _commit_ **b8813f9** correspondería a nuestro **HEAD** y el _commit_ **99ef7fc** a nuestro **HEAD~1**. Podríamos deshacernos de ellos de forma elegante en un único _commit_ con el comando `git revert --no-commit HEAD` y si queremos saber qué ha pasado exactamente podemos apoyarnos del comando `git status`:
+
 ```bash
 On branch master
 You are currently reverting commit b8813f9.
@@ -66,7 +72,9 @@ Changes to be committed:
 
         deleted:    js2.js
 ```
-Pero ahora vamos a por el segundo *commit* del que queremos deshacernos con `git revert --no-commit HEAD~1` y volvemos a averiguar qué está pasando con `git status`:
+
+Pero ahora vamos a por el segundo _commit_ del que queremos deshacernos con `git revert --no-commit HEAD~1` y volvemos a averiguar qué está pasando con `git status`:
+
 ```bash
 On branch master
 You are currently reverting commit 99ef7fc.
@@ -79,21 +87,26 @@ Changes to be committed:
         deleted:    js.js
         deleted:    js2.js
 ```
-Y como ya hemos terminado de deshacer *commits* ya podemos ejecutar el comando que nos ofrece en la tercera línea el comando `status`: `git revert --continue` con lo que ponemos fin a la sucesión de *commits* deshechos.
+
+Y como ya hemos terminado de deshacer _commits_ ya podemos ejecutar el comando que nos ofrece en la tercera línea el comando `status`: `git revert --continue` con lo que ponemos fin a la sucesión de _commits_ deshechos.
+
 ```bash
 [master 0056e96] Revert "Adding a JS file"
  2 files changed, 0 insertions(+), 0 deletions(-)
  delete mode 100644 js.js
  delete mode 100644 js2.js
 ```
-Y si comprobamos el log de Git tal y como aprendimos al principio veremos que nuestro *histórico de cambios* quedó así:
+
+Y si comprobamos el log de Git tal y como aprendimos al principio veremos que nuestro _histórico de cambios_ quedó así:
+
 ```bash
 * 0056e96 (HEAD -> master) Revert "Adding a JS file"
 * b8813f9 Adding a second JS file
 * 99ef7fc Adding a JS file
 ```
-Listo para poder enviar de forma segura estos *commits* deshechos a un nodo remoto.
 
-Aunque lógicamente, en cualquier caso, siempre tenemos la opción de corregir estos errores y añadir un nuevo *commit* con esos errores corregidos. Eso ya es cuestión de gustos.
+Listo para poder enviar de forma segura estos _commits_ deshechos a un nodo remoto.
+
+Aunque lógicamente, en cualquier caso, siempre tenemos la opción de corregir estos errores y añadir un nuevo _commit_ con esos errores corregidos. Eso ya es cuestión de gustos.
 
 Nos vamos despidiendo por este artículo, no sin antes compartiendo con vosotros nuestra típica despedida: ¡nunca dejéis de programar!

@@ -13,19 +13,25 @@ i18n: "how-to-recover-files-after-modifying-them-thanks-to-git"
 
 En las anteriores entregas de esta serie ya hemos visto [cómo hacer un commit](https://sargantanacode.es/es/article/getting-started-with-git/) y [qué hacer si nos equivocamos](https://sargantanacode.es/es/article/the-three-states-of-git/), pero todavía hay mucho más que podemos hacer y por tanto muchas más cosas en las que podemos equivocarnos.
 
-Hace unos días, por ejemplo, actualizando el código fuente de esta página a la versión más reciente de [Symfony](https://symfony.com/) encontramos un bug que impedía el correcto funcionamiento de la página web tal y como la veis ahora; para poder seguir haciendo cambios mientras los desarrolladores de Symfony solucionaban el problema lo más fácil era revertir los archivos modificados a la versión que tenían antes de efectuar estos cambios… pero yo ya había hecho un *commit* porque se suponía que la página estaba bien actualizada y que debería funcionar correctamente. La batería de test de proyecto no se inicia manualmente (aunque también se puede, claro) sino que automáticamente se lanza cuando el nuevo código se envía a [GitHub](https://github.com/sargantanacode/sargantanacode), con el fin de conseguir mayor agilidad y de aislar en lo posible a los desarrolladores de lo que en principio es una tarea repetitiva y monótona. Aunque un inconveniente es por ejemplo este que comento, que no te das cuenta de si algo está mal hasta que no lo *envías* a GitHub. 
+Hace unos días, por ejemplo, actualizando el código fuente de esta página a la versión más reciente de [Symfony](https://symfony.com/) encontramos un bug que impedía el correcto funcionamiento de la página web tal y como la veis ahora; para poder seguir haciendo cambios mientras los desarrolladores de Symfony solucionaban el problema lo más fácil era revertir los archivos modificados a la versión que tenían antes de efectuar estos cambios… pero yo ya había hecho un _commit_ porque se suponía que la página estaba bien actualizada y que debería funcionar correctamente. La batería de test de proyecto no se inicia manualmente (aunque también se puede, claro) sino que automáticamente se lanza cuando el nuevo código se envía a [GitHub](https://github.com/sargantanacode/sargantanacode), con el fin de conseguir mayor agilidad y de aislar en lo posible a los desarrolladores de lo que en principio es una tarea repetitiva y monótona. Aunque un inconveniente es por ejemplo este que comento, que no te das cuenta de si algo está mal hasta que no lo _envías_ a GitHub.
 
 ¿Qué hacer entonces? Pues muy fácil, y ya lo hemos visto en anteriores entregas de esta serie, aunque lo hemos pasado por alto. Por ejemplo, queremos que la gente que ya sabe cómo funciona Git, y en principio no les va a servir, siga visitándonos porque tenemos muchas más cosas que ofrecerles. Vamos a añadir en nuestro `index.html` una frase para dejárselo claro:
+
 ```html
-<p>And if you are not interested in this course, we recommend you to
-stay tuned for updates too, because we'll be adding posts about other
-different topics completely different to this one </p>
+<p>
+  And if you are not interested in this course, we recommend you to stay tuned for updates too, because we'll be adding
+  posts about other different topics completely different to this one
+</p>
 ```
+
 Esta frase la vamos añadir debajo de esta otra:
+
 ```html
 <p>Would you like to get ninja level in Git? Stay tuned to our course!</p>
 ```
+
 Pero… ¡sorpresa! ¿Qué pasó? Se nos ha ido la mano y en lugar de ponerlo debajo de esa otra frase lo hemos reemplazado, ya no queda ni rastro de nuestra frase para agradar a los expertos en marketing y no hay forma de recuperarla… ¿Seguro? ¡Pues sí la hay! Aquí está Git para ayudarnos en esta tarea. Vamos a usar de nuevo nuestro querido comando `git status` y a ver qué tiene que contarnos esta vez:
+
 ```bash
 On branch master
 Changes not staged for commit:
@@ -34,21 +40,27 @@ Changes not staged for commit:
         modified:   index.html
 no changes added to commit (use "git add" and/or "git commit -a")
 ```
+
 Aunque esto ya lo hemos visto otras veces, habíamos pasado por alto la cuarta línea en la que nos dice exactamente lo que buscamos ahora: recuperar la versión anterior de un archivo modificado. Y es tan sencillo como escribir, como nos indica, `git checkout -- index.html` y el problema estaría solucionado…
 
-…O quizá no, porque somos tan torpes que esta vez además de equivocarnos, nos hemos dado cuenta después de introducir el comando `git add .` que ya vimos anteriormente que enviaba a la lista de cambios para incluir en el siguiente *commit* todos los archivos que hayan recibido alguna modificación. Bien, pues si ahora escribimos el ya conocido comiendo `git status` estaremos ante una línea que hasta ahora también habíamos ignorado:
+…O quizá no, porque somos tan torpes que esta vez además de equivocarnos, nos hemos dado cuenta después de introducir el comando `git add .` que ya vimos anteriormente que enviaba a la lista de cambios para incluir en el siguiente _commit_ todos los archivos que hayan recibido alguna modificación. Bien, pues si ahora escribimos el ya conocido comiendo `git status` estaremos ante una línea que hasta ahora también habíamos ignorado:
+
 ```bash
 On branch master
 Changes to be committed:
   (use "git reset HEAD <file>..." to unstage)
         modified:   index.html
 ```
-Y es precisamente la tercera línea la que nos indica qué comando tenemos que ejecutar para conseguir lo que nos proponemos. **HEAD** hace referencia al último *commit*, es decir: el último *commit* válido que hicimos, por lo que si volvemos a él todos los cambios que hemos añadido con `git add .` y que todos están mal porque estamos nerviosos y no paramos de equivocarnos, desaparecerán como si nunca hubiesen existido. ¡Justo lo que nos interesa! Procedemos pues con el comando: `git reset HEAD index.html`
+
+Y es precisamente la tercera línea la que nos indica qué comando tenemos que ejecutar para conseguir lo que nos proponemos. **HEAD** hace referencia al último _commit_, es decir: el último _commit_ válido que hicimos, por lo que si volvemos a él todos los cambios que hemos añadido con `git add .` y que todos están mal porque estamos nerviosos y no paramos de equivocarnos, desaparecerán como si nunca hubiesen existido. ¡Justo lo que nos interesa! Procedemos pues con el comando: `git reset HEAD index.html`
+
 ```bash
 Unstaged changes after reset:
 M       index.html
-````
+```
+
 Y ya lo hemos conseguido por fin, ya no nos hemos equivocado con la frase que queríamos poner, en el sitio en el que la queríamos poner, y sin eliminar ninguna otra que no queríamos eliminar. Sólo queda guardar los cambios para que no se pierdan:
+
 ```bash
 $ git add index.html
 $ git commit -m "Update homepage content and improve layout"
@@ -56,4 +68,5 @@ $ git commit -m "Update homepage content and improve layout"
 [master 497f0c9] Update homepage content and improve layout
  1 file changed, 3 insertions(+)
 ```
+
 Errar es humano, pero con las herramientas adecuadas podemos conseguir que los errores sean menos graves de lo que podrían ser. Y ahora que cada vez sabes utilizar mejor Git, recuerda: ¡nunca dejes de programar!

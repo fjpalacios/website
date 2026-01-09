@@ -13,21 +13,26 @@ i18n: "como-instalar-git-linux-macos-windows"
 
 Now that we already explained [What the Heck is Git](/en/article/what-is-git/), probably you're thinking; how can I get it on my PC? Well, then look no more, in this course we're going to show you how to Install Git on Linux, macOS or Windows.
 
-During this How To, we won't use any *GUI* (Graphical User Interface), instead, we will use *CUI* (Character User Interface) or globally known as *Command Line Interface*. Why? Simple, with the Graphical Front-end we loss many features that are not implemented on the available *GUI's* for Git. Anyways, if you would like to try a beautiful designed App for Git, which personally, I like, is [GitHub Desktop](https://desktop.github.com/). As you can notice, this App is developed by GitHub (hence the name), works perfect for managing local and remote repositories, as the only exception is the remote *repo* must be on GitHub. There are many alternatives for managing repos from the comfort of your PC but in this course we will focus on installing Git rather than showing all the alternatives (maybe in a next article?).
+During this How To, we won't use any _GUI_ (Graphical User Interface), instead, we will use _CUI_ (Character User Interface) or globally known as _Command Line Interface_. Why? Simple, with the Graphical Front-end we loss many features that are not implemented on the available _GUI's_ for Git. Anyways, if you would like to try a beautiful designed App for Git, which personally, I like, is [GitHub Desktop](https://desktop.github.com/). As you can notice, this App is developed by GitHub (hence the name), works perfect for managing local and remote repositories, as the only exception is the remote _repo_ must be on GitHub. There are many alternatives for managing repos from the comfort of your PC but in this course we will focus on installing Git rather than showing all the alternatives (maybe in a next article?).
 
 ### Installing Git in Linux
-On a Linux environment, the easiest way to get any software is thru the Package Manager included in your distribution (aptitude/apt, pacman and portage to name a few), *Why?* because all you need to do is type in a console a simple command and the Package Manager does all the job: dependencies, conflicts with other packages/software and lately, updating the software for bug fixes and new features are effortless which makes the job of maintaining everything up to date easier. Let's see how to install Git thru the main Package Managers.
+
+On a Linux environment, the easiest way to get any software is thru the Package Manager included in your distribution (aptitude/apt, pacman and portage to name a few), _Why?_ because all you need to do is type in a console a simple command and the Package Manager does all the job: dependencies, conflicts with other packages/software and lately, updating the software for bug fixes and new features are effortless which makes the job of maintaining everything up to date easier. Let's see how to install Git thru the main Package Managers.
 
 #### Debian
+
 ```bash
 # apt install git
 ```
 
 #### Ubuntu
+
 ```bash
 # apt install git
 ```
-If you want to use a more recent version you can install the same package from the unstable repository 
+
+If you want to use a more recent version you can install the same package from the unstable repository
+
 ```bash
 # add-apt-repository ppa:git-core/ppa
 # apt update
@@ -35,16 +40,19 @@ If you want to use a more recent version you can install the same package from t
 ```
 
 #### OpenSUSE
+
 ```bash
 # zypper install git
 ```
 
 #### ArchLinux
+
 ```bash
 # pacman -S git
 ```
 
 #### Gentoo
+
 ```bash
 # emerge --ask --verbose dev-vcs/git
 ```
@@ -52,33 +60,44 @@ If you want to use a more recent version you can install the same package from t
 If you don't see your Distribution (Linux Flavour) in this list, we presume that you are familiar with compiling and working with the console, you will find your way around ;)
 
 ### Installing Git on macOS
+
 Since a few releases, you can install Apple Developer Tools on macOS which includes Git but not the latest version. If you want to know what Git version you have installed just go into a terminal and type the next command:
+
 ```bash
 $ git --version
 ```
-If you have the Apple Developer Tools installed, that command will output the version of your currently installed Git, if not, *probably* will ask you to install the Developer Tools.
 
-Don't worry, there's another option available for all of us who don't like to have outdated software. [Homebrew](https://brew.sh/) is a Package Manager for macOS and help us install new software hassle-free. Would you like to try? 
+If you have the Apple Developer Tools installed, that command will output the version of your currently installed Git, if not, _probably_ will ask you to install the Developer Tools.
+
+Don't worry, there's another option available for all of us who don't like to have outdated software. [Homebrew](https://brew.sh/) is a Package Manager for macOS and help us install new software hassle-free. Would you like to try?
+
 ```bash
 $ /usr/bin/ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
 ```
+
 And after the installation is completed, let's use it:
+
 ```bash
 $ brew install git
 ```
+
 You're all set!
 
 #### Installing Git on Windows
-Git is designed and developed for Unix environments, as you know, Windows has nothing to do with Unix, the installation on Windows is a bit more fuzzy. In this How To we are not installing Git on Windows, what we are doing is, install a *Linux CUI Emulator* and get Git working this way.
+
+Git is designed and developed for Unix environments, as you know, Windows has nothing to do with Unix, the installation on Windows is a bit more fuzzy. In this How To we are not installing Git on Windows, what we are doing is, install a _Linux CUI Emulator_ and get Git working this way.
 In recent versions, Git gives the option to be run directly from Windows Command Line (`cmd.exe`), equaling Windows version to the Linux (or macOS), this way, the user doesn't feel much difference working with Git.
 
-We need to visit the [Git for Windows](https://git-scm.com/download/win) and download our copy according to our computer's specifications. There's no instructions for this part of the installation... because there are no steps.. just *Next, Next, Next, Next, Finish*! If everything went *Okay*, we should be able to run Git from cmd (`cmd.exe`) 
+We need to visit the [Git for Windows](https://git-scm.com/download/win) and download our copy according to our computer's specifications. There's no instructions for this part of the installation... because there are no steps.. just _Next, Next, Next, Next, Finish_! If everything went _Okay_, we should be able to run Git from cmd (`cmd.exe`)
+
 ```bash
 $ git --version
 ```
+
 If the output we get is the version currently installed, then, everything is ready to go.
 
 ### Setting up Git
+
 This part is universal as it works independently from the Operating System you use.
 
 The first step is setting up our username and email, this way, whenever we submit a change to the repository, we can be able to track who did what changes to the code/repo. Change the commands with your own before executing these.
@@ -87,11 +106,15 @@ The first step is setting up our username and email, this way, whenever we submi
 $ git config --global user.name "Your Name"
 $ git config --global user.email your.email@example.com
 ```
-We can set the default text editor when we do a *commit*
+
+We can set the default text editor when we do a _commit_
+
 ```bash
 $ git config --global core.editor vim
 ```
+
 And we can test the configuration for any errors:
+
 ```bash
 $ git config --list
 ```

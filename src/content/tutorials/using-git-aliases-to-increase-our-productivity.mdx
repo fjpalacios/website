@@ -13,26 +13,32 @@ i18n: "utilizando-alias-git-productividad"
 
 In [the previous article of this course](/en/article/how-to-undo-commits-in-git/) we learned to use the `git log` command with multiple parameters to increase its usefulness; however, it's not the only time we'll have to run commands in which we'll have to write more than we would like if we want to be agile and spend more time writing our code than managing our favorite version control system. Luckily, the Git developers seem to be aware of this and they've developed a very useful function such as aliases. Ok, it's true that we can create aliases in other ways, but the fact that there's a specific Git tool makes us consider the possibility of using it if we'd not considered it before using the configuration file of our command interpreter a.k.a shell.
 
-The first thing to know is that you can define global aliases or only for the user that executes the command, for this it's enough to add or not the *--global* parameter at the moment in which the command is executed. And this parameter may be familiar to you because you used it at the beginning of this course, when we configured our name and our email to start using Git; this is due to Git aliases are another parameter of the Git configuration.
+The first thing to know is that you can define global aliases or only for the user that executes the command, for this it's enough to add or not the _--global_ parameter at the moment in which the command is executed. And this parameter may be familiar to you because you used it at the beginning of this course, when we configured our name and our email to start using Git; this is due to Git aliases are another parameter of the Git configuration.
 
-And the second and last thing to know is that when you add an alias you can refer to Git commands or not; if they are Git commands it's no longer necessary to include *git* because we already *call* Git when writing the alias; if they're not Git commands, the alias must be preceded by the **!** symbol in order to let Git know that it must *call* the shell.
+And the second and last thing to know is that when you add an alias you can refer to Git commands or not; if they are Git commands it's no longer necessary to include _git_ because we already _call_ Git when writing the alias; if they're not Git commands, the alias must be preceded by the **!** symbol in order to let Git know that it must _call_ the shell.
 
 A very useful alias, and one that can save us a lot of time: in a single command it executes what we usually write when we start a Git repository. Normally we would run:
+
 ```bash
 $ git init
 $ git add .
 $ git commit -m "Initial commit"
 ```
+
 And if we speed up this task? We are proud to present you the `git this` command that currently doesn't exist but we are about to create it:
+
 ```bash
 $ git config --global alias.this '!git init && git add . && git commit -m \\"Initial commit\\"'
 ```
-As you can see, preceded by the symbol **!** as we said before (it's true that *everything are Git commands*, but we are using the `&&` typical symbol of the command line to be able to run several commands from a single alias, so technically they aren't Git commands anymore). But we'll also give you some idea to create aliases with Git commands, such as the `git co master` or` git cb sidebar-feature` commands that we are just now going to create:
+
+As you can see, preceded by the symbol **!** as we said before (it's true that _everything are Git commands_, but we are using the `&&` typical symbol of the command line to be able to run several commands from a single alias, so technically they aren't Git commands anymore). But we'll also give you some idea to create aliases with Git commands, such as the `git co master` or` git cb sidebar-feature` commands that we are just now going to create:
+
 ```bash
 $ git config --global alias.co checkout
 $ git config --global alias.cb 'checkout -b'
 ```
-As you already know: with the first one we would change to the branch *master* and with the second one we would create the branch *sidebar-feature* and we would change to it. The sky is the limit!
+
+As you already know: with the first one we would change to the branch _master_ and with the second one we would create the branch _sidebar-feature_ and we would change to it. The sky is the limit!
 
 What if we've created many aliases and we no longer remember all of them? Well, the easiest way would be to run `git config --list | grep alias` so the `grep` shell command solves our problem.
 

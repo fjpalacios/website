@@ -11,35 +11,39 @@ cover: "/images/tutorials/cabecera-git.jpg"
 i18n: "alias-utiles-oh-my-zsh-git"
 ---
 
-In a previous post we already learned to [use Git aliases to increase our productivity](/es/article/using-git-aliases-to-increase-our-productivity/), but we can increase our productivity even more. In three tutorials we've also learned [how to install ZSH and Oh My ZSH! in macOS](/es/article/how-to-install-zsh-oh-my-zsh-macos/), [how to install ZSH and Oh My ZSH! in GNU/Linux](/es/article/how-to-install-zsh-oh-my-zsh-gnu-linux/) and [how to install ZSH and Oh My ZSH! in the Linux Subsystem on Windows 10](/es/article/how-to-install-zsh-oh-my-zsh-linux-subsystem-windows-10/), so now we can focus on the features that *Oh My ZSH!* has specifically to increase our productivity while using Git CLI.
+In a previous post we already learned to [use Git aliases to increase our productivity](/es/article/using-git-aliases-to-increase-our-productivity/), but we can increase our productivity even more. In three tutorials we've also learned [how to install ZSH and Oh My ZSH! in macOS](/es/article/how-to-install-zsh-oh-my-zsh-macos/), [how to install ZSH and Oh My ZSH! in GNU/Linux](/es/article/how-to-install-zsh-oh-my-zsh-gnu-linux/) and [how to install ZSH and Oh My ZSH! in the Linux Subsystem on Windows 10](/es/article/how-to-install-zsh-oh-my-zsh-linux-subsystem-windows-10/), so now we can focus on the features that _Oh My ZSH!_ has specifically to increase our productivity while using Git CLI.
 
-Most of the commands we've used during this course —some of them a bit long— to do the necessary operations with Git have their alias in *Oh My ZSH!* This doesn't mean that you don't have to learn all the commands, because at some point we may be on a computer that doesn't have *Oh My ZSH!* installed and then we wouldn't know how to use Git, but assuming that we mostly know them, it's very useful to use aliases that allow us to speed up our interactions with the terminal to spend as little time as possible to this task and have more time for what is really important for us as developers: the development process.
+Most of the commands we've used during this course —some of them a bit long— to do the necessary operations with Git have their alias in _Oh My ZSH!_ This doesn't mean that you don't have to learn all the commands, because at some point we may be on a computer that doesn't have _Oh My ZSH!_ installed and then we wouldn't know how to use Git, but assuming that we mostly know them, it's very useful to use aliases that allow us to speed up our interactions with the terminal to spend as little time as possible to this task and have more time for what is really important for us as developers: the development process.
 
 ### Complete alias list for Git
-Once we've installed *Oh My ZSH!* it's very easy to get a list with all the aliases that we've available for use with the Git command line:
+
+Once we've installed _Oh My ZSH!_ it's very easy to get a list with all the aliases that we've available for use with the Git command line:
+
 ```bash
 $ alias | grep git
 ```
-The `alias` command shows us on the screen a list with all the aliases, and the `grep` command performs a search of the word **git** within that list of aliases to finally show us only those lines that contain the word **git**. It's a good idea to use this filter because *Oh My ZSH!* has a lot of aliases and we can go crazy looking only for those we want to find.
+
+The `alias` command shows us on the screen a list with all the aliases, and the `grep` command performs a search of the word **git** within that list of aliases to finally show us only those lines that contain the word **git**. It's a good idea to use this filter because _Oh My ZSH!_ has a lot of aliases and we can go crazy looking only for those we want to find.
 
 ### The most useful Git aliases in Oh My ZSH!
+
 To make this list, a bit subjective, like any other compilation list, we'll rely on the Git commands that we have been using so far and that could be a bit difficult for us to remember them. Let's get dirty!
 
-* The most commonly used `git status` can be simplified just with a` gst`.
-* To add the **foo** file to the *stage* to be included in the next *commit* we have the command `git add foo` and its alias is as easy as `ga foo`.
-* And if we wanted to include all the files at once we can use the `git add .` command, and as we can guess its alias is `gaa`.
-* When we want to *commit* with a message we can use the `git commit -m "commit message"` command, its simplification is `gcmsg "commit message"`.
-* When we modify a file locally but we've screwed up and we want to recover the last Git version from the file **foo** we can use the `git checkout -- foo` command, and with the aliases we can also use `gco -- foo`.
-* And if we've noticed late, when we've already included the file in the *stage* for the next *commit*, we can use the `git reset HEAD foo` command, and using these aliases we also have the possibility to use `grh foo`.
-* To create the **foo** branch that derives from **bar** in Git we can use the `git checkout -b foo bar` command and with these aliases we can also use the `gcb foo bar` command.
-* If we wanted to change to the **foo** Git branch we would use the `git checkout foo` command and with the aliases we can simplify it even more using only `gco foo`.
-* And as **master** and **develop** branches are so frequently used (we'll see this later in the style guides) there are also some aliases to be able to *checkout* directly to these branches: `gcm` and` gcd` respectively.
-* If we want to *merge* the **foo** Git branch we can write `git merge foo` and with these aliases we can just write `gm foo`.
-* And if we finally want to delete this Git branch it's enough with a `git branch -d foo` but with the aliases we can simplify it by writing `gbd foo`.
-* When we've a remote the most usual name is *origin*, so if we want to *push* from **master** branch we would write the `git push origin master` command but, thanks to these aliases, it's enough to make sure that we are located in the **master** branch and then write `ggpush` or `ggp`; automatically this alias will pass as a parameter the branch in which we are at that moment, which is usually the branch that we want to *push*.
-* To *pull* is the same but using the `ggpull` or` ggl` command.
+- The most commonly used `git status` can be simplified just with a` gst`.
+- To add the **foo** file to the _stage_ to be included in the next _commit_ we have the command `git add foo` and its alias is as easy as `ga foo`.
+- And if we wanted to include all the files at once we can use the `git add .` command, and as we can guess its alias is `gaa`.
+- When we want to _commit_ with a message we can use the `git commit -m "commit message"` command, its simplification is `gcmsg "commit message"`.
+- When we modify a file locally but we've screwed up and we want to recover the last Git version from the file **foo** we can use the `git checkout -- foo` command, and with the aliases we can also use `gco -- foo`.
+- And if we've noticed late, when we've already included the file in the _stage_ for the next _commit_, we can use the `git reset HEAD foo` command, and using these aliases we also have the possibility to use `grh foo`.
+- To create the **foo** branch that derives from **bar** in Git we can use the `git checkout -b foo bar` command and with these aliases we can also use the `gcb foo bar` command.
+- If we wanted to change to the **foo** Git branch we would use the `git checkout foo` command and with the aliases we can simplify it even more using only `gco foo`.
+- And as **master** and **develop** branches are so frequently used (we'll see this later in the style guides) there are also some aliases to be able to _checkout_ directly to these branches: `gcm` and` gcd` respectively.
+- If we want to _merge_ the **foo** Git branch we can write `git merge foo` and with these aliases we can just write `gm foo`.
+- And if we finally want to delete this Git branch it's enough with a `git branch -d foo` but with the aliases we can simplify it by writing `gbd foo`.
+- When we've a remote the most usual name is _origin_, so if we want to _push_ from **master** branch we would write the `git push origin master` command but, thanks to these aliases, it's enough to make sure that we are located in the **master** branch and then write `ggpush` or `ggp`; automatically this alias will pass as a parameter the branch in which we are at that moment, which is usually the branch that we want to _push_.
+- To _pull_ is the same but using the `ggpull` or` ggl` command.
 
-Finally, if we want to use some command that doesn't have alias, or we don't know it, we can always simplify it a bit because the `g` command is an alias of the `git` command, so we could use `g tag v0.1 HEAD` to add the version 0.1 *tag* to the last *commit* we made.
+Finally, if we want to use some command that doesn't have alias, or we don't know it, we can always simplify it a bit because the `g` command is an alias of the `git` command, so we could use `g tag v0.1 HEAD` to add the version 0.1 _tag_ to the last _commit_ we made.
 
 As you have seen, if we only use alias we can save a lot of time, which is always an advantage.
 

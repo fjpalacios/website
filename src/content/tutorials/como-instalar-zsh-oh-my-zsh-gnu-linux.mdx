@@ -9,58 +9,71 @@ cover: "/images/tutorials/cabecera-linux.jpg"
 i18n: "how-to-install-zsh-oh-my-zsh-gnu-linux"
 ---
 
-En la mayoría de casos puede que requiera más tiempo configurar *Oh My ZSH!* de la forma en que a nosotros nos guste, o nos interese dependiendo de las herramientas que usemos en nuestro día a día, que lo que es su instalación en sí. Cuando descubres *Oh My ZSH!* y la multitud de opciones que tiene entras en una especie de agujero negro en que el tiempo pasa a una velocidad que la Ciencia no puede explicar. No obstante, vamos a centrarnos en el tema de este tutorial: su instalación. Y para ello vamos a ver cómo instalar `zsh` en las principales distros Linux, porque la instalación de *Oh My ZSH!* es común para todas ellas.
+En la mayoría de casos puede que requiera más tiempo configurar _Oh My ZSH!_ de la forma en que a nosotros nos guste, o nos interese dependiendo de las herramientas que usemos en nuestro día a día, que lo que es su instalación en sí. Cuando descubres _Oh My ZSH!_ y la multitud de opciones que tiene entras en una especie de agujero negro en que el tiempo pasa a una velocidad que la Ciencia no puede explicar. No obstante, vamos a centrarnos en el tema de este tutorial: su instalación. Y para ello vamos a ver cómo instalar `zsh` en las principales distros Linux, porque la instalación de _Oh My ZSH!_ es común para todas ellas.
 
 ### Instalando ZSH
 
 #### Debian
+
 ```bash
 # apt install zsh
 ```
 
 #### Ubuntu
+
 ```bash
 # apt install zsh
 ```
 
 #### OpenSUSE
+
 ```bash
 # zypper install zsh
 ```
 
 #### Arch Linux
+
 ```bash
 # pacman -S zsh
 ```
 
 #### Gentoo
+
 ```bash
 # emerge --ask --verbose app-shells/zsh
 ```
+
 Seguro que si utilizáis una distro diferente sabréis perfectamente cuál es su gestor de paquetes y cómo instalar un nuevo paquete utilizándolo.
 
 ### Estableciendo ZSH como shell por defecto
+
 Para esto tenemos dos opciones:
 
-* Configurar la aplicación que estemos usando para visualizar la consola de comandos.
-* Establecer mediante un comando que siempre que se inicie sesión sea automáticamente mediante `zsh`.
+- Configurar la aplicación que estemos usando para visualizar la consola de comandos.
+- Establecer mediante un comando que siempre que se inicie sesión sea automáticamente mediante `zsh`.
 
 Como la primera opción requeriría un sinfín de instrucciones, porque dependiendo de la aplicación (hay a montones en GNU/Linux) que se utilice esta configuración estará localizada en un sitio diferente, nos centraremos en la segunda en este tutorial, que además de muy sencilla es indudablemente más practica. No obstante, si preferís la primera opción, seguro que con una simple búsqueda en Google encontráis la respuesta a vuestras inquietudes.
 
-El comando que tenemos que ejecutar para establecer `zsh` como nuestra *shell* por defecto es:
+El comando que tenemos que ejecutar para establecer `zsh` como nuestra _shell_ por defecto es:
+
 ```bash
 $ chsh -s $(which zsh)
-````
+```
+
 Para más información sobre el comando:
-* `chsh` es el paquete que se encarga de gestionar nuestras *shell*.
-* El parámetro `-s` establece como *shell* predeterminada la ruta que se le pase a continuación.
-* `$(which zsh)` es una forma embebida de ejecutar el comando `which zsh` que muestra por pantalla en qué ruta está ubicada la versión de `zsh` que tenemos instalada en nuestro sistema.
+
+- `chsh` es el paquete que se encarga de gestionar nuestras _shell_.
+- El parámetro `-s` establece como _shell_ predeterminada la ruta que se le pase a continuación.
+- `$(which zsh)` es una forma embebida de ejecutar el comando `which zsh` que muestra por pantalla en qué ruta está ubicada la versión de `zsh` que tenemos instalada en nuestro sistema.
 
 ### Instalando Oh My ZSH!
-Lo mejor de *Oh My ZSH!* es que su instalación, aunque un pelín compleja, a nosotros no nos supone más que ejecutar un comando, que lanza un ejecutable escrito en *bash* y automáticamente se encarga de todo sin que nosotros seamos conscientes de ello. Éste es un ejecutable seguro, pero cuando se descarguen ejecutables desde intenet conviene echarle un vistazo antes al código, porque si no nunca sabremos qué estamos ejecutando realmente, y en caso de ser un ejecutable proviniente de un sitio web malicioso podría poner en riesgo la seguridad de nuestro sistema. Y nosotros no queremos eso.
+
+Lo mejor de _Oh My ZSH!_ es que su instalación, aunque un pelín compleja, a nosotros no nos supone más que ejecutar un comando, que lanza un ejecutable escrito en _bash_ y automáticamente se encarga de todo sin que nosotros seamos conscientes de ello. Éste es un ejecutable seguro, pero cuando se descarguen ejecutables desde intenet conviene echarle un vistazo antes al código, porque si no nunca sabremos qué estamos ejecutando realmente, y en caso de ser un ejecutable proviniente de un sitio web malicioso podría poner en riesgo la seguridad de nuestro sistema. Y nosotros no queremos eso.
+
 ```bash
 $ sh -c "$(curl -fsSL https://raw.github.com/robbyrussell/oh-my-zsh/master/tools/install.sh)"
 ```
-Tras ejecutar este comando ya tendremos en nuestro sistema *Oh My ZSH!* con las configuraciones por defecto y un bonito *prompt* en nuestra nueva y mejorada terminal. No obstante, tenéis que saber que a partir de este momento toda la configurazión tanto de *zsh* como de *Oh My ZSH!* la tendréis en un archivo que se habrá generado automáticamente en `~/.zshrc` desde el que podréis [cambiar el tema del prompt](https://github.com/robbyrussell/oh-my-zsh/wiki/Themes), [añadir plugins de Oh My ZSH!](https://github.com/robbyrussell/oh-my-zsh/wiki/Plugins), etc.
+
+Tras ejecutar este comando ya tendremos en nuestro sistema _Oh My ZSH!_ con las configuraciones por defecto y un bonito _prompt_ en nuestra nueva y mejorada terminal. No obstante, tenéis que saber que a partir de este momento toda la configurazión tanto de _zsh_ como de _Oh My ZSH!_ la tendréis en un archivo que se habrá generado automáticamente en `~/.zshrc` desde el que podréis [cambiar el tema del prompt](https://github.com/robbyrussell/oh-my-zsh/wiki/Themes), [añadir plugins de Oh My ZSH!](https://github.com/robbyrussell/oh-my-zsh/wiki/Plugins), etc.
 
 Y ya sabéis: ¡nunca dejéis de programar!

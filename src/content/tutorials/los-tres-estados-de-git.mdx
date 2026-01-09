@@ -13,22 +13,27 @@ i18n: "the-three-states-of-git"
 
 Ya habéis creado [vuestro primer commit en Git](/es/article/getting-started-with-git/) siguiendo nuestros pasos, pero ahora toca entender qué pasó realmente y cómo podréis trabajar en el futuro con esta herramienta.
 
-Git se basa principalmente en tres estados: **confirmado** (*committed*), **modificado** (*modified*) y **preparado** (*staged*). Tras hacer un *commit* y tener tus camboos **confirmados** tienes la certeza de que todos los datos se han almacenado de forma segura en tu *línea del tiempo* de Git; cuando hay una modificación en algún archivo el estado *modified* nos indica que esa **modificación** ha sido detectada pero no está *a salvo* ya que todavía no se ha confirmado que se quieren guardar esos datos; por último, cuando está **preparado**, el estado *staged* nos indica que se han puesto en *cola* uno o varios archivos modificados, **en su versión actual**, para que se incluyan en el próximo *commit* y poder ser guardados definitivamente en la *línea temporal* de nuestra base de datos de Git.
+Git se basa principalmente en tres estados: **confirmado** (_committed_), **modificado** (_modified_) y **preparado** (_staged_). Tras hacer un _commit_ y tener tus camboos **confirmados** tienes la certeza de que todos los datos se han almacenado de forma segura en tu _línea del tiempo_ de Git; cuando hay una modificación en algún archivo el estado _modified_ nos indica que esa **modificación** ha sido detectada pero no está _a salvo_ ya que todavía no se ha confirmado que se quieren guardar esos datos; por último, cuando está **preparado**, el estado _staged_ nos indica que se han puesto en _cola_ uno o varios archivos modificados, **en su versión actual**, para que se incluyan en el próximo _commit_ y poder ser guardados definitivamente en la _línea temporal_ de nuestra base de datos de Git.
 
-**Nota**: destaco **en su versión actual** del texto anterior porque un archivo modificado y preparado puede sufrir más modificaciones antes de hacer un *commit* y si no se vuelve a indicar explícitamente la voluntad de **también** incluir esos últimos cambios en el siguiente *commit* sólo se enviaría la versión que está en el *stage* en *cola* para el próximo *commit*, sin los cambios más recientes que hayamos realizado.
+**Nota**: destaco **en su versión actual** del texto anterior porque un archivo modificado y preparado puede sufrir más modificaciones antes de hacer un _commit_ y si no se vuelve a indicar explícitamente la voluntad de **también** incluir esos últimos cambios en el siguiente _commit_ sólo se enviaría la versión que está en el _stage_ en _cola_ para el próximo _commit_, sin los cambios más recientes que hayamos realizado.
 
 Empezamos la parte práctica introduciendo `git status` que es el comando que más usamos en la anterior parte de este curso, esta vez obtnemos algo como esto:
+
 ```bash
 On branch master
 nothing to commit, working tree clean
 ```
-Y nos dice, en inglés, que el *working tree* (espacio de trabajo) está limpio, que no hay nada a lo que poder hacer *commit*. ¿Por qué? Sencillamente porque tenemos todo exactamente igual que lo teníamos la vez anterior: no se ha producido ningún cambio desde entonces.
+
+Y nos dice, en inglés, que el _working tree_ (espacio de trabajo) está limpio, que no hay nada a lo que poder hacer _commit_. ¿Por qué? Sencillamente porque tenemos todo exactamente igual que lo teníamos la vez anterior: no se ha producido ningún cambio desde entonces.
 
 Vamos a jugar un poco para entender esta explicación mejor; al archivo `index.html` que habíamos creado en la parte anterior de este curso vamos a añadirle una modificación. Tras el anterior `<h1>` añadimos esto:
+
 ```html
 <p>Would you like to get ninja level in Git?</p>
 ```
+
 Y ahora volvemos a comprobar el estado con `git status`
+
 ```bash
 On branch master
 Changes not staged for commit:
@@ -37,18 +42,24 @@ Changes not staged for commit:
         modified:   index.html
 no changes added to commit (use "git add" and/or "git commit -a")
 ```
-¡Ay, qué bonito es saber! Ahora el *Changes not staged for commit* ya no nos suena tan extraño, ¿a que no? Bien, hasta ahora hemos **modificado** el archivo, pero no le hemos dicho a Git que queremos **prepararlo** y ponerlo en *cola* para el próximo *commit*. Vamos allá pues, utilizando el comando `git add index.html`
+
+¡Ay, qué bonito es saber! Ahora el _Changes not staged for commit_ ya no nos suena tan extraño, ¿a que no? Bien, hasta ahora hemos **modificado** el archivo, pero no le hemos dicho a Git que queremos **prepararlo** y ponerlo en _cola_ para el próximo _commit_. Vamos allá pues, utilizando el comando `git add index.html`
+
 ```bash
 On branch master
 Changes to be committed:
   (use "git reset HEAD <file>..." to unstage)
         modified:   index.html
 ```
-Ahora tenemos esta **versión actual** del archivo **preparada** en el *stagaging area* pero no hemos hecho todavía el *commit*. ¿Ahora qué tal si modificamos de nuevo el archivo? La misma línea la vamos a extender, porque nuestro texto no nos parece lo suficientemente llamativo como para conseguir la expectación que deseamos en nuestro reclamo. Queda así en esta nueva modificación:
+
+Ahora tenemos esta **versión actual** del archivo **preparada** en el _stagaging area_ pero no hemos hecho todavía el _commit_. ¿Ahora qué tal si modificamos de nuevo el archivo? La misma línea la vamos a extender, porque nuestro texto no nos parece lo suficientemente llamativo como para conseguir la expectación que deseamos en nuestro reclamo. Queda así en esta nueva modificación:
+
 ```html
 <p>Would you like to get ninja level in Git? Stay tuned to our course!</p>
 ```
-Como veis, le hemos añadido un *Stay tuned to our course!*, que haría dar palmas a cualquier experto en marketing. Vamos a comprobar qué ha pasado para Git con nuestro querido comando `git status`
+
+Como veis, le hemos añadido un _Stay tuned to our course!_, que haría dar palmas a cualquier experto en marketing. Vamos a comprobar qué ha pasado para Git con nuestro querido comando `git status`
+
 ```bash
 On branch master
 Changes to be committed:
@@ -59,12 +70,16 @@ Changes not staged for commit:
   (use "git checkout -- <file>..." to discard changes in working directory)
         modified:   index.html
 ```
-Lo que comentábamos antes: hemos **preparado** una versión de `index.html` para que se guarde en Git con nuestro próximo *commit* pero no es la versión más actual del archivo, y Git, que es muy inteligente, es consciente de ello. En este punto caben dos opciones: que nos demos cuenta del detalle o que no; si nos damos cuenta a tiempo, pues simplemente ejecutamos otra vez `git add index.html` y solucionado… O lo que vamos a aprender ahora: que no nos demos cuenta y hagamos un *commit* de la versión **preparada** en el *stage* que no corresponde con la última versión del archivo modificado. Vamos allá con un `git commit -m "Adding a striking message"`
+
+Lo que comentábamos antes: hemos **preparado** una versión de `index.html` para que se guarde en Git con nuestro próximo _commit_ pero no es la versión más actual del archivo, y Git, que es muy inteligente, es consciente de ello. En este punto caben dos opciones: que nos demos cuenta del detalle o que no; si nos damos cuenta a tiempo, pues simplemente ejecutamos otra vez `git add index.html` y solucionado… O lo que vamos a aprender ahora: que no nos demos cuenta y hagamos un _commit_ de la versión **preparada** en el _stage_ que no corresponde con la última versión del archivo modificado. Vamos allá con un `git commit -m "Adding a striking message"`
+
 ```bash
 [master f7c5eba] Adding a striking message
  1 file changed, 1 insertion(+)
 ```
+
 Y si hacemos un `git status` veremos lo que ya suponíamos:
+
 ```bash
 On branch master
 Changes not staged for commit:
@@ -73,7 +88,9 @@ Changes not staged for commit:
         modified:   index.html
 no changes added to commit (use "git add" and/or "git commit -a")
 ```
-¡Ya la hemos liado! Hemos enviado nuestro *commit* pero nuestro archivo no tenía los últimos cambios. Pues como casi todo en Git, tine solución. Si es el último *commit* realizado se puede *revertir* para añadir los cambios modificados que no fueron **preparados** y por tanto no se incluyeron; primero ejecutamos `git add index.html`y luego con un comando tan sencillo como `git commit --amend` se nos abrirá el editor de textos que configuramos al inicio de este curso (en mi caso vim, siempre que tengo oportunidad he de decir esto :P) y veremos este texto:
+
+¡Ya la hemos liado! Hemos enviado nuestro _commit_ pero nuestro archivo no tenía los últimos cambios. Pues como casi todo en Git, tine solución. Si es el último _commit_ realizado se puede _revertir_ para añadir los cambios modificados que no fueron **preparados** y por tanto no se incluyeron; primero ejecutamos `git add index.html`y luego con un comando tan sencillo como `git commit --amend` se nos abrirá el editor de textos que configuramos al inicio de este curso (en mi caso vim, siempre que tengo oportunidad he de decir esto :P) y veremos este texto:
+
 ```bash
 Adding a striking message
 
@@ -86,13 +103,16 @@ Adding a striking message
 # Changes to be committed:
 #       modified:   index.html
 ```
-Lo primero es el mensaje del anterior *commit*, que si queremos podemos cambiar, y después un resumen de nuestro anterior *commit* que ahora modificaremos. Si queremos editamos el mensaje del *commit* y guardamos.
+
+Lo primero es el mensaje del anterior _commit_, que si queremos podemos cambiar, y después un resumen de nuestro anterior _commit_ que ahora modificaremos. Si queremos editamos el mensaje del _commit_ y guardamos.
+
 ```bash
 [master e02c63c] Adding a striking message
  Date: Tue Nov 7 20:02:01 2017 +0100
  1 file changed, 1 insertion(+)
 ```
-El identificador del *commit* anterior era **f7c5eba** y este es **e02c63c**, es decir, que aunque hayamos *revertido* el *commit* y hayamos hecho como si el anterior nunca hubiese existido, Git sabe que eso no es cierto e hizo cambiar el identificador único para cada *commit* que Git genera automáticamente.
+
+El identificador del _commit_ anterior era **f7c5eba** y este es **e02c63c**, es decir, que aunque hayamos _revertido_ el _commit_ y hayamos hecho como si el anterior nunca hubiese existido, Git sabe que eso no es cierto e hizo cambiar el identificador único para cada _commit_ que Git genera automáticamente.
 
 ¡Y esto es todo por hoy!
 
