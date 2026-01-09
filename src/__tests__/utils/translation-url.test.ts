@@ -75,9 +75,22 @@ describe("translation-url helpers", () => {
       expect(result).toBe("/en/unknown-segment");
     });
 
-    it("should preserve additional path segments", () => {
-      const result = buildStaticPageUrl(["es", "libros", "pagina", "2"], "es", "en");
-      expect(result).toBe("/en/books/pagina/2");
+    it("should redirect pagination pages to page 1 in target language", () => {
+      // Spanish pagination to English (should go to page 1)
+      const result1 = buildStaticPageUrl(["es", "publicaciones", "pagina", "2"], "es", "en");
+      expect(result1).toBe("/en/posts");
+
+      // English pagination to Spanish (should go to page 1)
+      const result2 = buildStaticPageUrl(["en", "books", "page", "3"], "en", "es");
+      expect(result2).toBe("/es/libros");
+
+      // Tutorials pagination
+      const result3 = buildStaticPageUrl(["es", "tutoriales", "pagina", "5"], "es", "en");
+      expect(result3).toBe("/en/tutorials");
+
+      // Posts pagination
+      const result4 = buildStaticPageUrl(["en", "posts", "page", "10"], "en", "es");
+      expect(result4).toBe("/es/publicaciones");
     });
 
     it("should handle feeds page translation", () => {

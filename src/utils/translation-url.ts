@@ -63,6 +63,7 @@ export function buildHomeUrl(targetLang: string): string {
 /**
  * Build static page URL translating the route segment
  * Used for pages like /about, /feeds that always have translations
+ * Also handles pagination pages by redirecting to page 1 of the target language
  *
  * @param pathParts - Array of path segments from current URL
  * @param currentLang - Current language code
@@ -71,6 +72,8 @@ export function buildHomeUrl(targetLang: string): string {
  * @example
  * buildStaticPageUrl(["es", "acerca-de"], "es", "en") // "/en/about"
  * buildStaticPageUrl(["en", "feeds"], "en", "es") // "/es/feeds"
+ * buildStaticPageUrl(["en", "posts", "page", "2"], "en", "es") // "/es/publicaciones" (page 1)
+ * buildStaticPageUrl(["es", "libros", "pagina", "3"], "es", "en") // "/en/books" (page 1)
  */
 export function buildStaticPageUrl(pathParts: string[], currentLang: string, targetLang: string): string {
   if (pathParts.length < 2) {
@@ -87,6 +90,17 @@ export function buildStaticPageUrl(pathParts: string[], currentLang: string, tar
 
   // Translate segment to target language
   const translatedSegment = getLocalizedRoute(canonicalSegment as RouteSegment, targetLang);
+
+  // Check if this is a pagination page (e.g., /posts/page/2 or /publicaciones/pagina/2)
+  // If so, redirect to page 1 (the index) in the target language
+  if (pathParts.length >= 3) {
+    const thirdSegment = pathParts[2];
+    // Check if the third segment is a pagination segment ("page" or "pagina")
+    if (thirdSegment === "page" || thirdSegment === "pagina") {
+      // Redirect to page 1 (the index page) in target language
+      return `/${targetLang}/${translatedSegment}`;
+    }
+  }
 
   // Rebuild path with remaining segments (if any)
   const remainingParts = pathParts.slice(2);

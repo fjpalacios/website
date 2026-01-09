@@ -42,13 +42,16 @@ export function isStaticPage(currentPath: string, lang: string): boolean {
 /**
  * Check if the given path represents an index/listing page
  * Index pages show lists of content (books, posts, tutorials, taxonomies)
+ * This includes pagination pages (e.g., /posts/page/2, /posts/pagina/2)
  *
  * @param currentPath - Current URL pathname
  * @param lang - Current language code
- * @returns True if this is an index/listing page
+ * @returns True if this is an index/listing page (including paginated)
  * @example
  * isIndexPage("/es/libros", "es") // true
+ * isIndexPage("/es/libros/pagina/2", "es") // true (pagination)
  * isIndexPage("/en/posts", "en") // true
+ * isIndexPage("/en/posts/page/3", "en") // true (pagination)
  * isIndexPage("/es/libros/mi-libro", "es") // false (detail page)
  */
 export function isIndexPage(currentPath: string, lang: string): boolean {
@@ -70,7 +73,24 @@ export function isIndexPage(currentPath: string, lang: string): boolean {
     `/${lang}/${t(lang, "routes.courses")}`,
   ];
 
-  return indexRoutes.includes(normalizedPath);
+  // Check if it's an exact match for an index route
+  if (indexRoutes.includes(normalizedPath)) {
+    return true;
+  }
+
+  // Check if it's a pagination page (e.g., /posts/page/2 or /posts/pagina/2)
+  // Extract pagination segment based on language
+  const paginationSegment = lang === "en" ? "page" : "pagina";
+
+  for (const indexRoute of indexRoutes) {
+    // Check if path starts with index route followed by pagination
+    const paginationPattern = `${indexRoute}/${paginationSegment}/`;
+    if (normalizedPath.startsWith(paginationPattern)) {
+      return true;
+    }
+  }
+
+  return false;
 }
 
 /**

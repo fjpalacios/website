@@ -22,14 +22,15 @@ interface Props {
   currentPage: number;
   totalPages: number;
   contact: ContactItem[];
+  hasTargetContent: boolean;
 }
 
-const { lang, tutorials, currentPage, totalPages, contact } = Astro.props;
+const { lang, tutorials, currentPage, totalPages, contact, hasTargetContent } = Astro.props;
 
 // Add page number to title and description for SEO
-const baseTitle = "📚 " + t(lang, "pages.tutorials");
 const pageNumberText = lang === "en" ? `Page ${currentPage}` : `Página ${currentPage}`;
-const pageTitle = `${baseTitle} - ${pageNumberText}`;
+const pageTitle = `${t(lang, "pages.tutorials")} - ${pageNumberText}`;
+const displayTitle = `${t(lang, "pages.tutorials")} - ${pageNumberText}`;
 const baseDescription = lang === "en" ? "Web development tutorials and guides" : "Tutoriales y guías de desarrollo web";
 const pageDescription = `${baseDescription} - ${lang === "en" ? `page ${currentPage}` : `página ${currentPage}`}`;
 
@@ -42,11 +43,12 @@ const basePath = `/${lang}/${t(lang, "routes.tutorials")}`;
   title={pageTitle}
   description={pageDescription}
   contact={contact}
+  hasTargetContent={hasTargetContent}
   currentPage={currentPage}
   totalPages={totalPages}
   basePath={basePath}
 >
-  <Title title={pageTitle} />
+  <Title title={displayTitle} icon="graduation-cap" />
 
   {
     tutorials.length > 0 ? (
