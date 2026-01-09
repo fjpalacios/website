@@ -1,0 +1,51 @@
+---
+title: "Releasing new versions of our projects using Git tags"
+post_slug: "releasing-new-versions-of-our-projects-using-git-tags"
+date: "2018-01-11"
+excerpt: "Discover how to use Git tags to version your code. Learn how to create, list, and delete annotated and lightweight tags."
+language: "en"
+categories: ["git"]
+course: "mastering-git-from-scratch"
+order: 13
+cover: "/images/tutorials/cabecera-git.jpg"
+i18n: "lanzando-versiones-tags-git"
+---
+
+import { InlineImage } from "@components/blog";
+
+We're learning a lot of new things to master Git, but until now we haven't said anything about the versions of our projects. We know that you are very advanced in your project and thanks to Git you are working in a more efficient way. You are about to publish the version 0.1 of your project, so people can try it and leave their opinions, but… How the heck we create a new version of our software in Git? Let's go to it!
+
+In Git there is a function to add *tags* to our *commits*, which are only a few pointers (like **HEAD** or each of the branches, as we saw before), this allows us to reference a *commit* that we want to be able to locate and access it easily. We can actually create *tags* for any *commit* we want to locate quickly once time has passed, but it's true that this function is generally used to launch versions of our applications.
+
+FYI: There are two types of *tags*, *annotated* and *lightweight tags*.
+
+### Lightweight tags
+First we will focus on the *lightweight tags*, which are the easiest to learn. This type of *tags* is usually used to locate a specially relevant *commit* but not a release of a new version. Why? Because you can only add a label with a name and this doesn't seem very useful, isn't it? It's a kind of reminder, usually a temporary one.
+
+If you want to add the *tag* to the most recent *commit* just run the `git tag v0.1` command, and if we use the `git log --oneline --decorate` command we'll see that now our **HEAD** also has the **tag: v0.1** pointer; if we want to add a *tag* to a previous *commit* you can also do it, either through the hash of the *commit* (the *code* that references the *commit* located first in the `log` command) or, as we've learned to do, referencing it in a relative way from the most recent *commit* (*HEAD*), like: `git tag v0.1 HEAD~2`.
+
+### Annotated tags
+In simple words, an *annotated tag* is something like a *commit* as it's treated as an object by Git; in this type of *tags* we can add a message that explain the reason for having added that *tag*, in addition, the date it was added and who added it will be saved; that's why it's great for our code versioning, since more information is stored and in the message we can write what are the changes that this new version adds.
+
+The command is very similar to the one we have already learned, but adding some parameters. If we want to write a short message, we can do it as in *commits*: `git tag -a v0.1 -m "Testing Git tags"` but if you want to write a longer message, which is recommended, just write `git tag -a v0.1` so that Git opens us the text editor that we've configured previously to write everything we want. Logically we can also add *annotated tags* for previous *commits*: `git tag -a v0.1 -m "Testing Git tags" HEAD~2` easy peasy, right?
+
+### Listing tags
+We can also get a list of all added *tags*, and the easiest way is through the `git tag` command. So easy for you guys, huh? Well, what if you already have a mature development and you have many added versions? Holy shit! That list would be very long! But fortunately there's a way to filter the results. If we want to filter the added *tags* of the 0.&#42; versions we could execute the `git tag -l "v0.*"` command.
+
+### Getting more information about a tag
+If we've added an *annotated tag*, with the `git show v0.1` command we can see all the information related to the *tag* but also with the *commit* to which it refers; if we've added a *lightweight tag*, then we'll only get information about the *commit* to which it refers because from the *tag* there would be no information to obtain.
+
+### Removing tags
+At any time we can delete a tag, whether it's an *annotated tag* or not, with the same command: `git tag -d v0.1`. This command doesn't need more explanation, isn't it?
+
+### Sending a tag to a remote node
+If you want to send a certain *tag* to a remote node (if you do not know what a remote is, take a look at [Creating our first repository on GitHub](/en/article/creating-our-first-repository-on-github/)) you can do it in the same way as we'd send a new branch: `git push origin v0.1` and if you want to send more than one *tag* you can execute the command `git push origin --tags` to send them all with a single command.
+
+### Working with tags on remote nodes
+When sending *tags* to remote nodes like [GitHub](https://github.com/) or [GitLab](https://gitlab.com/) we offer users who visit our projects the information that a new version was released but also that they can download it easily, and for convenience it's created automatically. In GitHub, for example, when a new *tag* is sent, it obviously appears in the section of *tags*, but also in the *releases* one, therefore create a new version of our application so that users can download it is a quick and easy task.
+
+<InlineImage type="tutorial" src="/images/tutorials/inline/seccion-tags-github.jpeg" alt="Tags section on GitHub" />
+
+Now you can no longer say that you've not shared with the world a version of your application (I hope an open source application) because you didn't know how to do it.
+
+Never stop programming!

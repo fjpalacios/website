@@ -1,0 +1,34 @@
+---
+title: "Cómo instalar el subsistema de Linux en Windows 10"
+post_slug: "como-instalar-subsistema-linux-windows-10"
+date: "2018-02-10"
+excerpt: "Aprende a instalar el subsistema de Linux en Windows 10 (WSL). Descubre cómo configurar Ubuntu, Suse u OpenSUSE en tu sistema Windows."
+language: "es"
+categories: ["windows"]
+cover: "/images/tutorials/cabecera-windows.jpg"
+i18n: "how-to-install-linux-subsystem-windows-10"
+---
+
+Hay que reconocerlo: Microsoft últimamente ya no es lo que era, y lo mejor de todo es que este cambio ha sido para bien. Últimamente está contribuyendo muchísimo con el software libre, y está aportando herramientas, especialmente para los programadores, que nos facilitan muchísimo la vida en nuestra tarea diaria, por ejemplo: [Visual Studio Code](https://code.visualstudio.com/), que *nació* para hacer frente a [Atom](https://atom.io/), pero que en muchos casos ya se puede decir que ha superado a Atom, especialmente si desarrollamos con JavaScript.
+
+Y concretamente en el área de la programación Windows tenía una carencia brutal: cada vez salen más herramientas para facilitar el desarrollo a los programadores, que generalmente se usan desde la terminal: git, npm, composer… por citar algunos. ¿Y cuál es el problema? Que todos ellos, tal cual son concebidos, dependen de una terminal *bash* para su funcionamiento (se pueden hacer *emulaciones* para conseguir su compatibilidad para Windows, pero eso ya supone un trabajo extra para los creadores de las herramientas). Los desarrolladores de estas herramientas ya daban por hecho que los desarrolladores cuentan con una terminal bash en sus equipos, y eso perjudicaba seriamente a Microsoft, que veía como se le escapaba parte del mercado.
+
+Windows 10 ha sido la solución, y en especial a partir de su actualización **Fall Creators**, con la cual el subsistema de Linux para Windows (WSL) salía de su versión beta y ya todo el mundo podía hacer uso de él con plenas garantías de compatibilidad y estabilidad.
+
+El subsistema de Linux para Windows es la forma en que la gente de Microsoft se las ha ingeniado para tener una distribución de Linux de nuestra elección, de entre unas cuantas disponibles, sin entorno gráfico por defecto, para poder realizar las acciones que necesitemos desde una terminal *bash*. Esta distribución podrá acceder a nuestro sistema con Windows 10 (a la inversa no es tan fácil, pero se entiende que en principio no es necesario), instalar las aplicaciones necesarias para nuestro desarrollo de software y acceder desde esta terminal a todas las carpetas que con nuestro usuario de Windows tengamos permiso para acceder.
+
+### ¿Y cómo dices que se instala esto?
+Pues muy fácil. Lo primero: tienes que tener Windows 10 con todas las actualizaciones dispoinles instaladas, de lo contrario es muy probable que no tengas habilitado aún este servicio. Si estás seguro de que la actualización ** Windows Fall Creators** la tienes instalada entonces puedes continuar aunque no tengas todo actualizado.
+
+Ahora presiona la tecla Windows de tu teclado y escribe `PowerShell`, haz clic secundario en la aplicación y ejecútala como administrador. En esta terminal debes introducir el siguiente comando:
+
+```bash
+Enable-WindowsOptionalFeature -Online -FeatureName Microsoft-Windows-Subsystem-Linux
+```
+
+Con esto estaremos habilitando el servicio en Windows y acto seguido podremos dirigirnos a Microsoft Store y buscar la distribución Linux que queramos instalar. En el momento de escribir este artículo podemos escoger entre **Ubuntu**, **Suse Linux Enterprise Server** y **OpenSUSE**, aunque existe el proyecto [WSL-Distribution-Switcher
+](https://github.com/RoliSoft/WSL-Distribution-Switcher) sobre el cual podéis investigar para instalar otras distribuciones, aunque lógicamente de forma no oficial.
+
+Aunque no es como instalar una distribución Linux en nuestro equipo, podemos decir sin miedo a equivocarnos que Microsoft va por buen camino y que está haciendo un buen trabajo para hacer de Windows 10 un sistema operativo con el que los desarrolladores puedan trabajar a gusto.
+
+Y como siempre decimos para despedirnos: ¡nunca dejéis de programar!

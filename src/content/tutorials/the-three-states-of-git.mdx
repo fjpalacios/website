@@ -1,0 +1,99 @@
+---
+title: "The three States of Git"
+post_slug: "the-three-states-of-git"
+date: "2017-11-08"
+excerpt: "Mastering Git requires us to understand the three States of Git. In this tutorial we teach you everything you need to know about them."
+language: "en"
+categories: ["git"]
+course: "mastering-git-from-scratch"
+order: 4
+cover: "/images/tutorials/cabecera-git.jpg"
+i18n: "los-tres-estados-de-git"
+---
+
+We've created [Our First Commit with Git](/en/article/getting-started-with-git/) following our steps, but now we going to learn what really happened.
+
+Git has three basic states, which are: **committed**, **modified** and **staged**. After you **commit** changes and you have your modifications ready, you can relax then because all your changes are safe in Git's timeline, when the state is **modified** Git recognizes a change in the files but they aren't *committed* and **staged** means the **actual modifications** of the files are in the *queue* but they are not *committed*.
+
+Note: by **actual modifications** I mean the modifications you did to the file(s) before adding them to the queue, if you don't *tell* Git you want to submit any new changes you do after the first *commit*, Git is going to submit the file(s) "as it was/as they were" when you told Git to add the file(s) to the queue in the first place.
+
+Let's start with the fun part, we are going to use `git status`, which can be familiar to some of you because we used it in the last part of this course.
+```bash
+On branch master
+nothing to commit, working tree clean
+```
+As you can see, the output we get is really straight forward, the *working tree is clean*, in other words, there's no file(s) to be *committed*. *Why is this happening to me?* Because the only file we have in our *repository* didn't suffer any changes so... let's sort this out. :P
+
+Okay, remember `index.html`?  We are going to modify it, just a simple change, adding the following *snippet* just before the`<h1>`.
+```html
+<p>Would you like to get ninja level in Git?</p>
+```
+What about another `git status`?
+```bash
+On branch master
+Changes not staged for commit:
+  (use "git add <file>..." to update what will be committed)
+  (use "git checkout -- <file>..." to discard changes in working directory)
+        modified:   index.html
+no changes added to commit (use "git add" and/or "git commit -a")
+```
+Knowledge is priceless, right? Now *Changes not staged for commit* sounds a bit better for us now, but we didn't told Git we want to *commit* the changes, let's do it with `git add index.html`.
+```bash
+On branch master
+Changes to be committed:
+  (use "git reset HEAD <file>..." to unstage)
+        modified:   index.html
+```
+We have the **actual version** *staged* and ready for *commit*, what about adding some spice to our HTML? Just an extension of the last line we just added.
+```html
+<p>Would you like to get ninja level in Git? Stay tuned to our course!</p>
+```
+As you can see we just added *Stay tuned to our course!* which would be the pride of all the Marketing Experts to be honest but what happens now with `git status`?
+```bash
+On branch master
+Changes to be committed:
+  (use "git reset HEAD <file>..." to unstage)
+        modified:   index.html
+Changes not staged for commit:
+  (use "git add <file>..." to update what will be committed)
+  (use "git checkout -- <file>..." to discard changes in working directory)
+        modified:   index.html
+```
+As we said before, we have everything ready for our next **commit**, but with the changes we realized to our file, Git (who is a *smart-y* pants) knows the actual file has been modified again. At this point, there's two options, we are aware of this and we *add* the next modifications for the *commit* with a simple `git add index.html` or, just do the *commit* like we are going to do now which is going to show us why using a version control software helps a lot, let's *commit* our file to the repository with `git commit -m "Adding a striking message"`.
+```bash
+[master f7c5eba] Adding a striking message
+ 1 file changed, 1 insertion(+)
+```
+And once again, let's see what `git status` has to say
+```bash
+On branch master
+Changes not staged for commit:
+  (use "git add <file>..." to update what will be committed)
+  (use "git checkout -- <file>..." to discard changes in working directory)
+        modified:   index.html
+no changes added to commit (use "git add" and/or "git commit -a")
+```
+We're in trouble now… we just send our *commit* but without the latest changes, don't worry, thanks to Git we can solve this (at least for now…). If we didn't *committed* any more changes but the last one, we can *revert* this, first, with `git add index.html` and after just a simple `git commit --amend`, the text editor (hopefully is vim…) we selected in the start of this course will open the next text.
+```bash
+Adding a striking message
+
+# Please enter the commit message for your changes. Lines starting
+# with '#' will be ignored, and an empty message aborts the commit.
+#
+# Date:      Tue Nov 7 20:02:01 2017 +0100
+#
+# On branch master
+# Changes to be committed:
+#       modified:   index.html
+```
+The first part is the message we added to the *commit*, in case you added a wrong *commit* message feel free to change it now and finally, save the file and…
+```bash
+[master e02c63c] Adding a striking message
+ Date: Tue Nov 7 20:02:01 2017 +0100
+ 1 file changed, 1 insertion(+)
+```
+If you are into details, you can see the **ID** for the *commit* changed from **f7c5eba** to **e02c63c**, because even when we *revert* a *commit*, Git knows there was a *commit* realized just before this one and it gives another **ID** for the "same file" *commit*.
+
+This is it, as the people usually say, remember, you can check [Our GitHub Repo](https://github.com/sargantanacode) where you can find the [repository for this course](https://github.com/sargantanacode/git-tutorial) with all the steps and lessons we do in here :)
+
+And never… ever… stop programming!

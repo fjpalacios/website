@@ -1,0 +1,27 @@
+---
+title: "Introducción a las ramas en Git (I)"
+post_slug: "introduccion-ramas-git-1"
+excerpt: "¿Quieres saber cómo aumentar tu productividad haciendo varias tareas simultáneas gracias a Git? Entonces necesitas aprender a utilizar las ramas en Git."
+categories: ["git"]
+course: "domina-git-desde-cero"
+order: 6
+cover: "/images/tutorials/cabecera-git.jpg"
+date: "2017-12-02"
+language: "es"
+i18n: "getting-started-with-git-branches-1"
+---
+
+La que sin duda es una de las mayores ventajas de Git, si no la mayor, es el uso de las ramas (*branches*). Con Git, la posibilidad de *ramificar* nuestros cambios abre un mundo de posibilidades que, si no hemos trabajado previamente con un sistema de control de versiones, probablemente al principio no le encontremos demasiada utilidad, pero recordad siempre que **hay que pensar en grande** y no quedarnos únicamente con el minúsculo archivo `index.html` que estamos modificando durante todo este curso para ejemplificar los comandos que vamos aprendiendo.
+
+Todo repositorio tiene o debería tener, como mínimo, dos ramas; la primera sería la rama de producción, más conocida como *master*: en ella irían exclusivamente las modificaciones definitivas de nuestro proyecto, es decir, aquellas que si los usuarios pudiesen probar en principio no tendrían que encontrarse con ningún fallo; también una rama como mínimo que derive de *master* (ya veremos más adelante las convenciones más conocidas de Git respecto a las ramas y a qué nombres deberían llevar) y que es en la que se desarrollan nuevas funciones o se corrigen fallos que pudiesen encontrarse en la rama *master*, es una versión en desarrollo y no estable de nuestro proyecto.
+
+Como ya dijimos en nuestro artículo inicial de este curso llamado [¿Qué es Git?](https://sargantanacode.es/es/article/what-is-git/): una de las diferencias aplastantes de Git respecto a otros sistemas de control de versiones es su rapidez en general, pero también específicamente en la creación y gestión de ramas. La creación de una rama es un simple comando que se ejecuta de forma instantánea, pero las sucesivas operaciones con las ramas (creación de ramas partiendo de las ramas creadas, uniones de unas ramas con otras…) son igual de rápidas y eficientes, y hacen de Git una de las herramientas más útiles y necesarias para los desarrolladores.
+
+### Caso prático
+Tienes la página web de tu cliente en la rama principal (*master*), en estos momentos tú estás haciendo otros cambios que de momento no tienen que ser públicos. De repente tu cliente te llama por teléfono y te dice que ha hablado con su familia y están todos de acuerdo en que la tipografía de la página web es demasiado pequeña. Quiere que le aumentes el tamaño, y quiere que se lo hagas ya, para que ahora que están todos reunidos puedan decidir en consenso cómo se ve mejor. El cliente siempre tiene la razón, ya se sabe, así que atendiendo a esa máxima tienes que dejar todo lo que estás haciendo para aumentar el tamaño de la fuente de la página web. ¿Qué haces? Tienes un sinfín de archivos modificados, entre ellos el del CSS, con cambios que no puedes meter a producción pero que si eliminas luego quizá ya no puedas recuperar… o al menos no fácilmente.
+
+Para este propósito se utilizan las ramas. Para estas modificaciones que actualmente estás haciendo tendrías creada una nueva rama paralela a *master* (por ejemplo *header-feature*) y sólo tendrías que volver a *master*, crear una nueva rama (algo así como *changing-font-size*) partiendo del trabajo que hay en ese momento en *master*, hacer las modificaciones oportunidas para cambiar el tamaño de la fuente y que tu cliente vea los cambios realizados. Cuando tu cliente quede satisfecho con los cambios la rama *changing-font-size* se une con la rama *master* pero también con *header-feature* para que esos cambios también existan en la rama con la que estabas trabajando. Ahora ya *sólo* quedaría continuar el trabajo por el punto en el que lo habíamos dejado antes de que nuestro cliente nos llamara por teléfono.
+
+Ahora que seguro ya le habéis encontrado utilidad al uso de las ramas en Git, en la próxima entrega de este curso nos centraremos en aprender los comandos necesarios para convertir en realidad esta situación que acabamos de describir.
+
+Y ya sabéis, ¡nunca dejéis de programar!

@@ -1,0 +1,71 @@
+---
+title: "Obtaining and cloning new commits from a Git repository"
+post_slug: "obtaining-and-cloning-new-commits-from-a-git-repository"
+date: "2017-12-26"
+excerpt: "Discover how to clone remote repositories and keep them synchronized with git pull. Learn to work as a team from different machines."
+language: "en"
+categories: ["git"]
+course: "mastering-git-from-scratch"
+order: 10
+cover: "/images/tutorials/cabecera-git.jpg"
+i18n: "clonando-obteniendo-commits-git"
+---
+
+import { InlineImage } from "@components/blog";
+
+Yay! We have our [fancy fresh baked repo on GitHub](en/article/creating-our-first-repository-on-github/), now let's face our main purpose of working with a remote *server*: Allowing as many people as you need to work on your project indepently from their locations. For simulating this scenario, instead of working from two different machines, we're going to create two folders. In our last article, we uploaded our project to the folder **test** and as we are really original we are going to create another folder with the name **test2**, which is going to act as our *second machine*.
+
+When we see a repository on GitHub that we want to *copy* to our computer, with a simple click on **Clone or Download** *AND* double checking that we *ticked* the option to clone thru SSH (which is the recommended option and in a near future we will explain why) will copy the called project to our computer.
+
+<InlineImage type="tutorial" src="/images/tutorials/inline/clonando-repositorio-github.jpeg" alt="Cloning a repo from GitHub" />
+
+We need to copy the Git address we see in the text field and paste it onto our terminal with this command: `git clone git@github.com:fjpalacios/test.git test2`
+As you can tell, **test2** is the folder which we choose to *download* the repo (by default, if we don't specify any folder, it would use *test*, same as the name of our project).
+```bash
+Cloning into 'test2'...
+remote: Counting objects: 3, done.
+remote: Total 3 (delta 0), reused 3 (delta 0), pack-reused 0
+Receiving objects: 100% (3/3), done.
+```
+Let's say another team member, or ourselves, from the other computer (**test** folder), we do some changes, then, the other repository we just cloned is not up to date anymore!
+```bash
+$ echo "This is a test file" > test.txt
+$ git add .
+$ git commit -m "Adding a test file"
+
+[master d40c331] Adding a test file
+ 1 file changed, 1 insertion(+)
+ create mode 100644 test.txt
+
+$ git push origin master
+
+Counting objects: 3, done.
+Delta compression using up to 2 threads.
+Compressing objects: 100% (2/2), done.
+Writing objects: 100% (3/3), 957 bytes | 957.00 KiB/s, done.
+Total 3 (delta 0), reused 0 (delta 0)
+To github.com:fjpalacios/test.git
+   9da799a..d40c331  master -> master
+```
+Even if we think the file should be there, it isn't! Let's see the files in the current folder with `ls` and as we said before, the file isn't there! There's only one file: **README.md** which was the only file when we cloned the repo. Solving this won't take long, don't you worry:
+```bash
+$ git pull origin master
+
+remote: Counting objects: 3, done.
+remote: Compressing objects: 100% (2/2), done.
+remote: Total 3 (delta 0), reused 3 (delta 0), pack-reused 0
+Unpacking objects: 100% (3/3), done.
+From github.com:fjpalacios/test
+ * branch            master     -> FETCH_HEAD
+   9da799a..d40c331  master     -> origin/master
+Updating 9da799a..d40c331
+Fast-forward
+ test.txt | 1 +
+ 1 file changed, 1 insertion(+)
+ create mode 100644 test.txt
+```
+Let's re-check again with `ls` and you are going to see the new file (or files, depending on how many files were in the other repo). When we are working on our own is not that complicated to know if we have changes in any of our machines, but when we are working as part of a team, that's tricky! That's why it's good to ask Git if *he has any changes for us*.
+
+As an extra: If you're working on different branches and you want to pull all the changes from every branch, instead of specifying a specific branch, we would use **--all** as a parameter: `git pull origin --all`.
+
+And this is it, Another part of the course! As always, never stop programming! Which, if you're with us since the start of this course, you can code with the peace of mind that your project is safe thanks to Git.

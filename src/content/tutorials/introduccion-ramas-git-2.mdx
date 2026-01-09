@@ -1,0 +1,294 @@
+---
+title: "Introducción a las ramas en Git (II)"
+post_slug: "introduccion-ramas-git-2"
+excerpt: "¿Quieres saber cómo aumentar tu productividad haciendo varias tareas simultáneas gracias a Git? Entonces necesitas aprender a utilizar las ramas en Git."
+categories: ["git"]
+course: "domina-git-desde-cero"
+order: 7
+cover: "/images/tutorials/cabecera-git.jpg"
+date: "2017-12-05"
+language: "es"
+i18n: "getting-started-with-git-branches-2"
+---
+
+En nuestro artículo anterior, [introducción a las ramas en Git](/es/article/getting-started-with-git-branches-1/), poníamos el ejemplo de un caso imaginario en el que el uso de estas ramas podría ser crucial y nos ahorraríamos un montón de tiempo y quebraderos de cabeza. Aquél fue un artículo puramente teórico, ahora es momento de ponerlo en práctica.
+
+Nuestra página web es ahora un poco menos *tosca*; ha crecido en estructura:
+```html
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <meta http-equiv="X-UA-Compatible" content="ie=edge">
+        <title>Our wonderful Git tutorial</title>
+        <link rel="stylesheet" href="css.css" />
+    </head>
+    <body>
+        <header class="header">
+            <h1>Mi Sitio Web</h1>
+        </header>
+        <section class="main">
+            <h2>Getting started with Git</h2>
+            <p>Would you like to get ninja level in Git? Stay tuned to our course!</p>
+            <p>But if you aren't interested in this course, we recommend you to 
+            stay tuned to updates too because we'll be adding posts about other 
+            different topics with no relation to this type of courses.</p>
+        </section>
+    </body>
+</html>
+````
+Y hasta tiene un maravilloso archivo CSS:
+```css
+html, body, h1 {
+    margin: 0;
+    padding: 0;
+}
+
+.header {
+    padding: 10px;
+    font-size: 1.5em;
+    text-align: center;
+    background-color: #000;
+    color: #fff;
+}
+
+.main {
+    width: 90%;
+    margin: auto;
+}
+```
+Hacer esto nos ha llevado unas 7 horas de trabajo intensivo y justo ahora llama nuestro cliente porque dice que el tamaño de la letra de la versión anterior es muy pequeño. Pero claro, no queremos revelarle la sorpresa de un nuevo diseño todavía… La idea sería poder cambiar el tamaño de letra de la versión anterior pero manteniendo a buen recaudo todos los cambios para implementar nuestra bonita cabecera. ¿Qué hacemos? ¡Que no cunda el pánico!
+
+Ya hemos aprendido que en lugar de estar trabajando en la rama *master* tendríamos que habernos creado una propia para realizar estos costosos cambios, pero aún tiene remedio usando el comando `git checkout -b header-feature master`
+
+Explicación del comando introducido: `git checkout` sirve para movernos entre ramas, pero con el parámetro `-b` nos crea una rama no existente y nos cambia a ella, es como un atajo de estos dos comandos por separado:
+```bash
+$ git branch header-feature master
+$ git checkout header-feature
+````
+Y se nombra a *master* en el comando porque la segunda rama es la rama desde la que se pretende que derive la primera; si ahora hiciésemos un `git checkout -b whatever header-feature` la rama *whatever* no derivaría de *master* sino de *header-feature*.
+
+La respuesta a este comando fue:
+```bash
+M       index.html
+Switched to a new branch 'header-feature'
+````
+Y si ahora ejecutamos nuestro querido comando `git status` vemos:
+```bash
+On branch header-feature
+Changes not staged for commit:
+  (use "git add <file>..." to update what will be committed)
+  (use "git checkout -- <file>..." to discard changes in working directory)
+
+        modified:   index.html
+
+Untracked files:
+  (use "git add <file>..." to include in what will be committed)
+
+        css.css
+
+no changes added to commit (use "git add" and/or "git commit -a")
+````
+Es decir: estamos en la rama *header-feature*, nos hemos llevado todos los cambios que antes estaban en *master* a esta nueva rama y nos indica que `index.html` está modificado y que `css.css`ha sido creado. En un segundo tenemos el problema resuelto: `git add . && git commit -m "Fancy new header with 10000 man hours work"`
+```bash
+[header-feature c7a9e08] Fancy new header with 10000 man hours work
+ 2 files changed, 28 insertions(+), 5 deletions(-)
+ create mode 100644 css.css
+```
+Si ahora hacemos un `git checkout master` tenemos la web tal y como la teníamos antes de empezar a hacer nuestros cambios. Vamos a empezar con los cambios que requiere nuestro cliente. Y ya sabemos lo que hacer: `git checkout -b changing-font-size master`
+
+Este sería ahora nuestro `index.html`
+```html
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <meta http-equiv="X-UA-Compatible" content="ie=edge">
+        <title>Our wonderful Git tutorial</title>
+        <link rel="stylesheet" href="css.css" />
+    </head>
+    <body>
+        <section class="main">
+            <h1>Getting started with Git</h1>
+            <p>Would you like to get ninja level in Git? Stay tuned to our course!</p>
+            <p>But if you aren't interested in this course, we recommend you to 
+            stay tuned to updates too because we'll be adding posts about other 
+            different topics with no relation to this type of courses</p>
+        </section>
+    </body>
+</html>
+```
+Y nuestro archivo CSS:
+```css
+.main {
+    font-size: 1.2em;
+}
+````
+Con algo tan sencillo nuestro cliente está contento. Vamos entonces a guardarlos: `git add . && git commit -m "Changing the font-size of our website"`
+```bash
+[changing-font-size 71e3aef] Changing the font-size of our website
+ 2 files changed, 11 insertions(+), 5 deletions(-)
+ create mode 100644 css.css
+```
+Ahora tenemos estos cambios, pero sólo en la rama *changing-font-size*, si nos pasamos a *master* lógicamente tenemos la web tal y como la teníamos antes (estamos trabajando con tres copias diferentes de esta página), así que tenemos que conseguir que esos cambios se reflejen también en la rama *master*:
+```bash
+$ git checkout master
+$ git merge changing-font-size
+
+Updating 497f0c9..71e3aef
+Fast-forward
+ css.css    |  3 +++
+ index.html | 13 ++++++++-----
+ 2 files changed, 11 insertions(+), 5 deletions(-)
+ create mode 100644 css.css
+```
+Con el comando *merge* fusionamos las dos ramas; el modo *fast-forward* es el modo de fusión de ramas más simple que hay, Git detecta que los cambios que se han realizado no causan ningún conflicto y simplemente une unos archivos con otros y lo soluciona en un periquete. Ya tenemos en *master* los cambios realizados en *changing-font-size*, pero ahora hay que hacer lo mismo con *header-feature*; con tantas ramas es posible que ya no sepamos ni qué ramas tenemos ni cómo se llama cada una de ellas, pero gracias al comando `git branch` podemos avriguarlo:
+```bash
+  changing-font-size
+  header-feature
+* master
+```
+Como vemos, no sólo nos lista todas las ramas disponibles sino que además nos pone un asterisco delante de la rama que tenemos activa en este momento. Vamos al lío:
+````bash
+$ git checkout header-feature
+$ git merge changing-font-size
+
+Auto-merging index.html
+CONFLICT (content): Merge conflict in index.html
+Auto-merging css.css
+CONFLICT (add/add): Merge conflict in css.css
+Automatic merge failed; fix conflicts and then commit the result.
+````
+¡Ya la hemos liado! ¿Qué ha pasado? Pues que Git no sabe cómo afrontar estos cambios ya que los archivos modificados coinciden pero también las líneas modificadas. En todo el tiempo que llevo usando Git nunca me ha ocurrido esto, porque normalmente nadie modifica los mismos archivos y las mismas líneas en ramas diferentes ya que se suele separar el trabajo en pequeños proyectos y afrontar cada uno por separado, pero Git tiene solución para todo; ahora nuestro archivo `index.html` tiene esta pinta:
+```html
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <meta http-equiv="X-UA-Compatible" content="ie=edge">
+        <title>Our wonderful Git tutorial</title>
+        <link rel="stylesheet" href="css.css" />
+    </head>
+    <body>
+<<<<<<< HEAD
+        <header class="header">
+            <h1>Mi Sitio Web</h1>
+        </header>
+        <section class="main">
+            <h2>Getting started with Git</h2>
+            <p>Would you like to get ninja level in Git? Stay tuned to our course!</p>
+            <p>But if you aren't interested in this course, we recommend you to 
+            stay tuned to updates too because we'll be adding posts about other 
+            different topics with no relation to this type of courses.</p>
+=======
+        <section class="main">
+            <h1>Getting started with Git</h1>
+            <p>Would you like to get ninja level in Git? Stay tuned to our course!</p>
+            <p>But if you aren't interested in this course, we recommend you to 
+            stay tuned to updates too because we'll be adding posts about other 
+            different topics with no relation to this type of courses</p>
+>>>>>>> changing-font-size
+        </section>
+    </body>
+</html>
+````
+Como veis, Git nos indica claramente cuáles son los cambios en conflicto para que podamos eliminar los no deseados. Hacemos los cambios oportunos para que nuestra weeb quede así:
+```html
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <meta http-equiv="X-UA-Compatible" content="ie=edge">
+        <title>Our wonderful Git tutorial</title>
+        <link rel="stylesheet" href="css.css" />
+    </head>
+    <body>
+        <header class="header">
+            <h1>Mi Sitio Web</h1>
+        </header>
+        <section class="main">
+            <h2>Getting started with Git</h2>
+            <p>Would you like to get ninja level in Git? Stay tuned to our course!</p>
+            <p>But if you aren't interested in this course, we recommend you to
+            stay tuned to updates too because we'll be adding posts about other
+            different topics with no relation to this type of courses.</p>
+        </section>
+    </body>
+</html>
+````
+Y en nuestro archivo CSS tenemos lo siguiente:
+```css
+<<<<<<< HEAD
+html, body, h1 {
+    margin: 0;
+    padding: 0;
+}
+
+.header {
+    padding: 10px;
+    font-size: 1.5em;
+    text-align: center;
+    background-color: #000;
+    color: #fff;
+}
+
+.main {
+    width: 90%;
+    margin: auto;
+=======
+.main {
+    font-size: 1.2em;
+>>>>>>> changing-font-size
+}
+````
+Con unas pequeñas modificaciones nos queda algo tan majo como esto:
+```css
+html, body, h1 {
+    margin: 0;
+    padding: 0;
+}
+
+.header {
+    padding: 10px;
+    font-size: 1.5em;
+    text-align: center;
+    background-color: #000;
+    color: #fff;
+}
+
+.main {
+    width: 90%;
+    margin: auto;
+    font-size: 1.2em;
+}
+```
+Y ya sólo queda guardar los cambios con `git add .` aquí, además, como se trata de un *merge*, si no ponemos mensaje de *commit* Git le añade uno por defecto, que sería *Merge branch 'changing-font-size' into header-feature* y que nos viene perfecto, así pues simplemente con un `git commit` lo tendríamos resuelto.
+```bash
+[header-feature 44e74a6] Merge branch 'changing-font-size' into header-feature
+```
+Y para aplicar nuestra genial y laboriosa cabecera a nuestra rama *master*, como ya hemos aprendido, sólo tenemos que introducir estos comandos:
+```bash
+$ git checkout master
+$ git merge header-feature
+
+Updating 71e3aef..44e74a6
+Fast-forward
+ css.css    | 15 +++++++++++++++
+ index.html | 11 +++++++----
+ 2 files changed, 22 insertions(+), 4 deletions(-)
+```
+Esta vez, como habitualmente ocurre, el método empleado también es el *fast-forward*: un *merge* muy sencillo y sin complicaciones. Y para no acumular ramas como si tuviésemos síndrome de Diógenes podemos eliminarlas así de fácil:
+```bash
+$ git branch -d changing-font-size
+$ git branch -d header-feature
+
+Deleted branch changing-font-size (was 71e3aef).
+Deleted branch header-feature (was 44e74a6).
+```
+Espero que ya no te quede ninguna duda sobre cómo realizar operaciones con las ramas en Git.
+
+Y ya sabes, como siempre te digo: ¡nunca dejes de programar!

@@ -1,0 +1,43 @@
+---
+title: "How to install ZSH and Oh My ZSH! in Linux subsystem Windows 10"
+post_slug: "how-to-install-zsh-oh-my-zsh-linux-subsystem-windows-10"
+date: "2018-03-05"
+excerpt: "Learn how to install ZSH and Oh My ZSH! on the Windows 10 Linux subsystem (WSL). Improve your terminal experience on Windows."
+language: "en"
+categories: ["windows"]
+cover: "/images/tutorials/cabecera-windows.jpg"
+i18n: "como-instalar-zsh-oh-my-zsh-subsistema-linux-windows-10"
+---
+
+We already learned to [install the Linux Subsystem on Windows 10](/en/article/how-to-install-linux-subsystem-windows-10/), but if we compare it with other operating systems' environment it may be a bit boring, isn't it? Well, today we'll show you how to change the `bash` terminal to another with more potential like `zsh` and if that were not enough, giving it even more power with *Oh My ZSH!*
+
+Disclaimer: we assume that, following the process of our Linux subsystem installation guide on Windows 10, the Linux distro you've installed is Ubuntu. If you've chosen for another one it's possible that some commands, mainly those ones related to the installation of new packages, may be different.
+
+Ubuntu doesn't have `zsh` installed by default, so the first thing we've to do is install it, let's go for it:
+```bash
+# apt install zsh
+```
+And now we can make sure that the installation has been correct (although if we read the lines that appeared on the screen during the installation of the package, there should be no doubt) checking which version of `zsh` we've installed; as previously there was none, if the command works the installation worked properly:
+```bash
+$ zsh --version
+```
+
+### Setting ZSH as the default shell
+
+With a simple command we'll go to set `zsh` as default *shell* so each time we run the Ubuntu application it loads with our favourite *shell*:
+```bash
+$ chsh -s $(which zsh)
+```
+
+### Installing Oh My ZSH!
+We're almost done, because there's only proceed with the *Oh My ZSH!* installation and the good news is that there's only one command left:
+```bash
+$ sh -c "$(curl -fsSL https://raw.github.com/robbyrussell/oh-my-zsh/master/tools/install.sh)"
+```
+We'll realize that *Oh My ZSH!* has been installed properly because our *prompt* (the line on the left from where we write commands in the terminal) has changed to another prettier one and with a lot of new features.
+
+Two of these features that we should know: we now have the possibility of [change the prompt theme](https://github.com/robbyrussell/oh-my-zsh/wiki/Themes) and [add Oh My ZSH! plugins](https://github.com/robbyrussell/oh-my-zsh/wiki/Plugins). It's great!
+
+It's been very easy! Isn't it? Now you can enjoy the experience using your new `zsh` terminal on Windows, although it should be remembered that it will never be the same user experience as installing a GNU/Linux distro on your hard disk drive. If you haven't tried yet, I recommend you try it in a virtual machine, and if you like it, give an opportunity to free software and to GNU/Linux by installing it on your system. Starting with a dual boot is a very good idea.
+
+Never stop programming!

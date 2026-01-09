@@ -31,6 +31,13 @@ const IMAGE_CATEGORIES = {
     helperName: "getBookCoverImage",
     hasLangFallback: true,
   },
+  booksInline: {
+    dir: "books/inline",
+    mapName: "bookInlineImages",
+    description: "Book Inline Images",
+    helperName: "getBookInlineImage",
+    hasLangFallback: false,
+  },
   authors: {
     dir: "authors",
     mapName: "authorPictures",
@@ -50,6 +57,13 @@ const IMAGE_CATEGORIES = {
     mapName: "tutorialCovers",
     description: "Tutorial Cover Images",
     helperName: "getTutorialCoverImage",
+    hasLangFallback: false,
+  },
+  tutorialsInline: {
+    dir: "tutorials/inline",
+    mapName: "tutorialInlineImages",
+    description: "Tutorial Inline Images",
+    helperName: "getTutorialInlineImage",
     hasLangFallback: false,
   },
   posts: {
@@ -80,17 +94,25 @@ interface ImageFile {
  *   "el-hobbit.jpg" -> "elHobbit"
  *   "stephen-king.jpg" -> "stephenKing"
  *   "book-default-es.jpg" -> "bookDefaultEs"
+ *   "1984-george-orwell.jpg" -> "book1984GeorgeOrwell"
  */
 function toVarName(filename: string): string {
   const nameWithoutExt = filename.replace(/\.(jpg|jpeg|png|webp|avif)$/i, "");
 
-  return nameWithoutExt
+  const varName = nameWithoutExt
     .split("-")
     .map((part, index) => {
       if (index === 0) return part.toLowerCase();
       return part.charAt(0).toUpperCase() + part.slice(1).toLowerCase();
     })
     .join("");
+
+  // If variable name starts with a number, prefix with 'book' or 'author'
+  if (/^\d/.test(varName)) {
+    return `book${varName.charAt(0).toUpperCase()}${varName.slice(1)}`;
+  }
+
+  return varName;
 }
 
 /**
@@ -151,7 +173,7 @@ function generateImports(category: keyof typeof IMAGE_CATEGORIES, images: ImageF
   lines.push("");
 
   for (const image of images) {
-    lines.push(`import ${image.varName} from '${image.importPath}';`);
+    lines.push(`import ${image.varName} from "${image.importPath}";`);
   }
 
   return lines.join("\n");

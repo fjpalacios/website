@@ -1,0 +1,68 @@
+---
+title: "How to recover files after modifying them thanks to Git"
+post_slug: "how-to-recover-files-after-modifying-them-thanks-to-git"
+date: "2017-11-29"
+excerpt: "Do you hate to modify a file with incorrect changes and then go crazy because you don't know what to do? Git is here to help us with that."
+language: "en"
+categories: ["git"]
+course: "mastering-git-from-scratch"
+order: 5
+cover: "/images/tutorials/cabecera-git.jpg"
+i18n: "como-recuperar-ficheros-git"
+---
+
+We already seen in this series how to [Get started with Git](https://sargantanacode.es/en/article/getting-started-with-git/) and [The Three States of Git](https://sargantanacode.es/es/article/the-three-states-of-git/) but still, we have plenty in the tank ;).
+
+A few days back, while updating [Symfony](https://symfony.com/) to the latest version, we found a *bug* in **Symfony** which was giving us trouble for running normally this weblog. 
+We came across a special situation, we already implemented Symfony to our code and the best idea was to revert all the changes on the code and keep coding with the old Symfony version while Symfony developers fix the bug… The issue was, we already *comitted* our changes to **GitHub** because it was flawless (That what we thought).
+The test doesn't start on the code until it's on GitHub's server as it doesn't start manually (you can do it, of course, but not *per se*), actually it is a problem because this way, you can only see if it works when it's already *sent*.
+
+What the hell we can do? Easy peasy, we've seen already in this course on other articles but at the time we just omitted that. For example, let's say we want our audience with Git knowledge to keep visiting us, maybe this course for them is a No-No, but we want to show them we have a lot more to offer, with that in mind, let's modify our `index.html`.
+
+```html
+<p>And if you are not interested in this course, we recommend you to
+stay tuned for updates too, because we'll be adding posts about other
+different topics completely different to this one </p>
+```
+That phrase is going to be below this:
+
+```html
+<p>Would you like to get ninja level in Git? Stay tuned to our course!</p>
+```
+**Surprise!!** We deleted the first sentence with the last one, instead of adding below we replace it and there's no way to recover the other Marketing-oriented-Superb-SEO phrase… Think twice… **There's a way!** And that's where Git kicks in! Let's go have a look at `git status` once more.
+
+```bash
+On branch master
+Changes not staged for commit:
+  (use "git add <file>..." to update what will be committed)
+  (use "git checkout -- <file>..." to discard changes in working directory)
+        modified:   index.html
+no changes added to commit (use "git add" and/or "git commit -a")
+```
+
+This sounds familiar right? We already seen this before but we already ignored the 4th line, with a simple `git checkout -- index.html` our problem can be solved… Or maybe not… maybe we are a bit dummy today and we already told Git to add the index.html to the *commit*. Now all hell broke loose..... Naaaah, Let's see what `git status` says now.
+
+```bash
+On branch master
+Changes to be committed:
+  (use "git reset HEAD <file>..." to unstage)
+        modified:   index.html
+```
+
+And that's, exactly, what we came for, **HEAD** is a reference to our last *correct commit* (In other words, the last one working). Everything will revert back to our last *commit* and it's gonna be brand new again (Sorry did I say new? I mean like before we broke it :P). Trying `git reset HEAD index.html` gives us:
+```bash
+Unstaged changes after reset:
+M       index.html
+````
+
+And that's it, our `index.html` goes back to normal appearance like before when all the Search Engines loved us… One more step to save everything and keeping it real..
+
+```bash
+$ git add index.html
+$ git commit -m "Update homepage content and improve layout"
+
+[master 497f0c9] Update homepage content and improve layout
+ 1 file changed, 3 insertions(+)
+```
+
+Mistakes... they can be deadly but with the right tools we can suffocate the consequences to minimum levels and now that you are improving in the use of Git, remember.. Never stop programming!

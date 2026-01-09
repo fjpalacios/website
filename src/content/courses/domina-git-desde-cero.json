@@ -2,5 +2,6 @@
   "name": "Domina Git desde cero",
   "course_slug": "domina-git-desde-cero",
   "language": "es",
-  "description": "En este curso encontrarás los comandos necesarios tanto para empezar con Git como para poder hacer tareas más avanzadas para conseguir aumentar tu productividad (y seguridad) cuando estés trabajando en tus proyectos."
+  "description": "En este curso encontrarás los comandos necesarios tanto para empezar con Git como para poder hacer tareas más avanzadas para conseguir aumentar tu productividad (y seguridad) cuando estés trabajando en tus proyectos.",
+  "i18n": "mastering-git-from-scratch"
 }
