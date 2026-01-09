@@ -8,13 +8,19 @@ interface Props {
   srOnly?: boolean; // Screen reader only - visually hidden
   useAsPagefindTitle?: boolean; // Use this title for Pagefind indexing
   headingLevel?: "h1" | "h2"; // Allow specifying heading level
+  auxLink?: {
+    href: string;
+    label: string;
+    icon?: string; // Optional icon (e.g., "target", "external-link")
+    showArrow?: boolean; // Show chevron-right arrow (default: true)
+  }; // Optional auxiliary link (displayed on the right)
 }
 
-const { title, icon, srOnly = false, useAsPagefindTitle = false, headingLevel = "h2" } = Astro.props;
+const { title, icon, srOnly = false, useAsPagefindTitle = false, headingLevel = "h2", auxLink } = Astro.props;
 const HeadingTag = headingLevel;
 ---
 
-<div class:list={["title", { "sr-only": srOnly }]}>
+<div class:list={["title", { "sr-only": srOnly }, { "title--with-aux-link": auxLink }]}>
   {
     useAsPagefindTitle && (
       <span data-pagefind-meta="title" class="title__pagefind-meta">
@@ -22,8 +28,17 @@ const HeadingTag = headingLevel;
       </span>
     )
   }
-  <HeadingTag>
+  <HeadingTag class="title__heading">
     {icon && <Icon name={icon} size="md" class="title__icon" />}
     {title}
   </HeadingTag>
+  {
+    auxLink && (
+      <a href={auxLink.href} class="title__aux-link">
+        {auxLink.icon && <Icon name={auxLink.icon} size="sm" class="title__aux-icon" />}
+        {auxLink.label}
+        {(auxLink.showArrow ?? true) && <Icon name="chevron-right" size="sm" class="title__aux-arrow" />}
+      </a>
+    )
+  }
 </div>

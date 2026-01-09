@@ -28,6 +28,7 @@ export type RouteKey =
   | "posts"
   | "tutorials"
   | "books"
+  | "stats"
   | "feeds"
   | "categories"
   | "genres"
@@ -134,6 +135,13 @@ const NAVIGATION_ITEMS: readonly NavigationItem[] = [
     showInFooter: true,
   },
   {
+    id: "stats",
+    routeKey: "stats",
+    matchStrategy: "exact",
+    showInMenu: false,
+    showInFooter: true,
+  },
+  {
     id: "feeds",
     routeKey: "feeds",
     matchStrategy: "prefix",
@@ -212,6 +220,7 @@ const ROUTE_TO_COLLECTION: Readonly<Partial<Record<RouteKey, string>>> = {
   posts: "posts",
   tutorials: "tutorials",
   books: "books",
+  stats: "books", // Stats page should only show when books exist
   series: "series",
   challenges: "challenges",
   authors: "authors",
@@ -237,6 +246,7 @@ const CONTENT_AVAILABILITY_FALLBACK: Readonly<Partial<Record<RouteKey, LanguageK
   posts: ["es"], // Only used for individual posts check in fallback
   tutorials: ["es"],
   books: ["es", "en"],
+  stats: ["es", "en"], // Same as books
   series: ["es"],
   challenges: ["es"],
   authors: ["es", "en"],

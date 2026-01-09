@@ -1,0 +1,136 @@
+---
+/**
+ * GenreBreakdown Component
+ * Displays genres with book counts, separated by fiction/non-fiction
+ * Cards are clickable and link to genre pages
+ */
+
+import { getCollection } from "astro:content";
+
+import Icon from "@/components/Icon.astro";
+import type { LanguageKey } from "@/config/languages";
+import { getTranslations } from "@/locales";
+import type { GenresWithCountByType } from "@/utils/blog/book-stats";
+import { buildGenreUrl, buildGenresIndexUrl } from "@/utils/routes";
+
+interface Props {
+  genresWithCount: GenresWithCountByType;
+  lang: LanguageKey;
+}
+
+const { genresWithCount, lang } = Astro.props;
+
+const t = getTranslations(lang);
+
+// Limit to top 5 genres
+const TOP_LIMIT = 5;
+const fictionTop5 = genresWithCount.fiction.slice(0, TOP_LIMIT);
+const nonFictionTop5 = genresWithCount.nonFiction.slice(0, TOP_LIMIT);
+
+const fictionTotal = genresWithCount.fiction.length;
+const nonFictionTotal = genresWithCount.nonFiction.length;
+
+// Get all books to count unique books per type
+const allBooks = await getCollection("books");
+const booksInLanguage = allBooks.filter((book) => book.data.language === lang);
+
+// Get unique fiction books (books that have at least one fiction genre)
+const fictionGenreSlugs = new Set(genresWithCount.fiction.map((g) => g.genre.data.genre_slug));
+const fictionBooks = booksInLanguage.filter((book) => {
+  if (!book.data.genres || book.data.genres.length === 0) return false;
+  return book.data.genres.some((genreSlug: string) => fictionGenreSlugs.has(genreSlug));
+});
+
+// Get unique non-fiction books (books that have at least one non-fiction genre)
+const nonFictionGenreSlugs = new Set(genresWithCount.nonFiction.map((g) => g.genre.data.genre_slug));
+const nonFictionBooks = booksInLanguage.filter((book) => {
+  if (!book.data.genres || book.data.genres.length === 0) return false;
+  return book.data.genres.some((genreSlug: string) => nonFictionGenreSlugs.has(genreSlug));
+});
+
+const fictionBooksCount = fictionBooks.length;
+const nonFictionBooksCount = nonFictionBooks.length;
+
+// Build genres index URL
+const genresIndexUrl = buildGenresIndexUrl(lang);
+---
+
+<section class="book-stats-container__section">
+  <h2 class="book-stats-container__section-title">{t.bookStats.genres}</h2>
+
+  <div class="genre-breakdown">
+    <!-- Fiction Section -->
+    <div class="genre-breakdown__section">
+      <div class="genre-breakdown__header">
+        <Icon name="book-open" size="lg" filled={true} class="genre-breakdown__icon genre-breakdown__icon--fiction" />
+        <div class="genre-breakdown__header-text">
+          <h3 class="genre-breakdown__title">{t.bookStats.fiction}</h3>
+          <p class="genre-breakdown__total">
+            Top {TOP_LIMIT} de {fictionTotal} · {fictionBooksCount}
+            {t.bookStats.booksInTotal}
+          </p>
+        </div>
+      </div>
+
+      <div class="genre-breakdown__list">
+        {
+          fictionTop5.map((item) => (
+            <a href={buildGenreUrl(lang, item.genre.data.genre_slug)} class="genre-breakdown__card">
+              <span class="genre-breakdown__name">{item.genre.data.name}</span>
+              <span class="genre-breakdown__count">{item.count}</span>
+            </a>
+          ))
+        }
+      </div>
+
+      {
+        fictionTotal > TOP_LIMIT && (
+          <div class="genre-breakdown__view-all">
+            <a href={genresIndexUrl} class="genre-breakdown__view-all-link">
+              {t.bookStats.viewAllGenres}
+            </a>
+          </div>
+        )
+      }
+    </div>
+
+    <!-- Non-Fiction Section -->
+    <div class="genre-breakdown__section">
+      <div class="genre-breakdown__header">
+        <Icon name="book" size="lg" filled={true} class="genre-breakdown__icon genre-breakdown__icon--non-fiction" />
+        <div class="genre-breakdown__header-text">
+          <h3 class="genre-breakdown__title">{t.bookStats.nonFiction}</h3>
+          <p class="genre-breakdown__total">
+            Top {TOP_LIMIT} de {nonFictionTotal} · {nonFictionBooksCount}
+            {t.bookStats.booksInTotal}
+          </p>
+        </div>
+      </div>
+
+      <div class="genre-breakdown__list">
+        {
+          nonFictionTop5.map((item) => (
+            <a href={buildGenreUrl(lang, item.genre.data.genre_slug)} class="genre-breakdown__card">
+              <span class="genre-breakdown__name">{item.genre.data.name}</span>
+              <span class="genre-breakdown__count">{item.count}</span>
+            </a>
+          ))
+        }
+      </div>
+
+      {
+        nonFictionTotal > TOP_LIMIT && (
+          <div class="genre-breakdown__view-all">
+            <a href={genresIndexUrl} class="genre-breakdown__view-all-link">
+              {t.bookStats.viewAllGenres}
+            </a>
+          </div>
+        )
+      }
+    </div>
+  </div>
+</section>
+
+<style lang="scss">
+  @use "../../styles/components/genre-breakdown.scss";
+</style>

@@ -1,0 +1,70 @@
+@use "../variables" as *;
+@use "../mixins" as *;
+
+.score-distribution {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1rem;
+
+  @include small-and-up {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1.5rem;
+  }
+
+  @include large {
+    grid-template-columns: repeat(3, 1fr);
+  }
+
+  &__card {
+    background: $primary;
+    padding: 1.25rem;
+    border-radius: 8px;
+    border: 1px solid $border-medium;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    gap: 0.75rem;
+
+    @include small-and-up {
+      padding: 1.5rem;
+    }
+
+    @at-root html.light & {
+      background: rgba(0, 86, 179, 0.03);
+      border-color: $border-light;
+    }
+  }
+
+  &__stars {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.25rem;
+  }
+
+  &__icon {
+    color: $accent;
+  }
+
+  &__stars--favorite &__icon {
+    color: $rating-favorite;
+  }
+
+  &__label {
+    font-size: 1.2rem;
+    font-weight: 600;
+    color: $text;
+  }
+
+  &__count {
+    font-size: 0.95rem;
+    color: $text;
+    opacity: 0.8;
+    line-height: 1;
+
+    @at-root html.light & {
+      opacity: 0.7;
+    }
+  }
+}

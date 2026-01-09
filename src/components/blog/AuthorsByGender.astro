@@ -1,0 +1,79 @@
+---
+/**
+ * AuthorsByGender Component
+ * Displays authors statistics by gender with VS-style comparison
+ * Card is clickable and links to authors index page
+ */
+
+import type { LanguageKey } from "@/config/languages";
+import { getTranslations } from "@/locales";
+import type { AuthorsByGender } from "@/utils/blog/book-stats";
+import { buildAuthorsIndexUrl } from "@/utils/routes";
+
+interface Props {
+  authorsByGender: AuthorsByGender;
+  lang: LanguageKey;
+}
+
+const { authorsByGender, lang } = Astro.props;
+
+const t = getTranslations(lang);
+
+// Calculate stats
+const femaleCount = authorsByGender.female.length;
+const maleCount = authorsByGender.male.length;
+const totalAuthors = femaleCount + maleCount;
+
+const femalePercentage = totalAuthors > 0 ? Math.round((femaleCount / totalAuthors) * 100) : 0;
+const malePercentage = totalAuthors > 0 ? Math.round((maleCount / totalAuthors) * 100) : 0;
+
+// Build URL to authors index
+const authorsUrl = buildAuthorsIndexUrl(lang);
+---
+
+<section class="book-stats-container__section">
+  <h2 class="book-stats-container__section-title">{t.bookStats.authorsByGender}</h2>
+
+  <div class="authors-by-gender">
+    <a href={authorsUrl} class="authors-by-gender__card">
+      <!-- Header with VS -->
+      <div class="authors-by-gender__header">
+        <div class="authors-by-gender__side authors-by-gender__side--female">
+          <span class="authors-by-gender__count">{femaleCount}</span>
+          <span class="authors-by-gender__label">{t.bookStats.femaleAuthors}</span>
+        </div>
+
+        <div class="authors-by-gender__vs">VS</div>
+
+        <div class="authors-by-gender__side authors-by-gender__side--male">
+          <span class="authors-by-gender__count">{maleCount}</span>
+          <span class="authors-by-gender__label">{t.bookStats.maleAuthors}</span>
+        </div>
+      </div>
+
+      <!-- Progress Bar -->
+      <div class="authors-by-gender__progress-bar">
+        <div
+          class="authors-by-gender__progress-fill authors-by-gender__progress-fill--female"
+          style={`width: ${femalePercentage}%`}
+        >
+        </div>
+        <div
+          class="authors-by-gender__progress-fill authors-by-gender__progress-fill--male"
+          style={`width: ${malePercentage}%`}
+        >
+        </div>
+      </div>
+
+      <!-- Percentages -->
+      <div class="authors-by-gender__percentages">
+        <div class="authors-by-gender__percentage authors-by-gender__percentage--female">
+          {femalePercentage}%
+        </div>
+        <div class="authors-by-gender__percentage authors-by-gender__percentage--male">
+          {malePercentage}%
+        </div>
+      </div>
+    </a>
+  </div>
+</section>

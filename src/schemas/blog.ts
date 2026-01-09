@@ -208,6 +208,7 @@ export const genresSchema = z.object({
   name: z.string().min(1),
   genre_slug: z.string().min(1),
   language: z.enum(["es", "en"]),
+  type: z.enum(["fiction", "non-fiction"]), // Genre type classification (required)
   i18n: z.string().optional(),
 });
 

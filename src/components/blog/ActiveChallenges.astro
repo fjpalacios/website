@@ -1,0 +1,54 @@
+---
+/**
+ * ActiveChallenges Component
+ * Displays active reading challenges with progress bars
+ */
+
+import type { LanguageKey } from "@/config/languages";
+import { getTranslations } from "@/locales";
+import type { ChallengeProgress } from "@/utils/blog/book-stats";
+import { buildChallengeUrl } from "@/utils/routes";
+
+interface Props {
+  challenges: ChallengeProgress[];
+  lang: LanguageKey;
+}
+
+const { challenges, lang } = Astro.props;
+
+const t = getTranslations(lang);
+
+// Helper to generate challenge URL
+function getChallengeUrl(challengeSlug: string, lang: LanguageKey): string {
+  return buildChallengeUrl(lang, challengeSlug);
+}
+---
+
+<div class="active-challenges">
+  {
+    challenges.map((item) => (
+      <div class="active-challenges__card">
+        <div class="active-challenges__header">
+          <h3 class="active-challenges__name">{item.challenge.data.name}</h3>
+          <span class="active-challenges__percentage">{item.percentage.toFixed(1)}%</span>
+        </div>
+
+        <div class="active-challenges__progress-bar">
+          <div class="active-challenges__progress-fill" style={`width: ${item.percentage}%`} />
+        </div>
+
+        <div class="active-challenges__stats">
+          {item.completed} {t.bookStats.of} {item.total} {t.bookStats.completedBooks}
+        </div>
+
+        <a href={getChallengeUrl(item.challenge.data.challenge_slug, lang)} class="active-challenges__link">
+          {t.bookStats.viewChallenge}
+        </a>
+      </div>
+    ))
+  }
+</div>
+
+<style lang="scss">
+  @use "../../styles/components/active-challenges.scss";
+</style>

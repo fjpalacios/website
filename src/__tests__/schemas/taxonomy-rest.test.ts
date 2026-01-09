@@ -68,6 +68,7 @@ describe("Genres Collection Schema", () => {
     name: "Horror",
     genre_slug: "horror",
     language: "en",
+    type: "fiction",
   };
 
   it("should validate minimal genre", () => {

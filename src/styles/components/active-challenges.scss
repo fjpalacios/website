@@ -1,0 +1,103 @@
+@use "../variables" as *;
+@use "../mixins" as *;
+
+.active-challenges {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1.5rem;
+
+  @include small-and-up {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 2rem;
+  }
+
+  @include large {
+    grid-template-columns: repeat(3, 1fr);
+  }
+
+  &__card {
+    background: $primary;
+    padding: 1.25rem;
+    border-radius: 8px;
+    border: 1px solid $border-medium;
+    transition:
+      transform 0.2s ease,
+      box-shadow 0.2s ease;
+
+    @include small-and-up {
+      padding: 1.5rem;
+    }
+
+    @at-root html.light & {
+      background: rgba(0, 86, 179, 0.03);
+      border-color: $border-light;
+    }
+
+    &:hover {
+      transform: translateY(-4px);
+      border-color: $accent;
+      box-shadow: 0 4px 12px $shadow-medium;
+    }
+  }
+
+  &__header {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    margin-bottom: 1rem;
+  }
+
+  &__name {
+    font-size: 1.1rem;
+    font-weight: bold;
+    color: $text;
+    margin: 0;
+  }
+
+  &__percentage {
+    font-size: 1.2rem;
+    font-weight: bold;
+    color: $progress-bar-fill;
+  }
+
+  &__progress-bar {
+    width: 100%;
+    height: 10px;
+    background: $progress-bar-bg;
+    border-radius: 5px;
+    overflow: hidden;
+    margin-bottom: 1rem;
+  }
+
+  &__progress-fill {
+    height: 100%;
+    background: $progress-bar-fill;
+    border-radius: 5px;
+    transition: width 0.3s ease;
+    box-shadow: 0 0 8px rgba($progress-bar-fill, 0.3);
+  }
+
+  &__stats {
+    font-size: 0.95rem;
+    color: $text;
+    opacity: 0.8;
+    margin-bottom: 1rem;
+
+    @at-root html.light & {
+      opacity: 0.7;
+    }
+  }
+
+  &__link {
+    display: inline-block;
+    color: $accent;
+    text-decoration: none;
+    font-size: 0.9rem;
+    transition: all 0.2s ease;
+
+    &:hover {
+      text-decoration: underline;
+      opacity: 0.8;
+    }
+  }
+}

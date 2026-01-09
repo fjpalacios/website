@@ -52,6 +52,16 @@ $footer-tech-link: var(--footer-tech-link);
 $lang-switcher-text: var(--lang-switcher-text);
 $rating-favorite: var(--rating-favorite);
 
+// Progress bar colors (theme-aware)
+$progress-bar-fill: var(--progress-bar-fill);
+$progress-bar-bg: var(--progress-bar-bg);
+
+// Gender-specific colors (theme-aware)
+$gender-female-primary: var(--gender-female-primary);
+$gender-female-secondary: var(--gender-female-secondary);
+$gender-male-primary: var(--gender-male-primary);
+$gender-male-secondary: var(--gender-male-secondary);
+
 // Responsive breakpoint variables
 // Mobile-first approach
 $breakpoint-small: 768px; // Tablet and up
@@ -115,6 +125,16 @@ $container-max-width: 1400px; // Maximum width for main content container
 
   // Rating colors - Dark theme
   --rating-favorite: #ef4444; // Red for favorite hearts (Tailwind red-500 for dark bg)
+
+  // Progress bar colors - Dark theme
+  --progress-bar-fill: #4ade80; // Green with good contrast on dark backgrounds
+  --progress-bar-bg: rgba(255, 255, 255, 0.08); // Subtle background
+
+  // Gender-specific colors - Dark theme
+  --gender-female-primary: #ec4899; // Pink (Tailwind pink-500)
+  --gender-female-secondary: #d946ef; // Magenta (Tailwind fuchsia-500)
+  --gender-male-primary: #06b6d4; // Cyan (Tailwind cyan-500)
+  --gender-male-secondary: #3b82f6; // Blue (Tailwind blue-500)
 }
 
 // Light theme values
@@ -166,6 +186,16 @@ $container-max-width: 1400px; // Maximum width for main content container
 
   // Rating colors - Light theme
   --rating-favorite: #dc2626; // Red for favorite hearts (Tailwind red-600 for light bg)
+
+  // Progress bar colors - Light theme
+  --progress-bar-fill: #16a34a; // Green with good contrast on light backgrounds (4.5:1 on white)
+  --progress-bar-bg: rgba(0, 0, 0, 0.08); // Subtle background
+
+  // Gender-specific colors - Light theme
+  --gender-female-primary: #db2777; // Pink (Tailwind pink-600)
+  --gender-female-secondary: #c026d3; // Magenta (Tailwind fuchsia-600)
+  --gender-male-primary: #0891b2; // Cyan (Tailwind cyan-600)
+  --gender-male-secondary: #2563eb; // Blue (Tailwind blue-600)
 }
 
 // Set default dark theme on html element to prevent FOUC
@@ -219,6 +249,16 @@ html {
   // Rating colors - Dark theme
   --rating-favorite: #ef4444; // Red for favorite hearts (Tailwind red-500 for dark bg)
 
+  // Progress bar colors - Dark theme
+  --progress-bar-fill: #4ade80; // Green with good contrast on dark backgrounds
+  --progress-bar-bg: rgba(255, 255, 255, 0.08); // Subtle background
+
+  // Gender-specific colors - Dark theme
+  --gender-female-primary: #ec4899; // Pink (Tailwind pink-500)
+  --gender-female-secondary: #d946ef; // Magenta (Tailwind fuchsia-500)
+  --gender-male-primary: #06b6d4; // Cyan (Tailwind cyan-500)
+  --gender-male-secondary: #3b82f6; // Blue (Tailwind blue-500)
+
   &.light {
     --accent: #0056b3;
     --background: #fbfef9; // Off-white page background
@@ -267,6 +307,16 @@ html {
 
     // Rating colors - Light theme
     --rating-favorite: #dc2626; // Red for favorite hearts (Tailwind red-600 for light bg)
+
+    // Progress bar colors - Light theme
+    --progress-bar-fill: #16a34a; // Green with good contrast on light backgrounds (4.5:1 on white)
+    --progress-bar-bg: rgba(0, 0, 0, 0.08); // Subtle background
+
+    // Gender-specific colors - Light theme
+    --gender-female-primary: #db2777; // Pink (Tailwind pink-600)
+    --gender-female-secondary: #c026d3; // Magenta (Tailwind fuchsia-600)
+    --gender-male-primary: #0891b2; // Cyan (Tailwind cyan-600)
+    --gender-male-secondary: #2563eb; // Blue (Tailwind blue-600)
   }
 }
 

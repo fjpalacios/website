@@ -13,7 +13,7 @@ import { t } from "@locales";
 import type { ContactItem } from "@types/content";
 
 import type { BookSummary } from "@/utils/blog";
-import { buildBooksIndexUrl } from "@/utils/routes";
+import { buildBooksIndexUrl, buildLocalizedPath } from "@/utils/routes";
 
 interface Props {
   lang: string;
@@ -33,6 +33,7 @@ const pageTitle = `${baseTitle} - ${pageNumberText}`;
 const baseDescription = lang === "en" ? "Book reviews" : "Reseñas de libros";
 const pageDescription = `${baseDescription} - ${lang === "en" ? `page ${currentPage}` : `página ${currentPage}`}`;
 const basePath = buildBooksIndexUrl(lang);
+const statsUrl = buildLocalizedPath(lang, "books", "stats");
 ---
 
 <Layout
@@ -45,7 +46,15 @@ const basePath = buildBooksIndexUrl(lang);
   totalPages={totalPages}
   basePath={basePath}
 >
-  <Title title={pageTitle} />
+  <Title
+    title={pageTitle}
+    auxLink={{
+      href: statsUrl,
+      label: t(lang, "bookStats.viewStats"),
+      icon: "target",
+      showArrow: true,
+    }}
+  />
 
   <div data-pagefind-ignore>
     {

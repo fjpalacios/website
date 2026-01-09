@@ -1,0 +1,111 @@
+---
+/**
+ * SpecialLists Component
+ * Displays special book lists (favorites, 5-stars, classics, recent)
+ * Modern card-based 2x2 grid layout with icons and hover effects
+ */
+
+import type { CollectionEntry } from "astro:content";
+
+import type { LanguageKey } from "@/config/languages";
+import { getTranslations } from "@/locales";
+
+import Icon from "../Icon.astro";
+
+interface Props {
+  favorites: CollectionEntry<"books">[];
+  fiveStars: CollectionEntry<"books">[];
+  classics: CollectionEntry<"books">[];
+  recent: CollectionEntry<"books">[];
+  totalFavorites: number;
+  totalFiveStars: number;
+  totalClassics: number;
+  lang: LanguageKey;
+}
+
+const { favorites, fiveStars, classics, recent, totalFavorites, totalFiveStars, totalClassics, lang } = Astro.props;
+
+const t = getTranslations(lang);
+
+// Build book URL based on language
+const getBookUrl = (slug: string) => `/${lang}/${lang === "es" ? "libros" : "books"}/${slug}`;
+
+// List configurations with totals for subtitles
+const lists = [
+  {
+    id: "favorites",
+    icon: "heart" as const,
+    filled: true,
+    title: t.bookStats.randomFavorites,
+    subtitle: t.bookStats.randomFavoritesSubtitle.replace("{total}", totalFavorites.toString()),
+    books: favorites.slice(0, 5),
+  },
+  {
+    id: "fiveStars",
+    icon: "star" as const,
+    filled: true,
+    title: t.bookStats.fiveStars,
+    subtitle: t.bookStats.fiveStarsSubtitle.replace("{total}", totalFiveStars.toString()),
+    books: fiveStars.slice(0, 5),
+  },
+  {
+    id: "classics",
+    icon: "book-open" as const,
+    filled: false,
+    title: t.bookStats.classics,
+    subtitle: t.bookStats.classicsSubtitle.replace("{total}", totalClassics.toString()),
+    books: classics.slice(0, 5),
+  },
+  {
+    id: "recent",
+    icon: "clock" as const,
+    filled: false,
+    title: t.bookStats.recentBooks,
+    subtitle: t.bookStats.recentBooksSubtitle,
+    books: recent.slice(0, 5),
+  },
+];
+---
+
+<div class="special-lists">
+  <section class="book-stats-container__section">
+    <h2 class="book-stats-container__section-title">{t.bookStats.specialLists}</h2>
+
+    <div class="special-lists__grid">
+      {
+        lists.map((list) => (
+          <div class="special-lists__list-card">
+            <div class="special-lists__header">
+              <Icon
+                name={list.icon}
+                size="lg"
+                class={`special-lists__icon special-lists__icon--${list.id === "fiveStars" ? "five-stars" : list.id}`}
+                filled={list.filled}
+              />
+              <div class="special-lists__title-wrapper">
+                <h3 class="special-lists__title">{list.title}</h3>
+                <p class="special-lists__subtitle">{list.subtitle}</p>
+              </div>
+            </div>
+
+            {list.books.length > 0 && (
+              <ul class="special-lists__list">
+                {list.books.map((book) => (
+                  <li class="special-lists__book-item">
+                    <a href={getBookUrl(book.data.post_slug)} class="special-lists__book-link">
+                      <span class="special-lists__book-title">{book.data.title}</span>
+                    </a>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </div>
+        ))
+      }
+    </div>
+  </section>
+</div>
+
+<style lang="scss">
+  @use "../../styles/components/special-lists.scss";
+</style>
