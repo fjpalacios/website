@@ -45,6 +45,14 @@ $gray-medium: var(--gray-medium);
 $gray-dark: var(--gray-dark);
 $gray-darker: var(--gray-darker);
 
+// Text hierarchy colors (theme-aware)
+$text-secondary: var(--text-secondary);
+$text-tertiary: var(--text-tertiary);
+
+// Background colors (theme-aware)
+$card-background: var(--card-background);
+$card-background-subtle: var(--card-background-subtle);
+
 // Component-specific colors (theme-aware)
 $footer-link: var(--footer-link);
 $footer-meta: var(--footer-meta);
@@ -126,6 +134,14 @@ $container-max-width: 1400px; // Maximum width for main content container
   // Rating colors - Dark theme
   --rating-favorite: #ef4444; // Red for favorite hearts (Tailwind red-500 for dark bg)
 
+  // Text hierarchy - Dark theme
+  --text-secondary: rgba(248, 248, 248, 0.8); // Slightly dimmed text for secondary content
+  --text-tertiary: rgba(248, 248, 248, 0.7); // More dimmed text for tertiary content
+
+  // Card backgrounds - Dark theme
+  --card-background: var(--primary); // #192734 - main card background
+  --card-background-subtle: var(--primary); // Same as primary for dark theme
+
   // Progress bar colors - Dark theme
   --progress-bar-fill: #4ade80; // Green with good contrast on dark backgrounds
   --progress-bar-bg: rgba(255, 255, 255, 0.08); // Subtle background
@@ -186,6 +202,14 @@ $container-max-width: 1400px; // Maximum width for main content container
 
   // Rating colors - Light theme
   --rating-favorite: #dc2626; // Red for favorite hearts (Tailwind red-600 for light bg)
+
+  // Text hierarchy - Light theme
+  --text-secondary: #3d5a6f; // Darker text for secondary content (5.8:1 contrast on #fbfef9)
+  --text-tertiary: #4a6880; // Medium text for tertiary content (4.8:1 contrast on #fbfef9)
+
+  // Card backgrounds - Light theme
+  --card-background: rgba(0, 86, 179, 0.03); // Subtle tinted background for cards
+  --card-background-subtle: rgba(0, 86, 179, 0.03); // Same for light theme
 
   // Progress bar colors - Light theme
   --progress-bar-fill: #16a34a; // Green with good contrast on light backgrounds (4.5:1 on white)
@@ -249,6 +273,14 @@ html {
   // Rating colors - Dark theme
   --rating-favorite: #ef4444; // Red for favorite hearts (Tailwind red-500 for dark bg)
 
+  // Text hierarchy - Dark theme
+  --text-secondary: rgba(248, 248, 248, 0.8); // Slightly dimmed text for secondary content
+  --text-tertiary: rgba(248, 248, 248, 0.7); // More dimmed text for tertiary content
+
+  // Card backgrounds - Dark theme
+  --card-background: var(--primary); // #192734 - main card background
+  --card-background-subtle: var(--primary); // Same as primary for dark theme
+
   // Progress bar colors - Dark theme
   --progress-bar-fill: #4ade80; // Green with good contrast on dark backgrounds
   --progress-bar-bg: rgba(255, 255, 255, 0.08); // Subtle background
@@ -307,6 +339,14 @@ html {
 
     // Rating colors - Light theme
     --rating-favorite: #dc2626; // Red for favorite hearts (Tailwind red-600 for light bg)
+
+    // Text hierarchy - Light theme
+    --text-secondary: #3d5a6f; // Darker text for secondary content (5.8:1 contrast on #fbfef9)
+    --text-tertiary: #4a6880; // Medium text for tertiary content (4.8:1 contrast on #fbfef9)
+
+    // Card backgrounds - Light theme
+    --card-background: rgba(0, 86, 179, 0.03); // Subtle tinted background for cards
+    --card-background-subtle: rgba(0, 86, 179, 0.03); // Same for light theme
 
     // Progress bar colors - Light theme
     --progress-bar-fill: #16a34a; // Green with good contrast on light backgrounds (4.5:1 on white)

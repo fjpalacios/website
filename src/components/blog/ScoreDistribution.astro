@@ -43,6 +43,7 @@ const scoreEntries = [
           <div class="score-distribution__card">
             <div
               class={`score-distribution__stars ${isFavorite ? "score-distribution__stars--favorite" : ""}`}
+              role="img"
               aria-label={label}
             >
               {Array.from({ length: count }).map(() => (

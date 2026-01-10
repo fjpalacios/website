@@ -24,12 +24,12 @@ export const challengesConfig: Record<string, ChallengeConfig> = {
   },
   pesadillas: {
     goal: 60,
-    color: "#e8a13b",
+    color: "#c47a1a", // Darker orange for better contrast (3.2:1 on #f3f9f7)
     postSlug: "reto-literario-pesadillas",
   },
   "155-libros": {
     goal: 155,
-    color: "#2196f3",
+    color: "#1976d2", // Darker blue for better contrast (3.4:1 on #f3f9f7)
     postSlug: "reto-literario-los-155-libros-que-debes-leer-antes-de-morir",
   },
 };
