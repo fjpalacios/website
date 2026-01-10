@@ -89,10 +89,11 @@ src/
 
 ## Documentation
 
+- **[PRODUCTION_DEPLOYMENT.md](docs/PRODUCTION_DEPLOYMENT.md)** - Deploy to production (step-by-step)
 - **[ROADMAP.md](docs/ROADMAP.md)** - Project status and next steps
 - **[DEVELOPMENT_GUIDELINES.md](docs/DEVELOPMENT_GUIDELINES.md)** - Coding standards
-- **[CLOUDFLARE_ARCHITECTURE_FAQ.md](docs/CLOUDFLARE_ARCHITECTURE_FAQ.md)** - Deployment guide
-- **[MIGRATION_STRATEGY_AND_REDIRECTS.md](docs/MIGRATION_STRATEGY_AND_REDIRECTS.md)** - Content migration plan
+- **[ADDING_LANGUAGES.md](docs/ADDING_LANGUAGES.md)** - Add new language (~15 min)
+- **[IMAGE_GENERATION.md](docs/IMAGE_GENERATION.md)** - Generate OG images
 
 ---
 
