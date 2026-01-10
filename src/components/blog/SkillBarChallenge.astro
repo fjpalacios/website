@@ -1,0 +1,41 @@
+---
+import { getCollection } from "astro:content";
+
+import { getChallengeConfig } from "@/config/challenges";
+
+import SkillBar from "./SkillBar.astro";
+
+interface Props {
+  challenge: string;
+}
+
+const { challenge } = Astro.props;
+
+// Get challenge configuration
+const config = getChallengeConfig(challenge);
+const { goal, color, completedColor } = config;
+
+// Get all books from the collection
+const allBooks = await getCollection("books");
+
+// Filter books by challenge
+const booksInChallenge = allBooks.filter((book) => {
+  return book.data.challenges?.includes(challenge);
+});
+
+const booksCount = booksInChallenge.length;
+
+// Calculate percentage with one decimal
+const percentage = (booksCount / goal) * 100;
+const clampedPercentage = Math.min(100, percentage);
+
+// Use completedColor if challenge is completed and it's defined
+const finalColor = percentage >= 100 && completedColor ? completedColor : color;
+
+// Get challenge name
+const challenges = await getCollection("challenges");
+const challengeData = challenges.find((c) => c.id === challenge);
+const challengeName = challengeData?.data.name || challenge;
+---
+
+<SkillBar text={challengeName} width={clampedPercentage} color={finalColor} />

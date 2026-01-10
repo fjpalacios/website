@@ -188,7 +188,8 @@
     "femaleAuthors": "Autoras",
     "completedBooks": "libros completados",
     "of": "de",
-    "viewChallenge": "Ver reto"
+    "readChallengePost": "Leer post",
+    "viewAllChallenges": "Ver todos los retos"
   },
   "courseNavigation": {
     "previous": "Tutorial anterior",

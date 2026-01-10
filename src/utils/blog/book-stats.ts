@@ -12,6 +12,7 @@
 
 import type { CollectionEntry } from "astro:content";
 
+import { challengesConfig } from "@/config/challenges";
 import type { LanguageKey } from "@/config/languages";
 
 // ============================================================================
@@ -74,13 +75,11 @@ export interface ChallengeProgress {
 const ACTIVE_CHALLENGE_IDS = ["stephen-king", "pesadillas", "155-libros"] as const;
 
 /**
- * Challenge total counts (hardcoded as they don't change)
+ * Challenge total counts (imported from centralized config)
  */
-const CHALLENGE_TOTALS: Record<string, number> = {
-  "stephen-king": 78,
-  pesadillas: 60,
-  "155-libros": 155,
-};
+const CHALLENGE_TOTALS: Record<string, number> = Object.fromEntries(
+  Object.entries(challengesConfig).map(([key, config]) => [key, config.goal]),
+);
 
 // ============================================================================
 // HELPER FUNCTIONS

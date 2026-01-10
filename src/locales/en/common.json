@@ -188,7 +188,8 @@
     "femaleAuthors": "Female Authors",
     "completedBooks": "books completed",
     "of": "of",
-    "viewChallenge": "View Challenge"
+    "readChallengePost": "Read post",
+    "viewAllChallenges": "View all challenges"
   },
   "courseNavigation": {
     "previous": "Previous tutorial",

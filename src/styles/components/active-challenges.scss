@@ -2,17 +2,26 @@
 @use "../mixins" as *;
 
 .active-challenges {
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: 1.5rem;
+  &__grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+    margin-bottom: 2rem;
 
-  @include small-and-up {
-    grid-template-columns: repeat(2, 1fr);
-    gap: 2rem;
+    @include small-and-up {
+      grid-template-columns: repeat(2, 1fr);
+      gap: 2rem;
+    }
+
+    @include large {
+      grid-template-columns: repeat(3, 1fr);
+    }
   }
 
-  @include large {
-    grid-template-columns: repeat(3, 1fr);
+  &__item {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
   }
 
   &__card {
@@ -20,9 +29,9 @@
     padding: 1.25rem;
     border-radius: 8px;
     border: 1px solid $border-medium;
-    transition:
-      transform 0.2s ease,
-      box-shadow 0.2s ease;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
 
     @include small-and-up {
       padding: 1.5rem;
@@ -32,19 +41,12 @@
       background: rgba(0, 86, 179, 0.03);
       border-color: $border-light;
     }
-
-    &:hover {
-      transform: translateY(-4px);
-      border-color: $accent;
-      box-shadow: 0 4px 12px $shadow-medium;
-    }
   }
 
   &__header {
     display: flex;
     justify-content: space-between;
     align-items: baseline;
-    margin-bottom: 1rem;
   }
 
   &__name {
@@ -57,7 +59,7 @@
   &__percentage {
     font-size: 1.2rem;
     font-weight: bold;
-    color: $progress-bar-fill;
+    // Color is set inline via style attribute from config
   }
 
   &__progress-bar {
@@ -66,38 +68,65 @@
     background: $progress-bar-bg;
     border-radius: 5px;
     overflow: hidden;
-    margin-bottom: 1rem;
   }
 
   &__progress-fill {
     height: 100%;
-    background: $progress-bar-fill;
     border-radius: 5px;
     transition: width 0.3s ease;
-    box-shadow: 0 0 8px rgba($progress-bar-fill, 0.3);
+    // Background and box-shadow are set inline via style attribute from config
   }
 
   &__stats {
     font-size: 0.95rem;
     color: $text;
     opacity: 0.8;
-    margin-bottom: 1rem;
 
     @at-root html.light & {
       opacity: 0.7;
     }
   }
 
-  &__link {
-    display: inline-block;
+  &__card-link {
     color: $accent;
     text-decoration: none;
-    font-size: 0.9rem;
-    transition: all 0.2s ease;
+    font-size: 0.85rem;
+    font-weight: 600;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    transition: opacity 0.2s ease;
+    align-self: center;
 
     &:hover {
-      text-decoration: underline;
       opacity: 0.8;
+      text-decoration: underline;
+    }
+  }
+
+  &__view-all {
+    margin-top: 1.5rem;
+    text-align: center;
+    padding-top: 1.5rem;
+    border-top: 1px solid $border-light;
+
+    @at-root html.light & {
+      border-color: rgba(0, 0, 0, 0.06);
+    }
+  }
+
+  &__view-all-link {
+    display: inline-block;
+    font-size: 0.9rem;
+    font-weight: 600;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    color: $accent;
+    text-decoration: none;
+    transition: opacity 0.2s ease;
+
+    &:hover {
+      opacity: 0.8;
+      text-decoration: underline;
     }
   }
 }

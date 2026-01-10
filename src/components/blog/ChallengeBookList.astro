@@ -1,0 +1,39 @@
+---
+import { getCollection } from "astro:content";
+
+import BookLink from "./BookLink.astro";
+
+interface Props {
+  challenge: string;
+}
+
+const { challenge } = Astro.props;
+
+// Get all books from the collection
+const allBooks = await getCollection("books");
+
+// Filter books by challenge and sort by date
+const booksInChallenge = allBooks
+  .filter((book) => book.data.challenges?.includes(challenge))
+  .sort((a, b) => new Date(a.data.date).getTime() - new Date(b.data.date).getTime());
+---
+
+{
+  booksInChallenge.length > 0 && (
+    <ol>
+      {booksInChallenge.map((book) => (
+        <li>
+          <BookLink title={book.data.title} />
+        </li>
+      ))}
+    </ol>
+  )
+}
+
+{
+  booksInChallenge.length === 0 && (
+    <p>
+      <em>No books found for this challenge yet.</em>
+    </p>
+  )
+}
