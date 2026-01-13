@@ -99,7 +99,7 @@ div pre[class*="language-"] {
 .code-language-label {
   font-size: 0.75rem;
   font-weight: 600;
-  color: rgba(255, 255, 255, 0.85); // Increased from 0.7 to 0.85 for better contrast
+  color: $code-label-text;
   text-transform: uppercase;
   letter-spacing: 0.05em;
   font-family: "Fira Code", Consolas, Monaco, "Courier New", monospace;
@@ -121,7 +121,7 @@ div pre[class*="language-"] {
   background: $border-light !important;
   border: 1px solid $border-dark !important;
   border-radius: 6px !important;
-  color: rgba(255, 255, 255, 0.8) !important;
+  color: $code-copy-button-text !important;
   cursor: pointer !important;
   transition: all 0.2s ease;
   display: flex !important;
@@ -140,8 +140,8 @@ div pre[class*="language-"] {
 
   &.copied {
     color: $code-syntax-success !important;
-    background: rgba(74, 222, 128, 0.2) !important;
-    border-color: rgba(74, 222, 128, 0.3) !important;
+    background: $code-copy-success-bg !important;
+    border-color: $code-copy-success-border !important;
   }
 
   &__icon {
@@ -159,7 +159,7 @@ body.light pre[class*="language-"] {
 }
 
 body.light .code-line.line-number::before {
-  color: #b8bfc9; // Increased contrast for light theme (4.6:1 on #071013)
+  color: $code-line-numbers-light;
   border-right-color: $border-dark;
 }
 
@@ -169,23 +169,23 @@ body.light .code-toolbar {
 }
 
 body.light .code-language-label {
-  color: rgba(255, 255, 255, 0.9); // Use white with high opacity for contrast on dark background
+  color: $code-label-text;
 }
 
 body.light .code-copy-button {
-  background: rgba(0, 0, 0, 0.05) !important;
+  background: $code-copy-button-bg !important;
   border-color: $border-dark !important;
-  color: rgba(0, 0, 0, 0.7) !important;
+  color: $code-copy-button-text !important;
 
   &:hover {
     background: $border-medium !important;
-    color: rgba(0, 0, 0, 0.9) !important;
+    color: $code-copy-button-hover !important;
   }
 
   &.copied {
     color: $code-syntax-success !important;
-    background: rgba(22, 163, 74, 0.1) !important;
-    border-color: rgba(22, 163, 74, 0.2) !important;
+    background: $code-copy-success-bg !important;
+    border-color: $code-copy-success-border !important;
   }
 }
 

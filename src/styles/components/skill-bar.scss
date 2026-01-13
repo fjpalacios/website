@@ -17,7 +17,7 @@ $height: 35px;
     height: $height;
     padding: 0 15px;
     font-weight: bold;
-    background-color: var(--skill-dark-color, #2a9e3c);
+    background-color: var(--skill-dark-color, $skill-success-dark);
     white-space: nowrap;
     flex-shrink: 0;
   }
@@ -29,7 +29,7 @@ $height: 35px;
 
     &__level {
       height: $height;
-      background-color: var(--skill-color, #34d44a);
+      background-color: var(--skill-color, $skill-success);
       width: var(--skill-width, 0%);
     }
 
@@ -43,8 +43,8 @@ $height: 35px;
       text-align: right;
       font-size: 0.9em;
       text-shadow:
-        0 0 4px rgba(0, 0, 0, 0.8),
-        0 0 8px rgba(0, 0, 0, 0.6);
+        0 0 4px $shadow-very-strong,
+        0 0 8px $shadow-strong;
     }
   }
 }

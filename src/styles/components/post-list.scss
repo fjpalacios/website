@@ -65,7 +65,7 @@
           z-index: 1;
 
           // Add subtle shadow for better visibility
-          box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+          box-shadow: 0 2px 8px $shadow-medium;
         }
 
         // Course badge positioning (bottom-left corner)
@@ -100,12 +100,12 @@
 
 .dark .blog__grid > a:hover {
   box-shadow:
-    8px 14px 8px rgba(139, 144, 149, 0.08),
-    1px 3px 8px rgba(139, 144, 149, 0.08);
+    8px 14px 8px $shadow-hover-light,
+    1px 3px 8px $shadow-hover-light;
 }
 
 .light .blog__grid > a:hover {
   box-shadow:
-    8px 14px 8px rgba(39, 44, 49, 0.08),
-    1px 3px 8px rgba(39, 44, 49, 0.08);
+    8px 14px 8px $shadow-hover-light,
+    1px 3px 8px $shadow-hover-light;
 }

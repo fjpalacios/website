@@ -27,7 +27,7 @@
     }
 
     @at-root html.light & {
-      background: rgba(0, 86, 179, 0.03);
+      background: $card-background-subtle;
       border-color: $border-light;
     }
 

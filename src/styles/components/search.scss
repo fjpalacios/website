@@ -123,7 +123,7 @@
     transition: all 0.2s ease;
 
     &:hover {
-      background: rgba(255, 255, 255, 0.05);
+      background: $search-hover-bg;
       color: $text;
     }
 
@@ -145,22 +145,22 @@
     }
 
     &::-webkit-scrollbar-track {
-      background: rgba(255, 255, 255, 0.05);
+      background: $search-scrollbar-track;
       border-radius: 4px;
     }
 
     &::-webkit-scrollbar-thumb {
-      background: rgba(239, 187, 53, 0.3);
+      background: $search-scrollbar-thumb;
       border-radius: 4px;
 
       &:hover {
-        background: rgba(239, 187, 53, 0.5);
+        background: $search-scrollbar-thumb-hover;
       }
     }
 
     // Firefox scrollbar
     scrollbar-width: thin;
-    scrollbar-color: rgba(239, 187, 53, 0.3) rgba(255, 255, 255, 0.05);
+    scrollbar-color: $search-scrollbar-thumb $search-scrollbar-track;
   }
 }
 
@@ -208,11 +208,11 @@
   &:focus {
     outline: none;
     border-color: $accent;
-    box-shadow: 0 0 0 3px rgba(239, 187, 53, 0.1);
+    box-shadow: 0 0 0 3px $search-focus-ring;
   }
 
   &::placeholder {
-    color: rgba(248, 248, 248, 0.4);
+    color: $search-placeholder;
   }
 }
 
@@ -245,7 +245,7 @@
   border-radius: 0.5rem;
   padding: 1.5rem !important; // Override Pagefind's default 30px 0
   margin-bottom: 0.75rem;
-  background: rgba(255, 255, 255, 0.03);
+  background: $search-result-bg;
   border: 1px solid $border-light;
   transition: all 0.2s ease;
   overflow: hidden;
@@ -254,7 +254,7 @@
 
   &:hover {
     background: $border-light;
-    border-color: rgba(239, 187, 53, 0.3);
+    border-color: $search-result-hover-border;
     transform: translateY(-2px);
     box-shadow: 0 4px 12px $shadow-medium;
   }
@@ -298,7 +298,7 @@
 
 // Search term highlights
 :global(.search-modal__container mark) {
-  background-color: rgba(239, 187, 53, 0.25);
+  background-color: $search-mark-bg;
   color: $accent;
   padding: 0.125rem 0.25rem;
   border-radius: 0.25rem;
@@ -330,7 +330,7 @@
   font-weight: 600;
   letter-spacing: 0.05em;
   text-transform: uppercase;
-  border-bottom: 2px solid rgba(239, 187, 53, 0.2);
+  border-bottom: 2px solid $search-counter-border;
 }
 
 // ========================================
@@ -344,7 +344,7 @@
 
 // Light theme: Modal content background
 :global(body.light .search-modal__content) {
-  background: #fbfef9; // Light theme primary color
+  background: $search-modal-bg;
   box-shadow: 0 20px 25px -5px $shadow-medium;
 }
 
@@ -355,120 +355,120 @@
 
 // Light theme: Close button
 :global(body.light .search-modal__close) {
-  color: #6a6a6a; // Light theme cursive color
+  color: $search-modal-cursive;
 
   &:hover {
-    background: rgba(0, 0, 0, 0.05);
-    color: #284b63; // Light theme text color
+    background: $search-hover-bg;
+    color: $search-modal-text;
   }
 }
 
 // Light theme: Scrollbar track
 :global(body.light .search-modal__container::-webkit-scrollbar-track) {
-  background: rgba(0, 0, 0, 0.05);
+  background: $search-scrollbar-track;
 }
 
 // Light theme: Scrollbar thumb
 :global(body.light .search-modal__container::-webkit-scrollbar-thumb) {
-  background: rgba(0, 86, 179, 0.3); // Light theme accent
+  background: $search-scrollbar-thumb;
 
   &:hover {
-    background: rgba(0, 86, 179, 0.5);
+    background: $search-scrollbar-thumb-hover;
   }
 }
 
 // Light theme: Firefox scrollbar
 :global(body.light .search-modal__container) {
-  scrollbar-color: rgba(0, 86, 179, 0.3) rgba(0, 0, 0, 0.05);
+  scrollbar-color: $search-scrollbar-thumb $search-scrollbar-track;
 }
 
 // Light theme: Pagefind UI variables
 :global(body.light .search-modal__container .pagefind-ui) {
-  --pagefind-ui-primary: #0056b3; // Light theme accent
-  --pagefind-ui-text: #284b63; // Light theme text
-  --pagefind-ui-background: #fbfef9; // Light theme primary
+  --pagefind-ui-primary: #{$search-accent};
+  --pagefind-ui-text: #{$search-modal-text};
+  --pagefind-ui-background: #{$search-modal-bg};
   --pagefind-ui-border: #{$border-medium};
-  --pagefind-ui-tag: #e8ede7; // Light theme background
+  --pagefind-ui-tag: #{$search-input-bg};
 }
 
 // Light theme: Search input
 :global(body.light .search-modal__container .pagefind-ui__search-input) {
-  background: #e8ede7; // Light theme background
-  color: #284b63; // Light theme text
+  background: $search-input-bg;
+  color: $search-modal-text;
   border: 2px solid $border-dark;
 
   &:focus {
-    border-color: #0056b3; // Light theme accent
-    box-shadow: 0 0 0 3px rgba(0, 86, 179, 0.1);
+    border-color: $search-accent;
+    box-shadow: 0 0 0 3px $search-focus-ring;
   }
 
   &::placeholder {
-    color: rgba(40, 75, 99, 0.4); // Light theme text with opacity
+    color: $search-placeholder;
   }
 }
 
 // Light theme: Clear button
 :global(body.light .search-modal__container .pagefind-ui__search-clear) {
-  color: #6a6a6a !important; // Light theme cursive color
+  color: $search-modal-cursive !important;
 
   &:hover {
-    color: #0056b3 !important; // Light theme accent
+    color: $search-accent !important;
   }
 }
 
 // Light theme: Result cards
 :global(body.light .search-modal__container .pagefind-ui__result) {
-  background: rgba(0, 0, 0, 0.04); // Increased from 0.02 for better contrast
-  border: 1px solid $border-dark; // Increased from 0.08 for visibility
+  background: $search-result-bg;
+  border: 1px solid $border-dark;
 
   &:hover {
-    background: $border-medium; // Increased from 0.05
-    border-color: rgba(0, 86, 179, 0.4); // Slightly more visible
+    background: $border-medium;
+    border-color: $search-result-hover-border;
     box-shadow: 0 4px 12px $shadow-medium;
   }
 }
 
 // Light theme: Result link
 :global(body.light .search-modal__container .pagefind-ui__result-link) {
-  color: #284b63; // Light theme text
+  color: $search-modal-text;
 
   &:hover {
-    color: #284b63;
+    color: $search-modal-text;
   }
 }
 
 // Light theme: Result title
 :global(body.light .search-modal__container .pagefind-ui__result-title) {
-  color: #284b63; // Light theme text
+  color: $search-modal-text;
 
   .pagefind-ui__result:hover & {
-    color: #0056b3; // Light theme accent
+    color: $search-accent;
   }
 }
 
 // Light theme: Result excerpt
 :global(body.light .search-modal__container .pagefind-ui__result-excerpt) {
-  color: #6a6a6a; // Light theme cursive color
+  color: $search-modal-cursive;
 }
 
 // Light theme: Search term highlights
 :global(body.light .search-modal__container mark) {
-  background-color: rgba(0, 86, 179, 0.15);
-  color: #0056b3; // Light theme accent
+  background-color: $search-mark-bg;
+  color: $search-accent;
 }
 
 // Light theme: Loading state
 :global(body.light .search-modal__container .pagefind-ui__loading) {
-  color: #0056b3; // Light theme accent
+  color: $search-accent;
 }
 
 // Light theme: Empty state / No results
 :global(body.light .search-modal__container .pagefind-ui__message) {
-  color: #6a6a6a; // Light theme cursive color
+  color: $search-modal-cursive;
 }
 
 // Light theme: Results counter
 :global(body.light .search-modal__container .pagefind-ui__results-count) {
-  color: #6a6a6a; // Light theme cursive color
-  border-bottom: 2px solid rgba(0, 86, 179, 0.2);
+  color: $search-modal-cursive;
+  border-bottom: 2px solid $search-counter-border;
 }

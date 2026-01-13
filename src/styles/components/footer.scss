@@ -21,7 +21,7 @@
 .footer {
   grid-column: span 12; // Take full width in parent grid layout
   background-color: var(--primary);
-  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  border-top: 1px solid $border-light;
   margin-top: 2rem;
   padding: 1.25rem 1rem;
 

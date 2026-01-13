@@ -19,8 +19,8 @@
   text-align: left;
 
   // Visual - Earthy/brown tone for distinction
-  background-color: rgba(101, 67, 33, 0.9); // Dark brown
-  color: #f5f5dc; // Beige text
+  background-color: $series-badge-bg;
+  color: $series-badge-text;
   padding: 0.25rem 0.5rem;
   border-radius: 0.25rem;
 
@@ -47,7 +47,7 @@
 
 // Dark theme variant - slightly lighter brown with better contrast
 [data-theme="dark"] .series-badge {
-  background-color: rgba(139, 90, 43, 0.85); // Lighter brown for dark mode
+  background-color: $series-badge-bg;
   backdrop-filter: blur(10px);
-  color: #faf0e6; // Linen (slightly warmer white)
+  color: $series-badge-text;
 }

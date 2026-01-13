@@ -5,6 +5,8 @@
  * Uses aspect-ratio and flexbox to maintain perfect circle shape.
  */
 
+@use "../variables" as *;
+
 .tutorial-order-badge {
   // Layout: Perfect circle using aspect-ratio
   display: inline-flex;
@@ -19,8 +21,8 @@
   text-align: center;
 
   // Visual
-  background-color: var(--color-accent, #007acc);
-  color: var(--color-text-inverse, #ffffff);
+  background-color: $tutorial-badge-bg;
+  color: $tutorial-badge-text;
   border-radius: 50%;
 
   // Ensure consistent sizing

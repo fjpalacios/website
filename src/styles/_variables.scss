@@ -21,12 +21,24 @@ $border-dark: var(--border-dark);
 $shadow-light: var(--shadow-light);
 $shadow-medium: var(--shadow-medium);
 $shadow-dark: var(--shadow-dark);
+$shadow-strong: var(--shadow-strong);
+$shadow-very-strong: var(--shadow-very-strong);
+$shadow-hover-light: var(--shadow-hover-light);
 
 // Code syntax highlighting (fixed for both themes)
 $code-syntax-pink: var(--code-syntax-pink);
 $code-syntax-line-numbers: var(--code-syntax-line-numbers);
 $code-syntax-success: var(--code-syntax-success);
 $code-syntax-white: var(--code-syntax-white);
+
+// Code block UI colors (theme-aware)
+$code-label-text: var(--code-label-text);
+$code-copy-button-text: var(--code-copy-button-text);
+$code-copy-success-bg: var(--code-copy-success-bg);
+$code-copy-success-border: var(--code-copy-success-border);
+$code-line-numbers-light: var(--code-line-numbers-light, $code-syntax-line-numbers);
+$code-copy-button-bg: var(--code-copy-button-bg, $border-light);
+$code-copy-button-hover: var(--code-copy-button-hover, $border-dark);
 
 // Inline code (theme-aware)
 $inline-code-bg: var(--inline-code-bg);
@@ -70,6 +82,41 @@ $gender-female-secondary: var(--gender-female-secondary);
 $gender-male-primary: var(--gender-male-primary);
 $gender-male-secondary: var(--gender-male-secondary);
 
+// Badge colors (theme-aware)
+$series-badge-bg: var(--series-badge-bg);
+$series-badge-text: var(--series-badge-text);
+$course-badge-bg: var(--course-badge-bg);
+$course-badge-text: var(--course-badge-text);
+$course-badge-hover-bg: var(--course-badge-hover-bg);
+$tutorial-badge-bg: var(--tutorial-badge-bg);
+$tutorial-badge-text: var(--tutorial-badge-text);
+
+// Skill/Progress colors (theme-aware)
+$skill-success: var(--skill-success);
+$skill-success-dark: var(--skill-success-dark);
+$skill-error: var(--skill-error);
+
+// Search modal colors (theme-aware)
+$search-modal-bg: var(--search-modal-bg, $primary);
+$search-modal-text: var(--search-modal-text, $text);
+$search-modal-cursive: var(--search-modal-cursive, $cursive-color);
+$search-hover-bg: var(--search-hover-bg);
+$search-scrollbar-track: var(--search-scrollbar-track);
+$search-scrollbar-thumb: var(--search-scrollbar-thumb);
+$search-scrollbar-thumb-hover: var(--search-scrollbar-thumb-hover);
+$search-input-bg: var(--search-input-bg, $background);
+$search-accent: var(--search-accent, $accent);
+$search-focus-ring: var(--search-focus-ring);
+$search-placeholder: var(--search-placeholder);
+$search-result-bg: var(--search-result-bg);
+$search-result-hover-border: var(--search-result-hover-border);
+$search-mark-bg: var(--search-mark-bg);
+$search-counter-border: var(--search-counter-border);
+
+// Pure colors (theme-independent)
+$pure-white: #ffffff;
+$pure-black: #000000;
+
 // Responsive breakpoint variables
 // Mobile-first approach
 $breakpoint-small: 768px; // Tablet and up
@@ -103,11 +150,20 @@ $container-max-width: 1400px; // Maximum width for main content container
   --shadow-light: rgba(0, 0, 0, 0.1);
   --shadow-medium: rgba(0, 0, 0, 0.2);
   --shadow-dark: rgba(0, 0, 0, 0.3);
+  --shadow-strong: rgba(0, 0, 0, 0.6);
+  --shadow-very-strong: rgba(0, 0, 0, 0.8);
+  --shadow-hover-light: rgba(139, 144, 149, 0.08);
 
   --code-syntax-pink: #ff6ac1;
   --code-syntax-line-numbers: #8b95a8;
   --code-syntax-success: #4ade80;
   --code-syntax-white: #ffffff;
+
+  // Code block UI colors - Dark theme
+  --code-label-text: rgba(255, 255, 255, 0.85);
+  --code-copy-button-text: rgba(255, 255, 255, 0.8);
+  --code-copy-success-bg: rgba(74, 222, 128, 0.2);
+  --code-copy-success-border: rgba(74, 222, 128, 0.3);
 
   --inline-code-bg: var(--primary); // #192734
   --inline-code-text: var(--code); // #8be9fd
@@ -151,6 +207,32 @@ $container-max-width: 1400px; // Maximum width for main content container
   --gender-female-secondary: #d946ef; // Magenta (Tailwind fuchsia-500)
   --gender-male-primary: #06b6d4; // Cyan (Tailwind cyan-500)
   --gender-male-secondary: #3b82f6; // Blue (Tailwind blue-500)
+
+  // Badge colors - Dark theme
+  --series-badge-bg: rgba(139, 90, 43, 0.85); // Lighter brown for dark mode
+  --series-badge-text: #faf0e6; // Linen (slightly warmer white)
+  --course-badge-bg: rgba(0, 0, 0, 0.8); // Dark semi-transparent
+  --course-badge-text: #ffffff; // Pure white
+  --course-badge-hover-bg: rgba(255, 255, 255, 0.15); // Light hover overlay
+  --tutorial-badge-bg: #007acc; // Blue
+  --tutorial-badge-text: #ffffff; // Pure white
+
+  // Skill/Progress colors - Dark theme
+  --skill-success: #34d44a; // Bright green for completed
+  --skill-success-dark: #2a9e3c; // Darker green for background
+  --skill-error: #d43434; // Red for not completed
+
+  // Search modal colors - Dark theme
+  --search-hover-bg: rgba(255, 255, 255, 0.05);
+  --search-scrollbar-track: rgba(255, 255, 255, 0.05);
+  --search-scrollbar-thumb: rgba(239, 187, 53, 0.3);
+  --search-scrollbar-thumb-hover: rgba(239, 187, 53, 0.5);
+  --search-focus-ring: rgba(239, 187, 53, 0.1);
+  --search-placeholder: rgba(248, 248, 248, 0.4);
+  --search-result-bg: rgba(255, 255, 255, 0.03);
+  --search-result-hover-border: rgba(239, 187, 53, 0.3);
+  --search-mark-bg: rgba(239, 187, 53, 0.25);
+  --search-counter-border: rgba(239, 187, 53, 0.2);
 }
 
 // Light theme values
@@ -172,11 +254,23 @@ $container-max-width: 1400px; // Maximum width for main content container
   --shadow-light: rgba(0, 0, 0, 0.05);
   --shadow-medium: rgba(0, 0, 0, 0.1);
   --shadow-dark: rgba(0, 0, 0, 0.15);
+  --shadow-strong: rgba(0, 0, 0, 0.6);
+  --shadow-very-strong: rgba(0, 0, 0, 0.8);
+  --shadow-hover-light: rgba(39, 44, 49, 0.08);
 
   --code-syntax-pink: #ff6ac1;
   --code-syntax-line-numbers: #8b95a8;
   --code-syntax-success: #16a34a;
   --code-syntax-white: #ffffff;
+
+  // Code block UI colors - Light theme
+  --code-label-text: rgba(255, 255, 255, 0.9);
+  --code-line-numbers-light: #b8bfc9;
+  --code-copy-button-bg: rgba(0, 0, 0, 0.05);
+  --code-copy-button-text: rgba(0, 0, 0, 0.7);
+  --code-copy-button-hover: rgba(0, 0, 0, 0.9);
+  --code-copy-success-bg: rgba(22, 163, 74, 0.1);
+  --code-copy-success-border: rgba(22, 163, 74, 0.2);
 
   --inline-code-bg: rgba(0, 86, 179, 0.08);
   --inline-code-text: #d63384;
@@ -220,6 +314,37 @@ $container-max-width: 1400px; // Maximum width for main content container
   --gender-female-secondary: #c026d3; // Magenta (Tailwind fuchsia-600)
   --gender-male-primary: #0891b2; // Cyan (Tailwind cyan-600)
   --gender-male-secondary: #2563eb; // Blue (Tailwind blue-600)
+
+  // Badge colors - Light theme
+  --series-badge-bg: rgba(101, 67, 33, 0.9); // Dark brown
+  --series-badge-text: #f5f5dc; // Beige text
+  --course-badge-bg: rgba(0, 0, 0, 0.8); // Dark semi-transparent (same for both themes)
+  --course-badge-text: #ffffff; // Pure white
+  --course-badge-hover-bg: rgba(255, 255, 255, 0.15); // Light hover overlay (same for both themes)
+  --tutorial-badge-bg: #007acc; // Blue (same for both themes)
+  --tutorial-badge-text: #ffffff; // Pure white
+
+  // Skill/Progress colors - Light theme
+  --skill-success: #34d44a; // Bright green for completed (same for both themes)
+  --skill-success-dark: #2a9e3c; // Darker green for background (same for both themes)
+  --skill-error: #d43434; // Red for not completed (same for both themes)
+
+  // Search modal colors - Light theme
+  --search-modal-bg: #fbfef9;
+  --search-modal-text: #284b63;
+  --search-modal-cursive: #6a6a6a;
+  --search-hover-bg: rgba(0, 0, 0, 0.05);
+  --search-scrollbar-track: rgba(0, 0, 0, 0.05);
+  --search-scrollbar-thumb: rgba(0, 86, 179, 0.3);
+  --search-scrollbar-thumb-hover: rgba(0, 86, 179, 0.5);
+  --search-input-bg: #e8ede7;
+  --search-accent: #0056b3;
+  --search-focus-ring: rgba(0, 86, 179, 0.1);
+  --search-placeholder: rgba(40, 75, 99, 0.4);
+  --search-result-bg: rgba(0, 0, 0, 0.04);
+  --search-result-hover-border: rgba(0, 86, 179, 0.4);
+  --search-mark-bg: rgba(0, 86, 179, 0.15);
+  --search-counter-border: rgba(0, 86, 179, 0.2);
 }
 
 // Set default dark theme on html element to prevent FOUC
@@ -242,11 +367,20 @@ html {
   --shadow-light: rgba(0, 0, 0, 0.1);
   --shadow-medium: rgba(0, 0, 0, 0.2);
   --shadow-dark: rgba(0, 0, 0, 0.3);
+  --shadow-strong: rgba(0, 0, 0, 0.6);
+  --shadow-very-strong: rgba(0, 0, 0, 0.8);
+  --shadow-hover-light: rgba(139, 144, 149, 0.08);
 
   --code-syntax-pink: #ff6ac1;
   --code-syntax-line-numbers: #8b95a8;
   --code-syntax-success: #4ade80;
   --code-syntax-white: #ffffff;
+
+  // Code block UI colors - Dark theme
+  --code-label-text: rgba(255, 255, 255, 0.85);
+  --code-copy-button-text: rgba(255, 255, 255, 0.8);
+  --code-copy-success-bg: rgba(74, 222, 128, 0.2);
+  --code-copy-success-border: rgba(74, 222, 128, 0.3);
 
   --inline-code-bg: var(--primary); // #192734
   --inline-code-text: var(--code); // #8be9fd
@@ -290,6 +424,20 @@ html {
   --gender-female-secondary: #d946ef; // Magenta (Tailwind fuchsia-500)
   --gender-male-primary: #06b6d4; // Cyan (Tailwind cyan-500)
   --gender-male-secondary: #3b82f6; // Blue (Tailwind blue-500)
+
+  // Badge colors - Dark theme
+  --series-badge-bg: rgba(139, 90, 43, 0.85); // Lighter brown for dark mode
+  --series-badge-text: #faf0e6; // Linen (slightly warmer white)
+  --course-badge-bg: rgba(0, 0, 0, 0.8); // Dark semi-transparent
+  --course-badge-text: #ffffff; // Pure white
+  --course-badge-hover-bg: rgba(255, 255, 255, 0.15); // Light hover overlay
+  --tutorial-badge-bg: #007acc; // Blue
+  --tutorial-badge-text: #ffffff; // Pure white
+
+  // Skill/Progress colors - Dark theme
+  --skill-success: #34d44a; // Bright green for completed
+  --skill-success-dark: #2a9e3c; // Darker green for background
+  --skill-error: #d43434; // Red for not completed
 
   &.light {
     --accent: #0056b3;
@@ -357,6 +505,20 @@ html {
     --gender-female-secondary: #c026d3; // Magenta (Tailwind fuchsia-600)
     --gender-male-primary: #0891b2; // Cyan (Tailwind cyan-600)
     --gender-male-secondary: #2563eb; // Blue (Tailwind blue-600)
+
+    // Badge colors - Light theme
+    --series-badge-bg: rgba(101, 67, 33, 0.9); // Dark brown
+    --series-badge-text: #f5f5dc; // Beige text
+    --course-badge-bg: rgba(0, 0, 0, 0.8); // Dark semi-transparent (same for both themes)
+    --course-badge-text: #ffffff; // Pure white
+    --course-badge-hover-bg: rgba(255, 255, 255, 0.15); // Light hover overlay (same for both themes)
+    --tutorial-badge-bg: #007acc; // Blue (same for both themes)
+    --tutorial-badge-text: #ffffff; // Pure white
+
+    // Skill/Progress colors - Light theme
+    --skill-success: #34d44a; // Bright green for completed (same for both themes)
+    --skill-success-dark: #2a9e3c; // Darker green for background (same for both themes)
+    --skill-error: #d43434; // Red for not completed (same for both themes)
   }
 }
 
