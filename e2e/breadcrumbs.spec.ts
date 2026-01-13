@@ -3,7 +3,7 @@ import { expect, test } from "@playwright/test";
 test.describe("Breadcrumbs", () => {
   test.describe("Book Detail Pages", () => {
     test("should display breadcrumbs on Spanish book detail page", async ({ page }) => {
-      await page.goto("/es/libros/area-81-stephen-king");
+      await page.goto("/es/libros/area-81-de-stephen-king");
 
       const breadcrumbs = page.locator("nav.breadcrumbs");
       await expect(breadcrumbs).toBeVisible();
@@ -28,8 +28,8 @@ test.describe("Breadcrumbs", () => {
       await expect(currentPage).toHaveAttribute("aria-current", "page");
     });
 
-    test("should display breadcrumbs on English book detail page", async ({ page }) => {
-      await page.goto("/en/books/the-stand-stephen-king");
+    test("should display breadcrumbs on another Spanish book detail page", async ({ page }) => {
+      await page.goto("/es/libros/1984-de-george-orwell");
 
       const breadcrumbs = page.locator("nav.breadcrumbs");
       await expect(breadcrumbs).toBeVisible();
@@ -40,22 +40,22 @@ test.describe("Breadcrumbs", () => {
 
       // Home link
       const homeLink = items.nth(0).locator("a.breadcrumbs__link");
-      await expect(homeLink).toHaveText("Home");
-      await expect(homeLink).toHaveAttribute("href", "/en");
+      await expect(homeLink).toHaveText("Inicio");
+      await expect(homeLink).toHaveAttribute("href", "/es");
 
       // Books link
       const booksLink = items.nth(1).locator("a.breadcrumbs__link");
-      await expect(booksLink).toHaveText("Books");
-      await expect(booksLink).toHaveAttribute("href", "/en/books");
+      await expect(booksLink).toHaveText("Libros");
+      await expect(booksLink).toHaveAttribute("href", "/es/libros");
 
       // Current page (no link)
       const currentPage = items.nth(2).locator(".breadcrumbs__current");
-      await expect(currentPage).toContainText("The Stand");
+      await expect(currentPage).toContainText("1984");
       await expect(currentPage).toHaveAttribute("aria-current", "page");
     });
 
     test("should have BreadcrumbList schema on book detail page", async ({ page }) => {
-      await page.goto("/es/libros/area-81-stephen-king");
+      await page.goto("/es/libros/area-81-de-stephen-king");
 
       // Get all script tags with type="application/ld+json"
       const scripts = await page.locator('script[type="application/ld+json"]').all();
@@ -192,7 +192,7 @@ test.describe("Breadcrumbs", () => {
 
   test.describe("Breadcrumb Navigation", () => {
     test("should navigate when clicking breadcrumb links", async ({ page }) => {
-      await page.goto("/es/libros/area-81-stephen-king");
+      await page.goto("/es/libros/area-81-de-stephen-king");
 
       // Click on "Libros" breadcrumb
       await page.click(".breadcrumbs__item:nth-child(2) .breadcrumbs__link");
@@ -201,7 +201,7 @@ test.describe("Breadcrumbs", () => {
     });
 
     test("should have correct aria-label for accessibility", async ({ page }) => {
-      await page.goto("/es/libros/area-81-stephen-king");
+      await page.goto("/es/libros/area-81-de-stephen-king");
 
       const breadcrumbsNav = page.locator("nav.breadcrumbs");
       const ariaLabel = await breadcrumbsNav.getAttribute("aria-label");
@@ -214,7 +214,7 @@ test.describe("Breadcrumbs", () => {
 
   test.describe("Breadcrumb Separators", () => {
     test("should display arrow separators between breadcrumb items", async ({ page }) => {
-      await page.goto("/es/libros/area-81-stephen-king");
+      await page.goto("/es/libros/area-81-de-stephen-king");
 
       // Check that separators are present (using CSS ::after content)
       const items = page.locator(".breadcrumbs__item");
