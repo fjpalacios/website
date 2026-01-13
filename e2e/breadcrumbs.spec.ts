@@ -124,10 +124,30 @@ test.describe("Breadcrumbs", () => {
       await expect(currentPage).toHaveAttribute("aria-current", "page");
     });
 
-    test("should display breadcrumbs on English tutorial detail page", async ({ page: _page }) => {
-      // Skip this test: no English tutorials exist yet
-      // When English tutorials are added, update this test with a real slug
-      test.skip();
+    test("should display breadcrumbs on English tutorial detail page", async ({ page }) => {
+      await page.goto("/en/tutorials/what-is-git/");
+
+      const breadcrumbs = page.locator("nav.breadcrumbs");
+      await expect(breadcrumbs).toBeVisible();
+
+      // Check breadcrumb items
+      const items = breadcrumbs.locator(".breadcrumbs__item");
+      await expect(items).toHaveCount(3);
+
+      // Home link
+      const homeLink = items.nth(0).locator("a.breadcrumbs__link");
+      await expect(homeLink).toHaveText("Home");
+      await expect(homeLink).toHaveAttribute("href", "/en");
+
+      // Tutorials link
+      const tutorialsLink = items.nth(1).locator("a.breadcrumbs__link");
+      await expect(tutorialsLink).toHaveText("Tutorials");
+      await expect(tutorialsLink).toHaveAttribute("href", "/en/tutorials");
+
+      // Current page (no link)
+      const currentPage = items.nth(2).locator(".breadcrumbs__current");
+      await expect(currentPage).toHaveText("What is Git?");
+      await expect(currentPage).toHaveAttribute("aria-current", "page");
     });
 
     test("should have BreadcrumbList schema on tutorial detail page", async ({ page }) => {

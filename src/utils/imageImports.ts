@@ -121,6 +121,12 @@ import harryPotterYLaPiedraFilosofalDeJKRowling from "@/assets/books/harry-potte
 import historiasMinusculasDeBettiePathway from "@/assets/books/historias-minusculas-de-bettie-pathway.jpg";
 import houseOfCardsDeMichaelDobbs from "@/assets/books/house-of-cards-de-michael-dobbs.jpg";
 import aliciaReina from "@/assets/books/inline/alicia-reina.jpg";
+import crowley from "@/assets/books/inline/crowley.jpg";
+import gatoCheshire from "@/assets/books/inline/gato-cheshire.jpg";
+import lcBridgetJones from "@/assets/books/inline/LC-bridget-jones.jpg";
+import musicaClasicaInstrumental from "@/assets/books/inline/musica-clasica-instrumental.jpg";
+import peterPanIlustracion from "@/assets/books/inline/peter-pan-ilustracion.jpg";
+import puntuacionPatos from "@/assets/books/inline/puntuacion-patos.png";
 import instrumentalDeJamesRhodes from "@/assets/books/instrumental-de-james-rhodes.jpg";
 import insurgenteDeVeronicaRoth from "@/assets/books/insurgente-de-veronica-roth.jpg";
 import juegoDeTronosDeGeorgeRRMartin from "@/assets/books/juego-de-tronos-de-george-r-r-martin.jpg";
@@ -189,12 +195,6 @@ import yoNoLaMateDeFernandoTrujillo from "@/assets/books/yo-no-la-mate-de-fernan
 // BOOK INLINE IMAGES
 // ============================================================================
 
-import crowley from "@/assets/books/inline/crowley.jpg";
-import gatoCheshire from "@/assets/books/inline/gato-cheshire.jpg";
-import lcBridgetJones from "@/assets/books/inline/LC-bridget-jones.jpg";
-import musicaClasicaInstrumental from "@/assets/books/inline/musica-clasica-instrumental.jpg";
-import peterPanIlustracion from "@/assets/books/inline/peter-pan-ilustracion.jpg";
-import puntuacionPatos from "@/assets/books/inline/puntuacion-patos.png";
 // ============================================================================
 // AUTHOR PICTURE IMAGES
 // ============================================================================

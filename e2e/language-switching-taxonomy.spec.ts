@@ -225,20 +225,21 @@ test.describe("Language Switching - Taxonomy Pages", () => {
     });
 
     test("should switch from Spanish category to English category", async ({ page }) => {
-      await page.goto("/es/categorias/libros/");
+      // Use "git" category which has proper i18n mappings
+      await page.goto("/es/categorias/git/");
 
-      const languageSwitcher = page.locator(".language-switcher");
-      const isEnabled = await languageSwitcher.isEnabled();
+      const languageSwitcher = await waitForLanguageSwitcherReady(page);
 
-      if (isEnabled) {
-        await languageSwitcher.click();
-        await page.waitForLoadState("networkidle");
+      // Should be enabled (git category has i18n)
+      await expect(languageSwitcher).toBeEnabled();
 
-        expect(page.url()).toContain("/en/categories/books");
-      } else {
-        // If not enabled, it means categories don't have LanguageSwitcher implemented yet
-        test.skip();
-      }
+      const targetUrl = await languageSwitcher.getAttribute("data-lang-url");
+      expect(targetUrl).toBe("/en/categories/git");
+
+      await languageSwitcher.click();
+      await page.waitForLoadState("networkidle");
+
+      expect(page.url()).toContain("/en/categories/git");
     });
   });
 

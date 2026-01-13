@@ -281,30 +281,23 @@ test.describe("SEO ItemList Schema - Taxonomy Detail Pages", () => {
     });
 
     test("should handle mixed content types on category pages", async ({ page }) => {
-      // Use a category that we know has content (tutorials)
-      await page.goto("/es/categorias/tutoriales/");
+      // Use "git" category which has content in both languages
+      await page.goto("/es/categorias/git/");
 
       const itemListSchema = assertItemListSchema(await getItemListSchema(page));
 
-      // Skip test if schema not found or page doesn't exist
-      if (!itemListSchema) {
-        test.skip();
-        return;
-      }
-
-      // Skip if category is empty
-      if (itemListSchema.itemListElement.length === 0) {
-        expect(itemListSchema).toBeTruthy();
-        expect(itemListSchema["@type"]).toBe("ItemList");
-        return;
-      }
-
+      // Validate structure - should always work with git category
       validateItemListStructure(itemListSchema);
 
       // Category pages might have mixed types (BlogPosting, TechArticle, Book)
       const types = new Set(itemListSchema.itemListElement.map((item: SchemaListItem) => item.item["@type"]));
 
       expect(types.size).toBeGreaterThanOrEqual(1);
+
+      // Verify all types are valid
+      types.forEach((type: string) => {
+        expect(["BlogPosting", "TechArticle", "Book"]).toContain(type);
+      });
     });
   });
 
