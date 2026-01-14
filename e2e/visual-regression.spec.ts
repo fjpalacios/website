@@ -1,650 +1,461 @@
 /**
- * Visual Regression Tests - Screenshot-based Testing
+ * Visual Regression Tests - Hybrid Approach
  *
- * Comprehensive visual regression testing using Playwright's screenshot comparison.
- * Detects unintended visual changes in UI, layout, styling, and components.
+ * IMPORTANT: This file uses a HYBRID approach to visual testing:
  *
- * Test Coverage:
- * - Page screenshots (homepage, listings, details, static pages)
- * - Component screenshots (menu, search, rating, theme toggle)
- * - Responsive breakpoints (mobile, tablet, desktop)
- * - Theme variations (light, dark)
- * - Interactive states (hover, focus, open states)
+ * ✅ VISUAL TESTS (screenshots) for:
+ *    - Static pages (404, About, Feeds)
+ *    - UI Components (Header, Footer, Search Modal, Theme Toggle)
+ *    - Specific content details (one book, one tutorial - won't change)
  *
- * How It Works:
- * 1. First run: Generates baseline screenshots
- * 2. Subsequent runs: Compares current screenshots with baselines
- * 3. Fails if differences exceed threshold (pixel mismatch)
+ * ❌ NO VISUAL TESTS for:
+ *    - Homepage (has "latest 5 books" - changes frequently)
+ *    - Listing pages (books, tutorials, posts - content changes)
+ *    - Taxonomy pages with dynamic content
+ *    → These are tested with STRUCTURE TESTS in structure-dynamic-content.spec.ts
  *
- * Updating Baselines:
- * When intentional changes are made, update baselines with:
- * bun run test:e2e -- e2e/visual-regression.spec.ts --update-snapshots
+ * Why this approach?
+ * - Visual tests break every time content is added/changed
+ * - Structure tests validate functionality without caring about exact pixels
+ * - This approach keeps tests stable while maintaining quality
  *
- * Screenshot Location:
- * - Baselines: e2e/visual-regression.spec.ts-snapshots/
- * - Diffs: test-results/ (on failure)
- *
- * @see https://playwright.dev/docs/test-snapshots
+ * See: docs/VISUAL_REGRESSION_STRATEGY.md
  *
  * @group e2e
  * @group visual
  * @group regression
  */
 
-import { test, expect, type Page } from "@playwright/test";
+import { test, expect } from "@playwright/test";
 
-/**
- * Viewport configurations for responsive testing
- */
-const VIEWPORTS = {
-  mobile: { width: 375, height: 667 }, // iPhone SE
-  tablet: { width: 768, height: 1024 }, // iPad
-  desktop: { width: 1920, height: 1080 }, // Full HD
-} as const;
-
-/**
- * Helper function to wait for page to be fully loaded and stable
- */
-async function waitForPageStable(page: Page): Promise<void> {
-  // Wait for network to be idle
-  await page.waitForLoadState("networkidle");
-
-  // Wait for fonts to load (prevents font rendering differences)
-  await page.evaluate(() => document.fonts.ready);
-
-  // Wait a bit for animations to settle
-  await page.waitForTimeout(500);
-}
-
-/**
- * Helper function to activate dark theme
- */
-async function activateDarkTheme(page: Page): Promise<void> {
-  const themeToggle = page.locator("#theme-toggle");
-  // Check if theme toggle is visible
-  const isVisible = await themeToggle.isVisible({ timeout: 2000 }).catch(() => false);
-  if (!isVisible) {
-    // If toggle not found, set theme via JavaScript
-    await page.evaluate(() => {
-      document.documentElement.setAttribute("data-theme", "dark");
-      localStorage.setItem("theme", "dark");
-    });
-  } else {
-    await themeToggle.click();
-  }
-  // Wait for theme transition to complete
-  await page.waitForTimeout(300);
-}
-
-/**
- * Helper function to open search modal
- */
-async function openSearchModal(page: Page): Promise<void> {
-  const searchButton = page.locator(".search-button");
-  await searchButton.click();
-
-  // Wait for modal to open
-  const modal = page.locator(".search-modal");
-  await modal.waitFor({ state: "visible", timeout: 5000 });
-
-  // Wait for Pagefind UI to initialize
-  const searchInput = page.locator(".pagefind-ui__search-input");
-  await searchInput.waitFor({ state: "visible", timeout: 5000 });
-
-  // Wait for search UI to be fully rendered
-  await page.waitForTimeout(500);
-}
+import {
+  VIEWPORTS,
+  STABLE_CONTENT,
+  waitForPageStable,
+  activateDarkTheme,
+  openSearchModal,
+  setViewport,
+} from "./helpers";
 
 // ============================================================================
-// HOMEPAGE SCREENSHOTS
-// ============================================================================
-
-test.describe("Visual Regression - Homepage", () => {
-  test.describe("Desktop", () => {
-    test.beforeEach(async ({ page }) => {
-      await page.setViewportSize(VIEWPORTS.desktop);
-    });
-
-    test("should match homepage ES light theme", async ({ page }) => {
-      await page.goto("/es/");
-      await waitForPageStable(page);
-
-      await expect(page).toHaveScreenshot("homepage-es-desktop-light.png", {
-        fullPage: true,
-        animations: "disabled",
-        maxDiffPixelRatio: 0.02,
-      });
-    });
-
-    test("should match homepage ES dark theme", async ({ page }) => {
-      await page.goto("/es/");
-      await waitForPageStable(page);
-      await activateDarkTheme(page);
-
-      await expect(page).toHaveScreenshot("homepage-es-desktop-dark.png", {
-        fullPage: true,
-        animations: "disabled",
-      });
-    });
-
-    test("should match homepage EN light theme", async ({ page }) => {
-      await page.goto("/en/");
-      await waitForPageStable(page);
-
-      await expect(page).toHaveScreenshot("homepage-en-desktop-light.png", {
-        fullPage: true,
-        animations: "disabled",
-        maxDiffPixelRatio: 0.02,
-      });
-    });
-  });
-
-  test.describe("Tablet", () => {
-    test.beforeEach(async ({ page }) => {
-      await page.setViewportSize(VIEWPORTS.tablet);
-    });
-
-    test("should match homepage ES tablet light theme", async ({ page }) => {
-      await page.goto("/es/");
-      await waitForPageStable(page);
-
-      await expect(page).toHaveScreenshot("homepage-es-tablet-light.png", {
-        fullPage: true,
-        animations: "disabled",
-      });
-    });
-
-    test("should match homepage ES tablet dark theme", async ({ page }) => {
-      await page.goto("/es/");
-      await waitForPageStable(page);
-      await activateDarkTheme(page);
-
-      await expect(page).toHaveScreenshot("homepage-es-tablet-dark.png", {
-        fullPage: true,
-        animations: "disabled",
-      });
-    });
-  });
-
-  test.describe("Mobile", () => {
-    test.beforeEach(async ({ page }) => {
-      await page.setViewportSize(VIEWPORTS.mobile);
-    });
-
-    test("should match homepage ES mobile light theme", async ({ page }) => {
-      await page.goto("/es/");
-      await waitForPageStable(page);
-
-      await expect(page).toHaveScreenshot("homepage-es-mobile-light.png", {
-        fullPage: true,
-        animations: "disabled",
-      });
-    });
-
-    test("should match homepage ES mobile dark theme", async ({ page }) => {
-      await page.goto("/es/");
-      await waitForPageStable(page);
-      await activateDarkTheme(page);
-
-      await expect(page).toHaveScreenshot("homepage-es-mobile-dark.png", {
-        fullPage: true,
-        animations: "disabled",
-      });
-    });
-  });
-});
-
-// ============================================================================
-// BOOKS PAGES SCREENSHOTS
-// ============================================================================
-
-test.describe("Visual Regression - Books", () => {
-  test.describe("Book Listing", () => {
-    test("should match books listing desktop light", async ({ page }) => {
-      await page.setViewportSize(VIEWPORTS.desktop);
-      await page.goto("/es/libros/");
-      await waitForPageStable(page);
-
-      await expect(page).toHaveScreenshot("books-listing-desktop-light.png", {
-        fullPage: true,
-        animations: "disabled",
-        maxDiffPixelRatio: 0.02,
-      });
-    });
-
-    test("should match books listing desktop dark", async ({ page }) => {
-      await page.setViewportSize(VIEWPORTS.desktop);
-      await page.goto("/es/libros/");
-      await waitForPageStable(page);
-      await activateDarkTheme(page);
-
-      await expect(page).toHaveScreenshot("books-listing-desktop-dark.png", {
-        fullPage: true,
-        animations: "disabled",
-      });
-    });
-
-    test("should match books listing mobile light", async ({ page }) => {
-      await page.setViewportSize(VIEWPORTS.mobile);
-      await page.goto("/es/libros/");
-      await waitForPageStable(page);
-
-      await expect(page).toHaveScreenshot("books-listing-mobile-light.png", {
-        fullPage: true,
-        animations: "disabled",
-        maxDiffPixelRatio: 0.02,
-      });
-    });
-  });
-
-  test.describe("Book Detail", () => {
-    test("should match book detail desktop light", async ({ page }) => {
-      await page.setViewportSize(VIEWPORTS.desktop);
-      await page.goto("/es/libros/el-hobbit-j-r-r-tolkien/");
-      await waitForPageStable(page);
-
-      await expect(page).toHaveScreenshot("book-detail-desktop-light.png", {
-        fullPage: true,
-        animations: "disabled",
-      });
-    });
-
-    test("should match book detail desktop dark", async ({ page }) => {
-      await page.setViewportSize(VIEWPORTS.desktop);
-      await page.goto("/es/libros/el-hobbit-j-r-r-tolkien/");
-      await waitForPageStable(page);
-      await activateDarkTheme(page);
-
-      await expect(page).toHaveScreenshot("book-detail-desktop-dark.png", {
-        fullPage: true,
-        animations: "disabled",
-      });
-    });
-
-    test("should match book detail mobile light", async ({ page }) => {
-      await page.setViewportSize(VIEWPORTS.mobile);
-      await page.goto("/es/libros/el-hobbit-j-r-r-tolkien/");
-      await waitForPageStable(page);
-
-      await expect(page).toHaveScreenshot("book-detail-mobile-light.png", {
-        fullPage: true,
-        animations: "disabled",
-      });
-    });
-  });
-});
-
-// ============================================================================
-// TUTORIALS PAGES SCREENSHOTS
-// ============================================================================
-
-test.describe("Visual Regression - Tutorials", () => {
-  test("should match tutorials listing desktop light", async ({ page }) => {
-    await page.setViewportSize(VIEWPORTS.desktop);
-    await page.goto("/es/tutoriales/");
-    await waitForPageStable(page);
-
-    await expect(page).toHaveScreenshot("tutorials-listing-desktop-light.png", {
-      fullPage: true,
-      animations: "disabled",
-    });
-  });
-
-  test("should match tutorials listing desktop dark", async ({ page }) => {
-    await page.setViewportSize(VIEWPORTS.desktop);
-    await page.goto("/es/tutoriales/");
-    await waitForPageStable(page);
-    await activateDarkTheme(page);
-
-    await expect(page).toHaveScreenshot("tutorials-listing-desktop-dark.png", {
-      fullPage: true,
-      animations: "disabled",
-    });
-  });
-
-  test("should match tutorials listing mobile light", async ({ page }) => {
-    await page.setViewportSize(VIEWPORTS.mobile);
-    await page.goto("/es/tutoriales/");
-    await waitForPageStable(page);
-
-    await expect(page).toHaveScreenshot("tutorials-listing-mobile-light.png", {
-      fullPage: true,
-      animations: "disabled",
-    });
-  });
-});
-
-// ============================================================================
-// COURSE PAGES WITH TUTORIAL ORDER BADGES
-// ============================================================================
-
-test.describe("Visual Regression - Courses", () => {
-  test("should match course detail with order badges desktop light", async ({ page }) => {
-    await page.setViewportSize(VIEWPORTS.desktop);
-    await page.goto("/es/cursos/domina-git-desde-cero/");
-    await waitForPageStable(page);
-
-    await expect(page).toHaveScreenshot("course-detail-with-badges-desktop-light.png", {
-      fullPage: true,
-      animations: "disabled",
-    });
-  });
-
-  test("should match course detail with order badges desktop dark", async ({ page }) => {
-    await page.setViewportSize(VIEWPORTS.desktop);
-    await page.goto("/es/cursos/domina-git-desde-cero/");
-    await waitForPageStable(page);
-    await activateDarkTheme(page);
-
-    await expect(page).toHaveScreenshot("course-detail-with-badges-desktop-dark.png", {
-      fullPage: true,
-      animations: "disabled",
-    });
-  });
-
-  test("should match course detail with order badges mobile light", async ({ page }) => {
-    await page.setViewportSize(VIEWPORTS.mobile);
-    await page.goto("/es/cursos/domina-git-desde-cero/");
-    await waitForPageStable(page);
-
-    await expect(page).toHaveScreenshot("course-detail-with-badges-mobile-light.png", {
-      fullPage: true,
-      animations: "disabled",
-    });
-  });
-});
-
-// ============================================================================
-// TUTORIAL DETAIL PAGES WITH COURSE NAVIGATION
-// ============================================================================
-
-test.describe("Visual Regression - Tutorial Detail with Course Navigation", () => {
-  test("should match tutorial with next button only desktop light", async ({ page }) => {
-    await page.setViewportSize(VIEWPORTS.desktop);
-    await page.goto("/es/tutoriales/que-es-git/");
-    await waitForPageStable(page);
-
-    await expect(page).toHaveScreenshot("tutorial-detail-next-only-desktop-light.png", {
-      fullPage: true,
-      animations: "disabled",
-    });
-  });
-
-  test("should match tutorial with next button only desktop dark", async ({ page }) => {
-    await page.setViewportSize(VIEWPORTS.desktop);
-    await page.goto("/es/tutoriales/que-es-git/");
-    await waitForPageStable(page);
-    await activateDarkTheme(page);
-
-    await expect(page).toHaveScreenshot("tutorial-detail-next-only-desktop-dark.png", {
-      fullPage: true,
-      animations: "disabled",
-    });
-  });
-
-  test("should match tutorial with both prev and next buttons desktop light", async ({ page }) => {
-    await page.setViewportSize(VIEWPORTS.desktop);
-    await page.goto("/es/tutoriales/como-instalar-git-en-linux-macos-y-windows/");
-    await waitForPageStable(page);
-
-    await expect(page).toHaveScreenshot("tutorial-detail-both-buttons-desktop-light.png", {
-      fullPage: true,
-      animations: "disabled",
-    });
-  });
-
-  test("should match tutorial with both prev and next buttons desktop dark", async ({ page }) => {
-    await page.setViewportSize(VIEWPORTS.desktop);
-    await page.goto("/es/tutoriales/como-instalar-git-en-linux-macos-y-windows/");
-    await waitForPageStable(page);
-    await activateDarkTheme(page);
-
-    await expect(page).toHaveScreenshot("tutorial-detail-both-buttons-desktop-dark.png", {
-      fullPage: true,
-      animations: "disabled",
-    });
-  });
-
-  test("should match tutorial with prev button only desktop light", async ({ page }) => {
-    await page.setViewportSize(VIEWPORTS.desktop);
-    await page.goto("/es/tutoriales/primeros-pasos-con-git/");
-    await waitForPageStable(page);
-
-    await expect(page).toHaveScreenshot("tutorial-detail-prev-only-desktop-light.png", {
-      fullPage: true,
-      animations: "disabled",
-    });
-  });
-
-  test("should match tutorial with navigation mobile light", async ({ page }) => {
-    await page.setViewportSize(VIEWPORTS.mobile);
-    await page.goto("/es/tutoriales/como-instalar-git-en-linux-macos-y-windows/");
-    await waitForPageStable(page);
-
-    await expect(page).toHaveScreenshot("tutorial-detail-navigation-mobile-light.png", {
-      fullPage: true,
-      animations: "disabled",
-    });
-  });
-});
-
-// ============================================================================
-// POSTS PAGES SCREENSHOTS
-// ============================================================================
-
-test.describe("Visual Regression - Posts", () => {
-  test("should match posts listing desktop light", async ({ page }) => {
-    await page.setViewportSize(VIEWPORTS.desktop);
-    await page.goto("/es/publicaciones/");
-    await waitForPageStable(page);
-
-    await expect(page).toHaveScreenshot("posts-listing-desktop-light.png", {
-      fullPage: true,
-      animations: "disabled",
-    });
-  });
-
-  test("should match posts listing desktop dark", async ({ page }) => {
-    await page.setViewportSize(VIEWPORTS.desktop);
-    await page.goto("/es/publicaciones/");
-    await waitForPageStable(page);
-    await activateDarkTheme(page);
-
-    await expect(page).toHaveScreenshot("posts-listing-desktop-dark.png", {
-      fullPage: true,
-      animations: "disabled",
-    });
-  });
-
-  test("should match posts listing mobile light", async ({ page }) => {
-    await page.setViewportSize(VIEWPORTS.mobile);
-    await page.goto("/es/publicaciones/");
-    await waitForPageStable(page);
-
-    await expect(page).toHaveScreenshot("posts-listing-mobile-light.png", {
-      fullPage: true,
-      animations: "disabled",
-      maxDiffPixelRatio: 0.02,
-    });
-  });
-});
-
-// ============================================================================
-// TAXONOMY PAGES SCREENSHOTS
-// ============================================================================
-
-test.describe("Visual Regression - Taxonomies", () => {
-  test("should match authors listing desktop light", async ({ page }) => {
-    await page.setViewportSize(VIEWPORTS.desktop);
-    await page.goto("/es/autores/");
-    await waitForPageStable(page);
-
-    await expect(page).toHaveScreenshot("authors-listing-desktop-light.png", {
-      fullPage: true,
-      animations: "disabled",
-    });
-  });
-
-  test("should match author detail desktop light", async ({ page }) => {
-    await page.setViewportSize(VIEWPORTS.desktop);
-    await page.goto("/es/autores/j-r-r-tolkien/");
-    await waitForPageStable(page);
-
-    await expect(page).toHaveScreenshot("author-detail-desktop-light.png", {
-      fullPage: true,
-      animations: "disabled",
-    });
-  });
-
-  test("should match genres listing desktop light", async ({ page }) => {
-    await page.setViewportSize(VIEWPORTS.desktop);
-    await page.goto("/es/generos/");
-    await waitForPageStable(page);
-
-    await expect(page).toHaveScreenshot("genres-listing-desktop-light.png", {
-      fullPage: true,
-      animations: "disabled",
-    });
-  });
-
-  test("should match publishers listing desktop light", async ({ page }) => {
-    await page.setViewportSize(VIEWPORTS.desktop);
-    await page.goto("/es/editoriales/");
-    await waitForPageStable(page);
-
-    await expect(page).toHaveScreenshot("publishers-listing-desktop-light.png", {
-      fullPage: true,
-      animations: "disabled",
-    });
-  });
-
-  test("should match series listing desktop light", async ({ page }) => {
-    await page.setViewportSize(VIEWPORTS.desktop);
-    await page.goto("/es/series/");
-    await waitForPageStable(page);
-
-    await expect(page).toHaveScreenshot("series-listing-desktop-light.png", {
-      fullPage: true,
-      animations: "disabled",
-    });
-  });
-
-  test("should match series detail with order badges desktop light", async ({ page }) => {
-    await page.setViewportSize(VIEWPORTS.desktop);
-    await page.goto("/es/series/fjallbacka/");
-    await waitForPageStable(page);
-
-    await expect(page).toHaveScreenshot("series-detail-desktop-light.png", {
-      fullPage: true,
-      animations: "disabled",
-    });
-  });
-
-  test("should match series detail with order badges desktop dark", async ({ page }) => {
-    await page.setViewportSize(VIEWPORTS.desktop);
-    await page.goto("/es/series/fjallbacka/");
-    await waitForPageStable(page);
-    await activateDarkTheme(page);
-
-    await expect(page).toHaveScreenshot("series-detail-desktop-dark.png", {
-      fullPage: true,
-      animations: "disabled",
-    });
-  });
-
-  test("should match series detail with order badges mobile light", async ({ page }) => {
-    await page.setViewportSize(VIEWPORTS.mobile);
-    await page.goto("/es/series/fjallbacka/");
-    await waitForPageStable(page);
-
-    await expect(page).toHaveScreenshot("series-detail-mobile-light.png", {
-      fullPage: true,
-      animations: "disabled",
-    });
-  });
-});
-
-// ============================================================================
-// STATIC PAGES SCREENSHOTS
+// STATIC PAGES - VISUAL TESTS
 // ============================================================================
 
 test.describe("Visual Regression - Static Pages", () => {
-  test("should match about page desktop light", async ({ page }) => {
-    await page.setViewportSize(VIEWPORTS.desktop);
-    await page.goto("/es/acerca-de/");
+  test.describe("404 Page", () => {
+    for (const [name, viewport] of Object.entries(VIEWPORTS)) {
+      test(`404 page ${name}`, async ({ page }) => {
+        await setViewport(page, name as keyof typeof VIEWPORTS);
+        await page.goto("/this-page-does-not-exist");
+        await waitForPageStable(page);
+
+        await expect(page).toHaveScreenshot(`404-${name}.png`, {
+          fullPage: true,
+          animations: "disabled",
+        });
+      });
+    }
+  });
+
+  test.describe("About Page", () => {
+    test("about page desktop light", async ({ page }) => {
+      await setViewport(page, "desktop");
+      await page.goto("/es/acerca-de");
+      await waitForPageStable(page);
+
+      await expect(page).toHaveScreenshot("about-desktop-light.png", {
+        fullPage: true,
+        animations: "disabled",
+      });
+    });
+
+    test("about page desktop dark", async ({ page }) => {
+      await setViewport(page, "desktop");
+      await page.goto("/es/acerca-de");
+      await waitForPageStable(page);
+      await activateDarkTheme(page);
+
+      await expect(page).toHaveScreenshot("about-desktop-dark.png", {
+        fullPage: true,
+        animations: "disabled",
+      });
+    });
+
+    test("about page mobile", async ({ page }) => {
+      await setViewport(page, "mobile");
+      await page.goto("/es/acerca-de");
+      await waitForPageStable(page);
+
+      await expect(page).toHaveScreenshot("about-mobile-light.png", {
+        fullPage: true,
+        animations: "disabled",
+      });
+    });
+  });
+
+  test.describe("Feeds Page", () => {
+    test("feeds page desktop light", async ({ page }) => {
+      await setViewport(page, "desktop");
+      await page.goto("/es/feeds");
+      await waitForPageStable(page);
+
+      await expect(page).toHaveScreenshot("feeds-desktop-light.png", {
+        fullPage: true,
+        animations: "disabled",
+      });
+    });
+  });
+});
+
+// ============================================================================
+// SPECIFIC CONTENT PAGES - VISUAL TESTS
+// These test ONE specific piece of content that won't change
+// ============================================================================
+
+test.describe("Visual Regression - Stable Content", () => {
+  test.describe("Book Detail - Stable Example", () => {
+    const bookUrl = STABLE_CONTENT.books.es.url;
+
+    test("book detail desktop light", async ({ page }) => {
+      await setViewport(page, "desktop");
+      await page.goto(bookUrl);
+      await waitForPageStable(page);
+
+      await expect(page).toHaveScreenshot("book-detail-stable-desktop-light.png", {
+        fullPage: true,
+        animations: "disabled",
+        maxDiffPixelRatio: 0.02,
+      });
+    });
+
+    test("book detail desktop dark", async ({ page }) => {
+      await setViewport(page, "desktop");
+      await page.goto(bookUrl);
+      await waitForPageStable(page);
+      await activateDarkTheme(page);
+
+      await expect(page).toHaveScreenshot("book-detail-stable-desktop-dark.png", {
+        fullPage: true,
+        animations: "disabled",
+      });
+    });
+
+    test("book detail mobile", async ({ page }) => {
+      await setViewport(page, "mobile");
+      await page.goto(bookUrl);
+      await waitForPageStable(page);
+
+      await expect(page).toHaveScreenshot("book-detail-stable-mobile-light.png", {
+        fullPage: true,
+        animations: "disabled",
+      });
+    });
+  });
+
+  test.describe("Tutorial Detail - Stable Example", () => {
+    const tutorialUrl = STABLE_CONTENT.tutorials.es.url;
+
+    test("tutorial detail desktop light", async ({ page }) => {
+      await setViewport(page, "desktop");
+      await page.goto(tutorialUrl);
+      await waitForPageStable(page);
+
+      await expect(page).toHaveScreenshot("tutorial-detail-stable-desktop-light.png", {
+        fullPage: true,
+        animations: "disabled",
+        maxDiffPixelRatio: 0.02,
+      });
+    });
+
+    test("tutorial detail desktop dark", async ({ page }) => {
+      await setViewport(page, "desktop");
+      await page.goto(tutorialUrl);
+      await waitForPageStable(page);
+      await activateDarkTheme(page);
+
+      await expect(page).toHaveScreenshot("tutorial-detail-stable-desktop-dark.png", {
+        fullPage: true,
+        animations: "disabled",
+      });
+    });
+  });
+
+  test.describe("Post Detail - Stable Example", () => {
+    const postUrl = STABLE_CONTENT.posts.es.url;
+
+    test("post detail desktop light", async ({ page }) => {
+      await setViewport(page, "desktop");
+      await page.goto(postUrl);
+      await waitForPageStable(page);
+
+      await expect(page).toHaveScreenshot("post-detail-stable-desktop-light.png", {
+        fullPage: true,
+        animations: "disabled",
+        maxDiffPixelRatio: 0.02,
+      });
+    });
+
+    test("post detail desktop dark", async ({ page }) => {
+      await setViewport(page, "desktop");
+      await page.goto(postUrl);
+      await waitForPageStable(page);
+      await activateDarkTheme(page);
+
+      await expect(page).toHaveScreenshot("post-detail-stable-desktop-dark.png", {
+        fullPage: true,
+        animations: "disabled",
+      });
+    });
+
+    test("post detail mobile", async ({ page }) => {
+      await setViewport(page, "mobile");
+      await page.goto(postUrl);
+      await waitForPageStable(page);
+
+      await expect(page).toHaveScreenshot("post-detail-stable-mobile-light.png", {
+        fullPage: true,
+        animations: "disabled",
+      });
+    });
+  });
+});
+
+// ============================================================================
+// UI COMPONENTS - VISUAL TESTS
+// These components are static and should look consistent
+// ============================================================================
+
+test.describe("Visual Regression - UI Components", () => {
+  test.describe("Header Component", () => {
+    test("header desktop light", async ({ page }) => {
+      await setViewport(page, "desktop");
+      await page.goto("/es");
+      await waitForPageStable(page);
+
+      const header = page.locator("header");
+      await expect(header).toHaveScreenshot("header-desktop-light.png", {
+        animations: "disabled",
+      });
+    });
+
+    test("header desktop dark", async ({ page }) => {
+      await setViewport(page, "desktop");
+      await page.goto("/es");
+      await waitForPageStable(page);
+      await activateDarkTheme(page);
+
+      const header = page.locator("header");
+      await expect(header).toHaveScreenshot("header-desktop-dark.png", {
+        animations: "disabled",
+      });
+    });
+
+    test("header mobile light", async ({ page }) => {
+      await setViewport(page, "mobile");
+      await page.goto("/es");
+      await waitForPageStable(page);
+
+      const header = page.locator("header");
+      await expect(header).toHaveScreenshot("header-mobile-light.png", {
+        animations: "disabled",
+      });
+    });
+  });
+
+  test.describe("Footer Component", () => {
+    test("footer desktop light", async ({ page }) => {
+      await setViewport(page, "desktop");
+      await page.goto("/es");
+      await waitForPageStable(page);
+
+      // Use main footer with .footer class (not section footers)
+      const footer = page.locator("footer.footer");
+      await expect(footer).toHaveScreenshot("footer-desktop-light.png", {
+        animations: "disabled",
+      });
+    });
+
+    test("footer desktop dark", async ({ page }) => {
+      await setViewport(page, "desktop");
+      await page.goto("/es");
+      await waitForPageStable(page);
+      await activateDarkTheme(page);
+
+      // Use main footer with .footer class (not section footers)
+      const footer = page.locator("footer.footer");
+      await expect(footer).toHaveScreenshot("footer-desktop-dark.png", {
+        animations: "disabled",
+      });
+    });
+  });
+
+  test.describe("Search Modal Component", () => {
+    test("search modal desktop light", async ({ page }) => {
+      await setViewport(page, "desktop");
+      await page.goto("/es");
+      await waitForPageStable(page);
+      await openSearchModal(page);
+
+      const modal = page.locator(".search-modal");
+      await expect(modal).toHaveScreenshot("search-modal-desktop-light.png", {
+        animations: "disabled",
+      });
+    });
+
+    test("search modal desktop dark", async ({ page }) => {
+      await setViewport(page, "desktop");
+      await page.goto("/es");
+      await waitForPageStable(page);
+      await activateDarkTheme(page);
+      await openSearchModal(page);
+
+      const modal = page.locator(".search-modal");
+      await expect(modal).toHaveScreenshot("search-modal-desktop-dark.png", {
+        animations: "disabled",
+      });
+    });
+
+    test("search modal mobile light", async ({ page }) => {
+      await setViewport(page, "mobile");
+      await page.goto("/es");
+      await waitForPageStable(page);
+      await openSearchModal(page);
+
+      const modal = page.locator(".search-modal");
+      await expect(modal).toHaveScreenshot("search-modal-mobile-light.png", {
+        animations: "disabled",
+      });
+    });
+  });
+});
+
+// ============================================================================
+// HOMEPAGE - VISUAL TESTS WITH MASKING
+// Mask dynamic "latest books" section, test static parts
+// ============================================================================
+
+test.describe("Visual Regression - Homepage (Partial)", () => {
+  test("homepage hero section desktop", async ({ page }) => {
+    await setViewport(page, "desktop");
+    await page.goto("/es");
     await waitForPageStable(page);
 
-    await expect(page).toHaveScreenshot("about-page-desktop-light.png", {
-      fullPage: true,
+    // Take screenshot but mask dynamic content
+    await expect(page).toHaveScreenshot("homepage-hero-desktop.png", {
+      fullPage: false, // Only above the fold
+      animations: "disabled",
+      mask: [page.locator(".latest-books, .recent-books").first(), page.locator(".book-card, article")],
+    });
+  });
+
+  test("homepage static sections (no dynamic content)", async ({ page }) => {
+    await setViewport(page, "desktop");
+    await page.goto("/es");
+    await waitForPageStable(page);
+
+    // Test header + hero only (static parts)
+    await expect(page).toHaveScreenshot("homepage-static-sections.png", {
+      fullPage: false,
+      animations: "disabled",
+      clip: { x: 0, y: 0, width: 1920, height: 800 }, // Above the fold
+      mask: [page.locator(".latest-books, .book-card")],
+    });
+  });
+});
+
+// ============================================================================
+// LISTING PAGES - COMPONENT-LEVEL VISUAL TESTS
+// Don't test full page (content changes), only UI chrome
+// ============================================================================
+
+test.describe("Visual Regression - Listing Page Chrome", () => {
+  test("books listing header and navigation", async ({ page }) => {
+    await setViewport(page, "desktop");
+    await page.goto("/es/libros");
+    await waitForPageStable(page);
+
+    // Test page header/title area only (not the book grid)
+    const headerArea = page.locator("main > :not(.book-grid)").first();
+    await expect(headerArea).toHaveScreenshot("listing-header.png", {
       animations: "disabled",
     });
   });
 
-  test("should match about page desktop dark", async ({ page }) => {
-    await page.setViewportSize(VIEWPORTS.desktop);
-    await page.goto("/es/acerca-de/");
+  test("pagination component", async ({ page }) => {
+    await setViewport(page, "desktop");
+    await page.goto("/es/libros");
+    await waitForPageStable(page);
+
+    // Test pagination UI if it exists
+    const pagination = page.locator(".pagination, .paginator");
+    const exists = await pagination.isVisible().catch(() => false);
+
+    if (exists) {
+      await expect(pagination).toHaveScreenshot("pagination-component.png", {
+        animations: "disabled",
+      });
+    }
+  });
+});
+
+// ============================================================================
+// THEME TOGGLE - VISUAL TESTS
+// ============================================================================
+
+test.describe("Visual Regression - Theme Toggle", () => {
+  test("theme toggle light mode", async ({ page }) => {
+    await setViewport(page, "desktop");
+    await page.goto("/es");
+    await waitForPageStable(page);
+
+    const toggle = page.locator("#theme-toggle, .theme-toggle");
+    await expect(toggle).toHaveScreenshot("theme-toggle-light.png", {
+      animations: "disabled",
+    });
+  });
+
+  test("theme toggle dark mode", async ({ page }) => {
+    await setViewport(page, "desktop");
+    await page.goto("/es");
     await waitForPageStable(page);
     await activateDarkTheme(page);
 
-    await expect(page).toHaveScreenshot("about-page-desktop-dark.png", {
-      fullPage: true,
-      animations: "disabled",
-    });
-  });
-
-  test("should match feeds page desktop light", async ({ page }) => {
-    await page.setViewportSize(VIEWPORTS.desktop);
-    await page.goto("/es/feeds/");
-    await waitForPageStable(page);
-
-    await expect(page).toHaveScreenshot("feeds-page-desktop-light.png", {
-      fullPage: true,
+    const toggle = page.locator("#theme-toggle, .theme-toggle");
+    await expect(toggle).toHaveScreenshot("theme-toggle-dark.png", {
       animations: "disabled",
     });
   });
 });
 
 // ============================================================================
-// COMPONENT SCREENSHOTS
+// LANGUAGE SWITCHER - VISUAL TESTS
 // ============================================================================
 
-test.describe("Visual Regression - Components", () => {
-  test.describe("Search Modal Component", () => {
-    test("should match search modal desktop light", async ({ page }) => {
-      await page.setViewportSize(VIEWPORTS.desktop);
-      await page.goto("/es/");
-      await waitForPageStable(page);
-      await openSearchModal(page);
+test.describe("Visual Regression - Language Switcher", () => {
+  test("language switcher enabled state", async ({ page }) => {
+    await setViewport(page, "desktop");
+    await page.goto("/es");
+    await waitForPageStable(page);
 
-      await expect(page).toHaveScreenshot("search-modal-desktop-light.png", {
-        fullPage: true,
+    const switcher = page.locator(".language-switcher");
+    await expect(switcher).toHaveScreenshot("language-switcher-enabled.png", {
+      animations: "disabled",
+    });
+  });
+
+  test("language switcher disabled state", async ({ page }) => {
+    await setViewport(page, "desktop");
+    // Go to page without translation
+    await page.goto("/es/libros");
+    await waitForPageStable(page);
+
+    const switcher = page.locator(".language-switcher");
+    const isDisabled = await switcher.isDisabled();
+
+    if (isDisabled) {
+      await expect(switcher).toHaveScreenshot("language-switcher-disabled.png", {
         animations: "disabled",
       });
-    });
-
-    test("should match search modal desktop dark", async ({ page }) => {
-      await page.setViewportSize(VIEWPORTS.desktop);
-      await page.goto("/es/");
-      await waitForPageStable(page);
-      await activateDarkTheme(page);
-      await openSearchModal(page);
-
-      await expect(page).toHaveScreenshot("search-modal-desktop-dark.png", {
-        fullPage: true,
-        animations: "disabled",
-      });
-    });
-
-    test("should match search modal mobile light", async ({ page }) => {
-      await page.setViewportSize(VIEWPORTS.mobile);
-      await page.goto("/es/");
-      await waitForPageStable(page);
-      await openSearchModal(page);
-
-      await expect(page).toHaveScreenshot("search-modal-mobile-light.png", {
-        fullPage: true,
-        animations: "disabled",
-      });
-    });
+    }
   });
 });

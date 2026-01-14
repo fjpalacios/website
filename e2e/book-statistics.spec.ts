@@ -3,8 +3,7 @@
  *
  * Comprehensive testing for the book statistics page including:
  * - Accessibility tests (WCAG 2.1 Level AA) for both themes
- * - Visual regression tests for both themes
- * - Component rendering verification
+ * - Component rendering and structural verification
  *
  * This page is complex with multiple dynamic components:
  * - ActiveChallenges with progress bars and individual links
@@ -13,13 +12,15 @@
  * - Responsive layout
  * - Theme-dependent styling
  *
+ * Note: Visual regression tests are NOT included as this page is highly dynamic.
+ * Statistics change frequently as books are added, making visual snapshots brittle.
+ *
  * URLs tested:
  * - Spanish: /es/libros/estadisticas/
  * - English: /en/books/stats/
  *
  * @group e2e
  * @group accessibility
- * @group visual
  * @group book-statistics
  */
 
@@ -31,7 +32,6 @@ import { test, expect, type Page } from "@playwright/test";
  */
 const VIEWPORTS = {
   mobile: { width: 375, height: 667 }, // iPhone SE
-  tablet: { width: 768, height: 1024 }, // iPad
   desktop: { width: 1920, height: 1080 }, // Full HD
 } as const;
 
@@ -200,142 +200,6 @@ test.describe("Book Statistics - Accessibility", () => {
       );
 
       expect(linkViolations).toEqual([]);
-    });
-  });
-});
-
-// ============================================================================
-// VISUAL REGRESSION TESTS
-// ============================================================================
-
-test.describe("Book Statistics - Visual Regression", () => {
-  test.describe("Spanish Page - Desktop", () => {
-    test.beforeEach(async ({ page }) => {
-      await page.setViewportSize(VIEWPORTS.desktop);
-    });
-
-    test("should match screenshot - light theme", async ({ page }) => {
-      await page.goto("/es/libros/estadisticas/");
-      await waitForPageStable(page);
-
-      await expect(page).toHaveScreenshot("book-stats-es-desktop-light.png", {
-        fullPage: true,
-        animations: "disabled",
-        maxDiffPixelRatio: 0.02,
-      });
-    });
-
-    test("should match screenshot - dark theme", async ({ page }) => {
-      await page.goto("/es/libros/estadisticas/");
-      await waitForPageStable(page);
-      await activateDarkTheme(page);
-
-      await expect(page).toHaveScreenshot("book-stats-es-desktop-dark.png", {
-        fullPage: true,
-        animations: "disabled",
-        maxDiffPixelRatio: 0.02,
-      });
-    });
-  });
-
-  test.describe("English Page - Desktop", () => {
-    test.beforeEach(async ({ page }) => {
-      await page.setViewportSize(VIEWPORTS.desktop);
-    });
-
-    test("should match screenshot - light theme", async ({ page }) => {
-      const response = await page.goto("/en/books/stats/");
-
-      // Skip if page doesn't exist (no English books yet)
-      if (response?.status() === 404) {
-        test.skip();
-        return;
-      }
-
-      await waitForPageStable(page);
-
-      await expect(page).toHaveScreenshot("book-stats-en-desktop-light.png", {
-        fullPage: true,
-        animations: "disabled",
-        maxDiffPixelRatio: 0.02,
-      });
-    });
-
-    test("should match screenshot - dark theme", async ({ page }) => {
-      const response = await page.goto("/en/books/stats/");
-
-      // Skip if page doesn't exist (no English books yet)
-      if (response?.status() === 404) {
-        test.skip();
-        return;
-      }
-
-      await waitForPageStable(page);
-      await activateDarkTheme(page);
-
-      await expect(page).toHaveScreenshot("book-stats-en-desktop-dark.png", {
-        fullPage: true,
-        animations: "disabled",
-        maxDiffPixelRatio: 0.02,
-      });
-    });
-  });
-
-  test.describe("Spanish Page - Mobile", () => {
-    test.beforeEach(async ({ page }) => {
-      await page.setViewportSize(VIEWPORTS.mobile);
-    });
-
-    test("should match screenshot - light theme", async ({ page }) => {
-      await page.goto("/es/libros/estadisticas/");
-      await waitForPageStable(page);
-
-      await expect(page).toHaveScreenshot("book-stats-es-mobile-light.png", {
-        fullPage: true,
-        animations: "disabled",
-        maxDiffPixelRatio: 0.02,
-      });
-    });
-
-    test("should match screenshot - dark theme", async ({ page }) => {
-      await page.goto("/es/libros/estadisticas/");
-      await waitForPageStable(page);
-      await activateDarkTheme(page);
-
-      await expect(page).toHaveScreenshot("book-stats-es-mobile-dark.png", {
-        fullPage: true,
-        animations: "disabled",
-        maxDiffPixelRatio: 0.02,
-      });
-    });
-  });
-
-  test.describe("Spanish Page - Tablet", () => {
-    test.beforeEach(async ({ page }) => {
-      await page.setViewportSize(VIEWPORTS.tablet);
-    });
-
-    test("should match screenshot - light theme", async ({ page }) => {
-      await page.goto("/es/libros/estadisticas/");
-      await waitForPageStable(page);
-
-      await expect(page).toHaveScreenshot("book-stats-es-tablet-light.png", {
-        fullPage: true,
-        animations: "disabled",
-        maxDiffPixelRatio: 0.02,
-      });
-    });
-
-    test("should match screenshot - dark theme", async ({ page }) => {
-      await page.goto("/es/libros/estadisticas/");
-      await waitForPageStable(page);
-      await activateDarkTheme(page);
-
-      await expect(page).toHaveScreenshot("book-stats-es-tablet-dark.png", {
-        fullPage: true,
-        animations: "disabled",
-        maxDiffPixelRatio: 0.02,
-      });
     });
   });
 });
