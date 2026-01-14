@@ -3,9 +3,9 @@
 
 version: 2
 updates:
-  # Maintain npm dependencies
+  # Maintain Bun dependencies
   # Individual PRs for better control and easier debugging
-  - package-ecosystem: "npm"
+  - package-ecosystem: "bun"
     directory: "/"
     schedule:
       interval: "weekly"
