@@ -52,12 +52,12 @@
   "dependencies": {
     "@astrojs/mdx": "^4.3.13",
     "@astrojs/rss": "4.0.14",
-    "@astrojs/sitemap": "3.6.0",
-    "astro": "5.16.6",
+    "@astrojs/sitemap": "3.6.1",
+    "astro": "5.16.9",
     "normalize.css": "^8.0.1",
     "prismjs": "^1.30.0",
     "rehype-prism-plus": "^2.0.1",
-    "sass": "^1.97.1"
+    "sass": "^1.97.2"
   },
   "devDependencies": {
     "@astrojs/check": "^0.9.6",
