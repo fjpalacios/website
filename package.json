@@ -102,6 +102,6 @@
     "typescript-eslint": "^8.29.1",
     "vite-plugin-istanbul": "^7.2.1",
     "vitest": "^4.0.16",
-    "zod": "^4.2.1"
+    "zod": "^4.3.5"
   }
 }
