@@ -4,6 +4,7 @@
 version: 2
 updates:
   # Maintain npm dependencies
+  # Individual PRs for better control and easier debugging
   - package-ecosystem: "npm"
     directory: "/"
     schedule:
@@ -11,7 +12,7 @@ updates:
       day: "monday"
       time: "09:00"
       timezone: "Europe/Madrid"
-    open-pull-requests-limit: 10
+    open-pull-requests-limit: 20
     assignees:
       - "fjpalacios"
     commit-message:
@@ -20,18 +21,8 @@ updates:
     labels:
       - "dependencies"
       - "automated"
-    # Group minor and patch updates together to reduce PR noise
-    groups:
-      development-dependencies:
-        dependency-type: "development"
-        update-types:
-          - "minor"
-          - "patch"
-      production-dependencies:
-        dependency-type: "production"
-        update-types:
-          - "minor"
-          - "patch"
+    # No groups - individual PRs per dependency for easier debugging
+    # and selective merging when some updates break tests
     # Ignore major updates for these packages (manual review recommended)
     ignore:
       - dependency-name: "astro"
