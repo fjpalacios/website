@@ -29,11 +29,13 @@
 @use "./components/series-badge";
 @use "./components/book";
 @use "./components/book-list";
+@use "./components/inline-image";
+@use "./components/youtube-embed";
 @use "./components/author";
 @use "./components/section-title";
 @use "./components/author-info";
 @use "./components/share";
-@use "./components/taxonomy-list";
+@use "./components/taxonomy-list-grouped";
 @use "./components/paginator";
 @use "./components/code-blocks";
 @use "./components/spoiler";
@@ -42,3 +44,10 @@
 @use "./components/course-navigation";
 @use "./components/search";
 @use "./components/latest-posts";
+@use "./components/book-stats-container";
+@use "./components/score-distribution";
+@use "./components/authors-by-gender";
+@use "./components/genre-breakdown";
+@use "./components/publishers-and-series";
+@use "./components/special-lists";
+@use "./components/active-challenges";

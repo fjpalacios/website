@@ -1,0 +1,45 @@
+---
+title: "Utilizando alias de Git para aumentar nuestra productividad"
+post_slug: "utilizando-alias-git-productividad"
+date: "2018-01-07"
+excerpt: "Aprende a crear alias de Git para ejecutar comandos más rápido. Descubre cómo personalizar tu flujo de trabajo y ser más productivo."
+language: "es"
+categories: ["git"]
+course: "domina-git-desde-cero"
+order: 12
+cover: "/images/tutorials/cabecera-git.jpg"
+i18n: "using-git-aliases-to-increase-our-productivity"
+---
+
+En [el artículo anterior de este curso](/es/article/how-to-undo-commits-in-git/) aprendimos a utilizar el comando `git log` con múltiples parámetros para que su utilidad aumente exponencialmente; no obstante, no es el único momento en que tendremos que ejecutar comandos en los que tendremos que escribir más de lo que nos gustaría si queremos ser ágiles y dedicar más tiempo a escribir nuestro código que a manejar nuestro sistema de control de versiones favorito. Por suerte, los desarrolladores de Git parece que son conscientes de esto y han puesto a nuestra mano una función muy útil como son los alias. Vale que podemos crear alias de múltiples formas, pero que haya una forma específica en Git hace que nos planteemos la posibilidad de usarlo si es que no lo habíamos hecho ya antes desde los archivos de configuración de nuestro intérprete de comandos (_shell_).
+
+Lo primero que hay que saber es que se pueden definir alias globales o únicamente para el usuario que ejecute el comando. Basta con añadir o no el parámrtro _--global_ cuando se ejecute el comando. Y puede que este parámetro os suene por haberlo utilizado al principio de este curso, cuando configuramos nuestro nombre y nuestro correo electrónico para poder empezar a usar Git; eso es porque los alias son otro parámetro más de la configuración de Git.
+
+Y lo segundo y último que hay que saber es que cuando se añade un alias puede hacer referencia a comandos del propio Git o ajenos a él; si son comandos propios no es necesario incluir _git_ porque ya _llamamos_ a Git a la hora de escribir el alias; si son ajenos el alias deberá ir precedido por el símbolo **!** para que Git sepa que tiene que _llamar_ a la _shell_.
+
+Un alias especialmente útil, y que puede ahorrarnos mucho tiempo, es uno que en un único comando ejecute lo que solemos escribir cuando iniciamos un repositorio en Git. Normalmente escribiríamos:
+
+```bash
+$ git init
+$ git add .
+$ git commit -m "Initial commit"
+```
+
+¿Y por qué no hacer todo esto de forma más ágil? Os presentamos el comando `git this` que actualmente no existe pero vamos a crearlo:
+
+```bash
+$ git config --global alias.this '!git init && git add . && git commit -m \\"Initial commit\\"'
+```
+
+Como veis, precedido por el símbolo **!** como decíamos antes (es cierto que _todo son comandos de Git_, pero utilizamos los `&&` típicos de la consola de comandos para poder ejecutar varios comandos desde un único alias, por lo que técnicamente ya no son comandos de Git). Pero también os daremos alguna idea para agilizar comandos propios de Git, como pueden ser los comandos `git co master` o `git cb sidebar-feature` que vamos a crear a continuación:
+
+```bash
+$ git config --global alias.co checkout
+$ git config --global alias.cb 'checkout -b'
+```
+
+Que, como ya sabréis, con el primero cambiaríamos a la rama _master_ y con el segundo crearíamos la rama _sidebar-feature_ y nos cambiaríamos a ella. ¡El límite está en vuestra imaginación!
+
+¿Y si se nos ha ido la mano creando alias y ya no recordamos todos los que tenemos? Pues lo más fácil sería ejecutar `git config --list | grep alias` que utilizando el comando `grep` propio de las _shell Unix_ resolvería nuestro problema.
+
+¡Nunca dejes de programar!

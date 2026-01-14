@@ -1,0 +1,139 @@
+@use "../variables" as *;
+@use "../mixins" as *;
+
+.publishers-and-series {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 2rem;
+
+  @include medium-and-up {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 2.5rem;
+  }
+
+  &__section {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+  }
+
+  &__header {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding-bottom: 1rem;
+    border-bottom: 2px solid $border-medium;
+
+    @at-root html.light & {
+      border-color: $border-light;
+    }
+  }
+
+  &__icon {
+    flex-shrink: 0;
+
+    &--publishers {
+      color: $accent;
+    }
+
+    &--series {
+      color: $progress-bar-fill;
+    }
+  }
+
+  &__header-text {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+  }
+
+  &__title {
+    font-size: 1.3rem;
+    font-weight: 600;
+    color: $text;
+    margin: 0;
+    line-height: 1;
+  }
+
+  &__total {
+    font-size: 0.95rem;
+    color: $text-tertiary;
+    margin: 0;
+    line-height: 1;
+  }
+
+  &__list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+
+  &__card {
+    background: $primary;
+    padding: 1rem 1.25rem;
+    border-radius: 8px;
+    border: 1px solid $border-medium;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 1rem;
+    text-decoration: none;
+    transition:
+      transform 0.2s ease,
+      border-color 0.2s ease,
+      box-shadow 0.2s ease;
+
+    @at-root html.light & {
+      background: $card-background-subtle;
+      border-color: $border-light;
+    }
+
+    &:hover {
+      transform: translateX(4px);
+      border-color: $accent;
+      box-shadow: 0 2px 8px $shadow-medium;
+    }
+  }
+
+  &__name {
+    font-size: 1rem;
+    font-weight: 500;
+    color: $text;
+    flex: 1;
+  }
+
+  &__count {
+    font-size: 1.1rem;
+    font-weight: bold;
+    color: $accent;
+    min-width: 2.5rem;
+    text-align: right;
+  }
+
+  &__view-all {
+    margin-top: 1.5rem;
+    text-align: center;
+    padding-top: 1rem;
+    border-top: 1px solid $border-light;
+
+    @at-root html.light & {
+      border-color: $border-light;
+    }
+  }
+
+  &__view-all-link {
+    display: inline-block;
+    font-size: 0.9rem;
+    font-weight: 600;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    color: $accent;
+    text-decoration: none;
+    transition: opacity 0.2s ease;
+
+    &:hover {
+      opacity: 0.8;
+      text-decoration: underline;
+    }
+  }
+}

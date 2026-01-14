@@ -1,7 +1,7 @@
 ---
 import Icon from "@components/Icon.astro";
 import LanguageSwitcher from "@components/LanguageSwitcher.astro";
-import { getMenuItems } from "@config/navigation";
+import { getMenuItems, hasContentInLanguage } from "@config/navigation";
 import { t } from "@locales";
 import { buildLocalizedPath } from "@utils/routes";
 import { hasTranslation as checkTranslationAvailability } from "@utils/translation-availability";
@@ -20,18 +20,29 @@ const hasTranslation = checkTranslationAvailability(currentPath, lang, translati
 
 // Build navigation items with URLs and active states
 const menuItems = getMenuItems(lang);
-const itemsWithUrls = menuItems.map((item) => {
-  const url = item.routeKey === "home" ? `/${lang}` : buildLocalizedPath(lang, item.routeKey);
-  const isActive =
-    item.matchStrategy === "exact" ? currentPath === url || currentPath === `${url}/` : currentPath.startsWith(url);
 
-  return {
-    ...item,
-    url,
-    label: t(lang, `pages.${item.id}`),
-    isActive,
-  };
-});
+// Filter items based on content availability
+const filteredMenuItems = await Promise.all(
+  menuItems.map(async (item) => {
+    const hasContent = await hasContentInLanguage(item.routeKey, lang);
+    return hasContent ? item : null;
+  }),
+);
+
+const itemsWithUrls = filteredMenuItems
+  .filter((item) => item !== null)
+  .map((item) => {
+    const url = item.routeKey === "home" ? `/${lang}` : buildLocalizedPath(lang, item.routeKey);
+    const isActive =
+      item.matchStrategy === "exact" ? currentPath === url || currentPath === `${url}/` : currentPath.startsWith(url);
+
+    return {
+      ...item,
+      url,
+      label: t(lang, `pages.${item.id}`),
+      isActive,
+    };
+  });
 ---
 
 <nav class="menu">

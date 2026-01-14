@@ -1,0 +1,79 @@
+---
+title: "How to install ZSH and Oh My ZSH! in GNU/Linux"
+post_slug: "how-to-install-zsh-oh-my-zsh-gnu-linux"
+date: "2018-02-24"
+excerpt: "Learn how to install and configure ZSH and Oh My ZSH! on GNU/Linux. Guide for Debian, Ubuntu, OpenSUSE, Arch Linux, and Gentoo."
+language: "en"
+categories: ["gnu-linux"]
+cover: "/images/tutorials/cabecera-linux.jpg"
+i18n: "como-instalar-zsh-oh-my-zsh-gnu-linux"
+---
+
+Surely it may require more time to configure _Oh My ZSH!_ in the way that we like it, or we are interested depending on the tools we use in our day to day, than what is its installation. When you discover _Oh My ZSH!_ and the large number of options you have, you enter a kind of black hole in which time passes at a speed that Science can't explain. However, let's focus on the subject of this tutorial: its installation. And we are going to see how to install `zsh` in the main Linux distros, because the installation of _Oh My ZSH!_ is common for all of them.
+
+### Installing ZSH
+
+#### Debian
+
+```bash
+# apt install zsh
+```
+
+#### Ubuntu
+
+```bash
+# apt install zsh
+```
+
+#### OpenSUSE
+
+```bash
+# zypper install zsh
+```
+
+#### Arch Linux
+
+```bash
+# pacman -S zsh
+```
+
+#### Gentoo
+
+```bash
+# emerge --ask --verbose app-shells/zsh
+```
+
+Surely if you use a different distro you'll know what is your package manager and how to install a new package using it.
+
+### Setting ZSH as the default shell
+
+We have two options:
+
+- Configure the application we are using to display the command console.
+- Set by a command to automatically log in using `zsh`.
+
+As the first option would require a lot of instructions, because depending on the application (there are lots in GNU/Linux) that we use this configuration will be located in a different place, we will focus on the second one in this tutorial, which is very simple and more useful. However, if you prefer the first option, surely Googling you will find the answer.
+
+The command that we have to run to set `zsh` as our default _shell_ is:
+
+```bash
+$ chsh -s $(which zsh)
+```
+
+For more information about this command:
+
+- `chsh` is the package that manages our _shell_.
+- The `-s` parameter sets the path that you type to the default _shell_.
+- `$(which zsh)` is an embedded way of run the `which zsh` command that shows on screen which path `zsh` is installed on.
+
+### Installing Oh My ZSH!
+
+The best thing about _Oh My ZSH!_ is that its installation, although a bit complex, we don't need but to run a command, this command runs an executable written in _bash_ and automatically takes care of everything without us being aware of it. This is a safe executable, but when you download executables from the Internet you should take a look at the code, because otherwise we'll never know what we are actually running, and in case of being an executable from a malicious website it could be a security risk in our system. And we don't want that, right?
+
+```bash
+$ sh -c "$(curl -fsSL https://raw.github.com/robbyrussell/oh-my-zsh/master/tools/install.sh)"
+```
+
+After running this command we'll have in our system _Oh My ZSH!_ with the default settings and a nice _prompt_ in our new and improved terminal. However, you have to know that from this moment all the configuration of both _zsh_ and _Oh My ZSH!_ will be in a `~/.zshrc` file that will be automatically generated, from which you can [change your prompt theme](https://github.com/robbyrussell/oh-my-zsh/wiki/Themes), [add Oh My ZSH! plugins](https://github.com/robbyrussell/oh-my-zsh/wiki/Plugins), and so on.
+
+And you know: never stop programming!

@@ -1,0 +1,30 @@
+---
+title: "Introducción a los remotos en Git"
+post_slug: "introduccion-remotos-git"
+excerpt: "Git es un servicio descentralizado, por tanto no encontrarás la estructura típica de cliente-servidor. Hoy aprenderás cómo trabaja Git con los nodos remotos."
+categories: ["git"]
+course: "domina-git-desde-cero"
+order: 8
+cover: "/images/tutorials/cabecera-git.jpg"
+date: "2017-12-10"
+language: "es"
+i18n: "getting-started-with-git-remotes"
+---
+
+Como ya dijimos en nuestro artículo inicial de este curso llamado [¿Qué es Git?](/es/article/what-is-git/): aunque Git se basa en un sistema descentralizado en el que no encontraremos el esquema típico de una red _cliente-servidor_, mediante el uso de **remotos** puede imitarse en parte esta estructura tan típica a la que los informáticos estamos acostumbrados ya que la mayoría de servicios que utilizamos se basan en ella.
+
+### ¿Qué son los remotos?
+
+Cuando hablamos de servidores remotos siempre se nos vienen a la cabeza los típicos ejemplos, como [GitHub](https://github.com/) o [GitLab](https://gitlab.com/), que son ideales para imitar esa estructura de cliente-servidor a la que hacíamos referencia antes, pero también sirven como un magnífico _escaparate_ sobre todo para proyectos de código abierto. Pero aunque ésos sean los ejemplos más típicos y que todos conocemos no son los únicos y de hecho ni siquiera se concibió Git para que servicios como ésos existieran.
+
+Un remoto es cualquier nodo de Git al que nosotros podamos enviar código o del que nosotros podamos recibir código. Esto quiere decir que puede tanto ser otro ordenador que tengamos en nuestra propia red local de casa, como el ordenador del compañero de al lado en el trabajo, como el servidor principal de la empresa para la que estemos trabajando y así un largo etcétera.
+
+Básicamente, con un servidor remoto conseguimos tener una copia de seguridad allá donde lo enviemos, nos sirve también para disponer del mismo código, tal cual lo tenemos en una máquina, pero en todas las máquinas a las que tengamos acceso, aunque quizá el uso más útil que le podemos encontrar (y esto no quiere decir, obviamente, que lo que hemos dicho hasta ahora no sea útil), cuando enviamos el código a _servidores_ como GitHub o GitLab (aunque estos están jerárquicamente en la misma posición que cualquiera de los demás nodos con los que trabajamos, recordemos que Git no es un servicio centralizado) es la de automatizar los trabajos más tediosos, monótonos y que pueden ocasionar más de un _tiempo muerto_, que por lo general suelen ser los que más _odiamos_ los desarrolladores. Algo muy común: ejecutar automáticamente nuestra batería de test cuando se envía código a GitHub, para que la propia página nos indique si hay algún conflicto antes de enviar todos los cambios a la rama _master_; enviar código incompleto o que rompe alguna de las funciones que actualmente funcionan es algo que no nos podemos permitir, pero si encontramos una forma fiable de que esos test se ejecuten automáticamente de forma que no nos demos cuenta de que se están ejecutando, ¿por qué desaprovecharla?
+
+### Más en próximas entregas…
+
+Ésto y mucho más es lo que aprenderemos a partir de ahora, ya que para contar de forma clara todo lo que gracias a Git podemos hacer con los remotos necesitaremos algunos artículos.
+
+Y ya que estamos con el tema de los remotos, recordad que todo el código que estamos compartiendo en este tutorial con vosotros tiene un [repositorio en GitHub](https://github.com/sargantanacode/git-tutorial) desde el que podéis ver _en acción_ cómo funciona Git y sobre todo cómo funciona viéndolo desde la perspectiva de los nodos remotos.
+
+Pero mientras tanto, y como siempre decimos por aquí: ¡nunca dejéis de programar!

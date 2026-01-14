@@ -1,0 +1,340 @@
+---
+title: "Getting started with Git branches (II)"
+post_slug: "getting-started-with-git-branches-2"
+date: "2017-12-05"
+excerpt: "Do you want to know how to increase your productivity by making multiple simultaneous tasks using Git? Then you need to learn more about the Git branches."
+language: "en"
+categories: ["git"]
+course: "mastering-git-from-scratch"
+order: 7
+cover: "/images/tutorials/cabecera-git.jpg"
+i18n: "introduccion-ramas-git-2"
+---
+
+In the last article of this series we were explaining about Git branches, how useful they are and [a theorical case of Git Branches](/en/article/getting-started-with-git-branches-1/), but now it's time to play with them in a real case scenario.
+
+Now our `index.html` is less _stormy_ (Crazy, yeah!) and it has grown in structure.
+
+```html
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+    <title>Our wonderful Git tutorial</title>
+    <link rel="stylesheet" href="css.css" />
+  </head>
+  <body>
+    <header class="header">
+      <h1>My Website</h1>
+    </header>
+    <section class="main">
+      <h2>Getting started with Git</h2>
+      <p>Would you like to get ninja level in Git? Stay tuned to our course!</p>
+      <p>
+        But if you aren't interested in this course, we recommend you to stay tuned to updates too because we'll be
+        adding posts about other different topics with no relation to this type of courses.
+      </p>
+    </section>
+  </body>
+</html>
+```
+
+And we have an CSS (StyleSheet) as well!
+
+```css
+html,
+body,
+h1 {
+  margin: 0;
+  padding: 0;
+}
+
+.header {
+  padding: 10px;
+  font-size: 1.5em;
+  text-align: center;
+  background-color: #000;
+  color: #fff;
+}
+
+.main {
+  width: 90%;
+  margin: auto;
+}
+```
+
+Coding this is time consuming and we spent 7 hours polishing our code and creating a new design (_CSS_), now, for our surprise, our customer call us to complain about the size of the font on the current site, as he thinks is too small for his taste. And what's the problem? Well, maybe you don't want to show your new design just yet, but still want to make him happy and not loosing your current progress.
+
+We should learned by now that we have to use two branches for these changes, as easy as `git checkout -b header-feature master`
+
+A quick explanation for what we just did, the command we used is to _clone_ the current master branch and create a new one named _header-feature_ or if you like doing it one by one there you go.
+
+```bash
+$ git branch header-feature master
+$ git checkout header-feature
+```
+
+With _master_ in the command we are telling Git that we want to _clone_ the repository to make a new one from it, if we use the same command but using different values, let's say `git checkout -b whatever header-feature`, _whatever_ would be copied **from** _header-feature_ and **not** from master.
+
+The output for our last command would be:
+
+```bash
+M       index.html
+Switched to a new branch 'header-feature'
+```
+
+And now if we try our beloved `git status`
+
+```bash
+On branch header-feature
+Changes not staged for commit:
+  (use "git add <file>..." to update what will be committed)
+  (use "git checkout -- <file>..." to discard changes in working directory)
+
+        modified:   index.html
+
+Untracked files:
+  (use "git add <file>..." to include in what will be committed)
+
+        css.css
+
+no changes added to commit (use "git add" and/or "git commit -a")
+```
+
+Git let's us now `index.html` was modified and a new file named `css.css` was created as well.
+Easy to fix with `git add . && git commit -m "Fancy new header with 10000 man hours work"`
+
+```bash
+[header-feature c7a9e08] Fancy new header with 10000 man hours work
+ 2 files changed, 28 insertions(+), 5 deletions(-)
+ create mode 100644 css.css
+```
+
+And now if we do a `git checkout master` we have our site as before we modified anything. Let's do the changes our client requested. Now we know what to do: `git checkout -b changing-font-size master`
+
+And this is what our `index.html` looks like now:
+
+```html
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+    <title>Our wonderful Git tutorial</title>
+    <link rel="stylesheet" href="css.css" />
+  </head>
+  <body>
+    <section class="main">
+      <h1>Getting started with Git</h1>
+      <p>Would you like to get ninja level in Git? Stay tuned to our course!</p>
+      <p>
+        But if you aren't interested in this course, we recommend you to stay tuned to updates too because we'll be
+        adding posts about other different topics with no relation to this type of courses
+      </p>
+    </section>
+  </body>
+</html>
+```
+
+And our `css.css`
+
+```css
+.main {
+  font-size: 1.2em;
+}
+```
+
+With something this easy, we make our client happy. Now let's save it with `git add . && git commit -m "Changing the font-size of our website"`
+
+```bash
+[changing-font-size 71e3aef] Changing the font-size of our website
+ 2 files changed, 11 insertions(+), 5 deletions(-)
+ create mode 100644 css.css
+```
+
+Everything we changed is on _changing-font-size_, if we move to _master_ we will have our initial website and now that our customer told us he was happy as a rainbow with the font size, we _merge_ those changes from _changing-font-size_ to _master_.
+
+```bash
+$ git checkout master
+$ git merge changing-font-size
+
+Updating 497f0c9..71e3aef
+Fast-forward
+ css.css    |  3 +++
+ index.html | 13 ++++++++-----
+ 2 files changed, 11 insertions(+), 5 deletions(-)
+ create mode 100644 css.css
+```
+
+With _merge_ we combine the changes from both repositories, in _Fast-forward_ mode, the most common _merging_ branches method, Git detects the changes doesn't make any conflict and combine them perfectly. We have the changes from _changing-font-size_ in _master_ but still we have to _merge_ those changes to _header-feature_. Sometimes it can happen (It really does...) we forget what branches we have… don't worry! simply type: `git branch`
+
+```bash
+  changing-font-size
+  header-feature
+* master
+```
+
+As you can see (or read… anyway…), Git gives us a list of all the branches we currently have and on top of that marks with an asterisk which branch is active. Let's do this!
+
+```bash
+$ git checkout header-feature
+$ git merge changing-font-size
+
+Auto-merging index.html
+CONFLICT (content): Merge conflict in index.html
+Auto-merging css.css
+CONFLICT (add/add): Merge conflict in css.css
+Automatic merge failed; fix conflicts and then commit the result.
+```
+
+Jesus Christ… We broke it… What happened? Git detects the files from one branch to the other conflicts between them but Git is a professional tool and knows how guide us on fixing it. Our `index.html` looks like:
+
+```html
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <meta http-equiv="X-UA-Compatible" content="ie=edge">
+        <title>Our wonderful Git tutorial</title>
+        <link rel="stylesheet" href="css.css" />
+    </head>
+    <body>
+<<<<<<< HEAD
+        <header class="header">
+            <h1>My Website</h1>
+        </header>
+        <section class="main">
+            <h2>Getting started with Git</h2>
+            <p>Would you like to get ninja level in Git? Stay tuned to our course!</p>
+            <p>But if you aren't interested in this course, we recommend you to
+            stay tuned to updates too because we'll be adding posts about other
+            different topics with no relation to this type of courses.</p>
+=======
+        <section class="main">
+            <h1>Getting started with Git</h1>
+            <p>Would you like to get ninja level in Git? Stay tuned to our course!</p>
+            <p>But if you aren't interested in this course, we recommend you to
+            stay tuned to updates too because we'll be adding posts about other
+            different topics with no relation to this type of courses</p>
+>>>>>>> changing-font-size
+        </section>
+    </body>
+</html>
+```
+
+As you can see, Git indicates us where the conflict between the files is coming from. With small work, we fix our file and give it this look:
+
+```html
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+    <title>Our wonderful Git tutorial</title>
+    <link rel="stylesheet" href="css.css" />
+  </head>
+  <body>
+    <header class="header">
+      <h1>My Website</h1>
+    </header>
+    <section class="main">
+      <h2>Getting started with Git</h2>
+      <p>Would you like to get ninja level in Git? Stay tuned to our course!</p>
+      <p>
+        But if you aren't interested in this course, we recommend you to stay tuned to updates too because we'll be
+        adding posts about other different topics with no relation to this type of courses.
+      </p>
+    </section>
+  </body>
+</html>
+```
+
+And our CSS file:
+
+```css
+<<<<<<< HEAD
+html, body, h1 {
+    margin: 0;
+    padding: 0;
+}
+
+.header {
+    padding: 10px;
+    font-size: 1.5em;
+    text-align: center;
+    background-color: #000;
+    color: #fff;
+}
+
+.main {
+    width: 90%;
+    margin: auto;
+=======
+.main {
+    font-size: 1.2em;
+>>>>>>> changing-font-size
+}
+```
+
+With some small work:
+
+```css
+html,
+body,
+h1 {
+  margin: 0;
+  padding: 0;
+}
+
+.header {
+  padding: 10px;
+  font-size: 1.5em;
+  text-align: center;
+  background-color: #000;
+  color: #fff;
+}
+
+.main {
+  width: 90%;
+  margin: auto;
+  font-size: 1.2em;
+}
+```
+
+We just need to save the changes with `git add .` and this time, as we are merging two branches, if we don't write any commit message, Git adds automatically _Merge branch 'changing-font-size' into header-feature_ with a simple `git commit`
+
+```bash
+[header-feature 44e74a6] Merge branch 'changing-font-size' into header-feature
+```
+
+As the already know to apply our fancy header to the branch master just:
+
+```bash
+$ git checkout master
+$ git merge header-feature
+
+Updating 71e3aef..44e74a6
+Fast-forward
+ css.css    | 15 +++++++++++++++
+ index.html | 11 +++++++----
+ 2 files changed, 22 insertions(+), 4 deletions(-)
+```
+
+This time, spotless, no problem at all, common _merge_ in _Fast-forward_ mode. And now, we don't need to look like a _cheapskater_ and keep useless things with us! Let's delete useless branches from our project.
+
+```bash
+$ git branch -d changing-font-size
+$ git branch -d header-feature
+
+Deleted branch changing-font-size (was 71e3aef).
+Deleted branch header-feature (was 44e74a6).
+```
+
+I hope your need for knowledge of _Git branches_ is fulfilled!
+
+Never stop programming!

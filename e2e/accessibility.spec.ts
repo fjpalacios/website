@@ -82,7 +82,7 @@ test.describe("Accessibility Tests", () => {
     });
 
     test("should not have accessibility violations on book detail page", async ({ page }) => {
-      await page.goto("/es/libros/apocalipsis-stephen-king/");
+      await page.goto("/es/libros/apocalipsis-de-stephen-king/");
       await page.waitForLoadState("networkidle");
 
       const accessibilityScanResults = await new AxeBuilder({ page })
@@ -402,7 +402,7 @@ test.describe("Accessibility Tests", () => {
     });
 
     test("should have proper heading hierarchy", async ({ page }) => {
-      await page.goto("/es/libros/apocalipsis-stephen-king/");
+      await page.goto("/es/libros/apocalipsis-de-stephen-king/");
       await page.waitForLoadState("networkidle");
 
       const accessibilityScanResults = await new AxeBuilder({ page }).withTags(["wcag2a"]).include("body").analyze();
@@ -413,7 +413,7 @@ test.describe("Accessibility Tests", () => {
     });
 
     test("should have alt text on all images", async ({ page }) => {
-      await page.goto("/es/libros/apocalipsis-stephen-king/");
+      await page.goto("/es/libros/apocalipsis-de-stephen-king/");
       await page.waitForLoadState("networkidle");
 
       const accessibilityScanResults = await new AxeBuilder({ page }).withTags(["wcag2a"]).include("body").analyze();
@@ -812,7 +812,7 @@ test.describe("Accessibility Tests", () => {
     });
 
     test("should not have accessibility violations on mobile book detail", async ({ page }) => {
-      await page.goto("/es/libros/apocalipsis-stephen-king/");
+      await page.goto("/es/libros/apocalipsis-de-stephen-king/");
       await page.waitForLoadState("networkidle");
 
       const accessibilityScanResults = await new AxeBuilder({ page })

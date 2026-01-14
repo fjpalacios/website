@@ -311,7 +311,7 @@ test.describe("Core Web Vitals - Critical Pages", () => {
   });
 
   test("should meet LCP threshold on book detail page", async ({ page }) => {
-    await page.goto("/es/libros/apocalipsis-stephen-king/", { waitUntil: "networkidle" });
+    await page.goto("/es/libros/apocalipsis-de-stephen-king/", { waitUntil: "networkidle" });
 
     const metrics = await collectWebVitals(page);
     const lcpSeconds = (metrics.lcp as number) / 1000;
@@ -322,7 +322,7 @@ test.describe("Core Web Vitals - Critical Pages", () => {
   });
 
   test("should meet CLS threshold on book detail page with images", async ({ page }) => {
-    await page.goto("/es/libros/apocalipsis-stephen-king/", { waitUntil: "networkidle" });
+    await page.goto("/es/libros/apocalipsis-de-stephen-king/", { waitUntil: "networkidle" });
     await page.waitForTimeout(2000);
 
     const metrics = await collectWebVitals(page);
@@ -517,7 +517,7 @@ test.describe("Network Optimization", () => {
   });
 
   test("should serve modern image formats (WebP/AVIF) when supported", async ({ page }) => {
-    await page.goto("/es/libros/apocalipsis-stephen-king/", { waitUntil: "networkidle" });
+    await page.goto("/es/libros/apocalipsis-de-stephen-king/", { waitUntil: "networkidle" });
 
     const images = await page.evaluate(() => {
       const imgs = Array.from(document.querySelectorAll("img"));
@@ -639,7 +639,7 @@ test.describe("Resource Loading Optimization", () => {
   });
 
   test("should have width and height attributes on images to prevent CLS", async ({ page }) => {
-    await page.goto("/es/libros/apocalipsis-stephen-king/", { waitUntil: "networkidle" });
+    await page.goto("/es/libros/apocalipsis-de-stephen-king/", { waitUntil: "networkidle" });
 
     const images = await page.evaluate(() => {
       const imgs = Array.from(document.querySelectorAll("img"));

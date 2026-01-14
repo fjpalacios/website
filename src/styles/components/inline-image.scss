@@ -1,0 +1,27 @@
+@use "../mixins" as *;
+@use "../variables" as *;
+
+// Inline image component
+// Displays inline images within content (books, tutorials, posts) with proper styling
+// Images are optimized via Astro's Image component
+.book-inline-image,
+.tutorial-inline-image,
+.post-inline-image {
+  max-width: 80% !important;
+  width: 80% !important;
+  height: auto;
+  margin: 2rem auto !important;
+  display: block;
+  border-radius: 0.5rem;
+  box-shadow: 0 4px 6px $shadow-light;
+
+  @include small-and-up {
+    max-width: 70% !important;
+    width: 70% !important;
+  }
+
+  @include medium-and-up {
+    max-width: 60% !important;
+    width: 60% !important;
+  }
+}

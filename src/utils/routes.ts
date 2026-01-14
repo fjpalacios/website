@@ -9,6 +9,7 @@ export type RouteSegment =
   | "posts"
   | "tutorials"
   | "books"
+  | "stats"
   | "categories"
   | "genres"
   | "publishers"
@@ -38,6 +39,10 @@ export const routeTranslations: Record<RouteSegment, Record<string, string>> = {
   books: {
     en: "books",
     es: "libros",
+  },
+  stats: {
+    en: "stats",
+    es: "estadisticas",
   },
   categories: {
     en: "categories",

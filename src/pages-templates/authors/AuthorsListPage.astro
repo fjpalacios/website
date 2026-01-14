@@ -7,7 +7,7 @@
  * Used by the unified router for both EN and ES variants.
  */
 
-import TaxonomyList from "@components/TaxonomyList.astro";
+import TaxonomyListGrouped from "@components/TaxonomyListGrouped.astro";
 import Title from "@components/Title.astro";
 import Layout from "@layouts/Layout.astro";
 import { t } from "@locales";
@@ -44,13 +44,12 @@ const pageDescription = t(lang, "allAuthors");
   <div data-pagefind-ignore>
     {
       itemsWithContent.length > 0 ? (
-        <TaxonomyList
+        <TaxonomyListGrouped
           items={itemsWithContent}
           title={t(lang, "allAuthors")}
           lang={lang}
           routeKey="authors"
           slugField="author_slug"
-          showCount={true}
         />
       ) : (
         <div class="empty-state">

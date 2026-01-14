@@ -1,0 +1,126 @@
+---
+/**
+ * PublishersAndSeries Component
+ * Displays publishers and series with book counts in modern card layout
+ */
+
+import type { CollectionEntry } from "astro:content";
+
+import Icon from "@/components/Icon.astro";
+import type { LanguageKey } from "@/config/languages";
+import { getTranslations } from "@/locales";
+import type { PublisherWithCount, SeriesWithCount } from "@/utils/blog/book-stats";
+import { buildPublisherUrl, buildSeriesUrl, buildPublishersIndexUrl, buildSeriesIndexUrl } from "@/utils/routes";
+
+interface Props {
+  publishers: PublisherWithCount[];
+  series: SeriesWithCount[];
+  lang: LanguageKey;
+}
+
+const { publishers, series, lang } = Astro.props;
+
+const t = getTranslations(lang);
+
+// Limit to top 5
+const TOP_LIMIT = 5;
+const publishersTop5 = publishers.slice(0, TOP_LIMIT);
+const seriesTop5 = series.slice(0, TOP_LIMIT);
+
+const publishersTotal = publishers.length;
+const seriesTotal = series.length;
+
+// Helper to generate publisher URL
+function getPublisherUrl(publisher: CollectionEntry<"publishers">, lang: LanguageKey): string {
+  return buildPublisherUrl(lang, publisher.data.publisher_slug);
+}
+
+// Helper to generate series URL
+function getSeriesUrl(seriesItem: CollectionEntry<"series">, lang: LanguageKey): string {
+  return buildSeriesUrl(lang, seriesItem.data.series_slug);
+}
+---
+
+<div class="publishers-and-series">
+  <!-- Publishers Section -->
+  <section class="publishers-and-series__section">
+    <div class="publishers-and-series__header">
+      <Icon
+        name="store"
+        size="lg"
+        filled={true}
+        class="publishers-and-series__icon publishers-and-series__icon--publishers"
+      />
+      <div class="publishers-and-series__header-text">
+        <h3 class="publishers-and-series__title">{t.bookStats.publishers}</h3>
+        <p class="publishers-and-series__total">
+          Top {TOP_LIMIT} de {publishersTotal}
+        </p>
+      </div>
+    </div>
+
+    <div class="publishers-and-series__list">
+      {
+        publishersTop5.map((item) => (
+          <a href={getPublisherUrl(item.publisher, lang)} class="publishers-and-series__card">
+            <span class="publishers-and-series__name">{item.publisher.data.name}</span>
+            <span class="publishers-and-series__count">{item.count}</span>
+          </a>
+        ))
+      }
+    </div>
+
+    {
+      publishersTotal > TOP_LIMIT && (
+        <div class="publishers-and-series__view-all">
+          <a href={buildPublishersIndexUrl(lang)} class="publishers-and-series__view-all-link">
+            {t.bookStats.viewAllPublishers}
+          </a>
+        </div>
+      )
+    }
+  </section>
+
+  <!-- Series Section -->
+  <section class="publishers-and-series__section">
+    <div class="publishers-and-series__header">
+      <Icon
+        name="library"
+        size="lg"
+        filled={true}
+        class="publishers-and-series__icon publishers-and-series__icon--series"
+      />
+      <div class="publishers-and-series__header-text">
+        <h3 class="publishers-and-series__title">{t.bookStats.series}</h3>
+        <p class="publishers-and-series__total">
+          Top {TOP_LIMIT} de {seriesTotal}
+        </p>
+      </div>
+    </div>
+
+    <div class="publishers-and-series__list">
+      {
+        seriesTop5.map((item) => (
+          <a href={getSeriesUrl(item.series, lang)} class="publishers-and-series__card">
+            <span class="publishers-and-series__name">{item.series.data.name}</span>
+            <span class="publishers-and-series__count">{item.count}</span>
+          </a>
+        ))
+      }
+    </div>
+
+    {
+      seriesTotal > TOP_LIMIT && (
+        <div class="publishers-and-series__view-all">
+          <a href={buildSeriesIndexUrl(lang)} class="publishers-and-series__view-all-link">
+            {t.bookStats.viewAllSeries}
+          </a>
+        </div>
+      )
+    }
+  </section>
+</div>
+
+<style lang="scss">
+  @use "../../styles/components/publishers-and-series.scss";
+</style>

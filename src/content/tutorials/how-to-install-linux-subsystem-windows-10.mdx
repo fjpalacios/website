@@ -1,0 +1,35 @@
+---
+title: "How to install Linux subsystem Windows 10"
+post_slug: "how-to-install-linux-subsystem-windows-10"
+date: "2018-02-10"
+excerpt: "Learn how to install the Linux subsystem on Windows 10 (WSL). Discover how to set up Ubuntu, Suse, or OpenSUSE on your Windows system."
+language: "en"
+categories: ["windows"]
+cover: "/images/tutorials/cabecera-windows.jpg"
+i18n: "como-instalar-subsistema-linux-windows-10"
+---
+
+We have to recognize it: Microsoft lately isn't what it was, and best of all: this change has been for the better. Lately this company is contributing with free software, and they are providing tools, especially for programmers, which make life much easier in our daily tasks. For example, with [Visual Studio Code](https://code.visualstudio.com/), which was _born_ to deal with [Atom](https://atom.io/), but in many cases we can assure you that it has improved Atom, especially if we are JavaScript developers.
+
+And specifically in the area of programming Windows had a huge lack: more and more tools are coming out to make development easier for programmers, and these tools are generally used from the terminal: git, npm, composer… to name a few. And what's the problem? All of them, out of the box, are requiring a _bash_ terminal (you can _emulate_ this applications to get its compatibility for Windows, but it's an extra job for the developers of the tools). Developers of these tools assumed that all developers have a _bash_ terminal on their computers, and this seriously harmed Microsoft.
+
+Windows 10 has been the solution, and especially since its **Fall Creators** update and its Windows Subsystem for Linux (WSL) came out of its beta version and everyone could use it with full guarantees of compatibility and stability.
+
+The Windows Subsystem for Linux is the way that Microsoft people have managed to have a Linux distribution of our choice, from a few available, with no graphical user interface by default, to be able to work from a _bash_ terminal. This Linux distro can access to our Windows 10 operating system (the other way around isn't so easy, but it doesn't seem necessary at all), install the necessary applications for our software development and access from this terminal to all the folders that we have permission to access with our Windows user.
+
+### I want to install it!
+
+Yeah, easy peachy! You need to have Windows 10 with all the available updates installed, otherwise you probably will not have this service yet. Although if you are sure that you have installed the **Windows Fall Creators** update then you can continue even if you don't have everything updated.
+
+Now press the Windows key of your keyboard and type `PowerShell`, click secondary on the app and run it as administrator. In this terminal you must enter this command:
+
+```bash
+Enable-WindowsOptionalFeature -Online -FeatureName Microsoft-Windows-Subsystem-Linux
+```
+
+This way we'll be enabling the Windows service and then we have to run Microsoft Store and look for the Linux distribution that we want to install. At the time of writing this article we can choose between **Ubuntu**, **Suse Linux Enterprise Server** and **OpenSUSE**, although there is a [WSL-Distribution-Switcher
+](https://github.com/RoliSoft/WSL-Distribution-Switcher) project on which you can find more information to install other Linux distros, although logically unofficially.
+
+Although it's not like installing a Linux distro on our computer, we can say that Microsoft is on the right track and they are doing a good job to make Windows 10 an operating system in which developers can work in a more comfortable way.
+
+And as we always say goodbye: never stop programming!

@@ -67,6 +67,7 @@ import {
 } from "@/utils/blog";
 import { buildBooksIndexUrl, buildSeriesUrl } from "@/utils/routes";
 import { getAllFromCollection, getCollectionByLanguage } from "@/utils/content/getCollectionByLanguage";
+import { processSynopsis } from "@/utils/synopsis";
 
 const allAuthors = await getAllFromCollection("authors");
 const allPublishers = await getCollectionByLanguage("publishers", lang);
@@ -144,6 +145,9 @@ const bookSchema: Record<string, unknown> = {
     datePublished: book.date.toISOString(),
   },
 };
+
+// Process synopsis markdown to HTML
+const synopsisHtml = processSynopsis(book.synopsis || "");
 
 if (book.isbn) bookSchema.isbn = book.isbn;
 if (book.pages) bookSchema.numberOfPages = book.pages;
@@ -253,9 +257,7 @@ const genreLabel = lang === "en" ? "Genre" : "Género";
           }
         </div>
         <SectionTitle title={synopsisLabel} />
-        <div class="text-area">
-          <p>{book.synopsis}</p>
-        </div>
+        <div class="text-area" set:html={synopsisHtml} />
         <div data-pagefind-ignore>
           {author && <SectionTitle title={authorWithGender} />}
           {author && <AuthorInfo author={author} border={false} />}

@@ -1,0 +1,141 @@
+---
+import { getDefaultLanguageCode, isValidLanguage } from "@config/languages";
+import Layout from "@layouts/Layout.astro";
+import { t } from "@locales";
+import { getContact } from "@utils/content/contact";
+
+// Try to detect language from URL, fallback to default language
+const url = Astro.url.pathname;
+const urlParts = url.split("/").filter(Boolean);
+const detectedLang = urlParts[0];
+const lang = isValidLanguage(detectedLang) ? detectedLang : getDefaultLanguageCode();
+
+const contact = getContact(lang);
+const title = t(lang, "notFound.title");
+const description = t(lang, "notFound.description");
+---
+
+<Layout lang={lang} contact={contact} title={title} description={description}>
+  <div class="not-found-container">
+    <div class="not-found-content">
+      <h1 class="not-found-title">{t(lang, "notFound.heading")}</h1>
+      <h2 class="not-found-subtitle">{t(lang, "notFound.subtitle")}</h2>
+      <p class="not-found-message">
+        {t(lang, "notFound.message")}
+      </p>
+      <p class="not-found-redirect">
+        <span id="redirect-text"></span>
+      </p>
+      <a href={`/${lang}/`} class="not-found-button">{t(lang, "notFound.button")}</a>
+    </div>
+  </div>
+</Layout>
+
+<style lang="scss">
+  .not-found-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 60vh;
+    padding: 2rem;
+  }
+
+  .not-found-content {
+    text-align: center;
+    max-width: 600px;
+  }
+
+  .not-found-title {
+    font-size: 8rem;
+    font-weight: 900;
+    line-height: 1;
+    margin: 0;
+    background: linear-gradient(135deg, var(--color-primary), var(--color-secondary));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .not-found-subtitle {
+    font-size: 2rem;
+    font-weight: 700;
+    margin: 1rem 0;
+    color: var(--color-text-primary);
+  }
+
+  .not-found-message {
+    font-size: 1.125rem;
+    color: var(--color-text-secondary);
+    margin: 1.5rem 0;
+    line-height: 1.6;
+  }
+
+  .not-found-redirect {
+    font-size: 1rem;
+    color: var(--color-text-secondary);
+    margin: 1rem 0 2rem;
+    font-style: italic;
+  }
+
+  .not-found-button {
+    display: inline-block;
+    padding: 0.75rem 2rem;
+    background: var(--color-primary);
+    color: white;
+    text-decoration: none;
+    border-radius: 0.5rem;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 6px var(--shadow-light);
+
+    &:hover {
+      background: var(--color-primary-dark, var(--color-primary));
+      transform: translateY(-2px);
+      box-shadow: 0 6px 12px var(--shadow-medium);
+    }
+
+    &:active {
+      transform: translateY(0);
+    }
+  }
+
+  @media (max-width: 768px) {
+    .not-found-title {
+      font-size: 5rem;
+    }
+
+    .not-found-subtitle {
+      font-size: 1.5rem;
+    }
+
+    .not-found-message {
+      font-size: 1rem;
+    }
+  }
+</style>
+
+<script define:vars={{ lang, redirectText: t(lang, "notFound.redirect") }}>
+  // Auto-redirect to home after 5 seconds
+  let countdown = 5;
+  const redirectTextElement = document.getElementById("redirect-text");
+
+  // Update text with current countdown
+  const updateText = () => {
+    if (redirectTextElement) {
+      redirectTextElement.textContent = redirectText.replace("{{seconds}}", countdown.toString());
+    }
+  };
+
+  // Initial text update
+  updateText();
+
+  const interval = setInterval(() => {
+    countdown--;
+    updateText();
+
+    if (countdown <= 0) {
+      clearInterval(interval);
+      window.location.href = `/${lang}/`;
+    }
+  }, 1000);
+</script>

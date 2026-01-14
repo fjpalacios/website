@@ -1,0 +1,28 @@
+---
+title: "Getting started with Git branches (I)"
+post_slug: "getting-started-with-git-branches-1"
+excerpt: "Do you want to know how to increase your productivity by making multiple simultaneous tasks using Git? Then you need to learn more about the Git branches."
+categories: ["git"]
+course: "mastering-git-from-scratch"
+order: 6
+cover: "/images/tutorials/cabecera-git.jpg"
+date: "2017-12-02"
+language: "en"
+i18n: "introduccion-ramas-git-1"
+---
+
+_Branches_, they can save you serious headache, waste of life and a horrible feeling of frustration. With Git, the possibility of creating different _branches_ gives us an easy way to implement new code, new features and everything without modifying our _production branch_ or _Master Branch_. If you never used a Control Version Software like Git, probably you're thinking right now _Why in hell I would need something like that?_, well just remember, **always think in the bigger picture** and not just in the `index.html` we are using as example in this course.
+
+Every _repo_ should have at least two branches, the production one (_master_), where the _stable_ code and final features are included (Yep, even that one you thought nobody would like but all the community is dying for it!) and finally, another branch that includes (obviously) the code from _master_ plus all the experimental features and modifications (we will talk about the way Git has to classify branches and the naming rules) that we are currently testing, in other words, is not stable for daily use.
+
+Like we explained in our first article for this [What is Git?](https://sargantanacode.es/es/article/what-is-git/), one of the best features of Git are the branches and absolutely the speed, but comparing the way Git has to deal with the branches for our project is amazing. Creating a new branch is really easy, with a simple command Git creates a new branch, but not only that, we can merge two branches into one, create a new one copying the core (or source code, sorry I just got excited with this one ;P) and all this with a flawless speed which makes Git the best tool for developers.
+
+### Let's get dirty
+
+You have your client's website in the master branch and he just called you because all his family are together discussing about the design and they decided they would love to see the website with a bigger font and they want to see it now that they are all reunited. Customers are always right… keep that in mind… What you can do now? You modified almost all the files with new features or with changes that aren't ready just yet and if you just throw everything to the bin and modify just the font for the client probably is going to take a huge effort to recover everything and put things back into place.
+
+That's why at this moment you need a new branch _header-feature_, for all those changes you just did and you want to keep to show them to the boss in the future and then you just need to create a new branch based on master, something like _changing-font-size_ for the change that you're requested. Whenever they decide it looks perfect (WARNING! Can take a while for this to happen :D), the branch _changing-font-size_ will merge with the _master_ branch (and with the _header-feature_ one), this way, we can return to our heaven of new features and keep working hard on the new implementations we working on! (Just like if the client never called us!).
+
+Now that you found out why you started dreaming with Git a few weeks ago, in the next article for this course we'll explain how to make all this theory into practice ;P
+
+And remember… never stop programming!

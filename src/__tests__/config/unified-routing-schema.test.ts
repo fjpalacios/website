@@ -79,7 +79,7 @@ describe("unified-routing-schema validators", () => {
       expect(TemplateNameSchema.parse("ContentList")).toBe("ContentList");
       expect(TemplateNameSchema.parse("ContentDetail")).toBe("ContentDetail");
       expect(TemplateNameSchema.parse("ContentPagination")).toBe("ContentPagination");
-      expect(TemplateNameSchema.parse("TaxonomyList")).toBe("TaxonomyList");
+      expect(TemplateNameSchema.parse("TaxonomyListGrouped")).toBe("TaxonomyListGrouped");
       expect(TemplateNameSchema.parse("TaxonomyDetail")).toBe("TaxonomyDetail");
       expect(TemplateNameSchema.parse("StaticPage")).toBe("StaticPage");
       expect(TemplateNameSchema.parse("RSSFeed")).toBe("RSSFeed");

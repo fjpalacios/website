@@ -13,10 +13,13 @@ $height: 35px;
     display: flex;
     align-items: center;
     justify-content: center;
+    min-width: 120px;
     height: $height;
-    padding: 0 10px;
+    padding: 0 15px;
     font-weight: bold;
-    background-color: var(--skill-dark-color, #2a9e3c);
+    background-color: var(--skill-dark-color, $skill-success-dark);
+    white-space: nowrap;
+    flex-shrink: 0;
   }
 
   &__box {
@@ -26,16 +29,22 @@ $height: 35px;
 
     &__level {
       height: $height;
-      background-color: var(--skill-color, #34d44a);
+      background-color: var(--skill-color, $skill-success);
       width: var(--skill-width, 0%);
     }
 
     &__percent {
       position: absolute;
-      top: 9px;
+      top: 50%;
       right: 10px;
-      color: black;
+      transform: translateY(-50%);
+      font-weight: 700;
+      color: $text;
       text-align: right;
+      font-size: 0.9em;
+      text-shadow:
+        0 0 4px $shadow-very-strong,
+        0 0 8px $shadow-strong;
     }
   }
 }

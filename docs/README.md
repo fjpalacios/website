@@ -1,17 +1,18 @@
 # Documentation
 
-Essential documentation for the website project.
+Essential docs for the website project.
 
-## Core Docs
+## Quick Start
 
-- **[ROADMAP.md](ROADMAP.md)** - Project status and next steps
-- **[DEVELOPMENT_GUIDELINES.md](DEVELOPMENT_GUIDELINES.md)** - Coding standards and best practices
+- **[PRODUCTION_DEPLOYMENT.md](PRODUCTION_DEPLOYMENT.md)** - Deploy to production (step-by-step)
+- **[ROADMAP.md](ROADMAP.md)** - Project status and what's next
+- **[DEVELOPMENT_GUIDELINES.md](DEVELOPMENT_GUIDELINES.md)** - Coding standards
 
-## Deployment & Migration
+## Additional Guides
 
-- **[CLOUDFLARE_ARCHITECTURE_FAQ.md](CLOUDFLARE_ARCHITECTURE_FAQ.md)** - Cloudflare setup and deployment guide
-- **[MIGRATION_STRATEGY_AND_REDIRECTS.md](MIGRATION_STRATEGY_AND_REDIRECTS.md)** - Content migration and redirect strategy
+- **[ADDING_LANGUAGES.md](ADDING_LANGUAGES.md)** - Add a new language (~15 min)
+- **[IMAGE_GENERATION.md](IMAGE_GENERATION.md)** - Generate Open Graph images
 
-## Need More Info?
+## Need More?
 
-Check the main [README.md](../README.md).
+Check the main [README.md](../README.md) in the root directory.

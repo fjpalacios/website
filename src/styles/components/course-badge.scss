@@ -17,8 +17,8 @@
   text-align: left;
 
   // Visual
-  background-color: rgba(0, 0, 0, 0.8);
-  color: #ffffff;
+  background-color: $course-badge-bg;
+  color: $course-badge-text;
   padding: 0.25rem 0.5rem;
   border-radius: 0.25rem;
 
@@ -45,7 +45,7 @@
 
 // Dark theme variant
 [data-theme="dark"] .course-badge {
-  background-color: rgba(255, 255, 255, 0.15);
+  background-color: $course-badge-hover-bg;
   backdrop-filter: blur(10px);
-  color: #ffffff;
+  color: $course-badge-text;
 }

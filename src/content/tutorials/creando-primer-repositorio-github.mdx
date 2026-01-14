@@ -1,0 +1,87 @@
+---
+title: "Creando nuestro primer repositorio en GitHub"
+post_slug: "creando-primer-repositorio-github"
+date: "2017-12-16"
+excerpt: "Aprende a crear tu primer repositorio en GitHub paso a paso. Descubre cómo configurar un nuevo proyecto, añadir archivos y realizar tu primer commit."
+language: "es"
+categories: ["git"]
+course: "domina-git-desde-cero"
+order: 9
+cover: "/images/tutorials/cabecera-git.jpg"
+i18n: "creating-our-first-repository-on-github"
+---
+
+import { InlineImage } from "@components/blog";
+
+Ya hemos trabajado mucho con Git de forma local, hemos visto cómo crear repositorios, cómo crear commits, cómo trabajar con branches, cómo recuperar archivos…
+
+Pero, ¿cómo puedo trabajar con otras personas?, ¿cómo comparto ese gran proyecto que acabo de terminar y quiero que más gente lo vea?, ¿o la solución a ese problema con el que medio mundo se está encontrando?
+
+Para eso, ¡tenemos **GitHub**!
+
+## ¿Qué es GitHub?
+
+Pues básicamente GitHub es una página donde puedes tener tus repositorios Git, pero no una página cualquiera, si no **la página por excelencia** con más de 20 millones de usuarios según datos de Abril de 2017, y con más de 57 millones de repositorios.
+
+¿No está mal, verdad?
+
+Pues vamos a ver cómo crear nuestro primer repositorio en GitHub. Lo primero que debemos hacer si aún no lo hemos hecho es [crearnos una cuenta de GitHub](https://github.com/join?source=header-home).
+
+## Creando nuestro repositorio
+
+Una vez tengamos cuenta iniciada en GitHub, nos saldrá el **Dashboard**, que es la página principal de GitHub, como la de cualquier otra red social, en la que podremos ver la actividad de la gente que seguimos o en los repositorios a los que nos hayamos suscrito.
+
+Pero bueno, vamos a lo que nos interesa, **crear nuestro primer repositorio**. Para ello, en la parte superior derecha veremos nuestro avatar, y al lado de este un símbolo de **+**, pulsamos sobre él y a continuación **New repository**.
+
+<InlineImage
+  type="tutorial"
+  src="/images/tutorials/inline/nuevo-repositorio-github.jpeg"
+  alt="New repository on GitHub"
+/>
+
+Tras eso nos llevará a la siguiente página:
+
+<InlineImage
+  type="tutorial"
+  src="/images/tutorials/inline/creando-repositorio-github.jpeg"
+  alt="Creating repository on GitHub"
+/>
+
+Como vemos tenemos varios campos para rellenar, a continuación los voy a explicar para qué sirve cada uno de ellos:
+
+- **Repository name**: el nombre de nuestro repositorio, es algo que **debemos rellenar sí o sí**, sin ese campo no nos permitirá crear el repositorio.
+- **Description**: una descripción de en qué consiste nuestro proyecto, no es obligatorio rellenarlo.
+- **Public/Private**: ¿queremos que nuestro repositorio sea público para todo el mundo o privado solo para nosotros (o personas que invitemos)?. Es de pago poder tener repositorios privados.
+- **Initialize this repository with a README**: ¿queremos que cuando se cree el repositorio automáticamente se nos cree también un fichero README (que es el que usaremos para describir de qué va el proyecto)?
+- **Add .gitignore**: ¿queremos añadir un fichero .gitignore? Podemos elegir qué lenguaje vamos a utilizar en el proyecto para así añadir un fichero .gitignore estándar del lenguaje/framework que queramos (posteriormente lo podemos modificar).
+- **Add a license**: ¿queremos añadir una licencia a nuestro proyecto? Podemos elegir entre las más populares.
+
+Rellenamos el campo **Repository name**, escogemos si queremos el repositorio público o privado, le damos al **check** de inicializar el repositorio con un README y pulsamos en **Create repository**.
+
+Tras unos segundos nos llevará a la página de nuestro repositorio:
+
+<InlineImage
+  type="tutorial"
+  src="/images/tutorials/inline/nuestro-nuevo-repositorio-github.jpeg"
+  alt="Our new GitHub repository"
+/>
+
+Aquí es donde podremos ver todo lo relativo a nuestro proyecto.
+
+En un principio ya veremos varias cosas, como el fichero **README.md** que hemos creado (que es el que vemos debajo de los ficheros), y el **.gitignore** si lo hemos creado también.
+
+También si pulsamos en **1 commit**, podemos ver el único commit que tenemos hasta ahora, que es el de la inicialización de los dos ficheros:
+
+<InlineImage
+  type="tutorial"
+  src="/images/tutorials/inline/repositorio-github-creado.jpeg"
+  alt="GitHub repository created"
+/>
+
+Como véis los repositorios de GitHub también tienen **branchs**, en la captura anterior podemos ver que se muestra la branch **master**, que es la que tenemos por defecto.
+
+## Conclusión
+
+Ya hemos visto lo sencillo que es crear un repositorio en GitHub. En futuros tutoriales veremos cómo interactuar con él, cómo descargarlo para trabajar en local, y mil cosas más.
+
+Cualquier problema que os haya surgido no dudéis en comentarlo e intentaré ayudaros en la mayor brevedad posible 😃

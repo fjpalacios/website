@@ -1,0 +1,260 @@
+/**
+ * Dynamic Content Structure Tests
+ * 
+ * Tests for pages with dynamic content (listings, homepage).
+ * These tests verify structure and functionality without comparing visual snapshots.
+ * 
+ * Why structure tests instead of visual?
+ * - Content changes frequently (new books, posts added)
+ * - Visual snapshots break on every content update
+ * - Structure tests validate functionality stays correct
+ * 
+ * @group e2e
+ * @group structure
+ * @group dynamic-content
+ */
+
+import { test, expect } from "@playwright/test";
+import {
+  getLocalizedUrl,
+  getPaginationUrl,
+  LANGUAGES,
+  PAGINATION,
+  assertListingStructure,
+  assertBookCardStructure,
+  assertTutorialCardStructure,
+  assertPostCardStructure,
+  assertHeaderStructure,
+  assertFooterStructure,
+  assertNoLayoutBreaks,
+  assertPaginationStructure,
+  waitForPageStable,
+} from "./helpers";
+
+// ============================================================================
+// HOMEPAGE STRUCTURE TESTS
+// ============================================================================
+
+test.describe("Homepage Structure", () => {
+  for (const lang of LANGUAGES) {
+    test(`should have correct homepage structure (${lang.toUpperCase()})`, async ({ page }) => {
+      await page.goto(`/${lang}`);
+      await waitForPageStable(page);
+
+      // Header and Footer
+      await assertHeaderStructure(page);
+      await assertFooterStructure(page);
+
+      // Hero section
+      const hero = page.locator(".hero, .intro, h1").first();
+      await expect(hero).toBeVisible();
+
+      // Latest books section exists
+      const latestBooks = page.locator(".latest-books, .recent-books").first();
+      await expect(latestBooks).toBeVisible();
+
+      // Should have 5 latest books
+      const bookCards = latestBooks.locator(".book-card, article");
+      const count = await bookCards.count();
+      expect(count).toBe(5);
+
+      // Each book card has correct structure
+      for (let i = 0; i < count; i++) {
+        await assertBookCardStructure(bookCards.nth(i));
+      }
+
+      // No layout breaks
+      await assertNoLayoutBreaks(page);
+    });
+  }
+
+  test("latest books should not have duplicates (ES)", async ({ page }) => {
+    await page.goto("/es");
+    await waitForPageStable(page);
+
+    const latestBooks = page.locator(".latest-books, .recent-books").first();
+    const bookTitles = await latestBooks.locator(".book-title, h3, h2").allTextContents();
+
+    // All titles should be unique
+    const uniqueTitles = new Set(bookTitles);
+    expect(uniqueTitles.size).toBe(bookTitles.length);
+  });
+});
+
+// ============================================================================
+// BOOKS LISTING STRUCTURE TESTS
+// ============================================================================
+
+test.describe("Books Listing Structure", () => {
+  for (const lang of LANGUAGES) {
+    test(`should have correct books listing structure (${lang.toUpperCase()})`, async ({ page }) => {
+      const url = getLocalizedUrl(lang, "books");
+      await page.goto(url);
+      await waitForPageStable(page);
+
+      // Header
+      await assertHeaderStructure(page);
+
+      // Books grid - actual classes used: .blog__grid and .blog__grid__post
+      await assertListingStructure(page, {
+        gridSelector: ".blog__grid",
+        cardSelector: ".blog__grid__post",
+        minItems: 1,
+        maxItems: PAGINATION.books,
+        hasPagination: true,
+      });
+
+      // Check first 3 book cards have correct structure
+      const bookCards = page.locator(".blog__grid__post");
+      const count = Math.min(await bookCards.count(), 3);
+      
+      for (let i = 0; i < count; i++) {
+        await assertBookCardStructure(bookCards.nth(i));
+      }
+
+      // Footer
+      await assertFooterStructure(page);
+    });
+  }
+
+  test("books pagination should work (ES)", async ({ page }) => {
+    const firstPageUrl = getLocalizedUrl("es", "books");
+    await page.goto(firstPageUrl);
+    await waitForPageStable(page);
+
+    const bookGrid = page.locator(".blog__grid");
+    const firstPageBooks = await bookGrid.locator(".blog__grid__post").allTextContents();
+    const totalBooks = await bookGrid.locator(".blog__grid__post").count();
+
+    // If we have enough books for pagination
+    if (totalBooks >= PAGINATION.books) {
+      // Check that pagination exists
+      const pagination = page.locator(".pagination, .paginator");
+      await expect(pagination).toBeVisible();
+
+      // Go to page 2
+      const secondPageUrl = getPaginationUrl("es", "books", 2);
+      await page.goto(secondPageUrl);
+      await waitForPageStable(page);
+
+      // Different content on page 2
+      const secondPageBooks = await bookGrid.locator(".blog__grid__post").allTextContents();
+      expect(secondPageBooks).not.toEqual(firstPageBooks);
+
+      // Pagination still visible on page 2
+      await expect(pagination).toBeVisible();
+    }
+  });
+});
+
+// ============================================================================
+// TUTORIALS LISTING STRUCTURE TESTS
+// ============================================================================
+
+test.describe("Tutorials Listing Structure", () => {
+  for (const lang of LANGUAGES) {
+    test(`should have correct tutorials listing structure (${lang.toUpperCase()})`, async ({
+      page,
+    }) => {
+      const url = getLocalizedUrl(lang, "tutorials");
+      await page.goto(url);
+      await waitForPageStable(page);
+
+      // Header
+      await assertHeaderStructure(page);
+
+      // Tutorials grid - actual classes used: .blog__grid and .blog__grid__post
+      await assertListingStructure(page, {
+        gridSelector: ".blog__grid",
+        cardSelector: ".blog__grid__post",
+        minItems: 1,
+        maxItems: PAGINATION.tutorials,
+        hasPagination: true,
+      });
+
+      // Check first 3 tutorial cards have correct structure
+      const tutorialCards = page.locator(".blog__grid__post");
+      const count = Math.min(await tutorialCards.count(), 3);
+      
+      for (let i = 0; i < count; i++) {
+        await assertTutorialCardStructure(tutorialCards.nth(i));
+      }
+
+      // Footer
+      await assertFooterStructure(page);
+    });
+  }
+});
+
+// ============================================================================
+// POSTS LISTING STRUCTURE TESTS
+// ============================================================================
+
+test.describe("Posts Listing Structure", () => {
+  for (const lang of LANGUAGES) {
+    test(`should have correct posts listing structure (${lang.toUpperCase()})`, async ({
+      page,
+    }) => {
+      const url = getLocalizedUrl(lang, "posts");
+      await page.goto(url);
+      await waitForPageStable(page);
+
+      // Header
+      await assertHeaderStructure(page);
+
+      // Posts grid - actual classes used: .blog__grid and .blog__grid__post
+      await assertListingStructure(page, {
+        gridSelector: ".blog__grid",
+        cardSelector: ".blog__grid__post",
+        minItems: 1,
+        maxItems: PAGINATION.posts,
+        hasPagination: true,
+      });
+
+      // Check first 3 post cards
+      const postCards = page.locator(".blog__grid__post");
+      const count = Math.min(await postCards.count(), 3);
+
+      for (let i = 0; i < count; i++) {
+        await assertPostCardStructure(postCards.nth(i));
+      }
+
+      // Footer
+      await assertFooterStructure(page);
+    });
+  }
+});
+
+// ============================================================================
+// RESPONSIVE STRUCTURE TESTS
+// ============================================================================
+
+test.describe("Responsive Structure", () => {
+  const viewports = [
+    { name: "mobile", width: 375, height: 667 },
+    { name: "tablet", width: 768, height: 1024 },
+    { name: "desktop", width: 1920, height: 1080 },
+  ];
+
+  for (const viewport of viewports) {
+    test(`books listing should work on ${viewport.name}`, async ({ page }) => {
+      await page.setViewportSize({ width: viewport.width, height: viewport.height });
+      await page.goto("/es/libros");
+      await waitForPageStable(page);
+
+      // Menu visible
+      await expect(page.locator("nav.menu")).toBeVisible();
+
+      // Content visible (books use .blog__grid__post class)
+      const bookCards = page.locator(".blog__grid__post");
+      const count = await bookCards.count();
+      expect(count).toBeGreaterThan(0);
+
+      // First card in viewport
+      await expect(bookCards.first()).toBeInViewport();
+
+      // Footer visible (don't require it to be in viewport - page might be long)
+      await expect(page.locator("footer.footer")).toBeVisible();
+    });
+  }
+});

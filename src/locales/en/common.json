@@ -28,6 +28,7 @@
     "posts": "Posts",
     "tutorials": "Tutorials",
     "books": "Books",
+    "stats": "Statistics",
     "feeds": "RSS",
     "categories": "Categories",
     "category": "Category",
@@ -50,6 +51,7 @@
     "posts": "posts",
     "tutorials": "tutorials",
     "books": "books",
+    "stats": "stats",
     "feeds": "feeds",
     "categories": "categories",
     "genres": "genres",
@@ -78,6 +80,12 @@
   "allChallenges": "All challenges",
   "allAuthors": "All authors",
   "allCourses": "All courses",
+  "bookCount": {
+    "singular": "book",
+    "plural": "books"
+  },
+  "author": "author",
+  "authors": "authors",
   "latestBlogPosts": "Latest Blog Posts",
   "viewAllPosts": "View all posts",
   "categories": {
@@ -135,6 +143,54 @@
       "tutorialCount_other": "{{count}} tutorials in this course"
     }
   },
+  "genreTypes": {
+    "fiction": "Fiction",
+    "nonFiction": "Non-fiction"
+  },
+  "bookStats": {
+    "title": "Book Statistics",
+    "description": "Analysis and statistics of all books read",
+    "viewStats": "View statistics",
+    "generalStats": "General Statistics",
+    "scoreDistribution": "Score Distribution",
+    "authorsByGender": "Authors by Gender",
+    "genres": "Genres",
+    "fiction": "Fiction",
+    "nonFiction": "Non-Fiction",
+    "booksInTotal": "books in total",
+    "topNOfTotal": "Top {n} of {total}",
+    "viewAllGenres": "VIEW ALL GENRES",
+    "viewAllPublishers": "VIEW ALL PUBLISHERS",
+    "viewAllSeries": "VIEW ALL SERIES",
+    "publishersAndSeries": "Publishers & Series",
+    "publishers": "Publishers",
+    "publisherSingular": "publisher",
+    "publishersPlural": "publishers",
+    "series": "Series",
+    "seriesSingular": "series",
+    "seriesPlural": "series",
+    "specialLists": "Special Lists",
+    "randomFavorites": "Random Favorites",
+    "randomFavoritesSubtitle": "5 of {total} favorite books",
+    "fiveStars": "Other 5-Star Books",
+    "fiveStarsSubtitle": "5 of {total} books with 5⭐",
+    "classics": "Classics Reviewed",
+    "classicsSubtitle": "5 of {total} classic books",
+    "recentBooks": "Recently Added",
+    "recentBooksSubtitle": "Last 5 books added",
+    "activeChallenges": "Active Literary Challenges",
+    "totalBooks": "Total Books Read",
+    "totalAuthors": "Total Authors",
+    "totalGenres": "Total Genres",
+    "totalPublishers": "Total Publishers",
+    "totalSeries": "Total Series",
+    "maleAuthors": "Male Authors",
+    "femaleAuthors": "Female Authors",
+    "completedBooks": "books completed",
+    "of": "of",
+    "readChallengePost": "Read post",
+    "viewAllChallenges": "View all challenges"
+  },
   "courseNavigation": {
     "previous": "Previous tutorial",
     "next": "Next tutorial",
@@ -161,12 +217,13 @@
   "search": {
     "modalTitle": "Search the site",
     "closeButton": "Close search",
-    "placeholder": "Search the blog...",
+    "placeholder": "Search authors...",
     "clearButton": "Clear",
     "loadMore": "Load more results",
     "label": "Search this site",
     "filters": "Filters",
-    "noResults": "No results for",
+    "noResults": "No authors found",
+    "authors": "Search authors",
     "manyResults": "{{count}} results",
     "oneResult": "{{count}} result",
     "searching": "Searching..."
@@ -205,8 +262,8 @@
     "buy": "Buy",
     "details": "Book details",
     "synopsis": "Synopsis",
-    "paperback": "Paperback",
-    "ebook": "eBook",
+    "paperback": "Physical",
+    "ebook": "Digital",
     "audiobook": "Audiobook"
   },
   "pageDescriptions": {
@@ -222,5 +279,14 @@
     "booksDescription": "Reviews and opinions about fiction, horror, thriller and more",
     "tutorialsTitle": "fjp.es - Programming Tutorials",
     "tutorialsDescription": "Tutorials about JavaScript, Git, web development and more"
+  },
+  "notFound": {
+    "title": "404 - Page not found",
+    "description": "Sorry, the page you're looking for doesn't exist.",
+    "heading": "404",
+    "subtitle": "Page not found",
+    "message": "Sorry, the page you're looking for doesn't exist or has been moved.",
+    "redirect": "You will be redirected to the home page in {{seconds}} seconds...",
+    "button": "Go to home page now"
   }
 }

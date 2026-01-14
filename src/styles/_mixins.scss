@@ -108,8 +108,9 @@
 // Images inside text-area (full width bleed effect)
 // Makes images extend beyond content padding for visual impact
 // Used in: post, tutorial, book
+// Note: Excludes inline image components which have their own styling
 @mixin text-area-images {
-  img {
+  img:not(.book-inline-image):not(.tutorial-inline-image):not(.post-inline-image) {
     width: calc(100% + 40px) !important;
     margin: 0 -20px !important;
   }

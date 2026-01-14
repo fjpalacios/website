@@ -4,6 +4,7 @@ import Header from "@components/Header.astro";
 import Menu from "@components/Menu.astro";
 import Search from "@components/Search.astro";
 import SEO from "@components/SEO.astro";
+import { hasContentInLanguage } from "@config/navigation";
 import { TIMINGS } from "@config/timings";
 import { t } from "@locales";
 import type { ContactItem } from "@types/content";
@@ -54,6 +55,11 @@ const metaDescription = description || t(lang, "metaData.description");
 const metaImage = image || t(lang, "metaData.image");
 // Build full URL with current path
 const baseUrl = t(lang, "metaData.url");
+
+// Check content availability for RSS feeds
+const hasPostsContent = await hasContentInLanguage("posts", lang);
+const hasBooksContent = await hasContentInLanguage("books", lang);
+const hasTutorialsContent = await hasContentInLanguage("tutorials", lang);
 ---
 
 <!doctype html>
@@ -79,25 +85,37 @@ const baseUrl = t(lang, "metaData.url");
 
     <link rel="icon" type="image/x-icon" href="/favicon.ico" />
 
-    <!-- RSS Feeds - Autodiscovery -->
-    <link
-      rel="alternate"
-      type="application/rss+xml"
-      title={`${t(lang, "title")} - ${t(lang, "feeds.general")}`}
-      href={`/${lang}/rss.xml`}
-    />
-    <link
-      rel="alternate"
-      type="application/rss+xml"
-      title={`${t(lang, "title")} - ${t(lang, "feeds.books")}`}
-      href={`/${lang}/${getUrlSegment(lang, "books")}/rss.xml`}
-    />
-    <link
-      rel="alternate"
-      type="application/rss+xml"
-      title={`${t(lang, "title")} - ${t(lang, "feeds.tutorials")}`}
-      href={`/${lang}/${getUrlSegment(lang, "tutorials")}/rss.xml`}
-    />
+    <!-- RSS Feeds - Autodiscovery (only if content exists) -->
+    {
+      hasPostsContent && (
+        <link
+          rel="alternate"
+          type="application/rss+xml"
+          title={`${t(lang, "title")} - ${t(lang, "feeds.general")}`}
+          href={`/${lang}/rss.xml`}
+        />
+      )
+    }
+    {
+      hasBooksContent && (
+        <link
+          rel="alternate"
+          type="application/rss+xml"
+          title={`${t(lang, "title")} - ${t(lang, "feeds.books")}`}
+          href={`/${lang}/${getUrlSegment(lang, "books")}/rss.xml`}
+        />
+      )
+    }
+    {
+      hasTutorialsContent && (
+        <link
+          rel="alternate"
+          type="application/rss+xml"
+          title={`${t(lang, "title")} - ${t(lang, "feeds.tutorials")}`}
+          href={`/${lang}/${getUrlSegment(lang, "tutorials")}/rss.xml`}
+        />
+      )
+    }
 
     <ViewTransitions />
     <style is:global lang="scss">
@@ -163,7 +181,7 @@ const baseUrl = t(lang, "metaData.url");
           <slot />
         </div>
         <!-- Footer Navigation -->
-        <Footer lang={lang} />
+        <Footer lang={lang} currentPath={currentPath} />
       </div>
     </div>
     <!-- Search Modal (global, accessible from menu) -->

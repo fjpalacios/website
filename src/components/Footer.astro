@@ -5,19 +5,37 @@ import { buildLocalizedPath } from "@utils/routes";
 
 interface Props {
   lang: string;
+  currentPath?: string; // Current page path for active state
 }
 
-const { lang } = Astro.props;
+const { lang, currentPath = "" } = Astro.props;
 
 // Get footer navigation items (excludes home, only shows items with content)
 const footerItems = await getFooterItems(lang);
 
-// Build items with URLs and labels
-const itemsWithUrls = footerItems.map((item) => ({
-  url: item.routeKey === "home" ? `/${lang}` : buildLocalizedPath(lang, item.routeKey),
-  label: t(lang, `pages.${item.id}`),
-  id: item.id,
-}));
+// Build items with URLs, labels, and active states
+const itemsWithUrls = footerItems.map((item) => {
+  let url: string;
+
+  // Special case: stats is a sub-route of books
+  if (item.routeKey === "stats") {
+    url = buildLocalizedPath(lang, "books", "stats");
+  } else if (item.routeKey === "home") {
+    url = `/${lang}`;
+  } else {
+    url = buildLocalizedPath(lang, item.routeKey);
+  }
+
+  const isActive =
+    item.matchStrategy === "exact" ? currentPath === url || currentPath === `${url}/` : currentPath.startsWith(url);
+
+  return {
+    url,
+    label: t(lang, `pages.${item.id}`),
+    id: item.id,
+    isActive,
+  };
+});
 ---
 
 <footer class="footer">
@@ -28,7 +46,7 @@ const itemsWithUrls = footerItems.map((item) => ({
         {
           itemsWithUrls.map((item) => (
             <li class="footer__link-item">
-              <a href={item.url} class="footer__link">
+              <a href={item.url} class:list={["footer__link", { "footer__link--active": item.isActive }]}>
                 {item.label}
               </a>
             </li>

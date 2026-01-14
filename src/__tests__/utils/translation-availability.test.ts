@@ -89,9 +89,11 @@ describe("translation-availability helpers", () => {
       expect(isIndexPage("/en/posts/my-post", "en")).toBe(false);
     });
 
-    it("should return false for paginated pages", () => {
-      expect(isIndexPage("/es/libros/pagina/2", "es")).toBe(false);
-      expect(isIndexPage("/en/posts/page/3", "en")).toBe(false);
+    it("should return true for paginated pages", () => {
+      expect(isIndexPage("/es/libros/pagina/2", "es")).toBe(true);
+      expect(isIndexPage("/en/posts/page/3", "en")).toBe(true);
+      expect(isIndexPage("/es/tutoriales/pagina/5", "es")).toBe(true);
+      expect(isIndexPage("/en/books/page/10", "en")).toBe(true);
     });
 
     it("should return false for home page", () => {

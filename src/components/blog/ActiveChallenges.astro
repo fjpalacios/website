@@ -1,0 +1,77 @@
+---
+/**
+ * ActiveChallenges Component
+ * Displays active reading challenges with progress bars
+ */
+
+import { getChallengeConfig } from "@/config/challenges";
+import type { LanguageKey } from "@/config/languages";
+import { getTranslations } from "@/locales";
+import type { ChallengeProgress } from "@/utils/blog/book-stats";
+import { buildChallengesIndexUrl, buildPostUrl } from "@/utils/routes";
+
+interface Props {
+  challenges: ChallengeProgress[];
+  lang: LanguageKey;
+}
+
+const { challenges, lang } = Astro.props;
+
+const t = getTranslations(lang);
+
+// Helper to generate post URL
+function getPostUrl(postSlug: string, lang: LanguageKey): string {
+  return buildPostUrl(lang, postSlug);
+}
+---
+
+<div class="active-challenges">
+  <div class="active-challenges__grid">
+    {
+      challenges.map((item) => {
+        const config = getChallengeConfig(item.challenge.data.challenge_slug);
+        const color = item.percentage >= 100 && config.completedColor ? config.completedColor : config.color;
+
+        return (
+          <div class="active-challenges__item">
+            <div class="active-challenges__card">
+              <div class="active-challenges__header">
+                <h3 class="active-challenges__name">{item.challenge.data.name}</h3>
+                <span class="active-challenges__percentage" style={`color: ${color}`}>
+                  {item.percentage.toFixed(1)}%
+                </span>
+              </div>
+
+              <div class="active-challenges__progress-bar">
+                <div
+                  class="active-challenges__progress-fill"
+                  style={`width: ${item.percentage}%; background: ${color}; box-shadow: 0 0 8px ${color}40`}
+                />
+              </div>
+
+              <div class="active-challenges__stats">
+                {item.completed} {t.bookStats.of} {item.total} {t.bookStats.completedBooks}
+              </div>
+            </div>
+
+            {config.postSlug && (
+              <a href={getPostUrl(config.postSlug, lang)} class="active-challenges__card-link">
+                {t.bookStats.readChallengePost}
+              </a>
+            )}
+          </div>
+        );
+      })
+    }
+  </div>
+
+  <div class="active-challenges__view-all">
+    <a href={buildChallengesIndexUrl(lang)} class="active-challenges__view-all-link">
+      {t.bookStats.viewAllChallenges}
+    </a>
+  </div>
+</div>
+
+<style lang="scss">
+  @use "../../styles/components/active-challenges.scss";
+</style>

@@ -1,0 +1,115 @@
+---
+/**
+ * BookStatsContainer Component
+ * Main container for book statistics page
+ * Provides the overall structure and passes data to child components
+ */
+
+import { getCollection } from "astro:content";
+
+import type { LanguageKey } from "@/config/languages";
+import { getTranslations } from "@/locales";
+import {
+  getActiveChallenges,
+  getAuthorsByGender,
+  getClassicsBooks,
+  getFiveStarBooks,
+  getGenresWithCount,
+  getPublishersWithCount,
+  getRandomFavorites,
+  getRecentBooks,
+  getScoreDistribution,
+  getSeriesWithCount,
+  getTotalBooks,
+} from "@/utils/blog/book-stats";
+
+import ActiveChallenges from "./ActiveChallenges.astro";
+import AuthorsByGender from "./AuthorsByGender.astro";
+import GenreBreakdown from "./GenreBreakdown.astro";
+import PublishersAndSeries from "./PublishersAndSeries.astro";
+import ScoreDistribution from "./ScoreDistribution.astro";
+import SpecialLists from "./SpecialLists.astro";
+
+interface Props {
+  lang: LanguageKey;
+}
+
+const { lang } = Astro.props;
+
+// Get translations
+const t = getTranslations(lang);
+
+// Load all collections once
+const allBooks = await getCollection("books");
+const allAuthors = await getCollection("authors");
+const allGenres = await getCollection("genres");
+const allPublishers = await getCollection("publishers");
+const allSeries = await getCollection("series");
+const allChallenges = await getCollection("challenges");
+
+// Calculate all stats
+const _totalBooks = getTotalBooks(allBooks, lang);
+
+const scoreDistribution = getScoreDistribution(allBooks, lang);
+const authorsByGender = getAuthorsByGender(allBooks, allAuthors, lang);
+const genresWithCount = getGenresWithCount(allBooks, allGenres, lang);
+const publishersWithCount = getPublishersWithCount(allBooks, allPublishers, lang);
+const seriesWithCount = getSeriesWithCount(allBooks, allSeries, lang);
+
+const randomFavorites = getRandomFavorites(allBooks, lang, 5);
+const fiveStarBooks = getFiveStarBooks(allBooks, lang, 5);
+const classicsBooks = getClassicsBooks(allBooks, lang, 5);
+const recentBooks = getRecentBooks(allBooks, lang, 5);
+
+// Get totals for subtitles
+const totalFavorites = getRandomFavorites(allBooks, lang, 999).length;
+const totalFiveStars = getFiveStarBooks(allBooks, lang).length;
+const totalClassics = getClassicsBooks(allBooks, lang, 999).length;
+
+const activeChallenges = getActiveChallenges(allBooks, allChallenges, lang);
+
+// Calculate books by author gender
+const booksInLanguage = allBooks.filter((book) => book.data.language === lang);
+const femaleAuthorSlugs = new Set(authorsByGender.female.map((author) => author.data.author_slug));
+const maleAuthorSlugs = new Set(authorsByGender.male.map((author) => author.data.author_slug));
+
+const _femaleBooks = booksInLanguage.filter((book) => femaleAuthorSlugs.has(book.data.author)).length;
+const _maleBooks = booksInLanguage.filter((book) => maleAuthorSlugs.has(book.data.author)).length;
+const _femaleAuthorsCount = authorsByGender.female.length;
+const _maleAuthorsCount = authorsByGender.male.length;
+---
+
+<div class="taxonomy-list-grouped">
+  <div class="book-stats-container">
+    <ScoreDistribution distribution={scoreDistribution} lang={lang} />
+
+    <AuthorsByGender authorsByGender={authorsByGender} lang={lang} />
+
+    <GenreBreakdown genresWithCount={genresWithCount} lang={lang} />
+
+    <section class="book-stats-container__section">
+      <h2 class="book-stats-container__section-title">{t.bookStats.publishersAndSeries}</h2>
+      <PublishersAndSeries publishers={publishersWithCount} series={seriesWithCount} lang={lang} />
+    </section>
+
+    <SpecialLists
+      favorites={randomFavorites}
+      fiveStars={fiveStarBooks}
+      classics={classicsBooks}
+      recent={recentBooks}
+      totalFavorites={totalFavorites}
+      totalFiveStars={totalFiveStars}
+      totalClassics={totalClassics}
+      lang={lang}
+    />
+
+    <section class="book-stats-container__section">
+      <h2 class="book-stats-container__section-title">{t.bookStats.activeChallenges}</h2>
+      <ActiveChallenges challenges={activeChallenges} lang={lang} />
+    </section>
+  </div>
+</div>
+
+<style lang="scss">
+  @use "../../styles/components/book-stats-container.scss";
+</style>

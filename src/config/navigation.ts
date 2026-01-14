@@ -28,6 +28,7 @@ export type RouteKey =
   | "posts"
   | "tutorials"
   | "books"
+  | "stats"
   | "feeds"
   | "categories"
   | "genres"
@@ -134,6 +135,13 @@ const NAVIGATION_ITEMS: readonly NavigationItem[] = [
     showInFooter: true,
   },
   {
+    id: "stats",
+    routeKey: "stats",
+    matchStrategy: "exact",
+    showInMenu: false,
+    showInFooter: true,
+  },
+  {
     id: "feeds",
     routeKey: "feeds",
     matchStrategy: "prefix",
@@ -202,7 +210,6 @@ const NAVIGATION_ITEMS: readonly NavigationItem[] = [
 const STATIC_PAGES: Readonly<Record<string, LanguageKey[] | undefined>> = {
   home: getLanguageCodes(), // Static page - all languages
   about: getLanguageCodes(), // Static page - all languages
-  feeds: getLanguageCodes(), // RSS feeds aggregator - all languages
 };
 
 /**
@@ -213,6 +220,7 @@ const ROUTE_TO_COLLECTION: Readonly<Partial<Record<RouteKey, string>>> = {
   posts: "posts",
   tutorials: "tutorials",
   books: "books",
+  stats: "books", // Stats page should only show when books exist
   series: "series",
   challenges: "challenges",
   authors: "authors",
@@ -238,6 +246,7 @@ const CONTENT_AVAILABILITY_FALLBACK: Readonly<Partial<Record<RouteKey, LanguageK
   posts: ["es"], // Only used for individual posts check in fallback
   tutorials: ["es"],
   books: ["es", "en"],
+  stats: ["es", "en"], // Same as books
   series: ["es"],
   challenges: ["es"],
   authors: ["es", "en"],
@@ -254,10 +263,11 @@ const CONTENT_AVAILABILITY_FALLBACK: Readonly<Partial<Record<RouteKey, LanguageK
  * For dynamic pages: Checks if content collection has entries for that language
  *                    Falls back to CONTENT_AVAILABILITY_FALLBACK in test environments
  *
- * Special case for "posts":
- *   The posts section (/es/publicaciones/ or /en/posts/) is an aggregated blog page
- *   that shows ALL content types (posts + tutorials + books). Therefore, it checks
- *   if ANY of these three collections have content in the requested language.
+ * Special case for "posts" and "feeds":
+ *   These sections are aggregated pages that show ALL content types (posts + tutorials + books).
+ *   Therefore, they check if ANY of these three collections have content in the requested language.
+ *   - posts: /es/publicaciones/ or /en/posts/ (blog aggregator page)
+ *   - feeds: /es/feeds/ or /en/feeds/ (RSS feeds page)
  *
  * @param routeKey - The route key to check
  * @param lang - Language code ("es" or "en")
@@ -284,9 +294,9 @@ export async function hasContentInLanguage(routeKey: RouteKey, lang: LanguageKey
     return staticAvailability.includes(lang);
   }
 
-  // Special case: "posts" section is an aggregated blog page
-  // It shows posts + tutorials + books, so check all three collections
-  if (routeKey === "posts") {
+  // Special case: "posts" and "feeds" sections are aggregated pages
+  // They show posts + tutorials + books, so check all three collections
+  if (routeKey === "posts" || routeKey === "feeds") {
     try {
       const { getCollection } = await import("astro:content");
 

@@ -1,0 +1,91 @@
+---
+title: "Getting started with Git"
+post_slug: "getting-started-with-git"
+date: "2017-11-05"
+excerpt: "Would you like to do your first commit in Git? In this part of the course we will teach you how easy is to make your first commit."
+language: "en"
+categories: ["git"]
+course: "mastering-git-from-scratch"
+order: 3
+cover: "/images/tutorials/cabecera-git.jpg"
+i18n: "primeros-pasos-con-git"
+---
+
+We already know [What is Git](/en/article/what-is-git/) and we learned [How to Install Git on our Operating System](/en/article/how-to-install-git-on-linux-macos-and-windows/). Now is about time that we learn how to do our first _commit_ with this amazing Version Control Software. :)
+
+From now on, all the commands are valid for UNIX environments, if you are following this course from Windows, then you have three options: Ignore all the commands in this article, except Git commands and doing all other operations graphically; _Convert_ manually the commands we use to the correct ones for Windows `cmd.exe` or PowerShell, or the very last option but the most recommended: [Install Cygwin](http://www.cygwin.com/), it's a UNIX Terminal Emulator and thanks to Cygwin, you can use UNIX commands like if you were using a Linux Terminal without having to worry about wrong commands or special syntax.
+
+```bash
+$ mkdir git-tutorial
+$ cd git-tutorial
+$ git init
+```
+
+With `mkdir` we are creating a new folder for our project (in this case for this course), with `cd` we get into the project's folder and with `git init` we _tell_ Git to start the Version Control on this folder. When we type these commands on UNIX environments we can check everything went OK with a simple command `ls -a` and we will see there's a hidden folder named `.git` (On Windows is hidden but Windows-way) and is in this folder where all our files are going to be stored with all the changes we make to them. Let's see what `git status` says:
+
+```bash
+On branch master
+No commits yet
+nothing to commit (create/copy files and use "git add" to track)
+```
+
+We will explain what a _branch_ is in future articles. Checking with `git status` is a good way to check that everything is created and working. We are going to create an HTML file with very basic HTML5 structure/code, if you are not familiar with HTML, don't worry about it now as the content of the file doesn't matter.
+
+```bash
+$ touch index.html
+$ vim index.html
+```
+
+With `touch` we create the file and with `vim` we edit the same. The next code goes into the file.
+
+```html
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+    <title>Our wonderful Git tutorial</title>
+  </head>
+  <body>
+    <h1>Getting started with Git</h1>
+  </body>
+</html>
+```
+
+And now again, let's see what `git status` has to say.
+
+```bash
+On branch master
+No commits yet
+Untracked files:
+  (use "git add <file>..." to include in what will be committed)
+        index.html
+nothing added to commit but untracked files present (use "git add" to track)
+```
+
+If your screen looks similar to this, then everything went normal and if you have a look on the output you will read that Git found new file(s) (The HTML file we created before) but we didn't told Git that we wanted to _add_ this file to the _queue_ for the next _commit_. We need to add manually the files we want to add to the next _commit_, easy, just with `git add index.html` but in case you have more files and let's say you want to add to the _queue_ all the files in the current folder, a simple `git add .` will add all the files from this folder to the _queue_. Now let's try again with `git status`:
+
+```bash
+On branch master
+No commits yet
+Changes to be committed:
+  (use "git rm --cached <file>..." to unstage)
+        new file:   index.html
+```
+
+This is the exciting part, the mega famous _commit_. A _commit_ for Git means, we are happy with all the changes and files in this folder and they are ready for putting them in the _release_. *Commit*ting is a must, every change, every bug fix (hope you don't need to _commit_ many of those :P) and every new implementation you do must be reflected with a _commit_. Why? Basically, because the best feature of a Version Control Software like Git, is the ability to revert to any of these changes in the _time line_ or in other words going back thru all the _commits_ you did, let's say you _committed_ a bug fix that doesn't work as you expected it to work then, with Git, you can just revert everything back as it was before the bug fix _commit_. For our first _commit_, all we need to type is `git commit -m "Initial commit"`
+
+```bash
+[master (root-commit) 2fdbe1d] Initial commit
+ 1 file changed, 12 insertions(+)
+ create mode 100644 index.html
+```
+
+And now our _huge_ project is safe. Okay, okay, maybe is not a _biiiig_ project and you just think 'Why I should use a Version Control??' but believe me, even for this small HTML page, we need to think bigger, look at the future and just imagine this small project becoming a 20 file project with around 800 lines per file. You would be thankful to have a way to go back in case your new _Payment Gateway Code_ gets frozen just in the middle of a transaction and the old _code_ was working just perfect.
+
+If you want to understand in depth what we have done so far is necessary to understand [the three States of Git](/en/article/the-three-states-of-git/), I encourage you to read the article.
+
+Just quick reminder, all the files we create or modify for this course are available in our [Git Tutorial Repo](https://github.com/sargantanacode/git-tutorial) and in our [Main GitHub](https://github.com/sargantanacode).
+
+And Remember… never stop programming!

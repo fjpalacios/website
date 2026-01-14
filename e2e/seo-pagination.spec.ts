@@ -84,13 +84,7 @@ test.describe("SEO Pagination Meta Tags", () => {
     });
 
     test("page 6 should have robots noindex, follow directive", async ({ page }) => {
-      // Skip if there aren't enough pages
-      const response = await page.goto("/es/publicaciones/pagina/6/");
-
-      if (response?.status() === 404) {
-        test.skip();
-        return;
-      }
+      await page.goto("/es/publicaciones/pagina/6/");
 
       // Should have robots directive for deep pagination
       const robots = await page.locator('meta[name="robots"]').getAttribute("content");
@@ -117,13 +111,7 @@ test.describe("SEO Pagination Meta Tags", () => {
     });
 
     test("page 2 should have unique title with page number", async ({ page }) => {
-      const response = await page.goto("/en/posts/page/2/");
-
-      // Skip if page doesn't exist (not enough content yet)
-      if (response?.status() === 404) {
-        test.skip();
-        return;
-      }
+      await page.goto("/en/posts/page/2/");
 
       // Title should include page number
       const title = await page.title();
@@ -136,13 +124,7 @@ test.describe("SEO Pagination Meta Tags", () => {
     });
 
     test("page 2 should have correct prev/next links", async ({ page }) => {
-      const response = await page.goto("/en/posts/page/2/");
-
-      // Skip if page doesn't exist (not enough content yet)
-      if (response?.status() === 404) {
-        test.skip();
-        return;
-      }
+      await page.goto("/en/posts/page/2/");
 
       // Should have prev link to page 1
       const prevLink = await page.locator('link[rel="prev"]').getAttribute("href");
@@ -173,13 +155,7 @@ test.describe("SEO Pagination Meta Tags", () => {
     });
 
     test("page 2 should have unique title and correct links", async ({ page }) => {
-      const response = await page.goto("/es/libros/pagina/2/");
-
-      // Skip if page doesn't exist (not enough content yet)
-      if (response?.status() === 404) {
-        test.skip();
-        return;
-      }
+      await page.goto("/es/libros/pagina/2/");
 
       // Title should include page number
       const title = await page.title();
@@ -234,12 +210,7 @@ test.describe("SEO Pagination Meta Tags", () => {
     });
 
     test("page 2 should have correct pagination metadata", async ({ page }) => {
-      const response = await page.goto("/es/tutoriales/pagina/2/");
-
-      if (response?.status() === 404) {
-        test.skip();
-        return;
-      }
+      await page.goto("/es/tutoriales/pagina/2/");
 
       // Title with page number
       const title = await page.title();
@@ -264,12 +235,7 @@ test.describe("SEO Pagination Meta Tags", () => {
     });
 
     test("page 2 should use English translations", async ({ page }) => {
-      const response = await page.goto("/en/tutorials/page/2/");
-
-      if (response?.status() === 404) {
-        test.skip();
-        return;
-      }
+      await page.goto("/en/tutorials/page/2/");
 
       // Title should use "Page" not "Página"
       const title = await page.title();

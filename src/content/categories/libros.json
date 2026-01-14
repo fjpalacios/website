@@ -1,7 +1,5 @@
 {
-  "name": "Libros",
+  "name": "libros",
   "category_slug": "libros",
-  "language": "es",
-  "i18n": "books",
-  "description": "Contenido relacionado con libros"
+  "language": "es"
 }

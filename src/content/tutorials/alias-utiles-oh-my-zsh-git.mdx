@@ -1,0 +1,50 @@
+---
+title: "Los alias de Oh My ZSH! más útiles para aumentar nuestra productividad con Git"
+post_slug: "alias-utiles-oh-my-zsh-git"
+date: "2018-05-02"
+excerpt: "Descubre los alias más útiles de Oh My ZSH! para trabajar con Git. Aprende a agilizar tus comandos y aumentar tu productividad."
+language: "es"
+categories: ["git"]
+course: "domina-git-desde-cero"
+order: 14
+cover: "/images/tutorials/cabecera-git.jpg"
+i18n: "the-most-useful-oh-my-zsh-aliases-to-increase-our-productivity-with-git"
+---
+
+En un artículo anterior ya vimos cómo [crear alias en Git para aumentar nuestra productividad](/es/article/using-git-aliases-to-increase-our-productivity/), pero podemos ir un paso más allá. En una serie de tutoriales hemos visto también [cómo instalar ZSH y Oh My ZSH! en macOS](/es/article/how-to-install-zsh-oh-my-zsh-macos/), [cómo instalar ZSH y Oh My ZSH! en GNU/Linux](/es/article/how-to-install-zsh-oh-my-zsh-gnu-linux/) y [cómo instalar ZSH y Oh My ZSH! en el subsistema Linux en Windows 10](/es/article/how-to-install-zsh-oh-my-zsh-linux-subsystem-windows-10/), así que ahora nos podemos centrar en las características que _Oh My ZSH!_ tiene específicamente para aumentar nuestra productividad mientras utilizamos Git mediante la consola de comandos.
+
+La mayoría de comandos que hemos utilizado a lo largo de este curso, algunos de ellos un poco largos, para ir haciendo las operaciones necesarias con Git, tienen su alternativa en forma de alias en _Oh My ZSH!_ Esto no quiere decir que no haya que aprenderse los comandos completos, porque puede que en algún momento nos encontremos en un equipo que no tenga _Oh My ZSH!_ instalado y entonces no sabríamos cómo utilizar Git, pero dando por hecho que en su mayoría los conocemos, es muy útil usar alias que permitan agilizar nuestras interacciones con la terminal para invertir el mínimo tiempo posible en esto y tener más tiempo para dedicarle a lo realmente importante: el desarrollo.
+
+### Listado completo de alias para Git
+
+Una vez tenemos instalado _Oh My ZSH!_ es muy sencillo obtener un listado de todos los alias que tenemos disponibles para su uso con la línea de comandos de Git:
+
+```bash
+$ alias | grep git
+```
+
+El comando `alias` nos muestra por pantalla una lista con todos los alias que tenemos, y el comando `grep` realiza una búsqueda de la palabra **git** dentro de esa lista de alias para finalmente mostrarnos sólo aquellas líneas que contienen la palabra **git**. Es recomendable usar este filtro porque _Oh My ZSH!_ tiene un sinfín de alias y podemos volvernos locos buscando únicamente los que puedan interesarnos.
+
+### Los alias para Git más útiles en Oh My ZSH!
+
+Para confeccionar esta lista, un tanto subjetiva de por sí, como cualquier otra lista recopilatoria, nos basaremos en los comandos Git que hemos ido utilizando hasta ahora y que podían ser quizá un poco difíciles de recordar. ¡Vamos allá!
+
+- El más que frecuente `git status` se puede simplificar únicamente con un `gst`.
+- Para añadir el archivo con nombre **foo** al _stage_ para ser incluido en el próximo _commit_ tenemos el comando `git add foo` y su alias es tan fácil como `ga foo`.
+- Y si queríamos incluir todos los archivos a la vez usábamos el comando `git add .`, pues como es fácil de suponer su alias es `gaa` (la última **a** es de **all**).
+- Cuando queremos hacer un _commit_ con un mensaje utilizamos el comando `git commit -m "mensaje de commit"`, su simplificación es `gcmsg "mensaje de commit"`.
+- Cuando modificamos localmente un archivo pero hemos metido la pata y queremos recuperar la última versión que tiene Git del archivo **foo** utilizamos el comando `git checkout -- foo`, y con los alias podemos utilizar también `gco -- foo`.
+- Y si nos hemos dado cuenta tarde, cuando ya hemos incluido el archivo en la cola de _stage_ para incluirlo en el próximo _commit_ con Git teníamos el comando `git reset HEAD foo`, y haciendo uso de estos alias tenemos también la posibilidad de usar `grh foo`.
+- Para crear la rama **foo** que deriva de **bar** en Git hacíamos uso del comanfo `git checkout -b foo bar` y con estos alias también podemos utilizar el comando `gcb foo bar`.
+- Si quisiéramos cambiar a la rama **foo** en Git utilizaríamos el comanfo `git checkout foo` y con los alias podemos simplificarlo aún más utilizando sólo `gco foo`.
+- Y como las ramas **master** y **develop** son tan frecuentemente utilizadas (más adelante veremos esto en las guías de estilo) existen también unos alias para poder hacer _checkout_ directamente a estas ramas: `gcm` y `gcd` respectivamente.
+- Si queremos hacer un _merge_ de la rama **foo** en Git escribimos `git merge foo` y con estos alias podemos escribir `gm foo` únicamente.
+- Y si finalmente queremos borrar la rama en Git basta con un `git branch -d foo` pero con los alias simplificamos a `gbd foo`.
+- Cuando tenemos un remoto lo más habitual es que se llame _origin_, así que si queremos hacer un _push_ de la rama **master** escribiríamos el comando `git push origin master` pero con los alias basta con que previamente estemos situados en la rama **master** y escribamos `ggpush` o `ggp` y automáticamente pasa como parámetro la rama en la que nos encontremos en ese momento, que suele ser habitual que sea la rama de la que queramos hacer _push_.
+- Para hacer _pull_ es exactamente lo mismo pero utilizando el comando `ggpull` o `ggl`.
+
+Por último, si queremos utilizar algún comando que no disponga de alias, o que lo desconozcamos, siempre podemos abreviar un poco ya que el comando `g` es un alias del comando `git`, así pues podríamos utilizar `g tag v0.1 HEAD` para añadir el _tag_ de la versión 0.1 al último _commit_ realizado.
+
+Como habréis visto, si nos limitamos al uso de alias ahorramos un montón de tiempo, lo cual siempre es una ventaja.
+
+¡Nunca dejes de programar!

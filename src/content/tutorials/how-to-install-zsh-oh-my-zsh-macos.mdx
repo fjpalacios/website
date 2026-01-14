@@ -1,0 +1,93 @@
+---
+title: "How to install ZSH and Oh My ZSH! in macOS"
+post_slug: "how-to-install-zsh-oh-my-zsh-macos"
+date: "2018-02-17"
+excerpt: "Learn how to install and configure ZSH and Oh My ZSH! on macOS. Discover how to customize your terminal with themes and plugins."
+language: "en"
+categories: ["macos"]
+cover: "/images/tutorials/cabecera-apple.jpg"
+i18n: "como-instalar-zsh-oh-my-zsh-macos"
+---
+
+For those who don't want a headache, macOS has a few pre-installed _shell_, but as usual the default one is _bash_. And among those pre-installed _shell_ we will find _zsh_. What are the advantages and disadvantages? The advantage is that all you have to do is activate it; the obvious disadvantage: this version will never be as updated as if we install one that we can update as new versions are published. Everyone who chooses what they prefer.
+
+### Installing a newer version of zsh
+
+We start with this part not because we want you to realize that it's better to install the latest version (but this is true and you know it) but because once this version is installed the steps to activate one and the other are the same except for the path in which the chosen version is located, but that we'll see later.
+
+Although macOS doesn't have a default package manager using command line, as Linux distros based on Unix do, there is one that, although not official, is widely used; we're talking about [Homebrew](https://brew.sh). To install it, if it's not installed yet, it's as easy as running this command:
+
+```bash
+$ /usr/bin/ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
+```
+
+Then, as we would do in any Linux distro, we would update the repositories to make sure that we will download the latest versions of the packages that we want to install.:
+
+```bash
+$ brew update
+```
+
+To know that this process will be useful and that we will be installing a more recent version of _zsh_ we can check it by looking at the version that we have pre-installed on our computer and which one is in the Homebrew repositories.
+
+```bash
+$ zsh --version
+$ brew info zsh
+```
+
+At the time of writing this article, the macOS High Sierra pre-installed version is 5.3, and in the Homebrew repositories there is a 5.4.2. We are going to install it:
+
+```bash
+$ brew install zsh
+```
+
+Now we need to _tell_ macOS that we have a new installed _shell_ and it's safe to _trust_ in it; we have to edit the `/etc/shells` file and add the `/usr/local/bin/zsh` path at the end of the list. In this path there is a symbolic link pointing to the real path in which Homebrew installs all the packages. You can choose an editor of your choice, but make sure you always launch it with _root_ privileges.
+
+```bash
+# vim /etc/shells
+```
+
+### Setting zsh as default shell
+
+From here the only difference between the macOS pre-installed version or installing a new one will be the _zsh_ path.
+
+Now we have two options: configure with a command to always log in with the _zsh shell_ or configure the app that we use to display the command console and log in with the specified _shell_. The first option is more efficient but everyone who chooses.
+
+#### By command
+
+To set by default the use of _zsh_ by command would be, in case you use the default version:
+
+```bash
+$ chsh -s /bin/zsh
+```
+
+And if you've installed the Homebrew version:
+
+```bash
+$ chsh -s /usr/local/bin/zsh
+```
+
+And if in the future we want to go back to _bash_ it would be as easy as:
+
+```bash
+$ chsh -s /bin/bash
+```
+
+#### Configuring our application
+
+Terminal is the default macOS app to view the command-line interface, to _tell_ it that we want to login with _zsh_ instead of _bash_ we have to go to the application preferences and, in the General tab, in the **Shells open with:** section, we select **Command (complete path)** and we write the path of the _zsh_ version that we are using, already seen it previously.
+
+Although it's not the default one, iTerm2 is also a very used app for this purpose, especially because of its multiple configuration options and because it has a better color visualization; to configure iTerm2 to log in with _zsh_ instead of _bash_ you have to open the app preferences, go to the Profiles tab and in the **Command** section we have to select the **Command** option and write the path of our _zsh_ version.
+
+As you can see, if you use different applications, or you may install some in the future to test them, configuring each of them to log in with _zsh_ can be a bit tedious, so it's more advisable to run the previous command, which will work like a charm in any case.
+
+### Installing Oh My ZSH!
+
+What makes _zsh_ what it is is to have _Oh My ZSH!_, apart from a community of developers focused on implementing new features, themes and plugins… The time has come to take full advantage of our command-line sessions! Installing _Oh My ZSH!_ is as simple as running this command:
+
+```bash
+$ sh -c "$(curl -fsSL https://raw.github.com/robbyrussell/oh-my-zsh/master/tools/install.sh)"
+```
+
+From this moment all the configuration of both _zsh_ and _Oh My ZSH!_ will be in a `~/.zshrc` file that will be automatically generated, from which you can [change your prompt theme](https://github.com/robbyrussell/oh-my-zsh/wiki/Themes), [add Oh My ZSH! plugins](https://github.com/robbyrussell/oh-my-zsh/wiki/Plugins), and so on.
+
+And as we can't miss our favorite goodbye: never stop programming!

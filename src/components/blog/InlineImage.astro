@@ -1,0 +1,42 @@
+---
+import { bookInlineImages, tutorialInlineImages } from "@utils/imageImports";
+import type { ImageMetadata } from "astro";
+import { Image } from "astro:assets";
+
+interface Props {
+  src: string;
+  alt: string;
+  type?: "book" | "tutorial" | "post";
+}
+
+const { src, alt, type = "book" } = Astro.props;
+
+// Extract filename from src (remove path and extension)
+const filename =
+  src
+    .split("/")
+    .pop()
+    ?.replace(/\.(jpg|jpeg|png|webp|avif)$/i, "") || "";
+
+// Select the correct image map based on type
+const imageMaps: Record<string, Record<string, ImageMetadata>> = {
+  book: bookInlineImages,
+  tutorial: tutorialInlineImages,
+  post: {}, // For future post inline images
+};
+
+// Get optimized image from the appropriate map
+const image = imageMaps[type]?.[filename];
+
+if (!image) {
+  console.warn(`⚠️  Inline image not found: ${filename} (type: ${type})`);
+}
+---
+
+{
+  image ? (
+    <Image src={image} alt={alt} class={`${type}-inline-image`} loading="lazy" decoding="async" />
+  ) : (
+    <img src={src} alt={alt} class={`${type}-inline-image`} />
+  )
+}

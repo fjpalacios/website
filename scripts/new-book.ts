@@ -73,7 +73,7 @@ buy:
   - type: "ebook"
     link: "https://www.amazon.es/dp/"
 # book_card: "https://www.megustaleer.com/libro/"
-genres: [${genres && genres.length > 0 ? genres.map((g) => `"${g}"`).join(", ") : '"ficcion"'}]
+genres: [${genres && genres.length > 0 ? genres.map((g) => `"${g}"`).join(", ") : ""}]
 # challenges: ["reto-lectura-2025"]
 categories: [${categories && categories.length > 0 ? categories.map((c) => `"${c}"`).join(", ") : lang === "es" ? '"libros", "resenas"' : '"books", "reviews"'}]
 book_cover: "/images/books/${slug}.jpg"

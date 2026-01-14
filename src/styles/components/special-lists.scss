@@ -1,0 +1,121 @@
+@use "../variables" as *;
+@use "../mixins" as *;
+
+.special-lists {
+  display: flex;
+  flex-direction: column;
+  gap: 2.5rem;
+
+  &__grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 2rem;
+
+    @include small-and-up {
+      grid-template-columns: repeat(2, 1fr);
+      column-gap: 1.5rem;
+      row-gap: 2.5rem;
+    }
+  }
+
+  &__list-card {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+  }
+
+  &__header {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding-bottom: 1rem;
+    border-bottom: 2px solid $border-medium;
+
+    @at-root html.light & {
+      border-color: $border-light;
+    }
+  }
+
+  &__icon {
+    flex-shrink: 0;
+
+    &--favorites {
+      color: $rating-favorite;
+    }
+
+    &--five-stars {
+      color: $accent;
+    }
+
+    &--classics {
+      color: $progress-bar-fill;
+    }
+
+    &--recent {
+      color: $gender-male-primary;
+    }
+  }
+
+  &__title-wrapper {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+    flex: 1;
+  }
+
+  &__title {
+    font-size: 1.05rem;
+    font-weight: 600;
+    color: $text;
+    margin: 0;
+  }
+
+  &__subtitle {
+    font-size: 0.85rem;
+    color: $text-secondary;
+    margin: 0;
+  }
+
+  &__list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+
+  &__book-item {
+    background: $primary;
+    border: 1px solid $border-medium;
+    border-radius: 6px;
+    transition:
+      transform 0.2s ease,
+      border-color 0.2s ease,
+      box-shadow 0.2s ease;
+
+    @at-root html.light & {
+      background: $card-background-subtle;
+      border-color: $border-light;
+    }
+
+    &:hover {
+      transform: translateX(4px);
+      border-color: $accent;
+      box-shadow: 0 2px 8px $shadow-medium;
+    }
+  }
+
+  &__book-link {
+    display: block;
+    padding: 0.75rem 1rem;
+    color: $text;
+    text-decoration: none;
+  }
+
+  &__book-title {
+    font-size: 0.95rem;
+    font-weight: 500;
+    line-height: 1.4;
+  }
+}

@@ -13,7 +13,7 @@ import { t } from "@locales";
 import type { ContactItem } from "@types/content";
 
 import type { BookSummary } from "@/utils/blog";
-import { buildBooksIndexUrl } from "@/utils/routes";
+import { buildBooksIndexUrl, buildLocalizedPath } from "@/utils/routes";
 
 interface Props {
   lang: string;
@@ -30,6 +30,7 @@ const { lang, books, currentPage, totalPages, itemListSchema, contact, hasTarget
 const pageTitle = t(lang, "pages.books");
 const pageDescription = lang === "en" ? "Book reviews" : "Reseñas de libros";
 const basePath = buildBooksIndexUrl(lang);
+const statsUrl = buildLocalizedPath(lang, "books", "stats");
 ---
 
 <Layout
@@ -42,7 +43,16 @@ const basePath = buildBooksIndexUrl(lang);
   totalPages={totalPages}
   basePath={basePath}
 >
-  <Title title={pageTitle} icon="book" />
+  <Title
+    title={pageTitle}
+    icon="book"
+    auxLink={{
+      href: statsUrl,
+      label: t(lang, "bookStats.viewStats"),
+      icon: "target",
+      showArrow: true,
+    }}
+  />
 
   <div data-pagefind-ignore>
     <script type="application/ld+json" set:html={JSON.stringify(itemListSchema)} />

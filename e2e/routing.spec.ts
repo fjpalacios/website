@@ -35,13 +35,13 @@ test.describe("Content Type Routes - Books", () => {
   });
 
   test("should render book detail page", async ({ page }) => {
-    await page.goto("/es/libros/el-resplandor-stephen-king/");
+    await page.goto("/es/libros/1984-de-george-orwell/");
 
     // Page should load successfully
-    await expect(page).toHaveTitle(/El Resplandor/i);
+    await expect(page).toHaveTitle(/1984/i);
 
     // Should have book content (look for h1 in main content, not header)
-    await expect(page.locator("main h1, .post-title h1")).toContainText(/El Resplandor/i);
+    await expect(page.locator("main h1, .post-title h1")).toContainText(/1984/i);
   });
 });
 
@@ -173,13 +173,14 @@ test.describe("Taxonomy Routes - Categories", () => {
 
   test("should render category detail page", async ({ page }) => {
     await page.goto("/es/categorias/libros/");
+    await page.waitForLoadState("networkidle");
 
     // Page should load successfully
-    await expect(page).toHaveTitle(/Libros/);
+    await expect(page).toHaveTitle(/libros/i);
 
     // Should show books in this category
     const bookCards = page.locator(".blog__grid__post");
-    await expect(bookCards.first()).toBeVisible();
+    await expect(bookCards.first()).toBeVisible({ timeout: 10000 });
   });
 });
 
@@ -352,16 +353,16 @@ test.describe("404 Error Handling", () => {
 
 test.describe("Navigation Integration", () => {
   test("should show correct breadcrumbs on book detail page", async ({ page }) => {
-    await page.goto("/es/libros/el-resplandor-stephen-king/");
+    await page.goto("/es/libros/1984-de-george-orwell/");
 
     // Should have breadcrumbs
     const breadcrumbs = page.locator(".breadcrumbs");
     await expect(breadcrumbs).toBeVisible();
 
-    // Should contain: Inicio > Libros > El Resplandor (case-insensitive)
+    // Should contain: Inicio > Libros > 1984
     await expect(breadcrumbs).toContainText("Inicio");
     await expect(breadcrumbs).toContainText("Libros");
-    await expect(breadcrumbs).toContainText(/resplandor/i);
+    await expect(breadcrumbs).toContainText(/1984/i);
   });
 
   test("should navigate from list to detail and back", async ({ page }) => {
