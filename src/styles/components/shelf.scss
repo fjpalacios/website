@@ -82,6 +82,10 @@
     margin-bottom: 3rem;
   }
 
+  &__collapsible {
+    margin-top: 0;
+  }
+
   &__header {
     display: flex;
     align-items: center;
@@ -93,6 +97,22 @@
     @include small-and-up {
       gap: 1rem;
       margin-bottom: 2rem;
+    }
+
+    // Collapsible header styles
+    &--collapsible {
+      cursor: pointer;
+      user-select: none;
+      list-style: none;
+
+      &:hover {
+        opacity: 0.8;
+      }
+
+      // Remove default marker
+      &::-webkit-details-marker {
+        display: none;
+      }
     }
   }
 
@@ -192,11 +212,10 @@
   // Hover effect only when it contains a link (has review)
   &--has-review {
     cursor: pointer;
-    border-color: $border-accent-subtle; // Subtle tint for books with reviews
 
     &:hover {
       transform: translateY(-4px);
-      border-color: $accent; // Full accent color on hover
+      border-color: $accent;
       box-shadow: 0 4px 12px $shadow-medium;
 
       .shelf-book__title {
@@ -212,5 +231,22 @@
   // No hover effect when it's just text (no review)
   &--no-review {
     cursor: default;
+  }
+
+  // Books with reviews in other languages
+  &--other-lang {
+    position: relative;
+    padding-bottom: 2.5rem; // Space for badge
+  }
+
+  &__lang-badge {
+    position: absolute;
+    bottom: 0.75rem;
+    right: 0.75rem;
+    font-size: 1.2rem;
+    padding: 0.25rem 0.4rem;
+    background: $lang-badge-bg;
+    border-radius: 4px;
+    line-height: 1;
   }
 }

@@ -32,6 +32,7 @@ export const booksSchema = z
     language: languageSchema,
 
     // Book-specific metadata
+    originalTitle: z.string().optional(), // Original title for matching across translations
     synopsis: z.string().optional(),
     score: z.union([z.number().int().min(1).max(5), z.literal("fav")]),
     pages: z.number().positive().optional(),

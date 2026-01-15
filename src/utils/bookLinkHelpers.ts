@@ -70,25 +70,110 @@ export const findBook = (
 };
 
 /**
- * Find a book review, prioritizing Spanish (main review language)
- * Falls back to English only if Spanish doesn't exist
- *
- * This function is used for the bookshelf where reviews are primarily in Spanish,
- * but we want both language versions of the shelf to link to available reviews.
+ * Normalize a string for search comparison
+ * - Converts to lowercase
+ * - Trims whitespace
+ * - Removes accents/diacritics
  */
-export const findBookReview = (
-  books: CollectionEntry<"books">[],
-  title: string,
-): CollectionEntry<"books"> | undefined => {
-  // Always try Spanish first (main review language)
-  const inSpanish = findBook(books, title, "es");
-  if (inSpanish) {
-    return inSpanish;
+const normalizeForSearch = (str: string): string => {
+  return str
+    .toLowerCase()
+    .trim()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, ""); // Remove diacritics
+};
+
+/**
+ * Find a book review by title
+ *
+ * This function searches for reviews that match the book title from shelf.
+ * It handles partial matching since reviews have format "Title, de Author"
+ * while shelf has just "Title".
+ *
+ * @param allBooks - Array of book reviews to search
+ * @param bookTitle - Title to search for (from shelf.ts)
+ * @returns Matching book review or undefined
+ *
+ * @example
+ * // Searching for "1984" will match "1984, de George Orwell"
+ * // Searching for "Apocalipsis" will match "Apocalipsis, de Stephen King"
+ */
+export function findBookReview(
+  allBooks: CollectionEntry<"books">[],
+  bookTitle: string,
+): CollectionEntry<"books"> | undefined {
+  const normalizedSearchTitle = normalizeForSearch(bookTitle);
+
+  return allBooks.find((book) => {
+    const normalizedTitle = normalizeForSearch(book.data.title);
+
+    // Exact match
+    if (normalizedTitle === normalizedSearchTitle) {
+      return true;
+    }
+
+    // Check if review title starts with shelf title
+    // This handles cases like "1984" matching "1984, de George Orwell"
+    if (normalizedTitle.startsWith(normalizedSearchTitle)) {
+      // Make sure it's followed by comma or end of string to avoid false matches
+      const afterMatch = normalizedTitle.substring(normalizedSearchTitle.length);
+      if (afterMatch === "" || afterMatch.startsWith(",") || afterMatch.startsWith(" ")) {
+        return true;
+      }
+    }
+
+    // Check against originalTitle if it exists (for future cross-language matching)
+    if (book.data.originalTitle) {
+      const normalizedOriginalTitle = normalizeForSearch(book.data.originalTitle);
+      if (normalizedOriginalTitle === normalizedSearchTitle) {
+        return true;
+      }
+    }
+
+    return false;
+  });
+}
+
+/**
+ * Classify books by review language availability
+ *
+ * Groups books into three categories:
+ * 1. Books with reviews in the current language
+ * 2. Books with reviews in other languages
+ * 3. Books without any reviews
+ *
+ * @param allBooks - All available book reviews (all languages)
+ * @param shelfBooks - Books from the shelf
+ * @param currentLang - Current language to filter by
+ * @returns Object with three arrays of classified books
+ */
+export function classifyBooksByReviewLanguage<T extends { title: string }>(
+  allBooks: CollectionEntry<"books">[],
+  shelfBooks: T[],
+  currentLang: LanguageKey,
+): {
+  inCurrentLang: Array<T & { review: CollectionEntry<"books"> }>;
+  inOtherLangs: Array<T & { review: CollectionEntry<"books"> }>;
+  withoutReview: T[];
+} {
+  const inCurrentLang: Array<T & { review: CollectionEntry<"books"> }> = [];
+  const inOtherLangs: Array<T & { review: CollectionEntry<"books"> }> = [];
+  const withoutReview: T[] = [];
+
+  for (const book of shelfBooks) {
+    const review = findBookReview(allBooks, book.title);
+
+    if (!review) {
+      withoutReview.push(book);
+    } else if (review.data.language === currentLang) {
+      inCurrentLang.push({ ...book, review });
+    } else {
+      inOtherLangs.push({ ...book, review });
+    }
   }
 
-  // Fallback to English (rare case, for future English reviews)
-  return findBook(books, title, "en");
-};
+  return { inCurrentLang, inOtherLangs, withoutReview };
+}
 
 /**
  * Generate display text for book link

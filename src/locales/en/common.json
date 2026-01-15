@@ -307,6 +307,8 @@
     "description": "Books I have on my physical and digital bookshelf",
     "physical": "Physical Books",
     "digital": "Digital Books",
-    "intro": "This is my personal book collection. Some of them have reviews on the blog, linked for your reading."
+    "intro": "This is my personal book collection. Some of them have reviews on the blog, linked for your reading.",
+    "withReview": "With Review",
+    "reviewsOtherLanguages": "Reviews in Other Languages"
   }
 }

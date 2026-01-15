@@ -85,7 +85,7 @@ export const shelf: ShelfData = {
     { title: "Revival", author: "Stephen King", sortName: "King, Stephen" },
     { title: "Tienes hasta las 10", author: "Francisco Castro", sortName: "Castro, Francisco" },
     { title: "Tirant lo blanch (I)", author: "Joanot Martorell", sortName: "Martorell, Joanot" },
-    { title: "Tirant lo blanch (i II)", author: "Joanot Martorell", sortName: "Martorell, Joanot" },
+    { title: "Tirant lo blanch (II)", author: "Joanot Martorell", sortName: "Martorell, Joanot" },
     { title: "Todo esto te daré", author: "Dolores Redondo", sortName: "Redondo, Dolores" },
     { title: "Trilogía de la Fundación", author: "Isaac Asimov", sortName: "Asimov, Isaac" },
     { title: "Un puñado de amigos y dos cerezas", author: "Rosa Grau", sortName: "Grau, Rosa" },

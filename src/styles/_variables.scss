@@ -16,7 +16,6 @@ $code: var(--code);
 $border-light: var(--border-light);
 $border-medium: var(--border-medium);
 $border-dark: var(--border-dark);
-$border-accent-subtle: var(--border-accent-subtle);
 
 // Shadow colors (theme-aware)
 $shadow-light: var(--shadow-light);
@@ -91,6 +90,7 @@ $course-badge-text: var(--course-badge-text);
 $course-badge-hover-bg: var(--course-badge-hover-bg);
 $tutorial-badge-bg: var(--tutorial-badge-bg);
 $tutorial-badge-text: var(--tutorial-badge-text);
+$lang-badge-bg: var(--lang-badge-bg);
 
 // Skill/Progress colors (theme-aware)
 $skill-success: var(--skill-success);
@@ -147,7 +147,6 @@ $container-max-width: 1400px; // Maximum width for main content container
   --border-light: rgba(255, 255, 255, 0.1);
   --border-medium: rgba(255, 255, 255, 0.15);
   --border-dark: rgba(255, 255, 255, 0.2);
-  --border-accent-subtle: rgba(239, 187, 53, 0.3); // Subtle golden tint for highlighted elements
 
   --shadow-light: rgba(0, 0, 0, 0.1);
   --shadow-medium: rgba(0, 0, 0, 0.2);
@@ -252,7 +251,6 @@ $container-max-width: 1400px; // Maximum width for main content container
   --border-light: rgba(0, 0, 0, 0.08);
   --border-medium: rgba(0, 0, 0, 0.12);
   --border-dark: rgba(0, 0, 0, 0.15);
-  --border-accent-subtle: rgba(0, 86, 179, 0.3); // Subtle blue tint for highlighted elements
 
   --shadow-light: rgba(0, 0, 0, 0.05);
   --shadow-medium: rgba(0, 0, 0, 0.1);
@@ -326,6 +324,7 @@ $container-max-width: 1400px; // Maximum width for main content container
   --course-badge-hover-bg: rgba(255, 255, 255, 0.15); // Light hover overlay (same for both themes)
   --tutorial-badge-bg: #007acc; // Blue (same for both themes)
   --tutorial-badge-text: #ffffff; // Pure white
+  --lang-badge-bg: rgba(128, 128, 128, 0.1); // Neutral gray for language flags
 
   // Skill/Progress colors - Light theme
   --skill-success: #34d44a; // Bright green for completed (same for both themes)
@@ -366,7 +365,6 @@ html {
   --border-light: rgba(255, 255, 255, 0.1);
   --border-medium: rgba(255, 255, 255, 0.15);
   --border-dark: rgba(255, 255, 255, 0.2);
-  --border-accent-subtle: rgba(239, 187, 53, 0.3); // Subtle golden tint for highlighted elements
 
   --shadow-light: rgba(0, 0, 0, 0.1);
   --shadow-medium: rgba(0, 0, 0, 0.2);
@@ -437,6 +435,7 @@ html {
   --course-badge-hover-bg: rgba(255, 255, 255, 0.15); // Light hover overlay
   --tutorial-badge-bg: #007acc; // Blue
   --tutorial-badge-text: #ffffff; // Pure white
+  --lang-badge-bg: rgba(128, 128, 128, 0.15); // Neutral gray for language flags
 
   // Skill/Progress colors - Dark theme
   --skill-success: #34d44a; // Bright green for completed
@@ -457,7 +456,6 @@ html {
     --border-light: rgba(0, 0, 0, 0.08);
     --border-medium: rgba(0, 0, 0, 0.12);
     --border-dark: rgba(0, 0, 0, 0.15);
-    --border-accent-subtle: rgba(0, 86, 179, 0.3); // Subtle blue tint for highlighted elements
 
     --shadow-light: rgba(0, 0, 0, 0.05);
     --shadow-medium: rgba(0, 0, 0, 0.1);
@@ -519,6 +517,7 @@ html {
     --course-badge-hover-bg: rgba(255, 255, 255, 0.15); // Light hover overlay (same for both themes)
     --tutorial-badge-bg: #007acc; // Blue (same for both themes)
     --tutorial-badge-text: #ffffff; // Pure white
+    --lang-badge-bg: rgba(128, 128, 128, 0.1); // Neutral gray for language flags
 
     // Skill/Progress colors - Light theme
     --skill-success: #34d44a; // Bright green for completed (same for both themes)

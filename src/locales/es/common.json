@@ -307,6 +307,8 @@
     "description": "Libros que tengo en mi estantería física y digital",
     "physical": "Libros físicos",
     "digital": "Libros digitales",
-    "intro": "Esta es mi colección personal de libros. Algunos de ellos tienen reseña en el blog, y están enlazados para que puedas leerla."
+    "intro": "Esta es mi colección personal de libros. Algunos de ellos tienen reseña en el blog, y están enlazados para que puedas leerla.",
+    "withReview": "Con reseña",
+    "reviewsOtherLanguages": "Reseñas en otros idiomas"
   }
 }
