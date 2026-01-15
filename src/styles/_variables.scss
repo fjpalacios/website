@@ -16,6 +16,7 @@ $code: var(--code);
 $border-light: var(--border-light);
 $border-medium: var(--border-medium);
 $border-dark: var(--border-dark);
+$border-accent-subtle: var(--border-accent-subtle);
 
 // Shadow colors (theme-aware)
 $shadow-light: var(--shadow-light);
@@ -146,6 +147,7 @@ $container-max-width: 1400px; // Maximum width for main content container
   --border-light: rgba(255, 255, 255, 0.1);
   --border-medium: rgba(255, 255, 255, 0.15);
   --border-dark: rgba(255, 255, 255, 0.2);
+  --border-accent-subtle: rgba(239, 187, 53, 0.3); // Subtle golden tint for highlighted elements
 
   --shadow-light: rgba(0, 0, 0, 0.1);
   --shadow-medium: rgba(0, 0, 0, 0.2);
@@ -231,7 +233,7 @@ $container-max-width: 1400px; // Maximum width for main content container
   --search-placeholder: rgba(248, 248, 248, 0.4);
   --search-result-bg: rgba(255, 255, 255, 0.03);
   --search-result-hover-border: rgba(239, 187, 53, 0.3);
-  --search-mark-bg: rgba(239, 187, 53, 0.25);
+  --search-mark-bg: rgba(239, 187, 53, 0.3);
   --search-counter-border: rgba(239, 187, 53, 0.2);
 }
 
@@ -250,6 +252,7 @@ $container-max-width: 1400px; // Maximum width for main content container
   --border-light: rgba(0, 0, 0, 0.08);
   --border-medium: rgba(0, 0, 0, 0.12);
   --border-dark: rgba(0, 0, 0, 0.15);
+  --border-accent-subtle: rgba(0, 86, 179, 0.3); // Subtle blue tint for highlighted elements
 
   --shadow-light: rgba(0, 0, 0, 0.05);
   --shadow-medium: rgba(0, 0, 0, 0.1);
@@ -363,6 +366,7 @@ html {
   --border-light: rgba(255, 255, 255, 0.1);
   --border-medium: rgba(255, 255, 255, 0.15);
   --border-dark: rgba(255, 255, 255, 0.2);
+  --border-accent-subtle: rgba(239, 187, 53, 0.3); // Subtle golden tint for highlighted elements
 
   --shadow-light: rgba(0, 0, 0, 0.1);
   --shadow-medium: rgba(0, 0, 0, 0.2);
@@ -453,6 +457,7 @@ html {
     --border-light: rgba(0, 0, 0, 0.08);
     --border-medium: rgba(0, 0, 0, 0.12);
     --border-dark: rgba(0, 0, 0, 0.15);
+    --border-accent-subtle: rgba(0, 86, 179, 0.3); // Subtle blue tint for highlighted elements
 
     --shadow-light: rgba(0, 0, 0, 0.05);
     --shadow-medium: rgba(0, 0, 0, 0.1);

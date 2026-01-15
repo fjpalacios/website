@@ -19,6 +19,7 @@ export type RouteSegment =
   | "courses"
   | "about"
   | "feeds"
+  | "shelf"
   | "page"
   | "score";
 
@@ -79,6 +80,10 @@ export const routeTranslations: Record<RouteSegment, Record<string, string>> = {
   feeds: {
     en: "feeds",
     es: "feeds",
+  },
+  shelf: {
+    en: "shelf",
+    es: "estanteria",
   },
   page: {
     en: "page",
@@ -255,6 +260,14 @@ export function buildAboutUrl(lang: string): string {
 
 export function buildFeedsUrl(lang: string): string {
   return buildIndexUrl("feeds", lang);
+}
+
+export function buildShelfUrl(lang: string): string {
+  return buildLocalizedPath(lang, "books", "shelf");
+}
+
+export function buildStatsUrl(lang: string): string {
+  return buildLocalizedPath(lang, "books", "stats");
 }
 
 /**

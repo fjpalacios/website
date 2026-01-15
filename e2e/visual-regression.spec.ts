@@ -43,7 +43,7 @@ import {
 
 test.describe("Visual Regression - Static Pages", () => {
   test.describe("404 Page", () => {
-    for (const [name, viewport] of Object.entries(VIEWPORTS)) {
+    for (const [name] of Object.entries(VIEWPORTS)) {
       test(`404 page ${name}`, async ({ page }) => {
         await setViewport(page, name as keyof typeof VIEWPORTS);
         await page.goto("/this-page-does-not-exist");

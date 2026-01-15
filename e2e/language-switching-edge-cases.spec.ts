@@ -49,14 +49,14 @@ test.describe("Language Switching - Edge Cases", () => {
       }
     });
 
-    test.skip("should handle switching from valid page to non-existent translation", async ({ page }) => {
+    test.skip("should handle switching from valid page to non-existent translation", async ({ page: _page }) => {
       // SKIPPED: This test requires English content to exist
       // Will be re-enabled when bilingual content is fully available
     });
   });
 
   test.describe("Rapid Switching", () => {
-    test.skip("should handle rapid language switching without errors", async ({ page }) => {
+    test.skip("should handle rapid language switching without errors", async ({ page: _page }) => {
       // SKIPPED: This test requires English content to exist
       // Will be re-enabled when bilingual content is fully available
     });

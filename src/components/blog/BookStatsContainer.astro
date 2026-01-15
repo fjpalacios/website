@@ -50,6 +50,10 @@ const allChallenges = await getCollection("challenges");
 // Calculate all stats
 const _totalBooks = getTotalBooks(allBooks, lang);
 
+// Check if there are books in this language
+const booksInLanguage = allBooks.filter((book) => book.data.language === lang);
+const hasBooks = booksInLanguage.length > 0;
+
 const scoreDistribution = getScoreDistribution(allBooks, lang);
 const authorsByGender = getAuthorsByGender(allBooks, allAuthors, lang);
 const genresWithCount = getGenresWithCount(allBooks, allGenres, lang);
@@ -69,7 +73,6 @@ const totalClassics = getClassicsBooks(allBooks, lang, 999).length;
 const activeChallenges = getActiveChallenges(allBooks, allChallenges, lang);
 
 // Calculate books by author gender
-const booksInLanguage = allBooks.filter((book) => book.data.language === lang);
 const femaleAuthorSlugs = new Set(authorsByGender.female.map((author) => author.data.author_slug));
 const maleAuthorSlugs = new Set(authorsByGender.male.map((author) => author.data.author_slug));
 
@@ -81,32 +84,52 @@ const _maleAuthorsCount = authorsByGender.male.length;
 
 <div class="taxonomy-list-grouped">
   <div class="book-stats-container">
-    <ScoreDistribution distribution={scoreDistribution} lang={lang} />
+    {hasBooks && <ScoreDistribution distribution={scoreDistribution} lang={lang} />}
 
-    <AuthorsByGender authorsByGender={authorsByGender} lang={lang} />
+    {hasBooks && <AuthorsByGender authorsByGender={authorsByGender} lang={lang} />}
 
-    <GenreBreakdown genresWithCount={genresWithCount} lang={lang} />
+    {hasBooks && <GenreBreakdown genresWithCount={genresWithCount} lang={lang} />}
 
-    <section class="book-stats-container__section">
-      <h2 class="book-stats-container__section-title">{t.bookStats.publishersAndSeries}</h2>
-      <PublishersAndSeries publishers={publishersWithCount} series={seriesWithCount} lang={lang} />
-    </section>
+    {
+      hasBooks && (
+        <section class="book-stats-container__section">
+          <h2 class="book-stats-container__section-title">{t.bookStats.publishersAndSeries}</h2>
+          <PublishersAndSeries publishers={publishersWithCount} series={seriesWithCount} lang={lang} />
+        </section>
+      )
+    }
 
-    <SpecialLists
-      favorites={randomFavorites}
-      fiveStars={fiveStarBooks}
-      classics={classicsBooks}
-      recent={recentBooks}
-      totalFavorites={totalFavorites}
-      totalFiveStars={totalFiveStars}
-      totalClassics={totalClassics}
-      lang={lang}
-    />
+    {
+      hasBooks && (
+        <SpecialLists
+          favorites={randomFavorites}
+          fiveStars={fiveStarBooks}
+          classics={classicsBooks}
+          recent={recentBooks}
+          totalFavorites={totalFavorites}
+          totalFiveStars={totalFiveStars}
+          totalClassics={totalClassics}
+          lang={lang}
+        />
+      )
+    }
 
-    <section class="book-stats-container__section">
-      <h2 class="book-stats-container__section-title">{t.bookStats.activeChallenges}</h2>
-      <ActiveChallenges challenges={activeChallenges} lang={lang} />
-    </section>
+    {
+      hasBooks && (
+        <section class="book-stats-container__section">
+          <h2 class="book-stats-container__section-title">{t.bookStats.activeChallenges}</h2>
+          <ActiveChallenges challenges={activeChallenges} lang={lang} />
+        </section>
+      )
+    }
+
+    {
+      !hasBooks && (
+        <div class="book-stats-container__empty-state">
+          <p>{t.emptyState.books}</p>
+        </div>
+      )
+    }
   </div>
 </div>
 

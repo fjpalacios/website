@@ -30,6 +30,7 @@ export type RouteKey =
   | "books"
   | "stats"
   | "feeds"
+  | "shelf"
   | "categories"
   | "genres"
   | "publishers"
@@ -139,7 +140,7 @@ const NAVIGATION_ITEMS: readonly NavigationItem[] = [
     routeKey: "stats",
     matchStrategy: "exact",
     showInMenu: false,
-    showInFooter: true,
+    showInFooter: false,
   },
   {
     id: "feeds",
@@ -147,6 +148,13 @@ const NAVIGATION_ITEMS: readonly NavigationItem[] = [
     matchStrategy: "prefix",
     showInMenu: false,
     showInFooter: true,
+  },
+  {
+    id: "shelf",
+    routeKey: "shelf",
+    matchStrategy: "exact",
+    showInMenu: false,
+    showInFooter: false,
   },
   {
     id: "categories",
@@ -210,6 +218,8 @@ const NAVIGATION_ITEMS: readonly NavigationItem[] = [
 const STATIC_PAGES: Readonly<Record<string, LanguageKey[] | undefined>> = {
   home: getLanguageCodes(), // Static page - all languages
   about: getLanguageCodes(), // Static page - all languages
+  feeds: getLanguageCodes(), // Static page - all languages
+  shelf: getLanguageCodes(), // Static page - all languages
 };
 
 /**

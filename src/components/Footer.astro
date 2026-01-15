@@ -17,9 +17,9 @@ const footerItems = await getFooterItems(lang);
 const itemsWithUrls = footerItems.map((item) => {
   let url: string;
 
-  // Special case: stats is a sub-route of books
-  if (item.routeKey === "stats") {
-    url = buildLocalizedPath(lang, "books", "stats");
+  // Special case: stats and shelf are sub-routes of books
+  if (item.routeKey === "stats" || item.routeKey === "shelf") {
+    url = buildLocalizedPath(lang, "books", item.routeKey);
   } else if (item.routeKey === "home") {
     url = `/${lang}`;
   } else {

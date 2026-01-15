@@ -69,12 +69,12 @@ test.describe("Language Switching on Pagination Pages", () => {
   });
 
   test.describe("Books Pagination", () => {
-    test.skip("should enable language switcher on books page 2", async ({ page }) => {
+    test.skip("should enable language switcher on books page 2", async ({ page: _page }) => {
       // SKIPPED: This test requires English books content to exist
       // Will be re-enabled when bilingual content is fully available
     });
 
-    test.skip("should redirect to page 1 when switching from Spanish books pagination", async ({ page }) => {
+    test.skip("should redirect to page 1 when switching from Spanish books pagination", async ({ page: _page }) => {
       // SKIPPED: This test requires English books content to exist
       // Will be re-enabled when bilingual content is fully available
     });
@@ -106,7 +106,7 @@ test.describe("Language Switching on Pagination Pages", () => {
   });
 
   test.describe("Behavior Consistency", () => {
-    test.skip("should always redirect to page 1, never to the same pagination number", async ({ page }) => {
+    test.skip("should always redirect to page 1, never to the same pagination number", async ({ page: _page }) => {
       // SKIPPED: This test requires English books and posts content to exist
       // Will be re-enabled when bilingual content is fully available
     });

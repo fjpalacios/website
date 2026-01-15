@@ -34,7 +34,8 @@ export const parseTitle = (titleStr: string) => {
 };
 
 /**
- * Find a book by title (case-insensitive partial matching) and language
+ * Find a book by title and language
+ * Uses exact match first, then falls back to word boundary matching
  */
 export const findBook = (
   books: CollectionEntry<"books">[],
@@ -42,9 +43,51 @@ export const findBook = (
   lang: LanguageKey,
 ): CollectionEntry<"books"> | undefined => {
   // Parse the search title to extract just the book name (without author)
-  const searchTitle = parseTitle(title).bookTitle.toLowerCase();
+  const searchTitle = parseTitle(title).bookTitle.toLowerCase().trim();
 
-  return books.find((b) => b.data.title.toLowerCase().includes(searchTitle) && b.data.language === lang);
+  // Filter books by language first
+  const langBooks = books.filter((b) => b.data.language === lang);
+
+  // Try exact match first (case-insensitive)
+  const exactMatch = langBooks.find((b) => b.data.title.toLowerCase().trim() === searchTitle);
+  if (exactMatch) {
+    return exactMatch;
+  }
+
+  // Try matching the first part before comma (many books are "Title, Author")
+  const exactTitlePartMatch = langBooks.find((b) => {
+    const bookTitlePart = b.data.title.split(",")[0].toLowerCase().trim();
+    return bookTitlePart === searchTitle;
+  });
+  if (exactTitlePartMatch) {
+    return exactTitlePartMatch;
+  }
+
+  // Fall back to word boundary matching to avoid partial matches like "It" matching "Diez negritos"
+  // This regex ensures "It" only matches if it's a complete word
+  const searchRegex = new RegExp(`\\b${searchTitle.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}\\b`, "i");
+  return langBooks.find((b) => searchRegex.test(b.data.title));
+};
+
+/**
+ * Find a book review, prioritizing Spanish (main review language)
+ * Falls back to English only if Spanish doesn't exist
+ *
+ * This function is used for the bookshelf where reviews are primarily in Spanish,
+ * but we want both language versions of the shelf to link to available reviews.
+ */
+export const findBookReview = (
+  books: CollectionEntry<"books">[],
+  title: string,
+): CollectionEntry<"books"> | undefined => {
+  // Always try Spanish first (main review language)
+  const inSpanish = findBook(books, title, "es");
+  if (inSpanish) {
+    return inSpanish;
+  }
+
+  // Fallback to English (rare case, for future English reviews)
+  return findBook(books, title, "en");
 };
 
 /**

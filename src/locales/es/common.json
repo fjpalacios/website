@@ -28,6 +28,7 @@
     "posts": "Publicaciones",
     "tutorials": "Tutoriales",
     "books": "Libros",
+    "shelf": "Estantería",
     "stats": "Estadísticas",
     "feeds": "RSS",
     "categories": "Categorías",
@@ -51,6 +52,7 @@
     "posts": "publicaciones",
     "tutorials": "tutoriales",
     "books": "libros",
+    "shelf": "estanteria",
     "stats": "estadisticas",
     "feeds": "feeds",
     "categories": "categorias",
@@ -151,8 +153,19 @@
     "title": "Estadísticas de libros",
     "description": "Análisis y estadísticas de todos los libros leídos",
     "viewStats": "Ver estadísticas",
+    "viewStatsAria": "Ver estadísticas de libros",
+    "viewShelf": "Ver estantería",
+    "viewShelfAria": "Ver mi estantería de libros",
     "generalStats": "Estadísticas generales",
     "scoreDistribution": "Distribución de puntuaciones",
+    "scoreLabels": {
+      "favorites": "Favoritos",
+      "fiveStars": "5 estrellas",
+      "fourStars": "4 estrellas",
+      "threeStars": "3 estrellas",
+      "twoStars": "2 estrellas",
+      "oneStar": "1 estrella"
+    },
     "authorsByGender": "Autores por género",
     "genres": "Géneros",
     "fiction": "Ficción",
@@ -288,5 +301,12 @@
     "message": "Lo sentimos, la página que buscas no existe o ha sido movida.",
     "redirect": "Serás redirigido a la página de inicio en {{seconds}} segundos...",
     "button": "Ir a la página de inicio ahora"
+  },
+  "shelf": {
+    "title": "Mi estantería",
+    "description": "Libros que tengo en mi estantería física y digital",
+    "physical": "Libros físicos",
+    "digital": "Libros digitales",
+    "intro": "Esta es mi colección personal de libros. Algunos de ellos tienen reseña en el blog, y están enlazados para que puedas leerla."
   }
 }

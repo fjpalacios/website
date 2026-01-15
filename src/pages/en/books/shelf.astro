@@ -1,0 +1,166 @@
+---
+import { getCollection } from "astro:content";
+
+import Breadcrumbs from "@/components/Breadcrumbs.astro";
+import Icon from "@/components/Icon.astro";
+import { shelf } from "@/content/shelf";
+import Layout from "@/layouts/Layout.astro";
+import { t } from "@/locales";
+import { findBookReview } from "@/utils/bookLinkHelpers";
+import { getContact } from "@/utils/content/contact";
+import { buildIndexUrl } from "@/utils/routes";
+
+const lang = "en";
+const contact = getContact(lang);
+
+// Get all books for review detection
+const allBooks = await getCollection("books");
+
+// Breadcrumbs
+const breadcrumbs = [
+  {
+    label: t(lang, "pages.home"),
+    url: `/${lang}/`,
+  },
+  {
+    label: t(lang, "pages.books"),
+    url: buildIndexUrl("books", lang),
+  },
+  {
+    label: t(lang, "pages.shelf"),
+  },
+];
+
+// SEO
+const title = t(lang, "shelf.title");
+const description = t(lang, "shelf.description");
+
+// Process and sort books by sortName, then by title
+const processAndSortBooks = (books: typeof shelf.physical) => {
+  return books
+    .map((book) => ({
+      ...book,
+      hasReview: !!findBookReview(allBooks, book.title),
+      reviewBook: findBookReview(allBooks, book.title),
+    }))
+    .sort((a, b) => {
+      // First sort by author sortName
+      const authorCompare = a.sortName.localeCompare(b.sortName, "en");
+      if (authorCompare !== 0) return authorCompare;
+      // Then sort by title
+      return a.title.localeCompare(b.title, "en");
+    });
+};
+
+const physicalBooksWithReviews = processAndSortBooks(shelf.physical);
+const digitalBooksWithReviews = processAndSortBooks(shelf.digital);
+---
+
+<Layout {lang} {contact} {title} {description}>
+  <main class="shelf-page">
+    <Breadcrumbs items={breadcrumbs} {lang} />
+
+    <h1 class="sr-only">{title}</h1>
+
+    <div class="taxonomy-list-grouped">
+      <!-- Stats Cards -->
+      <div class="shelf-stats">
+        <div class="shelf-stats__card">
+          <div class="shelf-stats__number">{physicalBooksWithReviews.length}</div>
+          <div class="shelf-stats__label">{t(lang, "shelf.physical")}</div>
+        </div>
+        <div class="shelf-stats__card">
+          <div class="shelf-stats__number">{digitalBooksWithReviews.length}</div>
+          <div class="shelf-stats__label">{t(lang, "shelf.digital")}</div>
+        </div>
+        <div class="shelf-stats__card">
+          <div class="shelf-stats__number">{physicalBooksWithReviews.length + digitalBooksWithReviews.length}</div>
+          <div class="shelf-stats__label">Total</div>
+        </div>
+      </div>
+
+      {/* Physical Books Section */}
+      {
+        physicalBooksWithReviews.length > 0 && (
+          <section class="shelf-section">
+            <div class="shelf-section__header">
+              <Icon name="book" size="lg" class="shelf-section__icon" />
+              <h2 class="shelf-section__title">
+                {t(lang, "shelf.physical")}
+                <span class="shelf-section__count">({physicalBooksWithReviews.length})</span>
+              </h2>
+            </div>
+
+            <div class="shelf-section__grid">
+              {physicalBooksWithReviews.map((book) => (
+                <div class={`shelf-book ${book.hasReview ? "shelf-book--has-review" : "shelf-book--no-review"}`}>
+                  {book.hasReview && book.reviewBook ? (
+                    <a
+                      href={`/${book.reviewBook.data.language}/books/${book.reviewBook.data.post_slug}`}
+                      class="shelf-book__link"
+                    >
+                      <div class="shelf-book__title">{book.title}</div>
+                      <div class="shelf-book__author">{book.author}</div>
+                    </a>
+                  ) : (
+                    <>
+                      <div class="shelf-book__title">{book.title}</div>
+                      <div class="shelf-book__author">{book.author}</div>
+                    </>
+                  )}
+                </div>
+              ))}
+            </div>
+          </section>
+        )
+      }
+
+      {/* Digital Books Section */}
+      {
+        digitalBooksWithReviews.length > 0 && (
+          <section class="shelf-section">
+            <div class="shelf-section__header">
+              <Icon name="laptop" size="lg" class="shelf-section__icon" />
+              <h2 class="shelf-section__title">
+                {t(lang, "shelf.digital")}
+                <span class="shelf-section__count">({digitalBooksWithReviews.length})</span>
+              </h2>
+            </div>
+
+            <div class="shelf-section__grid">
+              {digitalBooksWithReviews.map((book) => (
+                <div class={`shelf-book ${book.hasReview ? "shelf-book--has-review" : "shelf-book--no-review"}`}>
+                  {book.hasReview && book.reviewBook ? (
+                    <a
+                      href={`/${book.reviewBook.data.language}/books/${book.reviewBook.data.post_slug}`}
+                      class="shelf-book__link"
+                    >
+                      <div class="shelf-book__title">{book.title}</div>
+                      <div class="shelf-book__author">{book.author}</div>
+                    </a>
+                  ) : (
+                    <>
+                      <div class="shelf-book__title">{book.title}</div>
+                      <div class="shelf-book__author">{book.author}</div>
+                    </>
+                  )}
+                </div>
+              ))}
+            </div>
+          </section>
+        )
+      }
+    </div>
+  </main>
+</Layout>
+
+<style lang="scss">
+  @use "@/styles/components/shelf.scss";
+
+  // Wrapper for link to make entire card clickable
+  .shelf-book__link {
+    display: block;
+    color: inherit;
+    text-decoration: none;
+  }
+</style>

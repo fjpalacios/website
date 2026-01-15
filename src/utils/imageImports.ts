@@ -194,15 +194,12 @@ import yoNoLaMateDeFernandoTrujillo from "@/assets/books/yo-no-la-mate-de-fernan
 // ============================================================================
 // BOOK INLINE IMAGES
 // ============================================================================
-
 // ============================================================================
 // AUTHOR PICTURE IMAGES
 // ============================================================================
-
 // ============================================================================
 // DEFAULT IMAGES
 // ============================================================================
-
 import bookDefaultEn from "@/assets/defaults/book-default-en.jpg";
 import bookDefaultEs from "@/assets/defaults/book-default-es.jpg";
 import postDefault from "@/assets/defaults/post-default.jpg";
@@ -210,7 +207,6 @@ import tutorialDefault from "@/assets/defaults/tutorial-default.jpg";
 // ============================================================================
 // TUTORIAL COVER IMAGES
 // ============================================================================
-
 import cabeceraHistoriaInformatica from "@/assets/posts/cabecera-historia-informatica.jpg";
 import cabeceraProgramacionCurso from "@/assets/posts/cabecera-programacion-curso.jpg";
 import cabeceraApple from "@/assets/tutorials/cabecera-apple.jpg";
@@ -221,7 +217,6 @@ import cabeceraWindows from "@/assets/tutorials/cabecera-windows.jpg";
 // ============================================================================
 // TUTORIAL INLINE IMAGES
 // ============================================================================
-
 import clonandoRepositorioGithub from "@/assets/tutorials/inline/clonando-repositorio-github.jpeg";
 import creandoRepositorioGithub from "@/assets/tutorials/inline/creando-repositorio-github.jpeg";
 import nuestroNuevoRepositorioGithub from "@/assets/tutorials/inline/nuestro-nuevo-repositorio-github.jpeg";
@@ -231,7 +226,6 @@ import seccionTagsGithub from "@/assets/tutorials/inline/seccion-tags-github.jpe
 // ============================================================================
 // POST COVER IMAGES
 // ============================================================================
-
 import { getDefaultLanguageCode, type LanguageKey } from "@/config/languages";
 /**
  * Book Cover Images Map

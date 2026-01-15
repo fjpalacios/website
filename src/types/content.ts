@@ -44,3 +44,14 @@ export interface AboutData {
   me: string;
   internet: string;
 }
+
+export interface ShelfBook {
+  title: string;
+  author: string;
+  sortName: string;
+}
+
+export interface ShelfData {
+  physical: ShelfBook[];
+  digital: ShelfBook[];
+}

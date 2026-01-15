@@ -1,7 +1,7 @@
 /**
  * Tests for taxonomy route generator
  *
- * Tests the generation of routes for taxonomy types (authors, publishers, genres, etc.)
+ * Tests the generation of routes for taxonomy types (authors, publishers, genes, etc.)
  * Each taxonomy has list pages and paginated detail pages.
  */
 
@@ -9,6 +9,7 @@ import { describe, expect, test, vi } from "vitest";
 
 import { createMockAuthor, createMockContact, createMockTaxonomy } from "@/__tests__/__helpers__";
 import { generateTaxonomyRoutes } from "@/utils/routeGenerators/taxonomy";
+import { generateTaxonomyDetailPaths, getTaxonomyItemsWithCount, hasTargetContent } from "@/utils/taxonomyPages";
 import type { TaxonomyConfig } from "@/utils/taxonomyPages";
 
 // Mock the taxonomyPages module
@@ -17,9 +18,6 @@ vi.mock("@/utils/taxonomyPages", () => ({
   hasTargetContent: vi.fn(),
   generateTaxonomyDetailPaths: vi.fn(),
 }));
-
-// Import mocked functions
-import { generateTaxonomyDetailPaths, getTaxonomyItemsWithCount, hasTargetContent } from "@/utils/taxonomyPages";
 
 describe("generateTaxonomyRoutes", () => {
   // Mock data

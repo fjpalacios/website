@@ -28,6 +28,7 @@
     "posts": "Posts",
     "tutorials": "Tutorials",
     "books": "Books",
+    "shelf": "Bookshelf",
     "stats": "Statistics",
     "feeds": "RSS",
     "categories": "Categories",
@@ -51,6 +52,7 @@
     "posts": "posts",
     "tutorials": "tutorials",
     "books": "books",
+    "shelf": "shelf",
     "stats": "stats",
     "feeds": "feeds",
     "categories": "categories",
@@ -151,8 +153,19 @@
     "title": "Book Statistics",
     "description": "Analysis and statistics of all books read",
     "viewStats": "View statistics",
+    "viewStatsAria": "View book statistics",
+    "viewShelf": "View bookshelf",
+    "viewShelfAria": "View my bookshelf",
     "generalStats": "General Statistics",
     "scoreDistribution": "Score Distribution",
+    "scoreLabels": {
+      "favorites": "Favorites",
+      "fiveStars": "5 stars",
+      "fourStars": "4 stars",
+      "threeStars": "3 stars",
+      "twoStars": "2 stars",
+      "oneStar": "1 star"
+    },
     "authorsByGender": "Authors by Gender",
     "genres": "Genres",
     "fiction": "Fiction",
@@ -288,5 +301,12 @@
     "message": "Sorry, the page you're looking for doesn't exist or has been moved.",
     "redirect": "You will be redirected to the home page in {{seconds}} seconds...",
     "button": "Go to home page now"
+  },
+  "shelf": {
+    "title": "My Bookshelf",
+    "description": "Books I have on my physical and digital bookshelf",
+    "physical": "Physical Books",
+    "digital": "Digital Books",
+    "intro": "This is my personal book collection. Some of them have reviews on the blog, linked for your reading."
   }
 }

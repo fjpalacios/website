@@ -34,6 +34,7 @@ const baseDescription = lang === "en" ? "Book reviews" : "Reseñas de libros";
 const pageDescription = `${baseDescription} - ${lang === "en" ? `page ${currentPage}` : `página ${currentPage}`}`;
 const basePath = buildBooksIndexUrl(lang);
 const statsUrl = buildLocalizedPath(lang, "books", "stats");
+const shelfUrl = buildLocalizedPath(lang, "books", "shelf");
 ---
 
 <Layout
@@ -49,12 +50,24 @@ const statsUrl = buildLocalizedPath(lang, "books", "stats");
   <Title
     title={displayTitle}
     icon="book"
-    auxLink={{
-      href: statsUrl,
-      label: t(lang, "bookStats.viewStats"),
-      icon: "target",
-      showArrow: true,
-    }}
+    auxLinks={[
+      {
+        href: shelfUrl,
+        label: t(lang, "bookStats.viewShelf"),
+        ariaLabel: t(lang, "bookStats.viewShelfAria"),
+        icon: "book-open",
+        iconOnly: true,
+        showArrow: false,
+      },
+      {
+        href: statsUrl,
+        label: t(lang, "bookStats.viewStats"),
+        ariaLabel: t(lang, "bookStats.viewStatsAria"),
+        icon: "target",
+        iconOnly: true,
+        showArrow: false,
+      },
+    ]}
   />
 
   <div data-pagefind-ignore>
