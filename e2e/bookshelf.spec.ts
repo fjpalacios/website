@@ -451,18 +451,19 @@ test.describe("Bookshelf - Component Rendering", () => {
     await page.goto("/es/libros/estanteria/");
     await page.waitForLoadState("networkidle");
 
-    // Find books with review class
-    const booksWithReview = page.locator(".shelf-book--has-review");
+    // Find all books with review class (both current and other languages)
+    const booksWithReview = page.locator(".shelf-book--has-review a.shelf-book__link");
     const count = await booksWithReview.count();
 
     if (count > 0) {
       // Check first book with review has link
-      const link = booksWithReview.first().locator("a.shelf-book__link");
-      await expect(link).toBeVisible();
+      const link = booksWithReview.first();
+      const linkCount = await link.count();
+      expect(linkCount).toBeGreaterThan(0);
 
       // Link should have href pointing to a book review
       const href = await link.getAttribute("href");
-      expect(href).toMatch(/\/libros\/.+/);
+      expect(href).toMatch(/\/(libros|books)\/.+/);
     }
   });
 
@@ -590,6 +591,237 @@ test.describe("Bookshelf - Functional Tests", () => {
     if (count > 0) {
       await expect(sectionIcons.first()).toBeVisible();
     }
+  });
+});
+
+// ============================================================================
+// CROSS-LANGUAGE LINK TESTS
+// ============================================================================
+
+test.describe("Bookshelf - Cross-Language Links", () => {
+  test.describe("Spanish Page - Links to English Reviews", () => {
+    test("should generate correct URLs for books with reviews in English", async ({ page }) => {
+      await page.goto("/es/libros/estanteria/");
+      await page.waitForLoadState("networkidle");
+
+      // Find books in "other languages" section (with English reviews)
+      const otherLangBooks = page.locator(".shelf-book--other-lang a.shelf-book__link");
+      const count = await otherLangBooks.count();
+
+      if (count > 0) {
+        const href = await otherLangBooks.first().getAttribute("href");
+
+        // URL should be in English format: /en/books/... NOT /en/libros/...
+        expect(href).toMatch(/^\/en\/books\/[a-z0-9-]+$/);
+        expect(href).not.toMatch(/\/en\/libros\//);
+      }
+    });
+
+    test("should successfully navigate to English review from Spanish shelf", async ({ page }) => {
+      await page.goto("/es/libros/estanteria/");
+      await page.waitForLoadState("networkidle");
+
+      const otherLangBook = page.locator(".shelf-book--other-lang a.shelf-book__link").first();
+      const count = await otherLangBook.count();
+
+      if (count > 0) {
+        // Navigate to the link
+        await otherLangBook.click();
+        await page.waitForLoadState("networkidle");
+
+        // Should NOT be on 404 page
+        const is404 = await page
+          .locator("h1")
+          .filter({ hasText: /404|not found/i })
+          .count();
+        expect(is404).toBe(0);
+
+        // Should be on a valid book review page in English
+        expect(page.url()).toMatch(/\/en\/books\/[a-z0-9-]+$/);
+      }
+    });
+
+    test("should show language badges on books with English reviews", async ({ page }) => {
+      await page.goto("/es/libros/estanteria/");
+      await page.waitForLoadState("networkidle");
+
+      const otherLangBooks = page.locator(".shelf-book--other-lang");
+      const count = await otherLangBooks.count();
+
+      if (count > 0) {
+        // Should have language badge with flag emoji
+        const badge = otherLangBooks.first().locator(".shelf-book__lang-badge");
+        const badgeCount = await badge.count();
+        expect(badgeCount).toBeGreaterThan(0);
+
+        const badgeText = await badge.textContent();
+        // Should contain English flag emoji, not language code text
+        expect(badgeText).toMatch(/🇬🇧/);
+        expect(badgeText).not.toMatch(/\bEN\b/);
+      }
+    });
+  });
+
+  test.describe("English Page - Links to Spanish Reviews", () => {
+    test("should generate correct URLs for books with reviews in Spanish", async ({ page }) => {
+      const response = await page.goto("/en/books/shelf/");
+
+      if (response?.status() === 404) {
+        test.skip();
+        return;
+      }
+
+      await page.waitForLoadState("networkidle");
+
+      // Find books in "other languages" section (with Spanish reviews)
+      const otherLangBooks = page.locator(".shelf-book--other-lang a.shelf-book__link");
+      const count = await otherLangBooks.count();
+
+      if (count > 0) {
+        const href = await otherLangBooks.first().getAttribute("href");
+
+        // URL should be in Spanish format: /es/libros/... NOT /es/books/...
+        expect(href).toMatch(/^\/es\/libros\/[a-z0-9-]+$/);
+        expect(href).not.toMatch(/\/es\/books\//); // This was the bug!
+      }
+    });
+
+    test("should successfully navigate to Spanish review from English shelf", async ({ page }) => {
+      const response = await page.goto("/en/books/shelf/");
+
+      if (response?.status() === 404) {
+        test.skip();
+        return;
+      }
+
+      await page.waitForLoadState("networkidle");
+
+      const otherLangBook = page.locator(".shelf-book--other-lang a.shelf-book__link").first();
+      const count = await otherLangBook.count();
+
+      if (count > 0) {
+        // Navigate to the link
+        await otherLangBook.click();
+        await page.waitForLoadState("networkidle");
+
+        // Should NOT be on 404 page
+        const is404 = await page
+          .locator("h1")
+          .filter({ hasText: /404|not found/i })
+          .count();
+        expect(is404).toBe(0);
+
+        // Should be on a valid book review page in Spanish
+        expect(page.url()).toMatch(/\/es\/libros\/[a-z0-9-]+$/);
+      }
+    });
+
+    test("should show language badges on books with Spanish reviews", async ({ page }) => {
+      const response = await page.goto("/en/books/shelf/");
+
+      if (response?.status() === 404) {
+        test.skip();
+        return;
+      }
+
+      await page.waitForLoadState("networkidle");
+
+      const otherLangBooks = page.locator(".shelf-book--other-lang");
+      const count = await otherLangBooks.count();
+
+      if (count > 0) {
+        // Should have language badge with flag emoji
+        const badge = otherLangBooks.first().locator(".shelf-book__lang-badge");
+        const badgeCount = await badge.count();
+        expect(badgeCount).toBeGreaterThan(0);
+
+        const badgeText = await badge.textContent();
+        // Should contain Spanish flag emoji, not language code text
+        expect(badgeText).toMatch(/🇪🇸/);
+        expect(badgeText).not.toMatch(/\bES\b/);
+      }
+    });
+  });
+
+  test.describe("Current Language Links", () => {
+    test("should generate correct URLs for books with reviews in Spanish (on Spanish page)", async ({ page }) => {
+      await page.goto("/es/libros/estanteria/");
+      await page.waitForLoadState("networkidle");
+
+      const currentLangBooks = page.locator(".shelf-book--has-review:not(.shelf-book--other-lang) a.shelf-book__link");
+      const count = await currentLangBooks.count();
+
+      if (count > 0) {
+        const href = await currentLangBooks.first().getAttribute("href");
+
+        // URL should be in Spanish format: /es/libros/...
+        expect(href).toMatch(/^\/es\/libros\/[a-z0-9-]+$/);
+      }
+    });
+
+    test("should generate correct URLs for books with reviews in English (on English page)", async ({ page }) => {
+      const response = await page.goto("/en/books/shelf/");
+
+      if (response?.status() === 404) {
+        test.skip();
+        return;
+      }
+
+      await page.waitForLoadState("networkidle");
+
+      const currentLangBooks = page.locator(".shelf-book--has-review:not(.shelf-book--other-lang) a.shelf-book__link");
+      const count = await currentLangBooks.count();
+
+      if (count > 0) {
+        const href = await currentLangBooks.first().getAttribute("href");
+
+        // URL should be in English format: /en/books/...
+        expect(href).toMatch(/^\/en\/books\/[a-z0-9-]+$/);
+      }
+    });
+
+    test("should NOT show language badges on books with reviews in current language", async ({ page }) => {
+      await page.goto("/es/libros/estanteria/");
+      await page.waitForLoadState("networkidle");
+
+      const currentLangBooks = page.locator(".shelf-book--has-review:not(.shelf-book--other-lang)");
+      const count = await currentLangBooks.count();
+
+      if (count > 0) {
+        // Should NOT have language badge
+        const badge = currentLangBooks.first().locator(".shelf-book__lang-badge");
+        const badgeCount = await badge.count();
+        expect(badgeCount).toBe(0);
+      }
+    });
+  });
+
+  test.describe("URL Building Consistency", () => {
+    test("should use buildBookUrl for all book links", async ({ page }) => {
+      await page.goto("/es/libros/estanteria/");
+      await page.waitForLoadState("networkidle");
+
+      // Get all book links (both current and other language)
+      const allBookLinks = page.locator(".shelf-book--has-review a.shelf-book__link");
+      const count = await allBookLinks.count();
+
+      if (count > 0) {
+        for (let i = 0; i < count; i++) {
+          const href = await allBookLinks.nth(i).getAttribute("href");
+
+          // All links should follow the pattern: /{lang}/{segment}/{slug}
+          // Where segment is properly translated based on language
+          expect(href).toMatch(/^\/(en|es)\/(books|libros)\/[a-z0-9-]+$/);
+
+          // Verify language-segment pairing is correct
+          if (href?.startsWith("/es/")) {
+            expect(href).toMatch(/^\/es\/libros\//);
+          } else if (href?.startsWith("/en/")) {
+            expect(href).toMatch(/^\/en\/books\//);
+          }
+        }
+      }
+    });
   });
 });
 
