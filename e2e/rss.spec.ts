@@ -3,7 +3,7 @@ import { expect, test, type Page, type Response } from "@playwright/test";
 /**
  * Helper to check if a page exists
  */
-async function pageExists(page: Page, url: string): Promise<boolean> {
+async function _pageExists(page: Page, url: string): Promise<boolean> {
   const response: Response | null = await page.goto(url);
   return response?.status() !== 404;
 }
@@ -25,7 +25,7 @@ test.describe("RSS Feeds", () => {
       await expect(tutorialsFeed).toHaveCount(1);
     });
 
-    test.skip("should have RSS autodiscovery links on English pages", async ({ page }) => {
+    test.skip("should have RSS autodiscovery links on English pages", async ({ page: _page }) => {
       // SKIPPED: This test requires English content to exist
       // Will be re-enabled when bilingual content is fully available
     });

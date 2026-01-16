@@ -42,8 +42,8 @@ export function isStaticPage(pathParts: string[], currentLang: string): boolean 
   const localizedSegment = pathParts[1];
   const canonicalSegment = getCanonicalSegment(localizedSegment, currentLang);
 
-  // Static pages: about, feeds
-  const staticPages = ["about", "feeds"];
+  // Static pages: about, feeds, shelf
+  const staticPages = ["about", "feeds", "shelf"];
 
   return staticPages.includes(canonicalSegment || "");
 }
@@ -64,6 +64,7 @@ export function buildHomeUrl(targetLang: string): string {
  * Build static page URL translating the route segment
  * Used for pages like /about, /feeds that always have translations
  * Also handles pagination pages by redirecting to page 1 of the target language
+ * Translates all known route segments in the path (e.g., /books/stats, /books/shelf)
  *
  * @param pathParts - Array of path segments from current URL
  * @param currentLang - Current language code
@@ -74,6 +75,8 @@ export function buildHomeUrl(targetLang: string): string {
  * buildStaticPageUrl(["en", "feeds"], "en", "es") // "/es/feeds"
  * buildStaticPageUrl(["en", "posts", "page", "2"], "en", "es") // "/es/publicaciones" (page 1)
  * buildStaticPageUrl(["es", "libros", "pagina", "3"], "es", "en") // "/en/books" (page 1)
+ * buildStaticPageUrl(["es", "libros", "estadisticas"], "es", "en") // "/en/books/stats"
+ * buildStaticPageUrl(["en", "books", "shelf"], "en", "es") // "/es/libros/estanteria"
  */
 export function buildStaticPageUrl(pathParts: string[], currentLang: string, targetLang: string): string {
   if (pathParts.length < 2) {
@@ -102,8 +105,14 @@ export function buildStaticPageUrl(pathParts: string[], currentLang: string, tar
     }
   }
 
-  // Rebuild path with remaining segments (if any)
-  const remainingParts = pathParts.slice(2);
+  // Rebuild path with remaining segments (if any), translating known route segments
+  const remainingParts = pathParts.slice(2).map((segment) => {
+    const segmentCanonical = getCanonicalSegment(segment, currentLang);
+    if (segmentCanonical) {
+      return getLocalizedRoute(segmentCanonical as RouteSegment, targetLang);
+    }
+    return segment;
+  });
   const remainingPath = remainingParts.length ? `/${remainingParts.join("/")}` : "";
 
   return `/${targetLang}/${translatedSegment}${remainingPath}`;

@@ -21,12 +21,12 @@ const t = getTranslations(lang);
 
 // Score entries in display order
 const scoreEntries = [
-  { key: "fav" as const, count: 5, isFavorite: true, label: "Favoritos" },
-  { key: 5 as const, count: 5, isFavorite: false, label: "5 estrellas" },
-  { key: 4 as const, count: 4, isFavorite: false, label: "4 estrellas" },
-  { key: 3 as const, count: 3, isFavorite: false, label: "3 estrellas" },
-  { key: 2 as const, count: 2, isFavorite: false, label: "2 estrellas" },
-  { key: 1 as const, count: 1, isFavorite: false, label: "1 estrella" },
+  { key: "fav" as const, count: 5, isFavorite: true, label: t.bookStats.scoreLabels.favorites },
+  { key: 5 as const, count: 5, isFavorite: false, label: t.bookStats.scoreLabels.fiveStars },
+  { key: 4 as const, count: 4, isFavorite: false, label: t.bookStats.scoreLabels.fourStars },
+  { key: 3 as const, count: 3, isFavorite: false, label: t.bookStats.scoreLabels.threeStars },
+  { key: 2 as const, count: 2, isFavorite: false, label: t.bookStats.scoreLabels.twoStars },
+  { key: 1 as const, count: 1, isFavorite: false, label: t.bookStats.scoreLabels.oneStar },
 ];
 ---
 
@@ -37,7 +37,7 @@ const scoreEntries = [
     {
       scoreEntries.map(({ key, count, isFavorite, label }) => {
         const bookCount = distribution[key];
-        const booksText = bookCount === 1 ? "libro" : "libros";
+        const booksText = bookCount === 1 ? t.bookCount.singular : t.bookCount.plural;
 
         return (
           <div class="score-distribution__card">

@@ -1,0 +1,267 @@
+---
+import { getCollection } from "astro:content";
+
+import Breadcrumbs from "@/components/Breadcrumbs.astro";
+import Icon from "@/components/Icon.astro";
+import { shelf } from "@/content/shelf";
+import Layout from "@/layouts/Layout.astro";
+import { t } from "@/locales";
+import { classifyBooksByReviewLanguage } from "@/utils/bookLinkHelpers";
+import { getContact } from "@/utils/content/contact";
+import { buildBookUrl, buildIndexUrl } from "@/utils/routes";
+
+const lang = "es";
+const contact = getContact(lang);
+
+// Get all books (all languages) for review detection
+const allBooks = await getCollection("books");
+
+// Breadcrumbs
+const breadcrumbs = [
+  {
+    label: t(lang, "pages.home"),
+    url: `/${lang}/`,
+  },
+  {
+    label: t(lang, "pages.books"),
+    url: buildIndexUrl("books", lang),
+  },
+  {
+    label: t(lang, "pages.shelf"),
+  },
+];
+
+// SEO
+const title = t(lang, "shelf.title");
+const description = t(lang, "shelf.description");
+
+// Classify and sort books by review language
+const classifyAndSort = <T extends { title: string; sortName: string }>(books: T[]) => {
+  const classified = classifyBooksByReviewLanguage(allBooks, books, lang);
+
+  // Sort each category by sortName, then by title
+  const sortBooks = <U extends { title: string; sortName: string }>(arr: U[]) =>
+    arr.sort((a, b) => {
+      const authorCompare = a.sortName.localeCompare(b.sortName, lang);
+      if (authorCompare !== 0) return authorCompare;
+      return a.title.localeCompare(b.title, lang);
+    });
+
+  return {
+    inCurrentLang: sortBooks(classified.inCurrentLang),
+    inOtherLangs: sortBooks(classified.inOtherLangs),
+    withoutReview: sortBooks(classified.withoutReview),
+  };
+};
+
+const physical = classifyAndSort(shelf.physical);
+const digital = classifyAndSort(shelf.digital);
+
+// Calculate totals
+const totalPhysical = shelf.physical.length;
+const totalDigital = shelf.digital.length;
+const totalBooks = totalPhysical + totalDigital;
+---
+
+<Layout {lang} {contact} {title} {description}>
+  <main class="shelf-page">
+    <Breadcrumbs items={breadcrumbs} {lang} />
+
+    <h1 class="sr-only">{title}</h1>
+
+    <div class="taxonomy-list-grouped">
+      <!-- Stats Cards -->
+      <div class="shelf-stats">
+        <div class="shelf-stats__card">
+          <div class="shelf-stats__number">{totalPhysical}</div>
+          <div class="shelf-stats__label">{t(lang, "shelf.physical")}</div>
+        </div>
+        <div class="shelf-stats__card">
+          <div class="shelf-stats__number">{totalDigital}</div>
+          <div class="shelf-stats__label">{t(lang, "shelf.digital")}</div>
+        </div>
+        <div class="shelf-stats__card">
+          <div class="shelf-stats__number">{totalBooks}</div>
+          <div class="shelf-stats__label">Total</div>
+        </div>
+      </div>
+
+      {/* Physical Books - Current Language Reviews */}
+      {
+        physical.inCurrentLang.length > 0 && (
+          <section class="shelf-section">
+            <div class="shelf-section__header">
+              <Icon name="book" size="lg" class="shelf-section__icon" />
+              <h2 class="shelf-section__title">
+                {t(lang, "shelf.physical")} - {t(lang, "shelf.withReview")}
+                <span class="shelf-section__count">({physical.inCurrentLang.length})</span>
+              </h2>
+            </div>
+
+            <div class="shelf-section__grid">
+              {physical.inCurrentLang.map((book) => (
+                <a
+                  href={buildBookUrl(book.review.data.language, book.review.data.post_slug)}
+                  class="shelf-book shelf-book--has-review shelf-book__link"
+                >
+                  <div class="shelf-book__title">{book.title}</div>
+                  <div class="shelf-book__author">{book.author}</div>
+                </a>
+              ))}
+            </div>
+          </section>
+        )
+      }
+
+      {/* Physical Books - Other Languages Reviews */}
+      {
+        physical.inOtherLangs.length > 0 && (
+          <section class="shelf-section">
+            <details class="shelf-section__collapsible">
+              <summary class="shelf-section__header shelf-section__header--collapsible">
+                <Icon name="globe" size="lg" class="shelf-section__icon" />
+                <h2 class="shelf-section__title">
+                  {t(lang, "shelf.physical")} - {t(lang, "shelf.reviewsOtherLanguages")}
+                  <span class="shelf-section__count">({physical.inOtherLangs.length})</span>
+                </h2>
+              </summary>
+
+              <div class="shelf-section__grid">
+                {physical.inOtherLangs.map((book) => (
+                  <a
+                    href={buildBookUrl(book.review.data.language, book.review.data.post_slug)}
+                    class="shelf-book shelf-book--has-review shelf-book--other-lang shelf-book__link"
+                  >
+                    <div class="shelf-book__title">{book.title}</div>
+                    <div class="shelf-book__author">{book.author}</div>
+                    <span class="shelf-book__lang-badge" aria-label={`Reseña en ${book.review.data.language}`}>
+                      {book.review.data.language === "en" ? "🇬🇧" : "🇪🇸"}
+                    </span>
+                  </a>
+                ))}
+              </div>
+            </details>
+          </section>
+        )
+      }
+
+      {/* Physical Books - Without Review */}
+      {
+        physical.withoutReview.length > 0 && (
+          <section class="shelf-section">
+            <div class="shelf-section__header">
+              <Icon name="book" size="lg" class="shelf-section__icon" />
+              <h2 class="shelf-section__title">
+                {t(lang, "shelf.physical")}
+                <span class="shelf-section__count">({physical.withoutReview.length})</span>
+              </h2>
+            </div>
+
+            <div class="shelf-section__grid">
+              {physical.withoutReview.map((book) => (
+                <div class="shelf-book shelf-book--no-review">
+                  <div class="shelf-book__title">{book.title}</div>
+                  <div class="shelf-book__author">{book.author}</div>
+                </div>
+              ))}
+            </div>
+          </section>
+        )
+      }
+
+      {/* Digital Books - Current Language Reviews */}
+      {
+        digital.inCurrentLang.length > 0 && (
+          <section class="shelf-section">
+            <div class="shelf-section__header">
+              <Icon name="laptop" size="lg" class="shelf-section__icon" />
+              <h2 class="shelf-section__title">
+                {t(lang, "shelf.digital")} - {t(lang, "shelf.withReview")}
+                <span class="shelf-section__count">({digital.inCurrentLang.length})</span>
+              </h2>
+            </div>
+
+            <div class="shelf-section__grid">
+              {digital.inCurrentLang.map((book) => (
+                <a
+                  href={buildBookUrl(book.review.data.language, book.review.data.post_slug)}
+                  class="shelf-book shelf-book--has-review shelf-book__link"
+                >
+                  <div class="shelf-book__title">{book.title}</div>
+                  <div class="shelf-book__author">{book.author}</div>
+                </a>
+              ))}
+            </div>
+          </section>
+        )
+      }
+
+      {/* Digital Books - Other Languages Reviews */}
+      {
+        digital.inOtherLangs.length > 0 && (
+          <section class="shelf-section">
+            <details class="shelf-section__collapsible">
+              <summary class="shelf-section__header shelf-section__header--collapsible">
+                <Icon name="globe" size="lg" class="shelf-section__icon" />
+                <h2 class="shelf-section__title">
+                  {t(lang, "shelf.digital")} - {t(lang, "shelf.reviewsOtherLanguages")}
+                  <span class="shelf-section__count">({digital.inOtherLangs.length})</span>
+                </h2>
+              </summary>
+
+              <div class="shelf-section__grid">
+                {digital.inOtherLangs.map((book) => (
+                  <a
+                    href={buildBookUrl(book.review.data.language, book.review.data.post_slug)}
+                    class="shelf-book shelf-book--has-review shelf-book--other-lang shelf-book__link"
+                  >
+                    <div class="shelf-book__title">{book.title}</div>
+                    <div class="shelf-book__author">{book.author}</div>
+                    <span class="shelf-book__lang-badge" aria-label={`Reseña en ${book.review.data.language}`}>
+                      {book.review.data.language === "en" ? "🇬🇧" : "🇪🇸"}
+                    </span>
+                  </a>
+                ))}
+              </div>
+            </details>
+          </section>
+        )
+      }
+
+      {/* Digital Books - Without Review */}
+      {
+        digital.withoutReview.length > 0 && (
+          <section class="shelf-section">
+            <div class="shelf-section__header">
+              <Icon name="laptop" size="lg" class="shelf-section__icon" />
+              <h2 class="shelf-section__title">
+                {t(lang, "shelf.digital")}
+                <span class="shelf-section__count">({digital.withoutReview.length})</span>
+              </h2>
+            </div>
+
+            <div class="shelf-section__grid">
+              {digital.withoutReview.map((book) => (
+                <div class="shelf-book shelf-book--no-review">
+                  <div class="shelf-book__title">{book.title}</div>
+                  <div class="shelf-book__author">{book.author}</div>
+                </div>
+              ))}
+            </div>
+          </section>
+        )
+      }
+    </div>
+  </main>
+</Layout>
+
+<style lang="scss">
+  @use "@/styles/components/shelf.scss";
+
+  // Wrapper for link to make entire card clickable
+  .shelf-book__link {
+    display: block;
+    color: inherit;
+    text-decoration: none;
+  }
+</style>

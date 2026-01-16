@@ -2,25 +2,34 @@
 import Icon from "@components/Icon.astro";
 import "@styles/components/title.scss";
 
+interface AuxLinkItem {
+  href: string;
+  label: string;
+  ariaLabel?: string; // Optional ARIA label for screen readers
+  icon?: string; // Optional icon (e.g., "target", "external-link")
+  showArrow?: boolean; // Show chevron-right arrow (default: true)
+  iconOnly?: boolean; // Show only icon, hide label text (but keep aria-label)
+}
+
 interface Props {
   title: string;
   icon?: string; // Optional icon name (e.g., "book", "file-text")
   srOnly?: boolean; // Screen reader only - visually hidden
   useAsPagefindTitle?: boolean; // Use this title for Pagefind indexing
   headingLevel?: "h1" | "h2"; // Allow specifying heading level
-  auxLink?: {
-    href: string;
-    label: string;
-    icon?: string; // Optional icon (e.g., "target", "external-link")
-    showArrow?: boolean; // Show chevron-right arrow (default: true)
-  }; // Optional auxiliary link (displayed on the right)
+  auxLink?: AuxLinkItem; // Optional single auxiliary link (backwards compatibility)
+  auxLinks?: AuxLinkItem[]; // Optional array of auxiliary links (displayed on the right)
 }
 
-const { title, icon, srOnly = false, useAsPagefindTitle = false, headingLevel = "h2", auxLink } = Astro.props;
+const { title, icon, srOnly = false, useAsPagefindTitle = false, headingLevel = "h2", auxLink, auxLinks } = Astro.props;
 const HeadingTag = headingLevel;
+
+// Support both single auxLink (backwards compatibility) and auxLinks array
+const links: AuxLinkItem[] = auxLinks || (auxLink ? [auxLink] : []);
+const hasLinks = links.length > 0;
 ---
 
-<div class:list={["title", { "sr-only": srOnly }, { "title--with-aux-link": auxLink }]}>
+<div class:list={["title", { "sr-only": srOnly }, { "title--with-aux-link": hasLinks }]}>
   {
     useAsPagefindTitle && (
       <span data-pagefind-meta="title" class="title__pagefind-meta">
@@ -33,12 +42,23 @@ const HeadingTag = headingLevel;
     {title}
   </HeadingTag>
   {
-    auxLink && (
-      <a href={auxLink.href} class="title__aux-link">
-        {auxLink.icon && <Icon name={auxLink.icon} size="sm" class="title__aux-icon" />}
-        {auxLink.label}
-        {(auxLink.showArrow ?? true) && <Icon name="chevron-right" size="sm" class="title__aux-arrow" />}
-      </a>
+    hasLinks && (
+      <div class="title__aux-links">
+        {links.map((link) => (
+          <a
+            href={link.href}
+            class:list={["title__aux-link", { "title__aux-link--icon-only": link.iconOnly }]}
+            aria-label={link.ariaLabel || link.label}
+            title={link.ariaLabel || link.label}
+          >
+            {link.icon && <Icon name={link.icon} size="sm" class="title__aux-icon" />}
+            {!link.iconOnly && <span class="title__aux-label">{link.label}</span>}
+            {(link.showArrow ?? true) && !link.iconOnly && (
+              <Icon name="chevron-right" size="sm" class="title__aux-arrow" />
+            )}
+          </a>
+        ))}
+      </div>
     )
   }
 </div>

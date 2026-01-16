@@ -11,7 +11,7 @@ import { t } from "@/locales";
 
 /**
  * Check if the given path represents a static page
- * Static pages always have translations available (home, about)
+ * Static pages always have translations available (home, about, feeds, stats, shelf)
  *
  * @param currentPath - Current URL pathname
  * @param lang - Current language code
@@ -19,6 +19,9 @@ import { t } from "@/locales";
  * @example
  * isStaticPage("/es", "es") // true (home)
  * isStaticPage("/es/acerca-de", "es") // true (about)
+ * isStaticPage("/es/feeds", "es") // true (feeds)
+ * isStaticPage("/es/libros/estadisticas", "es") // true (stats)
+ * isStaticPage("/en/books/shelf", "en") // true (shelf)
  * isStaticPage("/es/libros", "es") // false (listing)
  */
 export function isStaticPage(currentPath: string, lang: string): boolean {
@@ -33,6 +36,25 @@ export function isStaticPage(currentPath: string, lang: string): boolean {
   // About page
   const aboutRoute = t(lang, "routes.about");
   if (normalizedPath === `/${lang}/${aboutRoute}`) {
+    return true;
+  }
+
+  // Feeds page
+  const feedsRoute = t(lang, "routes.feeds");
+  if (normalizedPath === `/${lang}/${feedsRoute}`) {
+    return true;
+  }
+
+  // Stats page (sub-route of books)
+  const booksRoute = t(lang, "routes.books");
+  const statsRoute = t(lang, "routes.stats");
+  if (normalizedPath === `/${lang}/${booksRoute}/${statsRoute}`) {
+    return true;
+  }
+
+  // Shelf page (sub-route of books)
+  const shelfRoute = t(lang, "routes.shelf");
+  if (normalizedPath === `/${lang}/${booksRoute}/${shelfRoute}`) {
     return true;
   }
 

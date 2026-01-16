@@ -253,12 +253,12 @@ test.describe("Language Switching - Taxonomy Pages", () => {
   });
 
   test.describe("Genres - List Page (Index)", () => {
-    test.skip("should enable language switcher on genres list page", async ({ page }) => {
+    test.skip("should enable language switcher on genres list page", async ({ page: _page }) => {
       // SKIPPED: This test requires English genres content to exist
       // Will be re-enabled when bilingual content is fully available
     });
 
-    test.skip("should switch from genres list to genres list", async ({ page }) => {
+    test.skip("should switch from genres list to genres list", async ({ page: _page }) => {
       // SKIPPED: This test requires English genres content to exist
       // Will be re-enabled when bilingual content is fully available
     });

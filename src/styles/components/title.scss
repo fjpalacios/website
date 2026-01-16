@@ -64,6 +64,13 @@
     margin-right: 0.6rem;
   }
 
+  &__aux-links {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+  }
+
   &__aux-link {
     display: inline-flex;
     align-items: center;
@@ -93,6 +100,21 @@
     @at-root html.light & {
       color: $text;
     }
+
+    // Icon-only variant (only show icon + tooltip via aria-label)
+    &--icon-only {
+      padding: 0.4rem;
+      min-width: 2rem;
+      justify-content: center;
+
+      .title__aux-icon {
+        margin: 0;
+      }
+    }
+  }
+
+  &__aux-label {
+    display: inline;
   }
 
   &__aux-icon {

@@ -38,7 +38,7 @@ const VIEWPORTS = {
 /**
  * Helper function to wait for page to be fully loaded and stable
  */
-async function waitForPageStable(page: Page): Promise<void> {
+async function _waitForPageStable(page: Page): Promise<void> {
   // Wait for network to be idle
   await page.waitForLoadState("networkidle");
 

@@ -5,7 +5,7 @@
  * Imports from actual app config to stay in sync.
  */
 
-import { getLanguageCodes, getUrlSegment, type LanguageKey } from "../../src/config/languages";
+import { getLanguageCodes, getUrlSegment, type LanguageConfig, type LanguageKey } from "../../src/config/languages";
 import { PAGINATION_CONFIG } from "../../src/config/pagination";
 
 /**
@@ -45,6 +45,11 @@ export const PAGINATION = {
 export type ContentType = keyof typeof PAGINATION;
 
 /**
+ * URL segment keys (for routing)
+ */
+export type UrlSegmentKey = keyof LanguageConfig["urlSegments"];
+
+/**
  * Get localized URL for a content type
  * @param lang - Language code
  * @param contentType - Content type (books, tutorials, posts)
@@ -54,8 +59,8 @@ export type ContentType = keyof typeof PAGINATION;
  * getLocalizedUrl("es", "books") // => "/es/libros"
  * getLocalizedUrl("en", "books") // => "/en/books"
  */
-export function getLocalizedUrl(lang: LanguageKey, contentType: ContentType): string {
-  const segment = getUrlSegment(lang, contentType);
+export function getLocalizedUrl(lang: LanguageKey, contentType: Exclude<ContentType, "taxonomy">): string {
+  const segment = getUrlSegment(lang, contentType as UrlSegmentKey);
   return `/${lang}/${segment}`;
 }
 
@@ -70,8 +75,12 @@ export function getLocalizedUrl(lang: LanguageKey, contentType: ContentType): st
  * getPaginationUrl("es", "books", 2) // => "/es/libros/pagina/2"
  * getPaginationUrl("en", "books", 2) // => "/en/books/page/2"
  */
-export function getPaginationUrl(lang: LanguageKey, contentType: ContentType, pageNumber: number): string {
-  const segment = getUrlSegment(lang, contentType);
+export function getPaginationUrl(
+  lang: LanguageKey,
+  contentType: Exclude<ContentType, "taxonomy">,
+  pageNumber: number,
+): string {
+  const segment = getUrlSegment(lang, contentType as UrlSegmentKey);
   const pageSegment = getUrlSegment(lang, "page");
   return `/${lang}/${segment}/${pageSegment}/${pageNumber}`;
 }
