@@ -416,7 +416,6 @@ Creating a book with auto-creation:
 **Books have TWO distinct cover images:**
 
 - **`cover`**: Listing/social image (horizontal 16:9) - Appears in:
-
   - `/es/libros` (books listing)
   - `/es/publicaciones` (posts listing)
   - Social media cards (Open Graph)
