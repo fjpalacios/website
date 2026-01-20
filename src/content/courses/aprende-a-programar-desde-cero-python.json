@@ -1,0 +1,7 @@
+{
+  "name": "Aprende a programar desde cero con Python",
+  "course_slug": "aprende-a-programar-desde-cero-python",
+  "language": "es",
+  "description": "Curso completo de Python desde cero hasta nivel profesional: tipado estático con mypy, testing con pytest, y buenas prácticas desde el primer día.",
+  "i18n": "learn-to-code-from-scratch-python"
+}

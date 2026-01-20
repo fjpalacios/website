@@ -159,7 +159,7 @@ function scanImages(category: keyof typeof IMAGE_CATEGORIES): ImageFile[] {
 // ============================================================================
 
 /**
- * Generate import statements
+ * Generate import statements (sorted alphabetically by import path)
  */
 function generateImports(category: keyof typeof IMAGE_CATEGORIES, images: ImageFile[]): string {
   if (images.length === 0) return "";
@@ -170,9 +170,11 @@ function generateImports(category: keyof typeof IMAGE_CATEGORIES, images: ImageF
   lines.push("// " + "=".repeat(76));
   lines.push(`// ${description.toUpperCase()}`);
   lines.push("// " + "=".repeat(76));
-  lines.push("");
 
-  for (const image of images) {
+  // Sort images alphabetically by import path for consistent ordering
+  const sortedImages = [...images].sort((a, b) => a.importPath.localeCompare(b.importPath));
+
+  for (const image of sortedImages) {
     lines.push(`import ${image.varName} from "${image.importPath}";`);
   }
 
@@ -431,20 +433,32 @@ function generateFile(): string {
   lines.push(" * 3. Build: bun run build (Astro will optimize automatically)");
   lines.push(" */");
   lines.push("");
+  lines.push("// External imports");
   lines.push("import type { ImageMetadata } from 'astro';");
+  lines.push("");
+  lines.push("// Internal imports");
   lines.push("import { getDefaultLanguageCode, type LanguageKey } from '@/config/languages';");
   lines.push("");
 
-  // Scan and generate for each category
+  // Scan all categories first
   const scannedData: Record<string, ImageFile[]> = {};
+  const allImages: ImageFile[] = [];
 
   for (const category of Object.keys(IMAGE_CATEGORIES) as (keyof typeof IMAGE_CATEGORIES)[]) {
     const images = scanImages(category);
     scannedData[category] = images;
-
-    // Generate imports
-    lines.push(generateImports(category, images));
+    allImages.push(...images);
   }
+
+  // Sort all imports alphabetically by import path (ESLint requirement)
+  allImages.sort((a, b) => a.importPath.localeCompare(b.importPath));
+
+  // Generate all imports in a single block
+  lines.push("// Image imports (sorted alphabetically)");
+  for (const image of allImages) {
+    lines.push(`import ${image.varName} from "${image.importPath}";`);
+  }
+  lines.push("");
 
   // Generate maps
   for (const category of Object.keys(IMAGE_CATEGORIES) as (keyof typeof IMAGE_CATEGORIES)[]) {
