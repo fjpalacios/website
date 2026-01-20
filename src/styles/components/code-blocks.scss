@@ -160,12 +160,12 @@ body.light pre[class*="language-"] {
 
 body.light .code-line.line-number::before {
   color: $code-line-numbers-light;
-  border-right-color: $border-dark;
+  border-right-color: $code-border-dark;
 }
 
 body.light .code-toolbar {
   background: $primary;
-  border-bottom-color: $border-medium;
+  border-bottom-color: $code-border-medium;
 }
 
 body.light .code-language-label {
@@ -174,11 +174,11 @@ body.light .code-language-label {
 
 body.light .code-copy-button {
   background: $code-copy-button-bg !important;
-  border-color: $border-dark !important;
+  border-color: $code-border-dark !important;
   color: $code-copy-button-text !important;
 
   &:hover {
-    background: $border-medium !important;
+    background: $code-border-medium !important;
     color: $code-copy-button-hover !important;
   }
 
@@ -208,9 +208,9 @@ body.light :not(pre) > code {
 
 // Light theme: Code block separator lines
 body.light .code-line.line-number::before {
-  border-right: 1px solid $border-dark !important; // Light border on dark code blocks
+  border-right: 1px solid $code-border-dark !important; // Light border on dark code blocks
 }
 
 body.light .code-toolbar {
-  border-bottom: 1px solid $border-dark !important; // Light border on dark code blocks
+  border-bottom: 1px solid $code-border-dark !important; // Light border on dark code blocks
 }
