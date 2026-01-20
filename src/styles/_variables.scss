@@ -39,6 +39,9 @@ $code-copy-success-border: var(--code-copy-success-border);
 $code-line-numbers-light: var(--code-line-numbers-light, $code-syntax-line-numbers);
 $code-copy-button-bg: var(--code-copy-button-bg, $border-light);
 $code-copy-button-hover: var(--code-copy-button-hover, $border-dark);
+$code-border-light: var(--code-border-light, $border-light);
+$code-border-medium: var(--code-border-medium, $border-medium);
+$code-border-dark: var(--code-border-dark, $border-dark);
 
 // Inline code (theme-aware)
 $inline-code-bg: var(--inline-code-bg);
@@ -264,14 +267,17 @@ $container-max-width: 1400px; // Maximum width for main content container
   --code-syntax-success: #16a34a;
   --code-syntax-white: #ffffff;
 
-  // Code block UI colors - Light theme
+  // Code block UI colors - Light theme (on dark code block background)
   --code-label-text: rgba(255, 255, 255, 0.9);
   --code-line-numbers-light: #b8bfc9;
-  --code-copy-button-bg: rgba(0, 0, 0, 0.05);
-  --code-copy-button-text: rgba(0, 0, 0, 0.7);
-  --code-copy-button-hover: rgba(0, 0, 0, 0.9);
-  --code-copy-success-bg: rgba(22, 163, 74, 0.1);
-  --code-copy-success-border: rgba(22, 163, 74, 0.2);
+  --code-copy-button-bg: rgba(255, 255, 255, 0.08);
+  --code-copy-button-text: rgba(255, 255, 255, 0.85);
+  --code-copy-button-hover: rgba(255, 255, 255, 0.95);
+  --code-copy-success-bg: rgba(22, 163, 74, 0.2);
+  --code-copy-success-border: rgba(22, 163, 74, 0.4);
+  --code-border-light: rgba(255, 255, 255, 0.12);
+  --code-border-medium: rgba(255, 255, 255, 0.18);
+  --code-border-dark: rgba(255, 255, 255, 0.25);
 
   --inline-code-bg: rgba(0, 86, 179, 0.08);
   --inline-code-text: #d63384;
@@ -465,6 +471,18 @@ html {
     --code-syntax-line-numbers: #8b95a8;
     --code-syntax-success: #16a34a;
     --code-syntax-white: #ffffff;
+
+    // Code block UI colors - Light theme (on dark code block background)
+    --code-label-text: rgba(255, 255, 255, 0.9);
+    --code-line-numbers-light: #b8bfc9;
+    --code-copy-button-bg: rgba(255, 255, 255, 0.08);
+    --code-copy-button-text: rgba(255, 255, 255, 0.85);
+    --code-copy-button-hover: rgba(255, 255, 255, 0.95);
+    --code-copy-success-bg: rgba(22, 163, 74, 0.2);
+    --code-copy-success-border: rgba(22, 163, 74, 0.4);
+    --code-border-light: rgba(255, 255, 255, 0.12);
+    --code-border-medium: rgba(255, 255, 255, 0.18);
+    --code-border-dark: rgba(255, 255, 255, 0.25);
 
     --inline-code-bg: rgba(0, 86, 179, 0.08);
     --inline-code-text: #d63384;

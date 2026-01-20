@@ -217,4 +217,67 @@ test.describe("Code Blocks - Theme Support", () => {
     const toolbar = firstBlock.locator(".code-toolbar");
     await expect(toolbar).toBeVisible();
   });
+
+  test("should display visible borders in light theme", async ({ page }) => {
+    await page.goto("/es/tutoriales/primeros-pasos-con-git");
+    await page.waitForLoadState("networkidle");
+
+    // Toggle to light theme
+    const themeButton = page.locator('button[aria-label*="tema"]').first();
+    await themeButton.click();
+    await page.waitForTimeout(300);
+
+    const codeBlocks = page.locator('pre[class*="language-"]');
+    const firstBlock = codeBlocks.first();
+
+    // Check toolbar border
+    const toolbar = firstBlock.locator(".code-toolbar");
+    const toolbarBorderBottom = await toolbar.evaluate((el) => window.getComputedStyle(el).borderBottomColor);
+
+    // Border should have visible color (not transparent or same as background)
+    expect(toolbarBorderBottom).not.toBe("rgba(0, 0, 0, 0)");
+    expect(toolbarBorderBottom).not.toBe("transparent");
+
+    // Check line number border
+    const lineNumber = firstBlock.locator(".line-number").first();
+    const lineNumberBorderRight = await lineNumber.evaluate((el) => {
+      const pseudoElement = window.getComputedStyle(el, "::before");
+      return pseudoElement.borderRightColor;
+    });
+
+    // Border should have visible color
+    expect(lineNumberBorderRight).not.toBe("rgba(0, 0, 0, 0)");
+    expect(lineNumberBorderRight).not.toBe("transparent");
+  });
+
+  test("should display visible copy button icon in light theme", async ({ page }) => {
+    await page.goto("/es/tutoriales/primeros-pasos-con-git");
+    await page.waitForLoadState("networkidle");
+
+    // Toggle to light theme
+    const themeButton = page.locator('button[aria-label*="tema"]').first();
+    await themeButton.click();
+    await page.waitForTimeout(300);
+
+    const codeBlocks = page.locator('pre[class*="language-"]');
+    const firstBlock = codeBlocks.first();
+    const copyButton = firstBlock.locator(".code-copy-button");
+
+    // Check button is visible
+    await expect(copyButton).toBeVisible();
+
+    // Check icon is visible
+    const icon = copyButton.locator("svg");
+    await expect(icon).toBeVisible();
+
+    // Check button has visible background color
+    const bgColor = await copyButton.evaluate((el) => window.getComputedStyle(el).backgroundColor);
+    expect(bgColor).not.toBe("rgba(0, 0, 0, 0)");
+    expect(bgColor).not.toBe("transparent");
+
+    // Check button text/icon color is visible (not black on dark background)
+    const color = await copyButton.evaluate((el) => window.getComputedStyle(el).color);
+    expect(color).not.toBe("rgb(0, 0, 0)");
+    expect(color).not.toBe("rgba(0, 0, 0, 0)");
+  });
 });
