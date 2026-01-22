@@ -160,8 +160,9 @@ function scanImages(category: keyof typeof IMAGE_CATEGORIES): ImageFile[] {
 
 /**
  * Generate import statements (sorted alphabetically by import path)
+ * @deprecated - Kept for reference but not currently used
  */
-function generateImports(category: keyof typeof IMAGE_CATEGORIES, images: ImageFile[]): string {
+function _generateImports(category: keyof typeof IMAGE_CATEGORIES, images: ImageFile[]): string {
   if (images.length === 0) return "";
 
   const lines: string[] = [];

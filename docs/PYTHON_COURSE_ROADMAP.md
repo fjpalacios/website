@@ -20,9 +20,12 @@ Each module includes:
 
 ---
 
-## 📚 MODULE 1: Getting Started (Lessons 1-5)
+## 📚 MODULE 1: Getting Started (Lessons 1-5.5)
 
 ### Lesson 1: Introduction to Programming
+
+**Estimated time**: 20-30 minutes  
+**Prerequisites**: None
 
 **Target**: Complete beginners
 **Topics**:
@@ -39,15 +42,29 @@ Each module includes:
 
 ### Lesson 2: Setting Up the Environment
 
-**Target**: Complete beginners
+**Estimated time**: 45-60 minutes  
+**Prerequisites**: Lesson 1
+
+**Target**: Complete beginners  
 **Topics**:
+
+#### Part 1: Environment Setup
 
 - Installing asdf (version manager)
 - Installing Python 3.12+ via asdf
 - Verifying installation (`python --version`)
+
+#### Part 2: IDE Configuration
+
 - Installing VS Code
 - Configuring VS Code for Python
-- First program: `print("Hello, World!")`
+- Python extension setup
+
+#### Part 3: First Program
+
+- Creating your first `.py` file
+- Running `print("Hello, World!")`
+- Understanding program execution
 
 **Deliverable**: Working Python environment + first program executed
 
@@ -58,9 +75,53 @@ print("Hello, World!")
 print("Welcome to Python programming!")
 ```
 
+⚠️ **Common Gotcha**: Make sure to install Python 3.12+, not Python 2! Check with `python --version` (should show Python 3.12.x).
+
+---
+
+### Lesson 2.5: Interactive Python (REPL)
+
+**Estimated time**: 20-30 minutes  
+**Prerequisites**: Lesson 2
+
+**Target**: Complete beginners  
+**Topics**:
+
+- What is the REPL (Read-Eval-Print Loop)?
+- Starting the Python interactive shell
+- Experimenting with Python commands
+- Using `help()` and `dir()` built-ins
+- REPL as a learning and testing tool
+- Exiting the REPL
+
+**Deliverable**: Students comfortable using Python REPL for quick tests
+
+**Example**:
+
+```bash
+$ python
+Python 3.12.0 (main, Oct  2 2023, 12:00:00)
+>>> print("Hello from REPL!")
+Hello from REPL!
+>>> 2 + 2
+4
+>>> help(print)
+# Shows help for print function
+>>> dir(str)
+# Shows all string methods
+>>> exit()
+```
+
+💡 **Pro Tip**: Use the REPL to quickly test Python syntax and built-in functions before writing them in files. It's your Python playground!
+
+**Exercise**: Open the REPL and experiment with basic math operations (addition, multiplication, division). Use `help()` to explore the `len()` function.
+
 ---
 
 ### Lesson 3: Variables and Basic Data Types
+
+**Estimated time**: 45-60 minutes  
+**Prerequisites**: Lesson 2.5
 
 **Target**: Complete beginners
 **Topics**:
@@ -85,11 +146,16 @@ is_student = True
 print(f"Name: {name}, Age: {age}")
 ```
 
+⚠️ **Common Gotcha**: Variable names are case-sensitive! `name` and `Name` are different variables.
+
 **Exercise**: Create a program that asks for user's name and age, then prints a greeting.
 
 ---
 
 ### Lesson 4: Operators
+
+**Estimated time**: 45-60 minutes  
+**Prerequisites**: Lesson 3
 
 **Target**: Complete beginners
 **Topics**:
@@ -114,11 +180,16 @@ print(f"Integer division: {x // y}")
 print(f"Is x greater than y? {x > y}")
 ```
 
+⚠️ **Common Gotcha**: Use `==` for comparison, not `=` (which is assignment)!
+
 **Exercise**: Create a simple calculator for two numbers.
 
 ---
 
 ### Lesson 5: Strings and String Methods
+
+**Estimated time**: 60 minutes  
+**Prerequisites**: Lesson 4
 
 **Target**: Complete beginners
 **Topics**:
@@ -145,13 +216,73 @@ age = 25
 print(f"{name} is {age} years old")
 ```
 
+💡 **Pro Tip**: f-strings (formatted strings) are the modern way to format strings in Python. Use them instead of older methods like `.format()` or `%` formatting.
+
 **Exercise**: Create a program that formats user input (name) into a professional email signature.
+
+---
+
+### Lesson 5.5: Common Beginner Mistakes
+
+**Estimated time**: 30-45 minutes  
+**Prerequisites**: Lessons 1-5
+
+**Target**: Complete beginners  
+**Topics**:
+
+- Understanding and reading error messages
+- Common syntax errors:
+  - Indentation errors (most common!)
+  - Quotation mark mismatches
+  - Parentheses imbalance
+  - Missing colons after `if`, `for`, `def`, etc.
+- Case sensitivity issues
+- Variable naming mistakes
+- Debugging strategies for beginners
+- Using error messages to fix problems
+
+**Deliverable**: Students can identify and fix common mistakes independently
+
+**Examples of common errors**:
+
+```python
+# ❌ Indentation error
+def greet(name):
+print(f"Hello, {name}")  # IndentationError
+
+# ✅ Fixed
+def greet(name):
+    print(f"Hello, {name}")
+
+# ❌ Quotation mismatch
+message = "Hello, World!'  # SyntaxError
+
+# ✅ Fixed
+message = "Hello, World!"
+
+# ❌ Missing colon
+if age > 18  # SyntaxError
+    print("Adult")
+
+# ✅ Fixed
+if age > 18:
+    print("Adult")
+```
+
+⚠️ **Common Gotcha**: Python uses indentation (usually 4 spaces) to define code blocks. Mixing tabs and spaces will cause errors!
+
+💡 **Pro Tip**: Read error messages from bottom to top. The last line usually tells you what went wrong, and the lines above show where it happened.
+
+**Exercise**: Debug provided code with intentional errors.
 
 ---
 
 ## 📚 MODULE 2: Control Flow (Lessons 6-10)
 
 ### Lesson 6: Conditional Statements (if/elif/else)
+
+**Estimated time**: 45-60 minutes  
+**Prerequisites**: Lesson 5.5
 
 **Target**: Students with basic variable/operator knowledge
 **Topics**:

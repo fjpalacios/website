@@ -23,9 +23,37 @@ const { items, lang, routeKey, slugField } = Astro.props;
 const itemsWithContent = items.filter(({ count }) => count > 0);
 const basePath = t(lang, `routes.${routeKey}`);
 
-// Pre-calculate translations for count labels
-const countSingular = t(lang, "bookCount.singular");
-const countPlural = t(lang, "bookCount.plural");
+// Pre-calculate translations for count labels based on taxonomy type
+let countSingular: string;
+let countPlural: string;
+
+// Map routeKey to the appropriate translation key
+const taxonomyTypeMap: Record<string, { singular: string; plural: string }> = {
+  courses: { singular: "tutorial", plural: "tutoriales" },
+  categories: { singular: "publicación", plural: "publicaciones" },
+  genres: { singular: "libro", plural: "libros" },
+  publishers: { singular: "libro", plural: "libros" },
+  series: { singular: "libro", plural: "libros" },
+  challenges: { singular: "libro", plural: "libros" },
+  authors: { singular: "libro", plural: "libros" },
+};
+
+// For English
+const taxonomyTypeMapEn: Record<string, { singular: string; plural: string }> = {
+  courses: { singular: "tutorial", plural: "tutorials" },
+  categories: { singular: "post", plural: "posts" },
+  genres: { singular: "book", plural: "books" },
+  publishers: { singular: "book", plural: "books" },
+  series: { singular: "book", plural: "books" },
+  challenges: { singular: "book", plural: "books" },
+  authors: { singular: "book", plural: "books" },
+};
+
+const typeMap = lang === "es" ? taxonomyTypeMap : taxonomyTypeMapEn;
+const typeKey = typeMap[routeKey] || { singular: "libro", plural: "libros" };
+
+countSingular = typeKey.singular;
+countPlural = typeKey.plural;
 
 // Helper function to get first letter for grouping
 function getInitialLetter(
