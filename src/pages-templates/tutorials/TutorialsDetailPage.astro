@@ -52,9 +52,15 @@ let previousTutorial = null;
 let nextTutorial = null;
 
 if (tutorial.course && tutorial.order !== undefined) {
-  // Get all tutorials from the same course
+  // Get all tutorials from the same course, excluding drafts
   const allTutorials = await getCollection("tutorials", (t) => {
-    return t.data.language === lang && t.data.course === tutorial.course && t.data.order !== undefined;
+    return (
+      t.data.language === lang &&
+      t.data.course === tutorial.course &&
+      t.data.order !== undefined &&
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Dynamic draft field access
+      !(t.data as any).draft
+    );
   });
 
   // Sort by order ascending

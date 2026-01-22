@@ -15,8 +15,10 @@ const { challenge } = Astro.props;
 const config = getChallengeConfig(challenge);
 const { goal, color, completedColor } = config;
 
-// Get all books from the collection
-const allBooks = await getCollection("books");
+// Get all books from the collection, excluding drafts
+const allBooksRaw = await getCollection("books");
+// eslint-disable-next-line @typescript-eslint/no-explicit-any -- Dynamic draft field access
+const allBooks = allBooksRaw.filter((book) => !(book.data as any).draft);
 
 // Filter books by challenge
 const booksInChallenge = allBooks.filter((book) => {

@@ -13,8 +13,10 @@ import { buildBookUrl, buildIndexUrl } from "@/utils/routes";
 const lang = "es";
 const contact = getContact(lang);
 
-// Get all books (all languages) for review detection
-const allBooks = await getCollection("books");
+// Get all books (all languages) for review detection, excluding drafts
+const allBooksRaw = await getCollection("books");
+// eslint-disable-next-line @typescript-eslint/no-explicit-any -- Dynamic draft field access
+const allBooks = allBooksRaw.filter((book) => !(book.data as any).draft);
 
 // Breadcrumbs
 const breadcrumbs = [

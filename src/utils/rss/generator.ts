@@ -46,6 +46,16 @@ export interface RSSFeedOutput {
 type ContentItem = CollectionEntry<"books"> | CollectionEntry<"posts"> | CollectionEntry<"tutorials">;
 
 /**
+ * Filters out draft content
+ * @param items - Collection items
+ * @returns Items with draft !== true
+ */
+function excludeDrafts(items: ContentItem[]): ContentItem[] {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Dynamic draft field access
+  return items.filter((item) => !(item.data as any).draft);
+}
+
+/**
  * Builds the correct URL for a content item based on its collection type and language
  *
  * @param item - Content item from Astro collections
@@ -83,8 +93,8 @@ export function generateSingleCollectionFeed(items: ContentItem[], config: RSSFe
     throw new Error("Language is required for single collection feed");
   }
 
-  // Filter items by language and sort by date (newest first)
-  const filteredItems = items
+  // Filter items by language, exclude drafts, and sort by date (newest first)
+  const filteredItems = excludeDrafts(items)
     .filter((item) => item.data.language === language)
     .sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf());
 
@@ -117,9 +127,8 @@ export function generateMultiCollectionFeed(collections: ContentItem[][], config
     throw new Error("Language is required for multi-collection feed");
   }
 
-  // Combine all collections, filter by language, and sort by date
-  const allContent = collections
-    .flat()
+  // Combine all collections, exclude drafts, filter by language, and sort by date
+  const allContent = excludeDrafts(collections.flat())
     .filter((item) => item.data.language === language)
     .sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf());
 
@@ -152,8 +161,8 @@ export function generateBilingualFeed(
 ): RSSFeedOutput {
   const { title, description, site } = config;
 
-  // Combine all collections and sort by date (no language filter)
-  const allContent = collections.flat().sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf());
+  // Combine all collections, exclude drafts, and sort by date (no language filter)
+  const allContent = excludeDrafts(collections.flat()).sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf());
 
   return {
     title,
