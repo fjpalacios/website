@@ -28,8 +28,10 @@ const detectedLang = detectLanguageFromUrl(Astro.url.pathname);
 
 const { title, full = false, lang = detectedLang } = Astro.props;
 
-// Query all books and find the matching one
-const allBooks = await getCollection("books");
+// Query all books and find the matching one, excluding drafts
+const allBooksRaw = await getCollection("books");
+// eslint-disable-next-line @typescript-eslint/no-explicit-any -- Dynamic draft field access
+const allBooks = allBooksRaw.filter((book) => !(book.data as any).draft);
 const book = findBook(allBooks, title, lang);
 
 // Generate display text and URL

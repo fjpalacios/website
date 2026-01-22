@@ -39,8 +39,10 @@ const { lang } = Astro.props;
 // Get translations
 const t = getTranslations(lang);
 
-// Load all collections once
-const allBooks = await getCollection("books");
+// Load all collections once and filter drafts
+const allBooksRaw = await getCollection("books");
+// eslint-disable-next-line @typescript-eslint/no-explicit-any -- Dynamic draft field access
+const allBooks = allBooksRaw.filter((book) => !(book.data as any).draft);
 const allAuthors = await getCollection("authors");
 const allGenres = await getCollection("genres");
 const allPublishers = await getCollection("publishers");

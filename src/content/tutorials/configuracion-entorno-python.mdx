@@ -1,0 +1,287 @@
+---
+title: "Configuración del entorno Python"
+post_slug: "configuracion-entorno-python"
+date: "2026-01-21"
+excerpt: "Aprende a instalar Python con asdf, configurar VS Code y ejecutar tu primer programa. Todo lo necesario para empezar a programar desde cero."
+language: "es"
+categories: ["programacion"]
+course: "aprende-a-programar-desde-cero-python"
+order: 2
+cover: "/images/tutorials/cabecera-python-curso.jpg"
+i18n: "setting-up-python-environment"
+---
+
+En la lección anterior aprendiste qué es programar y por qué Python es el lenguaje ideal para empezar. Ahora es momento de **poner manos a la obra** y preparar tu ordenador para que puedas escribir y ejecutar código Python.
+
+No te preocupes si no tienes experiencia técnica: voy a explicarte paso a paso cómo instalar todo lo necesario. Al final de esta lección, habrás ejecutado tu primer programa.
+
+## ¿Qué vamos a instalar?
+
+Para programar en Python necesitas tres cosas:
+
+1. **Python** (el lenguaje en sí)
+2. **asdf** (un gestor de versiones que facilita la instalación de Python)
+3. **VS Code** (un editor de código profesional y gratuito)
+
+### ¿Por qué asdf?
+
+Podrías instalar Python directamente desde python.org, pero **asdf es la forma profesional** de gestionar versiones de Python (y otros lenguajes). Te permite:
+
+- Instalar múltiples versiones de Python en tu sistema
+- Cambiar entre versiones fácilmente
+- Mantener tu sistema limpio y organizado
+
+Es lo que usan los desarrolladores profesionales, y cuanto antes te acostumbres, mejor.
+
+## Paso 1: Instalación de asdf
+
+### En macOS o Linux
+
+Abre tu terminal y ejecuta estos comandos uno por uno:
+
+```bash
+# Clona el repositorio de asdf
+git clone https://github.com/asdf-vm/asdf.git ~/.asdf --branch v0.14.0
+
+# Añade asdf a tu shell (bash)
+echo '. "$HOME/.asdf/asdf.sh"' >> ~/.bashrc
+echo '. "$HOME/.asdf/completions/asdf.bash"' >> ~/.bashrc
+
+# Si usas zsh en lugar de bash:
+echo '. "$HOME/.asdf/asdf.sh"' >> ~/.zshrc
+echo 'fpath=(${ASDF_DIR}/completions $fpath)' >> ~/.zshrc
+echo 'autoload -Uz compinit && compinit' >> ~/.zshrc
+```
+
+Cierra y vuelve a abrir tu terminal para que los cambios surtan efecto.
+
+**Verifica la instalación:**
+
+```bash
+asdf --version
+```
+
+Deberías ver algo como: `v0.14.0`
+
+### En Windows
+
+En Windows, la forma más sencilla es usar **WSL** (Windows Subsystem for Linux). WSL te permite ejecutar Linux dentro de Windows, y es la forma estándar de desarrollar en Python en Windows.
+
+1. Abre PowerShell como administrador y ejecuta:
+
+```powershell
+wsl --install
+```
+
+2. Reinicia tu ordenador cuando te lo pida
+3. Una vez reiniciado, se abrirá una terminal de Ubuntu. Configura un usuario y contraseña
+4. Ahora sigue las instrucciones de macOS/Linux que vimos arriba
+
+**Nota importante**: Una vez instalado WSL, siempre trabajarás desde la terminal de Ubuntu (no desde PowerShell ni CMD). Es un entorno Linux completo dentro de Windows.
+
+## Paso 2: Instalación de Python con asdf
+
+Ahora que tienes asdf, vamos a instalar Python. Ejecuta estos comandos en tu terminal:
+
+```bash
+# Añade el plugin de Python a asdf
+asdf plugin add python
+
+# Instala Python 3.12 (última versión estable)
+asdf install python 3.12.4
+
+# Configura Python 3.12.4 como versión global (asdf 0.18+)
+asdf set --home python 3.12.4
+```
+
+La instalación puede tardar unos minutos. Ten paciencia.
+
+**Verifica la instalación:**
+
+```bash
+python --version
+```
+
+Deberías ver: `Python 3.12.4` (o la versión que hayas instalado).
+
+También verifica que `pip` (el gestor de paquetes de Python) esté disponible:
+
+```bash
+pip --version
+```
+
+Perfecto. Ya tienes Python funcionando.
+
+## Paso 3: Instalación de VS Code
+
+VS Code (Visual Studio Code) es el editor de código más popular del mundo. Es gratuito, potente y tiene miles de extensiones.
+
+### Instalación
+
+1. Ve a [https://code.visualstudio.com/](https://code.visualstudio.com/)
+2. Descarga la versión para tu sistema operativo
+3. Instala como cualquier otro programa
+
+### Configuración para Python
+
+Una vez instalado VS Code, instala la extensión oficial de Python:
+
+1. Abre VS Code
+2. Haz clic en el icono de extensiones (cuadrado con piezas de puzzle) en la barra lateral izquierda
+3. Busca "Python"
+4. Instala la extensión **Python** de Microsoft (la que tiene más descargas)
+
+Esta extensión te proporciona:
+
+- Resaltado de sintaxis
+- Autocompletado inteligente
+- Detección de errores en tiempo real
+- Ejecución de código desde el editor
+
+## Paso 4: Tu primer programa
+
+Ha llegado el momento. Vamos a escribir tu primer programa en Python.
+
+### Crea un archivo
+
+1. Abre VS Code
+2. Crea una carpeta para tus proyectos de Python (por ejemplo: `~/python-course`)
+3. Abre esa carpeta en VS Code: `File > Open Folder`
+4. Crea un nuevo archivo: `File > New File`
+5. Guárdalo con el nombre `hello.py` (la extensión `.py` indica que es un archivo Python)
+
+### Escribe el código
+
+En el archivo `hello.py`, escribe:
+
+```python
+print("Hello, World!")
+```
+
+### Ejecuta el programa
+
+Hay varias formas de ejecutar código Python en VS Code:
+
+**Opción 1: Terminal integrada**
+
+1. Abre la terminal integrada de VS Code: `View > Terminal` (o `Ctrl + ñ`)
+2. Ejecuta: `python hello.py`
+
+**Opción 2: Botón de ejecución**
+
+1. Haz clic en el botón ▶️ (Play) que aparece en la esquina superior derecha
+2. Selecciona "Run Python File in Terminal"
+
+Deberías ver en la terminal:
+
+```
+Hello, World!
+```
+
+**¡Enhorabuena! Has escrito y ejecutado tu primer programa en Python.**
+
+## Entendiendo `print()`
+
+El código que acabas de escribir es extremadamente simple, pero hay conceptos importantes:
+
+```python
+print("Hello, World!")
+```
+
+- **`print()`** es una **función** de Python que muestra texto en la pantalla
+- **`"Hello, World!"`** es un **string** (cadena de texto) - siempre va entre comillas
+- Los paréntesis `()` son necesarios para llamar a la función
+
+Vamos a experimentar un poco más. Modifica tu archivo `hello.py`:
+
+```python
+print("Hello, World!")
+print("Welcome to Python programming!")
+print("This is my first program.")
+```
+
+Ejecuta de nuevo. Verás que cada `print()` muestra su texto en una línea nueva.
+
+### Probando con diferentes textos
+
+Ahora intenta esto:
+
+```python
+print("My name is [TU NOMBRE]")
+print("I am learning Python")
+print("Python is awesome!")
+```
+
+Sustituye `[TU NOMBRE]` por tu nombre real y ejecuta el programa.
+
+## Solución de problemas comunes
+
+### "python: command not found"
+
+Si al ejecutar `python --version` te dice que el comando no se encuentra:
+
+1. Verifica que asdf esté correctamente instalado: `asdf --version`
+2. Verifica que Python esté instalado: `asdf list python`
+3. Asegúrate de haber reiniciado la terminal después de instalar asdf
+
+### "SyntaxError" al ejecutar código
+
+Si ves un error como:
+
+```
+SyntaxError: invalid syntax
+```
+
+Revisa que:
+
+- Las comillas estén correctamente cerradas: `"texto"`
+- Los paréntesis estén balanceados: `print(...)`
+- No hayas olvidado ningún símbolo
+
+### VS Code no encuentra Python
+
+Si VS Code dice que no puede encontrar Python:
+
+1. Abre la Command Palette: `Ctrl + Shift + P` (o `Cmd + Shift + P` en Mac)
+2. Busca "Python: Select Interpreter"
+3. Selecciona la versión de Python que instalaste con asdf
+
+### Nota sobre `asdf set --home` vs `asdf set`
+
+En este curso usamos `asdf set --home python 3.12.4` para que Python esté disponible **globalmente** en tu sistema. Esto crea un archivo `~/.tool-versions` en tu carpeta home.
+
+Si en el futuro trabajas en proyectos que necesiten versiones específicas de Python, puedes usar `asdf set python X.Y.Z` (sin `--home`) dentro del directorio del proyecto. Esto crea un `.tool-versions` local que solo afecta a ese proyecto.
+
+**Para este curso, no te preocupes por esto.** Con la configuración global es suficiente.
+
+## Resumen
+
+En esta lección has:
+
+✅ Instalado asdf (gestor de versiones profesional)  
+✅ Instalado Python 3.12 con asdf  
+✅ Configurado VS Code con la extensión de Python  
+✅ Escrito y ejecutado tu primer programa Python  
+✅ Aprendido a usar la función `print()`
+
+**Ahora tienes todo lo necesario para seguir aprendiendo Python.** En la próxima lección empezaremos con los fundamentos: variables y tipos de datos.
+
+## Ejercicio práctico
+
+Antes de continuar, asegúrate de que tu entorno funciona correctamente:
+
+1. Crea un nuevo archivo llamado `test.py`
+2. Escribe un programa que muestre 5 líneas de texto con información sobre ti (nombre, ciudad, hobby, etc.)
+3. Ejecuta el programa y verifica que todo funcione
+
+**Ejemplo de salida esperada:**
+
+```
+My name is Alice
+I live in Madrid
+I love playing guitar
+I am 25 years old
+I want to become a Python developer
+```
+
+Si has conseguido ejecutar este programa sin errores, **estás listo para la siguiente lección**.

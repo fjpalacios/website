@@ -64,6 +64,9 @@ export const booksSchema = z
     cover: z.string().optional(), // Relative path to cover image (fallback to default if not provided)
     book_cover: z.string().optional(), // Original book cover filename
 
+    // Publishing control
+    draft: z.boolean().optional().default(false), // Hide from public listings when true
+
     // i18n
     i18n: z.string().optional(), // Slug of translated version
   })
@@ -87,6 +90,9 @@ export const postsSchema = z.object({
   // Optional metadata
   cover: z.string().optional(), // Relative path to cover image
   update_date: z.coerce.date().optional(), // When the post was last updated
+
+  // Publishing control
+  draft: z.boolean().optional().default(false), // Hide from public listings when true
 
   // i18n
   i18n: z.string().optional(), // Slug of translated version
@@ -113,6 +119,9 @@ export const tutorialsSchema = z.object({
   order: z.number().int().positive().optional(), // Tutorial order within course (1, 2, 3...)
   cover: z.string().optional(), // Relative path to cover image
   update_date: z.coerce.date().optional(), // When the tutorial was last updated
+
+  // Publishing control
+  draft: z.boolean().optional().default(false), // Hide from public listings when true
 
   // i18n
   i18n: z.string().optional(), // Slug of translated version

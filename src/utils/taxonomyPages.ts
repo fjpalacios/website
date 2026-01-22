@@ -83,14 +83,16 @@ export async function getAllTaxonomyItems(config: TaxonomyConfig, lang: Language
 }
 
 /**
- * Get all content that uses a specific taxonomy
+ * Get all content that uses a specific taxonomy, excluding drafts
  */
 export async function getAllContentForTaxonomy(config: TaxonomyConfig, lang: LanguageKey) {
   const allContent: Array<CollectionEntry<"posts"> | CollectionEntry<"tutorials"> | CollectionEntry<"books">> = [];
 
   for (const collectionName of config.contentCollections) {
     const collection = await getCollection(collectionName);
-    const filtered = filterByLanguage(collection, lang);
+    // Filter by language and exclude drafts
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Dynamic draft field access
+    const filtered = filterByLanguage(collection, lang).filter((item) => !(item.data as any).draft);
     allContent.push(...filtered);
   }
 
