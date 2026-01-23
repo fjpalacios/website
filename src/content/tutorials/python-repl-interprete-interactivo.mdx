@@ -1,0 +1,344 @@
+---
+title: "REPL de Python: Tu entorno interactivo para experimentar"
+post_slug: "python-repl-interprete-interactivo"
+date: "2026-01-23"
+excerpt: "Descubre el REPL de Python (Read-Eval-Print Loop), una herramienta poderosa para probar código, aprender Python de forma interactiva y experimentar con ideas al instante."
+language: "es"
+categories: ["programacion"]
+course: "aprende-a-programar-desde-cero-python"
+order: 2.5
+cover: "/images/tutorials/cabecera-python-curso.jpg"
+i18n: "python-repl-interactive-shell"
+draft: true
+---
+
+Ahora que tienes Python instalado en tu sistema, es momento de descubrir una de las herramientas más útiles para aprender y experimentar: **el REPL de Python**.
+
+REPL significa **Read-Eval-Print Loop** (Bucle Leer-Evaluar-Imprimir), y es un entorno interactivo donde puedes escribir código Python y ver los resultados inmediatamente. Piensa en él como un sandbox donde puedes jugar con Python sin necesidad de crear archivos.
+
+## ¿Qué es el REPL?
+
+El REPL es un intérprete interactivo de Python que:
+
+1. **Lee** tu código Python
+2. **Evalúa** (ejecuta) el código
+3. **Imprime** el resultado
+4. **Vuelve** al inicio esperando más código
+
+Es perfecto para:
+
+- Probar pequeños fragmentos de código
+- Aprender la sintaxis de Python
+- Explorar funciones integradas
+- Depurar ideas rápidas
+- Realizar cálculos
+
+## Iniciar el REPL de Python
+
+Abre tu terminal y escribe:
+
+```bash
+python
+```
+
+Deberías ver algo como esto:
+
+```bash
+$ python
+Python 3.12.0 (main, Oct  2 2023, 12:00:00)
+[GCC 11.3.0] on linux
+Type "help", "copyright", "credits" or "license" for more information.
+>>>
+```
+
+El prompt `>>>` significa que Python está listo para recibir comandos. ¡Ya estás dentro del REPL!
+
+## Tus primeros comandos en el REPL
+
+Probemos algunos ejemplos básicos:
+
+### Cálculos simples
+
+```python
+>>> 2 + 2
+4
+>>> 10 * 5
+50
+>>> 100 / 4
+25.0
+```
+
+Observa cómo Python te muestra el resultado inmediatamente. No hace falta compilar ni ejecutar archivos.
+
+### Imprimir texto
+
+```python
+>>> print("¡Hola desde el REPL!")
+¡Hola desde el REPL!
+>>> print("Python es increíble")
+Python es increíble
+```
+
+### Variables
+
+```python
+>>> nombre = "Ana"
+>>> nombre
+'Ana'
+>>> edad = 25
+>>> edad
+25
+```
+
+Cuando escribes el nombre de una variable, Python muestra su valor automáticamente.
+
+## Funciones de ayuda integradas
+
+El REPL viene con funciones de ayuda muy útiles:
+
+### help() - Obtén ayuda sobre cualquier cosa
+
+```python
+>>> help(print)
+Help on built-in function print in module builtins:
+
+print(...)
+    print(value, ..., sep=' ', end='\n', file=sys.stdout, flush=False)
+
+    Prints the values to a stream, or to sys.stdout by default.
+    ...
+```
+
+Presiona `q` para salir de la pantalla de ayuda.
+
+### dir() - Explora métodos disponibles
+
+```python
+>>> dir(str)
+['__add__', '__class__', '__contains__', ..., 'upper', 'zfill']
+```
+
+Esto muestra todos los métodos disponibles para cadenas de texto. ¡Muy útil para explorar!
+
+### type() - Verifica tipos de datos
+
+```python
+>>> type(42)
+<class 'int'>
+>>> type("Hola")
+<class 'str'>
+>>> type(3.14)
+<class 'float'>
+```
+
+## Código multi-línea en el REPL
+
+También puedes escribir código de varias líneas. El prompt cambia a `...` para líneas de continuación:
+
+```python
+>>> for i in range(3):
+...     print(f"Número: {i}")
+...
+Número: 0
+Número: 1
+Número: 2
+```
+
+**Importante**: Después de escribir el bloque de código, presiona Enter en una línea vacía (solo `...` sin nada después) para ejecutarlo.
+
+## Consejos prácticos para usar el REPL
+
+### Consejo 1: Úsalo como calculadora
+
+```python
+>>> # Calcular propina del 15% sobre una cuenta de 50€
+>>> cuenta = 50
+>>> propina = cuenta * 0.15
+>>> total = cuenta + propina
+>>> total
+57.5
+```
+
+### Consejo 2: Prueba métodos de cadenas
+
+```python
+>>> mensaje = "hola mundo"
+>>> mensaje.upper()
+'HOLA MUNDO'
+>>> mensaje.title()
+'Hola Mundo'
+>>> mensaje.replace("mundo", "Python")
+'hola Python'
+```
+
+### Consejo 3: Experimentos rápidos
+
+```python
+>>> # Verificar si un número es par
+>>> numero = 42
+>>> numero % 2 == 0
+True
+```
+
+## Variables especiales del REPL
+
+El REPL tiene algunas variables especiales:
+
+```python
+>>> 10 + 5
+15
+>>> _
+15
+```
+
+El guion bajo `_` guarda el resultado de la última expresión. ¡Útil para seguir operando!
+
+```python
+>>> 100 / 3
+33.333333333333336
+>>> round(_, 2)
+33.33
+```
+
+## Errores comunes en el REPL
+
+### 1. La indentación importa
+
+```python
+>>> for i in range(3):
+... print(i)  # ❌ IndentationError
+  File "<stdin>", line 2
+    print(i)
+    ^
+IndentationError: expected an indented block
+```
+
+**Solución**: Siempre indenta las líneas de continuación con 4 espacios:
+
+```python
+>>> for i in range(3):
+...     print(i)  # ✅ Correcto
+...
+0
+1
+2
+```
+
+### 2. Línea vacía para ejecutar bloques
+
+Después de escribir bucles o funciones, presiona Enter en una línea vacía para ejecutar:
+
+```python
+>>> for i in range(2):
+...     print(i)
+... [Presiona Enter aquí]
+0
+1
+```
+
+## Salir del REPL
+
+Hay varias formas de salir:
+
+```python
+>>> exit()
+```
+
+O:
+
+```python
+>>> quit()
+```
+
+O presiona `Ctrl+D` (Linux/macOS) o `Ctrl+Z` seguido de Enter (Windows).
+
+## REPL vs. archivos Python: ¿Cuándo usar cada uno?
+
+| Usa el REPL cuando...    | Usa archivos cuando...           |
+| ------------------------ | -------------------------------- |
+| Pruebas rápidas de ideas | Escribir programas completos     |
+| Aprender nueva sintaxis  | Crear código reutilizable        |
+| Depurar piezas pequeñas  | Trabajar con múltiples funciones |
+| Realizar cálculos        | Guardar tu trabajo para después  |
+| Explorar librerías       | Colaborar con otros              |
+
+## Ejercicio práctico
+
+Abre tu REPL e intenta este ejercicio paso a paso:
+
+```python
+# 1. Guarda tu nombre
+>>> nombre = "Tu Nombre"
+
+# 2. Guarda tu edad
+>>> edad = 25
+
+# 3. Calcula tu año de nacimiento (aproximado)
+>>> año_nacimiento = 2026 - edad
+
+# 4. Crea un saludo
+>>> saludo = f"Hola, {nombre}! Naciste alrededor del año {año_nacimiento}."
+
+# 5. Imprímelo
+>>> print(saludo)
+Hola, Tu Nombre! Naciste alrededor del año 2001.
+
+# 6. Explora los métodos de cadena
+>>> dir(saludo)
+
+# 7. Prueba algunos métodos
+>>> saludo.upper()
+>>> saludo.lower()
+>>> saludo.replace("Hola", "Buenas")
+```
+
+## Trucos pro para productividad en el REPL
+
+### Usa las flechas del teclado
+
+- **Flechas arriba/abajo**: Navega por el historial de comandos
+- **Flechas izquierda/derecha**: Mueve el cursor en la línea actual
+
+### Importa módulos
+
+```python
+>>> import math
+>>> math.pi
+3.141592653589793
+>>> math.sqrt(16)
+4.0
+```
+
+### Limpiar variables
+
+Para empezar de cero, simplemente reinicia el REPL o:
+
+```python
+>>> del nombre_variable
+```
+
+## Lo que aprendiste
+
+En esta lección descubriste:
+
+- ✅ Qué es el REPL y por qué es útil
+- ✅ Cómo iniciar y salir del REPL de Python
+- ✅ Cómo usar `help()`, `dir()` y `type()`
+- ✅ Cómo escribir código multi-línea en el REPL
+- ✅ Cuándo usar REPL vs. archivos Python
+- ✅ Trucos prácticos de productividad
+
+## Próximos pasos
+
+El REPL es tu nuevo mejor amigo para aprender Python. Úsalo frecuentemente para:
+
+- Probar ejemplos de tutoriales
+- Verificar sintaxis antes de escribir archivos
+- Explorar nuevas librerías
+- Depurar pequeños problemas
+
+En la próxima lección, nos sumergiremos en **Variables y Tipos de Datos Básicos**, ¡y usarás el REPL para experimentar con ellos de forma interactiva!
+
+---
+
+**💡 Desafío rápido**: Abre tu REPL y usa `help(len)` para descubrir qué hace la función `len()`. Luego pruébala con `len("Python")` y `len([1, 2, 3, 4])`. ¿Qué observas?

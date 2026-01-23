@@ -129,6 +129,134 @@
   }
 }
 
+// Tables inside text-area (markdown tables)
+// Professional styling for data tables in tutorials and posts
+// Mobile-first responsive design with horizontal scroll on small screens
+// Full-width bleed effect like code blocks and images
+// Used in: post, tutorial, book
+@mixin text-area-tables {
+  // Container wrapper for responsive scroll
+  // Tables are wrapped by markdown processor, so we target the table directly
+  table {
+    width: 100%;
+    min-width: calc(100% + 40px); // Ensure it reaches bleed edges
+    margin: 1.5em -20px;
+    border-collapse: collapse;
+    font-size: 0.85em; // Smaller on mobile
+    table-layout: auto; // Allow table to expand naturally
+
+    // Responsive scroll wrapper - only on very small screens
+    @media (max-width: 640px) {
+      display: block;
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch; // Smooth scroll on iOS
+    }
+
+    // Mobile: smaller padding
+    thead {
+      tr {
+        background-color: $primary;
+        color: $pure-white; // Always white text for maximum contrast on primary bg
+        text-align: left;
+      }
+
+      th {
+        padding: 8px 10px;
+        font-weight: 600;
+        border: 1px solid $primary;
+        white-space: normal; // Allow wrapping for better mobile readability
+        word-wrap: break-word;
+
+        &:first-child {
+          padding-left: 20px; // Extra padding for first cell (bleed effect)
+        }
+
+        &:last-child {
+          padding-right: 20px; // Extra padding for last cell (bleed effect)
+        }
+      }
+    }
+
+    tbody {
+      tr {
+        border-bottom: 1px solid rgba($text, 0.1);
+
+        &:nth-of-type(even) {
+          background-color: rgba($primary, 0.05);
+        }
+
+        &:last-of-type {
+          border-bottom: 2px solid $primary;
+        }
+      }
+
+      td {
+        padding: 8px 10px;
+        border: 1px solid rgba($text, 0.1);
+        white-space: normal; // Allow wrapping for better mobile readability
+        word-wrap: break-word;
+
+        &:first-child {
+          padding-left: 20px; // Extra padding for first cell (bleed effect)
+        }
+
+        &:last-child {
+          padding-right: 20px; // Extra padding for last cell (bleed effect)
+        }
+      }
+    }
+
+    // Tablet and up: increase font size and padding
+    @media (min-width: 768px) {
+      font-size: 0.95em;
+
+      thead th {
+        padding: 12px 15px;
+
+        &:first-child {
+          padding-left: 20px;
+        }
+
+        &:last-child {
+          padding-right: 20px;
+        }
+      }
+
+      tbody td {
+        padding: 12px 15px;
+
+        &:first-child {
+          padding-left: 20px;
+        }
+
+        &:last-child {
+          padding-right: 20px;
+        }
+      }
+    }
+  }
+}
+
+// Table light theme adjustments
+// Example: @include table-light-theme(".text-area table");
+@mixin table-light-theme($selector) {
+  body.light #{$selector} {
+    tbody {
+      tr {
+        border-bottom: 1px solid rgba($text, 0.15);
+
+        &:nth-of-type(even) {
+          background-color: rgba($primary, 0.08);
+        }
+      }
+
+      td {
+        border: 1px solid rgba($text, 0.15);
+      }
+    }
+  }
+}
+
 // Blockquote styling with decorative opening quote
 // Used in: post, book
 // Note: tutorial doesn't typically include quotes

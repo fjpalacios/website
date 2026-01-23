@@ -116,7 +116,7 @@ export const tutorialsSchema = z.object({
 
   // Optional metadata
   course: z.string().optional(), // reference to courses collection
-  order: z.number().int().positive().optional(), // Tutorial order within course (1, 2, 3...)
+  order: z.number().positive().optional(), // Tutorial order within course (1, 2, 2.5, 3...)
   cover: z.string().optional(), // Relative path to cover image
   update_date: z.coerce.date().optional(), // When the tutorial was last updated
 
