@@ -14,6 +14,7 @@
     .text-area {
       @include text-area-images;
       @include text-area-headers;
+      @include text-area-tables;
     }
   }
 
@@ -47,3 +48,6 @@
 i {
   @include icon-responsive;
 }
+
+// Table adjustments for light theme
+@include table-light-theme(".text-area table");
