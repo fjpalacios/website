@@ -65,7 +65,7 @@
     "@astrojs/sitemap": "3.7.0",
     "astro": "5.17.1",
     "marked": "^17.0.1",
-    "mysql2": "^3.16.1",
+    "mysql2": "^3.16.2",
     "normalize.css": "^8.0.1",
     "prismjs": "^1.30.0",
     "rehype-prism-plus": "^2.0.1",
