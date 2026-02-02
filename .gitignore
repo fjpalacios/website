@@ -39,3 +39,6 @@ lighthouserc.json
 lighthouse-reports/
 .lighthouseci/
 lighthouse-baseline-report.txt
+
+# use bun
+package-lock.json
