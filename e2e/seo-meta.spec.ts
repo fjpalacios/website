@@ -21,7 +21,10 @@ test.describe("Social Media & SEO Meta Tags", () => {
     });
 
     test("should have correct og:image", async ({ page }) => {
-      await expect(page.locator('meta[property="og:image"]')).toHaveAttribute("content", "https://fjp.es/logo.jpg");
+      await expect(page.locator('meta[property="og:image"]')).toHaveAttribute(
+        "content",
+        "https://fjp.es/images/defaults/post-default.jpg",
+      );
     });
 
     test("should have correct og:url", async ({ page }) => {
@@ -57,7 +60,10 @@ test.describe("Social Media & SEO Meta Tags", () => {
     });
 
     test("should have correct twitter:image", async ({ page }) => {
-      await expect(page.locator('meta[name="twitter:image"]')).toHaveAttribute("content", "https://fjp.es/logo.jpg");
+      await expect(page.locator('meta[name="twitter:image"]')).toHaveAttribute(
+        "content",
+        "https://fjp.es/images/defaults/post-default.jpg",
+      );
     });
   });
 
