@@ -17,7 +17,7 @@
 /buenos-presagios-de-neil-gaiman-y-terry-pratchett/ /es/libros/buenos-presagios-de-neil-gaiman-y-terry-pratchett/ 301
 /carrie-de-stephen-king/ /es/libros/carrie-de-stephen-king/ 301
 /apocalipsis-z-la-ira-de-los-justos-de-manel-loureiro/ /es/libros/apocalipsis-z-la-ira-de-los-justos-de-manel-loureiro/ 301
-/retorno-a-a-isla-blanca-de-laura-gallego/ /es/libros/retorno-a-a-isla-blanca-de-laura-gallego/ 301
+/retorno-a-a-isla-blanca-de-laura-gallego/ /es/libros/retorno-a-la-isla-blanca-de-laura-gallego/ 301
 /oscuro-de-teo-rodriguez/ /es/libros/oscuro-de-teo-rodriguez/ 301
 /la-semilla-del-diablo-de-ira-levin/ /es/libros/la-semilla-del-diablo-de-ira-levin/ 301
 /fulgor-de-manel-loureiro/ /es/libros/fulgor-de-manel-loureiro/ 301
@@ -274,7 +274,7 @@
 /editorial/timun-mas/ /es/editoriales/timun-mas/ 301
 /editorial/valdemar/ /es/editoriales/valdemar/ 301
 /editorial/molino/ /es/editoriales/molino/ 301
-/editorial/b/ /es/editoriales/b/ 301
+/editorial/b/ /es/editoriales/ediciones-b/ 301
 /editorial/laertes/ /es/editoriales/laertes/ 301
 /editorial/planeta/ /es/editoriales/planeta/ 301
 /editorial/grijalbo/ /es/editoriales/grijalbo/ 301
@@ -372,3 +372,10 @@
 /reto-literario-los-155-libros-que-debes-leer-antes-de-morir/ /es/publicaciones/reto-literario-los-155-libros-que-debes-leer-antes-de-morir/ 301
 /presentacion-curso-aprende-programar-python-java/ /es/publicaciones/presentacion-curso-aprende-programar-python/ 301
 /presentation-learn-to-code-python-java/ /en/posts/presentation-learn-to-code-python/ 301
+
+# ========================================
+# Internal slug fixes (old Astro URLs → corrected)
+# ========================================
+
+/es/libros/retorno-a-a-isla-blanca-de-laura-gallego/ /es/libros/retorno-a-la-isla-blanca-de-laura-gallego/ 301
+/es/editoriales/b/ /es/editoriales/ediciones-b/ 301
