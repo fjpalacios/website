@@ -16,14 +16,10 @@ body {
   background-color: $background;
   color: $text;
   font-family: Helvetica, Arial, sans-serif;
-  font-size: 12px;
+  font-size: 16px;
 
-  @include small {
-    font-size: 14px;
-  }
-
-  @include medium {
-    font-size: 16px;
+  @include medium-and-up {
+    font-size: 17px;
   }
 
   @include large {

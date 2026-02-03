@@ -196,9 +196,10 @@ const genreLabel = lang === "en" ? "Genre" : "Género";
         <Rating score={book.score} lang={lang} size="sm" />
       </div>
       <div class="book__content__content">
+        <h1 class="sr-only">{book.title}</h1>
         <!-- Pagefind title meta -->
         <span data-pagefind-meta="title" class="pagefind-meta">{book.title}</span>
-        <PostTitle title={book.title} date={book.date} lang={lang} />
+        <PostTitle title={book.title} date={book.date} lang={lang} headingLevel="h2" />
         <div class="book__content__content__data">
           <div class="book__content__content__data_pages">
             <strong>{pagesLabel}</strong>: {book.pages}

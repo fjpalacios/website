@@ -44,6 +44,7 @@ const rssInfoContent = `<p>${t(lang, "feeds.whatIsRssDescription")}</p>`;
 <Layout title={pageTitle} description={pageDescription} lang={lang} contact={contact}>
   <main class="feeds-page">
     <section class="feeds-page__section">
+      <h1 class="sr-only">{pageTitle}</h1>
       <Title title={pageTitle} icon="rss" />
       <TextArea text={`<p>${pageDescription}</p>`} />
       <div class="text-area feeds-list">
