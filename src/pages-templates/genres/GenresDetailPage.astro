@@ -96,7 +96,7 @@ const itemListSchema = generateItemListSchema(
   <script slot="schema" type="application/ld+json" set:html={JSON.stringify(itemListSchema)} />
 
   <Breadcrumbs items={breadcrumbs} lang={lang} />
-  <Title title={pageTitle} srOnly={true} useAsPagefindTitle={true} />
+  <Title title={pageTitle} srOnly={true} useAsPagefindTitle={true} headingLevel="h1" />
 
   <!-- Short indexable description for Pagefind -->
   <p class="sr-only" aria-hidden="true">{description}</p>

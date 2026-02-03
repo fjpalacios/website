@@ -287,15 +287,24 @@ const hasTutorialsContent = await hasContentInLanguage("tutorials", lang);
           });
         }
 
-        // Run setup
-        if (document.readyState === "loading") {
-          document.addEventListener("DOMContentLoaded", setupCodeBlocks);
-        } else {
-          setupCodeBlocks();
+        // Defer DOM work to idle time to avoid blocking the main thread (INP)
+        function scheduleSetup() {
+          if (typeof requestIdleCallback !== "undefined") {
+            requestIdleCallback(setupCodeBlocks, { timeout: 500 });
+          } else {
+            setTimeout(setupCodeBlocks, 0);
+          }
         }
 
-        // Run on Astro page transitions
-        document.addEventListener("astro:page-load", setupCodeBlocks);
+        // Run setup after paint
+        if (document.readyState === "loading") {
+          document.addEventListener("DOMContentLoaded", scheduleSetup);
+        } else {
+          scheduleSetup();
+        }
+
+        // Run on Astro page transitions (view transitions)
+        document.addEventListener("astro:page-load", scheduleSetup);
       })();
     </script>
   </body>

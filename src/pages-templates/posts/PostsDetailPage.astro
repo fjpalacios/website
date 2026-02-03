@@ -97,9 +97,10 @@ if (post.updated) {
           loading="eager"
         />
       </div>
+      <h1 class="sr-only">{post.title}</h1>
       <!-- Pagefind title meta -->
       <span data-pagefind-meta="title" class="pagefind-meta">{post.title}</span>
-      <PostTitle title={post.title} date={post.date} lang={lang} />
+      <PostTitle title={post.title} date={post.date} lang={lang} headingLevel="h2" />
       <div class="text-area">
         <Content />
       </div>

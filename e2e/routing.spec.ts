@@ -416,3 +416,99 @@ test.describe("Route Performance", () => {
     expect(loadTime).toBeLessThan(3000);
   });
 });
+
+// ============================================================================
+// TEST SUITE: h1.sr-only — every page must have exactly one visually-hidden h1
+// ============================================================================
+
+test.describe("h1.sr-only presence", () => {
+  const pages = [
+    // Content list pages
+    { url: "/es/libros/", label: "books list" },
+    { url: "/es/publicaciones/", label: "posts list" },
+    { url: "/es/tutoriales/", label: "tutorials list" },
+    // Taxonomy list pages
+    { url: "/es/autores/", label: "authors list" },
+    { url: "/es/editoriales/", label: "publishers list" },
+    { url: "/es/categorias/", label: "categories list" },
+    { url: "/es/generos/", label: "genres list" },
+    // Static pages
+    { url: "/es/feeds/", label: "feeds" },
+    { url: "/es/acerca-de/", label: "about" },
+    // Home
+    { url: "/es/", label: "home" },
+  ];
+
+  for (const { url, label } of pages) {
+    test(`${label} should have h1.sr-only`, async ({ page }) => {
+      await page.goto(url);
+      const h1 = page.locator("h1.sr-only");
+      await expect(h1).toHaveCount(1);
+    });
+  }
+
+  // Detail pages: h1 is present (sr-only or inside .sr-only wrapper via Title)
+  const detailPages = [
+    { url: "/es/libros/1984-de-george-orwell/", label: "book detail" },
+    { url: "/es/publicaciones/libros-leidos-durante-2017/", label: "post detail" },
+    { url: "/es/tutoriales/que-es-git/", label: "tutorial detail" },
+    { url: "/es/autores/stephen-king/", label: "author detail" },
+    { url: "/es/editoriales/plaza-janes/", label: "publisher detail" },
+    { url: "/es/generos/terror/", label: "genre detail" },
+  ];
+
+  for (const { url, label } of detailPages) {
+    test(`${label} should have exactly one h1`, async ({ page }) => {
+      await page.goto(url);
+      const h1s = page.locator("h1");
+      await expect(h1s).toHaveCount(1);
+    });
+  }
+
+  // Pagination pages: h1.sr-only with page number
+  test("books pagination page 2 should have h1.sr-only with page number", async ({ page }) => {
+    await page.goto("/es/libros/pagina/2/");
+    const h1 = page.locator("h1.sr-only");
+    await expect(h1).toHaveCount(1);
+    await expect(h1).toContainText(/Página 2/i);
+  });
+});
+
+// ============================================================================
+// TEST SUITE: Mobile touch targets — paginator buttons ≥ 44px on mobile
+// ============================================================================
+
+test.describe("Mobile touch targets", () => {
+  test.use({ viewport: { width: 375, height: 667 } });
+
+  test("paginator buttons should have 44px minimum touch targets on mobile", async ({ page }) => {
+    // Navigate to a paginated page
+    await page.goto("/es/libros/");
+    await page.waitForLoadState("networkidle");
+
+    const paginatorButtons = page.locator(".paginator__button, .paginator__page");
+    const count = await paginatorButtons.count();
+
+    // Only run assertions if paginator is present
+    if (count > 0) {
+      for (let i = 0; i < count; i++) {
+        const button = paginatorButtons.nth(i);
+        if (await button.isVisible()) {
+          const box = await button.boundingBox();
+          if (box) {
+            expect(box.width, `Paginator element ${i} width`).toBeGreaterThanOrEqual(44);
+            expect(box.height, `Paginator element ${i} height`).toBeGreaterThanOrEqual(44);
+          }
+        }
+      }
+    }
+  });
+
+  test("body font-size should be at least 16px on mobile", async ({ page }) => {
+    await page.goto("/es/");
+    const fontSize = await page.evaluate(() => {
+      return parseFloat(getComputedStyle(document.body).fontSize);
+    });
+    expect(fontSize).toBeGreaterThanOrEqual(16);
+  });
+});
