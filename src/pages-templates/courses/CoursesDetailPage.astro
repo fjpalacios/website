@@ -13,7 +13,6 @@
 import Breadcrumbs, { type BreadcrumbItem } from "@components/Breadcrumbs.astro";
 import Paginator from "@components/Paginator.astro";
 import PostList from "@components/PostList.astro";
-import TaxonomyListGrouped from "@components/TaxonomyListGrouped.astro";
 import Title from "@components/Title.astro";
 import Layout from "@layouts/Layout.astro";
 import { t } from "@locales";
@@ -40,10 +39,6 @@ interface Props {
   totalItems: number; // Total items across all pages
   contact: ContactItem[];
   hasTargetContent: boolean;
-  coursesWithCounts: Array<{
-    item: CollectionEntry<"courses">;
-    count: number;
-  }>;
 }
 
 const {
@@ -55,7 +50,6 @@ const {
   totalItems,
   contact,
   hasTargetContent,
-  coursesWithCounts,
 } = Astro.props;
 
 const pageTitle = `${t(lang, "pages.course")}: ${course.data.name}`;
@@ -121,12 +115,4 @@ const itemListSchema = generateItemListSchema(
   </div>
 
   <Paginator currentPage={currentPage} totalPages={totalPages} basePath={basePath} lang={lang} />
-
-  <TaxonomyListGrouped
-    items={coursesWithCounts}
-    title={t(lang, "allCourses")}
-    lang={lang}
-    routeKey="courses"
-    slugField="course_slug"
-  />
 </Layout>
