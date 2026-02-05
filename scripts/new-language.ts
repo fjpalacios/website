@@ -32,7 +32,9 @@ const langLabel = args[1];
 const withContent = args.includes("--with-content");
 const isDefault = args.includes("--default");
 
-// Validation
+// Validate and sanitize language code
+const ISO_639_1_PATTERN = /^[a-z]{2}$/;
+
 if (!langCode || !langLabel) {
   console.error("❌ Error: Language code and label are required\n");
   console.log("Usage: bun run new:language <code> <label> [options]\n");
@@ -46,9 +48,10 @@ if (!langCode || !langLabel) {
   process.exit(1);
 }
 
-if (langCode.length !== 2) {
-  console.error("❌ Error: Language code must be 2 characters (ISO 639-1)\n");
+if (!ISO_639_1_PATTERN.test(langCode)) {
+  console.error("❌ Error: Language code must be exactly 2 lowercase letters (ISO 639-1)\n");
   console.log('Examples: "en", "es", "fr", "pt", "ca"');
+  console.log(`Received: "${langCode}"`);
   process.exit(1);
 }
 
