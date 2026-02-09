@@ -13,7 +13,10 @@ const { lang, contact } = Astro.props;
 ---
 
 <header class="header" data-pagefind-ignore>
-  <div class="header__title">{t(lang, "title")}</div>
+  <div class="header__title">
+    <span class="header__title--full">{t(lang, "title")}</span>
+    <span class="header__title--abbreviated">{t(lang, "titleAbbreviated")}</span>
+  </div>
   <div class="header__subtitle">{t(lang, "subtitle")}</div>
   <div class="header__contact">
     {

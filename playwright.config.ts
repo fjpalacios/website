@@ -16,12 +16,12 @@ export default defineConfig({
     {
       name: "chromium",
       use: { ...devices["Desktop Chrome"] },
-      testIgnore: ["**/responsive.spec.ts", "**/visual-regression.spec.ts"],
+      testIgnore: ["**/responsive.spec.ts", "**/visual-regression.spec.ts", "**/bookshelf.spec.ts"],
     },
     {
       name: "visual-regression",
       use: { ...devices["Desktop Chrome"] },
-      testMatch: "**/visual-regression.spec.ts",
+      testMatch: ["**/visual-regression.spec.ts", "**/bookshelf.spec.ts"],
     },
     {
       name: "mobile-iphone12",
