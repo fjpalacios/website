@@ -70,7 +70,7 @@
     "mysql2": "^3.16.2",
     "normalize.css": "^8.0.1",
     "prismjs": "^1.30.0",
-    "rehype-prism-plus": "^2.0.1",
+    "rehype-prism-plus": "^2.0.2",
     "sass": "^1.97.3"
   },
   "devDependencies": {
