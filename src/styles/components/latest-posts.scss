@@ -36,10 +36,17 @@
     &__post {
       display: grid;
       grid-template-areas:
-        "title date"
-        "excerpt .";
+        "title"
+        "date"
+        "excerpt";
       margin-bottom: 20px;
-      column-gap: 5vw;
+
+      @include small-and-up {
+        grid-template-areas:
+          "title date"
+          "excerpt .";
+        column-gap: 5vw;
+      }
 
       @include medium-and-up {
         column-gap: 3vw;
@@ -68,8 +75,16 @@
       &__date {
         grid-area: date;
         display: grid;
-        justify-content: end;
+        justify-content: start;
         color: $text;
+        font-size: 0.9em;
+        margin-bottom: 0.5rem;
+
+        @include small-and-up {
+          justify-content: end;
+          font-size: 1em;
+          margin-bottom: 0;
+        }
 
         time {
           font-variant-numeric: tabular-nums;

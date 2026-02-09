@@ -10,7 +10,8 @@
     border: 2px solid $primary;
 
     @include print {
-      margin-bottom: 10px;
+      margin-bottom: 6px;
+      border-width: 1px;
     }
   }
 
@@ -23,8 +24,16 @@
     }
 
     @include print {
-      columns: 2;
-      column-gap: 20px;
+      display: grid;
+      grid-template-columns: 57% 42%;
+      grid-template-areas:
+        "experience education"
+        "experience freelance"
+        "experience projects"
+        "experience volunteering"
+        "experience talks";
+      column-gap: 8px;
+      row-gap: 6px;
     }
 
     > * {
@@ -34,8 +43,36 @@
       break-inside: avoid;
 
       @include print {
-        margin-bottom: 10px;
+        margin-bottom: 0;
+        border-width: 1px;
       }
+    }
+  }
+
+  // Grid areas for print layout
+  @include print {
+    &__grid__experience {
+      grid-area: experience;
+    }
+
+    &__grid__education {
+      grid-area: education;
+    }
+
+    &__grid__talks {
+      grid-area: talks;
+    }
+
+    &__grid__projects {
+      grid-area: projects;
+    }
+
+    &__grid__freelance {
+      grid-area: freelance;
+    }
+
+    &__grid__volunteering {
+      grid-area: volunteering;
     }
   }
 }

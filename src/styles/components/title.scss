@@ -11,9 +11,10 @@
   text-transform: uppercase;
 
   @include print {
-    margin-bottom: 10px;
-    padding: 1px 10px;
-    min-height: 20px;
+    margin-bottom: 4px;
+    padding: 2px 6px;
+    min-height: 16px;
+    font-size: 0.8rem;
   }
 
   // When title has an auxiliary link, use flexbox layout
@@ -42,6 +43,12 @@
       font-weight: 100;
     }
 
+    @include print {
+      font-size: 0.85rem;
+      margin: 2px 0;
+      font-weight: 600;
+    }
+
     // Remove margin when in flexbox layout
     .title--with-aux-link & {
       margin: 0;
@@ -57,6 +64,12 @@
 
     @include medium-and-up {
       font-weight: 100;
+    }
+
+    @include print {
+      font-size: 0.85rem;
+      margin: 2px 0;
+      font-weight: 600;
     }
   }
 

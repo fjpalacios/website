@@ -13,24 +13,35 @@
   @include small-and-up {
     grid-template-areas:
       "name dates"
-      "languages ."
-      "desc .";
+      "languages languages"
+      "desc desc";
   }
 
   @include print {
-    margin-bottom: 10px;
-    padding: 0 10px;
+    margin-bottom: 6px;
+    padding: 0 6px;
+    font-size: 0.7rem;
+    line-height: 1.25;
   }
 
   &__name {
     grid-area: name;
     text-transform: uppercase;
+
+    @include print {
+      font-size: 0.75rem;
+      font-weight: 600;
+    }
   }
 
   &__dates {
     display: grid;
     grid-area: dates;
     justify-content: end;
+
+    @include print {
+      font-size: 0.65rem;
+    }
   }
 
   &__languages {
@@ -39,13 +50,28 @@
     margin: 0;
     padding: 0;
 
+    @include print {
+      margin-top: 2px;
+      font-size: 0.65rem;
+    }
+
     li {
       display: inline-block;
       padding-right: 10px;
+
+      @include print {
+        padding-right: 6px;
+      }
     }
   }
 
   &__desc {
     grid-area: desc;
+
+    @include print {
+      margin-top: 2px;
+      font-size: 0.7rem;
+      line-height: 1.2;
+    }
   }
 }

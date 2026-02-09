@@ -41,6 +41,22 @@
     @include print {
       font-size: 1.7em;
     }
+
+    &--full {
+      display: none;
+
+      @include large {
+        display: inline;
+      }
+    }
+
+    &--abbreviated {
+      display: inline;
+
+      @include large {
+        display: none;
+      }
+    }
   }
 
   &__subtitle {

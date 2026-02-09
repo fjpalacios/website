@@ -6,8 +6,10 @@
   padding: 0 20px;
 
   @include print {
-    margin-bottom: 10px;
-    padding: 0 10px;
+    margin-bottom: 0;
+    padding: 4px 6px;
+    font-size: 0.7rem;
+    line-height: 1.25;
   }
 
   // Accessibility: Links inside text content must be distinguishable
@@ -30,6 +32,10 @@
     p {
       text-align: justify;
       text-justify: inter-word;
+
+      @include print {
+        margin: 4px 0;
+      }
     }
   }
 }

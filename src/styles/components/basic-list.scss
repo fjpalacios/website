@@ -4,29 +4,45 @@
 .basic-list {
   display: grid;
   grid-template-areas:
-    "name dates"
-    "role location-role"
-    "location ."
-    "desc desc"
-    "extendedDesc extendedDesc";
+    "name"
+    "role"
+    "dates"
+    "location-role"
+    "location"
+    "desc"
+    "extendedDesc";
+  margin-bottom: 20px;
+  padding: 0 20px;
+
+  @include small-and-up {
+    grid-template-areas:
+      "name dates"
+      "role location-role"
+      "location ."
+      "desc desc"
+      "extendedDesc extendedDesc";
+  }
+
   @include print {
     grid-template-areas:
       "name dates"
       "location"
       "desc desc"
       "extendedDesc extendedDesc";
-  }
-  margin-bottom: 20px;
-  padding: 0 20px;
-
-  @include print {
-    margin-bottom: 10px;
-    padding: 0 10px;
+    margin-bottom: 6px;
+    padding: 0 6px;
+    font-size: 0.75rem;
+    line-height: 1.3;
   }
 
   &__name {
     grid-area: name;
     text-transform: uppercase;
+
+    @include print {
+      font-size: 0.8rem;
+      font-weight: 600;
+    }
   }
 
   &__role {
@@ -37,11 +53,25 @@
 
   &__location {
     grid-area: location;
+    font-size: 0.9em;
+    margin-bottom: 0;
+
+    @include small-and-up {
+      font-size: 1em;
+    }
+
+    @include print {
+      font-size: 0.7rem;
+    }
 
     &--with-role {
       display: grid;
       grid-area: location-role;
-      justify-content: end;
+      justify-content: start;
+
+      @include small-and-up {
+        justify-content: end;
+      }
 
       @include print {
         display: grid;
@@ -54,7 +84,19 @@
   &__dates {
     display: grid;
     grid-area: dates;
-    justify-content: end;
+    justify-content: start;
+    font-size: 0.9em;
+    margin-bottom: 0;
+
+    @include small-and-up {
+      justify-content: end;
+      font-size: 1em;
+    }
+
+    @include print {
+      font-size: 0.7rem;
+      font-weight: 500;
+    }
   }
 
   &__desc {
@@ -62,6 +104,11 @@
 
     @include screen {
       display: none;
+    }
+
+    @include print {
+      margin-top: 2px;
+      line-height: 1.25;
     }
   }
 
