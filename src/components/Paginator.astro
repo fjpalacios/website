@@ -96,12 +96,9 @@ function getPageUrl(page: number): string {
         )}
 
         {/* Previous button */}
+        {/* No aria-label here — the visible text IS the accessible name (WCAG 2.5.3) */}
         {showPrev && (
-          <a
-            href={prevUrl}
-            class="paginator__button paginator__button--prev"
-            aria-label={t(lang, "paginator.previousPage")}
-          >
+          <a href={prevUrl} class="paginator__button paginator__button--prev">
             {t(lang, "paginator.prev")}
           </a>
         )}
@@ -138,12 +135,9 @@ function getPageUrl(page: number): string {
         </div>
 
         {/* Next button */}
+        {/* No aria-label here — the visible text IS the accessible name (WCAG 2.5.3) */}
         {showNext && (
-          <a
-            href={nextUrl}
-            class="paginator__button paginator__button--next"
-            aria-label={t(lang, "paginator.nextPage")}
-          >
+          <a href={nextUrl} class="paginator__button paginator__button--next">
             {t(lang, "paginator.next")}
           </a>
         )}

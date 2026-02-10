@@ -32,6 +32,17 @@
       font-size: 0.75rem;
       font-weight: 600;
     }
+
+    a {
+      // Minimum touch target size (WCAG 2.5.5)
+      display: inline-flex;
+      align-items: center;
+      min-height: 44px;
+
+      @include small-and-up {
+        min-height: auto;
+      }
+    }
   }
 
   &__dates {
