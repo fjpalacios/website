@@ -177,11 +177,11 @@ const genreLabel = lang === "en" ? "Genre" : "Género";
   title={`${book.title} - ${t(lang, "book.review")}`}
   contact={contact}
   translationSlug={book.i18n}
-  image={book.book_cover || book.cover}
+  image={bookCoverImage.src}
   type="book"
   schema={bookSchema}
   hasTargetContent={hasTargetContent}
-  preloadImage={book.book_cover || book.cover}
+  preloadImage={bookCoverImage.src}
 >
   <Breadcrumbs items={breadcrumbs} lang={lang} />
   <main class="book">

@@ -40,8 +40,9 @@ const categories = findCategoriesBySlug(allCategories, tutorial.categories);
 
 // Cover image with fallback (returns ImageMetadata for optimization)
 const coverImage = getTutorialCoverImage(tutorial.cover);
-// Keep original path for meta tags (Layout expects string)
-const coverImagePath = tutorial.cover || "/images/defaults/tutorial-default.jpg";
+// Use the processed image URL (coverImage.src) for meta tags and preload hints.
+// The raw frontmatter path (/images/tutorials/...) does not exist in public/ —
+// Astro processes assets from src/assets/ into /_astro/*.webp at build time.
 
 // Get course info if exists (filtered by language)
 const allCourses = tutorial.course ? await getCollectionByLanguage("courses", lang) : [];
@@ -107,7 +108,7 @@ const tutorialSchema: Record<string, unknown> = {
   "@type": "TechArticle",
   headline: tutorial.title,
   description: tutorial.excerpt,
-  image: coverImagePath,
+  image: coverImage.src,
   datePublished: tutorial.date.toISOString(),
   author: {
     "@type": "Person",
@@ -140,10 +141,10 @@ if (course) {
   description={tutorial.excerpt}
   contact={contact}
   translationSlug={tutorial.i18n}
-  image={coverImagePath}
+  image={coverImage.src}
   type="article"
   schema={tutorialSchema}
-  preloadImage={coverImagePath}
+  preloadImage={coverImage.src}
 >
   <Breadcrumbs items={breadcrumbs} lang={lang} />
   <main class="tutorial">

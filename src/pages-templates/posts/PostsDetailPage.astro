@@ -41,8 +41,9 @@ const categories = findCategoriesBySlug(allCategories, post.categories);
 
 // Cover image with fallback (returns ImageMetadata for optimization)
 const coverImage = getPostCoverImage(post.cover);
-// Keep original path for meta tags (Layout expects string)
-const coverImagePath = post.cover || "/images/defaults/post-default.jpg";
+// Use the processed image URL (coverImage.src) for meta tags and preload hints.
+// The raw frontmatter path (/images/posts/...) does not exist in public/ —
+// Astro processes assets from src/assets/ into /_astro/*.webp at build time.
 
 // Share component data
 const baseUrl = t(lang, "metaData.url");
@@ -56,7 +57,7 @@ const articleSchema: Record<string, unknown> = {
   "@type": "BlogPosting",
   headline: post.title,
   description: post.excerpt,
-  image: coverImagePath,
+  image: coverImage.src,
   datePublished: post.date.toISOString(),
   author: {
     "@type": "Person",
@@ -81,10 +82,10 @@ if (post.updated) {
   description={post.excerpt}
   contact={contact}
   translationSlug={post.i18n}
-  image={coverImagePath}
+  image={coverImage.src}
   type="article"
   schema={articleSchema}
-  preloadImage={coverImagePath}
+  preloadImage={coverImage.src}
 >
   <main class="post">
     <section class="post__content">
