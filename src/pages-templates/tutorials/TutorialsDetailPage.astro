@@ -18,6 +18,7 @@ import { t } from "@locales";
 import { getTutorialCoverImage } from "@utils/imageImports";
 import { IMAGE_DIMENSIONS, RESPONSIVE_SIZES } from "@utils/images";
 import { buildCategoryUrl, buildCourseUrl, buildTutorialsIndexUrl } from "@utils/routes";
+import { getImage } from "astro:assets";
 import { getCollection, render, type CollectionEntry } from "astro:content";
 
 import type { ContactItem } from "@/types/content";
@@ -40,9 +41,10 @@ const categories = findCategoriesBySlug(allCategories, tutorial.categories);
 
 // Cover image with fallback (returns ImageMetadata for optimization)
 const coverImage = getTutorialCoverImage(tutorial.cover);
-// Use the processed image URL (coverImage.src) for meta tags and preload hints.
-// The raw frontmatter path (/images/tutorials/...) does not exist in public/ —
-// Astro processes assets from src/assets/ into /_astro/*.webp at build time.
+// Generate optimized WebP URL for meta tags and preload hint.
+// coverImage.src points to the original JPG from the import —
+// getImage() processes it at build time and returns the final WebP URL.
+const optimizedCoverImage = await getImage({ src: coverImage, format: "webp" });
 
 // Get course info if exists (filtered by language)
 const allCourses = tutorial.course ? await getCollectionByLanguage("courses", lang) : [];
@@ -108,7 +110,7 @@ const tutorialSchema: Record<string, unknown> = {
   "@type": "TechArticle",
   headline: tutorial.title,
   description: tutorial.excerpt,
-  image: coverImage.src,
+  image: optimizedCoverImage.src,
   datePublished: tutorial.date.toISOString(),
   author: {
     "@type": "Person",
@@ -141,10 +143,10 @@ if (course) {
   description={tutorial.excerpt}
   contact={contact}
   translationSlug={tutorial.i18n}
-  image={coverImage.src}
+  image={optimizedCoverImage.src}
   type="article"
   schema={tutorialSchema}
-  preloadImage={coverImage.src}
+  preloadImage={optimizedCoverImage.src}
 >
   <Breadcrumbs items={breadcrumbs} lang={lang} />
   <main class="tutorial">
