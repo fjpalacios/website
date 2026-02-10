@@ -125,8 +125,11 @@
         min-height: 44px;
 
         @include small-and-up {
+          // Tablet: icon-only layout — use padding to maintain 44px touch target
+          // without disrupting the 20px grid column width
           min-width: auto;
           min-height: auto;
+          padding: 12px;
         }
 
         @include medium-and-up {

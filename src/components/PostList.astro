@@ -66,8 +66,12 @@ function getItemDimensions(item: ListItem) {
 <main class="blog">
   <section class="blog__grid">
     {
-      posts.map((post) => {
+      posts.map((post, index) => {
         const dimensions = getItemDimensions(post);
+        // First item is the LCP candidate — load eagerly to avoid CLS and LCP delay
+        const isFirstItem = index === 0;
+        const imageLoading = isFirstItem ? "eager" : "lazy";
+        const imageFetchPriority = isFirstItem ? "high" : "auto";
         const showOrderBadge =
           showOrderBadges &&
           ((post.type === "tutorial" && "order" in post && post.order !== undefined) ||
@@ -107,7 +111,8 @@ function getItemDimensions(item: ListItem) {
                   width={dimensions.width}
                   height={dimensions.height}
                   sizes={RESPONSIVE_SIZES.HALF_WIDTH}
-                  loading="lazy"
+                  loading={imageLoading}
+                  fetchpriority={imageFetchPriority}
                 />
                 {showOrderBadge && orderNumber !== undefined && <TutorialOrderBadge order={orderNumber} lang={lang} />}
                 {showCourseBadge && (
