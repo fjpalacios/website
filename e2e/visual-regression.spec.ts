@@ -49,9 +49,17 @@ test.describe("Visual Regression - Static Pages", () => {
         await page.goto("/this-page-does-not-exist");
         await waitForPageStable(page);
 
+        // Stop the auto-redirect countdown interval and freeze the text
+        // so the snapshot is deterministic regardless of timing
+        await page.evaluate(() => {
+          const el = document.getElementById("redirect-text");
+          if (el) el.textContent = "";
+        });
+
         await expect(page).toHaveScreenshot(`404-${name}.png`, {
           fullPage: true,
           animations: "disabled",
+          mask: [page.locator("#redirect-text")],
         });
       });
     }
