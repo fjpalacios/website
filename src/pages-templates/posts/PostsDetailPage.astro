@@ -19,6 +19,7 @@ import { t } from "@locales";
 import { getPostCoverImage } from "@utils/imageImports";
 import { IMAGE_DIMENSIONS, RESPONSIVE_SIZES } from "@utils/images";
 import { buildCategoryUrl } from "@utils/routes";
+import { getImage } from "astro:assets";
 import { render, type CollectionEntry } from "astro:content";
 
 import type { ContactItem } from "@/types/content";
@@ -41,9 +42,10 @@ const categories = findCategoriesBySlug(allCategories, post.categories);
 
 // Cover image with fallback (returns ImageMetadata for optimization)
 const coverImage = getPostCoverImage(post.cover);
-// Use the processed image URL (coverImage.src) for meta tags and preload hints.
-// The raw frontmatter path (/images/posts/...) does not exist in public/ —
-// Astro processes assets from src/assets/ into /_astro/*.webp at build time.
+// Generate optimized WebP URL for meta tags and preload hint.
+// coverImage.src points to the original JPG from the import —
+// getImage() processes it at build time and returns the final WebP URL.
+const optimizedCoverImage = await getImage({ src: coverImage, format: "webp" });
 
 // Share component data
 const baseUrl = t(lang, "metaData.url");
@@ -57,7 +59,7 @@ const articleSchema: Record<string, unknown> = {
   "@type": "BlogPosting",
   headline: post.title,
   description: post.excerpt,
-  image: coverImage.src,
+  image: optimizedCoverImage.src,
   datePublished: post.date.toISOString(),
   author: {
     "@type": "Person",
@@ -82,10 +84,10 @@ if (post.updated) {
   description={post.excerpt}
   contact={contact}
   translationSlug={post.i18n}
-  image={coverImage.src}
+  image={optimizedCoverImage.src}
   type="article"
   schema={articleSchema}
-  preloadImage={coverImage.src}
+  preloadImage={optimizedCoverImage.src}
 >
   <main class="post">
     <section class="post__content">
