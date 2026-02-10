@@ -70,7 +70,8 @@ export default {
 
       // For regular JS/TS files: Check template literals that might contain Astro script tags
       TemplateLiteral(node) {
-        const sourceCode = context.getSourceCode();
+        // context.getSourceCode() was removed in ESLint 10 — use context.sourceCode directly
+        const sourceCode = context.sourceCode;
         const text = sourceCode.getText(node);
 
         if (text.includes("<script") && text.includes("is:inline") && text.includes("define:vars")) {

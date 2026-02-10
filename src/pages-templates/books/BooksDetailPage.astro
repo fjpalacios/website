@@ -181,6 +181,7 @@ const genreLabel = lang === "en" ? "Genre" : "Género";
   type="book"
   schema={bookSchema}
   hasTargetContent={hasTargetContent}
+  preloadImage={book.book_cover || book.cover}
 >
   <Breadcrumbs items={breadcrumbs} lang={lang} />
   <main class="book">
@@ -192,6 +193,7 @@ const genreLabel = lang === "en" ? "Genre" : "Género";
           width={IMAGE_DIMENSIONS.BOOK_COVER_SMALL.width}
           height={IMAGE_DIMENSIONS.BOOK_COVER_SMALL.height}
           loading="eager"
+          fetchpriority="high"
         />
         <Rating score={book.score} lang={lang} size="sm" />
       </div>

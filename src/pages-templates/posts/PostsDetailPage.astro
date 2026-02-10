@@ -84,6 +84,7 @@ if (post.updated) {
   image={coverImagePath}
   type="article"
   schema={articleSchema}
+  preloadImage={coverImagePath}
 >
   <main class="post">
     <section class="post__content">
@@ -95,6 +96,7 @@ if (post.updated) {
           height={IMAGE_DIMENSIONS.POST_COVER_MEDIUM.height}
           sizes={RESPONSIVE_SIZES.FULL_WIDTH}
           loading="eager"
+          fetchpriority="high"
         />
       </div>
       <h1 class="sr-only">{post.title}</h1>

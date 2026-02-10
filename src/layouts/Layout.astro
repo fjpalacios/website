@@ -28,6 +28,8 @@ interface Props {
   currentPage?: number;
   totalPages?: number;
   basePath?: string;
+  // Performance optimization: preload image for LCP improvement
+  preloadImage?: string;
 }
 
 const {
@@ -44,6 +46,7 @@ const {
   currentPage,
   totalPages,
   basePath,
+  preloadImage,
 } = Astro.props;
 const currentPath = Astro.url.pathname;
 
@@ -63,6 +66,14 @@ const baseUrl = t(lang, "metaData.url");
 const hasPostsContent = await hasContentInLanguage("posts", lang);
 const hasBooksContent = await hasContentInLanguage("books", lang);
 const hasTutorialsContent = await hasContentInLanguage("tutorials", lang);
+
+// Build next page URL for prefetch (pagination optimization)
+const nextPageUrl =
+  totalPages && currentPage && currentPage < totalPages && basePath
+    ? currentPage === 1
+      ? `${basePath}/pagina/${currentPage + 1}`
+      : `${basePath.replace(/\/pagina\/\d+$/, "")}/pagina/${currentPage + 1}`
+    : null;
 ---
 
 <!doctype html>
@@ -71,6 +82,8 @@ const hasTutorialsContent = await hasContentInLanguage("tutorials", lang);
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="description" content={metaDescription} />
+    <meta name="theme-color" content="#11151c" media="(prefers-color-scheme: dark)" />
+    <meta name="theme-color" content="#fbfef9" media="(prefers-color-scheme: light)" />
 
     <!-- SEO Component: Open Graph, Twitter Cards, Canonical, Hreflang, JSON-LD -->
     <SEO
@@ -87,6 +100,12 @@ const hasTutorialsContent = await hasContentInLanguage("tutorials", lang);
     />
 
     <link rel="icon" type="image/x-icon" href="/favicon.ico" />
+
+    <!-- Performance: Preload cover images for detail pages (improves LCP) -->
+    {preloadImage && <link rel="preload" as="image" href={preloadImage} />}
+
+    <!-- Performance: Prefetch next page in pagination (improves navigation UX) -->
+    {nextPageUrl && <link rel="prefetch" href={nextPageUrl} />}
 
     <!-- RSS Feeds - Autodiscovery (only if content exists) -->
     {
@@ -130,13 +149,11 @@ const hasTutorialsContent = await hasContentInLanguage("tutorials", lang);
     <!-- Pagefind JS will be loaded dynamically when search modal opens -->
 
     <script is:inline>
-      // Prevent FOUC (Flash of Unstyled Content) by applying theme before render
-      // This must execute synchronously before body rendering
+      // Prevent FOUC (Flash of Unstyled Content) by applying theme before render.
+      // Runs synchronously in <head>: html is available, body is not yet.
       (function () {
         const theme = localStorage.getItem("theme") || "dark";
-        // Apply to html immediately (already available)
         document.documentElement.classList.add(theme);
-        // Also set a data attribute for CSS to use
         document.documentElement.setAttribute("data-theme", theme);
       })();
     </script>
@@ -160,10 +177,10 @@ const hasTutorialsContent = await hasContentInLanguage("tutorials", lang);
   </head>
   <body data-lang={lang}>
     <script is:inline>
-      // Apply theme to body as soon as it's available (prevents FOUC)
+      // Apply theme class to body (theme styles live on body.dark / body.light).
+      // Runs synchronously as soon as body opens — no FOUC.
       (function () {
-        const theme = localStorage.getItem("theme") || "dark";
-        document.body.classList.add(theme);
+        document.body.classList.add(localStorage.getItem("theme") || "dark");
       })();
     </script>
     <!-- Screen reader announcements for code copy actions -->

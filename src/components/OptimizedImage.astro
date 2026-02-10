@@ -115,6 +115,14 @@ interface Props {
    * - Example: [1, 2, 3] for 1x, 2x, 3x displays
    */
   densities?: number[];
+
+  /**
+   * Fetch priority hint for the browser
+   * - 'high': Fetch immediately (for hero/LCP images)
+   * - 'low': Defer fetching (for below-fold images)
+   * - 'auto': Browser decides (default)
+   */
+  fetchpriority?: "high" | "low" | "auto";
 }
 
 const {
@@ -128,7 +136,7 @@ const {
   quality = 80,
   sizes,
   widths = [400, 800, 1200, 1600],
-  densities,
+  fetchpriority = "auto",
 } = Astro.props;
 
 // Determine if this is an imported image or public path
@@ -150,9 +158,9 @@ if (!isImportedImage && (!width || !height)) {
   height={isImportedImage ? height : height!}
   class={className}
   loading={loading}
+  fetchpriority={fetchpriority}
   format={format}
   quality={quality}
   widths={widths}
-  densities={densities}
   sizes={sizes}
 />
