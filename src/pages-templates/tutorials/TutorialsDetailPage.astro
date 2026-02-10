@@ -143,6 +143,7 @@ if (course) {
   image={coverImagePath}
   type="article"
   schema={tutorialSchema}
+  preloadImage={coverImagePath}
 >
   <Breadcrumbs items={breadcrumbs} lang={lang} />
   <main class="tutorial">
@@ -155,6 +156,7 @@ if (course) {
           height={IMAGE_DIMENSIONS.POST_COVER_MEDIUM.height}
           sizes={RESPONSIVE_SIZES.FULL_WIDTH}
           loading="eager"
+          fetchpriority="high"
         />
       </div>
       <h1 class="sr-only">{tutorial.title}</h1>
