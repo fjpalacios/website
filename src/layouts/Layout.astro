@@ -101,6 +101,10 @@ const nextPageUrl =
 
     <link rel="icon" type="image/x-icon" href="/favicon.ico" />
 
+    <!-- Performance: Preconnect to Cloudflare Analytics (injected at edge, ~200ms savings on mobile) -->
+    <link rel="preconnect" href="https://cloudflareinsights.com" />
+    <link rel="dns-prefetch" href="https://cloudflareinsights.com" />
+
     <!-- Performance: Preload cover images for detail pages (improves LCP) -->
     {preloadImage && <link rel="preload" as="image" href={preloadImage} />}
 
