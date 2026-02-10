@@ -22,6 +22,7 @@ import { getBookCoverImage } from "@utils/imageImports";
 import { IMAGE_DIMENSIONS } from "@utils/images";
 import { buildAuthorUrl, buildCategoryUrl, buildGenreUrl, buildPublisherUrl } from "@utils/routes";
 import { safeValidateProps, CommonSchemas } from "@utils/validation";
+import { getImage } from "astro:assets";
 import { render, type CollectionEntry } from "astro:content";
 import { z } from "zod";
 
@@ -83,6 +84,11 @@ const series = book.series ? findSeriesBySlug(allSeries, book.series) : null;
 
 // Get optimized book cover image
 const bookCoverImage = getBookCoverImage(book.book_cover || book.cover, lang);
+
+// Generate optimized WebP URL for meta tags and preload hint.
+// bookCoverImage.src points to the original JPG from the import —
+// getImage() processes it at build time and returns the final WebP URL.
+const optimizedCoverImage = await getImage({ src: bookCoverImage, format: "webp", width: 200 });
 
 // Runtime validation schemas
 const BuyLinkSchema = z.object({
@@ -177,11 +183,11 @@ const genreLabel = lang === "en" ? "Genre" : "Género";
   title={`${book.title} - ${t(lang, "book.review")}`}
   contact={contact}
   translationSlug={book.i18n}
-  image={bookCoverImage.src}
+  image={optimizedCoverImage.src}
   type="book"
   schema={bookSchema}
   hasTargetContent={hasTargetContent}
-  preloadImage={bookCoverImage.src}
+  preloadImage={optimizedCoverImage.src}
 >
   <Breadcrumbs items={breadcrumbs} lang={lang} />
   <main class="book">
@@ -194,6 +200,8 @@ const genreLabel = lang === "en" ? "Genre" : "Género";
           height={IMAGE_DIMENSIONS.BOOK_COVER_SMALL.height}
           loading="eager"
           fetchpriority="high"
+          widths={[100, 200]}
+          sizes="100px"
         />
         <Rating score={book.score} lang={lang} size="sm" />
       </div>
