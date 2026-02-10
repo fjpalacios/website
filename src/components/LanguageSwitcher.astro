@@ -50,7 +50,7 @@ const flagLabel = t(lang, targetLang === getDefaultLanguageCode() ? "menu.toSpan
   class="language-switcher"
   data-lang-url={translatedUrl}
   disabled={disabled}
-  aria-label={flagLabel}
+  aria-label={`${langCode} — ${flagLabel}`}
   title={flagLabel}
 >
   <span class="language-switcher__text">{langCode}</span>

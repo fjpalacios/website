@@ -56,11 +56,23 @@
     }
 
     li {
-      display: inline-block;
+      display: inline-flex;
+      align-items: center;
       padding-right: 10px;
 
       @include print {
         padding-right: 6px;
+      }
+
+      a {
+        // Minimum touch target size (WCAG 2.5.5)
+        min-height: 44px;
+        display: inline-flex;
+        align-items: center;
+
+        @include small-and-up {
+          min-height: auto;
+        }
       }
     }
   }
