@@ -1,6 +1,6 @@
 # Website Roadmap
 
-**Last Updated:** January 10, 2026
+**Last Updated:** February 10, 2026
 
 ---
 
@@ -10,8 +10,8 @@
 
 - Unified router (86 dynamic paths, 25 templates)
 - Full i18n (ES/EN) with centralized config
-- 1,401 tests passing
-- Lighthouse 100/100
+- 1,658 tests passing (unit) + 535 e2e
+- Lighthouse 100/100 across all pages (a11y 100 on book detail after heading hierarchy fix)
 - Build: ~9 seconds
 
 ### 🟢 Content: ~15% Complete
