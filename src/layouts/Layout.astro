@@ -74,6 +74,8 @@ const nextPageUrl =
       ? `${basePath}/pagina/${currentPage + 1}`
       : `${basePath.replace(/\/pagina\/\d+$/, "")}/pagina/${currentPage + 1}`
     : null;
+
+const umamiWebsiteId: string | undefined = import.meta.env.PUBLIC_UMAMI_WEBSITE_ID;
 ---
 
 <!doctype html>
@@ -104,6 +106,10 @@ const nextPageUrl =
     <!-- Performance: Preconnect to Cloudflare Analytics (injected at edge, ~200ms savings on mobile) -->
     <link rel="preconnect" href="https://cloudflareinsights.com" />
     <link rel="dns-prefetch" href="https://cloudflareinsights.com" />
+
+    <!-- Performance: Preconnect to Umami Analytics (~200ms savings on mobile) -->
+    <link rel="preconnect" href="https://cloud.umami.is" />
+    <link rel="dns-prefetch" href="https://cloud.umami.is" />
 
     <!-- Performance: Preload cover images for detail pages (improves LCP) -->
     {preloadImage && <link rel="preload" as="image" href={preloadImage} />}
@@ -139,6 +145,20 @@ const nextPageUrl =
           type="application/rss+xml"
           title={`${t(lang, "title")} - ${t(lang, "feeds.tutorials")}`}
           href={`/${lang}/${getUrlSegment(lang, "tutorials")}/rss.xml`}
+        />
+      )
+    }
+
+    <!-- Umami Analytics: only in production, ~2KB, no cookies, GDPR compliant -->
+    {
+      umamiWebsiteId && (
+        <script
+          is:inline
+          defer
+          src="https://cloud.umami.is/script.js"
+          data-website-id={umamiWebsiteId}
+          data-auto-track="false"
+          data-domains="fjp.es"
         />
       )
     }
@@ -210,6 +230,17 @@ const nextPageUrl =
     </div>
     <!-- Search Modal (global, accessible from menu) -->
     <Search lang={lang} />
+
+    <!-- Umami: track pageviews manually to support Astro View Transitions -->
+    <script is:inline>
+      // Track pageview on each Astro View Transition navigation.
+      // data-auto-track="false" is set on the script tag, so we fire manually.
+      document.addEventListener("astro:page-load", function () {
+        if (typeof window.umami !== "undefined") {
+          window.umami.track();
+        }
+      });
+    </script>
     <script
       is:inline
       set:html={`
