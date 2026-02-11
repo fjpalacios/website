@@ -1,9 +1,11 @@
 # Personal Website
 
-My personal blog built with Astro. Book reviews, tech tutorials, and blog posts in Spanish and English.
+[![CI/CD](https://github.com/fjpalacios/website/actions/workflows/ci.yml/badge.svg)](https://github.com/fjpalacios/website/actions/workflows/ci.yml)
+[![Lighthouse](https://img.shields.io/badge/lighthouse-100-brightgreen?logo=lighthouse)](https://fjp.es)
+[![Tests](https://img.shields.io/badge/tests-2238%20passing-brightgreen)](https://github.com/fjpalacios/website)
+[![Live](https://img.shields.io/badge/live-fjp.es-blue)](https://fjp.es)
 
-**Live:** https://fjp.es (coming soon)  
-**Status:** ✅ Code complete, pending content migration
+My personal blog built with Astro. Book reviews, tech tutorials, and blog posts in Spanish and English.
 
 ---
 
@@ -17,9 +19,9 @@ bun install
 bun run dev
 
 # Run tests
-bun run test           # Unit tests (1,389 tests)
-bun run test:e2e       # E2E tests (427 tests)
-bun run test:coverage  # Coverage report (96.88%)
+bun run test           # Unit tests (1,692 tests)
+bun run test:e2e       # E2E tests (546 tests)
+bun run test:coverage  # Coverage report
 ```
 
 ---
@@ -66,7 +68,7 @@ src/
 🌓 **Dark Mode** - Zero-flash theme switching  
 ⚡ **Performance** - Lighthouse 100/100 on all metrics  
 ♿ **Accessibility** - WCAG AAA compliant  
-🧪 **Tested** - 1,816 tests (96.88% coverage)  
+🧪 **Tested** - 2,238 tests (1,692 unit + 546 E2E)  
 📱 **Responsive** - Mobile-first design  
 🔗 **SEO** - Open Graph, JSON-LD, sitemaps, RSS
 
@@ -89,8 +91,6 @@ src/
 
 ## Documentation
 
-- **[PRODUCTION_DEPLOYMENT.md](docs/PRODUCTION_DEPLOYMENT.md)** - Deploy to production (step-by-step)
-- **[ROADMAP.md](docs/ROADMAP.md)** - Project status and next steps
 - **[DEVELOPMENT_GUIDELINES.md](docs/DEVELOPMENT_GUIDELINES.md)** - Coding standards
 - **[ADDING_LANGUAGES.md](docs/ADDING_LANGUAGES.md)** - Add new language (~15 min)
 - **[IMAGE_GENERATION.md](docs/IMAGE_GENERATION.md)** - Generate OG images
@@ -99,12 +99,11 @@ src/
 
 ## Metrics
 
-- **Pages:** 86 pages generated in ~9 seconds
-- **Tests:** 1,816 tests (1,389 unit + 427 E2E)
-- **Coverage:** 96.88% statements, 88.94% branches
+- **Pages:** 554 pages generated in ~9 seconds
+- **Tests:** 2,238 tests (1,692 unit + 546 E2E)
+- **Coverage:** 91.59% statements, 81.19% branches
 - **TypeScript:** 0 errors (strict mode)
 - **Lighthouse:** 100/100 (Performance, Accessibility, Best Practices, SEO)
-- **Build Size:** Optimized with ViewTransitions
 
 ---
 

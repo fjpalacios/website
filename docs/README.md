@@ -4,8 +4,6 @@ Essential docs for the website project.
 
 ## Quick Start
 
-- **[PRODUCTION_DEPLOYMENT.md](PRODUCTION_DEPLOYMENT.md)** - Deploy to production (step-by-step)
-- **[ROADMAP.md](ROADMAP.md)** - Project status and what's next
 - **[DEVELOPMENT_GUIDELINES.md](DEVELOPMENT_GUIDELINES.md)** - Coding standards
 
 ## Additional Guides
