@@ -1,10 +1,15 @@
 ---
-// Detect browser language from Accept-Language header
-// If Spanish is detected -> /es/, otherwise -> /en/
-const acceptLanguage = Astro.request.headers.get("accept-language") || "";
-const isSpanish = acceptLanguage.toLowerCase().includes("es");
-const targetLang = isSpanish ? "es" : "en";
-
-// Server-side redirect (better for SEO and performance)
-return Astro.redirect(`/${targetLang}/`, 302);
+// Static fallback for local dev — in production, Cloudflare middleware handles this.
+// Redirects to /es/ by default; the middleware does proper Accept-Language detection.
 ---
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta http-equiv="refresh" content="0;url=/es/" />
+    <link rel="canonical" href="/es/" />
+  </head>
+  <body>
+    <p>Redirecting to <a href="/es/">/es/</a></p>
+  </body>
+</html>
