@@ -42,6 +42,10 @@
       @include small-and-up {
         min-height: auto;
       }
+
+      @include print {
+        min-height: 0;
+      }
     }
   }
 
@@ -83,6 +87,10 @@
 
         @include small-and-up {
           min-height: auto;
+        }
+
+        @include print {
+          min-height: 0;
         }
       }
     }
