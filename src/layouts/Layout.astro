@@ -74,8 +74,6 @@ const nextPageUrl =
       ? `${basePath}/pagina/${currentPage + 1}`
       : `${basePath.replace(/\/pagina\/\d+$/, "")}/pagina/${currentPage + 1}`
     : null;
-
-const umamiWebsiteId: string | undefined = import.meta.env.PUBLIC_UMAMI_WEBSITE_ID;
 ---
 
 <!doctype html>
@@ -149,19 +147,14 @@ const umamiWebsiteId: string | undefined = import.meta.env.PUBLIC_UMAMI_WEBSITE_
       )
     }
 
-    <!-- Umami Analytics: only in production, ~2KB, no cookies, GDPR compliant -->
-    {
-      umamiWebsiteId && (
-        <script
-          is:inline
-          defer
-          src="https://cloud.umami.is/script.js"
-          data-website-id={umamiWebsiteId}
-          data-auto-track="false"
-          data-domains="fjp.es"
-        />
-      )
-    }
+    <!-- Umami Analytics: ~2KB, no cookies, GDPR compliant. data-domains limits tracking to fjp.es only -->
+    <script
+      is:inline
+      defer
+      src="https://cloud.umami.is/script.js"
+      data-website-id="426f751f-3947-4965-a78d-a4573516bd8c"
+      data-auto-track="false"
+      data-domains="fjp.es"></script>
 
     <ViewTransitions />
     <style is:global lang="scss">
