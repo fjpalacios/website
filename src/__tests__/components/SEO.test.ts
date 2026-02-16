@@ -178,6 +178,20 @@ describe("SEO Component", () => {
       // Should include hreflang for the current page too
       expect(content).toMatch(/hreflang=.*{lang}|hreflang=.*currentLang/);
     });
+
+    it("should accept hasTargetContent prop to suppress hreflang when no translation exists", () => {
+      const content = fs.readFileSync(componentPath, "utf-8");
+
+      // Props interface must include hasTargetContent
+      expect(content).toContain("hasTargetContent?:");
+    });
+
+    it("should not build alternateUrl when hasTargetContent is explicitly false", () => {
+      const content = fs.readFileSync(componentPath, "utf-8");
+
+      // Must gate alternateUrl construction on hasTargetContent !== false
+      expect(content).toMatch(/hasTargetContent.*false|hasTargetContent.*!==.*false|hasTargetContent.*===.*false/);
+    });
   });
 
   describe("JSON-LD Structured Data", () => {
