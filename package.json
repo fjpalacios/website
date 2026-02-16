@@ -63,7 +63,7 @@
     "@astrojs/mdx": "^4.3.13",
     "@astrojs/rss": "4.0.15",
     "@astrojs/sitemap": "3.7.0",
-    "astro": "5.17.1",
+    "astro": "5.17.2",
     "fast-xml-parser": "5.3.6",
     "marked": "^17.0.1",
     "mdast-util-to-hast": "13.2.1",
