@@ -4,7 +4,7 @@
 import type { CollectionEntry } from "astro:content";
 import { describe, it, expect } from "vitest";
 
-import { prepareTutorialSummary } from "@/utils/blog/tutorials";
+import { getCourseTutorialNavigation, prepareTutorialSummary } from "@/utils/blog/tutorials";
 
 // Mock tutorial data
 const mockTutorial: CollectionEntry<"tutorials"> = {
@@ -153,6 +153,115 @@ describe("prepareTutorialSummary", () => {
 
       expect(summary.course).toBe("domina-git-desde-cero");
       expect(summary.courseName).toBe("Domina Git desde Cero");
+    });
+  });
+});
+
+// Helpers for getCourseTutorialNavigation tests
+function makeTutorial(order: number, slug: string, course = "test-course"): CollectionEntry<"tutorials"> {
+  return {
+    id: `${slug}.mdx`,
+    collection: "tutorials",
+    data: {
+      title: `Tutorial ${order}`,
+      post_slug: slug,
+      date: new Date("2024-01-01"),
+      excerpt: "An excerpt",
+      language: "es" as const,
+      category: "tutorials",
+      draft: false,
+      course,
+      order,
+    },
+  } as CollectionEntry<"tutorials">;
+}
+
+describe("getCourseTutorialNavigation", () => {
+  describe("consecutive integer orders", () => {
+    const tutorials = [makeTutorial(1, "t1"), makeTutorial(2, "t2"), makeTutorial(3, "t3")];
+
+    it("returns null prev for the first tutorial", () => {
+      const { previousTutorial } = getCourseTutorialNavigation(tutorials, 1);
+      expect(previousTutorial).toBeNull();
+    });
+
+    it("returns null next for the last tutorial", () => {
+      const { nextTutorial } = getCourseTutorialNavigation(tutorials, 3);
+      expect(nextTutorial).toBeNull();
+    });
+
+    it("returns correct prev and next for a middle tutorial", () => {
+      const { previousTutorial, nextTutorial } = getCourseTutorialNavigation(tutorials, 2);
+      expect(previousTutorial).toMatchObject({ slug: "t1", order: 1 });
+      expect(nextTutorial).toMatchObject({ slug: "t3", order: 3 });
+    });
+  });
+
+  describe("decimal orders (e.g. 2.5 between 2 and 3)", () => {
+    const tutorials = [makeTutorial(1, "t1"), makeTutorial(2, "t2"), makeTutorial(2.5, "t2-5"), makeTutorial(3, "t3")];
+
+    it("finds decimal tutorial as next when current order is 2", () => {
+      const { nextTutorial } = getCourseTutorialNavigation(tutorials, 2);
+      expect(nextTutorial).toMatchObject({ slug: "t2-5", order: 2.5 });
+    });
+
+    it("finds tutorial 2 as prev when current order is 2.5", () => {
+      const { previousTutorial } = getCourseTutorialNavigation(tutorials, 2.5);
+      expect(previousTutorial).toMatchObject({ slug: "t2", order: 2 });
+    });
+
+    it("finds tutorial 3 as next when current order is 2.5", () => {
+      const { nextTutorial } = getCourseTutorialNavigation(tutorials, 2.5);
+      expect(nextTutorial).toMatchObject({ slug: "t3", order: 3 });
+    });
+  });
+
+  describe("non-consecutive integer orders (gaps)", () => {
+    // Simulates a Git course where tutorials 6 and 7 are not yet published:
+    // order 1 -> 2 -> 3 -> 5 -> 8
+    const tutorials = [
+      makeTutorial(1, "git-1"),
+      makeTutorial(2, "git-2"),
+      makeTutorial(3, "git-3"),
+      makeTutorial(5, "git-5"),
+      makeTutorial(8, "git-8"),
+    ];
+
+    it("finds order-8 as next when current is order-5 (gap of 3)", () => {
+      const { nextTutorial } = getCourseTutorialNavigation(tutorials, 5);
+      expect(nextTutorial).toMatchObject({ slug: "git-8", order: 8 });
+    });
+
+    it("finds order-5 as prev when current is order-8 (gap of 3)", () => {
+      const { previousTutorial } = getCourseTutorialNavigation(tutorials, 8);
+      expect(previousTutorial).toMatchObject({ slug: "git-5", order: 5 });
+    });
+
+    it("finds order-3 as prev when current is order-5", () => {
+      const { previousTutorial } = getCourseTutorialNavigation(tutorials, 5);
+      expect(previousTutorial).toMatchObject({ slug: "git-3", order: 3 });
+    });
+  });
+
+  describe("edge cases", () => {
+    it("returns both null when tutorials array is empty", () => {
+      const { previousTutorial, nextTutorial } = getCourseTutorialNavigation([], 1);
+      expect(previousTutorial).toBeNull();
+      expect(nextTutorial).toBeNull();
+    });
+
+    it("returns both null when current order is not found in the array", () => {
+      const tutorials = [makeTutorial(1, "t1"), makeTutorial(3, "t3")];
+      const { previousTutorial, nextTutorial } = getCourseTutorialNavigation(tutorials, 99);
+      expect(previousTutorial).toBeNull();
+      expect(nextTutorial).toBeNull();
+    });
+
+    it("returns both null when there is only one tutorial", () => {
+      const tutorials = [makeTutorial(1, "only")];
+      const { previousTutorial, nextTutorial } = getCourseTutorialNavigation(tutorials, 1);
+      expect(previousTutorial).toBeNull();
+      expect(nextTutorial).toBeNull();
     });
   });
 });
