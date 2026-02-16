@@ -55,8 +55,14 @@ const canonicalUrl = `${siteUrl}${currentPath}`;
 const alternateLang = getAlternateLang(lang);
 let alternateUrl: string | null = null;
 
-// When hasTargetContent is explicitly false, no alternate version exists — skip hreflang entirely
-if (hasTargetContent === false) {
+// Determine if this is a detail page (3+ path segments: /lang/section/slug/)
+// List/index pages have exactly 2 segments (/lang/section/) and always have an alternate route.
+// Only suppress hreflang on detail pages where hasTargetContent is explicitly false.
+const pathSegments = currentPath.split("/").filter(Boolean);
+const isDetailPage = pathSegments.length >= 3;
+
+if (hasTargetContent === false && isDetailPage) {
+  // No alternate version exists for this specific content — skip hreflang entirely
   alternateUrl = null;
 } else if (translationSlug) {
   // Dynamic content (posts, books, etc) with specific slug

@@ -186,11 +186,11 @@ describe("SEO Component", () => {
       expect(content).toContain("hasTargetContent?:");
     });
 
-    it("should not build alternateUrl when hasTargetContent is explicitly false", () => {
+    it("should not build alternateUrl when hasTargetContent is false on detail pages", () => {
       const content = fs.readFileSync(componentPath, "utf-8");
 
-      // Must gate alternateUrl construction on hasTargetContent !== false
-      expect(content).toMatch(/hasTargetContent.*false|hasTargetContent.*!==.*false|hasTargetContent.*===.*false/);
+      // Must suppress hreflang only on detail pages (3+ path segments) when hasTargetContent is false
+      expect(content).toMatch(/hasTargetContent.*false.*isDetailPage|hasTargetContent.*===.*false.*&&.*isDetailPage/);
     });
   });
 
