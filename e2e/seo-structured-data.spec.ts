@@ -171,14 +171,24 @@ test.describe("SEO Structured Data - Content Pages", () => {
       await expect(hreflangEn).toHaveAttribute("href", "https://fjp.es/en/about/");
     });
 
-    test("should have hreflang tags on translated book pages", async ({ page }) => {
+    test("should have hreflang tags on bilingual tutorial pages", async ({ page }) => {
+      // This tutorial has i18n: "what-is-git" — a real EN counterpart exists at /en/tutorials/what-is-git/
+      await page.goto("/es/tutoriales/que-es-git/");
+
+      const hreflangEs = page.locator('link[rel="alternate"][hreflang="es"]');
+      const hreflangEn = page.locator('link[rel="alternate"][hreflang="en"]');
+
+      await expect(hreflangEs).toHaveAttribute("href", "https://fjp.es/es/tutoriales/que-es-git/");
+      await expect(hreflangEn).toHaveAttribute("href", "https://fjp.es/en/tutorials/what-is-git/");
+    });
+
+    test("should not have hreflang tags on ES-only book pages with no EN translation", async ({ page }) => {
+      // This book has language: "es" and no i18n field — no EN version exists.
+      // Emitting a hreflang="en" tag here would point to a 404 (confirmed in GSC).
       await page.goto("/es/libros/apocalipsis-de-stephen-king/");
 
       const hreflangTags = page.locator('link[rel="alternate"][hreflang]');
-      const count = await hreflangTags.count();
-
-      // Should have at least Spanish hreflang (and English if translation exists)
-      expect(count).toBeGreaterThanOrEqual(1);
+      await expect(hreflangTags).toHaveCount(0);
     });
   });
 
