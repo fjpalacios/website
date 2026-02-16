@@ -23,6 +23,7 @@ import { getCollection, render, type CollectionEntry } from "astro:content";
 
 import type { ContactItem } from "@/types/content";
 import { findCategoriesBySlug } from "@/utils/blog";
+import { getCourseTutorialNavigation } from "@/utils/blog/tutorials";
 import { getCollectionByLanguage } from "@/utils/content/getCollectionByLanguage";
 
 interface Props {
@@ -66,28 +67,10 @@ if (tutorial.course && tutorial.order !== undefined) {
     );
   });
 
-  // Sort by order ascending
-  allTutorials.sort((a, b) => (a.data.order || 0) - (b.data.order || 0));
-
-  // Find previous tutorial (order - 1)
-  const prevTutorial = allTutorials.find((t) => t.data.order === tutorial.order! - 1);
-  if (prevTutorial) {
-    previousTutorial = {
-      title: prevTutorial.data.title,
-      slug: prevTutorial.data.post_slug,
-      order: prevTutorial.data.order!,
-    };
-  }
-
-  // Find next tutorial (order + 1)
-  const nextTut = allTutorials.find((t) => t.data.order === tutorial.order! + 1);
-  if (nextTut) {
-    nextTutorial = {
-      title: nextTut.data.title,
-      slug: nextTut.data.post_slug,
-      order: nextTut.data.order!,
-    };
-  }
+  // Resolve prev/next by sorted position — supports decimal orders and non-consecutive gaps
+  const nav = getCourseTutorialNavigation(allTutorials, tutorial.order);
+  previousTutorial = nav.previousTutorial;
+  nextTutorial = nav.nextTutorial;
 }
 
 // Build breadcrumbs
@@ -208,8 +191,8 @@ if (course) {
     {
       course && (previousTutorial || nextTutorial) && (
         <CourseNavigation
-          previousTutorial={previousTutorial}
-          nextTutorial={nextTutorial}
+          previousTutorial={previousTutorial ?? undefined}
+          nextTutorial={nextTutorial ?? undefined}
           lang={lang}
           courseName={course.data.name}
         />
