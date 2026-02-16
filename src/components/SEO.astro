@@ -21,6 +21,7 @@ interface Props {
   type?: "website" | "article" | "book";
   lang: LanguageKey;
   translationSlug?: string;
+  hasTargetContent?: boolean; // When explicitly false, suppresses hreflang for missing translations
   schema?: Record<string, unknown>;
   // Pagination support for rel=prev/next
   currentPage?: number;
@@ -35,6 +36,7 @@ const {
   type = "website",
   lang,
   translationSlug,
+  hasTargetContent,
   schema,
   currentPage,
   totalPages,
@@ -53,7 +55,16 @@ const canonicalUrl = `${siteUrl}${currentPath}`;
 const alternateLang = getAlternateLang(lang);
 let alternateUrl: string | null = null;
 
-if (translationSlug) {
+// Determine if this is a detail page (3+ path segments: /lang/section/slug/)
+// List/index pages have exactly 2 segments (/lang/section/) and always have an alternate route.
+// Only suppress hreflang on detail pages where hasTargetContent is explicitly false.
+const pathSegments = currentPath.split("/").filter(Boolean);
+const isDetailPage = pathSegments.length >= 3;
+
+if (hasTargetContent === false && isDetailPage) {
+  // No alternate version exists for this specific content — skip hreflang entirely
+  alternateUrl = null;
+} else if (translationSlug) {
   // Dynamic content (posts, books, etc) with specific slug
   // Extract the content type from current path to build correct alternate URL
   const pathParts = currentPath.split("/").filter(Boolean);
