@@ -19,7 +19,6 @@ const mockTutorial: CollectionEntry<"tutorials"> = {
     category: "tutorials",
     difficulty: "beginner",
     estimated_time: 30,
-    draft: false,
   },
 } as CollectionEntry<"tutorials">;
 
@@ -35,7 +34,6 @@ const mockTutorialWithOptional: CollectionEntry<"tutorials"> = {
     category: "tutorials",
     difficulty: "advanced",
     estimated_time: 120,
-    draft: false,
     github_repo: "https://github.com/test/repo",
     demo_url: "https://demo.example.com",
     course: "javascript-fundamentals",
@@ -169,7 +167,6 @@ function makeTutorial(order: number, slug: string, course = "test-course"): Coll
       excerpt: "An excerpt",
       language: "es" as const,
       category: "tutorials",
-      draft: false,
       course,
       order,
     },

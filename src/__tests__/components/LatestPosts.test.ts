@@ -156,11 +156,11 @@ describe("LatestPosts Component", () => {
       expect(content).toContain("latestPosts.length > 0");
     });
 
-    it("should handle case where all posts are drafts", () => {
+    it("should handle case where all posts are future-dated", () => {
       const content = fs.readFileSync(componentPath, "utf-8");
 
-      // Component uses getLatestPosts utility which filters out drafts
-      // If all posts are drafts, the array should be empty and nothing should render
+      // Component uses getLatestPosts utility which filters out future-dated content
+      // If all posts are future-dated, the array should be empty and nothing should render
       expect(content).toContain("getLatestPosts");
       expect(content).toContain("latestPosts.length > 0");
     });
