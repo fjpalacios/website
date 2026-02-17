@@ -1,0 +1,239 @@
+---
+title: "Entendiendo git status y git log"
+post_slug: "entendiendo-git-status-log"
+date: "2026-02-19"
+excerpt: "Dos comandos que usarás cada día trabajando con Git: git status te dice el estado de tu repositorio y git log te muestra su historial. En este tutorial los estudiamos a fondo."
+language: "es"
+categories: ["git"]
+course: "domina-git-desde-cero"
+order: 5
+cover: "/images/tutorials/cabecera-git.jpg"
+i18n: "understanding-git-status-and-log"
+---
+
+Si has seguido el curso hasta aquí, ya tienes tus primeros commits en Git y entiendes perfectamente los tres estados en los que puede encontrarse un archivo. Ahora es momento de profundizar en dos comandos que vas a usar _constantemente_ durante tu carrera como desarrollador: `git status` y `git log`.
+
+Ya los hemos visto de pasada en tutoriales anteriores, pero merecen un capítulo propio porque tienen muchas más opciones de las que hemos mostrado, y conocerlas bien te ahorrará tiempo y confusión desde el primer día.
+
+## git status: el estado de tu repositorio
+
+`git status` es el comando que te dice en qué punto se encuentra tu repositorio en este preciso instante. ¿Hay archivos modificados? ¿Hay cambios preparados para el próximo commit? ¿Estás al día con el repositorio remoto? Todo eso te lo dice este comando.
+
+Cuando tienes el repositorio limpio, sin nada pendiente, la salida es muy sencilla:
+
+```bash
+On branch master
+nothing to commit, working tree clean
+```
+
+Pero en cuanto empiezas a trabajar la cosa se complica. Vamos a ver los diferentes estados que pueden aparecer.
+
+### Archivos sin rastrear
+
+Si creas un archivo nuevo que Git todavía no conoce, aparecerá como _untracked_:
+
+```bash
+On branch master
+Untracked files:
+  (use "git add <file>..." to include in what will be committed)
+        README.md
+
+nothing added to commit but untracked files present (use "git add" to track)
+```
+
+Git te está diciendo que hay un archivo que existe en tu directorio de trabajo pero que él no está siguiendo. Para empezar a rastrearlo tendrías que hacer `git add README.md`.
+
+### Archivos modificados
+
+Si modificas un archivo que Git ya conoce, aparecerá en la sección _Changes not staged for commit_:
+
+```bash
+On branch master
+Changes not staged for commit:
+  (use "git add <file>..." to update what will be committed)
+  (use "git restore <file>..." to discard changes in working directory)
+        modified:   index.html
+
+no changes added to commit (use "git add" and/or "git commit -a")
+```
+
+El archivo ha cambiado respecto a lo que hay en el último commit, pero todavía no lo has preparado (no has hecho `git add`).
+
+### Archivos preparados
+
+Una vez que haces `git add` sobre el archivo modificado, pasa a la sección _Changes to be committed_:
+
+```bash
+On branch master
+Changes to be committed:
+  (use "git restore --staged <file>..." to unstage)
+        modified:   index.html
+```
+
+Ahora sí está listo para el próximo commit.
+
+### El modo compacto
+
+Si tu repositorio tiene muchos archivos en diferentes estados, la salida de `git status` puede ser bastante larga. Para esos casos existe el flag `-s` (o `--short`) que muestra una versión mucho más concisa:
+
+```bash
+git status -s
+```
+
+La salida sería algo así:
+
+```bash
+ M index.html
+?? README.md
+```
+
+La primera columna indica el estado en el _staging area_ y la segunda el estado en el directorio de trabajo. Los símbolos más comunes son:
+
+- `M` — modificado
+- `A` — añadido al staging area
+- `D` — borrado
+- `??` — sin rastrear (_untracked_)
+- `R` — renombrado
+
+Cuando el símbolo aparece en la primera columna, el cambio está preparado; en la segunda, no está preparado todavía.
+
+## git log: la historia de tu proyecto
+
+`git log` muestra el historial de commits del repositorio, del más reciente al más antiguo. Sin opciones adicionales, la salida es bastante detallada:
+
+```bash
+commit e02c63c1a5b8f9d4e7c2a3b6d8f1e4a7b9c2d5e
+Author: Tu Nombre <tu@email.com>
+Date:   Mon Feb 16 10:30:00 2026 +0100
+
+    Adding a striking message
+
+commit f7c5eba2b3c4d5e6f7a8b9c0d1e2f3a4b5c6d7e
+Author: Tu Nombre <tu@email.com>
+Date:   Sun Feb 15 18:00:00 2026 +0100
+
+    My first commit
+```
+
+Para cada commit ves su identificador único (el hash SHA-1), el autor, la fecha y el mensaje. Esto está muy bien, pero cuando tienes decenas o cientos de commits, ver toda esa información para cada uno se vuelve engorroso. Por eso existen las opciones.
+
+### --oneline: una línea por commit
+
+La opción más útil del día a día. Muestra cada commit en una sola línea con el hash abreviado y el mensaje:
+
+```bash
+git log --oneline
+```
+
+```bash
+e02c63c Adding a striking message
+f7c5eba My first commit
+```
+
+Simple, limpio y fácil de leer de un vistazo.
+
+### --graph: visualizando ramas
+
+Cuando trabajas con ramas, `--graph` dibuja un gráfico ASCII que muestra cómo se ramifica y se une el historial. Se suele combinar con `--oneline`:
+
+```bash
+git log --oneline --graph
+```
+
+```bash
+* e02c63c (HEAD -> master) Adding a striking message
+* f7c5eba My first commit
+```
+
+Con un historial con ramas se vería algo así:
+
+```bash
+*   a1b2c3d (HEAD -> master) Merge branch 'feature'
+|\
+| * d4e5f6g Add new feature
+| * h7i8j9k Start feature work
+* | k1l2m3n Fix bug in production
+|/
+* n4o5p6q Initial commit
+```
+
+### --decorate: referencias visibles
+
+`--decorate` añade junto a cada commit las referencias que apuntan a él (ramas, tags, HEAD). En versiones recientes de Git viene activado por defecto, pero es bueno conocerlo:
+
+```bash
+git log --oneline --decorate
+```
+
+```bash
+e02c63c (HEAD -> master, origin/master) Adding a striking message
+f7c5eba My first commit
+```
+
+### El combo definitivo
+
+La combinación que la mayoría de desarrolladores acaba usando todos los días:
+
+```bash
+git log --oneline --graph --decorate --all
+```
+
+`--all` hace que se muestren todos los commits de todas las ramas, no solo los de la rama actual. Juntos, estos cuatro flags te dan una visión completa y clara del estado de todo tu repositorio de un vistazo.
+
+### Limitar la cantidad de commits
+
+Si solo quieres ver los últimos _n_ commits, usa `-n` seguido del número:
+
+```bash
+git log -5
+```
+
+Muestra los últimos 5 commits. También puedes filtrar por autor o por fecha:
+
+```bash
+git log --author="Tu Nombre"
+git log --since="2026-01-01"
+git log --until="2026-02-01"
+```
+
+### Buscar en los mensajes de commit
+
+Para encontrar commits que contengan una palabra concreta en su mensaje:
+
+```bash
+git log --grep="fix"
+```
+
+Muy útil cuando buscas cuándo se introdujo o solucionó algo concreto.
+
+### Ver los cambios de cada commit
+
+Con `-p` (o `--patch`) ves exactamente qué cambios introdujo cada commit:
+
+```bash
+git log -p
+```
+
+Es la salida más detallada posible: para cada commit muestra el diff completo. Combinado con `-1` te permite ver los cambios del último commit sin más:
+
+```bash
+git log -p -1
+```
+
+## Un alias para el día a día
+
+Como `git log --oneline --graph --decorate --all` es bastante para escribir, tiene mucho sentido crear un alias. Ya veremos los alias de Git en profundidad más adelante en el curso, pero adelantamos que puedes crear uno así:
+
+```bash
+git config --global alias.lg "log --oneline --graph --decorate --all"
+```
+
+Y a partir de ahí, solo necesitas escribir `git lg` para obtener el historial completo formateado.
+
+---
+
+`git status` y `git log` son tus ojos en Git: el primero te dice qué está pasando ahora mismo y el segundo te cuenta todo lo que ha pasado hasta aquí. Dominarlos es fundamental antes de seguir avanzando en el curso, y a estas alturas ya deberías sentirte cómodo con ambos.
+
+En el próximo tutorial daremos un paso muy importante: aprenderemos a decirle a Git qué archivos debe ignorar usando `.gitignore`. Es algo que usarás en absolutamente todos tus proyectos.
+
+¡Nunca dejes de programar!
