@@ -3,19 +3,12 @@
  * Used by both /es/libros/ and /en/books/
  */
 
-import { getCollection, type CollectionEntry } from "astro:content";
+import { getCollection } from "astro:content";
 
 import { PAGINATION_CONFIG } from "@/config/pagination";
 import type { LanguageKey } from "@/types";
 import type { ContactItem } from "@/types/content";
-import {
-  filterByLanguage,
-  findAuthorBySlug,
-  isPublished,
-  prepareBookSummary,
-  sortByDate,
-  type BookSummary,
-} from "@/utils/blog";
+import { filterByLanguage, findAuthorBySlug, prepareBookSummary, sortByDate, type BookSummary } from "@/utils/blog";
 import { generateDetailPaths, generatePaginationPaths } from "@/utils/pagination/generator";
 
 export const BOOKS_PER_PAGE = PAGINATION_CONFIG.books;
@@ -29,8 +22,8 @@ export async function getAllBooksForLanguage(lang: string): Promise<BookSummary[
   const allAuthors = await getCollection("authors");
   const allSeries = await getCollection("series");
 
-  // Filter by language and exclude future-dated content
-  const langBooks = filterByLanguage(allBooks, lang as LanguageKey).filter((book) => isPublished(book.data.date));
+  // Filter by language
+  const langBooks = filterByLanguage(allBooks, lang as LanguageKey);
 
   // Sort by date (newest first)
   const sortedBooks = sortByDate(langBooks, "desc");
@@ -60,17 +53,12 @@ export async function generateBooksPaginationPaths(lang: string, contact: Contac
 
 /**
  * Generate static paths for book detail pages
- * Only generates paths for published (non-future-dated) books
  */
 export async function generateBookDetailPaths(lang: string, contact: ContactItem[]) {
   const books = await getCollection("books");
-  const publishedBooks = books.filter((book: CollectionEntry<"books">) =>
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Astro 5 data type inference limitation
-    isPublished((book.data as any).date),
-  );
 
   return generateDetailPaths({
-    entries: publishedBooks,
+    entries: books,
     lang,
     contact,
     entryKey: "bookEntry",

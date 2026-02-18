@@ -3,7 +3,7 @@
  * Used by both /es/publicaciones/ and /en/posts/
  */
 
-import { getCollection, type CollectionEntry } from "astro:content";
+import { getCollection } from "astro:content";
 
 import { getAlternateLang } from "@/config/languages";
 import { PAGINATION_CONFIG } from "@/config/pagination";
@@ -11,7 +11,6 @@ import type { ContactItem, LanguageKey } from "@/types";
 import {
   filterByLanguage,
   getPageCount,
-  isPublished,
   paginateItems,
   prepareBookSummary,
   preparePostSummary,
@@ -33,10 +32,10 @@ export async function getAllContentForLanguage(lang: LanguageKey): Promise<Conte
   const allCourses = await getCollection("courses");
   const allSeries = await getCollection("series");
 
-  // Filter by language and exclude future-dated content
-  const langPosts = filterByLanguage(allPosts, lang).filter((post) => isPublished(post.data.date));
-  const langTutorials = filterByLanguage(allTutorials, lang).filter((tutorial) => isPublished(tutorial.data.date));
-  const langBooks = filterByLanguage(allBooks, lang).filter((book) => isPublished(book.data.date));
+  // Filter by language
+  const langPosts = filterByLanguage(allPosts, lang);
+  const langTutorials = filterByLanguage(allTutorials, lang);
+  const langBooks = filterByLanguage(allBooks, lang);
 
   // Prepare summaries with course/series context
   const postSummaries = langPosts.map((post) => preparePostSummary(post));
@@ -95,14 +94,12 @@ export async function generatePostsPaginationPaths(lang: LanguageKey, contact: C
 
 /**
  * Generate static paths for post detail pages
- * Only generates paths for published (non-future-dated) posts
  */
 export async function generatePostDetailPaths(lang: string, contact: ContactItem[]) {
   const posts = await getCollection("posts");
-  const publishedPosts = posts.filter((post: CollectionEntry<"posts">) => isPublished(post.data.date));
 
   return generateDetailPaths({
-    entries: publishedPosts,
+    entries: posts,
     lang,
     contact,
     entryKey: "postEntry",

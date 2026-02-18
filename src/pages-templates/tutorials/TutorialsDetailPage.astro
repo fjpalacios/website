@@ -22,7 +22,7 @@ import { getImage } from "astro:assets";
 import { getCollection, render, type CollectionEntry } from "astro:content";
 
 import type { ContactItem } from "@/types/content";
-import { findCategoriesBySlug, isPublished } from "@/utils/blog";
+import { findCategoriesBySlug } from "@/utils/blog";
 import { getCourseTutorialNavigation } from "@/utils/blog/tutorials";
 import { getCollectionByLanguage } from "@/utils/content/getCollectionByLanguage";
 
@@ -56,14 +56,9 @@ let previousTutorial = null;
 let nextTutorial = null;
 
 if (tutorial.course && tutorial.order !== undefined) {
-  // Get all tutorials from the same course, excluding future-dated content
+  // Get all tutorials from the same course
   const allTutorials = await getCollection("tutorials", (t) => {
-    return (
-      t.data.language === lang &&
-      t.data.course === tutorial.course &&
-      t.data.order !== undefined &&
-      isPublished(t.data.date)
-    );
+    return t.data.language === lang && t.data.course === tutorial.course && t.data.order !== undefined;
   });
 
   // Resolve prev/next by sorted position — supports decimal orders and non-consecutive gaps

@@ -4,13 +4,7 @@ import { getCollection } from "astro:content";
 import { getAlternateLang } from "@/config/languages";
 import { PAGINATION_CONFIG } from "@/config/pagination";
 import type { ContactItem, LanguageKey } from "@/types";
-import {
-  filterByLanguage,
-  isPublished,
-  prepareBookSummary,
-  preparePostSummary,
-  prepareTutorialSummary,
-} from "@/utils/blog";
+import { filterByLanguage, prepareBookSummary, preparePostSummary, prepareTutorialSummary } from "@/utils/blog";
 import type { BookSummary, PostSummary } from "@/utils/blog";
 import { extractContentDate } from "@/utils/content-date";
 
@@ -89,15 +83,15 @@ export async function getAllTaxonomyItems(config: TaxonomyConfig, lang: Language
 }
 
 /**
- * Get all content that uses a specific taxonomy, excluding future-dated content
+ * Get all content that uses a specific taxonomy
  */
 export async function getAllContentForTaxonomy(config: TaxonomyConfig, lang: LanguageKey) {
   const allContent: Array<CollectionEntry<"posts"> | CollectionEntry<"tutorials"> | CollectionEntry<"books">> = [];
 
   for (const collectionName of config.contentCollections) {
     const collection = await getCollection(collectionName);
-    // Filter by language and exclude future-dated content
-    const filtered = filterByLanguage(collection, lang).filter((item) => isPublished(item.data.date));
+    // Filter by language
+    const filtered = filterByLanguage(collection, lang);
     allContent.push(...filtered);
   }
 
