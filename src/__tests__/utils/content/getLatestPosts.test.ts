@@ -110,30 +110,30 @@ describe("getLatestPosts utility", () => {
     });
   });
 
-  describe("Draft Filtering", () => {
-    test("should exclude draft posts", () => {
+  describe("Publication Filtering", () => {
+    test("should import isPublished from utils", () => {
       const content = fs.readFileSync(utilPath, "utf-8");
 
-      // Should filter out drafts from posts
-      expect(content).toMatch(
-        /filterByLanguage\(allPosts,\s*language\)\.filter\(\(post\)\s*=>\s*!\(post\.data\s+as\s+any\)\.draft\)/s,
-      );
+      expect(content).toContain("isPublished");
+      expect(content).toContain("@utils/blog");
     });
 
-    test("should exclude draft tutorials", () => {
+    test("should filter posts by publication date", () => {
       const content = fs.readFileSync(utilPath, "utf-8");
 
-      // Should filter out drafts from tutorials
-      expect(content).toMatch(
-        /filterByLanguage\(allTutorials,\s*language\)\.filter\(\(tutorial\)\s*=>\s*!\(tutorial\.data\s+as\s+any\)\.draft\)/s,
-      );
+      expect(content).toMatch(/filterByLanguage\(allPosts,\s*language\)\.filter\(.*isPublished/s);
     });
 
-    test("should not filter books (no draft field)", () => {
+    test("should filter tutorials by publication date", () => {
       const content = fs.readFileSync(utilPath, "utf-8");
 
-      // Books should be assigned directly without draft filtering
-      expect(content).toContain("langBooks = filterByLanguage(allBooks, language)");
+      expect(content).toMatch(/filterByLanguage\(allTutorials,\s*language\)\.filter\(.*isPublished/s);
+    });
+
+    test("should filter books by publication date", () => {
+      const content = fs.readFileSync(utilPath, "utf-8");
+
+      expect(content).toMatch(/filterByLanguage\(allBooks,\s*language\)\.filter\(.*isPublished/s);
     });
   });
 

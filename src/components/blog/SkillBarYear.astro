@@ -2,6 +2,8 @@
 import { SKILL_COLORS } from "@constants/colors";
 import { getCollection } from "astro:content";
 
+import { isPublished } from "@/utils/blog";
+
 import SkillBar from "./SkillBar.astro";
 
 interface Props {
@@ -21,10 +23,9 @@ const challenges: Record<string, number> = {
   "2021": 6,
 };
 
-// Get all books from the collection, excluding drafts
+// Get all books from the collection, excluding future-dated content
 const allBooksRaw = await getCollection("books");
-// eslint-disable-next-line @typescript-eslint/no-explicit-any -- Dynamic draft field access
-const allBooks = allBooksRaw.filter((book) => !(book.data as any).draft);
+const allBooks = allBooksRaw.filter((book) => isPublished(book.data.date));
 
 // Filter books by year
 const booksInYear = allBooks.filter((book) => {

@@ -18,7 +18,6 @@ interface MockEntry {
   data: {
     post_slug: string;
     language: string;
-    draft?: boolean;
   };
 }
 
@@ -301,15 +300,15 @@ describe("pagination/generator", () => {
       expect(paths).toHaveLength(0);
     });
 
-    it("should handle entries with draft flag excluded", () => {
+    it("should include all entries matching language (publication filtering is done before calling)", () => {
       const entries: MockEntry[] = [
-        { data: { post_slug: "published", language: "es" } },
-        { data: { post_slug: "draft", language: "es", draft: true } },
-        { data: { post_slug: "also-published", language: "es", draft: false } },
+        { data: { post_slug: "post-a", language: "es" } },
+        { data: { post_slug: "post-b", language: "es" } },
+        { data: { post_slug: "post-c", language: "es" } },
       ];
 
-      // generateDetailPaths doesn't filter drafts (that's done before calling it)
-      // but it should pass through all matching language entries
+      // generateDetailPaths does not filter by publication date —
+      // that is the caller's responsibility (see booksPages, postsPages, tutorialsPages)
       const paths = generateDetailPaths({
         entries,
         lang: "es",
@@ -317,7 +316,6 @@ describe("pagination/generator", () => {
         entryKey: "postEntry",
       });
 
-      // All 3 entries should be included (draft filtering happens elsewhere)
       expect(paths).toHaveLength(3);
     });
   });

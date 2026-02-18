@@ -12,7 +12,6 @@ describe("Posts Collection Schema", () => {
         excerpt: "Este es mi primer post donde hablo sobre desarrollo web",
         language: "es",
         categories: ["development"],
-        draft: false,
       };
 
       expect(() => postsSchema.parse(validPost)).not.toThrow();
@@ -203,7 +202,6 @@ describe("Posts Collection Schema", () => {
         excerpt: "Un repaso por las mejores lecturas del año, con reseñas y recomendaciones",
         language: "es",
         categories: ["books"],
-        draft: false,
       };
 
       expect(() => postsSchema.parse(bookPost)).not.toThrow();
@@ -218,24 +216,22 @@ describe("Posts Collection Schema", () => {
         language: "en",
         categories: ["tutorials"],
         featured_image: "./typescript-intro.png",
-        draft: false,
       };
 
       expect(() => postsSchema.parse(tutorialPost)).not.toThrow();
     });
 
-    it("should validate a draft post", () => {
-      const draftPost = {
-        title: "Work in Progress",
-        post_slug: "work-in-progress",
-        date: new Date("2024-06-01"),
-        excerpt: "This post is still being written",
+    it("should validate a future-dated post", () => {
+      const futurePost = {
+        title: "Scheduled Post",
+        post_slug: "scheduled-post",
+        date: new Date("2099-06-01"),
+        excerpt: "This post is scheduled for the future",
         language: "es",
         categories: ["development"],
-        draft: true,
       };
 
-      expect(() => postsSchema.parse(draftPost)).not.toThrow();
+      expect(() => postsSchema.parse(futurePost)).not.toThrow();
     });
 
     it("should validate a republished post with canonical URL", () => {
@@ -247,7 +243,6 @@ describe("Posts Collection Schema", () => {
         language: "en",
         categories: ["development"],
         canonical_url: "https://dev.to/author/understanding-async-await",
-        draft: false,
       };
 
       expect(() => postsSchema.parse(republishedPost)).not.toThrow();
@@ -262,7 +257,6 @@ describe("Posts Collection Schema", () => {
         excerpt: "Learn React from scratch (Updated for React 18)",
         language: "en",
         categories: ["tutorials"],
-        draft: false,
       };
 
       expect(() => postsSchema.parse(updatedPost)).not.toThrow();

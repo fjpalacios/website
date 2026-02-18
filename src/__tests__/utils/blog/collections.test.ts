@@ -5,6 +5,7 @@ import {
   sortByDate,
   filterByLanguage,
   groupByYear,
+  isPublished,
   type CollectionItem,
   type GroupedByYear,
 } from "@/utils/blog/collections";
@@ -224,6 +225,35 @@ describe("groupByYear", () => {
       expect(grouped[0].items[0]).toHaveProperty("slug");
       expect(grouped[0].items[0]).toHaveProperty("data");
     });
+  });
+});
+
+describe("isPublished", () => {
+  const PAST = new Date("2020-01-01");
+  const FUTURE = new Date("2099-01-01");
+  const TODAY = new Date();
+
+  // NOTE: The test environment (happy-dom via Vitest) sets import.meta.env.DEV = true,
+  // which mirrors the local dev server behaviour — future-dated content is always visible.
+  // Production behaviour (DEV = false) is verified by the logic in the source.
+
+  it("should return true for a past date", () => {
+    expect(isPublished(PAST)).toBe(true);
+  });
+
+  it("should return true for today's date", () => {
+    expect(isPublished(TODAY)).toBe(true);
+  });
+
+  it("should return true for a future date in DEV mode (test env = dev)", () => {
+    // In the test environment DEV is true, so all content is considered published
+    expect(isPublished(FUTURE)).toBe(true);
+  });
+
+  it("should accept a Date object as argument", () => {
+    expect(() => isPublished(PAST)).not.toThrow();
+    expect(() => isPublished(FUTURE)).not.toThrow();
+    expect(() => isPublished(TODAY)).not.toThrow();
   });
 });
 

@@ -4,7 +4,13 @@ import { getCollection } from "astro:content";
 import { getAlternateLang } from "@/config/languages";
 import { PAGINATION_CONFIG } from "@/config/pagination";
 import type { ContactItem, LanguageKey } from "@/types";
-import { filterByLanguage, prepareBookSummary, preparePostSummary, prepareTutorialSummary } from "@/utils/blog";
+import {
+  filterByLanguage,
+  isPublished,
+  prepareBookSummary,
+  preparePostSummary,
+  prepareTutorialSummary,
+} from "@/utils/blog";
 import type { BookSummary, PostSummary } from "@/utils/blog";
 import { extractContentDate } from "@/utils/content-date";
 
@@ -83,16 +89,15 @@ export async function getAllTaxonomyItems(config: TaxonomyConfig, lang: Language
 }
 
 /**
- * Get all content that uses a specific taxonomy, excluding drafts
+ * Get all content that uses a specific taxonomy, excluding future-dated content
  */
 export async function getAllContentForTaxonomy(config: TaxonomyConfig, lang: LanguageKey) {
   const allContent: Array<CollectionEntry<"posts"> | CollectionEntry<"tutorials"> | CollectionEntry<"books">> = [];
 
   for (const collectionName of config.contentCollections) {
     const collection = await getCollection(collectionName);
-    // Filter by language and exclude drafts
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Dynamic draft field access
-    const filtered = filterByLanguage(collection, lang).filter((item) => !(item.data as any).draft);
+    // Filter by language and exclude future-dated content
+    const filtered = filterByLanguage(collection, lang).filter((item) => isPublished(item.data.date));
     allContent.push(...filtered);
   }
 

@@ -14,7 +14,6 @@ describe("Tutorials Collection Schema", () => {
         categories: ["programming"],
         difficulty: "beginner",
         estimated_time: 30,
-        draft: false,
       };
 
       expect(() => tutorialsSchema.parse(validTutorial)).not.toThrow();
@@ -206,7 +205,6 @@ describe("Tutorials Collection Schema", () => {
         categories: ["javascript"],
         difficulty: "beginner",
         estimated_time: 20,
-        draft: false,
       };
 
       expect(() => tutorialsSchema.parse(jsTutorial)).not.toThrow();
@@ -225,7 +223,6 @@ describe("Tutorials Collection Schema", () => {
         github_repo: "https://github.com/example/react-compound-components",
         demo_url: "https://example.com/demo",
         course: "advanced-react",
-        draft: false,
       };
 
       expect(() => tutorialsSchema.parse(reactTutorial)).not.toThrow();
@@ -242,24 +239,22 @@ describe("Tutorials Collection Schema", () => {
         difficulty: "beginner",
         estimated_time: 25,
         featured_image: "./git-intro.png",
-        draft: false,
       };
 
       expect(() => tutorialsSchema.parse(gitTutorial)).not.toThrow();
     });
 
-    it("should validate a draft tutorial", () => {
-      const draftTutorial = {
-        title: "Work in Progress: Docker Tutorial",
-        post_slug: "docker-tutorial-wip",
-        date: new Date("2024-06-01"),
-        excerpt: "Docker tutorial still being written",
+    it("should validate a future-dated tutorial", () => {
+      const futureTutorial = {
+        title: "Scheduled Tutorial",
+        post_slug: "scheduled-tutorial",
+        date: new Date("2099-06-01"),
+        excerpt: "Tutorial scheduled for the future",
         language: "en",
         categories: ["devops"],
-        draft: true,
       };
 
-      expect(() => tutorialsSchema.parse(draftTutorial)).not.toThrow();
+      expect(() => tutorialsSchema.parse(futureTutorial)).not.toThrow();
     });
 
     it("should validate an updated tutorial", () => {
@@ -273,7 +268,6 @@ describe("Tutorials Collection Schema", () => {
         categories: ["nodejs"],
         difficulty: "beginner",
         estimated_time: 35,
-        draft: false,
       };
 
       expect(() => tutorialsSchema.parse(updatedTutorial)).not.toThrow();

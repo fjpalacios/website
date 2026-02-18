@@ -16,7 +16,6 @@ describe("preparePostSummary", () => {
         excerpt: "This is a test post excerpt",
         language: "es",
         category: "tutorials",
-        draft: false,
       },
     } as CollectionEntry<"posts">;
 
@@ -28,7 +27,6 @@ describe("preparePostSummary", () => {
     expect(summary.excerpt).toBe("This is a test post excerpt");
     expect(summary.language).toBe("es");
     expect(summary.category).toBe("tutorials");
-    expect(summary.draft).toBe(false);
     expect(summary.date).toEqual(new Date("2024-01-15"));
   });
 
@@ -43,7 +41,6 @@ describe("preparePostSummary", () => {
         excerpt: "Test excerpt",
         language: "en",
         category: "tutorials",
-        draft: false,
         featured_image: "/images/test.png",
       },
     } as CollectionEntry<"posts">;
@@ -64,7 +61,6 @@ describe("preparePostSummary", () => {
         excerpt: "Test excerpt",
         language: "en",
         category: "tutorials",
-        draft: false,
         update_date: new Date("2024-02-20"),
       },
     } as CollectionEntry<"posts">;
@@ -85,7 +81,6 @@ describe("preparePostSummary", () => {
         excerpt: "Test excerpt",
         language: "en",
         category: "tutorials",
-        draft: false,
         canonical_url: "https://example.com/original-post",
       },
     } as CollectionEntry<"posts">;
@@ -106,7 +101,6 @@ describe("preparePostSummary", () => {
         excerpt: "Complete excerpt",
         language: "en",
         category: "backend",
-        draft: false,
         featured_image: "/images/complete.png",
         update_date: new Date("2024-03-01"),
         canonical_url: "https://example.com/complete",
@@ -120,30 +114,9 @@ describe("preparePostSummary", () => {
     expect(summary.excerpt).toBe("Complete excerpt");
     expect(summary.language).toBe("en");
     expect(summary.category).toBe("backend");
-    expect(summary.draft).toBe(false);
     expect(summary.date).toEqual(new Date("2024-01-15"));
     expect(summary.featuredImage).toBe("/images/complete.png");
     expect(summary.updateDate).toEqual(new Date("2024-03-01"));
     expect(summary.canonicalUrl).toBe("https://example.com/complete");
-  });
-
-  it("should handle posts with draft flag set to true", () => {
-    const mockPost: CollectionEntry<"posts"> = {
-      id: "draft-post.mdx",
-      collection: "posts",
-      data: {
-        title: "Draft Post",
-        post_slug: "draft-post",
-        date: new Date("2024-01-15"),
-        excerpt: "Draft excerpt",
-        language: "es",
-        category: "tutorials",
-        draft: true,
-      },
-    } as CollectionEntry<"posts">;
-
-    const summary = preparePostSummary(mockPost);
-
-    expect(summary.draft).toBe(true);
   });
 });

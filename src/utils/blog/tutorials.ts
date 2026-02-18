@@ -64,7 +64,6 @@ export interface TutorialSummary {
   language: LanguageKey;
   date: Date;
   category: string;
-  draft: boolean;
   difficulty?: "beginner" | "intermediate" | "advanced";
   estimatedTime?: number;
   course?: string;
@@ -102,7 +101,6 @@ export function prepareTutorialSummary(
     language: tutorial.data.language,
     date: tutorial.data.date,
     category: tutorial.data.category,
-    draft: tutorial.data.draft,
     difficulty: tutorial.data.difficulty,
     estimatedTime: tutorial.data.estimated_time,
     course: tutorial.data.course,

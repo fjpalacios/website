@@ -1,6 +1,8 @@
 ---
 import { getCollection } from "astro:content";
 
+import { isPublished } from "@/utils/blog";
+
 import BookLink from "./BookLink.astro";
 
 interface Props {
@@ -9,10 +11,9 @@ interface Props {
 
 const { challenge } = Astro.props;
 
-// Get all books from the collection, excluding drafts
+// Get all books from the collection, excluding future-dated content
 const allBooksRaw = await getCollection("books");
-// eslint-disable-next-line @typescript-eslint/no-explicit-any -- Dynamic draft field access
-const allBooks = allBooksRaw.filter((book) => !(book.data as any).draft);
+const allBooks = allBooksRaw.filter((book) => isPublished(book.data.date));
 
 // Filter books by challenge and sort by date
 const booksInChallenge = allBooks

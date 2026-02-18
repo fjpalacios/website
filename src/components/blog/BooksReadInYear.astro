@@ -2,6 +2,7 @@
 import { getCollection, getEntry } from "astro:content";
 
 import { getDefaultLanguageCode, type LanguageKey } from "@/config/languages";
+import { isPublished } from "@/utils/blog";
 
 import BookLink from "./BookLink.astro";
 
@@ -12,11 +13,10 @@ interface Props {
 
 const { year, language = getDefaultLanguageCode() } = Astro.props;
 
-// Get all books from the specified year and language, excluding drafts
+// Get all books from the specified year and language, excluding future-dated content
 const allBooks = await getCollection("books", ({ data }) => {
   const bookYear = new Date(data.date).getFullYear();
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Dynamic draft field access
-  return bookYear === year && data.language === language && !(data as any).draft;
+  return bookYear === year && data.language === language && isPublished(new Date(data.date));
 });
 
 // Sort by date (chronological order)
