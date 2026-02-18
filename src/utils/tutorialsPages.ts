@@ -3,11 +3,11 @@
  * Used by both /es/tutoriales/ and /en/tutorials/
  */
 
-import { getCollection, type CollectionEntry } from "astro:content";
+import { getCollection } from "astro:content";
 
 import { PAGINATION_CONFIG } from "@/config/pagination";
 import type { ContactItem } from "@/types/content";
-import { filterByLanguage, isPublished, prepareTutorialSummary, sortByDate, type TutorialSummary } from "@/utils/blog";
+import { filterByLanguage, prepareTutorialSummary, sortByDate, type TutorialSummary } from "@/utils/blog";
 import { generateDetailPaths, generatePaginationPaths } from "@/utils/pagination/generator";
 
 export const TUTORIALS_PER_PAGE = PAGINATION_CONFIG.tutorials;
@@ -24,11 +24,9 @@ export async function getAllTutorialsForLanguage(lang: string): Promise<Tutorial
   // @ts-expect-error - Astro 5 CollectionEntry type compatibility
   const langCourses = filterByLanguage(allCourses, lang);
 
-  // Filter by language and exclude future-dated content
+  // Filter by language
   // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Astro content collection type inference limitation
-  const langTutorials = filterByLanguage(allTutorials, lang as any).filter((tutorial) =>
-    isPublished(tutorial.data.date),
-  );
+  const langTutorials = filterByLanguage(allTutorials, lang as any);
 
   // Sort by date (newest first)
   const sortedTutorials = sortByDate(langTutorials, "desc");
@@ -54,16 +52,12 @@ export async function generateTutorialsPaginationPaths(lang: string, contact: Co
 
 /**
  * Generate static paths for tutorial detail pages
- * Only generates paths for published (non-future-dated) tutorials
  */
 export async function generateTutorialDetailPaths(lang: string, contact: ContactItem[]) {
   const tutorials = await getCollection("tutorials");
-  const publishedTutorials = tutorials.filter((tutorial: CollectionEntry<"tutorials">) =>
-    isPublished(tutorial.data.date),
-  );
 
   return generateDetailPaths({
-    entries: publishedTutorials,
+    entries: tutorials,
     lang,
     contact,
     entryKey: "tutorialEntry",

@@ -7,7 +7,6 @@ import type { CollectionEntry } from "astro:content";
 
 import { getDefaultLanguageCode, getUrlSegment } from "@/config/languages";
 import type { LanguageKey } from "@/types";
-import { isPublished } from "@/utils/blog";
 
 /**
  * Configuration for RSS feed metadata
@@ -47,15 +46,6 @@ export interface RSSFeedOutput {
 type ContentItem = CollectionEntry<"books"> | CollectionEntry<"posts"> | CollectionEntry<"tutorials">;
 
 /**
- * Filters out future-dated content
- * @param items - Collection items
- * @returns Items whose publication date is today or in the past
- */
-function excludeUnpublished(items: ContentItem[]): ContentItem[] {
-  return items.filter((item) => isPublished(item.data.date));
-}
-
-/**
  * Builds the correct URL for a content item based on its collection type and language
  *
  * @param item - Content item from Astro collections
@@ -93,8 +83,8 @@ export function generateSingleCollectionFeed(items: ContentItem[], config: RSSFe
     throw new Error("Language is required for single collection feed");
   }
 
-  // Filter items by language, exclude future-dated content, and sort by date (newest first)
-  const filteredItems = excludeUnpublished(items)
+  // Filter items by language and sort by date (newest first)
+  const filteredItems = items
     .filter((item) => item.data.language === language)
     .sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf());
 
@@ -127,8 +117,9 @@ export function generateMultiCollectionFeed(collections: ContentItem[][], config
     throw new Error("Language is required for multi-collection feed");
   }
 
-  // Combine all collections, exclude future-dated content, filter by language, and sort by date
-  const allContent = excludeUnpublished(collections.flat())
+  // Combine all collections, filter by language, and sort by date
+  const allContent = collections
+    .flat()
     .filter((item) => item.data.language === language)
     .sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf());
 
@@ -161,10 +152,10 @@ export function generateBilingualFeed(
 ): RSSFeedOutput {
   const { title, description, site } = config;
 
-  // Combine all collections, exclude future-dated content, and sort by date (no language filter)
-  const allContent = excludeUnpublished(collections.flat()).sort(
-    (a, b) => b.data.date.valueOf() - a.data.date.valueOf(),
-  );
+  // Combine all collections and sort by date (no language filter)
+  const allContent = collections
+    .flat()
+    .sort((a: ContentItem, b: ContentItem) => b.data.date.valueOf() - a.data.date.valueOf());
 
   return {
     title,

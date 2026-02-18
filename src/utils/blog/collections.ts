@@ -4,26 +4,6 @@
 
 import type { LanguageKey } from "@/types";
 
-/**
- * Determines whether a piece of content should be publicly visible.
- *
- * Content is published when its date is in the past or today (i.e. the build
- * date is on or after the content date).  In development mode every entry is
- * considered published so future-dated content can be previewed locally.
- *
- * @param date - The publication date from the content frontmatter
- * @returns `true` if the content should appear in production listings
- *
- * @example
- * isPublished(new Date("2020-01-01")) // true  – past date
- * isPublished(new Date("2099-01-01")) // false – future date (prod)
- * isPublished(new Date("2099-01-01")) // true  – future date (dev)
- */
-export function isPublished(date: Date): boolean {
-  if (import.meta.env.DEV) return true;
-  return date <= new Date();
-}
-
 export interface CollectionItem {
   id?: string; // Astro 5 uses id
   slug?: string; // Legacy property for compatibility
