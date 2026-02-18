@@ -1,0 +1,261 @@
+---
+title: "Rastreando e ignorando archivos en Git"
+post_slug: "rastreando-ignorando-archivos-git"
+date: "2026-02-20"
+excerpt: "No todos los archivos de tu proyecto deben estar en Git. Aprende a usar .gitignore para excluir lo que no debe versionarse y a configurar un .gitignore global para tu máquina."
+language: "es"
+categories: ["git"]
+course: "domina-git-desde-cero"
+order: 6
+cover: "/images/tutorials/cabecera-git.jpg"
+i18n: "tracking-and-ignoring-files-gitignore"
+---
+
+Hasta ahora hemos versionado todo lo que había en nuestro directorio de trabajo. Pero en un proyecto real eso sería un error: hay archivos y carpetas que no tienen ningún sentido incluir en el repositorio. Las dependencias que instala tu gestor de paquetes, los archivos compilados, las claves de API, los logs… nada de eso debería estar en Git.
+
+Para solucionar esto existe el archivo `.gitignore`.
+
+## ¿Qué debe ignorar Git?
+
+Antes de ver cómo se configura, conviene tener claro qué tipo de archivos no deben versionarse. En términos generales:
+
+- **Dependencias instaladas**: `node_modules/`, `.venv/`, `vendor/`… Son reproducibles con un simple comando y pesan enormemente.
+- **Archivos compilados y generados**: `dist/`, `build/`, `*.pyc`, `*.class`… Se generan a partir del código fuente.
+- **Secretos y configuración local**: `.env`, `*.pem`, `secrets.json`… Nunca deben llegar a un repositorio, especialmente si es público.
+- **Archivos del sistema operativo**: `.DS_Store` (macOS), `Thumbs.db` (Windows)… Son ruido que no aporta nada al proyecto.
+- **Archivos de entorno del editor**: `.idea/`, `.vscode/settings.json`… La configuración personal del editor es cosa tuya, no del proyecto.
+- **Logs y archivos temporales**: `*.log`, `tmp/`, `cache/`…
+
+La regla es sencilla: si el archivo se puede generar o recuperar de otra forma, o si contiene información sensible, probablemente no deba estar en Git.
+
+## Creando un .gitignore
+
+El archivo `.gitignore` va en la raíz del repositorio y contiene un patrón por línea. Git leerá ese archivo y excluirá del seguimiento todo lo que coincida con esos patrones.
+
+Vamos a crear uno básico. En la raíz de tu proyecto:
+
+```bash
+touch .gitignore
+```
+
+Y dentro escribimos nuestros primeros patrones:
+
+```
+# Dependencias
+node_modules/
+
+# Archivos de entorno
+.env
+.env.local
+
+# Logs
+*.log
+
+# macOS
+.DS_Store
+
+# Archivos compilados
+dist/
+build/
+```
+
+Las líneas que empiezan por `#` son comentarios. Los patrones funcioann así:
+
+- `node_modules/` — ignora la carpeta `node_modules` y todo su contenido
+- `*.log` — ignora cualquier archivo que termine en `.log`
+- `.env` — ignora exactamente el archivo llamado `.env`
+- `dist/` — ignora la carpeta `dist`
+
+Una vez guardado el archivo, comprobamos con `git status`:
+
+```bash
+On branch master
+Untracked files:
+  (use "git add <file>..." to include in what will be committed)
+        .gitignore
+
+nothing added to commit but untracked files present (use "git add" to track)
+```
+
+Git ve el `.gitignore` (porque es nuevo y tampoco lo estaba rastreando antes), pero ya no muestra los archivos que hemos incluido en él. Ahora añadimos y commiteamos el `.gitignore`:
+
+```bash
+git add .gitignore
+git commit -m "chore: add .gitignore"
+```
+
+## Sintaxis de patrones
+
+Los patrones de `.gitignore` tienen algunas reglas que vale la pena conocer:
+
+```
+# Ignorar un archivo concreto en cualquier directorio
+*.env
+
+# Ignorar solo en la raíz del repositorio (empieza con /)
+/config.local.js
+
+# Ignorar una carpeta entera
+logs/
+
+# Negar un patrón (NO ignorar algo que encajaría con una regla anterior)
+!logs/important.log
+
+# Comodín de un nivel (un directorio)
+src/*/temp/
+
+# Comodín de varios niveles (cualquier profundidad)
+**/cache/
+
+# Ignorar todos los archivos con esta extensión en cualquier carpeta
+**/*.min.js
+```
+
+El operador `!` es especialmente útil: te permite excluir de la exclusión. Por ejemplo:
+
+```
+# Ignorar todos los archivos .env
+*.env
+
+# Pero NO ignorar el .env de ejemplo para que sirva de referencia
+!.env.example
+```
+
+Así el repositorio tendrá `.env.example` como plantilla para que otros desarrolladores sepan qué variables de entorno necesitan configurar, pero el `.env` real con sus valores nunca llegará al repositorio.
+
+## ¿Y si ya commiteé un archivo que debería ignorar?
+
+Pasa más de lo que queremos admitir. Añades `node_modules/` al `.gitignore` pero la carpeta ya estaba commiteada. En ese caso Git seguirá rastreando esos archivos porque el `.gitignore` solo afecta a archivos que todavía no están siendo rastreados.
+
+Para solucionar esto hay que eliminar el archivo del índice de Git (no del disco):
+
+```bash
+git rm --cached node_modules/ -r
+```
+
+El flag `--cached` hace que Git deje de rastrear el archivo pero no lo borra de tu directorio de trabajo. Después commites el cambio y listo:
+
+```bash
+git commit -m "chore: stop tracking node_modules"
+```
+
+## .gitignore global
+
+Hay archivos que siempre querrás ignorar independientemente del proyecto: los archivos del sistema operativo, los archivos de configuración de tu editor… Tiene más sentido configurarlos una vez para toda tu máquina en lugar de repetirlos en cada `.gitignore` de cada proyecto.
+
+Para eso existe el `.gitignore` global. Primero créalo en tu carpeta de usuario:
+
+```bash
+touch ~/.gitignore_global
+```
+
+Y dile a Git que lo use:
+
+```bash
+git config --global core.excludesfile ~/.gitignore_global
+```
+
+Dentro puedes poner todo lo que sea específico de tu entorno:
+
+```
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Windows
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+
+# Linux
+*~
+
+# Editor - VSCode
+.vscode/settings.json
+.vscode/launch.json
+
+# Editor - JetBrains
+.idea/
+*.iml
+
+# Editor - Vim
+*.swp
+*.swo
+Session.vim
+```
+
+Así esos patrones se aplican a todos tus repositorios sin necesidad de incluirlos en cada uno.
+
+## Plantillas de .gitignore
+
+No tienes que escribir estos archivos desde cero cada vez. Existe [gitignore.io](https://www.toptal.com/developers/gitignore) (también accesible como `gi.io`), un generador online que crea un `.gitignore` completo a partir de las tecnologías que usas.
+
+GitHub también mantiene un repositorio oficial con plantillas para los lenguajes y frameworks más populares: [github.com/github/gitignore](https://github.com/github/gitignore).
+
+Algunos ejemplos de lo que encontrarás:
+
+**Node.js:**
+
+```
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.env
+dist/
+```
+
+**Python:**
+
+```
+__pycache__/
+*.py[cod]
+*.egg-info/
+dist/
+build/
+.env
+.venv/
+```
+
+**Java:**
+
+```
+*.class
+*.jar
+target/
+.gradle/
+build/
+```
+
+## Una nota sobre .gitattributes
+
+Junto al `.gitignore` suele aparecer otro archivo relacionado: `.gitattributes`. Mientras que `.gitignore` le dice a Git qué archivos ignorar, `.gitattributes` le dice cómo tratar ciertos archivos.
+
+El uso más común es normalizar los finales de línea entre sistemas operativos (Windows usa `CRLF`, Unix/macOS usa `LF`):
+
+```
+# Normalizar todos los archivos de texto a LF al hacer commit
+* text=auto
+
+# Forzar LF para scripts de shell
+*.sh text eol=lf
+
+# Forzar CRLF para archivos de Windows
+*.bat text eol=crlf
+
+# Tratar estos archivos como binarios (no modificar los finales de línea)
+*.png binary
+*.jpg binary
+*.pdf binary
+```
+
+No es obligatorio para proyectos en solitario, pero en equipos con personas usando diferentes sistemas operativos puede ahorrar muchos conflictos innecesarios. Con `text=auto` Git se encarga de hacer la conversión automáticamente.
+
+---
+
+El `.gitignore` es uno de esos archivos que configurarás en los primeros minutos de cualquier proyecto. Parece un detalle menor pero tiene un impacto real: mantiene el repositorio limpio, evita que información sensible llegue a manos equivocadas y reduce el ruido en los pull requests.
+
+En el próximo tutorial veremos `git diff`, que nos permite inspeccionar exactamente qué ha cambiado en nuestros archivos antes de commitear.
+
+¡Nunca dejes de programar!

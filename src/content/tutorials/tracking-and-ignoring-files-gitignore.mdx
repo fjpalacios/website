@@ -1,0 +1,261 @@
+---
+title: "Tracking and ignoring files in Git"
+post_slug: "tracking-and-ignoring-files-gitignore"
+date: "2026-02-20"
+excerpt: "Not every file in your project should be in Git. Learn how to use .gitignore to exclude what shouldn't be versioned and how to configure a global .gitignore for your machine."
+language: "en"
+categories: ["git"]
+course: "mastering-git-from-scratch"
+order: 6
+cover: "/images/tutorials/cabecera-git.jpg"
+i18n: "rastreando-ignorando-archivos-git"
+---
+
+Up until now we've been versioning everything inside our working directory. But in a real project that would be a mistake: there are files and folders that make absolutely no sense to include in the repository. The dependencies your package manager installs, compiled files, API keys, logs… none of that should be in Git.
+
+That's what `.gitignore` is for.
+
+## What should Git ignore?
+
+Before looking at how to configure it, it's worth being clear about what kinds of files shouldn't be versioned. In general terms:
+
+- **Installed dependencies**: `node_modules/`, `.venv/`, `vendor/`… They're reproducible with a single command and can be enormous.
+- **Compiled and generated files**: `dist/`, `build/`, `*.pyc`, `*.class`… They're generated from the source code.
+- **Secrets and local configuration**: `.env`, `*.pem`, `secrets.json`… These should never reach a repository, especially a public one.
+- **Operating system files**: `.DS_Store` (macOS), `Thumbs.db` (Windows)… They're noise that adds nothing to the project.
+- **Editor environment files**: `.idea/`, `.vscode/settings.json`… Your personal editor configuration is yours, not the project's.
+- **Logs and temporary files**: `*.log`, `tmp/`, `cache/`…
+
+The rule is simple: if the file can be generated or recovered another way, or if it contains sensitive information, it probably shouldn't be in Git.
+
+## Creating a .gitignore
+
+The `.gitignore` file goes in the root of your repository and contains one pattern per line. Git reads that file and excludes from tracking anything that matches those patterns.
+
+Let's create a basic one. In the root of your project:
+
+```bash
+touch .gitignore
+```
+
+And inside we write our first patterns:
+
+```
+# Dependencies
+node_modules/
+
+# Environment files
+.env
+.env.local
+
+# Logs
+*.log
+
+# macOS
+.DS_Store
+
+# Compiled files
+dist/
+build/
+```
+
+Lines starting with `#` are comments. The patterns work like this:
+
+- `node_modules/` — ignores the `node_modules` folder and all its contents
+- `*.log` — ignores any file ending in `.log`
+- `.env` — ignores exactly the file named `.env`
+- `dist/` — ignores the `dist` folder
+
+Once saved, we check with `git status`:
+
+```bash
+On branch master
+Untracked files:
+  (use "git add <file>..." to include in what will be committed)
+        .gitignore
+
+nothing added to commit but untracked files present (use "git add" to track)
+```
+
+Git sees the `.gitignore` (because it's new and wasn't being tracked before either), but it no longer shows the files we included in it. Now we add and commit the `.gitignore`:
+
+```bash
+git add .gitignore
+git commit -m "chore: add .gitignore"
+```
+
+## Pattern syntax
+
+The patterns in `.gitignore` have some rules worth knowing:
+
+```
+# Ignore a specific file in any directory
+*.env
+
+# Ignore only in the repository root (starts with /)
+/config.local.js
+
+# Ignore an entire folder
+logs/
+
+# Negate a pattern (do NOT ignore something that would match a previous rule)
+!logs/important.log
+
+# Single-level wildcard (one directory)
+src/*/temp/
+
+# Multi-level wildcard (any depth)
+**/cache/
+
+# Ignore all files with this extension in any folder
+**/*.min.js
+```
+
+The `!` operator is especially useful: it lets you exclude something from being excluded. For example:
+
+```
+# Ignore all .env files
+*.env
+
+# But do NOT ignore the example .env so it serves as a reference
+!.env.example
+```
+
+That way the repository will have `.env.example` as a template so other developers know what environment variables they need to configure, but the real `.env` with its actual values will never reach the repository.
+
+## What if I already committed a file I should be ignoring?
+
+It happens more often than we'd like to admit. You add `node_modules/` to `.gitignore` but the folder was already committed. In that case Git will keep tracking those files because `.gitignore` only affects files that aren't being tracked yet.
+
+To fix this you need to remove the file from Git's index (not from your disk):
+
+```bash
+git rm --cached node_modules/ -r
+```
+
+The `--cached` flag makes Git stop tracking the file without deleting it from your working directory. Then you commit the change and you're done:
+
+```bash
+git commit -m "chore: stop tracking node_modules"
+```
+
+## Global .gitignore
+
+There are files you'll always want to ignore regardless of the project: operating system files, editor configuration files… It makes more sense to configure them once for your whole machine rather than repeating them in every `.gitignore` of every project.
+
+That's what the global `.gitignore` is for. First create it in your home folder:
+
+```bash
+touch ~/.gitignore_global
+```
+
+And tell Git to use it:
+
+```bash
+git config --global core.excludesfile ~/.gitignore_global
+```
+
+Inside you can put everything that's specific to your environment:
+
+```
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Windows
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+
+# Linux
+*~
+
+# Editor - VSCode
+.vscode/settings.json
+.vscode/launch.json
+
+# Editor - JetBrains
+.idea/
+*.iml
+
+# Editor - Vim
+*.swp
+*.swo
+Session.vim
+```
+
+That way those patterns apply to all your repositories without having to include them in each one.
+
+## .gitignore templates
+
+You don't have to write these files from scratch every time. There's [gitignore.io](https://www.toptal.com/developers/gitignore) (also accessible as `gi.io`), an online generator that creates a complete `.gitignore` from the technologies you're using.
+
+GitHub also maintains an official repository with templates for the most popular languages and frameworks: [github.com/github/gitignore](https://github.com/github/gitignore).
+
+Some examples of what you'll find:
+
+**Node.js:**
+
+```
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.env
+dist/
+```
+
+**Python:**
+
+```
+__pycache__/
+*.py[cod]
+*.egg-info/
+dist/
+build/
+.env
+.venv/
+```
+
+**Java:**
+
+```
+*.class
+*.jar
+target/
+.gradle/
+build/
+```
+
+## A note on .gitattributes
+
+Alongside `.gitignore` another related file often appears: `.gitattributes`. While `.gitignore` tells Git which files to ignore, `.gitattributes` tells it how to handle certain files.
+
+The most common use is normalizing line endings across operating systems (Windows uses `CRLF`, Unix/macOS uses `LF`):
+
+```
+# Normalize all text files to LF on commit
+* text=auto
+
+# Force LF for shell scripts
+*.sh text eol=lf
+
+# Force CRLF for Windows files
+*.bat text eol=crlf
+
+# Treat these files as binary (don't modify line endings)
+*.png binary
+*.jpg binary
+*.pdf binary
+```
+
+It's not mandatory for solo projects, but on teams where people use different operating systems it can prevent a lot of unnecessary conflicts. With `text=auto` Git handles the conversion automatically.
+
+---
+
+`.gitignore` is one of those files you'll configure in the first minutes of any project. It might seem like a minor detail but it has a real impact: it keeps the repository clean, prevents sensitive information from reaching the wrong hands, and reduces noise in pull requests.
+
+In the next tutorial we'll look at `git diff`, which lets us inspect exactly what has changed in our files before committing.
+
+Never stop coding!
