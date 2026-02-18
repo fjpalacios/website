@@ -10,7 +10,7 @@
  * @module utils/content/getLatestPosts
  */
 
-import { filterByLanguage } from "@utils/blog";
+import { filterByLanguage, isPublished } from "@utils/blog";
 import type { PostSummary } from "@utils/blog";
 import { getCollection } from "astro:content";
 
@@ -43,13 +43,11 @@ export async function getLatestPosts(language: LanguageKey, maxItems: number = 4
   const allTutorials = await getCollection("tutorials");
   const allBooks = await getCollection("books");
 
-  // Filter by language and exclude drafts
+  // Filter by language and exclude future-dated content
+  const langPosts = filterByLanguage(allPosts, language).filter((post) => isPublished(post.data.date));
+  const langTutorials = filterByLanguage(allTutorials, language).filter((tutorial) => isPublished(tutorial.data.date));
   // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Dynamic content collection access requires any
-  const langPosts = filterByLanguage(allPosts, language).filter((post) => !(post.data as any).draft);
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Dynamic content collection access requires any
-  const langTutorials = filterByLanguage(allTutorials, language).filter((tutorial) => !(tutorial.data as any).draft);
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Dynamic content collection access requires any
-  const langBooks = filterByLanguage(allBooks, language) as any;
+  const langBooks = filterByLanguage(allBooks, language).filter((book) => isPublished(book.data.date)) as any;
 
   // Prepare combined content with unified structure
 

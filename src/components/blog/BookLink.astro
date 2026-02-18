@@ -17,6 +17,8 @@
 import { findBook, generateDisplayTitle, generateBookUrl, detectLanguageFromUrl } from "@utils/bookLinkHelpers";
 import { getCollection } from "astro:content";
 
+import { isPublished } from "@/utils/blog";
+
 interface Props {
   title: string;
   full?: boolean;
@@ -28,10 +30,9 @@ const detectedLang = detectLanguageFromUrl(Astro.url.pathname);
 
 const { title, full = false, lang = detectedLang } = Astro.props;
 
-// Query all books and find the matching one, excluding drafts
+// Query all books and find the matching one, excluding future-dated content
 const allBooksRaw = await getCollection("books");
-// eslint-disable-next-line @typescript-eslint/no-explicit-any -- Dynamic draft field access
-const allBooks = allBooksRaw.filter((book) => !(book.data as any).draft);
+const allBooks = allBooksRaw.filter((book) => isPublished(book.data.date));
 const book = findBook(allBooks, title, lang);
 
 // Generate display text and URL

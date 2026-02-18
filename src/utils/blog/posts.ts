@@ -16,7 +16,6 @@ export interface PostSummary {
   language: LanguageKey;
   date: Date;
   category: string;
-  draft: boolean;
   cover?: string;
   featuredImage?: string;
   updateDate?: Date;
@@ -37,7 +36,6 @@ export function preparePostSummary(post: CollectionEntry<"posts">): PostSummary 
     language: post.data.language,
     date: post.data.date,
     category: post.data.category,
-    draft: post.data.draft,
     cover: post.data.cover || post.data.featured_image,
     featuredImage: post.data.featured_image,
     updateDate: post.data.update_date,
