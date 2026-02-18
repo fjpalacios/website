@@ -9,7 +9,6 @@ import { getCollection } from "astro:content";
 
 import type { LanguageKey } from "@/config/languages";
 import { getTranslations } from "@/locales";
-import { isPublished } from "@/utils/blog";
 import {
   getActiveChallenges,
   getAuthorsByGender,
@@ -40,9 +39,8 @@ const { lang } = Astro.props;
 // Get translations
 const t = getTranslations(lang);
 
-// Load all collections once and filter future-dated content
-const allBooksRaw = await getCollection("books");
-const allBooks = allBooksRaw.filter((book) => isPublished(book.data.date));
+// Load all collections once
+const allBooks = await getCollection("books");
 const allAuthors = await getCollection("authors");
 const allGenres = await getCollection("genres");
 const allPublishers = await getCollection("publishers");

@@ -110,33 +110,6 @@ describe("getLatestPosts utility", () => {
     });
   });
 
-  describe("Publication Filtering", () => {
-    test("should import isPublished from utils", () => {
-      const content = fs.readFileSync(utilPath, "utf-8");
-
-      expect(content).toContain("isPublished");
-      expect(content).toContain("@utils/blog");
-    });
-
-    test("should filter posts by publication date", () => {
-      const content = fs.readFileSync(utilPath, "utf-8");
-
-      expect(content).toMatch(/filterByLanguage\(allPosts,\s*language\)\.filter\(.*isPublished/s);
-    });
-
-    test("should filter tutorials by publication date", () => {
-      const content = fs.readFileSync(utilPath, "utf-8");
-
-      expect(content).toMatch(/filterByLanguage\(allTutorials,\s*language\)\.filter\(.*isPublished/s);
-    });
-
-    test("should filter books by publication date", () => {
-      const content = fs.readFileSync(utilPath, "utf-8");
-
-      expect(content).toMatch(/filterByLanguage\(allBooks,\s*language\)\.filter\(.*isPublished/s);
-    });
-  });
-
   describe("Data Mapping", () => {
     test("should map posts with correct structure", () => {
       const content = fs.readFileSync(utilPath, "utf-8");

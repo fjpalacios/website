@@ -17,8 +17,6 @@
 import { findBook, generateDisplayTitle, generateBookUrl, detectLanguageFromUrl } from "@utils/bookLinkHelpers";
 import { getCollection } from "astro:content";
 
-import { isPublished } from "@/utils/blog";
-
 interface Props {
   title: string;
   full?: boolean;
@@ -30,9 +28,8 @@ const detectedLang = detectLanguageFromUrl(Astro.url.pathname);
 
 const { title, full = false, lang = detectedLang } = Astro.props;
 
-// Query all books and find the matching one, excluding future-dated content
-const allBooksRaw = await getCollection("books");
-const allBooks = allBooksRaw.filter((book) => isPublished(book.data.date));
+// Query all books and find the matching one
+const allBooks = await getCollection("books");
 const book = findBook(allBooks, title, lang);
 
 // Generate display text and URL

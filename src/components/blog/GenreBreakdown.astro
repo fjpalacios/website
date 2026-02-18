@@ -10,7 +10,6 @@ import { getCollection } from "astro:content";
 import Icon from "@/components/Icon.astro";
 import type { LanguageKey } from "@/config/languages";
 import { getTranslations } from "@/locales";
-import { isPublished } from "@/utils/blog";
 import type { GenresWithCountByType } from "@/utils/blog/book-stats";
 import { buildGenreUrl, buildGenresIndexUrl } from "@/utils/routes";
 
@@ -31,9 +30,8 @@ const nonFictionTop5 = genresWithCount.nonFiction.slice(0, TOP_LIMIT);
 const fictionTotal = genresWithCount.fiction.length;
 const nonFictionTotal = genresWithCount.nonFiction.length;
 
-// Get all books to count unique books per type, excluding future-dated content
-const allBooksRaw = await getCollection("books");
-const allBooks = allBooksRaw.filter((book) => isPublished(book.data.date));
+// Get all books to count unique books per type
+const allBooks = await getCollection("books");
 const booksInLanguage = allBooks.filter((book) => book.data.language === lang);
 
 // Get unique fiction books (books that have at least one fiction genre)

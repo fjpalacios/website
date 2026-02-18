@@ -2,7 +2,7 @@
  * Get Latest Posts Utility
  *
  * Queries all content collections (posts, tutorials, books), filters by language,
- * excludes drafts, and returns the N most recent items sorted by date.
+ * and returns the N most recent items sorted by date.
  *
  * This utility was extracted from the LatestPosts component to make the logic
  * reusable across different parts of the application.
@@ -10,7 +10,7 @@
  * @module utils/content/getLatestPosts
  */
 
-import { filterByLanguage, isPublished } from "@utils/blog";
+import { filterByLanguage } from "@utils/blog";
 import type { PostSummary } from "@utils/blog";
 import { getCollection } from "astro:content";
 
@@ -43,11 +43,11 @@ export async function getLatestPosts(language: LanguageKey, maxItems: number = 4
   const allTutorials = await getCollection("tutorials");
   const allBooks = await getCollection("books");
 
-  // Filter by language and exclude future-dated content
-  const langPosts = filterByLanguage(allPosts, language).filter((post) => isPublished(post.data.date));
-  const langTutorials = filterByLanguage(allTutorials, language).filter((tutorial) => isPublished(tutorial.data.date));
+  // Filter by language
+  const langPosts = filterByLanguage(allPosts, language);
+  const langTutorials = filterByLanguage(allTutorials, language);
   // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Dynamic content collection access requires any
-  const langBooks = filterByLanguage(allBooks, language).filter((book) => isPublished(book.data.date)) as any;
+  const langBooks = filterByLanguage(allBooks, language) as any;
 
   // Prepare combined content with unified structure
 

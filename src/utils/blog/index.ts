@@ -10,14 +10,7 @@ export { slugify } from "./slugify";
 export { getPageCount, paginateItems, getPaginationInfo, type PaginationInfo } from "./pagination";
 
 // Collection utilities
-export {
-  sortByDate,
-  filterByLanguage,
-  groupByYear,
-  isPublished,
-  type CollectionItem,
-  type GroupedByYear,
-} from "./collections";
+export { sortByDate, filterByLanguage, groupByYear, type CollectionItem, type GroupedByYear } from "./collections";
 
 // Book utilities
 export {
