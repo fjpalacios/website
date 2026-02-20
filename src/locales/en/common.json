@@ -310,5 +310,21 @@
     "intro": "This is my personal book collection. Some of them have reviews on the blog, linked for your reading.",
     "withReview": "With Review",
     "reviewsOtherLanguages": "Reviews in Other Languages"
+  },
+  "cv": {
+    "title": "Curriculum Vitae",
+    "description": "Curriculum Vitae of Francisco Javier Palacios Pérez, Software Developer",
+    "sections": {
+      "experience": "Professional Experience",
+      "education": "Education",
+      "projects": "Side Projects",
+      "freelance": "Freelance Work",
+      "volunteering": "Volunteering",
+      "talks": "Talks & Workshops",
+      "skills": "Technologies"
+    },
+    "present": "Present",
+    "downloadPdf": "Save as PDF",
+    "backToSite": "Back to site"
   }
 }

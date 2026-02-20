@@ -1,0 +1,256 @@
+---
+import Icon from "@components/Icon.astro";
+import { CV_SKILLS } from "@content/cv/skills";
+import { resume } from "@content/en/resume";
+import CvLayout from "@layouts/CvLayout.astro";
+import { t } from "@locales";
+import { getContact } from "@utils/content/contact";
+
+import type { ContactItem } from "@/types/content";
+
+const lang = "en";
+const contact = getContact(lang);
+
+// Icons shown on screen (used to determine --screen-hidden flag per contact item)
+const SCREEN_ICONS = new Set(["linkedin", "github", "twitter", "map-pin"]);
+
+// Unified ordered contact list.
+// PRINT_ORDER is the canonical print grid order (left→right, top→bottom).
+// SCREEN_ONLY icons are appended and marked --print-hidden.
+const PRINT_ORDER = ["linkedin", "mail", "github", "globe", "map-pin", "phone"];
+const SCREEN_ONLY = ["twitter"]; // visible on screen, hidden on print
+
+interface ContactDisplayItem {
+  item: ContactItem;
+  screenHidden: boolean; // render only on print
+  printHidden: boolean; // render only on screen
+}
+
+const contactItems: ContactDisplayItem[] = [
+  ...PRINT_ORDER.map((icon) => contact.find((c: ContactItem) => c.icon === icon))
+    .filter((c): c is ContactItem => c !== undefined)
+    .map((c) => ({
+      item: c,
+      screenHidden: !SCREEN_ICONS.has(c.icon), // mail, globe, phone → screen-hidden
+      printHidden: false,
+    })),
+  ...SCREEN_ONLY.map((icon) => contact.find((c: ContactItem) => c.icon === icon))
+    .filter((c): c is ContactItem => c !== undefined)
+    .map((c) => ({
+      item: c,
+      screenHidden: false,
+      printHidden: true, // twitter → print-hidden
+    })),
+];
+---
+
+<CvLayout lang={lang}>
+  <div class="cv">
+    <!-- Screen-only nav bar -->
+    <nav class="cv__nav" aria-label="CV navigation">
+      <a href="/en" class="cv__nav-back">
+        <Icon name="chevron-left" size="sm" />
+        {t(lang, "cv.backToSite")}
+      </a>
+      <button class="cv__nav-print" onclick="window.print()" type="button">
+        <Icon name="file-text" size="sm" />
+        {t(lang, "cv.downloadPdf")}
+      </button>
+    </nav>
+
+    <!-- CV card -->
+    <div class="cv__card">
+      <!-- ── Header ──────────────────────────────────────────────────── -->
+      <header class="cv__header">
+        <div>
+          <h1 class="cv__header-name">{t(lang, "title")}</h1>
+          <p class="cv__header-title">{t(lang, "subtitle")}</p>
+        </div>
+        <address class="cv__header-contact" aria-label="Contact information">
+          {
+            contactItems.map(({ item, screenHidden, printHidden }) => (
+              <span
+                class={[
+                  "cv__contact-item",
+                  screenHidden && "cv__contact-item--screen-hidden",
+                  printHidden && "cv__contact-item--print-hidden",
+                ]
+                  .filter(Boolean)
+                  .join(" ")}
+              >
+                <Icon name={item.icon as Parameters[0]["name"]} size="xs" />
+                <a href={item.link} target="_blank" rel="noreferrer noopener">
+                  {item.text}
+                </a>
+              </span>
+            ))
+          }
+        </address>
+      </header>
+
+      <!-- ── Sidebar ─────────────────────────────────────────────────── -->
+      <aside class="cv__sidebar" aria-label="Additional information">
+        <!-- Skills -->
+        <section class="cv__sidebar-section" aria-labelledby="cv-skills-title">
+          <h2 class="cv__sidebar-title" id="cv-skills-title">
+            {t(lang, "cv.sections.skills")}
+          </h2>
+          <ul class="cv__skills" aria-label="Technologies">
+            {CV_SKILLS.map((skill) => <li class="cv__skill-tag">{skill}</li>)}
+          </ul>
+        </section>
+
+        <!-- Education -->
+        <section class="cv__sidebar-section" aria-labelledby="cv-edu-title">
+          <h2 class="cv__sidebar-title" id="cv-edu-title">
+            {t(lang, "cv.sections.education")}
+          </h2>
+          {
+            resume.education.map((edu) => (
+              <div class="cv__edu-item">
+                <p class="cv__edu-degree">{edu.desc}</p>
+                <p class="cv__edu-school">
+                  {edu.url ? (
+                    <a href={edu.url} target="_blank" rel="noopener noreferrer">
+                      {edu.name}
+                    </a>
+                  ) : (
+                    edu.name
+                  )}
+                </p>
+                {edu.location && <p class="cv__edu-school">{edu.location}</p>}
+                <p class="cv__edu-dates">{edu.dates}</p>
+              </div>
+            ))
+          }
+        </section>
+
+        <!-- Side projects -->
+        <section class="cv__sidebar-section" aria-labelledby="cv-projects-title">
+          <h2 class="cv__sidebar-title" id="cv-projects-title">
+            {t(lang, "cv.sections.projects")}
+          </h2>
+          {
+            resume.projects.map((project) => (
+              <div class={`cv__side-item${project.name === "sargantanacode.es" ? " cv__side-item--print-hidden" : ""}`}>
+                <p class="cv__side-item-name">
+                  {project.url ? (
+                    <a href={project.url} target="_blank" rel="noopener noreferrer">
+                      {project.name}
+                    </a>
+                  ) : (
+                    project.name
+                  )}
+                </p>
+                <p class="cv__side-item-desc" set:html={project.desc} />
+                <ul class="cv__side-item-tags" aria-label="Technologies used">
+                  {project.languages.map((tech) => (
+                    <li class="cv__side-item-tag">{tech}</li>
+                  ))}
+                </ul>
+              </div>
+            ))
+          }
+        </section>
+
+        <!-- Volunteering (hidden on print) -->
+        <section class="cv__sidebar-section cv__sidebar-section--print-hidden" aria-labelledby="cv-vol-title">
+          <h2 class="cv__sidebar-title" id="cv-vol-title">
+            {t(lang, "cv.sections.volunteering")}
+          </h2>
+          {
+            resume.volunteering.map((vol) => (
+              <div class="cv__vol-item">
+                <p class="cv__vol-name">{vol.name}</p>
+                <p class="cv__vol-desc">{vol.desc}</p>
+                {vol.dates && <p class="cv__vol-dates">{vol.dates}</p>}
+              </div>
+            ))
+          }
+        </section>
+
+        <!-- Talks (hidden on print) -->
+        <section class="cv__sidebar-section cv__sidebar-section--print-hidden" aria-labelledby="cv-talks-title">
+          <h2 class="cv__sidebar-title" id="cv-talks-title">
+            {t(lang, "cv.sections.talks")}
+          </h2>
+          {
+            resume.talks.map((talk) => (
+              <div class="cv__vol-item">
+                <p class="cv__vol-name">{talk.name}</p>
+                <p class="cv__vol-desc">{talk.desc}</p>
+                {talk.dates && (
+                  <p class="cv__vol-dates">
+                    {talk.dates} · {talk.location}
+                  </p>
+                )}
+              </div>
+            ))
+          }
+        </section>
+      </aside>
+
+      <!-- ── Main content ────────────────────────────────────────────── -->
+      <main class="cv__main">
+        <!-- Experience (first — recruiters scan this first) -->
+        <section class="cv__section" aria-labelledby="cv-exp-title">
+          <h2 class="cv__section-title" id="cv-exp-title">
+            {t(lang, "cv.sections.experience")}
+          </h2>
+          <ul class="cv__timeline" aria-label="Professional experience timeline">
+            {
+              resume.experience
+                .filter((job) => !job.hideOnPrint)
+                .map((job) => (
+                  <li class="cv__job">
+                    <div class="cv__job-header">
+                      <span class="cv__job-company">
+                        {job.url ? (
+                          <a href={job.url} target="_blank" rel="noopener noreferrer">
+                            {job.name}
+                          </a>
+                        ) : (
+                          job.name
+                        )}
+                      </span>
+                      <span class="cv__job-dates">{job.dates}</span>
+                    </div>
+                    <div class="cv__job-meta">
+                      <span class="cv__job-role">{job.role}</span>
+                      {job.location && <span class="cv__job-location">{job.location}</span>}
+                    </div>
+                    <p class="cv__job-desc" set:html={job.desc} />
+                  </li>
+                ))
+            }
+          </ul>
+        </section>
+
+        <!-- Freelance (after experience, before about me) -->
+        <section class="cv__section" aria-labelledby="cv-freelance-title">
+          <h2 class="cv__section-title" id="cv-freelance-title">
+            {t(lang, "cv.sections.freelance")}
+          </h2>
+          <ul class="cv__freelance-list">
+            {
+              resume.freelance.map((item) => (
+                <li class="cv__freelance-item">
+                  <span class="cv__freelance-name">{item.name}</span>
+                  <span class="cv__freelance-desc">{item.desc}</span>
+                </li>
+              ))
+            }
+          </ul>
+        </section>
+
+        <!-- About me (force page break on print so it starts clean) -->
+        <section class="cv__section cv__section--page-break" aria-labelledby="cv-about-title">
+          <h2 class="cv__section-title" id="cv-about-title">
+            {t(lang, "resume.me")}
+          </h2>
+          <div class="cv__about" set:html={resume.me} />
+        </section>
+      </main>
+    </div>
+  </div>
+</CvLayout>

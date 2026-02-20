@@ -310,5 +310,21 @@
     "intro": "Esta es mi colección personal de libros. Algunos de ellos tienen reseña en el blog, y están enlazados para que puedas leerla.",
     "withReview": "Con reseña",
     "reviewsOtherLanguages": "Reseñas en otros idiomas"
+  },
+  "cv": {
+    "title": "Currículum Vitae",
+    "description": "Currículum Vitae de Francisco Javier Palacios Pérez, Desarrollador de Software",
+    "sections": {
+      "experience": "Experiencia profesional",
+      "education": "Formación",
+      "projects": "Proyectos personales",
+      "freelance": "Trabajo freelance",
+      "volunteering": "Voluntariado",
+      "talks": "Charlas y talleres",
+      "skills": "Tecnologías"
+    },
+    "present": "Presente",
+    "downloadPdf": "Guardar como PDF",
+    "backToSite": "Volver al sitio"
   }
 }

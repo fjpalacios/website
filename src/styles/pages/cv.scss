@@ -1,0 +1,851 @@
+// CV Page Styles
+// ==============
+// Print-first design for /es/cv and /en/cv.
+// Two-column layout: sidebar (left, 28%) + main (right, 72%).
+// Color palette is self-contained — no dependency on site theme variables.
+// Designed to print cleanly to A4/Letter PDF at standard browser zoom.
+
+// ─── Design tokens (self-contained, no theme vars) ─────────────────────────
+
+$cv-accent: #efbb35; // golden yellow — brand accent
+$cv-dark: #11151c; // near-black for sidebar bg
+$cv-text: #1a1a2e; // deep navy for body text
+$cv-text-light: #4a5568; // muted gray for secondary text
+$cv-border: #e2e8f0; // light gray for dividers
+$cv-white: #ffffff;
+$cv-sidebar-text: rgba(255, 255, 255, 0.92);
+$cv-sidebar-muted: rgba(255, 255, 255, 0.6);
+$cv-sidebar-section: rgba(255, 255, 255, 0.12);
+$cv-tag-bg: rgba(239, 187, 53, 0.15);
+$cv-tag-text: #8b6914;
+$cv-tag-border: rgba(239, 187, 53, 0.4);
+$cv-timeline-dot: $cv-accent;
+$cv-timeline-line: #e2e8f0;
+
+// ─── Reset & base ──────────────────────────────────────────────────────────
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html,
+body {
+  height: 100%;
+}
+
+body.cv-page {
+  font-family:
+    "Segoe UI",
+    system-ui,
+    -apple-system,
+    sans-serif;
+  font-size: 14px;
+  line-height: 1.5;
+  color: $cv-text;
+  background: #f0f2f5;
+  -webkit-print-color-adjust: exact;
+  print-color-adjust: exact;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+// ─── Screen-only wrapper (card effect on screen) ───────────────────────────
+
+.cv {
+  max-width: 900px;
+  margin: 0 auto;
+
+  @media screen {
+    padding: 2rem 1rem;
+  }
+
+  // ─── Screen-only nav bar ─────────────────────────────────────────────────
+  &__nav {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 1.25rem;
+
+    @media print {
+      display: none;
+    }
+  }
+
+  &__nav-back {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    font-size: 0.85rem;
+    font-weight: 500;
+    color: $cv-text-light;
+    transition: color 0.15s;
+
+    &:hover {
+      color: $cv-text;
+    }
+
+    svg {
+      width: 14px;
+      height: 14px;
+    }
+  }
+
+  &__nav-print {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 1rem;
+    background: $cv-accent;
+    color: $cv-dark;
+    font-size: 0.8rem;
+    font-weight: 700;
+    border-radius: 6px;
+    border: none;
+    cursor: pointer;
+    letter-spacing: 0.03em;
+    transition: opacity 0.15s;
+
+    &:hover {
+      opacity: 0.88;
+    }
+
+    svg {
+      width: 14px;
+      height: 14px;
+    }
+  }
+
+  // ─── Card shell ──────────────────────────────────────────────────────────
+
+  &__card {
+    position: relative;
+    display: grid;
+    grid-template-columns: 28% 72%;
+    grid-template-rows: auto 1fr;
+    grid-template-areas:
+      "header  header"
+      "sidebar main";
+    // A4 height on screen so both columns visually fill the page
+    min-height: calc(297mm - 4rem); // subtract nav bar height
+    background: $cv-white;
+    overflow: hidden;
+
+    @media screen {
+      border-radius: 12px;
+      box-shadow:
+        0 4px 6px rgba(0, 0, 0, 0.05),
+        0 20px 60px rgba(0, 0, 0, 0.12);
+    }
+
+    @media print {
+      box-shadow: none;
+      border-radius: 0;
+      overflow: visible;
+    }
+  }
+
+  // ─── Header (full width, dark) ────────────────────────────────────────────
+
+  &__header {
+    grid-area: header;
+    position: relative;
+    z-index: 1; // render above .cv__card::before stripe
+    display: grid;
+    grid-template-columns: 1fr auto;
+    align-items: center;
+    gap: 1.5rem;
+    padding: 2rem 2.5rem;
+    background: $cv-dark;
+    color: $cv-sidebar-text;
+
+    @media print {
+      padding: 1.4rem 2rem;
+    }
+  }
+
+  &__header-name {
+    font-size: 2rem;
+    font-weight: 800;
+    letter-spacing: -0.02em;
+    line-height: 1.1;
+    color: $cv-white;
+
+    @media print {
+      font-size: 1.7rem;
+    }
+  }
+
+  &__header-title {
+    margin-top: 0.3rem;
+    font-size: 1rem;
+    font-weight: 400;
+    color: $cv-accent;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+
+    @media print {
+      font-size: 0.85rem;
+    }
+  }
+
+  // Contact grid in header (right column)
+  &__header-contact {
+    display: grid;
+    grid-template-columns: repeat(2, auto);
+    gap: 0.35rem 1.5rem;
+    justify-content: end;
+
+    @media print {
+      gap: 0.25rem 1rem;
+    }
+  }
+
+  &__contact-item {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    font-size: 0.78rem;
+    color: $cv-sidebar-muted;
+    white-space: nowrap;
+
+    &--print-only {
+      // Hidden on screen, shown at print (phone + website)
+      @media screen {
+        display: none;
+      }
+    }
+
+    svg {
+      width: 12px;
+      height: 12px;
+      flex-shrink: 0;
+      opacity: 0.75;
+    }
+
+    a {
+      color: inherit;
+
+      &:hover {
+        color: $cv-accent;
+      }
+    }
+  }
+
+  // ─── Sidebar (dark column, left) ─────────────────────────────────────────
+  //
+  // position:relative + z-index:1 ensure the sidebar content renders above
+  // the .cv__card::before pseudo-element that paints the dark stripe bg.
+
+  &__sidebar {
+    grid-area: sidebar;
+    position: relative;
+    z-index: 1;
+    background: $cv-dark;
+    color: $cv-sidebar-text;
+    padding: 1.75rem 1.5rem;
+    // align-self:stretch fills the grid row height on screen
+    align-self: stretch;
+
+    @media print {
+      padding: 1.25rem 1.2rem;
+    }
+  }
+
+  &__sidebar-section {
+    margin-bottom: 1.75rem;
+
+    @media print {
+      margin-bottom: 1.1rem;
+    }
+
+    &:last-child {
+      margin-bottom: 0;
+    }
+  }
+
+  &__sidebar-title {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 0.85rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid $cv-sidebar-section;
+    font-size: 0.65rem;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: $cv-accent;
+
+    @media print {
+      margin-bottom: 0.6rem;
+      padding-bottom: 0.35rem;
+    }
+  }
+
+  // ─── Sidebar: skills/tech tags ─────────────────────────────────────────
+
+  &__skills {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.35rem;
+  }
+
+  &__skill-tag {
+    padding: 0.2rem 0.55rem;
+    background: rgba(239, 187, 53, 0.18);
+    border: 1px solid rgba(239, 187, 53, 0.3);
+    border-radius: 4px;
+    font-size: 0.7rem;
+    font-weight: 500;
+    color: $cv-accent;
+    letter-spacing: 0.02em;
+
+    @media print {
+      font-size: 0.62rem;
+      padding: 0.15rem 0.45rem;
+    }
+  }
+
+  // ─── Sidebar: education ────────────────────────────────────────────────
+
+  &__edu-item {
+    margin-bottom: 0.85rem;
+
+    &:last-child {
+      margin-bottom: 0;
+    }
+  }
+
+  &__edu-degree {
+    font-size: 0.78rem;
+    font-weight: 600;
+    color: $cv-sidebar-text;
+    line-height: 1.3;
+
+    @media print {
+      font-size: 0.7rem;
+    }
+  }
+
+  &__edu-school {
+    margin-top: 0.15rem;
+    font-size: 0.72rem;
+    color: $cv-sidebar-muted;
+
+    @media print {
+      font-size: 0.65rem;
+    }
+  }
+
+  &__edu-dates {
+    margin-top: 0.1rem;
+    font-size: 0.68rem;
+    color: rgba(255, 255, 255, 0.4);
+    letter-spacing: 0.03em;
+
+    @media print {
+      font-size: 0.62rem;
+    }
+  }
+
+  // ─── Sidebar: project & freelance items ───────────────────────────────
+
+  &__side-item {
+    margin-bottom: 0.75rem;
+
+    &:last-child {
+      margin-bottom: 0;
+    }
+  }
+
+  &__side-item-name {
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: $cv-sidebar-text;
+
+    a {
+      &:hover {
+        color: $cv-accent;
+      }
+    }
+
+    @media print {
+      font-size: 0.68rem;
+    }
+  }
+
+  &__side-item-desc {
+    margin-top: 0.1rem;
+    font-size: 0.68rem;
+    color: $cv-sidebar-muted;
+    line-height: 1.35;
+
+    @media print {
+      font-size: 0.62rem;
+    }
+  }
+
+  &__side-item-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.2rem;
+    margin-top: 0.3rem;
+  }
+
+  &__side-item-tag {
+    padding: 0.1rem 0.35rem;
+    background: rgba(255, 255, 255, 0.08);
+    border-radius: 3px;
+    font-size: 0.6rem;
+    color: rgba(255, 255, 255, 0.5);
+    letter-spacing: 0.02em;
+    font-family: "Courier New", monospace;
+  }
+
+  // ─── Sidebar: volunteering & talks ────────────────────────────────────
+
+  &__vol-item {
+    margin-bottom: 0.75rem;
+
+    &:last-child {
+      margin-bottom: 0;
+    }
+  }
+
+  &__vol-name {
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: $cv-sidebar-text;
+
+    @media print {
+      font-size: 0.68rem;
+    }
+  }
+
+  &__vol-desc {
+    margin-top: 0.1rem;
+    font-size: 0.68rem;
+    color: $cv-sidebar-muted;
+    line-height: 1.35;
+
+    @media print {
+      font-size: 0.62rem;
+    }
+  }
+
+  &__vol-dates {
+    margin-top: 0.1rem;
+    font-size: 0.64rem;
+    color: rgba(255, 255, 255, 0.35);
+    letter-spacing: 0.03em;
+
+    @media print {
+      font-size: 0.58rem;
+    }
+  }
+
+  // ─── Main content (right column, white) ──────────────────────────────────
+
+  &__main {
+    grid-area: main;
+    position: relative;
+    z-index: 1; // render above .cv__card::before stripe
+    padding: 1.75rem 2rem;
+    background: $cv-white; // explicit white bg so main column covers the stripe
+
+    @media print {
+      padding: 1.25rem 1.5rem;
+    }
+  }
+
+  &__section {
+    margin-bottom: 1.75rem;
+
+    // Extra top breathing room before each section title (not the first one)
+    & + & {
+      margin-top: 0.5rem;
+    }
+
+    @media print {
+      margin-bottom: 1.1rem;
+
+      & + & {
+        margin-top: 0.35rem;
+      }
+    }
+
+    &:last-child {
+      margin-bottom: 0;
+    }
+  }
+
+  &__section-title {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    margin-bottom: 1rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 2px solid $cv-accent;
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: $cv-dark;
+
+    @media print {
+      margin-bottom: 0.6rem;
+      padding-bottom: 0.35rem;
+      border-bottom-width: 1.5px;
+    }
+  }
+
+  // ─── About / summary text ─────────────────────────────────────────────
+
+  &__about {
+    font-size: 0.83rem;
+    color: $cv-text-light;
+    line-height: 1.65;
+
+    p {
+      margin-bottom: 0.6rem;
+
+      &:last-child {
+        margin-bottom: 0;
+      }
+    }
+
+    strong {
+      color: $cv-text;
+      font-weight: 600;
+    }
+
+    em {
+      font-style: italic;
+    }
+
+    @media print {
+      font-size: 0.73rem;
+      line-height: 1.5;
+    }
+  }
+
+  // ─── Experience timeline ──────────────────────────────────────────────
+
+  &__timeline {
+    position: relative;
+
+    // Vertical line: runs from the first dot to the last dot
+    &::before {
+      content: "";
+      position: absolute;
+      left: 5px;
+      top: 14px; // start below the first dot centre
+      bottom: 14px; // stop above the last dot centre
+      width: 2px;
+      background: $cv-timeline-line;
+
+      @media print {
+        left: 4px;
+        top: 11px;
+        bottom: 11px;
+        width: 1.5px;
+      }
+    }
+  }
+
+  &__job {
+    position: relative;
+    padding-left: 1.75rem;
+    margin-bottom: 1.25rem;
+
+    @media print {
+      padding-left: 1.4rem;
+      margin-bottom: 0.85rem;
+    }
+
+    &:last-child {
+      margin-bottom: 0;
+    }
+
+    // Timeline dot
+    &::before {
+      content: "";
+      position: absolute;
+      left: 0;
+      top: 3px;
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      background: $cv-accent;
+      border: 2px solid $cv-white;
+      box-shadow: 0 0 0 2px $cv-accent;
+
+      @media print {
+        width: 10px;
+        height: 10px;
+        top: 6px;
+        left: 0;
+      }
+    }
+  }
+
+  &__job-header {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    align-items: start;
+    gap: 0.5rem;
+    margin-bottom: 0.2rem;
+  }
+
+  &__job-company {
+    font-size: 0.88rem;
+    font-weight: 700;
+    color: $cv-dark;
+    line-height: 1.2;
+
+    a {
+      &:hover {
+        color: $cv-accent;
+      }
+    }
+
+    @media print {
+      font-size: 0.78rem;
+    }
+  }
+
+  &__job-dates {
+    font-size: 0.7rem;
+    font-weight: 500;
+    color: $cv-text-light;
+    white-space: nowrap;
+    text-align: right;
+
+    @media print {
+      font-size: 0.63rem;
+    }
+  }
+
+  &__job-meta {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 0.4rem;
+    flex-wrap: wrap;
+  }
+
+  &__job-role {
+    font-size: 0.76rem;
+    font-weight: 600;
+    color: $cv-accent;
+    letter-spacing: 0.02em;
+
+    @media print {
+      font-size: 0.68rem;
+    }
+  }
+
+  &__job-location {
+    font-size: 0.72rem;
+    color: $cv-text-light;
+
+    &::before {
+      content: "·";
+      margin-right: 0.5rem;
+    }
+
+    @media print {
+      font-size: 0.64rem;
+    }
+  }
+
+  &__job-desc {
+    font-size: 0.78rem;
+    color: $cv-text-light;
+    line-height: 1.55;
+
+    @media print {
+      font-size: 0.66rem;
+      line-height: 1.38;
+    }
+  }
+
+  // ─── Freelance list (in main column) ─────────────────────────────────
+  //
+  // Dot-row layout: each item is a single row with an accent dot on the left,
+  // the URL (bold, accent colour) and the description separated by an em dash.
+  // Consistent with the experience timeline visual language. No cards, no grid.
+
+  &__freelance-list {
+    // Use native browser bullets (disc) — no custom accent dots
+    list-style: disc;
+    padding-left: 1.2rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+
+    @media print {
+      gap: 0.3rem;
+      padding-left: 1rem;
+    }
+  }
+
+  &__freelance-item {
+    // Inherit disc bullet from list-style on the parent ul
+    line-height: 1.4;
+
+    @media print {
+      line-height: 1.35;
+    }
+  }
+
+  &__freelance-name {
+    display: block;
+    font-size: 0.78rem;
+    font-weight: 700;
+    color: $cv-text;
+
+    @media print {
+      font-size: 0.69rem;
+    }
+  }
+
+  &__freelance-desc {
+    display: block;
+    font-size: 0.72rem;
+    color: $cv-text-light;
+    line-height: 1.4;
+
+    @media print {
+      font-size: 0.63rem;
+    }
+  }
+
+  // ─── Divider between sections ─────────────────────────────────────────
+
+  &__divider {
+    height: 1px;
+    background: $cv-border;
+    margin: 1.5rem 0;
+
+    @media print {
+      margin: 0.9rem 0;
+    }
+  }
+
+  // ─── Print visibility modifiers ──────────────────────────────────────────
+  //
+  // Sections hidden on print (visible on screen only):
+  //   - cv__sidebar-section--print-hidden  → volunteering, talks
+  //   - cv__side-item--print-hidden        → sargantanacode.es project
+  //   - cv__section--print-hidden          → freelance (main column)
+
+  &__sidebar-section--print-hidden,
+  &__side-item--print-hidden,
+  &__section--print-hidden {
+    @media print {
+      display: none !important;
+    }
+  }
+
+  // ─── Contact item screen-only filter ─────────────────────────────────────
+  // Items marked --screen-hidden are only shown on print
+  &__contact-item--screen-hidden {
+    @media screen {
+      display: none;
+    }
+  }
+
+  // Items marked --print-hidden are only shown on screen
+  &__contact-item--print-hidden {
+    @media print {
+      display: none !important;
+    }
+  }
+}
+
+// ─── Print-specific global overrides ───────────────────────────────────────
+
+@media print {
+  @page {
+    size: A4;
+    margin: 18mm 0;
+  }
+
+  html,
+  body {
+    background: $cv-white;
+  }
+
+  body.cv-page {
+    background: $cv-white;
+    font-size: 15px;
+  }
+
+  // Avoid breaking individual timeline entries mid-entry
+  .cv__job {
+    break-inside: avoid;
+  }
+
+  // Avoid breaking individual sidebar items (projects, edu, vol) mid-entry
+  .cv__side-item,
+  .cv__edu-item,
+  .cv__vol-item {
+    break-inside: avoid;
+  }
+
+  // Keep entire sidebar sections together when they fit on one page
+  .cv__sidebar-section {
+    break-inside: avoid;
+  }
+
+  // Keep section titles glued to their first child
+  .cv__section-title,
+  .cv__sidebar-title {
+    break-after: avoid;
+  }
+
+  // Force "Sobre mí / About me" section to always start on a new page.
+  .cv__section--page-break {
+    break-before: page;
+    padding-top: 1.25rem;
+  }
+
+  // ── JS-injected print helpers ───────────────────────────────────────────
+
+  // Dark stripe injected by JS before printing.
+  // position:fixed in print = painted on EVERY page, full page height,
+  // regardless of content length. This is the reliable way to get a
+  // persistent sidebar background across all print pages.
+  .cv__print-stripe {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 28%; // must match grid-template-columns in .cv__card
+    height: 100%;
+    background: $cv-dark;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+    z-index: 0; // behind sidebar content (z-index: 1) and main (z-index: 1)
+  }
+
+  // Dark padding rectangle injected by JS before printing.
+  // Covers the top of the sidebar on page 2 (from top:0 to top:header_height).
+  // Since the header only exists on page 1, this rectangle fills the empty
+  // space at the top of the sidebar on page 2, creating the visual illusion
+  // of padding — equivalent to what @page margin gives on the main column.
+  // height is set inline by JS in mm units.
+}

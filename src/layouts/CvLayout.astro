@@ -1,0 +1,75 @@
+---
+/**
+ * CvLayout - Dedicated layout for CV pages (/es/cv, /en/cv)
+ *
+ * Intentionally stripped of the site's Header, Footer, Menu and Search.
+ * This layout is print-first: it looks great on screen but is designed
+ * to produce a clean, professional PDF when printed.
+ */
+import { t } from "@locales";
+
+import type { LanguageKey } from "@/config/languages";
+
+interface Props {
+  lang: LanguageKey;
+}
+
+const { lang } = Astro.props;
+
+const title = `${t(lang, "cv.title")} — ${t(lang, "title")}`;
+const description = t(lang, "cv.description");
+const siteUrl = t(lang, "metaData.url");
+const canonicalUrl = `${siteUrl}/${lang}/cv`;
+const alternateLang = lang === "es" ? "en" : "es";
+const alternateUrl = `${siteUrl}/${alternateLang}/cv`;
+---
+
+<!doctype html>
+<html lang={lang}>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content={description} />
+    <meta name="robots" content="noindex, nofollow" />
+    <link rel="canonical" href={canonicalUrl} />
+    <link rel="alternate" hreflang={alternateLang} href={alternateUrl} />
+    <link rel="icon" type="image/x-icon" href="/favicon.ico" />
+    <title>{title}</title>
+    <style is:global lang="scss">
+      @use "../styles/pages/cv";
+    </style>
+  </head>
+  <body class="cv-page">
+    <slot />
+    <script>
+      /**
+       * CV print layout fixer.
+       *
+       * Problem: CSS cannot paint a background for a grid column across multiple
+       * print pages. Solution: inject a position:fixed stripe div. In @media print,
+       * position:fixed renders on EVERY page at full page height regardless of
+       * content length — perfect for a persistent sidebar background.
+       *
+       * The stripe is removed in afterprint so the screen view is unchanged.
+       */
+
+      let stripe: HTMLDivElement | null = null;
+
+      function preparePrint(): void {
+        if (!stripe) {
+          stripe = document.createElement("div");
+          stripe.className = "cv__print-stripe";
+          document.body.appendChild(stripe);
+        }
+      }
+
+      function resetPrint(): void {
+        stripe?.remove();
+        stripe = null;
+      }
+
+      window.addEventListener("beforeprint", preparePrint);
+      window.addEventListener("afterprint", resetPrint);
+    </script>
+  </body>
+</html>
