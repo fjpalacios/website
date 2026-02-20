@@ -1,0 +1,201 @@
+---
+title: "Entendiendo los cambios con git diff"
+post_slug: "entendiendo-cambios-git-diff"
+date: "2026-02-23"
+excerpt: "Antes de hacer un commit, ¿sabes exactamente qué has cambiado? git diff te muestra línea a línea qué ha modificado, qué está preparado y qué diferencia hay entre ramas."
+language: "es"
+categories: ["git"]
+course: "domina-git-desde-cero"
+order: 7
+cover: "/images/tutorials/cabecera-git.jpg"
+i18n: "understanding-file-changes-git-diff"
+---
+
+`git status` nos dice _qué_ archivos han cambiado. `git diff` nos dice _cómo_ han cambiado. Es la diferencia entre saber que un archivo se ha modificado y ver exactamente qué líneas se han añadido, borrado o reemplazado.
+
+Es un comando que usarás constantemente justo antes de hacer un commit, para asegurarte de que lo que vas a guardar es exactamente lo que crees que es.
+
+## Leer la salida de git diff
+
+Antes de ver las distintas variantes del comando, hay que entender cómo interpretar su salida. Supongamos que tenemos `index.html` y lo modificamos:
+
+```bash
+git diff
+```
+
+La salida tiene un aspecto similar a este:
+
+```diff
+diff --git a/index.html b/index.html
+index 8a5b2c1..f3e7d4a 100644
+--- a/index.html
++++ b/index.html
+@@ -1,7 +1,8 @@
+ <!DOCTYPE html>
+ <html>
+   <head>
+-    <title>Mi proyecto</title>
++    <title>Mi proyecto en Git</title>
+   </head>
+   <body>
+     <h1>Hola mundo</h1>
++    <p>Aprendiendo Git desde cero</p>
+   </body>
+ </html>
+```
+
+Desglosamos lo que vemos:
+
+- **`--- a/index.html`** y **`+++ b/index.html`**: la versión anterior (`a`) y la nueva (`b`) del archivo.
+- **`@@ -1,7 +1,8 @@`**: el _hunk header_. `-1,7` significa que el bloque mostrado empieza en la línea 1 del archivo original y tiene 7 líneas. `+1,8` significa que en la versión nueva empieza también en la línea 1 pero ahora tiene 8 líneas.
+- Las líneas en **rojo con `-`**: eliminadas.
+- Las líneas en **verde con `+`**: añadidas.
+- Las líneas sin prefijo: contexto, no han cambiado.
+
+Con la práctica lees un diff tan rápido como lees código normal.
+
+## Las cuatro variantes principales
+
+### git diff — directorio de trabajo vs staging area
+
+Sin argumentos, `git diff` compara lo que tienes en el directorio de trabajo con lo que hay en el _staging area_ (o con el último commit si no hay nada preparado). Es decir: **muestra los cambios que aún no has preparado**.
+
+```bash
+git diff
+```
+
+Si has hecho `git add` de todos tus cambios, este comando no mostrará nada, porque el directorio de trabajo y el staging area están sincronizados.
+
+### git diff --staged — staging area vs último commit
+
+También llamado `--cached` (son equivalentes). Muestra los cambios que **sí has preparado** y que se incluirán en el próximo commit:
+
+```bash
+git diff --staged
+```
+
+Este es el que deberías ejecutar justo antes de `git commit` para revisar exactamente qué vas a guardar. Es un hábito muy bueno: te evita commitar cosas que no querías incluir.
+
+### git diff HEAD — directorio de trabajo vs último commit
+
+Compara todo tu trabajo actual (preparado y no preparado) contra el último commit. Es como la suma de los dos anteriores:
+
+```bash
+git diff HEAD
+```
+
+Te da una visión completa de todo lo que ha cambiado desde el último commit, sin importar si lo has preparado o no.
+
+### Comparando commits concretos
+
+Puedes pasar dos identificadores de commit para ver qué cambió entre ellos:
+
+```bash
+git diff f7c5eba e02c63c
+```
+
+También puedes usar referencias relativas. `HEAD~1` es el commit anterior al actual, `HEAD~2` el de antes, y así sucesivamente:
+
+```bash
+git diff HEAD~1 HEAD
+```
+
+Eso muestra exactamente qué cambió en el último commit, que es algo que harás con frecuencia para revisar tu propio trabajo.
+
+## Comparando ramas
+
+Una de las variantes más útiles de `git diff` es comparar dos ramas. Imagina que tienes una rama `feature` y quieres ver qué cambios introduce respecto a `master`:
+
+```bash
+git diff master..feature
+```
+
+Los dos puntos (`..`) comparan el extremo de `master` con el extremo de `feature`. Verás todos los cambios que hay en `feature` que no están en `master`.
+
+También existe la sintaxis con tres puntos (`...`):
+
+```bash
+git diff master...feature
+```
+
+Esta variante muestra los cambios que hay en `feature` desde el punto en que se separó de `master`, ignorando los cambios que se hayan podido hacer en `master` desde entonces. Suele ser la más útil cuando trabajas con ramas de características y quieres ver solo lo que tú has añadido.
+
+## Filtrar por archivo
+
+Si tu repositorio tiene muchos archivos modificados y solo te interesa ver los cambios en uno concreto, puedes especificarlo:
+
+```bash
+git diff index.html
+git diff --staged src/styles/main.css
+```
+
+También puedes filtrar por carpeta:
+
+```bash
+git diff src/
+```
+
+## Ver solo los nombres de los archivos que cambiaron
+
+Si no necesitas ver el contenido del diff sino solo saber qué archivos han cambiado, usa `--name-only`:
+
+```bash
+git diff --name-only
+git diff --name-only HEAD~1 HEAD
+```
+
+Y si además quieres saber el tipo de cambio (modificado, añadido, borrado), usa `--name-status`:
+
+```bash
+git diff --name-status master..feature
+```
+
+La salida sería algo así:
+
+```
+M       index.html
+A       about.html
+D       old-page.html
+```
+
+## Ignorar cambios en espacios en blanco
+
+A veces un diff está lleno de ruido porque alguien cambió la indentación de un archivo o convirtió tabulaciones en espacios. Para ignorar esos cambios:
+
+```bash
+git diff -w
+```
+
+El flag `-w` (o `--ignore-all-space`) hace que Git ignore completamente los cambios en espacios en blanco, mostrando solo los cambios de contenido real.
+
+## git difftool: usando una herramienta gráfica
+
+La salida de texto de `git diff` es perfectamente funcional pero no siempre es la forma más cómoda de revisar cambios. Para eso existe `git difftool`, que abre los diffs en una herramienta gráfica externa.
+
+Para ver qué herramientas tiene Git configuradas en tu sistema:
+
+```bash
+git difftool --tool-help
+```
+
+Para usar una herramienta concreta, por ejemplo `vimdiff`:
+
+```bash
+git difftool --tool=vimdiff
+```
+
+O para configurarla como la herramienta por defecto:
+
+```bash
+git config --global diff.tool vimdiff
+```
+
+A partir de ahí, `git difftool` abrirá `vimdiff` directamente. Algunos editores populares como VS Code, IntelliJ o Sublime Merge también se pueden configurar como difftool, y ofrecen una visualización side-by-side muy cómoda para revisar cambios grandes.
+
+---
+
+Con `git status`, `git log` y `git diff` tienes el triángulo de inspección completo: sabes qué archivos han cambiado, cuál es la historia del proyecto y exactamente en qué consiste cada cambio. Son los tres comandos que más usarás en tu día a día con Git y a estas alturas ya deberías dominarlos con soltura.
+
+En la siguiente lección retomamos el tema de cómo recuperar archivos, que ya vimos brevemente al principio del curso, pero ahora con mucho más contexto y añadiendo las alternativas modernas que ofrece Git 2.23+.
+
+¡Nunca dejes de programar!
