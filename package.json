@@ -67,7 +67,7 @@
     "fast-xml-parser": "5.3.7",
     "marked": "^17.0.3",
     "mdast-util-to-hast": "13.2.1",
-    "mysql2": "^3.17.1",
+    "mysql2": "^3.17.5",
     "normalize.css": "^8.0.1",
     "prismjs": "^1.30.0",
     "rehype-prism-plus": "^2.0.2",
