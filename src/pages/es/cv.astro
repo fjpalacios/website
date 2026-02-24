@@ -12,13 +12,13 @@ const lang = "es";
 const contact = getContact(lang);
 
 // Icons shown on screen (used to determine --screen-hidden flag per contact item)
-const SCREEN_ICONS = new Set(["linkedin", "github", "twitter", "map-pin"]);
+const SCREEN_ICONS = new Set(["linkedin", "github", "x", "map-pin"]);
 
 // Unified ordered contact list.
 // PRINT_ORDER is the canonical print grid order (left→right, top→bottom).
 // SCREEN_ONLY icons are appended and marked --print-hidden.
 const PRINT_ORDER = ["linkedin", "mail", "github", "globe", "map-pin", "phone"];
-const SCREEN_ONLY = ["twitter"]; // visible on screen, hidden on print
+const SCREEN_ONLY = ["x"]; // visible on screen, hidden on print
 
 interface ContactDisplayItem {
   item: ContactItem;
@@ -39,7 +39,7 @@ const contactItems: ContactDisplayItem[] = [
     .map((c) => ({
       item: c,
       screenHidden: false,
-      printHidden: true, // twitter → print-hidden
+      printHidden: true, // x → print-hidden
     })),
 ];
 ---

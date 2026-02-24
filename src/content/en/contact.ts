@@ -20,9 +20,9 @@ export const contact: ContactItem[] = [
     text: "fjpalacios",
   },
   {
-    name: "Twitter",
-    link: "https://twitter.com/fjpalacios",
-    icon: "twitter",
+    name: "X",
+    link: "https://x.com/fjpalacios",
+    icon: "x",
     text: "fjpalacios",
   },
   {

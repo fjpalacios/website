@@ -184,6 +184,7 @@
       margin-right: 0;
       display: block;
       flex-shrink: 0;
+      transition: transform 0.3s ease;
 
       @include medium-and-up {
         width: 16px;
@@ -199,6 +200,10 @@
         margin-right: 0.5em;
       }
     }
+
+    &__item a:hover &__icon {
+      transform: rotate(12deg);
+    }
   }
 }
 
@@ -213,9 +218,8 @@
   }
 }
 
-// Hide Twitter on print
+// Hide X on print
 @include print {
-  .header__contact__item:has(a[href*="twitter.com"]),
   .header__contact__item:has(a[href*="x.com"]) {
     display: none !important;
   }
