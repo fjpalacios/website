@@ -1,0 +1,424 @@
+---
+title: "Variables y tipos de datos en Python"
+post_slug: "variables-tipos-datos-python"
+date: "2026-02-25"
+excerpt: "Aprende a crear variables, entender los tipos de datos básicos de Python (números, strings, booleanos) y cómo usarlos para construir tus primeros programas."
+language: "es"
+categories: ["programacion"]
+course: "aprende-a-programar-desde-cero-python"
+order: 3
+cover: "/images/tutorials/cabecera-python-curso.jpg"
+i18n: "variables-data-types-python"
+---
+
+En las lecciones anteriores ya sabes qué es Python, tienes tu entorno configurado y has escrito tu primer programa con `print()`. Ahora es momento de dar el siguiente paso: **aprender a almacenar y manipular información**.
+
+Imagina que estás escribiendo un videojuego. Necesitas guardar la puntuación del jugador, su nombre, si tiene vidas restantes... Para eso existen las **variables**: contenedores donde guardas información que puede cambiar mientras tu programa se ejecuta.
+
+## ¿Qué es una variable?
+
+Una variable es un **nombre que le das a un dato** para poder usarlo más adelante. Piensa en ella como una caja etiquetada donde guardas algo.
+
+```python
+nombre = "Ana"
+edad = 25
+puntuacion = 1500
+```
+
+Acabas de crear tres variables:
+
+- `nombre` contiene el texto `"Ana"`
+- `edad` contiene el número `25`
+- `puntuacion` contiene el número `1500`
+
+### Crear una variable
+
+En Python, crear una variable es tan simple como escribir un nombre, el signo `=`, y el valor que quieres guardar:
+
+```python
+mensaje = "Hola, mundo"
+```
+
+No hace falta declarar el tipo de dato (como en otros lenguajes). Python es lo suficientemente inteligente para saber que `"Hola, mundo"` es un texto.
+
+### Usar una variable
+
+Una vez creada, puedes usar la variable escribiendo su nombre:
+
+```python
+nombre = "Carlos"
+print(nombre)  # Imprime: Carlos
+
+edad = 30
+print(edad)    # Imprime: 30
+```
+
+También puedes usar variables dentro de operaciones:
+
+```python
+precio = 50
+descuento = 10
+total = precio - descuento
+print(total)  # Imprime: 40
+```
+
+### Las variables pueden cambiar
+
+De ahí viene su nombre: son _variables_. Puedes cambiar su valor en cualquier momento:
+
+```python
+contador = 0
+print(contador)  # Imprime: 0
+
+contador = 1
+print(contador)  # Imprime: 1
+
+contador = 100
+print(contador)  # Imprime: 100
+```
+
+## Reglas para nombrar variables
+
+Python tiene algunas reglas estrictas (y otras que son buenas prácticas):
+
+### Reglas obligatorias
+
+1. **Solo letras, números y guiones bajos**: No puedes usar espacios ni símbolos especiales
+
+   ```python
+   nombre_completo = "Ana García"  # ✅ Correcto
+   nombre-completo = "Ana García"  # ❌ Error
+   nombre completo = "Ana García"  # ❌ Error
+   ```
+
+2. **No puede empezar por un número**
+
+   ```python
+   edad1 = 25      # ✅ Correcto
+   1edad = 25      # ❌ Error
+   ```
+
+3. **No puedes usar palabras reservadas** de Python (`if`, `for`, `while`, `def`, etc.)
+
+   ```python
+   for = 5         # ❌ Error (for es una palabra reservada)
+   my_for = 5      # ✅ Correcto
+   ```
+
+### Buenas prácticas (convenciones)
+
+1. **Usa snake_case**: palabras en minúsculas separadas por guiones bajos
+
+   ```python
+   nombre_usuario = "Ana"      # ✅ Preferido en Python
+   nombreUsuario = "Ana"       # ❌ Funciona pero no es pythónico
+   NombreUsuario = "Ana"       # ❌ Esto se reserva para clases
+   ```
+
+2. **Nombres descriptivos**: que se entienda qué contiene la variable
+
+   ```python
+   edad_usuario = 25           # ✅ Claro
+   e = 25                      # ❌ ¿Qué es "e"?
+
+   precio_con_descuento = 45   # ✅ Descriptivo
+   pcd = 45                    # ❌ Demasiado corto
+   ```
+
+3. **En inglés (opcional pero recomendado)**: facilita la colaboración internacional
+
+   ```python
+   user_age = 25               # ✅ Recomendado
+   edad_usuario = 25           # ✅ También válido
+   ```
+
+## Tipos de datos básicos
+
+Cuando creas una variable, Python le asigna automáticamente un **tipo de dato** dependiendo del valor que le das. Los tres tipos más importantes para empezar son:
+
+### 1. Números enteros (int)
+
+Los números sin decimales. Se usan para contar, índices, edades, puntuaciones...
+
+```python
+edad = 25
+jugadores = 4
+año = 2026
+temperatura = -5
+```
+
+Puedes hacer operaciones matemáticas con ellos:
+
+```python
+suma = 10 + 5        # 15
+resta = 10 - 5       # 5
+multiplicacion = 10 * 5    # 50
+division = 10 / 5    # 2.0 (ojo: el resultado es float)
+division_entera = 10 // 3  # 3 (división entera, descarta decimales)
+resto = 10 % 3       # 1 (resto de la división)
+potencia = 2 ** 3    # 8 (2 elevado a 3)
+```
+
+### 2. Números decimales (float)
+
+Los números con decimales. Se usan para mediciones, precios, porcentajes...
+
+```python
+precio = 19.99
+temperatura = 36.5
+porcentaje = 0.15
+```
+
+**Importante**: En Python se usa el **punto** (`.`) como separador decimal, no la coma:
+
+```python
+precio = 19.99   # ✅ Correcto
+precio = 19,99   # ❌ Esto crea una tupla, no un número
+```
+
+Operaciones con floats:
+
+```python
+total = 10.5 + 2.3   # 12.8
+mitad = 10.0 / 2     # 5.0
+```
+
+Cuando mezclas `int` y `float`, el resultado siempre es `float`:
+
+```python
+resultado = 10 + 2.5    # 12.5 (float)
+```
+
+### 3. Cadenas de texto (str)
+
+Cualquier texto va entre comillas. Puedes usar comillas simples `'...'` o dobles `"..."`, da igual:
+
+```python
+nombre = "Ana"
+apellido = 'García'
+mensaje = "Hola, mundo"
+```
+
+**Consejo**: Usa comillas dobles por defecto. Solo usa simples cuando necesites comillas dobles dentro del texto:
+
+```python
+frase = 'Ella dijo: "Hola"'
+```
+
+#### Concatenar strings
+
+Puedes unir textos con el operador `+`:
+
+```python
+nombre = "Ana"
+apellido = "García"
+nombre_completo = nombre + " " + apellido
+print(nombre_completo)  # Ana García
+```
+
+#### f-strings: la forma moderna de formatear texto
+
+Desde Python 3.6 existe una forma mucho más cómoda de incluir variables dentro de un texto: los **f-strings** (formatted strings). Pon una `f` antes de las comillas y escribe las variables dentro de `{}`:
+
+```python
+nombre = "Carlos"
+edad = 30
+
+# Forma antigua (funciona pero es fea)
+mensaje = "Hola, me llamo " + nombre + " y tengo " + str(edad) + " años"
+
+# Forma moderna con f-strings (¡mucho mejor!)
+mensaje = f"Hola, me llamo {nombre} y tengo {edad} años"
+print(mensaje)  # Hola, me llamo Carlos y tengo 30 años
+```
+
+Puedes hacer operaciones dentro de las llaves:
+
+```python
+precio = 100
+descuento = 20
+print(f"Precio final: {precio - descuento} euros")  # Precio final: 80 euros
+```
+
+### 4. Booleanos (bool)
+
+Solo pueden tener dos valores: `True` (verdadero) o `False` (falso). Se usan para condiciones, decisiones, estados...
+
+```python
+es_mayor_de_edad = True
+ha_ganado = False
+tiene_descuento = True
+```
+
+**Importante**: `True` y `False` van con la primera letra en **mayúscula**. Es obligatorio:
+
+```python
+activo = True    # ✅ Correcto
+activo = true    # ❌ Error (NameError)
+```
+
+Los booleanos suelen venir de comparaciones:
+
+```python
+edad = 25
+es_adulto = edad >= 18    # True
+
+temperatura = 15
+hace_frio = temperatura < 20    # True
+
+puntos = 100
+ha_ganado = puntos >= 150       # False
+```
+
+## Comprobar el tipo de una variable
+
+Si no estás seguro del tipo de dato de una variable, usa `type()`:
+
+```python
+nombre = "Ana"
+print(type(nombre))    # <class 'str'>
+
+edad = 25
+print(type(edad))      # <class 'int'>
+
+precio = 19.99
+print(type(precio))    # <class 'float'>
+
+activo = True
+print(type(activo))    # <class 'bool'>
+```
+
+Esto es especialmente útil cuando debuggeas código y quieres entender qué está pasando.
+
+## Convertir entre tipos
+
+A veces necesitas convertir un tipo de dato a otro. Python tiene funciones para eso:
+
+### str() — Convertir a texto
+
+```python
+edad = 25
+edad_texto = str(edad)
+print("Tengo " + edad_texto + " años")  # Tengo 25 años
+```
+
+O mejor con f-strings (que hace la conversión automáticamente):
+
+```python
+edad = 25
+print(f"Tengo {edad} años")  # Tengo 25 años
+```
+
+### int() — Convertir a entero
+
+```python
+precio_texto = "100"
+precio = int(precio_texto)
+print(precio + 50)  # 150
+```
+
+⚠️ **Cuidado**: Si intentas convertir algo que no es un número, Python lanzará un error:
+
+```python
+numero = int("abc")  # ValueError: invalid literal for int()
+```
+
+### float() — Convertir a decimal
+
+```python
+precio_texto = "19.99"
+precio = float(precio_texto)
+print(precio)  # 19.99
+```
+
+### bool() — Convertir a booleano
+
+```python
+numero = 5
+es_verdadero = bool(numero)
+print(es_verdadero)  # True
+```
+
+**Regla importante**: En Python, `0`, `""` (string vacío), `None`, listas vacías `[]` y diccionarios vacíos `{}` se consideran `False`. Todo lo demás es `True`:
+
+```python
+bool(0)      # False
+bool(1)      # True
+bool(-5)     # True
+bool("")     # False
+bool("Hola") # True
+```
+
+## Ejercicio práctico
+
+Abre tu REPL (escribe `python` en la terminal) y prueba esto paso a paso:
+
+```python
+# 1. Crea variables con información personal
+>>> nombre = "Tu Nombre"
+>>> edad = 25
+>>> altura = 1.75  # en metros
+>>> estudiante = True
+
+# 2. Muestra la información
+>>> print(f"Nombre: {nombre}")
+>>> print(f"Edad: {edad} años")
+>>> print(f"Altura: {altura} metros")
+>>> print(f"¿Es estudiante? {estudiante}")
+
+# 3. Haz cálculos
+>>> año_nacimiento = 2026 - edad
+>>> print(f"Año de nacimiento aproximado: {año_nacimiento}")
+
+# 4. Comprueba tipos
+>>> print(type(nombre))
+>>> print(type(edad))
+>>> print(type(altura))
+>>> print(type(estudiante))
+
+# 5. Convierte datos
+>>> edad_texto = str(edad)
+>>> print("Tengo " + edad_texto + " años")
+
+# 6. Experimenta con operaciones
+>>> descuento = 20
+>>> precio_original = 100
+>>> precio_final = precio_original - (precio_original * descuento / 100)
+>>> print(f"Precio original: {precio_original}€")
+>>> print(f"Descuento: {descuento}%")
+>>> print(f"Precio final: {precio_final}€")
+```
+
+## Conceptos clave de esta lección
+
+- **Variables** son contenedores con nombre para almacenar datos
+- Usa **snake_case** y nombres descriptivos para tus variables
+- Los **tipos de datos básicos** son: `int`, `float`, `str`, `bool`
+- **f-strings** (`f"Texto {variable}"`) son la forma moderna de formatear texto
+- Usa `type()` para comprobar el tipo de una variable
+- Puedes convertir tipos con `int()`, `float()`, `str()`, `bool()`
+
+## Próximos pasos
+
+En la próxima lección aprenderemos sobre **operadores y expresiones**: cómo hacer cálculos más complejos, comparar valores y combinar condiciones. Es la base para poder tomar decisiones en tu código.
+
+---
+
+**💡 Desafío**: Crea un programa en un archivo `calculadora.py` que:
+
+1. Guarde dos números en variables
+2. Calcule suma, resta, multiplicación y división
+3. Muestre los resultados con f-strings de forma clara
+
+Ejemplo de salida:
+
+```
+Número 1: 10
+Número 2: 3
+Suma: 13
+Resta: 7
+Multiplicación: 30
+División: 3.33
+```
+
+¡Nunca dejes de programar!
