@@ -1,0 +1,314 @@
+---
+title: "Advanced branching in Git"
+post_slug: "advanced-branching-git"
+date: "2026-02-26"
+excerpt: "Master Git branches: fast-forward merges, merge strategies, branch management with git branch and git switch, and how to recover from a detached HEAD state."
+language: "en"
+categories: ["git"]
+course: "mastering-git-from-scratch"
+order: 11
+cover: "/images/tutorials/cabecera-git.jpg"
+i18n: "ramas-avanzadas-git"
+---
+
+You've already seen in previous tutorials how to create branches, switch between them, and do basic merges. Now it's time to go deeper: we'll look at the different merge strategies Git has, how to manage branches efficiently, and some special situations you'll encounter sooner or later.
+
+## Fast-forward vs non-fast-forward merges
+
+When you merge one branch into another, Git has to decide _how_ to do it. The simplest way is the **fast-forward** merge.
+
+### Fast-forward merge
+
+Imagine you create a `feature` branch from `master`, make some commits on `feature`, but `master` hasn't moved since then. When you go back to `master` and merge `feature`, Git simply moves the `master` pointer to the last commit of `feature`:
+
+```bash
+git checkout master
+git merge feature
+```
+
+```
+Updating f7c5eba..e02c63c
+Fast-forward
+ index.html | 2 ++
+ 1 file changed, 2 insertions(+)
+```
+
+The **Fast-forward** message tells you that no merge commit was created: the pointer was just moved. The history remains linear, as if you'd never used branches.
+
+### Non-fast-forward merge (merge commit)
+
+But if `master` has moved forward while you worked on `feature`, Git can't do a fast-forward. It has to create a **merge commit** that joins both lines of development:
+
+```bash
+git merge feature
+```
+
+```
+Merge made by the 'recursive' strategy.
+ about.html | 10 ++++++++++
+ 1 file changed, 10 insertions(+)
+```
+
+This merge commit has _two parents_: the last commit of `master` and the last of `feature`. The history is no longer linear.
+
+### Force a merge commit (--no-ff)
+
+Sometimes you want to create a merge commit even though Git could do a fast-forward. This is useful for keeping an explicit record that there was a branch:
+
+```bash
+git merge --no-ff feature
+```
+
+This makes it clear in the history that `feature` was a separate branch, even if `master` hadn't moved forward. It's common in workflows where you want to document each feature.
+
+### Force fast-forward (--ff-only)
+
+Conversely, you can make Git only merge if a fast-forward is possible. If it's not, the command fails:
+
+```bash
+git merge --ff-only feature
+```
+
+If `master` has moved forward, you'll see an error. This forces you to rebase before merging, keeping the history linear.
+
+## Merge strategies
+
+Git has several strategies for merging branches. Most of the time you don't have to worry about this (Git chooses the best one), but it's good to know they exist.
+
+### recursive (default)
+
+This is the strategy Git uses in most cases. It can handle complex scenarios where there are many changes in both branches.
+
+### ours and theirs
+
+When there are conflicts, you can tell Git to always prefer one version:
+
+```bash
+# Always prefer changes from the current branch
+git merge -X ours feature
+
+# Always prefer changes from the branch you're merging
+git merge -X theirs feature
+```
+
+This is useful when you know beforehand which version you want to keep in case of conflict.
+
+## Branch management with git branch
+
+The `git branch` command isn't just for creating branches. It has many options for managing them.
+
+### List branches
+
+Without arguments, it lists all local branches:
+
+```bash
+git branch
+```
+
+```
+  feature
+* master
+  bugfix
+```
+
+The asterisk (`*`) indicates which branch you're currently on.
+
+To also see remote branches:
+
+```bash
+git branch -a
+```
+
+```
+  feature
+* master
+  bugfix
+  remotes/origin/master
+  remotes/origin/develop
+```
+
+### Rename a branch
+
+If you make a mistake with a branch name (or decide to change it), use `-m`:
+
+```bash
+git branch -m old-name new-name
+```
+
+If you're on the branch you want to rename, just use:
+
+```bash
+git branch -m new-name
+```
+
+### Delete a branch
+
+Once you've merged a branch, you probably don't need it anymore. To delete it:
+
+```bash
+git branch -d feature
+```
+
+Git will warn you if the branch hasn't been merged yet. If you're sure you want to delete it anyway:
+
+```bash
+git branch -D feature
+```
+
+The capital `-D` forces deletion even if there's unmerged work.
+
+### See merged branches
+
+To know which branches have already been merged into the current branch:
+
+```bash
+git branch --merged
+```
+
+And to see those that haven't been merged yet:
+
+```bash
+git branch --no-merged
+```
+
+This is useful for cleaning up old branches.
+
+## git switch: the modern alternative to checkout
+
+Since Git 2.23 (2019) there's `git switch`, a command designed specifically for switching branches. Previously `git checkout` was used for everything, but that was confusing because `checkout` does too many different things.
+
+### Switch branches
+
+```bash
+git switch master
+git switch feature
+```
+
+It's clearer than `git checkout` because `switch` is only for changing branches, nothing else.
+
+### Create and switch to a new branch
+
+```bash
+git switch -c new-branch
+```
+
+Equivalent to the old `git checkout -b new-branch`.
+
+### Go back to the previous branch
+
+```bash
+git switch -
+```
+
+The dash (`-`) takes you to the branch you were on before. Very useful for going back and forth between two branches.
+
+### Should I use switch or checkout?
+
+If your Git version is 2.23 or higher (which it should be), **use `git switch` to change branches**. Reserve `git checkout` for recovering files (or even better, use `git restore` for that).
+
+It's more semantic and avoids confusion. Old tutorials will continue using `checkout`, but `switch` is the way forward.
+
+## Detached HEAD: what it is and how to get out
+
+Every now and then Git will tell you you're in a **detached HEAD** state. It sounds alarming, but don't worry: it's a perfectly valid situation (though a bit special).
+
+### What is detached HEAD?
+
+Normally, `HEAD` points to a branch (for example, `master`), and that branch points to a commit. When you make a new commit, the branch automatically advances.
+
+But if you `checkout` a specific commit instead of a branch, `HEAD` points directly to the commit, not to any branch. That's _detached HEAD_.
+
+```bash
+git checkout e02c63c
+```
+
+```
+Note: switching to 'e02c63c'.
+
+You are in 'detached HEAD' state. You can look around, make experimental
+changes and commit them, and you can discard any commits you make in this
+state without impacting any branches by switching back to a branch.
+```
+
+### When does it happen?
+
+- When you `checkout` a specific commit (not a branch)
+- When you `checkout` a tag
+- When you rebase interactively and Git temporarily places you on old commits
+
+### Is it dangerous?
+
+No, but be careful: if you make commits in this state and then switch branches without saving those commits to a branch, they'll be orphaned and eventually Git will delete them (though with `reflog` you can recover them).
+
+### How to get out
+
+#### Option 1: Simply go back to a branch
+
+```bash
+git switch master
+```
+
+Any commits you made in detached HEAD will be lost (unless you save them with reflog).
+
+#### Option 2: Create a branch from there
+
+If you made changes you want to keep:
+
+```bash
+git switch -c new-experiment-branch
+```
+
+Now those commits are on `new-experiment-branch` and you can merge it wherever you want.
+
+## Practical cases
+
+### Maintaining a linear history
+
+If you prefer a history without merge commits:
+
+1. Before merging `feature` into `master`, rebase:
+
+   ```bash
+   git checkout feature
+   git rebase master
+   ```
+
+2. Then merge with fast-forward:
+   ```bash
+   git checkout master
+   git merge --ff-only feature
+   ```
+
+This keeps the history completely linear.
+
+### Cleaning up old branches
+
+To delete all branches that have already been merged:
+
+```bash
+git branch --merged | grep -v "\*" | xargs git branch -d
+```
+
+This lists merged branches, excludes the current one (`grep -v "\*"`), and deletes them all.
+
+### Recovering an accidentally deleted branch
+
+If you deleted a branch and then regretted it, you can recover it with `reflog`:
+
+```bash
+git reflog
+```
+
+Find the commit where the branch was before deletion, and create a new branch there:
+
+```bash
+git branch recovered-branch <commit-hash>
+```
+
+---
+
+With what you've learned in this tutorial you now have advanced mastery of branches in Git. You know how to merge in different ways, manage branches efficiently with `git branch` and `git switch`, and even how to get out of a detached HEAD without losing work.
+
+In the next tutorial we'll look at `git stash`, an essential tool for when you need to quickly change context without committing half-finished changes.
+
+Never stop coding!
