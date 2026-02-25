@@ -1,0 +1,314 @@
+---
+title: "Ramas avanzadas en Git"
+post_slug: "ramas-avanzadas-git"
+date: "2026-02-26"
+excerpt: "Domina las ramas de Git: fusiones fast-forward, estrategias de merge, gestión de ramas con git branch y git switch, y cómo recuperarte de un estado detached HEAD."
+language: "es"
+categories: ["git"]
+course: "domina-git-desde-cero"
+order: 11
+cover: "/images/tutorials/cabecera-git.jpg"
+i18n: "advanced-branching-git"
+---
+
+Ya has visto en tutoriales anteriores cómo crear ramas, cambiar entre ellas y hacer merges básicos. Ahora toca profundizar: vamos a ver las diferentes estrategias de fusión que tiene Git, cómo gestionar ramas de forma eficiente y algunas situaciones especiales con las que te encontrarás tarde o temprano.
+
+## Fast-forward vs non-fast-forward merges
+
+Cuando fusionas una rama en otra, Git tiene que decidir _cómo_ hacerlo. La forma más simple es la fusión **fast-forward** (avance rápido).
+
+### Fast-forward merge
+
+Imagina que creas una rama `feature` desde `master`, haces unos commits en `feature`, pero `master` no ha avanzado desde entonces. Cuando vuelves a `master` y haces merge de `feature`, Git simplemente mueve el puntero de `master` al último commit de `feature`:
+
+```bash
+git checkout master
+git merge feature
+```
+
+```
+Updating f7c5eba..e02c63c
+Fast-forward
+ index.html | 2 ++
+ 1 file changed, 2 insertions(+)
+```
+
+El mensaje **Fast-forward** te indica que no se ha creado un commit de merge: simplemente se ha movido el puntero. El historial queda lineal, como si nunca hubieras usado ramas.
+
+### Non-fast-forward merge (merge commit)
+
+Pero si `master` ha avanzado mientras trabajabas en `feature`, Git no puede hacer fast-forward. Tiene que crear un **commit de merge** que una ambas líneas de desarrollo:
+
+```bash
+git merge feature
+```
+
+```
+Merge made by the 'recursive' strategy.
+ about.html | 10 ++++++++++
+ 1 file changed, 10 insertions(+)
+```
+
+Este commit de merge tiene _dos padres_: el último commit de `master` y el último de `feature`. El historial ya no es lineal.
+
+### Forzar un merge commit (--no-ff)
+
+A veces quieres crear un commit de merge aunque Git pudiera hacer fast-forward. Esto es útil para mantener un registro explícito de que hubo una rama:
+
+```bash
+git merge --no-ff feature
+```
+
+Así queda claro en el historial que `feature` fue una rama separada, aunque `master` no hubiera avanzado. Es común en flujos de trabajo donde quieres documentar cada característica.
+
+### Forzar fast-forward (--ff-only)
+
+Por el contrario, puedes hacer que Git solo haga merge si es posible el fast-forward. Si no lo es, el comando falla:
+
+```bash
+git merge --ff-only feature
+```
+
+Si `master` ha avanzado, verás un error. Esto te obliga a hacer rebase antes del merge, manteniendo el historial lineal.
+
+## Estrategias de merge
+
+Git tiene varias estrategias para fusionar ramas. La mayoría de las veces no tienes que preocuparte por esto (Git elige la mejor), pero es bueno saber que existen.
+
+### recursive (por defecto)
+
+Es la estrategia que Git usa en la mayoría de casos. Puede manejar escenarios complejos donde hay muchos cambios en ambas ramas.
+
+### ours y theirs
+
+Cuando hay conflictos, puedes decirle a Git que siempre prefiera una versión:
+
+```bash
+# Prefiere siempre los cambios de la rama actual
+git merge -X ours feature
+
+# Prefiere siempre los cambios de la rama que estás fusionando
+git merge -X theirs feature
+```
+
+Esto es útil cuando sabes de antemano qué versión quieres conservar en caso de conflicto.
+
+## Gestión de ramas con git branch
+
+El comando `git branch` no solo sirve para crear ramas. Tiene muchas opciones para gestionarlas.
+
+### Listar ramas
+
+Sin argumentos, lista todas las ramas locales:
+
+```bash
+git branch
+```
+
+```
+  feature
+* master
+  bugfix
+```
+
+El asterisco (`*`) indica en qué rama estás actualmente.
+
+Para ver también las ramas remotas:
+
+```bash
+git branch -a
+```
+
+```
+  feature
+* master
+  bugfix
+  remotes/origin/master
+  remotes/origin/develop
+```
+
+### Renombrar una rama
+
+Si te equivocas con el nombre de una rama (o decides cambiarlo), usa `-m`:
+
+```bash
+git branch -m old-name new-name
+```
+
+Si estás en la rama que quieres renombrar, basta con:
+
+```bash
+git branch -m new-name
+```
+
+### Borrar una rama
+
+Una vez fusionada una rama, probablemente ya no la necesites. Para borrarla:
+
+```bash
+git branch -d feature
+```
+
+Git te avisará si la rama no ha sido fusionada todavía. Si estás seguro de que quieres borrarla de todas formas:
+
+```bash
+git branch -D feature
+```
+
+La `-D` mayúscula fuerza el borrado aunque haya trabajo sin fusionar.
+
+### Ver ramas fusionadas
+
+Para saber qué ramas ya han sido fusionadas en la rama actual:
+
+```bash
+git branch --merged
+```
+
+Y para ver las que todavía no:
+
+```bash
+git branch --no-merged
+```
+
+Esto es útil para hacer limpieza de ramas antiguas.
+
+## git switch: la alternativa moderna a checkout
+
+Desde Git 2.23 (2019) existe `git switch`, un comando diseñado específicamente para cambiar de rama. Antes se usaba `git checkout` para todo, pero eso era confuso porque `checkout` hace demasiadas cosas distintas.
+
+### Cambiar de rama
+
+```bash
+git switch master
+git switch feature
+```
+
+Es más claro que `git checkout` porque `switch` solo sirve para cambiar de rama, nada más.
+
+### Crear y cambiar a una rama nueva
+
+```bash
+git switch -c nueva-rama
+```
+
+Equivalente al antiguo `git checkout -b nueva-rama`.
+
+### Volver a la rama anterior
+
+```bash
+git switch -
+```
+
+El guion (`-`) te lleva a la rama en la que estabas antes. Muy útil para ir y venir entre dos ramas.
+
+### ¿Debería usar switch o checkout?
+
+Si tu versión de Git es 2.23 o superior (que debería serlo), **usa `git switch` para cambiar de rama**. Reserva `git checkout` para recuperar archivos (o mejor aún, usa `git restore` para eso).
+
+Es más semántico y evita confusiones. Los tutoriales antiguos seguirán usando `checkout`, pero `switch` es el camino a seguir.
+
+## Detached HEAD: qué es y cómo salir
+
+De vez en cuando Git te dirá que estás en estado **detached HEAD**. Suena alarmante, pero no te preocupes: es una situación perfectamente válida (aunque un poco especial).
+
+### ¿Qué es detached HEAD?
+
+Normalmente, `HEAD` apunta a una rama (por ejemplo, `master`), y esa rama apunta a un commit. Cuando haces un nuevo commit, la rama avanza automáticamente.
+
+Pero si haces `checkout` de un commit específico en lugar de una rama, `HEAD` apunta directamente al commit, no a ninguna rama. Eso es _detached HEAD_.
+
+```bash
+git checkout e02c63c
+```
+
+```
+Note: switching to 'e02c63c'.
+
+You are in 'detached HEAD' state. You can look around, make experimental
+changes and commit them, and you can discard any commits you make in this
+state without impacting any branches by switching back to a branch.
+```
+
+### ¿Cuándo ocurre?
+
+- Cuando haces `checkout` de un commit específico (no de una rama)
+- Cuando haces `checkout` de un tag
+- Cuando rebases de forma interactiva y Git te coloca temporalmente en commits antiguos
+
+### ¿Es peligroso?
+
+No, pero ten cuidado: si haces commits en este estado y luego cambias de rama sin guardar esos commits en una rama, se quedarán huérfanos y eventualmente Git los borrará (aunque con `reflog` puedes recuperarlos).
+
+### Cómo salir
+
+#### Opción 1: Simplemente vuelve a una rama
+
+```bash
+git switch master
+```
+
+Los commits que hicieras en detached HEAD se perderán (a menos que los guardes con reflog).
+
+#### Opción 2: Crea una rama desde ahí
+
+Si hiciste cambios que quieres conservar:
+
+```bash
+git switch -c nueva-rama-experimentos
+```
+
+Ahora esos commits están en `nueva-rama-experimentos` y puedes fusionarla donde quieras.
+
+## Casos prácticos
+
+### Mantener un historial lineal
+
+Si prefieres un historial sin commits de merge:
+
+1. Antes de fusionar `feature` en `master`, haz rebase:
+
+   ```bash
+   git checkout feature
+   git rebase master
+   ```
+
+2. Luego fusiona con fast-forward:
+   ```bash
+   git checkout master
+   git merge --ff-only feature
+   ```
+
+Así el historial queda completamente lineal.
+
+### Limpiar ramas antiguas
+
+Para borrar todas las ramas que ya han sido fusionadas:
+
+```bash
+git branch --merged | grep -v "\*" | xargs git branch -d
+```
+
+Esto lista las ramas fusionadas, excluye la actual (`grep -v "\*"`), y las borra todas.
+
+### Recuperar una rama borrada por error
+
+Si borraste una rama y luego te arrepentiste, puedes recuperarla con `reflog`:
+
+```bash
+git reflog
+```
+
+Busca el commit en el que estaba la rama antes de borrarla, y crea una nueva rama ahí:
+
+```bash
+git branch rama-recuperada <commit-hash>
+```
+
+---
+
+Con lo que has aprendido en este tutorial ya tienes un dominio avanzado de las ramas en Git. Sabes fusionar de diferentes formas, gestionar ramas eficientemente con `git branch` y `git switch`, y hasta cómo salir de un detached HEAD sin perder el trabajo.
+
+En el próximo tutorial veremos `git stash`, una herramienta imprescindible para cuando necesitas cambiar de contexto rápidamente sin commitear cambios a medias.
+
+¡Nunca dejes de programar!
