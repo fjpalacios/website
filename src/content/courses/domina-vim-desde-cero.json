@@ -1,0 +1,7 @@
+{
+  "name": "Domina Vim desde cero",
+  "course_slug": "domina-vim-desde-cero",
+  "language": "es",
+  "description": "Aprende Vim/Neovim desde cero hasta nivel profesional. Domina la edición modal, workflows eficientes, LazyVim, LSP, y conviértete en un desarrollador 10x más productivo.",
+  "i18n": "mastering-vim-from-scratch"
+}

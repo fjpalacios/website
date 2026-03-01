@@ -1,0 +1,7 @@
+{
+  "name": "Mastering Vim from Scratch",
+  "course_slug": "mastering-vim-from-scratch",
+  "language": "en",
+  "description": "Learn Vim/Neovim from zero to professional level. Master modal editing, efficient workflows, LazyVim, LSP, and become a 10x more productive developer.",
+  "i18n": "domina-vim-desde-cero"
+}
