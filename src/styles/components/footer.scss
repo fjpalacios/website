@@ -75,13 +75,15 @@
       color: var(--footer-link);
     }
 
-    // Active state - subtle indication
+    // Active state - brighter than normal links to indicate current page
+    // Light theme: --footer-tech-link (#d0d0d0) is the brightest footer color
+    // available (--text would be #284b63, only 2.08:1 on the dark footer background)
     &--active {
       color: var(--text);
       font-weight: 500;
 
       :global(body.light) & {
-        color: var(--footer-tech-link);
+        color: var(--footer-tech-link); // Brightest footer color, not --text (2.08:1 on #071013)
       }
     }
 
@@ -140,23 +142,18 @@
   }
 
   &__privacy-link {
-    color: var(--cursive-color);
+    color: var(--footer-meta);
     font-size: 0.75rem;
     text-decoration: none;
-    opacity: 0.7;
-    transition:
-      color 0.2s ease,
-      opacity 0.2s ease;
+    transition: color 0.2s ease;
 
     :global(body.light) & {
       color: var(--footer-meta);
-      opacity: 1;
     }
 
     &:hover,
     &:focus {
       color: var(--accent);
-      opacity: 1;
       text-decoration: underline;
     }
 
