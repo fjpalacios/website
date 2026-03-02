@@ -97,7 +97,7 @@
     "happy-dom": "^20.7.0",
     "husky": "^9.1.7",
     "jsdom": "^28.1.0",
-    "lint-staged": "^16.2.7",
+    "lint-staged": "^16.3.1",
     "pagefind": "^1.4.0",
     "prettier": "^3.8.1",
     "prettier-plugin-astro": "^0.14.1",
