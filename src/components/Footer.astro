@@ -55,12 +55,16 @@ const itemsWithUrls = footerItems.map((item) => {
       </ul>
     </nav>
 
-    <!-- Tech Stack / Built With -->
+    <!-- Tech Stack / Built With + Legal -->
     <div class="footer__meta">
       <p class="footer__built-with">
         {t(lang, "footer.builtWith")}
         <a href="https://astro.build" class="footer__tech-link" rel="noopener noreferrer" target="_blank">Astro</a>
       </p>
+      <span class="footer__meta-separator" aria-hidden="true">·</span>
+      <a href={buildLocalizedPath(lang, "privacy")} class="footer__privacy-link">
+        {t(lang, "footer.privacy")}
+      </a>
     </div>
   </div>
 </footer>

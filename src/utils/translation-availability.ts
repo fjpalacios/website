@@ -58,6 +58,12 @@ export function isStaticPage(currentPath: string, lang: string): boolean {
     return true;
   }
 
+  // Privacy page
+  const privacyRoute = t(lang, "routes.privacy");
+  if (normalizedPath === `/${lang}/${privacyRoute}`) {
+    return true;
+  }
+
   return false;
 }
 

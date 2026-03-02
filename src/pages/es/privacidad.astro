@@ -1,0 +1,56 @@
+---
+import PostTitle from "@components/PostTitle.astro";
+import Layout from "@layouts/Layout.astro";
+import { t } from "@locales";
+import { getContact } from "@utils/content/contact";
+
+const lang = "es";
+const contact = getContact(lang);
+const lastUpdated = "2026-03-02";
+const contactEmail = "javi@fjp.es";
+const contactSubject = encodeURIComponent("Consulta sobre política de privacidad - fjp.es");
+---
+
+<Layout lang={lang} contact={contact} title={t(lang, "privacy.title")} description={t(lang, "privacy.description")}>
+  <main class="privacy">
+    <section class="privacy__content">
+      <h1 class="sr-only">{t(lang, "privacy.title")}</h1>
+      <PostTitle title={t(lang, "privacy.title")} date={new Date(lastUpdated)} lang={lang} headingLevel="h2" />
+
+      <div class="text-area">
+        <p>{t(lang, "privacy.intro")}</p>
+
+        <h2>{t(lang, "privacy.storageTitle")}</h2>
+        <p>{t(lang, "privacy.storageText")}</p>
+
+        <h2>{t(lang, "privacy.analyticsTitle")}</h2>
+        <p>
+          {t(lang, "privacy.analyticsText")}
+          {" "}
+          <a href="https://cloud.umami.is" rel="noopener noreferrer" target="_blank">cloud.umami.is</a>.
+        </p>
+
+        <h2>{t(lang, "privacy.cloudflareTitle")}</h2>
+        <p>{t(lang, "privacy.cloudflareText")}</p>
+
+        <h2>{t(lang, "privacy.thirdPartyTitle")}</h2>
+        <p>
+          {t(lang, "privacy.youtubeText")}
+          {" "}
+          <a href="https://i.ytimg.com" rel="noopener noreferrer" target="_blank">i.ytimg.com</a>.
+        </p>
+
+        <h2>{t(lang, "privacy.contactTitle")}</h2>
+        <p>
+          {t(lang, "privacy.contactText")}
+          {" "}
+          <a href={`mailto:${contactEmail}?subject=${contactSubject}`}>{contactEmail}</a>.
+        </p>
+      </div>
+    </section>
+  </main>
+</Layout>
+
+<style lang="scss">
+  @use "../../styles/components/privacy";
+</style>

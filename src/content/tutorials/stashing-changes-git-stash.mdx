@@ -1,0 +1,304 @@
+---
+title: "Stashing Changes with git stash"
+post_slug: "stashing-changes-git-stash"
+date: "2026-03-03"
+excerpt: "Need to switch branches urgently but have unfinished changes? Git stash is your lifesaver. Learn how to temporarily save your work and recover it whenever you need it."
+language: "en"
+categories: ["git"]
+course: "mastering-git-from-scratch"
+order: 12
+cover: "/images/tutorials/cabecera-git.jpg"
+i18n: "guardando-cambios-temporalmente-git-stash"
+---
+
+Imagine this situation: you're working on a new feature, you've modified several files, but suddenly you get an urgent alert. There's a critical bug in production and you need to fix it **right now**. The problem is that your current changes aren't ready for commit, they're half-done… What do you do?
+
+You could make a commit with a message like "WIP" (Work In Progress) and then undo it, but that pollutes your history. You could copy files to another folder, but that's manual and error-prone. Or… you could use `git stash`, the perfect tool for this scenario.
+
+## What is git stash?
+
+`git stash` is like a temporary box where you can **save** your current changes (both those in the _staging area_ and modified files) without needing to make a commit. Your working directory will be clean, as if you hadn't made any changes, and you'll be able to switch branches, do other tasks, and then **recover** those changes exactly where you left them.
+
+Think of it as saving your game before turning off the console. You don't lose your progress, you just pause it to resume later.
+
+## Saving changes with git stash
+
+Let's see it with a practical example. Suppose you're working on your project and you've modified `index.html`:
+
+```html
+<h1>Welcome to my awesome site</h1>
+<p>This is a work in progress feature...</p>
+```
+
+If you run `git status` you'll see:
+
+```bash
+On branch feature/new-homepage
+Changes not staged for commit:
+  (use "git add <file>..." to update what will be committed)
+  (use "git restore <file>..." to discard changes in working directory)
+        modified:   index.html
+
+no changes added to commit (use "git add" and/or "git commit -a")
+```
+
+Now the urgency arrives. You need to switch to `master` to fix that bug. If you try to switch branches like this:
+
+```bash
+git switch master
+```
+
+Git will prevent you:
+
+```bash
+error: Your local changes to the following files would be overwritten by checkout:
+        index.html
+Please commit your changes or stash them before you switch branches.
+Aborting
+```
+
+Git is protecting you! It doesn't want you to lose your changes. This is where `git stash` comes in:
+
+```bash
+git stash
+```
+
+Or if you want to be more explicit and add a descriptive message (highly recommended when you have multiple stashes):
+
+```bash
+git stash push -m "WIP: New homepage"
+```
+
+You'll see something like:
+
+```bash
+Saved working directory and index state On feature/new-homepage: WIP: New homepage
+```
+
+And now? Check with `git status`:
+
+```bash
+On branch feature/new-homepage
+nothing to commit, working tree clean
+```
+
+Magic! Your directory is clean. Now you can safely switch to `master`, fix the bug, commit, and return to your working branch.
+
+## Listing your stashes
+
+What happens if you save several changes at different times? Git maintains a **list** of all your stashes. To see it:
+
+```bash
+git stash list
+```
+
+You'll get something like:
+
+```bash
+stash@{0}: On feature/new-homepage: WIP: New homepage
+stash@{1}: On feature/api-integration: Partial API changes
+stash@{2}: On master: CSS experiment
+```
+
+Each stash has an identifier: `stash@{0}`, `stash@{1}`, etc. The most recent is always `{0}`.
+
+## Viewing stash contents
+
+Before recovering a stash, you might want to remember what changes you saved. For that you use:
+
+```bash
+git stash show
+```
+
+This shows you a summary of the most recent stash:
+
+```bash
+ index.html | 1 +
+ 1 file changed, 1 insertion(+)
+```
+
+If you want to see the full content (like a diff):
+
+```bash
+git stash show -p
+```
+
+```diff
+diff --git a/index.html b/index.html
+index 1234567..abcdefg 100644
+--- a/index.html
++++ b/index.html
+@@ -1 +1,2 @@
+ <h1>Welcome to my awesome site</h1>
++<p>This is a work in progress feature...</p>
+```
+
+To see a specific stash (not the most recent):
+
+```bash
+git stash show stash@{1} -p
+```
+
+## Recovering your changes: apply vs pop
+
+Now that you've fixed the urgent bug and returned to your `feature/new-homepage` branch, you want to recover your changes. You have two options:
+
+### git stash pop
+
+This command **recovers** the most recent stash and **removes** it from the list:
+
+```bash
+git stash pop
+```
+
+You'll see:
+
+```bash
+On branch feature/new-homepage
+Changes not staged for commit:
+  (use "git add <file>..." to update what will be committed)
+  (use "git restore <file>..." to discard changes in working directory)
+        modified:   index.html
+
+Dropped refs/stash@{0} (abc1234...)
+```
+
+Your changes are back and the stash has been deleted. It's like taking something out of the box and throwing the box away.
+
+### git stash apply
+
+This command **recovers** the stash but does **NOT remove** it from the list:
+
+```bash
+git stash apply
+```
+
+This is useful if you want to apply the same changes to several different branches, or if you're not sure you want to delete the stash yet.
+
+To apply a specific stash:
+
+```bash
+git stash apply stash@{1}
+```
+
+And if after applying it you want to manually delete it:
+
+```bash
+git stash drop stash@{1}
+```
+
+## Advanced situation: conflicts with stash
+
+What happens if while your changes were saved in the stash, you modified the same files with other commits? When trying to do `git stash pop` or `apply`, Git may encounter **conflicts**.
+
+For example, if you saved changes to `index.html`, then made a commit modifying that same file, and now try to recover the stash:
+
+```bash
+git stash pop
+```
+
+```bash
+Auto-merging index.html
+CONFLICT (content): Merge conflict in index.html
+The stash entry is kept in case you need it again.
+```
+
+Git warns you of the conflict, and **keeps the stash** for safety (even though you used `pop`). You'll have to resolve the conflict manually as you would with any merge, editing the file, doing `git add`, and then deleting the stash with `git stash drop` if you no longer need it.
+
+## Creating a branch from a stash
+
+Sometimes you recover a stash and it turns out the conflicts are too complex. Git offers an elegant solution: create a **new branch** directly from the stash:
+
+```bash
+git stash branch new-temp-branch
+```
+
+This:
+
+1. Creates a new branch called `new-temp-branch`
+2. Checks out that branch
+3. Applies the stash to it
+4. Removes the stash from the list
+
+It's perfect for isolating problematic changes and working on them without affecting other branches.
+
+## Cleaning old stashes
+
+Over time you may accumulate stashes you no longer need. To delete a specific stash:
+
+```bash
+git stash drop stash@{2}
+```
+
+To delete **all** stashes (be careful with this!):
+
+```bash
+git stash clear
+```
+
+## Practical use cases
+
+### 1. Urgent context switching
+
+We already saw this: you're working, an urgency arrives, you do `git stash`, switch branches, fix it, return, and `git stash pop`.
+
+### 2. Testing something quickly
+
+You have local changes but want to test how the code works without them:
+
+```bash
+git stash
+# Testing...
+git stash pop
+```
+
+### 3. Clean working directory to pull
+
+Sometimes you want to do `git pull` but have local changes that conflict:
+
+```bash
+git stash
+git pull
+git stash pop
+```
+
+### 4. Save experimental changes
+
+You're experimenting with something you're not sure you want to commit. Stash it, work on something else, and decide later if you want to recover that experiment.
+
+## Useful git stash options
+
+- `git stash -u` or `git stash --include-untracked`: Includes **untracked files** in the stash. By default, `git stash` only saves files that Git is already tracking.
+
+- `git stash -a` or `git stash --all`: Includes **all** files, even those in `.gitignore`.
+
+- `git stash push <file>`: Saves only specific files:
+
+  ```bash
+  git stash push index.html styles.css
+  ```
+
+- `git stash push -p`: Interactive mode, asks you **hunk by hunk** what you want to save in the stash.
+
+## Summary
+
+`git stash` is an **essential** tool for daily Git workflow. It allows you to:
+
+- **Temporarily save** changes without committing
+- **Switch context** quickly between tasks
+- **Experiment** without fear of losing your work
+- **Resolve conflicts** in an organized way with `git stash branch`
+
+The key commands are:
+
+- `git stash` or `git stash push -m "message"`: Save changes
+- `git stash list`: View saved stashes
+- `git stash show -p`: View stash contents
+- `git stash pop`: Recover and delete the last stash
+- `git stash apply`: Recover without deleting
+- `git stash drop`: Delete a specific stash
+- `git stash clear`: Delete all stashes
+
+Mastering `git stash` will make you much more agile and confident in your daily work. It's one of those tools that, once you know it, you wonder how you lived without it.
+
+Never stop coding!
