@@ -63,7 +63,8 @@
     "authors": "autores",
     "author": "autor",
     "courses": "cursos",
-    "about": "acerca-de"
+    "about": "acerca-de",
+    "privacy": "privacidad"
   },
   "about": {
     "me": "Sobre mí",
@@ -225,7 +226,24 @@
   "footer": {
     "navigation": "Navegación del sitio",
     "allRightsReserved": "Todos los derechos reservados",
-    "builtWith": "Hecho con"
+    "builtWith": "Hecho con",
+    "privacy": "Política de privacidad"
+  },
+  "privacy": {
+    "title": "Política de privacidad",
+    "description": "Política de privacidad de fjp.es: qué datos se recopilan y cómo se usan",
+    "lastUpdated": "Última actualización",
+    "intro": "Esta política describe qué información recoge fjp.es y cómo se utiliza.",
+    "storageTitle": "Almacenamiento local",
+    "storageText": "Esta web guarda en tu navegador únicamente dos preferencias que tú mismo configuras: el tema visual (claro u oscuro) y el idioma preferido. Estos datos no salen de tu dispositivo y no son accesibles por terceros.",
+    "analyticsTitle": "Analítica web",
+    "analyticsText": "Se usa Umami para medir el tráfico de la web. Umami no utiliza cookies, no rastrea usuarios individuales y no construye perfiles. Los datos recogidos son agregados y anónimos (páginas visitadas, referrers, tipo de dispositivo). El script se carga desde",
+    "cloudflareTitle": "Cloudflare Web Analytics",
+    "cloudflareText": "Esta web está alojada en Cloudflare Pages, que puede inyectar su propio beacon de analítica. Al igual que Umami, no utiliza cookies ni identificadores persistentes.",
+    "thirdPartyTitle": "Servicios de terceros",
+    "youtubeText": "Algunas páginas pueden incluir vídeos de YouTube incrustados. El iframe de YouTube solo se carga si haces clic en el reproductor; hasta entonces, únicamente se carga la miniatura del vídeo desde",
+    "contactTitle": "Contacto",
+    "contactText": "Para cualquier consulta sobre esta política puedes escribir a"
   },
   "search": {
     "modalTitle": "Buscar en el sitio",

@@ -24,6 +24,16 @@ describe("translation-availability helpers", () => {
       expect(isStaticPage("/en/about/", "en")).toBe(true);
     });
 
+    it("should return true for Spanish privacy page", () => {
+      expect(isStaticPage("/es/privacidad", "es")).toBe(true);
+      expect(isStaticPage("/es/privacidad/", "es")).toBe(true);
+    });
+
+    it("should return true for English privacy page", () => {
+      expect(isStaticPage("/en/privacy", "en")).toBe(true);
+      expect(isStaticPage("/en/privacy/", "en")).toBe(true);
+    });
+
     it("should return false for content pages", () => {
       expect(isStaticPage("/es/libros", "es")).toBe(false);
       expect(isStaticPage("/en/books/my-book", "en")).toBe(false);
@@ -112,6 +122,11 @@ describe("translation-availability helpers", () => {
       it("should always return true for about page", () => {
         expect(hasTranslation("/es/acerca-de", "es", undefined, undefined)).toBe(true);
         expect(hasTranslation("/en/about", "en", undefined, undefined)).toBe(true);
+      });
+
+      it("should always return true for privacy page", () => {
+        expect(hasTranslation("/es/privacidad", "es", undefined, undefined)).toBe(true);
+        expect(hasTranslation("/en/privacy", "en", undefined, undefined)).toBe(true);
       });
     });
 

@@ -1,0 +1,304 @@
+---
+title: "Guardando cambios temporalmente con git stash"
+post_slug: "guardando-cambios-temporalmente-git-stash"
+date: "2026-03-03"
+excerpt: "¿Necesitas cambiar de rama urgentemente pero tienes cambios sin terminar? Git stash es tu salvavidas. Aprende a guardar temporalmente tu trabajo y recuperarlo cuando lo necesites."
+language: "es"
+categories: ["git"]
+course: "domina-git-desde-cero"
+order: 12
+cover: "/images/tutorials/cabecera-git.jpg"
+i18n: "stashing-changes-git-stash"
+---
+
+Imagina esta situación: estás trabajando en una nueva funcionalidad, has modificado varios archivos, pero de repente te llega un aviso urgente. Hay un bug crítico en producción y necesitas solucionarlo **ahora mismo**. El problema es que tus cambios actuales no están listos para hacer commit, están a medio hacer… ¿Qué haces?
+
+Podrías hacer un commit con un mensaje del estilo "WIP" (Work In Progress) y luego deshacerlo, pero eso ensucia tu historial. Podrías copiar los archivos a otra carpeta, pero eso es manual y propenso a errores. O… podrías usar `git stash`, la herramienta perfecta para este escenario.
+
+## ¿Qué es git stash?
+
+`git stash` es como una caja temporal donde puedes **guardar** tus cambios actuales (tanto los que están en el _staging area_ como los modificados) sin necesidad de hacer un commit. Tu directorio de trabajo quedará limpio, como si no hubieras hecho ningún cambio, y podrás cambiar de rama, hacer otras tareas, y luego **recuperar** esos cambios exactamente donde los dejaste.
+
+Piensa en ello como guardar tu juego antes de apagar la consola. No pierdes tu progreso, simplemente lo dejas en pausa para retomarlo más tarde.
+
+## Guardando cambios con git stash
+
+Vamos a verlo con un ejemplo práctico. Supongamos que estás trabajando en tu proyecto y has modificado `index.html`:
+
+```html
+<h1>Welcome to my awesome site</h1>
+<p>This is a work in progress feature...</p>
+```
+
+Si ejecutas `git status` verás:
+
+```bash
+On branch feature/new-homepage
+Changes not staged for commit:
+  (use "git add <file>..." to update what will be committed)
+  (use "git restore <file>..." to discard changes in working directory)
+        modified:   index.html
+
+no changes added to commit (use "git add" and/or "git commit -a")
+```
+
+Ahora llega la urgencia. Necesitas cambiar a `master` para arreglar ese bug. Si intentas cambiar de rama así:
+
+```bash
+git switch master
+```
+
+Git te lo impedirá:
+
+```bash
+error: Your local changes to the following files would be overwritten by checkout:
+        index.html
+Please commit your changes or stash them before you switch branches.
+Aborting
+```
+
+¡Git te está protegiendo! No quiere que pierdas tus cambios. Aquí es donde entra `git stash`:
+
+```bash
+git stash
+```
+
+O si quieres ser más explícito y añadir un mensaje descriptivo (muy recomendable cuando tienes varios stashes):
+
+```bash
+git stash push -m "WIP: Nueva página de inicio"
+```
+
+Verás algo como:
+
+```bash
+Saved working directory and index state On feature/new-homepage: WIP: Nueva página de inicio
+```
+
+¿Y ahora? Comprueba con `git status`:
+
+```bash
+On branch feature/new-homepage
+nothing to commit, working tree clean
+```
+
+¡Magia! Tu directorio está limpio. Ahora puedes cambiar tranquilamente a `master`, arreglar el bug, hacer commit, y volver a tu rama de trabajo.
+
+## Listando tus stashes
+
+¿Qué pasa si guardas varios cambios en diferentes momentos? Git mantiene una **lista** de todos tus stashes. Para verla:
+
+```bash
+git stash list
+```
+
+Obtendrás algo como:
+
+```bash
+stash@{0}: On feature/new-homepage: WIP: Nueva página de inicio
+stash@{1}: On feature/api-integration: Cambios parciales en API
+stash@{2}: On master: Experimento con CSS
+```
+
+Cada stash tiene un identificador: `stash@{0}`, `stash@{1}`, etc. El más reciente es siempre el `{0}`.
+
+## Ver qué contiene un stash
+
+Antes de recuperar un stash, quizás quieras recordar qué cambios guardaste. Para eso usas:
+
+```bash
+git stash show
+```
+
+Esto te muestra un resumen del stash más reciente:
+
+```bash
+ index.html | 1 +
+ 1 file changed, 1 insertion(+)
+```
+
+Si quieres ver el contenido completo (como un diff):
+
+```bash
+git stash show -p
+```
+
+```diff
+diff --git a/index.html b/index.html
+index 1234567..abcdefg 100644
+--- a/index.html
++++ b/index.html
+@@ -1 +1,2 @@
+ <h1>Welcome to my awesome site</h1>
++<p>This is a work in progress feature...</p>
+```
+
+Para ver un stash específico (no el más reciente):
+
+```bash
+git stash show stash@{1} -p
+```
+
+## Recuperando tus cambios: apply vs pop
+
+Ahora que ya solucionaste el bug urgente y volviste a tu rama `feature/new-homepage`, quieres recuperar tus cambios. Tienes dos opciones:
+
+### git stash pop
+
+Este comando **recupera** el stash más reciente y lo **elimina** de la lista:
+
+```bash
+git stash pop
+```
+
+Verás:
+
+```bash
+On branch feature/new-homepage
+Changes not staged for commit:
+  (use "git add <file>..." to update what will be committed)
+  (use "git restore <file>..." to discard changes in working directory)
+        modified:   index.html
+
+Dropped refs/stash@{0} (abc1234...)
+```
+
+Tus cambios han vuelto y el stash ha sido eliminado. Es como sacar algo de la caja y tirar la caja.
+
+### git stash apply
+
+Este comando **recupera** el stash pero **NO lo elimina** de la lista:
+
+```bash
+git stash apply
+```
+
+Esto es útil si quieres aplicar los mismos cambios en varias ramas diferentes, o si no estás seguro de querer eliminar el stash todavía.
+
+Para aplicar un stash específico:
+
+```bash
+git stash apply stash@{1}
+```
+
+Y si después de aplicarlo quieres eliminarlo manualmente:
+
+```bash
+git stash drop stash@{1}
+```
+
+## Situación avanzada: conflictos con stash
+
+¿Qué pasa si mientras tus cambios estaban guardados en el stash, modificaste los mismos archivos con otros commits? Al intentar hacer `git stash pop` o `apply`, Git puede encontrar **conflictos**.
+
+Por ejemplo, si guardaste cambios en `index.html`, luego hiciste un commit modificando ese mismo archivo, y ahora intentas recuperar el stash:
+
+```bash
+git stash pop
+```
+
+```bash
+Auto-merging index.html
+CONFLICT (content): Merge conflict in index.html
+The stash entry is kept in case you need it again.
+```
+
+Git te avisa del conflicto, y **mantiene el stash** por seguridad (aunque hayas usado `pop`). Tendrás que resolver el conflicto manualmente como lo harías con cualquier merge, editando el archivo, haciendo `git add`, y luego eliminando el stash con `git stash drop` si ya no lo necesitas.
+
+## Crear una rama desde un stash
+
+A veces recuperas un stash y resulta que los conflictos son demasiado complejos. Git ofrece una solución elegante: crear una **nueva rama** directamente desde el stash:
+
+```bash
+git stash branch nueva-rama-temporal
+```
+
+Esto:
+
+1. Crea una nueva rama llamada `nueva-rama-temporal`
+2. Hace checkout a esa rama
+3. Aplica el stash sobre ella
+4. Elimina el stash de la lista
+
+Es perfecto para aislar cambios problemáticos y trabajar en ellos sin afectar otras ramas.
+
+## Limpiando stashes antiguos
+
+Con el tiempo puedes acumular stashes que ya no necesitas. Para eliminar un stash específico:
+
+```bash
+git stash drop stash@{2}
+```
+
+Para eliminar **todos** los stashes (¡cuidado con esto!):
+
+```bash
+git stash clear
+```
+
+## Casos de uso prácticos
+
+### 1. Cambio urgente de contexto
+
+Ya lo vimos: estás trabajando, llega una urgencia, haces `git stash`, cambias de rama, solucionas, vuelves, y `git stash pop`.
+
+### 2. Probar algo rápidamente
+
+Tienes cambios locales pero quieres probar cómo funciona el código sin ellos:
+
+```bash
+git stash
+# Pruebas...
+git stash pop
+```
+
+### 3. Limpiar el working directory para hacer pull
+
+A veces quieres hacer `git pull` pero tienes cambios locales que entran en conflicto:
+
+```bash
+git stash
+git pull
+git stash pop
+```
+
+### 4. Guardar cambios experimentales
+
+Estás experimentando con algo que no estás seguro de querer commitear. Haz stash, trabaja en otra cosa, y decide más tarde si quieres recuperar ese experimento.
+
+## Opciones útiles de git stash
+
+- `git stash -u` o `git stash --include-untracked`: Incluye archivos **sin seguimiento** (_untracked files_) en el stash. Por defecto, `git stash` solo guarda archivos que Git ya está rastreando.
+
+- `git stash -a` o `git stash --all`: Incluye **todos** los archivos, incluso los que están en `.gitignore`.
+
+- `git stash push <file>`: Guarda solo archivos específicos:
+
+  ```bash
+  git stash push index.html styles.css
+  ```
+
+- `git stash push -p`: Modo interactivo, te pregunta **hunk por hunk** (fragmento por fragmento) qué quieres guardar en el stash.
+
+## Resumen
+
+`git stash` es una herramienta **esencial** para el flujo de trabajo diario con Git. Te permite:
+
+- **Guardar temporalmente** cambios sin hacer commit
+- **Cambiar de contexto** rápidamente entre tareas
+- **Experimentar** sin miedo a perder tu trabajo
+- **Resolver conflictos** de manera organizada con `git stash branch`
+
+Los comandos clave son:
+
+- `git stash` o `git stash push -m "mensaje"`: Guardar cambios
+- `git stash list`: Ver stashes guardados
+- `git stash show -p`: Ver contenido de un stash
+- `git stash pop`: Recuperar y eliminar el último stash
+- `git stash apply`: Recuperar sin eliminar
+- `git stash drop`: Eliminar un stash específico
+- `git stash clear`: Eliminar todos los stashes
+
+Dominar `git stash` te hará mucho más ágil y seguro en tu trabajo diario. Es una de esas herramientas que, una vez que la conoces, te preguntas cómo viviste sin ella.
+
+¡Nunca dejes de programar!

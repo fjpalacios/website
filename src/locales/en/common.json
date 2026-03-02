@@ -63,7 +63,8 @@
     "authors": "authors",
     "author": "author",
     "courses": "courses",
-    "about": "about"
+    "about": "about",
+    "privacy": "privacy"
   },
   "about": {
     "me": "About me",
@@ -225,7 +226,24 @@
   "footer": {
     "navigation": "Site navigation",
     "allRightsReserved": "All rights reserved",
-    "builtWith": "Built with"
+    "builtWith": "Built with",
+    "privacy": "Privacy policy"
+  },
+  "privacy": {
+    "title": "Privacy policy",
+    "description": "Privacy policy for fjp.es: what data is collected and how it is used",
+    "lastUpdated": "Last updated",
+    "intro": "This policy describes what information fjp.es collects and how it is used.",
+    "storageTitle": "Local storage",
+    "storageText": "This site stores only two preferences in your browser that you set yourself: the visual theme (light or dark) and your preferred language. This data never leaves your device and is not accessible by third parties.",
+    "analyticsTitle": "Web analytics",
+    "analyticsText": "Umami is used to measure site traffic. Umami does not use cookies, does not track individual users and does not build profiles. The data collected is aggregated and anonymous (pages visited, referrers, device type). The script is loaded from",
+    "cloudflareTitle": "Cloudflare Web Analytics",
+    "cloudflareText": "This site is hosted on Cloudflare Pages, which may inject its own analytics beacon. Like Umami, it does not use cookies or persistent identifiers.",
+    "thirdPartyTitle": "Third-party services",
+    "youtubeText": "Some pages may include embedded YouTube videos. The YouTube iframe only loads if you click the player; until then, only the video thumbnail is loaded from",
+    "contactTitle": "Contact",
+    "contactText": "For any questions about this policy you can write to"
   },
   "search": {
     "modalTitle": "Search the site",

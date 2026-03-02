@@ -1,0 +1,46 @@
+/**
+ * Privacy Page Styles
+ *
+ * Content page for the privacy policy.
+ * Follows the same structure as post.scss using shared content-detail mixins.
+ * Uses BEM methodology.
+ *
+ * @component privacy
+ */
+
+@use "../mixins" as *;
+@use "../variables" as *;
+
+.privacy {
+  @include content-detail-base;
+
+  &__content {
+    @include content-wrapper;
+
+    .text-area {
+      @include text-area-headers;
+
+      padding: 0 20px;
+      margin-bottom: 20px;
+
+      p {
+        text-align: justify;
+        text-justify: inter-word;
+      }
+
+      // Accessibility: Links inside text content must be distinguishable
+      p a,
+      li a {
+        text-decoration: underline;
+        text-underline-offset: 2px;
+
+        &:hover,
+        &:focus {
+          text-decoration: underline;
+          text-decoration-thickness: 2px;
+          text-decoration-color: $accent;
+        }
+      }
+    }
+  }
+}

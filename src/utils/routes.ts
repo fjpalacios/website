@@ -21,7 +21,8 @@ export type RouteSegment =
   | "feeds"
   | "shelf"
   | "page"
-  | "score";
+  | "score"
+  | "privacy";
 
 /**
  * Route translations map
@@ -92,6 +93,10 @@ export const routeTranslations: Record<RouteSegment, Record<string, string>> = {
   score: {
     en: "score",
     es: "score",
+  },
+  privacy: {
+    en: "privacy",
+    es: "privacidad",
   },
 };
 
