@@ -13,22 +13,20 @@ interface Props {
   lang: LanguageKey;
 }
 
+export function generateBreadcrumbSchema(items: BreadcrumbItem[], baseUrl: string): object {
+  return {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    itemListElement: items.map((item, index) => ({
+      "@type": "ListItem",
+      position: index + 1,
+      name: item.label,
+      ...(item.url && { item: `${baseUrl}${item.url}` }),
+    })),
+  };
+}
+
 const { items, lang } = Astro.props;
-
-// Build Schema.org BreadcrumbList JSON-LD
-// Base URL is language-agnostic for this site
-const baseUrl = t(lang, "metaData.url");
-
-const breadcrumbSchema = {
-  "@context": "https://schema.org",
-  "@type": "BreadcrumbList",
-  itemListElement: items.map((item, index) => ({
-    "@type": "ListItem",
-    position: index + 1,
-    name: item.label,
-    ...(item.url && { item: `${baseUrl}${item.url}` }),
-  })),
-};
 ---
 
 <nav class="breadcrumbs" aria-label={t(lang, "breadcrumbs.ariaLabel")} data-pagefind-ignore>
@@ -50,5 +48,3 @@ const breadcrumbSchema = {
     }
   </ol>
 </nav>
-
-<script type="application/ld+json" set:html={JSON.stringify(breadcrumbSchema)} />

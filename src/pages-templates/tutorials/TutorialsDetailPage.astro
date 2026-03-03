@@ -7,7 +7,7 @@
  * Features: Breadcrumbs, course relationship, categories, cover image, schema.org
  */
 
-import Breadcrumbs, { type BreadcrumbItem } from "@components/Breadcrumbs.astro";
+import Breadcrumbs, { generateBreadcrumbSchema, type BreadcrumbItem } from "@components/Breadcrumbs.astro";
 import CourseNavigation from "@components/CourseNavigation.astro";
 import Icon from "@components/Icon.astro";
 import OptimizedImage from "@components/OptimizedImage.astro";
@@ -67,6 +67,9 @@ if (tutorial.course && tutorial.order !== undefined) {
   nextTutorial = nav.nextTutorial;
 }
 
+// Share component data
+const baseUrl = t(lang, "metaData.url");
+
 // Build breadcrumbs
 const breadcrumbs: BreadcrumbItem[] = [
   { label: t(lang, "pages.home"), url: `/${lang}` },
@@ -74,8 +77,7 @@ const breadcrumbs: BreadcrumbItem[] = [
   { label: tutorial.title }, // Current page, no URL
 ];
 
-// Share component data
-const baseUrl = t(lang, "metaData.url");
+const breadcrumbSchema = generateBreadcrumbSchema(breadcrumbs, baseUrl);
 const currentUrl = new URL(Astro.url.pathname, baseUrl).href;
 const twitterUsername = t(lang, "metaData.twitterUsername");
 
@@ -125,6 +127,7 @@ if (course) {
   schema={tutorialSchema}
   preloadImage={optimizedCoverImage.src}
 >
+  <script slot="schema" type="application/ld+json" set:html={JSON.stringify(breadcrumbSchema)} />
   <Breadcrumbs items={breadcrumbs} lang={lang} />
   <main class="tutorial">
     <section class="tutorial__content">

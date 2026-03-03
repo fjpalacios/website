@@ -1,7 +1,7 @@
 ---
 import { getCollection } from "astro:content";
 
-import Breadcrumbs from "@/components/Breadcrumbs.astro";
+import Breadcrumbs, { generateBreadcrumbSchema } from "@/components/Breadcrumbs.astro";
 import Icon from "@/components/Icon.astro";
 import { shelf } from "@/content/shelf";
 import Layout from "@/layouts/Layout.astro";
@@ -35,6 +35,8 @@ const breadcrumbs = [
 const title = t(lang, "shelf.title");
 const description = t(lang, "shelf.description");
 
+const breadcrumbSchema = generateBreadcrumbSchema(breadcrumbs, t(lang, "metaData.url"));
+
 // Classify and sort books by review language
 const classifyAndSort = <T extends { title: string; sortName: string }>(books: T[]) => {
   const classified = classifyBooksByReviewLanguage(allBooks, books, lang);
@@ -64,6 +66,7 @@ const totalBooks = totalPhysical + totalDigital;
 ---
 
 <Layout {lang} {contact} {title} {description}>
+  <script slot="schema" type="application/ld+json" set:html={JSON.stringify(breadcrumbSchema)} />
   <main class="shelf-page">
     <Breadcrumbs items={breadcrumbs} {lang} />
 

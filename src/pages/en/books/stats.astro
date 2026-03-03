@@ -1,6 +1,6 @@
 ---
 import BookStatsContainer from "@/components/blog/BookStatsContainer.astro";
-import Breadcrumbs from "@/components/Breadcrumbs.astro";
+import Breadcrumbs, { generateBreadcrumbSchema } from "@/components/Breadcrumbs.astro";
 import Layout from "@/layouts/Layout.astro";
 import { t } from "@/locales";
 import { getContact } from "@/utils/content/contact";
@@ -27,9 +27,12 @@ const breadcrumbs = [
 // SEO
 const title = t(lang, "bookStats.title");
 const description = t(lang, "bookStats.description");
+
+const breadcrumbSchema = generateBreadcrumbSchema(breadcrumbs, t(lang, "metaData.url"));
 ---
 
 <Layout {lang} {contact} {title} {description}>
+  <script slot="schema" type="application/ld+json" set:html={JSON.stringify(breadcrumbSchema)} />
   <main class="book-stats-page">
     <Breadcrumbs items={breadcrumbs} {lang} />
     <h1 class="sr-only">{title}</h1>
