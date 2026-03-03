@@ -398,6 +398,9 @@ test.describe("Search Functionality", () => {
     test("should NOT index JSON-LD schema URLs in listing pages", async ({ page }) => {
       await page.goto("/es/libros");
 
+      // Wait for Pagefind to be ready
+      await waitForPagefindReady(page);
+
       // Open search
       await page.keyboard.press(process.platform === "darwin" ? "Meta+KeyK" : "Control+KeyK");
       await page.waitForTimeout(1000);
