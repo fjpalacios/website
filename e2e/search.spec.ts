@@ -395,28 +395,40 @@ test.describe("Search Functionality", () => {
       }
     });
 
-    test("should NOT index JSON-LD schema URLs in listing pages", async ({ page }) => {
+    test("should NOT surface listing/taxonomy pages when searching book titles from their schemas", async ({
+      page,
+    }) => {
       await page.goto("/es/libros");
+
+      // Wait for Pagefind to be ready
+      await waitForPagefindReady(page);
 
       // Open search
       await page.keyboard.press(process.platform === "darwin" ? "Meta+KeyK" : "Control+KeyK");
       await page.waitForTimeout(1000);
 
-      // Search for "ItemList" (a term that only appears in JSON-LD schemas)
+      // Search for a book title that appears in the content of listing page schemas
+      // but whose actual review page should be the result, not the listing/genre pages.
+      // "Diez negritos" appears in the ItemList schemas of genre/category listing pages
+      // but the correct result should be the book detail page, not those listing pages.
       const searchInput = page.locator(".pagefind-ui__search-input");
-      await searchInput.fill("ItemList schema");
+      await searchInput.fill("Diez negritos");
       await page.waitForTimeout(1500);
 
-      // Should show zero results (schema content in listing pages is inside data-pagefind-ignore)
-      const message = page.locator(".pagefind-ui__message");
-      const hasNoResults = (await message.textContent())?.includes("No se encontraron resultados");
+      const results = page.locator(".pagefind-ui__result-link");
+      await expect(results.first()).toBeVisible({ timeout: 10000 });
 
-      // Either shows no results or very few results (not from listing page schemas)
-      const results = page.locator(".pagefind-ui__result");
       const resultsCount = await results.count();
+      expect(resultsCount).toBeGreaterThan(0);
 
-      // Should have 0 results or the message should say no results
-      expect(hasNoResults || resultsCount === 0).toBe(true);
+      // None of the results should be a taxonomy/listing page (genre, category, etc.)
+      // Only detail pages (book review pages) should appear
+      const taxonomyPaths = ["/es/generos/", "/es/categorias/", "/es/editoriales/", "/es/series/", "/es/autores/"];
+      for (let i = 0; i < resultsCount; i++) {
+        const href = await results.nth(i).getAttribute("href");
+        const isTaxonomyPage = taxonomyPaths.some((path) => href?.startsWith(path));
+        expect(isTaxonomyPage).toBe(false);
+      }
     });
 
     test("should show correct title metadata for book pages", async ({ page }) => {

@@ -1,0 +1,359 @@
+---
+title: "Installing Neovim and LazyVim"
+post_slug: "installing-neovim-lazyvim"
+date: "2026-03-05"
+excerpt: "You already know why Vim is awesome. Now it's time to actually install it. Learn how to set up Neovim with LazyVim, the modern distribution that gives you superpowers from day one."
+language: "en"
+categories: ["vim"]
+course: "mastering-vim-from-scratch"
+order: 2
+cover: "/images/tutorials/cabecera-vim-curso.jpg"
+i18n: "instalando-neovim-lazyvim"
+---
+
+You're convinced: you want to try Vim. You understand the philosophy of modal editing, you know it can make you more productive, and you're ready to take the leap. But there's one small problem: **how the hell do I install this thing?**
+
+If you're like me when I started, you've probably heard of Vim, Neovim, NeoVim nightly, Vim 9.0, LazyVim, LunarVim, NvChad... What is each thing? Where do I start? Is my computer going to explode?
+
+Relax. We're going to install **Neovim** (the modern version of Vim) with **LazyVim** (a preconfigured setup that gives you a modern IDE from minute zero). And we're going to do it step by step, without assuming you have a PhD in Unix systems.
+
+## Neovim or Vim? The eternal question
+
+Before installing anything, let's clear up the confusion: **Vim** is the classic editor, created by Bram Moolenaar in 1991. **Neovim** is a modern fork of Vim (since 2014) that:
+
+- Has better support for modern plugins (written in Lua)
+- Supports LSP (Language Server Protocol) natively, which means autocomplete, diagnostics, and refactoring like in VSCode
+- Has a cleaner, more extensible architecture
+- Updates faster with modern features
+
+Does this mean Vim is dead? No. But for someone starting in 2026, **Neovim is the recommended choice**. You can do the same with Vim, but with more manual work.
+
+So here we're going to install Neovim.
+
+## Installing Neovim according to your operating system
+
+### On Linux (Ubuntu/Debian and derivatives)
+
+If you use Ubuntu, Debian, Linux Mint, Pop!\_OS, or any Debian-based distribution:
+
+```bash
+sudo apt update
+sudo apt install neovim
+```
+
+Easy, right? The problem is that official repositories sometimes have old versions. To make sure you have a recent version (we need at least 0.9.0), check:
+
+```bash
+nvim --version
+```
+
+You should see something like:
+
+```
+NVIM v0.10.0
+Build type: Release
+LuaJIT 2.1.0-beta3
+```
+
+If your version is less than 0.9.0, I recommend installing from the official PPA or using the AppImage:
+
+```bash
+# Option 1: PPA (more up-to-date)
+sudo add-apt-repository ppa:neovim-ppa/unstable
+sudo apt update
+sudo apt install neovim
+
+# Option 2: AppImage (portable, always updated)
+curl -LO https://github.com/neovim/neovim/releases/latest/download/nvim.appimage
+chmod +x nvim.appimage
+sudo mv nvim.appimage /usr/local/bin/nvim
+```
+
+### On Arch Linux and derivatives
+
+If you use Arch, Manjaro, EndeavourOS, etc., you're in luck. Neovim is always up-to-date in the official repos:
+
+```bash
+sudo pacman -S neovim
+```
+
+And done. Arch users don't need more explanation, you already know how this works.
+
+### On macOS
+
+If you use Mac, the easiest way is with **Homebrew** (if you don't have it installed, go to [brew.sh](https://brew.sh)):
+
+```bash
+brew install neovim
+```
+
+Homebrew takes care of giving you the latest stable version. Check that it works:
+
+```bash
+nvim --version
+```
+
+### On Windows
+
+Here things get a bit complicated (because Windows, you know), but you have several options:
+
+**Option 1: Scoop (recommended)**
+
+Scoop is like Homebrew for Windows. If you don't have it:
+
+```powershell
+# In PowerShell as administrator
+Set-ExecutionPolicy RemoteSigned -Scope CurrentUser
+irm get.scoop.sh | iex
+
+# Install Neovim
+scoop install neovim
+```
+
+**Option 2: Chocolatey**
+
+If you prefer Chocolatey:
+
+```powershell
+choco install neovim
+```
+
+**Option 3: Manual download**
+
+Go to [github.com/neovim/neovim/releases](https://github.com/neovim/neovim/releases), download the `.msi` installer, and run it.
+
+Once installed, open PowerShell or CMD and check:
+
+```powershell
+nvim --version
+```
+
+## The first launch (and initial panic)
+
+Now that you have Neovim installed, open it:
+
+```bash
+nvim
+```
+
+You'll find yourself with... an empty screen with the Neovim logo and some instructions. This is normal. Neovim without configuration is **minimalist to the extreme**.
+
+Try typing something. You can't. Press `i` (insert mode), type "Hello", press `Esc`, type `:q!` and press Enter to exit.
+
+Feeling confused? **Perfect**. That means you're in the right place. Now we're going to give Neovim superpowers.
+
+## What is LazyVim and why do you need it?
+
+Configuring Neovim from scratch is like building a PC piece by piece. You can do it, and you'll learn a lot, but it takes **weeks** to get something usable.
+
+**LazyVim** is a preconfigured Neovim distribution that gives you:
+
+- 🎨 A beautiful, modern theme (by default, TokyoNight)
+- 🔍 Telescope (fuzzy file finder, like Ctrl+P in VSCode)
+- 🌳 Neo-tree (sidebar file explorer)
+- 💡 Configured LSP (autocomplete, diagnostics, go to definition)
+- 🚀 Treesitter (advanced syntax highlighting)
+- ⚡ Lazy.nvim (ultra-fast plugin manager)
+- 🔧 Which-key (shows keyboard shortcuts as you use them)
+
+All of this, **working from minute zero**, without you having to configure anything.
+
+Think of it as the difference between buying a PC with components (pure Neovim) vs a Mac (LazyVim): the second works when you turn it on, the first requires assembly.
+
+## Installing LazyVim dependencies
+
+LazyVim needs some tools installed on your system to work at 100%. Don't worry, they're quick to install.
+
+### On Linux
+
+```bash
+# Ubuntu/Debian
+sudo apt install ripgrep fd-find
+
+# Arch
+sudo pacman -S ripgrep fd
+
+# Optional but highly recommended: lazygit (for Git from Neovim)
+# Ubuntu/Debian (add the PPA)
+sudo add-apt-repository ppa:lazygit-team/release
+sudo apt update
+sudo apt install lazygit
+
+# Arch
+sudo pacman -S lazygit
+```
+
+### On macOS
+
+```bash
+brew install ripgrep fd lazygit
+```
+
+### On Windows (with Scoop)
+
+```powershell
+scoop install ripgrep fd lazygit
+```
+
+What do these tools do?
+
+- **ripgrep** (`rg`): Ultra-fast text search in files (like `grep` but faster)
+- **fd**: File search (like `find` but more friendly)
+- **lazygit**: TUI interface for Git (optional, but incredibly useful)
+
+## Installing a Nerd Font (critical for icons)
+
+LazyVim uses icons in the file explorer, status bar, etc. For them to display properly, you need a **Nerd Font** (a font with integrated icons).
+
+### On Linux
+
+```bash
+# Download Fira Code Nerd Font
+mkdir -p ~/.local/share/fonts
+cd ~/.local/share/fonts
+curl -fLo "Fira Code Nerd Font Complete.ttf" \
+  https://github.com/ryanoasis/nerd-fonts/raw/master/patched-fonts/FiraCode/Regular/FiraCodeNerdFont-Regular.ttf
+
+# Update font cache
+fc-cache -fv
+```
+
+### On macOS
+
+```bash
+brew tap homebrew/cask-fonts
+brew install --cask font-fira-code-nerd-font
+```
+
+### On Windows
+
+Download the font from [nerdfonts.com](https://www.nerdfonts.com/), extract, right-click on the `.ttf`, and "Install".
+
+**Important**: Now you have to **configure your terminal** to use this font. Go to your terminal settings (Windows Terminal, Alacritty, Kitty, iTerm2, etc.) and change the font to "FiraCode Nerd Font" or "FiraCode NF".
+
+If you don't do this, you'll see weird squares where icons should be.
+
+## Installing LazyVim (the moment of truth)
+
+Now yes. We're going to install LazyVim. But first, **important**: if you already had a Neovim configuration, make a backup:
+
+```bash
+# Backup your current configuration (if it exists)
+mv ~/.config/nvim ~/.config/nvim.backup
+mv ~/.local/share/nvim ~/.local/share/nvim.backup
+mv ~/.local/state/nvim ~/.local/state/nvim.backup
+mv ~/.cache/nvim ~/.cache/nvim.backup
+```
+
+On Windows, the path is `~/AppData/Local/nvim` instead of `~/.config/nvim`.
+
+Now, clone the LazyVim starter configuration:
+
+```bash
+# Linux/macOS
+git clone https://github.com/LazyVim/starter ~/.config/nvim
+
+# Windows (PowerShell)
+git clone https://github.com/LazyVim/starter $env:LOCALAPPDATA\nvim
+```
+
+This creates the LazyVim configuration structure in your Neovim config folder.
+
+Now, remove the `.git` directory so you can customize your configuration without conflicts:
+
+```bash
+# Linux/macOS
+rm -rf ~/.config/nvim/.git
+
+# Windows
+Remove-Item -Recurse -Force $env:LOCALAPPDATA\nvim\.git
+```
+
+## The first LazyVim launch
+
+Take a deep breath. Open Neovim:
+
+```bash
+nvim
+```
+
+You'll see... **lots of things happening**. LazyVim is:
+
+1. Installing the plugin manager (lazy.nvim)
+2. Downloading all configured plugins
+3. Compiling Treesitter parsers
+4. Installing LSP servers
+
+This can take **1-3 minutes** depending on your connection. You'll see a window with progress bars. **Don't close Neovim**. Let it finish.
+
+When it's done, you'll see the LazyVim dashboard, something like:
+
+```
+╭──────────────────────────────────────────╮
+│                                          │
+│           ⚡ LazyVim ⚡                   │
+│                                          │
+│   󰈞  Find File                           │
+│   󰈢  Recent Files                        │
+│   󰈬  Find Text                           │
+│     Config                              │
+│     Restore Session                     │
+│   󰗼  Lazy                                │
+│                                          │
+╰──────────────────────────────────────────╯
+```
+
+If you see this, **congratulations!** LazyVim is working.
+
+## What do I do now?
+
+Press `?` to see keyboard shortcuts. Press `<Space>` (spacebar) and wait a second: you'll see the **Which-key** menu with all available commands.
+
+For now, **don't stress** about learning all the shortcuts. In the next tutorial we're going to see the **basic survival commands** to open files, edit them, save them, and exit without panic.
+
+But first, let's do a quick check that everything works.
+
+## Check: does LSP work?
+
+Let's create a test file to make sure autocomplete works.
+
+From Neovim, press `:` (colon) and type:
+
+```vim
+:e test.js
+```
+
+This creates (or opens) a file called `test.js`. Now press `i` (insert mode) and type:
+
+```javascript
+const greeting = "Hello"
+console.log(gree
+```
+
+When you type `gree`, an autocomplete menu should appear suggesting `greeting`. If you see that, **LSP works**. If not, don't worry, you may need to install the language server for JavaScript. LazyVim will ask you automatically the first time you open a `.js` file.
+
+Press `Esc`, then type `:q!` and Enter to exit without saving.
+
+## Summary: what we've achieved
+
+If you've made it this far, you now have:
+
+- ✅ **Neovim** installed and working (version 0.9.0+)
+- ✅ **LazyVim** configured with modern plugins
+- ✅ **Nerd Font** installed for icons
+- ✅ **CLI tools** (ripgrep, fd, lazygit) for full functionality
+- ✅ **LSP** working (autocomplete, diagnostics)
+
+What you **DON'T** have yet is any idea how to use this. And that's normal. In the next tutorial we're going to learn the **survival commands**: how to open files, move through text, edit, save, and (most importantly) **how to exit Vim without Googling it**.
+
+## Final tips before continuing
+
+**Don't try to learn everything at once**. Vim literally has hundreds of commands. Start with the basics, use them until they become automatic, and then add more.
+
+**Don't get frustrated if you're slow at first**. It's like learning to play piano: the first few days you're clumsy, but in a few weeks you'll be flying through code.
+
+**Don't give up in the first few hours**. Vim's learning curve is steep at the beginning, but the reward is worth it.
+
+Now, breathe, close this tutorial, open Neovim, and get ready for the next step.
+
+Never stop coding!

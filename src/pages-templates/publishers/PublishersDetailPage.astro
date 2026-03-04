@@ -10,7 +10,7 @@
  * Used by the unified router for both EN and ES variants.
  */
 
-import Breadcrumbs, { type BreadcrumbItem } from "@components/Breadcrumbs.astro";
+import Breadcrumbs, { generateBreadcrumbSchema, type BreadcrumbItem } from "@components/Breadcrumbs.astro";
 import Paginator from "@components/Paginator.astro";
 import PostList from "@components/PostList.astro";
 import Title from "@components/Title.astro";
@@ -67,6 +67,8 @@ const breadcrumbs: BreadcrumbItem[] = [
   { label: publisher.data.name }, // Current page, no URL
 ];
 
+const breadcrumbSchema = generateBreadcrumbSchema(breadcrumbs, t(lang, "metaData.url"));
+
 // Generate ItemList schema for SEO
 const itemListSchema = generateItemListSchema(
   content.map((item) => {
@@ -86,6 +88,7 @@ const itemListSchema = generateItemListSchema(
 
 <Layout lang={lang} title={pageTitle} description={description} contact={contact} hasTargetContent={hasTargetContent}>
   <script slot="schema" type="application/ld+json" set:html={JSON.stringify(itemListSchema)} />
+  <script slot="schema" type="application/ld+json" set:html={JSON.stringify(breadcrumbSchema)} />
 
   <Breadcrumbs items={breadcrumbs} lang={lang} />
   <Title title={pageTitle} srOnly={true} useAsPagefindTitle={true} headingLevel="h1" />
