@@ -1,0 +1,269 @@
+---
+title: "Operators and expressions in Python"
+post_slug: "operators-and-expressions-python"
+date: "2026-03-09"
+excerpt: "With variables under control, it's time to do something useful with them. In this tutorial you'll learn how to operate on data in Python: math, comparisons, logic... and how not to mix up = with ==."
+language: "en"
+categories: ["programacion"]
+course: "learn-to-code-from-scratch-python"
+order: 4
+cover: "/images/tutorials/cabecera-python-curso.jpg"
+i18n: "operadores-y-expresiones-python"
+---
+
+You already know what variables are and how to store data in them. But having data stored without doing anything with it is like having ingredients in the fridge without cooking: it doesn't matter how great your tomatoes are if you don't know how to fry them.
+
+This is where **operators** come in: the symbols that tell Python what to do with the data it has. Adding numbers, comparing values, combining conditions... with operators is when the code starts doing genuinely interesting things.
+
+## Arithmetic operators: Python's calculator
+
+Let's start with the most intuitive part. Python understands basic math exactly as you'd expect:
+
+```python
+x = 10
+y = 3
+
+print(x + y)   # 13 — addition
+print(x - y)   # 7  — subtraction
+print(x * y)   # 30 — multiplication
+print(x / y)   # 3.3333... — division
+```
+
+So far so normal. But Python has two operators you won't find on a regular calculator, and they're tremendously useful:
+
+**Integer division** (`//`): returns the quotient without decimals, discarding the remainder:
+
+```python
+print(10 // 3)   # 3
+print(7 // 2)    # 3
+```
+
+**Modulo** (`%`): returns the remainder of the division. What's that good for? More than you'd think. For example, to check if a number is even (if the remainder of dividing by 2 is 0, it's even):
+
+```python
+print(10 % 3)   # 1  (10 = 3×3 + 1)
+print(8 % 2)    # 0  (8 is even, no remainder)
+print(7 % 2)    # 1  (7 is odd)
+```
+
+And finally, **exponentiation** (`**`), the coolest operator of them all:
+
+```python
+print(2 ** 10)   # 1024  (2 to the power of 10)
+print(3 ** 3)    # 27    (3 cubed)
+print(9 ** 0.5)  # 3.0   (square root of 9)
+```
+
+Notice that last one: `9 ** 0.5` is the square root, because the square root is the same as raising to the power of 0.5. Python handles this perfectly.
+
+## Order matters: operator precedence
+
+What do you think Python does with this?
+
+```python
+print(2 + 3 * 4)
+```
+
+If you answered 20, the logic is impeccable but the answer is wrong. Python, just like in math class, follows the order of operations: multiplications and divisions first, then additions and subtractions. So the result is **14** (3×4=12, then 2+12=14).
+
+What if you really want to add first? Parentheses work exactly the same as in school:
+
+```python
+print((2 + 3) * 4)   # 20
+print(2 + 3 * 4)     # 14
+print(10 / 2 + 3)    # 8.0
+print(10 / (2 + 3))  # 2.0
+```
+
+The golden rule: **when in doubt about order, use parentheses**. They cost nothing and make the code much easier to read.
+
+## Comparison operators: is this greater than that?
+
+Here comes one of the points where beginners stumble most. Python has two symbols that look similar but do completely different things:
+
+- `=` is **assignment**: stores a value in a variable
+- `==` is **comparison**: checks if two values are equal
+
+Don't mix them up. If you write `x = 5` you're storing 5 in `x`. If you write `x == 5` you're asking "is `x` equal to 5?", and Python answers `True` or `False`.
+
+```python
+x = 10
+
+print(x == 10)   # True  — is x equal to 10?
+print(x == 5)    # False — is x equal to 5?
+print(x != 5)    # True  — is x different from 5?
+print(x > 5)     # True  — is x greater than 5?
+print(x < 5)     # False — is x less than 5?
+print(x >= 10)   # True  — is x greater than or equal to 10?
+print(x <= 10)   # True  — is x less than or equal to 10?
+```
+
+The result of a comparison is always a **boolean**: `True` or `False`. This is fundamental because later, when you get to conditionals (`if`/`else`), you'll be using these comparisons constantly to make decisions in your code.
+
+## Logical operators: combining conditions
+
+What if a single comparison isn't enough? Imagine you want to know if someone can enter a website: they need to be over 18 **and** have accepted the terms. Or maybe you want to know if a number is between 1 and 10.
+
+That's what logical operators are for: `and`, `or`, and `not`.
+
+### and: both conditions must be met
+
+```python
+age = 20
+accepted_terms = True
+
+print(age >= 18 and accepted_terms)          # True — meets both
+print(age >= 18 and not accepted_terms)      # False — terms not accepted
+
+x = 7
+print(x > 1 and x < 10)   # True — x is between 1 and 10
+```
+
+### or: just one condition needs to be met
+
+```python
+is_admin = False
+is_moderator = True
+
+print(is_admin or is_moderator)   # True — one is enough
+
+day = "Saturday"
+print(day == "Saturday" or day == "Sunday")   # True — it's the weekend
+```
+
+### not: inverts the result
+
+```python
+has_account = False
+
+print(not has_account)   # True — if they DON'T have an account...
+print(not True)          # False
+print(not False)         # True
+```
+
+`not` is like putting a "no" in front: it turns `True` into `False` and vice versa.
+
+A very common combination in real code:
+
+```python
+user_active = True
+account_locked = False
+
+can_access = user_active and not account_locked
+print(can_access)   # True
+```
+
+Read it out loud: "the user can access if they're active **and** their account is **not** locked". That's how natural well-written code reads.
+
+## Assignment operators: updating variables without repeating yourself
+
+Imagine you have a counter and you want to add 1 to it. The obvious way would be:
+
+```python
+counter = 0
+counter = counter + 1
+print(counter)   # 1
+```
+
+It works, but Python has a more compact form. The `+=` operator adds and assigns in a single step:
+
+```python
+counter = 0
+counter += 1   # equivalent to: counter = counter + 1
+print(counter)   # 1
+
+counter += 5   # equivalent to: counter = counter + 5
+print(counter)   # 6
+```
+
+The same exists for all other operations:
+
+```python
+x = 10
+
+x += 3    # x = 10 + 3 = 13
+x -= 2    # x = 13 - 2 = 11
+x *= 4    # x = 11 * 4 = 44
+x /= 2    # x = 44 / 2 = 22.0
+x //= 3   # x = 22.0 // 3 = 7.0
+x **= 2   # x = 7.0 ** 2 = 49.0
+x %= 10   # x = 49.0 % 10 = 9.0
+
+print(x)  # 9.0
+```
+
+You'll see these operators constantly in loops (`for`, `while`) when you need to accumulate values or count iterations.
+
+## Putting it all together: a simple calculator
+
+Let's write something that uses everything we've seen. A small calculator that analyzes two numbers and tells us various things about them:
+
+```python
+a = 15
+b = 4
+
+# Arithmetic operations
+print(f"{a} + {b} = {a + b}")
+print(f"{a} - {b} = {a - b}")
+print(f"{a} * {b} = {a * b}")
+print(f"{a} / {b} = {a / b:.2f}")
+print(f"{a} // {b} = {a // b}")
+print(f"{a} % {b} = {a % b}")
+print(f"{a} ** {b} = {a ** b}")
+
+# Comparisons
+print(f"Is {a} > {b}? {a > b}")
+print(f"Is {a} == {b}? {a == b}")
+
+# Is 'a' even?
+print(f"Is {a} even? {a % 2 == 0}")
+
+# Are both between 1 and 100?
+print(f"Both between 1 and 100? {1 <= a <= 100 and 1 <= b <= 100}")
+```
+
+The output would be:
+
+```
+15 + 4 = 19
+15 - 4 = 11
+15 * 4 = 60
+15 / 4 = 3.75
+15 // 4 = 3
+15 % 4 = 3
+15 ** 4 = 50625
+Is 15 > 4? True
+Is 15 == 4? False
+Is 15 even? False
+Both between 1 and 100? True
+```
+
+Notice that `1 <= a <= 100`: Python allows chaining comparisons this natural way, something that in many other languages you can't do directly.
+
+## The most classic mistake: = instead of ==
+
+Before you close this tutorial, burn this into your memory:
+
+```python
+# This ASSIGNS the value 5 to x (does not compare)
+x = 5
+
+# This COMPARES whether x is equal to 5
+print(x == 5)   # True
+```
+
+If you try to use `=` where `==` should go in a comparison, Python will throw an error (or worse, do something unexpected without warning). It's the most common mistake among Python beginners, so watch out for it.
+
+## Summary
+
+With operators you can now make your code take decisions and perform real calculations. What we've covered:
+
+- **Arithmetic** (`+`, `-`, `*`, `/`, `//`, `%`, `**`): for doing calculations with numbers
+- **Comparison** (`==`, `!=`, `>`, `<`, `>=`, `<=`): for comparing values and getting `True` or `False`
+- **Logical** (`and`, `or`, `not`): for combining multiple conditions
+- **Compound assignment** (`+=`, `-=`, `*=`, etc.): for updating variables concisely
+- **Precedence**: parentheses win, then `**`, then `*` `/` `//` `%`, and finally `+` `-`
+
+In the next tutorial we'll dive into **strings**: how to create them, manipulate them, and get the most out of Python's string methods.
+
+Never stop coding!
