@@ -1,0 +1,230 @@
+---
+title: "Working with Git Remotes"
+post_slug: "working-with-git-remotes"
+date: "2026-03-10"
+excerpt: "Learn to manage Git remotes: add, remove, rename, and inspect them with git remote. Understand tracking branches and how to work with multiple remotes."
+language: "en"
+categories: ["git"]
+course: "mastering-git-from-scratch"
+order: 15
+cover: "/images/tutorials/cabecera-git.jpg"
+i18n: "trabajando-con-remotos-git"
+---
+
+You've been typing `git push origin master` for a while now. It works, the code lands on GitHub, everyone's happy. But if someone asked you right now what exactly `origin` is, could you answer without hesitating? Or do you use it "on faith" — the kind of faith where you pray the command works and don't ask too many questions?
+
+Don't worry. Most people use Git for years without fully understanding what's behind that `origin`. Let's fix that today.
+
+## What does Git know about your remotes?
+
+A remote in Git is simply an **alias for a URL**. That's it. `origin` is not a mystical entity or a special server: it's a name pointing to an address, just like a contact in your phone has a name pointing to a number.
+
+To see which remotes you have configured:
+
+```bash
+git remote -v
+```
+
+```
+origin  git@github.com:youruser/my-project.git (fetch)
+origin  git@github.com:youruser/my-project.git (push)
+```
+
+Each remote appears twice: once for `fetch` (receiving) and once for `push` (sending). In almost every case they point to the same URL, but Git treats them independently. This lets you, in theory, fetch from one place and push to another — useful in weird setups you'll probably never need, but good to know exist.
+
+`origin` is the default name Git assigns when you run `git clone`. There's nothing special about it. You could call it `github`, `main-remote`, or `potato` and it would work exactly the same.
+
+If you only want the names without the URLs:
+
+```bash
+git remote
+```
+
+```
+origin
+```
+
+## Adding and removing remotes
+
+### Adding a remote
+
+```bash
+git remote add <name> <url>
+```
+
+For example, to add a second remote called `backup`:
+
+```bash
+git remote add backup git@github.com:youruser/my-project-backup.git
+```
+
+Now you have two:
+
+```bash
+git remote -v
+```
+
+```
+backup  git@github.com:youruser/my-project-backup.git (fetch)
+backup  git@github.com:youruser/my-project-backup.git (push)
+origin  git@github.com:youruser/my-project.git (fetch)
+origin  git@github.com:youruser/my-project.git (push)
+```
+
+### Removing a remote
+
+```bash
+git remote remove backup
+```
+
+Or its equivalent alias (because in Git there's always two ways to do the same thing):
+
+```bash
+git remote rm backup
+```
+
+This removes only the local configuration — the remote repository on the server keeps existing, don't worry.
+
+### Renaming a remote
+
+```bash
+git remote rename origin github
+```
+
+From that point you'd use `git push github master` instead. Useful when you have multiple remotes and want more descriptive names than `origin`, `origin2`, and `origin-that-one-I-dont-know-what-it-does`.
+
+### Changing a remote's URL
+
+If you originally cloned with HTTPS and now want to switch to SSH (so you stop typing your password every five minutes), you don't need to delete and re-add the remote:
+
+```bash
+git remote set-url origin git@github.com:youruser/my-project.git
+```
+
+Verify the change was applied:
+
+```bash
+git remote -v
+```
+
+```
+origin  git@github.com:youruser/my-project.git (fetch)
+origin  git@github.com:youruser/my-project.git (push)
+```
+
+## Inspecting a remote in detail
+
+`git remote -v` gives you the URLs, but if you want a full picture of what's happening with a remote:
+
+```bash
+git remote show origin
+```
+
+```
+* remote origin
+  Fetch URL: git@github.com:youruser/my-project.git
+  Push  URL: git@github.com:youruser/my-project.git
+  HEAD branch: master
+  Remote branches:
+    develop tracked
+    master  tracked
+  Local branch configured for 'git pull':
+    master merges with remote master
+  Local refs configured for 'git push':
+    master pushes to master (up to date)
+    develop pushes to develop (local out of date)
+```
+
+That last part — `local out of date` — is the important bit: before you start working on `develop`, you already know someone pushed changes you don't have. Without this command, you'd find out after trying to push and getting a cryptic error.
+
+## Multiple remotes: origin and upstream
+
+The most common reason to have more than one remote is when you work with **forks**. Say you want to contribute to an open source project — the Git project itself, or any library you use daily:
+
+1. You fork the repository on GitHub (now you have your own copy at `youruser/project`)
+2. You clone your fork: `git clone git@github.com:youruser/project.git`
+3. Git configures `origin` pointing to **your fork**
+
+The problem: the original project keeps moving forward without you, and you need to bring those changes in periodically. For that you add the original repository as a second remote. The universal convention (that everyone follows so nobody goes crazy) is to call it `upstream`:
+
+```bash
+git remote add upstream git@github.com:original-author/project.git
+```
+
+Result:
+
+```bash
+git remote -v
+```
+
+```
+origin    git@github.com:youruser/project.git (fetch)
+origin    git@github.com:youruser/project.git (push)
+upstream  git@github.com:original-author/project.git (fetch)
+upstream  git@github.com:original-author/project.git (push)
+```
+
+The typical workflow:
+
+```bash
+# Bring in the latest changes from the original project
+git fetch upstream
+
+# Integrate them into your main branch
+git merge upstream/master
+```
+
+Your `origin` stays as your fork. `upstream` is read-only in practice — you won't have push permissions there, and even if you did, you shouldn't push directly to the original repository (that's what pull requests are for).
+
+## Tracking branches: the link between local and remote
+
+When you clone a repository or run `git push -u origin master`, Git creates something called a **tracking branch**: a reference that connects your local branch to its counterpart on the remote. This is what lets Git know where to send changes when you run `git push` with no extra arguments.
+
+To see which tracking branches you have configured:
+
+```bash
+git branch -vv
+```
+
+```
+* master  a3f8c21 [origin/master] Add form validation
+  develop e1b9d44 [origin/develop: ahead 2] Integrate payments module
+```
+
+In brackets you see the remote branch being tracked. `ahead 2` means you have 2 local commits that aren't on the remote yet. Very useful before a `git push` to know exactly what you're about to send.
+
+When you create a new branch and push it for the first time, you set up the tracking with `-u` (short for `--set-upstream`):
+
+```bash
+git push -u origin new-feature
+```
+
+From that point on, `git push` and `git pull` from that branch work without extra arguments. If you forget the `-u`, Git will politely remind you it doesn't know where to push — with an error message that a lot of developers copy into Google without reading it.
+
+## Practical cases
+
+### Cleaning up references to deleted remote branches
+
+Over time, teammates delete branches on the remote after a merge, but those references keep showing up in your local as ghosts of branches past. To clean them up:
+
+```bash
+git fetch --prune
+```
+
+Or configure it globally so it happens automatically on every fetch:
+
+```bash
+git config --global fetch.prune true
+```
+
+I recommend enabling this. Having references to branches that no longer exist only creates confusion, especially in high-activity projects.
+
+---
+
+Now you understand what's behind that `origin` you'd been using without questioning. Remotes are aliases, not magic. You can add as many as you need, inspect them, change their URLs, and know exactly which tracking branches connect them to your local work.
+
+In the next tutorial we'll look at how to synchronize your repository with those remotes: `git clone` to start from scratch with an existing repository, and `git pull` to keep your local copy up to date.
+
+**💡 Challenge**: Add a second remote to an existing repository (it can point to the same URL as `origin`, just with a different name). Run `git remote show` on both and compare the output. Then remove it. Bonus: enable `fetch.prune` globally if you haven't already.
+
+Never stop coding!
