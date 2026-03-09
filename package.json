@@ -65,7 +65,7 @@
     "@astrojs/sitemap": "3.7.0",
     "astro": "5.18.0",
     "fast-xml-parser": "5.4.2",
-    "marked": "^17.0.3",
+    "marked": "^17.0.4",
     "mdast-util-to-hast": "13.2.1",
     "mysql2": "^3.18.2",
     "normalize.css": "^8.0.1",
