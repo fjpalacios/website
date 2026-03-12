@@ -1,0 +1,7 @@
+{
+  "name": "Domina Docker desde cero",
+  "course_slug": "domina-docker-desde-cero",
+  "language": "es",
+  "description": "Aprende Docker desde cero hasta nivel profesional: contenedores, imágenes, multi-stage builds, Docker Compose, redes, seguridad y despliegue en producción. Con un enfoque en buenas prácticas y seguridad desde el primer día.",
+  "i18n": "mastering-docker-from-scratch"
+}
