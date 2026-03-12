@@ -1,0 +1,179 @@
+---
+title: "Push and fetch in Git: syncing with the remote"
+post_slug: "pushing-and-fetching-git"
+date: "2026-03-12"
+excerpt: "Learn to send and receive changes in Git with git push and git fetch. Understand the difference between fetch and pull, how to use --force-with-lease, and why git push --force is a bad idea."
+language: "en"
+categories: ["git"]
+course: "mastering-git-from-scratch"
+order: 17
+cover: "/images/tutorials/cabecera-git.jpg"
+i18n: "push-fetch-git"
+---
+
+You already know that remotes are aliases for URLs, and that `origin` has nothing special about it. But having the remote configured isn't enough — the whole point is to synchronize your work with it. When do you use `git push`? When do you use `git fetch`? And what exactly is the difference between `git fetch` and `git pull`? There are people who've been using Git for years without having this fully clear (no judgment — me included when I started).
+
+Let's fix that today, and along the way we'll see why `git push --force` is one of the most efficient ways to make your teammates hate you.
+
+## Sending changes to the remote: git push
+
+`git push` sends your local commits to a remote repository. The basic form:
+
+```bash
+git push origin master
+```
+
+This sends the local `master` branch to the `origin` remote. If the remote doesn't have that branch yet, it creates it. If it already exists and your commits are a direct continuation of its history (no divergence), the push works without issue.
+
+### Setting the upstream with -u
+
+The first time you push a new branch, add `-u` to set up tracking:
+
+```bash
+git push -u origin new-feature
+```
+
+After that, from that branch you can just type:
+
+```bash
+git push
+```
+
+And Git already knows where to go. Without `-u`, Git will ask you to specify the remote and branch every time, with an error message that a lot of people copy into Google without reading it in full.
+
+### What happens when a push is rejected?
+
+If someone else pushed changes to the same branch while you were working, you'll see something like:
+
+```
+ ! [rejected]        master -> master (fetch first)
+error: failed to push some refs to 'git@github.com:youruser/my-project.git'
+hint: Updates were rejected because the remote contains work that you do
+hint: not have locally. Integrate the remote changes (e.g.
+hint: 'git pull ...') before pushing again.
+```
+
+Git refuses to overwrite someone else's work. The fix: bring in the remote changes first, integrate them, then push. We'll cover this in detail in the next section.
+
+## Receiving changes: fetch vs pull
+
+This is where confusion is most common. There are two ways to bring changes from the remote:
+
+- `git fetch`: downloads the changes but **doesn't apply them**
+- `git pull`: downloads the changes **and applies them** (it's `fetch` + `merge` in one shot)
+
+### git fetch
+
+```bash
+git fetch origin
+```
+
+This updates your local remote references (`origin/master`, `origin/develop`, etc.) with what's on the server, but **doesn't touch your working branch**. It's like checking your mail without opening it.
+
+After a fetch, you can see what changed:
+
+```bash
+git log master..origin/master --oneline
+```
+
+```
+a7f3c21 Fix authentication bug
+b2e9d14 Add user profile endpoint
+```
+
+That shows you the commits that are in `origin/master` but not yet in your local `master`. You can inspect them at your own pace before deciding to integrate them.
+
+When you're ready to integrate:
+
+```bash
+git merge origin/master
+```
+
+### git pull
+
+```bash
+git pull origin master
+```
+
+This is equivalent to running `git fetch origin` followed by `git merge origin/master`. Faster to type, but it removes the intermediate inspection step.
+
+On personal projects or when you trust what's on the remote, `git pull` is perfectly fine. On team projects with high activity, fetching first gives you more control over what you're integrating and when.
+
+```
+fetch + manual merge      git pull
+────────────────────      ─────────
+git fetch origin     ←→   git pull origin master
+git log master..origin/master
+git merge origin/master
+```
+
+Neither option is universally better. It comes down to how much you want to see before integrating.
+
+## The danger of --force
+
+When a push is rejected because the remote has changes you don't have, the temptation is to use `--force`:
+
+```bash
+# ⚠️ Dangerous on shared branches
+git push --force origin master
+```
+
+`--force` overwrites the remote's history with yours, ignoring any commits that are there. If you're working alone on a feature branch that only you touch, it can be valid. On a shared branch, it's like deleting your teammates' work without asking.
+
+### --force-with-lease: the sensible alternative
+
+```bash
+git push --force-with-lease origin master
+```
+
+`--force-with-lease` does the same operation as `--force`, but with a prior check: it fails if the remote has commits you don't have in your local copy. In other words, it protects you from overwriting someone else's work that you haven't seen.
+
+The practical difference:
+
+```
+--force            # "Overwrite no matter what"
+--force-with-lease # "Overwrite only if the remote hasn't changed since my last fetch"
+```
+
+When do you use force (with lease)? The most common case is after a `git rebase`: by rewriting history, your commits get new hashes and Git sees them as diverging from the remote, even though the content is essentially the same. If the branch is yours alone, `--force-with-lease` is safe.
+
+On shared branches like `master` or `main`: never, except in very specific situations with explicit team coordination.
+
+## Practical case: the full workflow
+
+A typical flow in a project where more than one person is working on the same branch:
+
+```bash
+# 1. Bring in the latest changes before starting
+git fetch origin
+git log master..origin/master --oneline  # what's new?
+
+# 2. Integrate if there are changes
+git merge origin/master
+
+# 3. Do your work and commit locally
+git add .
+git commit -m "feat: add search functionality"
+
+# 4. Before pushing, check if someone else pushed while you worked
+git fetch origin
+git log master..origin/master --oneline
+
+# 5. If there are new changes, integrate them first
+git merge origin/master  # or git rebase origin/master, depending on the project
+
+# 6. Now push
+git push origin master
+```
+
+This looks like a lot of steps, but with practice it becomes automatic. And it prevents 90% of remote conflicts.
+
+---
+
+With this you have the full cycle: you know how to send changes to the remote, how to receive them with control, and why `--force-with-lease` exists (and bare `--force` should give you pause).
+
+In the next tutorial, lesson 18, we'll look at how to undo commits: from minor fixes with `--amend` to reverting already-pushed changes without breaking shared history.
+
+**💡 Challenge**: In one of your repositories, run `git fetch origin` and then `git log HEAD..origin/master --oneline`. Are there commits on the remote that you don't have locally? If not, create a commit directly on GitHub and repeat the exercise. Then integrate with `git merge`.
+
+Never stop coding!
