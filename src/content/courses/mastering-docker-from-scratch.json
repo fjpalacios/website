@@ -1,0 +1,7 @@
+{
+  "name": "Mastering Docker from Scratch",
+  "course_slug": "mastering-docker-from-scratch",
+  "language": "en",
+  "description": "Learn Docker from zero to professional level: containers, images, multi-stage builds, Docker Compose, networking, security, and production deployments. With a focus on best practices and security from day one.",
+  "i18n": "domina-docker-desde-cero"
+}
