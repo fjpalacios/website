@@ -1,0 +1,281 @@
+---
+title: "Strings and string methods in Python"
+post_slug: "strings-and-string-methods-python"
+date: "2026-03-23"
+excerpt: "Strings are the data you'll work with most in Python. In this tutorial you'll learn how to create them, manipulate them, and get the most out of Python's string methods."
+language: "en"
+categories: ["programming"]
+course: "learn-to-code-from-scratch-python"
+order: 5
+cover: "/images/tutorials/cabecera-python-curso.jpg"
+i18n: "cadenas-metodos-strings-python"
+---
+
+Every real program works with text. A username, an error message, a URL, an email address... almost any data you see on a screen is a string at some point. If the operators from the previous tutorial taught you to do calculations, **strings** teach you to work with human language.
+
+And Python is especially good at this.
+
+## What is a string?
+
+A **string** is simply a sequence of characters. To create one, you wrap the text in quotes: single, double, or triple.
+
+```python
+name = "Alice"
+greeting = 'Hello, World!'
+paragraph = """This is
+a multiline
+string."""
+```
+
+Single and double quotes are equivalent. When to use which? Convention: use doubles by default. Use singles when the text itself contains double quotes:
+
+```python
+message = "It's a beautiful day"         # ✅ double quotes, apostrophe is fine
+quote = 'He said "hello" to everyone'    # ✅ single quotes, doubles inside are fine
+```
+
+**Triple quotes** (`"""` or `'''`) are for multiline strings. Very useful for docstrings and long text blocks.
+
+## Concatenation: joining strings
+
+The `+` operator joins strings:
+
+```python
+first_name = "Alice"
+last_name = "Johnson"
+
+full_name = first_name + " " + last_name
+print(full_name)   # Alice Johnson
+```
+
+The `*` operator repeats a string:
+
+```python
+line = "-" * 30
+print(line)   # ------------------------------
+```
+
+Looks like a party trick, but it's genuinely useful for formatting output.
+
+## f-strings: the modern way to format
+
+Here's the tool you'll use in 90% of cases when you need to insert variables into a string. **f-strings** (formatted strings) let you embed Python expressions directly inside text:
+
+```python
+name = "Alice"
+age = 25
+
+print(f"{name} is {age} years old")      # Alice is 25 years old
+print(f"Next year she'll be {age + 1}")  # Next year she'll be 26
+```
+
+The syntax is simple: put an `f` right before the opening quote, then put any Python expression between curly braces `{}`. That's it.
+
+Before f-strings (Python < 3.6) people used `.format()` or the `%` operator. If you see that in old projects, it's the same idea:
+
+```python
+# Old style — don't use in new code
+print("{} is {} years old".format(name, age))   # ❌ more verbose
+print("%s is %d years old" % (name, age))        # ❌ more cryptic
+```
+
+Use f-strings. Always. They're more readable, faster, and they're what modern Python uses.
+
+### Formatting with f-strings
+
+f-strings also control how a value is displayed:
+
+```python
+price = 3.14159
+pi = 3.14159265358979
+
+print(f"Price: {price:.2f}")   # Price: 3.14 — 2 decimal places
+print(f"Pi: {pi:.4f}")         # Pi: 3.1416 — 4 decimal places
+
+items = 42
+print(f"Items: {items:05d}")   # Items: 00042 — zero-padded
+```
+
+You don't need to memorize all the format specs right now. What you should know: f-strings can do a lot, and the Python docs explain them in detail when you need them.
+
+## Indexing and slicing
+
+A string is a sequence of characters, and you can access each one by its position (index). In Python, indices start at **0**:
+
+```python
+word = "Python"
+#        0 1 2 3 4 5
+
+print(word[0])   # P — first character
+print(word[1])   # y
+print(word[5])   # n — last character
+```
+
+**Negative** indices count from the end:
+
+```python
+print(word[-1])   # n — last character
+print(word[-2])   # o — second to last
+```
+
+**Slicing** lets you extract a portion of the string with the `[start:end]` syntax. The start index is inclusive, the end index is exclusive:
+
+```python
+text = "Hello, World!"
+
+print(text[0:5])    # Hello — positions 0, 1, 2, 3, 4
+print(text[7:12])   # World
+print(text[:5])     # Hello — from the beginning up to 5
+print(text[7:])     # World! — from 7 to the end
+print(text[-6:])    # orld! — last 6 characters
+```
+
+And with a third parameter, the **step**:
+
+```python
+print(text[::2])     # Hlo ol! — every 2 characters
+print(text[::-1])    # !dlroW ,olleH — string reversed
+```
+
+`text[::-1]` to reverse a string is one of those Python tricks that looks like magic the first time you see it, and then you can't live without it.
+
+## The most useful methods
+
+Strings have dozens of methods. Here are the ones you'll use in 80% of situations:
+
+### Case conversion
+
+```python
+message = "  Hello, Python!  "
+
+print(message.upper())       # "  HELLO, PYTHON!  "
+print(message.lower())       # "  hello, python!  "
+print(message.capitalize())  # "  hello, python!  " — first letter uppercase
+print(message.title())       # "  Hello, Python!  " — each word capitalized
+```
+
+### Stripping whitespace
+
+```python
+message = "  Hello, Python!  "
+
+print(message.strip())    # "Hello, Python!"   — both sides
+print(message.lstrip())   # "Hello, Python!  " — left side only
+print(message.rstrip())   # "  Hello, Python!" — right side only
+```
+
+`.strip()` is essential when you receive input from users or read data from files: people always accidentally add extra spaces.
+
+### Finding and replacing
+
+```python
+text = "Hello, World! Hello, Python!"
+
+print(text.find("Hello"))           # 0 — index of first occurrence
+print(text.find("Python"))          # 20
+print(text.find("Java"))            # -1 — not found returns -1
+
+print(text.count("Hello"))          # 2 — how many times it appears
+print(text.replace("Hello", "Hi"))  # "Hi, World! Hi, Python!"
+```
+
+### Splitting and joining
+
+```python
+csv_line = "Alice,30,Madrid,Developer"
+parts = csv_line.split(",")
+print(parts)   # ['Alice', '30', 'Madrid', 'Developer']
+
+words = ["one", "two", "three"]
+print(", ".join(words))    # "one, two, three"
+print(" - ".join(words))   # "one - two - three"
+```
+
+`.split()` and `.join()` are the perfect pair: `.split()` chops a string into a list, `.join()` does the reverse. You'll see them together constantly when processing text.
+
+### Checking content
+
+```python
+email = "user@example.com"
+code = "12345"
+name = "Alice"
+
+print(email.startswith("user"))     # True
+print(email.endswith(".com"))       # True
+print(code.isdigit())               # True — only digits
+print(name.isalpha())               # True — only letters
+print("  ".isspace())               # True — only whitespace
+print("Hello, World!".islower())    # False
+```
+
+## Strings are immutable
+
+There's something important to understand: in Python, strings are **immutable**. That means you can't change a character in an existing string. If you try, Python will throw an error:
+
+```python
+word = "Python"
+word[0] = "J"   # ❌ TypeError: 'str' object does not support item assignment
+```
+
+What you can do is create a new string from the old one:
+
+```python
+word = "Python"
+new_word = "J" + word[1:]   # ✅ Creates a new string
+print(new_word)   # Jython
+```
+
+This might look like a limitation, but it has its advantages: strings are safe to share across different parts of your code without worrying that someone will accidentally modify them.
+
+## Practical cases
+
+Let's look at some real-world scenarios where all of this comes together:
+
+### Formatting a personalized greeting
+
+```python
+first_name = "  alice  "
+last_name = "JOHNSON"
+
+# Clean and normalize the input
+clean_first = first_name.strip().capitalize()
+clean_last = last_name.lower().capitalize()
+
+print(f"Welcome, {clean_first} {clean_last}!")   # Welcome, Alice Johnson!
+```
+
+### Basic email validation
+
+```python
+email = "user@example.com"
+
+has_at = "@" in email
+has_dot = "." in email
+not_starts_with_at = not email.startswith("@")
+
+is_valid = has_at and has_dot and not_starts_with_at
+print(f"Is valid: {is_valid}")   # Is valid: True
+```
+
+### Processing a comma-separated list
+
+```python
+user_input = "  Python,  JavaScript,  Go  "
+
+# Split and clean each item
+languages = [lang.strip() for lang in user_input.split(",")]
+print(languages)   # ['Python', 'JavaScript', 'Go']
+
+# Rejoin with a different separator
+print(" | ".join(languages))   # Python | JavaScript | Go
+```
+
+The `[lang.strip() for lang in ...]` is a **list comprehension**, something you'll cover in detail later in the course. For now, just note that Python allows this kind of operation in a very compact form.
+
+---
+
+Strings are one of those topics with a lot of depth, but with what you've learned here you can already work with text in a professional way: create strings, format them with f-strings, extract parts with slicing, and transform them with the most common methods.
+
+In the next tutorial we reach a key milestone: errors. You'll learn to read error messages like a pro, understand what Python is telling you when something goes wrong, and the most common mistakes beginners make — and how to avoid them.
+
+Never stop coding!
