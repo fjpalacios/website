@@ -62,7 +62,7 @@
   "dependencies": {
     "@astrojs/mdx": "^5.0.2",
     "@astrojs/rss": "4.0.17",
-    "@astrojs/sitemap": "3.7.0",
+    "@astrojs/sitemap": "3.7.1",
     "astro": "5.18.1",
     "fast-xml-parser": "5.5.8",
     "marked": "^17.0.5",
