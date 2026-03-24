@@ -1,0 +1,194 @@
+---
+title: "Sobrevivir en Vim: lo absolutamente básico"
+post_slug: "sobrevivir-en-vim-lo-basico"
+date: "2026-03-24"
+excerpt: "Ya tienes Neovim y LazyVim instalados. ¿Y ahora qué? Aprende los comandos esenciales para abrir archivos, editar texto, guardar tu trabajo y, sí, salir de Vim sin buscarlo en Google."
+language: "es"
+categories: ["vim"]
+course: "domina-vim-desde-cero"
+order: 3
+cover: "/images/tutorials/cabecera-vim-curso.jpg"
+i18n: "surviving-vim-the-basics"
+---
+
+Abres Neovim. Escribes algo. No aparece nada. Pulsas `Backspace`. Nada. Pruebas `Ctrl+C`. Nada. Intentas hacer clic. El ratón aquí es irrelevante. Pulsas `Esc` diecisiete veces y al final consigues salir cerrando la terminal.
+
+¿Te suena?
+
+No es que seas torpe. Así funciona Vim. Y cuando entiendas el modelo que hay detrás, esos momentos de "¿qué narices está pasando?" se convierten en otra cosa completamente diferente: precisión. En este tutorial vamos a ver el mínimo indispensable para sobrevivir en Vim sin querer lanzar el ordenador por la ventana.
+
+## Los cuatro modos (y por qué existen)
+
+Todos los editores de texto que has usado hasta ahora operan en un único modo: escribes y aparece texto. Vim es diferente. Separa el **acto de escribir** del **acto de navegar y editar**. Este es el modelo de edición modal, y es la idea central de todo el curso.
+
+Vim tiene cuatro modos principales:
+
+| Modo        | Cómo entrar            | Qué haces aquí                                |
+| ----------- | ---------------------- | --------------------------------------------- |
+| **Normal**  | `Esc` o `Ctrl+[`       | Navegar, copiar, pegar, borrar                |
+| **Insert**  | `i`, `a`, `o`, y otros | Escribir texto como en un editor normal       |
+| **Visual**  | `v`, `V`, `Ctrl+v`     | Seleccionar texto                             |
+| **Command** | `:`                    | Ejecutar comandos (guardar, salir, buscar...) |
+
+Cuando abres Neovim, estás en **modo Normal**. Es intencional. Vim asume que pasas la mayor parte del tiempo navegando y editando código, no escribiendo texto nuevo desde cero. El modo Normal es tu base de operaciones.
+
+Piénsalo como un cirujano: no camina por el quirófano con el bisturí en la mano todo el tiempo. La herramienta solo aparece cuando hace falta. El modo Normal es "manos vacías, observando". El modo Insert es "bisturí fuera, cortando".
+
+### Cambiar entre modos
+
+La tecla más importante en Vim es `Esc`. Te lleva de vuelta al modo Normal desde cualquier lugar. Si alguna vez te pierdes, pulsa `Esc` (una vez, o dos para asegurarte) y estás en casa.
+
+```
+Normal ──(i / a / o)──→ Insert
+Normal ──(:)──────────→ Command
+Normal ──(v / V)──────→ Visual
+
+Insert ──(Esc)────────→ Normal
+Command ──(Esc / Enter)→ Normal
+Visual ──(Esc)────────→ Normal
+```
+
+Memoriza esto: **`Esc` siempre te devuelve al modo Normal.**
+
+## Salir de Vim (el meme eterno)
+
+Primero lo primero: resolvamos el problema más famoso del desarrollo de software.
+
+En modo Normal, escribe `:` para entrar al modo Command. Verás que aparece un `:` en la parte inferior de la pantalla. Ahora escribe:
+
+- `:q` — salir (solo funciona si no hay cambios sin guardar)
+- `:q!` — salir **sin guardar** (el `!` lo fuerza)
+- `:w` — guardar (write) el archivo
+- `:wq` — guardar y salir
+- `:x` — guardar y salir (solo escribe si hay cambios reales)
+- `ZZ` — guardar y salir (atajo, sin `:`)
+
+Para el escenario de "solo quiero salir de aquí": **`:q!`**. Esa es tu vía de escape. Siempre.
+
+```vim
+:q!
+```
+
+```
+(Neovim se cierra. Eres libre.)
+```
+
+⚠️ `:q!` descarta todos los cambios sin guardar. Si llevas una hora editando un archivo y escribes `:q!`, se pierde todo. Usa `:w` primero si quieres conservar tu trabajo.
+
+## Navegación básica: hjkl
+
+En modo Normal, navegas con el teclado — sin ratón, sin flechas (bueno, las flechas también funcionan, pero los usuarios de Vim lo desaprueban). Las teclas de navegación en la fila central son:
+
+| Tecla | Dirección |
+| ----- | --------- |
+| `h`   | Izquierda |
+| `j`   | Abajo     |
+| `l`   | Derecha   |
+| `k`   | Arriba    |
+
+¿Por qué `hjkl`? Porque están en la fila central de un teclado QWERTY, justo bajo la mano derecha. Nunca tienes que mover la mano hasta el grupo de teclas de flechas. Suena una tontería hasta que llevas unas semanas así y las manos nunca abandonan el teclado.
+
+Si no recuerdas cuál es cuál: `j` parece una flecha apuntando hacia abajo. `h` está a la izquierda (está a la izquierda de `j`). A partir de ahí, `k` tiene que ser arriba y `l` derecha.
+
+```
+     k
+   h   l
+     j
+```
+
+**No te fuerces a usar solo `hjkl` desde el primer día.** Si necesitas las flechas por ahora, úsalas. Con la práctica irás cambiando de forma natural.
+
+### Más comandos de navegación
+
+Cuando `hjkl` esté en tu memoria muscular, querrás formas más rápidas de moverte:
+
+- `0` — ir al inicio de la línea
+- `$` — ir al final de la línea
+- `gg` — ir a la primera línea del archivo
+- `G` — ir a la última línea del archivo
+- `Ctrl+d` — bajar media página
+- `Ctrl+u` — subir media página
+
+Para saltar a un número de línea concreto, escribe `:<número>` y pulsa Enter. Para ir a la línea 42:
+
+```vim
+:42
+```
+
+## Entrar al modo Insert
+
+Ahora que puedes navegar, vamos a escribir algo de texto. Hay varias formas de entrar al modo Insert, cada una coloca el cursor en un sitio diferente:
+
+- `i` — insertar **antes** del cursor
+- `a` — insertar **después** del cursor
+- `I` — insertar al **inicio de la línea**
+- `A` — insertar al **final de la línea**
+- `o` — abrir una nueva línea **debajo** y entrar al modo Insert
+- `O` — abrir una nueva línea **encima** y entrar al modo Insert
+
+Por ahora, con `i` (antes) y `o` (nueva línea abajo) tienes el 80% de la edición diaria cubierta.
+
+Una vez en modo Insert, verás `-- INSERT --` en la parte inferior de la pantalla. Ahora puedes escribir con normalidad. Pulsa `Esc` cuando hayas terminado para volver al modo Normal.
+
+El flujo de trabajo es este:
+
+1. Navega hasta donde quieres editar (modo Normal)
+2. Pulsa `i` o `o` para entrar al modo Insert
+3. Escribe el texto
+4. Pulsa `Esc` para volver al modo Normal
+5. Navega hasta lo siguiente que quieres cambiar
+6. Repite
+
+Al principio parece lento. No lo es. Una vez que está en tus manos, es dramáticamente más rápido que tener los dedos en el ratón — pero eso llega con la práctica.
+
+## Edición básica
+
+Todavía en modo Normal, puedes borrar y manipular texto sin entrar al modo Insert:
+
+- `x` — borrar el carácter bajo el cursor
+- `dd` — borrar la línea actual completa
+- `u` — deshacer el último cambio
+- `Ctrl+r` — rehacer (deshacer el deshacer)
+
+Estos funcionan al instante, sin necesidad del modo Insert. Navega hasta un carácter, pulsa `x`, desaparece.
+
+### Tu primera edición real
+
+Pongámoslo todo junto. Abre Neovim con un archivo nuevo:
+
+```bash
+nvim practica.txt
+```
+
+Ahora sigue estos pasos:
+
+1. Estás en modo Normal. Pulsa `i` para entrar al modo Insert.
+2. Escribe: `¡Hola, Vim!`
+3. Pulsa `Esc` para volver al modo Normal.
+4. Pulsa `o` para abrir una nueva línea debajo.
+5. Escribe: `Esta es mi primera edición.`
+6. Pulsa `Esc`.
+7. Escribe `:w` y pulsa Enter para guardar.
+8. Navega hacia arriba con `k`, luego borra la línea con `dd`.
+9. Pulsa `u` para deshacer el borrado.
+10. Escribe `:wq` para guardar y salir.
+
+Enhorabuena: acabas de sobrevivir en Vim.
+
+## Conceptos clave de esta lección
+
+- Vim tiene **cuatro modos**: Normal, Insert, Visual, Command. Empiezas en Normal.
+- `Esc` siempre te devuelve al modo Normal.
+- **`:q!`** sale sin guardar. **`:wq`** guarda y sale.
+- **`hjkl`** para navegar: h←, j↓, k↑, l→
+- **`i`** inserta antes del cursor, **`o`** abre una nueva línea abajo.
+- **`dd`** borra una línea, **`u`** deshace, **`Ctrl+r`** rehace.
+- El modo Normal es el hogar. Vives ahí. Visitas el modo Insert brevemente.
+
+---
+
+Ya puedes abrir Neovim, hacer ediciones, guardar tu trabajo y salir sin entrar en pánico. Eso es un avance real — la mayoría de la gente abandona Vim antes de llegar aquí.
+
+Pero solo hemos arañado la superficie de lo que puede hacer el modo Normal. En el próximo tutorial exploraremos **el verdadero poder del modo Normal**: movimientos por palabras, la gramática de Vim (operador + movimiento) y cómo combinar un puñado de comandos da combinaciones de edición casi infinitas.
+
+¡Nunca dejes de programar!

@@ -1,0 +1,194 @@
+---
+title: "Surviving Vim: The Absolute Basics"
+post_slug: "surviving-vim-the-basics"
+date: "2026-03-24"
+excerpt: "You've installed Neovim and LazyVim. Now what? Learn the essential commands to open files, edit text, save your work, and — yes — quit Vim without Googling it."
+language: "en"
+categories: ["vim"]
+course: "mastering-vim-from-scratch"
+order: 3
+cover: "/images/tutorials/cabecera-vim-curso.jpg"
+i18n: "sobrevivir-en-vim-lo-basico"
+---
+
+You open Neovim. You type something. Nothing appears. You press `Backspace`. Nothing. You try `Ctrl+C`. Nothing. You try clicking. Your mouse is irrelevant here. You press `Esc` seventeen times and finally manage to exit by closing the terminal.
+
+Sound familiar?
+
+You're not stupid. This is just how Vim works. And once you understand the model behind it, these "WTF moments" transform into something else entirely: precision. In this tutorial we're going to cover the absolute minimum you need to survive Vim without wanting to throw your computer out the window.
+
+## The four modes (and why they exist)
+
+Every text editor you've ever used operates in a single mode: you type, and text appears. Vim is different. It separates the **act of typing** from the **act of navigating and editing**. This is the modal editing model, and it's the core idea of the whole course.
+
+Vim has four main modes:
+
+| Mode        | How to enter              | What you do here                     |
+| ----------- | ------------------------- | ------------------------------------ |
+| **Normal**  | `Esc` or `Ctrl+[`         | Navigate, copy, paste, delete        |
+| **Insert**  | `i`, `a`, `o`, and others | Type text like a normal editor       |
+| **Visual**  | `v`, `V`, `Ctrl+v`        | Select text                          |
+| **Command** | `:`                       | Run commands (save, quit, search...) |
+
+When you open Neovim, you're in **Normal mode**. This is intentional. Vim assumes you spend most of your time navigating and editing code — not typing new text from scratch. Normal mode is home base.
+
+Think of it like a surgeon: they don't walk around the operating room with a scalpel in their hand at all times. The tool comes out only when it's needed. Normal mode is "hands empty, observing." Insert mode is "scalpel out, cutting."
+
+### Switching between modes
+
+The most important key in Vim is `Esc`. It takes you back to Normal mode from anywhere. If you're ever lost, press `Esc` (once, or twice for good measure) and you're home.
+
+```
+Normal ──(i / a / o)──→ Insert
+Normal ──(:)──────────→ Command
+Normal ──(v / V)──────→ Visual
+
+Insert ──(Esc)────────→ Normal
+Command ──(Esc / Enter)→ Normal
+Visual ──(Esc)────────→ Normal
+```
+
+Memorize this: **`Esc` always brings you back to Normal mode.**
+
+## Quitting Vim (the eternal meme)
+
+Let's solve the most famous problem in software development first.
+
+In Normal mode, type `:` to enter Command mode. You'll see a `:` appear at the bottom of the screen. Now type:
+
+- `:q` — quit (only works if there are no unsaved changes)
+- `:q!` — quit **without saving** (the `!` forces it)
+- `:w` — save (write) the file
+- `:wq` — save and quit
+- `:x` — save and quit (only writes if there are actually changes)
+- `ZZ` — save and quit (shortcut, no colon needed)
+
+For the "I just want out of here" scenario: **`:q!`**. That's your escape hatch. Always.
+
+```vim
+:q!
+```
+
+```
+(Neovim closes. You're free.)
+```
+
+⚠️ `:q!` discards all unsaved changes. If you've been editing a file for an hour and you type `:q!`, it's gone. Use `:w` first if you want to keep your work.
+
+## Basic navigation: hjkl
+
+In Normal mode, you navigate with the keyboard — no mouse, no arrow keys (well, arrow keys work too, but Vim users frown upon it). The home row navigation keys are:
+
+| Key | Direction |
+| --- | --------- |
+| `h` | Left      |
+| `j` | Down      |
+| `l` | Right     |
+| `k` | Up        |
+
+Why `hjkl`? Because they're on the home row of a QWERTY keyboard, right under your right hand. You never have to move your hand to a separate arrow key cluster. It sounds silly until you've been doing it for a few weeks and your hands never leave the keyboard.
+
+If you can't remember which is which: `j` looks like an arrow pointing down. `h` is left (it's to the left of `j`). From there, `k` must be up and `l` must be right.
+
+```
+     k
+   h   l
+     j
+```
+
+**Don't force yourself to use only `hjkl` from day one.** If you need to use arrow keys for now, go ahead. You'll naturally switch as you practice.
+
+### More navigation commands
+
+Once `hjkl` is in your muscle memory, you'll want faster ways to move:
+
+- `0` — go to the start of the line
+- `$` — go to the end of the line
+- `gg` — go to the first line of the file
+- `G` — go to the last line of the file
+- `Ctrl+d` — scroll half a page down
+- `Ctrl+u` — scroll half a page up
+
+And to jump to a specific line number, type `:<number>` and press Enter. To go to line 42:
+
+```vim
+:42
+```
+
+## Entering Insert mode
+
+Now that you can navigate, let's type some text. There are several ways to enter Insert mode — each one places the cursor differently:
+
+- `i` — insert **before** the cursor
+- `a` — insert **after** the cursor
+- `I` — insert at the **start of the line**
+- `A` — insert at the **end of the line**
+- `o` — open a new line **below** and enter Insert mode
+- `O` — open a new line **above** and enter Insert mode
+
+For now, just remember `i` (before) and `o` (new line below). Those two get you through 80% of daily editing.
+
+Once in Insert mode, you'll see `-- INSERT --` at the bottom of the screen. Now you can type normally. Press `Esc` when you're done to return to Normal mode.
+
+The workflow looks like this:
+
+1. Navigate to where you want to edit (Normal mode)
+2. Press `i` or `o` to enter Insert mode
+3. Type your text
+4. Press `Esc` to return to Normal mode
+5. Navigate to the next thing you want to change
+6. Repeat
+
+This feels slow at first. It's not. Once it's in your hands, it's dramatically faster than keeping your fingers on a mouse — but that comes with practice.
+
+## Basic editing
+
+Still in Normal mode, you can delete and manipulate text without entering Insert mode at all:
+
+- `x` — delete the character under the cursor
+- `dd` — delete the entire current line
+- `u` — undo the last change
+- `Ctrl+r` — redo (undo the undo)
+
+These work instantly, no Insert mode needed. Navigate to a character, press `x`, it's gone.
+
+### Your first real edit
+
+Let's put it all together. Open Neovim with a new file:
+
+```bash
+nvim practice.txt
+```
+
+Now follow these steps:
+
+1. You're in Normal mode. Press `i` to enter Insert mode.
+2. Type: `Hello, Vim!`
+3. Press `Esc` to go back to Normal mode.
+4. Press `o` to open a new line below.
+5. Type: `This is my first edit.`
+6. Press `Esc`.
+7. Type `:w` and press Enter to save.
+8. Now navigate up with `k`, then delete the line with `dd`.
+9. Press `u` to undo the deletion.
+10. Type `:wq` to save and quit.
+
+Congratulations — you just survived Vim.
+
+## Key concepts from this lesson
+
+- Vim has **four modes**: Normal, Insert, Visual, Command. You start in Normal.
+- `Esc` always returns you to Normal mode.
+- **`:q!`** quits without saving. **`:wq`** saves and quits.
+- **`hjkl`** for navigation: h←, j↓, k↑, l→
+- **`i`** inserts before cursor, **`o`** opens a new line below.
+- **`dd`** deletes a line, **`u`** undoes, **`Ctrl+r`** redoes.
+- Normal mode is home. You live there. You visit Insert mode briefly.
+
+---
+
+You can now open Neovim, make edits, save your work, and quit without panicking. That's real progress — most people quit Vim before reaching this point.
+
+But we've only scratched the surface of what Normal mode can do. In the next tutorial, we'll explore **Normal mode's real power**: word movements, the Vim grammar (operator + motion), and how combining just a handful of commands gives you near-infinite editing combinations.
+
+Never stop coding!
