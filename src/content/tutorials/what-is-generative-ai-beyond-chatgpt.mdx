@@ -1,0 +1,111 @@
+---
+title: "What Is Generative AI? Beyond ChatGPT"
+post_slug: "what-is-generative-ai-beyond-chatgpt"
+date: "2026-03-27"
+excerpt: "Understand what generative AI is, the difference between assistants and agents, and why developers who use AI are replacing those who don't."
+language: "en"
+categories: ["ai"]
+course: "ai-for-developers"
+order: 1
+cover: "/images/tutorials/cabecera-ia-para-programadores-curso.jpg"
+i18n: "que-es-la-ia-generativa-mas-alla-de-chatgpt"
+---
+
+You've probably heard of ChatGPT. Maybe you've used it to write an email or explain something. Maybe you use it daily. But there's something almost everyone gets wrong at the start: confusing knowing that AI exists with knowing how to use it as a development tool.
+
+Those aren't the same thing. And that difference, in 2026, is worth a salary gap.
+
+This first tutorial lays the conceptual foundation you need before touching any tool. Without understanding the ecosystem, you end up misusing what you have. And misusing a powerful tool is, at best, a waste of time.
+
+## What is generative AI?
+
+**Generative AI** is a type of artificial intelligence that, instead of classifying or predicting, _generates_ new content: text, code, images, audio. The name is self-explanatory: it generates things that didn't exist before.
+
+What sets it apart from "traditional" AI is that production capability. A classification model tells you "this is a cat." A generative model writes you a story about that cat, or generates the code to detect it.
+
+For programming purposes, we mainly care about text and code generation. The models that do that are called **LLMs** — Large Language Models.
+
+ChatGPT is a product built on top of one of those models. Claude (which you're probably using right now if you have opencode) is another. Gemini is Google's. They all do essentially the same thing: predict text.
+
+Yes, predict text. We'll go deeper on that in the next tutorial. For now, hold onto this: they're very, very sophisticated text-generating machines.
+
+## ChatGPT vs Claude vs Gemini — who's who?
+
+If you're like me when I started, you've heard these names in podcasts, Twitter threads, or work meetings where someone dropped them as if they were interchangeable. They're not. They have real differences that affect when to use them.
+
+| Model                      | Company   | Strengths                                           |
+| -------------------------- | --------- | --------------------------------------------------- |
+| **ChatGPT** (GPT-4, GPT-5) | OpenAI    | General purpose, good plugin ecosystem, multimodal  |
+| **Claude** (Sonnet, Opus)  | Anthropic | Long context, code, reasoning, fewer hallucinations |
+| **Gemini**                 | Google    | Google Workspace integration, multimodal            |
+
+Which is best? It depends on the task. For code and large codebase analysis, Claude is currently the strongest. For general-purpose chat use, any of them works. For integration with Google Drive and Docs (because that's how things work at your company), Gemini.
+
+The good news: you don't have to pick one forever. opencode, the tool we'll use in this course, lets you switch models at any time.
+
+## AI assistants vs AI agents
+
+This distinction is crucial and most people mix them up, so let's clear it up before moving on.
+
+An **AI assistant** (like basic ChatGPT) answers questions. You ask, it answers, done. Linear conversation. You do all the work of reading the response, copying the code, pasting it into your editor, seeing if it works, going back to ask again...
+
+An **AI agent** can _act_. It doesn't just respond — it can read files, write code, run commands, search the web, make decisions about what to do next. It has a goal and goes after it.
+
+```
+AI assistant:
+You → "Write me a function to calculate factorial"
+AI  → "Here you go: def factorial(n): ..."
+You → [copy, paste, test, come back if it breaks]
+
+AI agent:
+You → "Add tests for the factorial function in math_utils.py"
+AI  → [reads the file, finds the function, writes the tests,
+        runs them, verifies they pass, reports back]
+```
+
+opencode is an agent. That difference completely changes how you work with it.
+
+## Why should developers care?
+
+There's a quote that's everywhere in 2026 and, despite being overused, is technically accurate:
+
+> AI won't replace developers. It will replace developers who don't use AI.
+
+What does that mean in practice? AI is a productivity multiplier. It doesn't think for you, but it executes what you think _much_ faster. Boilerplate code, tests, documentation, repetitive refactors — all of that can be delegated.
+
+What can't be delegated: understanding the problem. Knowing whether the solution is correct. Designing the architecture. Verifying that the code works in your specific context. That's still yours.
+
+The new critical skill isn't writing code faster by hand — it's **directing AI with precision**. Knowing what to ask, when to ask, and when to ignore what it says.
+
+## What developers actually use AI for today
+
+This is what happens in real teams:
+
+**High-value cases:**
+
+- Generating repetitive code (scaffolding, boilerplate, basic CRUD)
+- Explaining unfamiliar code when onboarding to a new project
+- Debugging: "this fails with this error, here's the stack trace"
+- Writing tests (AI is particularly good at this)
+- Documenting functions and modules
+- Discussing architecture trade-offs
+
+**Cases where you need to be careful:**
+
+- Security-critical code (always review in detail)
+- Complex algorithms (verify correctness independently)
+- Domain-specific business logic (AI doesn't know your company)
+
+The pattern is clear: AI accelerates what you already know how to do. It doesn't replace judgment.
+
+## What do you need to get started?
+
+Nothing yet. This module is conceptual — hands on keyboard come in Module 3, when we install and configure opencode.
+
+For now, the only prerequisite is understanding that what you're learning isn't how to use a specific tool. You're learning to think with AI. The tools will change in six months. The judgment won't.
+
+---
+
+Now that you have the ecosystem map, in the next tutorial we go deeper: we'll look at **how LLMs actually work** — no math, just analogies that explain why AI sometimes states nonsense with total confidence, and how to use that knowledge to work with it more effectively.
+
+Never stop coding!

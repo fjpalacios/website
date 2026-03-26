@@ -1,0 +1,111 @@
+---
+title: "¿Qué es la IA generativa? Más allá de ChatGPT"
+post_slug: "que-es-la-ia-generativa-mas-alla-de-chatgpt"
+date: "2026-03-27"
+excerpt: "Entiende qué es la IA generativa, la diferencia entre asistentes e agentes, y por qué los programadores que usan IA están reemplazando a los que no."
+language: "es"
+categories: ["ia"]
+course: "ia-para-programadores"
+order: 1
+cover: "/images/tutorials/cabecera-ia-para-programadores-curso.jpg"
+i18n: "what-is-generative-ai-beyond-chatgpt"
+---
+
+Probablemente hayas oído hablar de ChatGPT. Quizás lo hayas usado para escribir un email o para que te explique algo. Quizás lo usas a diario. Pero hay algo en lo que casi todo el mundo falla al empezar: confundir saber que existe la IA con saber usarla como herramienta de desarrollo.
+
+No es lo mismo. Y esa diferencia, en 2026, vale una diferencia de sueldo.
+
+Este primer tutorial sienta las bases conceptuales que necesitas antes de tocar ninguna herramienta. Sin entender el ecosistema, acabas usando mal lo que tienes. Y usar mal una herramienta poderosa es, en el mejor caso, perder el tiempo.
+
+## ¿Qué es la IA generativa?
+
+La **IA generativa** es un tipo de inteligencia artificial que, en lugar de clasificar o predecir, _genera_ contenido nuevo: texto, código, imágenes, audio. El nombre es descriptivo: genera cosas que no existían.
+
+Lo que hace que sea distinta de la IA "tradicional" es esa capacidad de producción. Un modelo de clasificación te dice "esto es un gato". Un modelo generativo te escribe un cuento sobre ese gato, o te genera el código para detectarlo.
+
+En el contexto de programación, nos interesa principalmente la generación de texto y código. Y los modelos que hacen eso se llaman **LLMs** (_Large Language Models_ — modelos de lenguaje de gran tamaño).
+
+ChatGPT es un producto construido sobre uno de esos modelos. Claude (que probablemente estás usando ahora mismo si tienes opencode) es otro. Gemini es el de Google. Todos hacen, en esencia, lo mismo: predicen texto.
+
+Sí, predicen texto. Ya profundizaremos en eso en el siguiente tutorial. Por ahora, quédate con esto: son máquinas de generar texto muy, muy sofisticadas.
+
+## ChatGPT vs Claude vs Gemini — ¿quién es quién?
+
+Si eres como yo cuando empecé, habrás oído estos nombres en algún podcast, en un hilo de Twitter, en una reunión de trabajo donde alguien los mencionó como si fueran lo mismo. No lo son. Tienen diferencias reales que afectan a cuándo usarlos.
+
+| Modelo                    | Empresa   | Fortalezas                                                |
+| ------------------------- | --------- | --------------------------------------------------------- |
+| **ChatGPT** (GPT-4, GPT-5)| OpenAI    | Uso general, buen ecosistema de plugins, multimodal       |
+| **Claude** (Sonnet, Opus) | Anthropic | Contexto largo, código, razonamiento, menos alucinaciones |
+| **Gemini**                | Google    | Integración con Google Workspace, multimodal              |
+
+¿Cuál es mejor? Depende de la tarea. Para código y análisis de codebases grandes, Claude es actualmente el más sólido. Para uso general en una interfaz de chat, cualquiera funciona. Para integración con Google Drive y Docs (porque así funcionan las cosas en tu empresa), Gemini.
+
+La buena noticia: no tienes que elegir uno para siempre. opencode, la herramienta que vamos a usar en este curso, te permite cambiar de modelo en cualquier momento.
+
+## Asistentes de IA vs agentes de IA
+
+Esta distinción es clave y mucha gente la confunde, así que la explicamos bien antes de continuar.
+
+Un **asistente de IA** (como ChatGPT en su versión básica) responde preguntas. Le preguntas, te responde, fin. Conversación lineal. Tú haces todo el trabajo de leer la respuesta, copiar el código, pegarlo en tu editor, ver si funciona, volver a preguntar...
+
+Un **agente de IA** tiene capacidad de _actuar_. No solo responde: puede leer archivos, escribir código, ejecutar comandos, buscar en la web, tomar decisiones sobre qué hacer después. Tiene un objetivo y va a por él.
+
+```
+Asistente de IA:
+Tú → "Escríbeme una función para calcular el factorial"
+IA  → "Aquí tienes: def factorial(n): ..."
+Tú → [copia, pega, prueba, vuelve si no funciona]
+
+Agente de IA:
+Tú → "Añade tests para la función factorial del módulo math_utils.py"
+IA  → [lee el archivo, identifica la función, escribe los tests,
+        los ejecuta, verifica que pasan, te informa del resultado]
+```
+
+opencode es un agente. Esa diferencia cambia completamente cómo trabajas con él.
+
+## ¿Por qué les importa a los programadores?
+
+Hay una cita que circula por todas partes en 2026 y que, aunque está sobreutilizada, es técnicamente correcta:
+
+> La IA no va a reemplazar a los programadores. Va a reemplazar a los programadores que no usan IA.
+
+¿Qué significa eso en la práctica? Que la IA es un multiplicador de productividad. No piensa por ti, pero sí ejecuta lo que piensas _mucho_ más rápido. El código boilerplate, los tests, la documentación, los refactors repetitivos — todo eso puede delegarse.
+
+Lo que no puede delegarse: entender el problema. Saber si la solución es correcta. Diseñar la arquitectura. Verificar que el código funciona en tu contexto específico. Eso sigue siendo tuyo.
+
+La nueva habilidad crítica no es saber programar más rápido a mano — es **dirigir a la IA con precisión**. Saber qué pedirle, cuándo pedírselo, y cuándo no hacerle caso.
+
+## Para lo que los desarrolladores usan la IA hoy
+
+Esto es lo que pasa en equipos reales:
+
+**Casos de alto valor:**
+
+- Generar código repetitivo (scaffolding, boilerplate, CRUD básico)
+- Explicar código desconocido cuando te incorporas a un proyecto nuevo
+- Depurar errores: "esto falla con este error, aquí está el stack trace"
+- Escribir tests (la IA es especialmente buena en esto)
+- Documentar funciones y módulos
+- Discutir trade-offs de arquitectura
+
+**Casos donde hay que ir con cuidado:**
+
+- Código de seguridad crítico (revisar _siempre_ con detalle)
+- Algoritmos complejos (verificar correctitud de forma independiente)
+- Lógica de negocio específica de tu dominio (la IA no conoce tu empresa)
+
+El patrón es claro: la IA acelera lo que ya sabes hacer. No reemplaza el criterio.
+
+## ¿Qué necesitas para empezar?
+
+Nada todavía. Este módulo es conceptual — las manos en el teclado vienen en el módulo 3, cuando instalemos y configuremos opencode.
+
+Por ahora, el único prerrequisito es entender que lo que estás aprendiendo no es usar una herramienta específica. Estás aprendiendo a pensar con IA. Las herramientas cambiarán en seis meses. El criterio no.
+
+---
+
+Ahora que tienes el mapa general del ecosistema, en el siguiente tutorial bajamos al nivel técnico: vamos a ver **cómo funcionan realmente los LLMs**, sin matemáticas, con analogías que explican por qué a veces la IA dice tonterías con total seguridad y cómo usar ese conocimiento para trabajar mejor con ella.
+
+¡Nunca dejes de programar!
