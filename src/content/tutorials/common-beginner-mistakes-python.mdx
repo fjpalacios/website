@@ -1,0 +1,291 @@
+---
+title: "Common beginner mistakes in Python (and how to fix them)"
+post_slug: "common-beginner-mistakes-python"
+date: "2026-03-31"
+excerpt: "Python's error messages are your best ally — if you know how to read them. Learn to decode tracebacks, understand the most common beginner mistakes, and build a debugging mindset from day one."
+language: "en"
+categories: ["programming"]
+course: "learn-to-code-from-scratch-python"
+order: 5.5
+cover: "/images/tutorials/cabecera-python-curso.jpg"
+i18n: "errores-comunes-principiantes-python"
+---
+
+Your code doesn't work. Python shows you some red text, and you stare at the screen wondering what just happened. Sound familiar?
+
+If you're like me when I started, your first instinct is to close the terminal and pretend it never happened. Your second instinct is to paste the error into Google and hope someone on Stack Overflow had the exact same problem in 2014.
+
+There's a better way.
+
+## Python errors are not your enemy
+
+Here's the thing most beginners don't realize: **Python's error messages are the most helpful feedback you'll get**. They tell you exactly what went wrong, where it went wrong, and often how to fix it. The problem isn't that the messages are unhelpful — it's that we don't know how to read them yet.
+
+Let's fix that.
+
+## Anatomy of a traceback
+
+When Python encounters an error, it shows you a **traceback** — a trail of breadcrumbs leading to the problem. Here's a typical one:
+
+```
+Traceback (most recent call last):
+  File "hello.py", line 5, in <module>
+    result = add(10, "five")
+  File "hello.py", line 2, in add
+    return a + b
+TypeError: unsupported operand type(s) for +: 'int' and 'str'
+```
+
+Read it **from bottom to top**. That's the key insight. The last line is the actual error. Everything above it is the path Python took to get there.
+
+Breaking it down:
+
+- **`TypeError`** — the category of the error
+- **`unsupported operand type(s) for +: 'int' and 'str'`** — what happened in plain English
+- **`File "hello.py", line 2, in add`** — where it happened
+- **`return a + b`** — the exact line of code
+
+With this information alone, you can fix most errors without searching the internet. You know _what_ went wrong, _where_ it went wrong, and _what the code looked like_ when it did.
+
+## The most common Python errors
+
+### SyntaxError — Python can't understand you
+
+```python
+print("Hello World"   # ❌ Missing closing parenthesis
+```
+
+```
+  File "hello.py", line 1
+    print("Hello World"
+                       ^
+SyntaxError: '(' was never closed
+```
+
+Python found a problem so fundamental it couldn't even run your code. Common causes:
+
+```python
+# ❌ Missing colon after if/for/while/def
+if x > 5
+    print(x)
+
+# ✅ Correct
+if x > 5:
+    print(x)
+```
+
+```python
+# ❌ Mismatched quotes
+message = "Hello, World!'
+
+# ✅ Correct
+message = "Hello, World!"
+```
+
+The `^` character in the error points to where Python got confused. It's not always exactly where _you_ made the mistake — Python sometimes notices a problem later than where it occurred — but it's a good starting point.
+
+### IndentationError — Python takes whitespace seriously
+
+This one catches everyone. Python uses **indentation to define code blocks**, not curly braces like many other languages. Four spaces (or one tab, consistently) per level:
+
+```python
+# ❌ Missing indentation inside if
+if age >= 18:
+print("You can vote")   # IndentationError: expected an indented block
+
+# ✅ Correct
+if age >= 18:
+    print("You can vote")
+```
+
+```python
+# ❌ Inconsistent indentation (mixing spaces and tabs)
+def greet(name):
+    print("Hello")   # 4 spaces
+	print(name)      # 1 tab — TabError!
+
+# ✅ Consistent: always 4 spaces
+def greet(name):
+    print("Hello")
+    print(name)
+```
+
+⚠️ Configure your editor to **always use spaces** (4 of them), never tabs. This avoids the mixing problem entirely. VS Code does this by default for Python files.
+
+### NameError — using something that doesn't exist
+
+```python
+print(message)   # ❌ NameError: name 'message' is not defined
+message = "Hello"
+```
+
+Python executes code top to bottom. If you try to use a variable before defining it, Python has no idea what you're talking about. The fix: define before use.
+
+Another common variant:
+
+```python
+user_name = "Alice"
+print(username)   # ❌ NameError: name 'username' is not defined
+```
+
+Spot the difference? `user_name` vs `username`. **Python is case-sensitive and typo-sensitive.** `name`, `Name`, and `NAME` are three completely different variables.
+
+### TypeError — mixing incompatible types
+
+```python
+age = input("Your age: ")   # input() always returns a string
+next_year = age + 1          # ❌ TypeError: can only concatenate str (not "int") to str
+```
+
+```
+TypeError: can only concatenate str (not "int") to str
+```
+
+The fix: convert the type explicitly.
+
+```python
+age = int(input("Your age: "))   # ✅ Convert to int immediately
+next_year = age + 1
+print(f"Next year you'll be {next_year}")
+```
+
+Or the other direction — trying to print a number directly in a concatenation:
+
+```python
+score = 42
+print("Your score: " + score)      # ❌ TypeError
+print("Your score: " + str(score)) # ✅ Convert int to str
+print(f"Your score: {score}")      # ✅ Better: just use an f-string
+```
+
+### ValueError — right type, wrong value
+
+```python
+number = int("hello")   # ❌ ValueError: invalid literal for int() with base 10: 'hello'
+```
+
+The type is correct (`int()` expects a string to convert), but the content isn't — `"hello"` can't be converted to an integer.
+
+Common scenario: reading user input and assuming it's a number.
+
+```python
+user_input = input("Enter a number: ")  # User types "abc"
+result = int(user_input)                 # ❌ ValueError
+```
+
+We'll handle this properly when we cover error handling later in the course. For now, just understand what the error means.
+
+### IndexError — going out of bounds
+
+```python
+numbers = [10, 20, 30]
+print(numbers[5])   # ❌ IndexError: list index out of range
+```
+
+The list has 3 elements (indices 0, 1, 2). Index 5 doesn't exist. Python tells you: you went off the edge.
+
+```python
+# ✅ Access within bounds
+print(numbers[0])   # 10
+print(numbers[-1])  # 30 — last element, always safe
+```
+
+### AttributeError — method doesn't exist on that type
+
+```python
+number = 42
+print(number.upper())   # ❌ AttributeError: 'int' object has no attribute 'upper'
+```
+
+`.upper()` is a string method. Integers don't have it. You're calling something that doesn't exist on that type of object.
+
+Usually this means either you have the wrong type, or you made a typo in the method name:
+
+```python
+text = "hello"
+print(text.uper())    # ❌ AttributeError: 'str' object has no attribute 'uper'
+print(text.upper())   # ✅
+```
+
+## Debugging strategies for beginners
+
+Knowing the errors is half the battle. The other half is systematically finding them. Here's the approach that works:
+
+### 1. Read the error message completely
+
+Don't glance at the red text and panic. Read it. What type of error? What line? What was the code doing? The answer is almost always in the traceback.
+
+### 2. Add `print()` to inspect your variables
+
+The simplest debugging tool in existence:
+
+```python
+def calculate_total(price: float, quantity: int) -> float:
+    print(f"DEBUG: price={price}, quantity={quantity}")  # Add this temporarily
+    total = price * quantity
+    print(f"DEBUG: total={total}")                        # And this
+    return total
+```
+
+Print the values right before the line that crashes. Nine times out of ten, you'll immediately see the problem: the variable has the wrong value, the wrong type, or is `None` when you expected something else.
+
+### 3. Isolate the problem
+
+If you have 50 lines of code and something's broken, you don't need to fix all 50 lines. Find the _minimum_ code that reproduces the error:
+
+```python
+# Instead of debugging your entire program, test the specific operation:
+user_input = "abc"
+result = int(user_input)   # Isolate this — does it fail here?
+```
+
+### 4. Check your assumptions
+
+Most bugs come from an assumption that turns out to be wrong. "I assumed this would be a number." "I assumed the list had at least one element." "I assumed Python counts from 1."
+
+When your code doesn't behave as expected, ask: what am I assuming here that might not be true?
+
+## Case sensitivity is not optional
+
+```python
+Name = "Alice"
+print(name)   # ❌ NameError: name 'name' is not defined
+```
+
+Python sees `Name` and `name` as completely different things. This is by design and non-negotiable. Pick a convention (`snake_case` as per PEP 8) and stick to it.
+
+Same goes for built-in functions:
+
+```python
+print(True)    # ✅
+print(true)    # ❌ NameError — Python booleans are True/False, capital T/F
+print(none)    # ❌ NameError — it's None, not none
+```
+
+## The `print()` debugging workflow
+
+Before diving into proper debuggers, get comfortable with this pattern — it works, it's fast, and every professional uses it at some point:
+
+```python
+# Original code that's misbehaving
+result = process_data(user_input)
+
+# Add print statements to understand the flow
+print(f"user_input = {user_input!r}")   # The !r shows the repr — useful for strings
+result = process_data(user_input)
+print(f"result = {result!r}")
+```
+
+The `!r` format specifier shows the `repr()` of the value, which includes quotes around strings. This makes it easy to spot trailing spaces, newlines (`\n`), or other invisible characters that are often the culprit.
+
+---
+
+Errors aren't failures — they're Python talking to you. The faster you get comfortable reading tracebacks, the faster you'll write working code. Every error message is a clue, and now you know how to read them.
+
+In the next tutorial we move into **control flow**: `if`, `else`, and `elif`. For the first time, your programs will be able to make decisions based on what the user does or what the data looks like.
+
+Never stop coding!
+
+---
+
+**💡 Challenge**: Intentionally write code with 5 different types of errors from this tutorial (SyntaxError, IndentationError, NameError, TypeError, ValueError). Run each one, read the traceback carefully, and fix it. You'll remember them much better than any list of rules.
