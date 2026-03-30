@@ -1,0 +1,233 @@
+---
+title: "Instalando Docker y lanzando tu primer contenedor"
+post_slug: "instalando-docker-primer-contenedor"
+date: "2026-04-01"
+excerpt: "Instala Docker en Linux, macOS o Windows y ejecuta tu primer contenedor. Arquitectura del sistema, comandos básicos y el ritual de iniciación que es docker run hello-world."
+language: "es"
+categories: ["docker"]
+course: "domina-docker-desde-cero"
+order: 2
+cover: "/images/tutorials/cabecera-docker-curso.jpg"
+i18n: "installing-docker-first-container"
+---
+
+Toda herramienta tiene su momento de iniciación. Con Git es `git init`. Con Node es `npm install` y esperar a que `node_modules` se trague la mitad del disco. Con Docker es un comando que lleva años siendo la primera línea de cualquier tutorial que se precie:
+
+```bash
+docker run hello-world
+```
+
+Es ridículamente simple para lo que hace por debajo. Cuando ejecutas ese comando por primera vez, Docker descarga una imagen desde internet, crea un contenedor, lo ejecuta, imprime un mensaje y lo destruye. Todo en cuestión de segundos. No has configurado nada. No has escrito ningún Dockerfile. Y sin embargo, acabas de recorrer el ciclo completo de vida de un contenedor.
+
+Pero antes de llegar ahí, hay que instalar la herramienta.
+
+## Docker Desktop vs Docker Engine: ¿cuál instalo?
+
+Esta es la primera bifurcación con la que te vas a encontrar, y conviene tenerla clara desde el principio.
+
+**Docker Engine** es el motor puro: el demonio que gestiona contenedores, sin interfaz gráfica, pensado para servidores Linux y para gente que prefiere vivir en la terminal. Es el que usarás en producción.
+
+**Docker Desktop** es una aplicación de escritorio que incluye Docker Engine, una interfaz gráfica, y una capa de compatibilidad para que Docker funcione en macOS y Windows (donde no hay kernel Linux nativo). Incluye también Docker Compose y algunas herramientas extra.
+
+La regla práctica:
+
+- **Linux**: instala Docker Engine directamente. Docker Desktop existe para Linux pero añade una capa de virtualización innecesaria.
+- **macOS**: Docker Desktop es la opción estándar y la más sencilla.
+- **Windows**: Docker Desktop con WSL2. Sin WSL, el dolor es considerable (porque Windows, ya sabes).
+
+## Instalación en Linux
+
+Linux es el entorno nativo de Docker, así que aquí la instalación es más directa. Los usuarios de Arch ya saben el drill — un `pacman -S docker` y listo. Para el resto, el método más fiable y que funciona en Ubuntu, Debian, Fedora y la mayoría de distros derivadas es el script oficial:
+
+```bash
+# Download and run the official install script
+curl -fsSL https://get.docker.com -o get-docker.sh
+sudo sh get-docker.sh
+```
+
+El script detecta tu distribución y configura los repositorios correctos automáticamente. Una vez instalado, hay un paso que la mayoría olvida y que causa el primer "¿por qué me dice permission denied?":
+
+```bash
+# Add your user to the docker group
+sudo usermod -aG docker $USER
+
+# Apply group change immediately (or log out and back in)
+newgrp docker
+```
+
+Sin este paso, necesitarás `sudo` para cada comando Docker. Técnicamente funciona, pero es incómodo y va en contra de cómo está pensado el flujo de trabajo.
+
+Verifica que todo está en orden:
+
+```bash
+docker --version
+```
+
+```
+Docker version 27.4.1, build f31f73a
+```
+
+```bash
+docker info
+```
+
+`docker info` te devuelve el estado del demonio: cuántos contenedores hay corriendo, cuántas imágenes tienes descargadas, la versión del kernel, el driver de almacenamiento. Si ves todo eso sin errores, el motor está funcionando.
+
+## Instalación en macOS
+
+Aquí tienes dos caminos. El más cómodo para la mayoría es Docker Desktop:
+
+```bash
+# Via Homebrew (recommended)
+brew install --cask docker
+```
+
+O descarga directamente desde [docker.com](https://docker.com). Una vez instalado, abre Docker Desktop desde Applications. Verás el icono de la ballena en la barra de menú — cuando deja de moverse significa que el motor está listo.
+
+La alternativa minimalista, si prefieres no tener la interfaz gráfica, es [OrbStack](https://orbstack.dev): más ligero, más rápido en arrancar, y perfectamente compatible con todos los comandos Docker estándar. Cada vez más gente en macOS lo usa en lugar de Docker Desktop.
+
+## Instalación en Windows (WSL2)
+
+Windows necesita WSL2 (Windows Subsystem for Linux) como base. Si aún no lo tienes:
+
+```powershell
+# Run in PowerShell as Administrator
+wsl --install
+```
+
+Reinicia, y después instala Docker Desktop desde [docker.com](https://docker.com). Durante la instalación, asegúrate de que la opción "Use WSL 2 based engine" está marcada.
+
+⚠️ **Importante**: si tienes WSL1 instalado de antes, actualiza a WSL2 primero. Docker funciona con WSL1, pero el rendimiento es notablemente peor y te encontrarás con comportamientos extraños.
+
+## La arquitectura de Docker (lo que pasa cuando escribes un comando)
+
+Antes de ejecutar ese primer contenedor, vale la pena entender lo que hay detrás. Cuando escribes `docker run nginx`, no estás simplemente lanzando un proceso. Hay tres piezas hablando entre sí:
+
+**Docker Client** (el CLI): la herramienta que usas en la terminal. Convierte tus comandos en llamadas a la API REST del demonio. Es solo un cliente — no hace el trabajo pesado.
+
+**Docker Daemon** (`dockerd`): el proceso que realmente gestiona contenedores, imágenes, redes y volúmenes. Corre en segundo plano. Cuando ejecutas `docker run`, el cliente le dice al demonio "lanza este contenedor", y el demonio lo hace.
+
+**Docker Registry**: el repositorio de imágenes. [Docker Hub](https://hub.docker.com) es el registro público por defecto. Cuando pides una imagen que no tienes localmente, el demonio la descarga de ahí.
+
+```
+[docker CLI] → API REST → [dockerd] → descarga de [Docker Hub]
+                                    → crea el contenedor
+                                    → gestiona su ciclo de vida
+```
+
+Este modelo cliente-servidor tiene una implicación práctica: puedes conectar el cliente Docker de tu máquina a un demonio que corre en otro servidor remoto. Útil para gestionar producción desde tu terminal.
+
+## Imágenes vs contenedores: el molde y las piezas
+
+Esta distinción es fundamental y vale la pena fijarla bien desde el principio, porque genera confusión si se mezclan los dos conceptos.
+
+Una **imagen** es una plantilla de solo lectura. Define qué sistema operativo base usar, qué software instalar, qué archivos copiar, qué comandos ejecutar al arrancar. Es inmutable — no cambia. Puedes pensar en ella como una clase en programación orientada a objetos, o como un molde de galletas.
+
+Un **contenedor** es una instancia en ejecución de una imagen. Es lo que realmente corre, lo que consume CPU y RAM, lo que tiene su propio sistema de archivos y su propia red. Puedes crear diez contenedores a partir de la misma imagen — diez galletas del mismo molde, cada una independiente de las demás.
+
+Cuando un contenedor termina, desaparece (salvo que le hayas dicho explícitamente que persista datos). La imagen sigue ahí, lista para crear más contenedores.
+
+## Tu primer contenedor
+
+Con Docker instalado, el momento de verdad:
+
+```bash
+docker run hello-world
+```
+
+```
+Hello from Docker!
+This message shows that your installation appears to be working correctly.
+
+To generate this message, Docker took the following steps:
+ 1. The Docker client contacted the Docker daemon.
+ 2. The Docker daemon pulled the "hello-world" image from the Docker Hub.
+ 3. The Docker daemon created a new container from that image which runs the
+    executable that produces the output you are currently reading.
+ 4. The Docker daemon streamed that output to the Docker client, which sent it
+    to your terminal.
+```
+
+El propio mensaje te explica lo que acaba de pasar. La primera vez tarda un momento porque descarga la imagen. La segunda vez es instantáneo — la imagen ya está en caché local.
+
+Ahora algo un poco más interesante: un contenedor interactivo.
+
+```bash
+docker run -it ubuntu bash
+```
+
+```
+root@a3f8c2b1d9e7:/#
+```
+
+¿Sensación extraña? Normal. Acabas de abrir una shell dentro de un contenedor Ubuntu completamente aislado de tu sistema. Puedes instalar cosas, borrar archivos, romper todo lo que quieras — cuando salgas, el contenedor desaparece y tu máquina queda intacta.
+
+```bash
+# Inside the container
+cat /etc/os-release
+ls /
+whoami  # root (containers run as root by default — we'll fix this later)
+exit
+```
+
+Y el clásico servidor web:
+
+```bash
+# Run Nginx in the background, mapping port 8080 on your machine to port 80 in the container
+docker run -d -p 8080:80 --name my-nginx nginx
+```
+
+Abre el navegador en `http://localhost:8080`. Tienes un servidor Nginx corriendo en un contenedor, sin haber instalado nada en tu sistema. Cuando acabes:
+
+```bash
+docker stop my-nginx
+docker rm my-nginx
+```
+
+## Los comandos básicos
+
+No hace falta memorizar todo esto ahora — lo irás interiorizando con el uso. Pero tenerlo de referencia viene bien:
+
+```bash
+docker pull <image>        # Download image from registry
+docker images              # List locally available images
+docker run <image>         # Create and start a container
+docker ps                  # List running containers
+docker ps -a               # List all containers (including stopped)
+docker stop <container>    # Stop a container (SIGTERM)
+docker start <container>   # Start a stopped container
+docker rm <container>      # Remove a stopped container
+docker rmi <image>         # Remove an image
+docker logs <container>    # View container output
+docker exec -it <container> bash  # Open shell in running container
+```
+
+Un truco útil: `docker run --rm` elimina el contenedor automáticamente cuando termina. Perfecto para pruebas rápidas donde no te importa persistir nada.
+
+```bash
+# Container disappears automatically when you exit
+docker run --rm -it ubuntu bash
+```
+
+## Limpiar lo que has descargado
+
+Después de experimentar, es normal que hayas acumulado imágenes y contenedores parados. Para hacer limpieza:
+
+```bash
+# Remove all stopped containers
+docker container prune
+
+# Remove unused images
+docker image prune
+
+# Remove everything unused (containers, images, networks, build cache)
+docker system prune
+```
+
+⚠️ `docker system prune` es agresivo — te preguntará confirmación, pero elimina todo lo que no esté en uso activo. Úsalo con cabeza.
+
+---
+
+Tienes Docker instalado y has ejecutado tus primeros contenedores. En la próxima lección profundizaremos en la relación entre imágenes y contenedores: qué son las capas de una imagen, cómo funciona el ciclo de vida completo de un contenedor, y cómo inspeccionar y gestionar todo lo que tienes corriendo.
+
+¡Nunca dejes de programar!
