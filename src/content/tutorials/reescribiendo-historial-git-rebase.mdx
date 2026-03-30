@@ -1,0 +1,171 @@
+---
+title: "Reescribiendo el historial con git rebase"
+post_slug: "reescribiendo-historial-git-rebase"
+date: "2026-03-30"
+excerpt: "Aprende qué es el rebase en Git, cuándo usarlo en lugar de merge, cómo resolver conflictos durante el proceso y la regla de oro que nunca debes romper."
+language: "es"
+categories: ["git"]
+course: "domina-git-desde-cero"
+order: 19
+cover: "/images/tutorials/cabecera-git.jpg"
+i18n: "rewriting-history-git-rebase"
+---
+
+Imagina que llevas tres días trabajando en una nueva feature en tu rama `feature/login`. Mientras tanto, alguien ha hecho cuatro commits en `master` que afectan a partes del código con las que necesitas trabajar. Cuando llegue el momento de integrar tu trabajo, el historial va a parecer un espagueti de merges que nadie va a querer leer.
+
+Existe una alternativa más limpia: `git rebase`. Una herramienta que reescribe la historia para que todo parezca haber ocurrido en orden, sin los nudos que deja el merge. Pero con un poder así vienen responsabilidades, y hay una regla que si rompes vas a hacer sufrir mucho a tus compañeros de equipo.
+
+## Qué es el rebase
+
+Para entender el rebase hay que tener claro qué hace el merge. Cuando haces `git merge master` desde tu rama `feature`, Git crea un nuevo **commit de merge** que une los dos historiales. El resultado es funcional pero el historial queda ramificado, con dos líneas que convergen en un punto.
+
+El rebase hace algo diferente. Literalmente **recoloca tus commits** encima de la rama destino. Es como si hubieras empezado tu trabajo hoy, después de los últimos cambios de `master`, aunque en realidad lo empezaste hace tres días.
+
+Una analogía: imagina que escribes un informe mientras tu jefe va modificando el borrador base. Con merge, tu versión y la de tu jefe se fusionan en un documento final con marcas de combinación. Con rebase, es como si hubieras leído el borrador actualizado de tu jefe antes de empezar a escribir tu parte. El resultado es más limpio, la autoría más clara.
+
+## Cómo funciona git rebase
+
+La mecánica es la siguiente. Tienes esta situación:
+
+```
+      A---B---C  feature
+     /
+D---E---F---G    master
+```
+
+Los commits `A`, `B` y `C` son los tuyos en `feature`. Los commits `F` y `G` llegaron a `master` mientras trabajabas.
+
+Cuando haces:
+
+```bash
+git switch feature
+git rebase master
+```
+
+Git hace tres cosas en orden:
+
+1. Encuentra el punto común entre `feature` y `master` (el commit `E`)
+2. Guarda temporalmente tus commits (`A`, `B`, `C`) como parches
+3. Los reaplicar uno a uno encima de `G`, el último commit de `master`
+
+El resultado:
+
+```
+              A'--B'--C'  feature
+             /
+D---E---F---G             master
+```
+
+Los commits `A'`, `B'` y `C'` son nuevos commits (con nuevos hashes) que contienen los mismos cambios que `A`, `B` y `C`, pero aplicados sobre `G`. El historial queda **lineal**.
+
+## La regla de oro del rebase
+
+⚠️ **Nunca hagas rebase de commits que ya están en una rama pública.**
+
+Esta es la regla más importante y la que más gente rompe cuando está aprendiendo. El motivo es técnico pero la consecuencia es muy concreta.
+
+El rebase crea commits nuevos. Aunque el contenido es el mismo, los hashes cambian. Si otras personas tienen clonados esos commits en sus máquinas y tú los reescribes con rebase, cuando intenten hacer pull van a encontrarse con un historial incompatible. Vas a crear un caos de commits duplicados y conflictos que son muy difíciles de deshacer.
+
+La regla práctica es sencilla: **solo haz rebase en ramas que son únicamente tuyas**. Tu `feature` branch local que nadie más ha tocado: sí. `master`, `develop`, o cualquier rama que hayan clonado tus compañeros: nunca.
+
+## Rebase básico: actualizar tu rama con los cambios de master
+
+El caso más habitual es querer poner tu rama al día con los últimos cambios de `master` antes de abrir un pull request. El workflow es:
+
+```bash
+# First, make sure master is up to date
+git switch master
+git pull
+
+# Then rebase your feature branch on top of master
+git switch feature/login
+git rebase master
+```
+
+Si no hay conflictos, Git reaplica tus commits automáticamente y listo:
+
+```
+Successfully rebased and updated refs/heads/feature/login.
+```
+
+Tu rama `feature/login` ahora parte desde el último commit de `master`. Cuando hagas el merge o el pull request, será un **fast-forward limpio** sin commit de merge.
+
+## Resolviendo conflictos durante el rebase
+
+A veces Git no puede reaplicar un commit automáticamente porque hay conflictos. En ese caso se detiene y te avisa:
+
+```
+Auto-merging src/auth/login.ts
+CONFLICT (content): Merge conflict in src/auth/login.ts
+error: could not apply a1b2c3d... Add login validation
+hint: Resolve all conflicts manually, mark them as resolved with
+hint: "git add/rm <conflicted_files>", then run "git rebase --continue".
+hint: You can instead skip this commit: run "git rebase --skip".
+hint: To abort and get back to the original state, run "git rebase --abort".
+```
+
+El proceso para resolver es:
+
+1. **Edita el archivo** con el conflicto y elige qué código conservar
+2. **Marca el conflicto como resuelto**:
+
+```bash
+git add src/auth/login.ts
+```
+
+3. **Continúa el rebase**:
+
+```bash
+git rebase --continue
+```
+
+Git aplicará el siguiente commit y así sucesivamente hasta terminar. Si en algún momento te pierdes o decides que no merece la pena seguir, tienes la salida de emergencia:
+
+```bash
+git rebase --abort
+```
+
+Esto devuelve tu rama exactamente al estado en que estaba antes de empezar el rebase. Como si no hubiera pasado nada.
+
+## Rebase vs merge: cuándo usar cada uno
+
+No existe una respuesta absoluta. Depende del contexto y de las convenciones de tu equipo. Pero hay una heurística útil:
+
+| Situación                                | Recomendación                                |
+| ---------------------------------------- | -------------------------------------------- |
+| Actualizar tu rama local con `master`    | **Rebase** — historial más limpio            |
+| Integrar una feature terminada en `main` | **Merge** — preserva el contexto del trabajo |
+| Ramas compartidas con el equipo          | **Merge** — nunca rebase                     |
+| Preparar commits para un PR limpio       | **Rebase** — ideal                           |
+| Rama con muchos commits pequeños "WIP"   | Rebase interactivo (siguiente lección)       |
+
+La filosofía detrás del rebase es: _el historial debería contar la historia del proyecto, no la historia de cómo lo desarrollaste_. Hay equipos que prefieren ver exactamente cómo evolucionó el trabajo, y para ellos el merge es más honesto. Otros prefieren un historial lineal y limpio que sea fácil de leer. Ninguna postura es incorrecta.
+
+## Comprobando el resultado
+
+Después de un rebase exitoso, puedes verificar que tu historial es lineal con:
+
+```bash
+git log --oneline --graph
+```
+
+Algo así:
+
+```
+* c3d4e5f (HEAD -> feature/login) Add remember me option
+* b2c3d4e Add password validation
+* a1b2c3d Add login form
+* 9f8e7d6 (master) Fix user session timeout
+* 8e7d6c5 Add user profile page
+* 7d6c5b4 Initial commit
+```
+
+Lineal, limpio, fácil de leer. Cada commit de tu feature aplicado sobre el último estado de `master`.
+
+---
+
+El rebase es una de esas herramientas que al principio da un poco de vértigo porque "reescribe la historia", pero cuando la dominas y la usas en el contexto correcto se convierte en parte natural del workflow. La clave es interiorizar la regla de oro: ramas propias y locales, sí; ramas públicas y compartidas, nunca.
+
+En la siguiente lección veremos el **rebase interactivo** (`git rebase -i`), una variante que te permite reorganizar, combinar y editar commits individuales de tu rama antes de integrarlos. Es la herramienta perfecta para limpiar esos commits "fix typo" y "wip wip" antes de que queden en el historial para siempre.
+
+¡Nunca dejes de programar!

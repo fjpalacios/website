@@ -1,0 +1,171 @@
+---
+title: "Rewriting History with git rebase"
+post_slug: "rewriting-history-git-rebase"
+date: "2026-03-30"
+excerpt: "Learn what rebase is in Git, when to use it instead of merge, how to resolve conflicts during the process, and the golden rule you must never break."
+language: "en"
+categories: ["git"]
+course: "mastering-git-from-scratch"
+order: 19
+cover: "/images/tutorials/cabecera-git.jpg"
+i18n: "reescribiendo-historial-git-rebase"
+---
+
+Imagine you've spent three days working on a new feature in your `feature/login` branch. Meanwhile, someone has pushed four commits to `master` that touch parts of the code you're working with. When the time comes to integrate your work, the history is going to look like a plate of spaghetti that nobody wants to untangle.
+
+There's a cleaner alternative: `git rebase`. A tool that rewrites history so everything appears to have happened in a straight line, without the knots that merge leaves behind. But with great power comes responsibility, and there's one rule that, if broken, will make your teammates' lives miserable.
+
+## What is rebase?
+
+To understand rebase, you first need to be clear on what merge does. When you run `git merge master` from your `feature` branch, Git creates a new **merge commit** that joins the two histories. The result works, but the history is branched — two lines converging at a point.
+
+Rebase does something different. It literally **replays your commits** on top of the target branch. It's as if you started your work today, after all the latest changes to `master`, even though you actually started three days ago.
+
+An analogy: imagine you're writing a report while your manager keeps updating the base draft. With merge, your version and your manager's version are combined into a final document with merge markers. With rebase, it's as if you had read your manager's updated draft before you started writing your section. The result is cleaner, the authorship clearer.
+
+## How git rebase works
+
+Here's the mechanics. You have this situation:
+
+```
+      A---B---C  feature
+     /
+D---E---F---G    master
+```
+
+Commits `A`, `B`, and `C` are yours on `feature`. Commits `F` and `G` arrived on `master` while you were working.
+
+When you run:
+
+```bash
+git switch feature
+git rebase master
+```
+
+Git does three things in order:
+
+1. Finds the common ancestor between `feature` and `master` (commit `E`)
+2. Temporarily saves your commits (`A`, `B`, `C`) as patches
+3. Replays them one by one on top of `G`, the latest commit on `master`
+
+The result:
+
+```
+              A'--B'--C'  feature
+             /
+D---E---F---G             master
+```
+
+Commits `A'`, `B'`, and `C'` are new commits (with new hashes) that contain the same changes as `A`, `B`, and `C`, but applied on top of `G`. The history is **linear**.
+
+## The golden rule of rebase
+
+⚠️ **Never rebase commits that have already been pushed to a public branch.**
+
+This is the most important rule and the one most people break when they're learning. The reason is technical, but the consequence is very concrete.
+
+Rebase creates new commits. Even though the content is the same, the hashes change. If other people have cloned those commits and you rewrite them with rebase, when they try to pull they'll find an incompatible history. You'll create a mess of duplicate commits and conflicts that are very hard to undo.
+
+The practical rule is simple: **only rebase branches that are exclusively yours**. Your local `feature` branch that nobody else has touched: yes. `master`, `develop`, or any branch your teammates have cloned: never.
+
+## Basic rebase: updating your branch with master's changes
+
+The most common case is wanting to bring your branch up to date with the latest changes from `master` before opening a pull request. The workflow:
+
+```bash
+# First, make sure master is up to date
+git switch master
+git pull
+
+# Then rebase your feature branch on top of master
+git switch feature/login
+git rebase master
+```
+
+If there are no conflicts, Git replays your commits automatically and you're done:
+
+```
+Successfully rebased and updated refs/heads/feature/login.
+```
+
+Your `feature/login` branch now starts from the latest commit on `master`. When you merge or open a pull request, it will be a clean **fast-forward** with no merge commit.
+
+## Resolving conflicts during rebase
+
+Sometimes Git can't replay a commit automatically because there are conflicts. In that case it stops and tells you:
+
+```
+Auto-merging src/auth/login.ts
+CONFLICT (content): Merge conflict in src/auth/login.ts
+error: could not apply a1b2c3d... Add login validation
+hint: Resolve all conflicts manually, mark them as resolved with
+hint: "git add/rm <conflicted_files>", then run "git rebase --continue".
+hint: You can instead skip this commit: run "git rebase --skip".
+hint: To abort and get back to the original state, run "git rebase --abort".
+```
+
+The process to resolve:
+
+1. **Edit the file** with the conflict and choose which code to keep
+2. **Mark the conflict as resolved**:
+
+```bash
+git add src/auth/login.ts
+```
+
+3. **Continue the rebase**:
+
+```bash
+git rebase --continue
+```
+
+Git will apply the next commit and so on until it's done. If you get lost at any point or decide it's not worth continuing, you have an escape hatch:
+
+```bash
+git rebase --abort
+```
+
+This returns your branch exactly to the state it was in before you started the rebase. As if nothing happened.
+
+## Rebase vs merge: when to use each
+
+There's no absolute answer. It depends on context and your team's conventions. But there's a useful heuristic:
+
+| Situation                                  | Recommendation                                |
+| ------------------------------------------ | --------------------------------------------- |
+| Updating your local branch with `master`   | **Rebase** — cleaner history                  |
+| Integrating a finished feature into `main` | **Merge** — preserves the context of the work |
+| Shared branches with the team              | **Merge** — never rebase                      |
+| Preparing commits for a clean PR           | **Rebase** — ideal                            |
+| Branch with many small "WIP" commits       | Interactive rebase (next lesson)              |
+
+The philosophy behind rebase is: _history should tell the story of the project, not the story of how you developed it_. Some teams prefer to see exactly how the work evolved, and for them merge is more honest. Others prefer a linear, clean history that's easy to read. Neither stance is wrong.
+
+## Checking the result
+
+After a successful rebase, you can verify that your history is linear with:
+
+```bash
+git log --oneline --graph
+```
+
+Something like:
+
+```
+* c3d4e5f (HEAD -> feature/login) Add remember me option
+* b2c3d4e Add password validation
+* a1b2c3d Add login form
+* 9f8e7d6 (master) Fix user session timeout
+* 8e7d6c5 Add user profile page
+* 7d6c5b4 Initial commit
+```
+
+Linear, clean, easy to read. Each of your feature commits applied on top of the latest state of `master`.
+
+---
+
+Rebase is one of those tools that feels a little dizzying at first because it "rewrites history," but once you master it and use it in the right context, it becomes a natural part of your workflow. The key is to internalize the golden rule: your own local branches, yes; public and shared branches, never.
+
+In the next lesson we'll look at **interactive rebase** (`git rebase -i`), a variant that lets you reorganize, combine, and edit individual commits in your branch before integrating them. It's the perfect tool for cleaning up those "fix typo" and "wip wip" commits before they end up in the history forever.
+
+Never stop coding!
