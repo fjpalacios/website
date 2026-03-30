@@ -1,0 +1,291 @@
+---
+title: "Errores comunes de principiantes en Python (y cómo solucionarlos)"
+post_slug: "errores-comunes-principiantes-python"
+date: "2026-03-31"
+excerpt: "Los mensajes de error de Python son tu mejor aliado — si sabes leerlos. Aprende a descifrar los tracebacks, los errores más comunes al empezar, y cómo desarrollar un instinto debugger desde el primer día."
+language: "es"
+categories: ["programacion"]
+course: "aprende-a-programar-desde-cero-python"
+order: 5.5
+cover: "/images/tutorials/cabecera-python-curso.jpg"
+i18n: "common-beginner-mistakes-python"
+---
+
+Tu código no funciona. Python te muestra texto en rojo y te quedas mirando la pantalla preguntándote qué ha pasado. ¿Te suena?
+
+Si eres como yo cuando empecé, tu primer instinto es cerrar la terminal y hacer como que no ha pasado nada. El segundo instinto es copiar el error en Google y esperar que alguien en Stack Overflow tuviera el mismo problema en 2014.
+
+Hay una forma mejor.
+
+## Los errores de Python no son tu enemigo
+
+Aquí está lo que la mayoría de principiantes no se da cuenta: **los mensajes de error de Python son el feedback más útil que vas a recibir**. Te dicen exactamente qué salió mal, dónde salió mal, y muchas veces cómo solucionarlo. El problema no es que los mensajes sean inútiles — es que todavía no sabemos leerlos.
+
+Vamos a solucionar eso.
+
+## Anatomía de un traceback
+
+Cuando Python encuentra un error, te muestra un **traceback** — un rastro de migas de pan que lleva hasta el problema. Aquí tienes uno típico:
+
+```
+Traceback (most recent call last):
+  File "hello.py", line 5, in <module>
+    result = add(10, "five")
+  File "hello.py", line 2, in add
+    return a + b
+TypeError: unsupported operand type(s) for +: 'int' and 'str'
+```
+
+Léelo **de abajo hacia arriba**. Esa es la clave. La última línea es el error real. Todo lo que hay encima es el camino que tomó Python para llegar hasta ahí.
+
+Descomponiéndolo:
+
+- **`TypeError`** — la categoría del error
+- **`unsupported operand type(s) for +: 'int' and 'str'`** — qué pasó, en inglés casi llano
+- **`File "hello.py", line 2, in add`** — dónde pasó
+- **`return a + b`** — la línea exacta del código
+
+Con esta información sola puedes solucionar la mayoría de errores sin buscar en internet. Sabes _qué_ salió mal, _dónde_ salió mal, y _cómo era el código_ en ese momento.
+
+## Los errores más comunes en Python
+
+### SyntaxError — Python no te entiende
+
+```python
+print("Hello World"   # ❌ Falta el paréntesis de cierre
+```
+
+```
+  File "hello.py", line 1
+    print("Hello World"
+                       ^
+SyntaxError: '(' was never closed
+```
+
+Python encontró un problema tan fundamental que no pudo ni ejecutar tu código. Causas habituales:
+
+```python
+# ❌ Falta dos puntos después de if/for/while/def
+if x > 5
+    print(x)
+
+# ✅ Correcto
+if x > 5:
+    print(x)
+```
+
+```python
+# ❌ Comillas que no encajan
+message = "Hello, World!'
+
+# ✅ Correcto
+message = "Hello, World!"
+```
+
+El carácter `^` en el error apunta a donde Python se confundió. No siempre es exactamente donde _tú_ cometiste el error — Python a veces se da cuenta del problema más tarde de donde ocurrió — pero es un buen punto de partida.
+
+### IndentationError — Python se toma el espacio en serio
+
+Este pilla a todo el mundo. Python usa la **indentación para definir bloques de código**, no llaves como otros lenguajes. Cuatro espacios (o un tab, de forma consistente) por nivel:
+
+```python
+# ❌ Falta indentación dentro del if
+if age >= 18:
+print("Puedes votar")   # IndentationError: expected an indented block
+
+# ✅ Correcto
+if age >= 18:
+    print("Puedes votar")
+```
+
+```python
+# ❌ Indentación inconsistente (mezcla de espacios y tabs)
+def greet(name):
+    print("Hello")   # 4 espacios
+	print(name)      # 1 tab — TabError!
+
+# ✅ Consistente: siempre 4 espacios
+def greet(name):
+    print("Hello")
+    print(name)
+```
+
+⚠️ Configura tu editor para que **siempre use espacios** (4 de ellos), nunca tabs. Eso evita el problema de la mezcla por completo. VS Code lo hace por defecto para archivos Python.
+
+### NameError — usando algo que no existe
+
+```python
+print(message)   # ❌ NameError: name 'message' is not defined
+message = "Hello"
+```
+
+Python ejecuta el código de arriba a abajo. Si intentas usar una variable antes de definirla, Python no sabe de qué le hablas. La solución: define antes de usar.
+
+Otra variante muy común:
+
+```python
+user_name = "Alice"
+print(username)   # ❌ NameError: name 'username' is not defined
+```
+
+¿Ves la diferencia? `user_name` vs `username`. **Python distingue mayúsculas, minúsculas y hasta el guión bajo.** `name`, `Name` y `NAME` son tres variables completamente distintas.
+
+### TypeError — mezclando tipos incompatibles
+
+```python
+age = input("Tu edad: ")   # input() siempre devuelve un string
+next_year = age + 1         # ❌ TypeError: can only concatenate str (not "int") to str
+```
+
+```
+TypeError: can only concatenate str (not "int") to str
+```
+
+La solución: convertir el tipo explícitamente.
+
+```python
+age = int(input("Tu edad: "))   # ✅ Convertir a int inmediatamente
+next_year = age + 1
+print(f"El año que viene tendrás {next_year}")
+```
+
+O al revés — intentar concatenar un número directamente con texto:
+
+```python
+score = 42
+print("Tu puntuación: " + score)      # ❌ TypeError
+print("Tu puntuación: " + str(score)) # ✅ Convertir int a str
+print(f"Tu puntuación: {score}")      # ✅ Mejor: usa un f-string directamente
+```
+
+### ValueError — tipo correcto, valor incorrecto
+
+```python
+number = int("hola")   # ❌ ValueError: invalid literal for int() with base 10: 'hola'
+```
+
+El tipo es correcto (`int()` espera un string para convertir), pero el contenido no — `"hola"` no puede convertirse en un entero.
+
+Escenario típico: leer input del usuario y asumir que es un número.
+
+```python
+user_input = input("Introduce un número: ")  # El usuario escribe "abc"
+result = int(user_input)                      # ❌ ValueError
+```
+
+Manejaremos esto correctamente cuando veamos gestión de errores más adelante en el curso. Por ahora, solo entiende qué significa el error.
+
+### IndexError — saliendo de los límites
+
+```python
+numbers = [10, 20, 30]
+print(numbers[5])   # ❌ IndexError: list index out of range
+```
+
+La lista tiene 3 elementos (índices 0, 1, 2). El índice 5 no existe. Python te dice: te fuiste por el borde.
+
+```python
+# ✅ Acceder dentro de los límites
+print(numbers[0])   # 10
+print(numbers[-1])  # 30 — el último elemento, siempre seguro
+```
+
+### AttributeError — ese método no existe en ese tipo
+
+```python
+number = 42
+print(number.upper())   # ❌ AttributeError: 'int' object has no attribute 'upper'
+```
+
+`.upper()` es un método de strings. Los enteros no lo tienen. Estás llamando a algo que no existe en ese tipo de objeto.
+
+Normalmente significa que tienes el tipo equivocado, o que escribiste mal el nombre del método:
+
+```python
+text = "hola"
+print(text.uper())    # ❌ AttributeError: 'str' object has no attribute 'uper'
+print(text.upper())   # ✅
+```
+
+## Estrategias de debugging para principiantes
+
+Conocer los errores es la mitad de la batalla. La otra mitad es encontrarlos de forma sistemática. Aquí está el enfoque que funciona:
+
+### 1. Lee el mensaje de error completo
+
+No le eches un vistazo al texto rojo y entres en pánico. Léelo. ¿Qué tipo de error? ¿Qué línea? ¿Qué estaba haciendo el código? La respuesta casi siempre está en el traceback.
+
+### 2. Añade `print()` para inspeccionar tus variables
+
+La herramienta de debugging más simple que existe:
+
+```python
+def calculate_total(price: float, quantity: int) -> float:
+    print(f"DEBUG: price={price}, quantity={quantity}")  # Añade esto temporalmente
+    total = price * quantity
+    print(f"DEBUG: total={total}")                        # Y esto
+    return total
+```
+
+Imprime los valores justo antes de la línea que falla. Nueve de cada diez veces verás el problema inmediatamente: la variable tiene el valor incorrecto, el tipo incorrecto, o es `None` cuando esperabas algo más.
+
+### 3. Aísla el problema
+
+Si tienes 50 líneas de código y algo falla, no necesitas arreglar las 50 líneas. Encuentra el _mínimo_ código que reproduce el error:
+
+```python
+# En lugar de debuggear todo el programa, prueba la operación específica:
+user_input = "abc"
+result = int(user_input)   # ¿Falla aquí?
+```
+
+### 4. Cuestiona tus suposiciones
+
+La mayoría de bugs vienen de una suposición que resulta ser incorrecta. "Asumí que esto sería un número." "Asumí que la lista tendría al menos un elemento." "Asumí que Python cuenta desde 1."
+
+Cuando tu código no se comporta como esperas, pregúntate: ¿qué estoy dando por sentado aquí que podría no ser verdad?
+
+## La sensibilidad a mayúsculas no es negociable
+
+```python
+Name = "Alice"
+print(name)   # ❌ NameError: name 'name' is not defined
+```
+
+Python ve `Name` y `name` como cosas completamente diferentes. Así es por diseño y no hay vuelta atrás. Elige una convención (`snake_case` según PEP 8) y úsala siempre.
+
+Lo mismo aplica a las funciones integradas:
+
+```python
+print(True)    # ✅
+print(true)    # ❌ NameError — los booleanos de Python son True/False, con T/F mayúscula
+print(none)    # ❌ NameError — es None, no none
+```
+
+## El flujo de trabajo con `print()` para debuggear
+
+Antes de meterte con debuggers serios, acostúmbrate a este patrón — funciona, es rápido, y cualquier profesional lo usa en algún momento:
+
+```python
+# Código original que no funciona bien
+result = process_data(user_input)
+
+# Añade prints para entender el flujo
+print(f"user_input = {user_input!r}")   # El !r muestra el repr — útil para strings
+result = process_data(user_input)
+print(f"result = {result!r}")
+```
+
+El especificador de formato `!r` muestra el `repr()` del valor, que incluye comillas alrededor de los strings. Esto hace muy fácil detectar espacios al final, saltos de línea (`\n`) u otros caracteres invisibles que son frecuentemente los culpables.
+
+---
+
+Los errores no son fracasos — son Python hablándote. Cuanto antes te sientas cómodo leyendo tracebacks, más rápido escribirás código que funciona. Cada mensaje de error es una pista, y ahora ya sabes cómo descifrarlos.
+
+En el próximo tutorial entramos en **control de flujo**: `if`, `else` y `elif`. Por primera vez, tus programas podrán tomar decisiones en función de lo que hace el usuario o de cómo son los datos.
+
+¡Nunca dejes de programar!
+
+---
+
+**💡 Reto**: Escribe código con 5 tipos de errores distintos de este tutorial (SyntaxError, IndentationError, NameError, TypeError, ValueError). Ejecuta cada uno, lee el traceback con atención, y corrígelo. Los recordarás mucho mejor que cualquier lista de reglas.
