@@ -1,0 +1,233 @@
+---
+title: "Installing Docker and running your first container"
+post_slug: "installing-docker-first-container"
+date: "2026-04-01"
+excerpt: "Install Docker on Linux, macOS, or Windows and run your first container. Docker's architecture, the image vs container distinction, and the essential commands to get started."
+language: "en"
+categories: ["docker"]
+course: "mastering-docker-from-scratch"
+order: 2
+cover: "/images/tutorials/cabecera-docker-curso.jpg"
+i18n: "instalando-docker-primer-contenedor"
+---
+
+Every tool has its initiation ritual. With Git it's `git init`. With Node it's `npm install` and watching `node_modules` devour half your disk. With Docker, it's a command that's been the opening line of every tutorial for years:
+
+```bash
+docker run hello-world
+```
+
+It looks trivially simple. But what it does under the hood is anything but: Docker downloads an image from the internet, creates a container, runs it, prints a message, and destroys it — all in seconds. No Dockerfile. No configuration. And yet you've just completed the full container lifecycle.
+
+Before you get there, though, you need to install the thing.
+
+## Docker Desktop vs Docker Engine: which one?
+
+The first fork in the road, and worth understanding upfront.
+
+**Docker Engine** is the raw engine: the daemon that manages containers, no GUI, built for Linux servers and people who live in the terminal. This is what you'll run in production.
+
+**Docker Desktop** is a desktop application that bundles Docker Engine, a graphical interface, and a compatibility layer that makes Docker work on macOS and Windows (which don't have a native Linux kernel). It also includes Docker Compose and a few extra tools.
+
+The practical rule:
+
+- **Linux**: install Docker Engine directly. Docker Desktop exists for Linux but adds an unnecessary virtualization layer.
+- **macOS**: Docker Desktop is the standard choice and the simplest path.
+- **Windows**: Docker Desktop with WSL2. Without WSL, the pain is real (because Windows).
+
+## Installation on Linux
+
+Linux is Docker's native environment, so installation is the most straightforward here. Arch users already know the drill — `pacman -S docker` and done. For everyone else, the most reliable method that works across Ubuntu, Debian, Fedora, and most derivatives is the official script:
+
+```bash
+# Download and run the official install script
+curl -fsSL https://get.docker.com -o get-docker.sh
+sudo sh get-docker.sh
+```
+
+The script detects your distribution and configures the right repositories automatically. Once installed, there's one step most people miss, and it causes the classic "why am I getting permission denied?" moment:
+
+```bash
+# Add your user to the docker group
+sudo usermod -aG docker $USER
+
+# Apply the group change immediately (or log out and back in)
+newgrp docker
+```
+
+Without this, you'll need `sudo` for every Docker command. Technically it works, but it's annoying and goes against how the workflow is meant to feel.
+
+Verify everything is working:
+
+```bash
+docker --version
+```
+
+```
+Docker version 27.4.1, build f31f73a
+```
+
+```bash
+docker info
+```
+
+`docker info` shows you the daemon's state: how many containers are running, how many images you have locally, the kernel version, the storage driver. If you see all that without errors, the engine is running.
+
+## Installation on macOS
+
+Two options. The most comfortable for most people is Docker Desktop:
+
+```bash
+# Via Homebrew (recommended)
+brew install --cask docker
+```
+
+Or download directly from [docker.com](https://docker.com). Once installed, open Docker Desktop from Applications. You'll see the whale icon in the menu bar — when it stops animating, the engine is ready.
+
+The minimalist alternative, if you'd rather skip the GUI, is [OrbStack](https://orbstack.dev): lighter, faster to start, and fully compatible with all standard Docker commands. More and more people on macOS are using it instead of Docker Desktop.
+
+## Installation on Windows (WSL2)
+
+Windows needs WSL2 (Windows Subsystem for Linux) as its foundation. If you don't have it yet:
+
+```powershell
+# Run in PowerShell as Administrator
+wsl --install
+```
+
+Restart, then install Docker Desktop from [docker.com](https://docker.com). During installation, make sure "Use WSL 2 based engine" is checked.
+
+⚠️ **Important**: if you have WSL1 installed from before, upgrade to WSL2 first. Docker works with WSL1, but the performance is noticeably worse and you'll hit weird edge cases.
+
+## Docker's architecture (what actually happens when you type a command)
+
+Before running that first container, it's worth understanding what's happening behind the scenes. When you type `docker run nginx`, you're not just launching a process. There are three pieces talking to each other:
+
+**Docker Client** (the CLI): the tool you use in the terminal. It converts your commands into REST API calls to the daemon. It's just a client — it doesn't do the heavy lifting.
+
+**Docker Daemon** (`dockerd`): the process that actually manages containers, images, networks, and volumes. It runs in the background. When you run `docker run`, the client tells the daemon "start this container", and the daemon does it.
+
+**Docker Registry**: the image repository. [Docker Hub](https://hub.docker.com) is the default public registry. When you request an image you don't have locally, the daemon downloads it from there.
+
+```
+[docker CLI] → REST API → [dockerd] → pulls from [Docker Hub]
+                                     → creates the container
+                                     → manages its lifecycle
+```
+
+This client-server model has a practical implication: you can point your local Docker client at a daemon running on a remote server. Useful for managing production from your terminal.
+
+## Images vs containers: the mold and the pieces
+
+This distinction is fundamental. Get it wrong and Docker will feel confusing forever. Get it right and everything clicks.
+
+An **image** is a read-only template. It defines which base OS to use, what software to install, what files to copy in, what command to run at startup. It's immutable — it doesn't change. Think of it like a class in object-oriented programming, or a cookie cutter.
+
+A **container** is a running instance of an image. It's what actually executes, what consumes CPU and RAM, what has its own isolated filesystem and its own network. You can create ten containers from the same image — ten cookies from the same cutter, each independent of the others.
+
+When a container stops, it's gone (unless you explicitly told it to persist data). The image stays, ready to create more containers.
+
+## Your first container
+
+With Docker installed, the moment of truth:
+
+```bash
+docker run hello-world
+```
+
+```
+Hello from Docker!
+This message shows that your installation appears to be working correctly.
+
+To generate this message, Docker took the following steps:
+ 1. The Docker client contacted the Docker daemon.
+ 2. The Docker daemon pulled the "hello-world" image from the Docker Hub.
+ 3. The Docker daemon created a new container from that image which runs the
+    executable that produces the output you are currently reading.
+ 4. The Docker daemon streamed that output to the Docker client, which sent it
+    to your terminal.
+```
+
+The message walks you through exactly what just happened. The first time it takes a moment because it's downloading the image. The second time it's instant — the image is cached locally.
+
+Now something a bit more interesting: an interactive container.
+
+```bash
+docker run -it ubuntu bash
+```
+
+```
+root@a3f8c2b1d9e7:/#
+```
+
+Feeling disoriented? That's expected. You just opened a shell inside a completely isolated Ubuntu container. You can install things, delete files, break whatever you want — when you exit, the container disappears and your machine is untouched.
+
+```bash
+# Inside the container
+cat /etc/os-release
+ls /
+whoami  # root (containers run as root by default — we'll address this later)
+exit
+```
+
+And the classic web server:
+
+```bash
+# Run Nginx in the background, mapping port 8080 on your machine to port 80 in the container
+docker run -d -p 8080:80 --name my-nginx nginx
+```
+
+Open your browser at `http://localhost:8080`. You have an Nginx server running in a container, without having installed anything on your system. When you're done:
+
+```bash
+docker stop my-nginx
+docker rm my-nginx
+```
+
+## The essential commands
+
+You don't need to memorize all of this now — it'll sink in through use. But having it as a reference helps:
+
+```bash
+docker pull <image>        # Download image from registry
+docker images              # List locally available images
+docker run <image>         # Create and start a container
+docker ps                  # List running containers
+docker ps -a               # List all containers (including stopped)
+docker stop <container>    # Stop a container (SIGTERM)
+docker start <container>   # Start a stopped container
+docker rm <container>      # Remove a stopped container
+docker rmi <image>         # Remove an image
+docker logs <container>    # View container output
+docker exec -it <container> bash  # Open shell in running container
+```
+
+One handy trick: `docker run --rm` removes the container automatically when it stops. Perfect for quick experiments where you don't care about persistence.
+
+```bash
+# Container disappears automatically when you exit
+docker run --rm -it ubuntu bash
+```
+
+## Cleaning up
+
+After experimenting, you'll have accumulated images and stopped containers. To clean house:
+
+```bash
+# Remove all stopped containers
+docker container prune
+
+# Remove unused images
+docker image prune
+
+# Remove everything unused (containers, images, networks, build cache)
+docker system prune
+```
+
+⚠️ `docker system prune` is aggressive — it will ask for confirmation, but it removes everything not actively in use. Use it deliberately.
+
+---
+
+Docker is installed, and you've run your first containers. In the next lesson, we'll go deeper into the image-container relationship: what image layers are, how the full container lifecycle works, and how to inspect and manage everything you have running.
+
+Never stop coding!
