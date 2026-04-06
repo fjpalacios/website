@@ -21,7 +21,7 @@
       "devDependencies": {
         "@astrojs/check": "^0.9.8",
         "@axe-core/playwright": "^4.11.1",
-        "@cloudflare/workers-types": "^4.20260329.1",
+        "@cloudflare/workers-types": "^4.20260405.1",
         "@eslint/js": "^9.24.0",
         "@istanbuljs/nyc-config-typescript": "^1.0.2",
         "@lhci/cli": "^0.15.1",
@@ -126,7 +126,7 @@
 
     "@capsizecss/unpack": ["@capsizecss/unpack@4.0.0", "", { "dependencies": { "fontkitten": "^1.0.0" } }, "sha512-VERIM64vtTP1C4mxQ5thVT9fK0apjPFobqybMtA1UdUujWka24ERHbRHFGmpbbhp73MhV+KSsHQH9C6uOTdEQA=="],
 
-    "@cloudflare/workers-types": ["@cloudflare/workers-types@4.20260329.1", "", {}, "sha512-LxBHrYYI/AZ6OCbUzRqRgg6Rt1qev2KxN2NNd3saye41AO2g52cYvHV+ohts5oPnrIUD7YRjbgN/J3NU7e7m5A=="],
+    "@cloudflare/workers-types": ["@cloudflare/workers-types@4.20260405.1", "", {}, "sha512-PokTmySa+D6MY01R1UfYH48korsN462NK/fl3aw47Hg7XuLuSo/RTpjT0vtWaJhJoFY5tHGOBBIbDcIc8wltLg=="],
 
     "@csstools/color-helpers": ["@csstools/color-helpers@6.0.2", "", {}, "sha512-LMGQLS9EuADloEFkcTBR3BwV/CGHV7zyDxVRtVDTwdI2Ca4it0CCVTT9wCkxSgokjE5Ho41hEPgb8OEUwoXr6Q=="],
 
