@@ -1,0 +1,263 @@
+---
+title: "Sentencias condicionales en Python: if, elif y else"
+post_slug: "sentencias-condicionales-python"
+date: "2026-04-08"
+excerpt: "Tu código siempre ha ejecutado las mismas instrucciones en el mismo orden. Con if, elif y else, por fin puede tomar decisiones. Aprende a escribir programas que reaccionen a los datos."
+language: "es"
+categories: ["programacion"]
+course: "aprende-a-programar-desde-cero-python"
+order: 6
+cover: "/images/tutorials/cabecera-python-curso.jpg"
+i18n: "conditional-statements-python"
+---
+
+Hasta ahora, todos los programas que has escrito funcionan exactamente igual cada vez que los ejecutas. Da igual qué datos introduzcas, da igual qué pase: el código sigue siempre el mismo camino, de arriba a abajo, sin desviarse.
+
+Eso está bien para un script de calculadora. Pero en el mundo real, los programas necesitan _reaccionar_. Una tienda online que le muestra el mismo precio a todo el mundo sin importar si tienes descuento o no no es muy útil. Una app de fitness que te dice que hagas ejercicio aunque ya lo hayas hecho tampoco.
+
+La capacidad de **tomar decisiones** es lo que separa un programa rígido de uno que hace algo interesante. Y en Python, esa capacidad se llama **control de flujo**.
+
+## ¿Qué es una sentencia condicional?
+
+Piensa en cómo tomas decisiones en la vida real. "Si llueve, cojo el paraguas. Si no llueve, salgo normal." Eso es exactamente lo que hace un `if` en Python: ejecuta un bloque de código solo cuando se cumple una condición.
+
+La estructura básica es esta:
+
+```python
+if condicion:
+    # This code runs only if the condition is True
+    print("La condición se cumple")
+```
+
+Dos cosas importantes antes de seguir:
+
+**Los dos puntos** (`:`): son obligatorios al final de la línea del `if`. Si los olvidas, Python te lanzará un `SyntaxError` sin piedad.
+
+**La indentación**: el bloque de código que va dentro del `if` debe estar **sangrado** — normalmente 4 espacios. En Python, la indentación no es opcional ni estética. Es parte de la sintaxis. Si no sangas, el código no pertenece al `if`.
+
+```python
+edad = 20
+
+if edad >= 18:
+    print("Eres mayor de edad")   # Inside the if — runs if True
+    print("Puedes votar")         # Also inside — same indentation
+
+print("Esto siempre se muestra")  # Outside the if — always runs
+```
+
+Si `edad` es 20, verás los tres mensajes. Si `edad` fuera 15, solo verías el último.
+
+## El else: el plan B
+
+¿Y si quieres hacer algo diferente cuando la condición _no_ se cumple? Para eso está `else`. Funciona como el "si no" de la vida real:
+
+```python
+temperatura = 35
+
+if temperatura > 30:
+    print("Hace calor, quédate en casa")
+else:
+    print("Temperatura agradable, sal a dar un paseo")
+```
+
+El `else` no lleva condición — simplemente captura todos los casos que el `if` no cubrió. Si la condición del `if` es `True`, se ejecuta el bloque del `if` y el `else` se ignora. Si es `False`, ocurre lo contrario.
+
+Una cosa importante: **el `else` siempre va junto al `if`**. No puedes tener un `else` sin un `if` antes. Python se quejaría, y con razón.
+
+## El elif: cuando hay más de dos opciones
+
+La vida rara vez es binaria. A veces necesitas evaluar múltiples condiciones en orden, hasta encontrar la que se cumple. Ahí entra `elif` — contracción de "else if":
+
+```python
+nota = 7.2
+
+if nota >= 9:
+    print("Sobresaliente")
+elif nota >= 7:
+    print("Notable")
+elif nota >= 6:
+    print("Bien")
+elif nota >= 5:
+    print("Suficiente")
+else:
+    print("Insuficiente")
+```
+
+```
+Notable
+```
+
+El orden de evaluación es **de arriba a abajo**. Python comprueba la primera condición; si es `False`, pasa a la siguiente `elif`; si esa también es `False`, a la siguiente... hasta que una sea `True` o llegue al `else`. En cuanto encuentra una condición verdadera, **ejecuta ese bloque y sale**. No sigue comprobando el resto.
+
+Esto significa que el orden importa. Mucho. Mira qué pasa si desordenamos las condiciones:
+
+```python
+nota = 9.5
+
+# ⚠️ Wrong order — will never reach the higher grades
+if nota >= 5:
+    print("Suficiente")   # This runs for 9.5... not what we wanted
+elif nota >= 6:
+    print("Bien")
+elif nota >= 7:
+    print("Notable")
+elif nota >= 9:
+    print("Sobresaliente")
+```
+
+```
+Suficiente
+```
+
+Un 9.5 clasificado como suficiente. El problema es que `9.5 >= 5` es `True`, así que Python ejecuta ese bloque y no llega nunca a la condición de 9. La regla general: **del más restrictivo al más permisivo**.
+
+## Verdad y mentira en Python: truthiness
+
+Python tiene una visión bastante flexible de qué considera verdadero y qué considera falso. Cualquier valor puede usarse como condición, no solo `True` y `False`:
+
+```python
+# These are "falsy" — Python treats them as False in a condition
+if 0:
+    print("Esto nunca se muestra")
+
+if "":
+    print("Esto tampoco")
+
+if []:
+    print("Una lista vacía tampoco")
+
+if None:
+    print("None tampoco")
+```
+
+```python
+# These are "truthy" — any non-empty, non-zero value
+if 42:
+    print("Un número distinto de cero: truthy")
+
+if "hola":
+    print("Un string no vacío: truthy")
+
+if [1, 2, 3]:
+    print("Una lista con elementos: truthy")
+```
+
+Esto es útil en la práctica. En lugar de escribir `if len(lista) > 0`, puedes escribir simplemente `if lista`. Python sabe que una lista vacía es "falsa" y una con elementos es "verdadera".
+
+```python
+nombre = input("¿Cómo te llamas? ")
+
+if nombre:
+    print(f"Hola, {nombre}!")
+else:
+    print("No has escrito tu nombre")
+```
+
+Limpio, directo, legible.
+
+## Condiciones compuestas
+
+Ya sabes usar `and`, `or` y `not` de la lección anterior. Ahora cobra todo el sentido usarlos dentro de un `if`:
+
+```python
+edad = 25
+tiene_carnet = True
+
+if edad >= 18 and tiene_carnet:
+    print("Puedes alquilar un coche")
+else:
+    print("No cumples los requisitos")
+```
+
+```python
+dia = "sábado"
+
+if dia == "sábado" or dia == "domingo":
+    print("Es fin de semana, a descansar")
+else:
+    print("A trabajar")
+```
+
+```python
+es_premium = False
+
+if not es_premium:
+    print("Hazte premium para acceder a este contenido")
+```
+
+Una condición con `and` solo es verdadera si **todas** las subcondiciones lo son. Con `or`, basta con que **una** lo sea. Con `not`, inviertes el resultado.
+
+## Condicionales anidados: con cabeza
+
+Es perfectamente válido poner un `if` dentro de otro `if`. Se llaman **condicionales anidados**:
+
+```python
+edad = 20
+tiene_entrada = True
+
+if edad >= 18:
+    if tiene_entrada:
+        print("Puedes entrar al concierto")
+    else:
+        print("Eres mayor de edad pero necesitas entrada")
+else:
+    print("No puedes entrar, eres menor de edad")
+```
+
+Funciona, pero úsalos con moderación. Cada nivel de anidamiento añade complejidad y hace el código más difícil de leer. Si te encuentras con tres niveles de `if` dentro de `if`, probablemente puedas simplificarlo con `and`:
+
+```python
+# ✅ Cleaner with and
+if edad >= 18 and tiene_entrada:
+    print("Puedes entrar al concierto")
+elif edad >= 18:
+    print("Eres mayor de edad pero necesitas entrada")
+else:
+    print("No puedes entrar, eres menor de edad")
+```
+
+La regla no escrita: si puedes evitar anidar, evítalo.
+
+## Un programa que toma decisiones reales
+
+Juntemos todo en un ejemplo concreto. Un sistema de acceso a una biblioteca que comprueba varias condiciones:
+
+```python
+edad = int(input("¿Cuántos años tienes? "))
+tiene_carnet = input("¿Tienes carnet de biblioteca? (s/n) ") == "s"
+libros_prestados = int(input("¿Cuántos libros tienes prestados? "))
+
+print()  # Empty line for readability
+
+if edad < 6:
+    print("Lo sentimos, necesitas tener al menos 6 años para usar la biblioteca.")
+elif not tiene_carnet:
+    print("Necesitas un carnet de biblioteca. Puedes solicitarlo en recepción.")
+elif libros_prestados >= 5:
+    print("Has alcanzado el límite de préstamos. Devuelve algún libro antes de sacar más.")
+else:
+    print("¡Bienvenido/a! Puedes coger libros prestados.")
+    if libros_prestados >= 3:
+        print("Recuerda que solo te quedan", 5 - libros_prestados, "préstamos disponibles.")
+```
+
+Observa la estructura: primero comprobamos los casos que impiden el acceso, y dejamos el caso exitoso para el `else`. Es un patrón común llamado **early exit** — descartar los casos negativos antes, para que el flujo principal quede limpio al final.
+
+## Resumen
+
+- `if condicion:` ejecuta un bloque solo si la condición es verdadera
+- `elif` encadena condiciones alternativas; Python evalúa de arriba a abajo y para en la primera verdadera
+- `else` captura todos los casos que no cumplieron ninguna condición anterior
+- La **indentación** (4 espacios) no es estética — define qué código pertenece a qué bloque
+- Python tiene **truthiness**: valores como `0`, `""`, `[]` y `None` se evalúan como `False`
+- Los condicionales anidados funcionan, pero `and` / `or` suelen ser más limpios
+
+---
+
+Con las sentencias condicionales, tus programas por fin pueden tomar decisiones. Pero las decisiones solas no son suficientes — muchas veces necesitas repetir una acción un número determinado de veces, o mientras se cumpla una condición. En el próximo tutorial aprenderás los **bucles `while`**: cómo hacer que Python repita código automáticamente, y por qué hay que tener cuidado con los bucles infinitos.
+
+¡Nunca dejes de programar!
+
+---
+
+**💡 Reto**: Escribe un programa que pida al usuario una nota numérica del 0 al 10 y muestre la calificación correspondiente (Insuficiente, Suficiente, Bien, Notable o Sobresaliente). Añade una validación: si el usuario introduce un número fuera del rango 0–10, muestra un mensaje de error en lugar de intentar clasificarlo. Bonus: ¿qué pasa si introduces un número negativo? ¿Y si introduces texto en lugar de un número?
