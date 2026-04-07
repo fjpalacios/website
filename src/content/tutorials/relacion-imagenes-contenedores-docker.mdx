@@ -1,0 +1,268 @@
+---
+title: "Imágenes y contenedores en Docker: entendiendo la relación"
+post_slug: "relacion-imagenes-contenedores-docker"
+date: "2026-04-07"
+excerpt: "Qué es exactamente una imagen Docker, cómo se apilan las capas y qué pasa con un contenedor cuando se detiene. La relación imagen-contenedor es el modelo mental del que depende todo lo demás."
+language: "es"
+categories: ["docker"]
+course: "domina-docker-desde-cero"
+order: 3
+cover: "/images/tutorials/cabecera-docker-curso.jpg"
+i18n: "docker-images-containers-relationship"
+---
+
+Llevas dos lecciones descargando imágenes, lanzando contenedores y destruyéndolos. Pero aquí hay una pregunta: ¿sabes realmente lo que _es_ una imagen? No la definición de manual ("una plantilla de solo lectura"), sino lo que está pasando en tu disco. ¿Por qué la primera vez que descargas `node:22` tarda un rato y la segunda es casi instantáneo? ¿Por qué puedes tener diez contenedores corriendo a partir de la misma imagen sin que se interfieran entre sí?
+
+Si saliste de la lección anterior con una intuición vaga de cómo funciona esto, esta lección está pensada para convertir esa intuición en un modelo mental sólido. Porque todo lo que viene después en este curso — Dockerfiles, caché de builds, volúmenes, builds multi-stage — tiene mucho más sentido cuando entiendes lo que hay debajo.
+
+## Qué es realmente una imagen Docker
+
+Empecemos por lo que una imagen _no_ es. No es un archivo. No es un zip. No es una instantánea de un sistema en marcha.
+
+Una imagen Docker es una **pila de capas**. Cada capa es un conjunto de cambios en el sistema de archivos — archivos añadidos, modificados, eliminados. Cuando las apilas todas, obtienes un sistema de archivos completo que un contenedor puede ejecutar. Piénsalo como el historial de commits de Git: cada commit (capa) describe qué cambió, y la historia completa te da el estado actual del proyecto.
+
+A esto se le llama **union filesystem** (en Linux la implementación más común es OverlayFS). Docker fusiona estas capas de solo lectura en una vista coherente única, y eso es lo que el contenedor ve como su sistema de archivos.
+
+Para que sea concreto, imagina una imagen construida así:
+
+```
+Capa 1 (Base): Ubuntu 22.04 — añade ~80MB de archivos del SO
+Capa 2: apt-get install python3 — añade el intérprete de Python
+Capa 3: pip install flask — añade Flask y sus dependencias
+Capa 4: COPY app.py /app/ — añade el código de tu aplicación
+```
+
+Cada capa almacena solo el diff respecto a la anterior. Y aquí viene lo eficiente: si tienes diez imágenes distintas que todas parten de `ubuntu:22.04`, todas comparten esa primera capa en disco. Docker no la descarga ni la almacena diez veces — referencia la misma capa. Descarga una imagen nueva que comparte capas base con algo que ya tienes, y Docker dirá "already exists" para esas capas.
+
+```bash
+docker pull python:3.12
+```
+
+```
+3.12: Pulling from library/python
+fa9b7e77b6bf: Already exists       ← capas base compartidas con otras imágenes
+48be9699aae1: Already exists
+...
+b0c4ce42c5d0: Pull complete        ← capas nuevas específicas de python:3.12
+Digest: sha256:...
+Status: Downloaded newer image for python:3.12
+```
+
+Eso es la caché de capas haciendo su trabajo.
+
+## Explorando las capas
+
+Puedes inspeccionar exactamente qué capas tiene una imagen:
+
+```bash
+docker image inspect nginx
+```
+
+Esto devuelve un JSON enorme. La sección relevante es `RootFS.Layers`, que lista los hashes SHA256 de cada capa. También puedes ver una vista más legible con:
+
+```bash
+docker image history nginx
+```
+
+```
+IMAGE          CREATED        CREATED BY                                      SIZE
+a7be6198544f   2 weeks ago    CMD ["nginx" "-g" "daemon off;"]               0B
+<missing>      2 weeks ago    STOPSIGNAL SIGQUIT                             0B
+<missing>      2 weeks ago    EXPOSE 80                                      0B
+<missing>      2 weeks ago    COPY /etc/nginx /etc/nginx /                   4.61kB
+<missing>      2 weeks ago    RUN /bin/sh -c apt-get update && apt-get ...   91.4MB
+<missing>      2 weeks ago    ENV NGINX_VERSION=1.27.4                       0B
+<missing>      2 weeks ago    FROM debian:bookworm-slim                      0B
+```
+
+Léelo de abajo hacia arriba: empieza con la base `debian:bookworm-slim`, instala paquetes, copia la configuración de Nginx, define el comando de inicio. Cada línea es una capa (o una instrucción de metadatos que no añade bytes).
+
+## Tags de imagen: esto no es conocimiento opcional
+
+Cuando ejecutas `docker pull nginx`, en realidad estás ejecutando `docker pull nginx:latest`. El `:latest` es un **tag**, y `latest` es el valor por defecto. Los tags son punteros mutables — el `nginx:latest` de hoy no es la misma imagen que el `nginx:latest` de hace seis meses. Solo apunta a la build estable más reciente.
+
+En producción, nunca usas `latest`. Fijas una versión concreta:
+
+```bash
+docker pull nginx:1.27.4         # Versión exacta — determinista
+docker pull nginx:1.27           # Versión menor — recibe parches
+docker pull nginx:1              # Versión mayor — recibe actualizaciones menores
+docker pull nginx:latest         # ❌ Bien para experimentos locales, no para prod
+```
+
+¿Por qué? Porque `latest` significa que tu despliegue cambia cada vez que haces `docker pull`. Actualizar Nginx debería ser una decisión deliberada, no un efecto secundario de sincronizar imágenes.
+
+También verás un patrón habitual: **tags de variante**. La misma versión con diferentes imágenes base:
+
+```bash
+nginx:1.27.4-alpine    # Base Alpine Linux (~5MB), mínima, rápida de descargar
+nginx:1.27.4           # Base Debian (~180MB), mayor compatibilidad
+nginx:1.27.4-slim      # Debian reducido, punto intermedio
+```
+
+Alpine es popular en producción por su tamaño diminuto. El trade-off: usa `musl libc` en lugar de `glibc`, lo que puede causar problemas de compatibilidad sutiles con cierto software. Para la mayoría de cosas va perfecto; para otras es una sesión de debugging bastante frustrante (diferencias entre librerías de C, ya sabes cómo va eso).
+
+## El ciclo de vida de un contenedor
+
+Una imagen es estática. Un contenedor está vivo — y tiene un ciclo de vida.
+
+Cuando ejecutas `docker run`, el contenedor no aparece directamente en estado de ejecución. Pasa por una serie de estados:
+
+```
+Created → Running → (Paused) → Stopped → Removed
+```
+
+**Created**: el contenedor existe pero no ha arrancado. Puedes hacerlo explícitamente con `docker create`, o es un paso implícito dentro de `docker run`.
+
+**Running**: el proceso principal está ejecutándose. El contenedor consume CPU, RAM y recursos del sistema de archivos.
+
+**Paused**: el proceso está suspendido (SIGSTOP). El contenedor sigue existiendo en memoria pero no hace nada. `docker pause` y `docker unpause`. Se usa poco, pero es útil para depuración — congelas el contenedor en un punto concreto para inspeccionar su estado.
+
+**Stopped**: el proceso principal ha terminado. El contenedor sigue existiendo como entidad detenida — su sistema de archivos está preservado, sus logs son accesibles. Puedes reiniciarlo con `docker start`.
+
+**Removed**: el contenedor ha desaparecido. Sistema de archivos, logs, todo. No hay vuelta atrás.
+
+```bash
+# Recorre el ciclo de vida paso a paso
+docker create --name demo nginx          # Created
+docker start demo                        # Running
+docker pause demo                        # Paused
+docker unpause demo                      # Running again
+docker stop demo                         # Stopped (SIGTERM → SIGKILL después de 10s)
+docker rm demo                           # Removed
+```
+
+O sáltate la ceremonia y hazlo todo de golpe:
+
+```bash
+docker run --rm nginx    # Crea, arranca y elimina cuando termina
+```
+
+## La capa de escritura: por qué los contenedores no modifican las imágenes
+
+Aquí hay un detalle que genera confusión. Si las imágenes son de solo lectura, ¿cómo puede escribir archivos un contenedor?
+
+Cuando Docker crea un contenedor a partir de una imagen, añade una **capa de escritura fina** encima de todas las capas de solo lectura. Ahí va todo lo que el contenedor escribe — archivos de log, datos temporales, cualquier `apt-get install` que hagas dentro del contenedor. Las capas de la imagen subyacente nunca se tocan.
+
+```
+┌─────────────────────────────┐
+│   Capa de escritura         │  ← los cambios van aquí
+├─────────────────────────────┤
+│   Capa 4 de imagen (app.py) │  solo lectura
+├─────────────────────────────┤
+│   Capa 3 (Flask)            │  solo lectura
+├─────────────────────────────┤
+│   Capa 2 (Python)           │  solo lectura
+├─────────────────────────────┤
+│   Capa 1 (Ubuntu)           │  solo lectura
+└─────────────────────────────┘
+```
+
+Cuando eliminas el contenedor, la capa de escritura desaparece con él. La imagen queda exactamente igual que estaba. Arranca otro contenedor de la misma imagen y obtienes una capa de escritura fresca — pizarra en blanco.
+
+Esto es lo que hace que los contenedores sean **efímeros por diseño**. No están pensados para ser el hogar permanente de datos. Todo lo que quieras conservar más allá del ciclo de vida de un contenedor va en un volumen — pero eso es tema para más adelante en el curso.
+
+## Diez contenedores, una imagen
+
+Vamos a hacer esto tangible. Puedes tener diez contenedores corriendo a partir de una sola imagen simultáneamente:
+
+```bash
+# Lanza diez contenedores nginx, cada uno en un puerto diferente
+for i in $(seq 1 10); do
+  docker run -d -p "808${i}:80" --name "nginx-${i}" nginx
+done
+```
+
+```bash
+docker ps
+```
+
+```
+CONTAINER ID   IMAGE   COMMAND                  PORTS                  NAMES
+a1b2c3d4e5f6   nginx   "/docker-entrypoint.…"   0.0.0.0:8081->80/tcp   nginx-1
+b2c3d4e5f6a7   nginx   "/docker-entrypoint.…"   0.0.0.0:8082->80/tcp   nginx-2
+...
+```
+
+Cada uno está completamente aislado. Escribir en el sistema de archivos de `nginx-1` no afecta a `nginx-2`. Todos comparten las capas de solo lectura de la imagen Nginx. En disco, el overhead de diez contenedores son diez capas de escritura diminutas — no diez copias completas de Nginx.
+
+Para limpiar cuando acabes:
+
+```bash
+for i in $(seq 1 10); do
+  docker stop "nginx-${i}" && docker rm "nginx-${i}"
+done
+```
+
+O más directo:
+
+```bash
+docker rm -f $(docker ps -aq --filter name=nginx-)
+```
+
+## Descargar, listar y eliminar imágenes
+
+Unos comandos que usarás constantemente:
+
+```bash
+# Descargar una imagen sin ejecutarla
+docker pull node:22-alpine
+
+# Listar todas las imágenes disponibles localmente
+docker images
+```
+
+```
+REPOSITORY   TAG          IMAGE ID       CREATED        SIZE
+nginx        latest       a7be6198544f   2 weeks ago    192MB
+node         22-alpine    f7d2a4e85d2c   3 weeks ago    141MB
+ubuntu       22.04        3db8720ecbf5   4 weeks ago    77.9MB
+python       3.12         b3a18c9e2f1d   3 weeks ago    1.02GB
+```
+
+```bash
+# Eliminar una imagen (solo funciona si ningún contenedor — en marcha o detenido — la referencia)
+docker rmi nginx
+
+# Forzar la eliminación (también elimina contenedores derivados)
+docker rmi -f nginx
+
+# Eliminar todas las imágenes sin uso
+docker image prune
+docker image prune -a    # También elimina imágenes sin contenedores en marcha (más agresivo)
+```
+
+⚠️ No puedes eliminar una imagen mientras haya algún contenedor (aunque esté detenido) que la referencie. Elimina primero el contenedor, luego la imagen.
+
+## Nombrar contenedores: no te saltes este paso
+
+Si no nombras tus contenedores, Docker les asigna combinaciones aleatorias de adjetivo-nombre (`ecstatic_hopper`, `confident_kepler`). Tiene su encanto, pero son inútiles para cualquier cosa más allá de un experimento rápido.
+
+```bash
+# Nombra siempre tus contenedores
+docker run -d --name web-server nginx
+docker run -d --name api-backend node:22-alpine node app.js
+docker run -d --name db-primary postgres:16
+```
+
+Los contenedores con nombre son mucho más fáciles de referenciar en cualquier comando posterior:
+
+```bash
+docker logs web-server
+docker exec -it web-server bash
+docker stop web-server
+```
+
+Y cuando empieces a usar Docker Compose (más adelante en el curso), los nombres se vuelven aún más importantes, porque los servicios se descubren entre sí por nombre a través de la red interna de Docker.
+
+---
+
+La relación imagen-contenedor es la base de todo lo que hace Docker. Las capas explican el comportamiento de la caché, la eficiencia al descargar imágenes, y por qué modificar un contenedor no afecta a los demás que comparten la misma imagen. El ciclo de vida explica por qué los contenedores están diseñados para ser desechables — y por qué persistir datos requiere un mecanismo diferente.
+
+En la próxima lección nos pondremos manos a la obra con los **contenedores interactivos y exec**: abrir shells dentro de contenedores, copiar archivos dentro y fuera, y entender cuándo usar `-it` frente a `-d` y por qué la diferencia importa.
+
+¡Nunca dejes de programar!
+
+---
+
+**💡 Reto**: Descarga tres imágenes distintas (`nginx`, `node:22-alpine`, `python:3.12-slim`). Crea dos contenedores a partir de `nginx`, detén uno, elimina el otro. Consulta los logs del contenedor que queda. Comprueba qué capas tienen en común `nginx` y `python:3.12-slim` usando `docker image inspect`. Limpia todo con `docker system prune`.
