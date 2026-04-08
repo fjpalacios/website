@@ -1,0 +1,222 @@
+---
+title: "Normal Mode: The Power of Vim"
+post_slug: "normal-mode-power-of-vim"
+date: "2026-04-09"
+excerpt: "Normal mode isn't just where you land between keystrokes — it's where Vim lives. Learn word movements, the operator+motion grammar, and how a handful of keys gives you near-infinite editing power."
+language: "en"
+categories: ["vim"]
+course: "mastering-vim-from-scratch"
+order: 4
+cover: "/images/tutorials/cabecera-vim-curso.jpg"
+i18n: "modo-normal-el-poder-de-vim"
+---
+
+Every new Vim user makes the same mistake: they treat Normal mode as an inconvenience — that awkward state you have to pass through to get to Insert mode, where the "real work" happens. They tap `i`, type a word, tap `Esc`, tap `i` again, type another word. Normal mode is just the lobby.
+
+Here's the thing: Normal mode is not the lobby. It's the whole building.
+
+In VS Code or Sublime, you spend 80% of your time navigating: moving the cursor, selecting text, deleting words, jumping between lines. The keyboard handles maybe 20% of that; the mouse handles the rest. Vim flips this completely. Normal mode gives you a vocabulary of precise, composable movements and operations — and once you're fluent, you'll navigate and edit without ever lifting your hands from the keyboard.
+
+This tutorial is where Vim starts to click.
+
+## Moving faster than one character at a time
+
+`hjkl` got you into the game. Now it's time to actually play.
+
+### Word movements
+
+Instead of pressing `l` seventeen times to get to the word you want, Vim lets you jump by word:
+
+- `w` — jump to the **start** of the next word
+- `b` — jump **back** to the start of the previous word
+- `e` — jump to the **end** of the current (or next) word
+
+These three form a triangle. `w` and `b` are opposites; `e` gets you to the last character of a word. In practice you'll use `w` and `b` constantly, and `e` when you need to land precisely on the final character.
+
+```
+The quick brown fox jumps over the lazy dog
+^   ^     ^     ^   ^     ^    ^   ^    ^
+                              w movements (one per press)
+```
+
+There's also the uppercase variants: `W`, `B`, `E`. These do the same thing, but they define "word" differently — they skip over punctuation and treat `user_name`, `foo.bar`, and `http://example.com` as single words. The lowercase `w` would stop at every underscore and dot.
+
+```vim
+" Cursor on 'u' in user_name
+w    " → stops at '_' (between user and name)
+W    " → skips to next whitespace-separated chunk
+```
+
+Rule of thumb: use lowercase when you care about punctuation boundaries, uppercase when you want to jump over the whole "thing."
+
+### Line movements
+
+Getting around within a line:
+
+- `0` — go to the **absolute start** of the line (column 1)
+- `^` — go to the **first non-blank character** (ignores indentation)
+- `$` — go to the **end** of the line
+- `g_` — go to the **last non-blank character** (ignores trailing spaces)
+
+You'll use `^` and `$` far more than `0` and `g_`. Code has indentation; `^` puts you at the actual first character of the code, not at column 1.
+
+### File movements
+
+- `gg` — jump to the **first line** of the file
+- `G` — jump to the **last line** of the file
+- `5G` or `:5` — jump to **line 5** (replace 5 with any number)
+- `Ctrl+d` — scroll half a page **down** (d for down)
+- `Ctrl+u` — scroll half a page **up** (u for up)
+- `Ctrl+f` — full page **forward**
+- `Ctrl+b` — full page **back**
+
+The `Ctrl+d` / `Ctrl+u` pair deserves a special mention. Once these are in your muscle memory, you'll browse through files at a completely different speed. Down, down, down, up — no more dragging a scrollbar with the mouse.
+
+## The Vim grammar: operator + motion
+
+This is the part where it all clicks. Stay with me.
+
+Every command in Vim follows a simple grammar:
+
+```
+[count] operator motion
+```
+
+- **count** (optional): how many times to apply
+- **operator**: what to do (`d` for delete, `c` for change, `y` for yank/copy)
+- **motion**: where to do it (`w` for word, `$` for end of line, `j` for down)
+
+You already know several motions: `w`, `b`, `e`, `$`, `0`, `G`. The moment you learn even one operator, you can combine it with every motion you know.
+
+### The operators
+
+| Operator | What it does                                            |
+| -------- | ------------------------------------------------------- |
+| `d`      | **Delete** (and put in clipboard — it's actually "cut") |
+| `c`      | **Change** (delete and immediately enter Insert mode)   |
+| `y`      | **Yank** (copy to clipboard without deleting)           |
+| `p`      | **Put** (paste — after cursor by default)               |
+| `P`      | **Put before** the cursor                               |
+
+### Combining them
+
+```vim
+dw    " delete from cursor to start of next word
+db    " delete from cursor back to start of current word
+d$    " delete from cursor to end of line
+d0    " delete from cursor to start of line
+dG    " delete from cursor to end of file
+d5j   " delete current line + 5 lines below (6 total)
+
+cw    " change word (delete word, enter Insert mode)
+c$    " change to end of line
+c^    " change from start of code to cursor
+
+yw    " yank (copy) one word
+y$    " yank to end of line
+yy    " yank entire line (special case — doubled operator = full line)
+```
+
+That last one is worth dwelling on: **doubling an operator applies it to the whole line**. `dd` deletes the current line. `yy` yanks it. `cc` changes it. You'll use `dd` and `yy` constantly.
+
+### A concrete example
+
+Say you're editing this Python function and want to rename `calculate_total`:
+
+```python
+def calculate_total(items):
+    return sum(item.price for item in items)
+```
+
+Position your cursor on the `c` of `calculate_total`. Now:
+
+```vim
+cw    " deletes 'calculate_total' and drops you into Insert mode
+```
+
+Type `compute_sum`, press `Esc`. Done. Two keystrokes to delete the word, type the replacement, exit Insert mode.
+
+Without Vim: click at the start of the word, click-drag to the end, type the replacement. Five gestures, two of which require the mouse.
+
+## The dot command: the most powerful key in Vim
+
+Once you've made a change, you can repeat it instantly: press `.` (dot).
+
+The `.` command replays the last change you made — whatever it was. Added `async` before a function? Press `.` to add it to the next one. Deleted a line with `dd`? Press `.` to delete the next line. Changed a word with `cw`? Press `.` to change the next word the same way.
+
+```vim
+cw    " change current word, type 'newName', press Esc
+w     " move to next occurrence
+.     " repeat: change that word to 'newName' too
+w
+.     " and again
+```
+
+This is how Vim users do what looks like multiple-cursor editing without actually using multiple cursors. Find the pattern, make the change once, then `.` your way through the file.
+
+Don't underestimate `.`. Experienced Vim users think about their edits in terms of "how do I make this change once, repeatably?"
+
+## Counts: do it N times
+
+Any command can be prefixed with a number to repeat it:
+
+```vim
+3w      " move forward 3 words
+5j      " move down 5 lines
+3dd     " delete 3 lines
+2p      " paste twice
+10G     " go to line 10
+```
+
+Counts plus operators plus motions give you a genuinely expressive system. `d3w` means "delete 3 words." `y5j` means "yank current line plus 5 below." You're not memorizing a list of commands; you're speaking a language.
+
+## A few essential shortcuts
+
+Some combinations appear so often they've earned their own single keys:
+
+| Shortcut | Equivalent | What it does                                |
+| -------- | ---------- | ------------------------------------------- |
+| `D`      | `d$`       | Delete to end of line                       |
+| `C`      | `c$`       | Change to end of line                       |
+| `Y`      | `yy`       | Yank entire line                            |
+| `x`      | `dl`       | Delete character under cursor               |
+| `s`      | `cl`       | Substitute character (delete + Insert mode) |
+| `S`      | `cc`       | Substitute entire line                      |
+
+These aren't exceptions to the grammar — they're just common abbreviations. Learn them as shortcuts, not as separate rules.
+
+## Practical exercise
+
+Open any code file you've been working on and spend five minutes on this:
+
+1. Navigate to a function or method name using `w` and `b` only — no arrow keys
+2. Use `cw` to rename it, type the new name, press `Esc`
+3. Press `gg` to go to the top of the file
+4. Press `G` to go to the bottom
+5. Use `10G` (or whatever line number makes sense) to jump somewhere in the middle
+6. Delete three lines with `3dd`
+7. Paste them back with `p`
+8. Find another word you want to delete and use `dw`
+9. Press `u` to undo
+10. Press `.` — notice what happens
+
+If you feel slightly overwhelmed at this point, that's completely normal. For now, don't stress about memorizing every combination — focus on the grammar: **operator + motion**. Once that's in your head, the rest follows naturally.
+
+## Key concepts from this lesson
+
+- **Word movements**: `w` / `b` / `e` jump by word; `W` / `B` / `E` jump by WORD (ignoring punctuation)
+- **Line movements**: `^` → first non-blank, `$` → end of line
+- **File movements**: `gg` → top, `G` → bottom, `Ctrl+d` / `Ctrl+u` → scroll
+- **The grammar**: `[count] operator motion` — `d3w`, `c$`, `y5j`
+- **Operators**: `d` (delete/cut), `c` (change), `y` (yank/copy), `p` (put/paste)
+- **Doubled operators** = whole line: `dd`, `yy`, `cc`
+- **`.`** repeats the last change — use it constantly
+- **Counts** multiply any command: `3dd`, `5j`, `2p`
+
+---
+
+You now understand what makes Vim fundamentally different from every editor you've used before. It's not the number of shortcuts — it's the grammar. Operators combine with motions, counts scale them, and `.` repeats them. You're not memorizing; you're composing.
+
+The next step is understanding the other side of the grammar: **Insert mode in depth**. There's more there than just "press `i` and type" — Vim has a set of powerful ways to enter and exit Insert mode that will make your edits more precise and your `.` repetitions more effective.
+
+Never stop coding!
