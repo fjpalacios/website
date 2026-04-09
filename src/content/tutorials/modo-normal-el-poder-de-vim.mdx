@@ -1,0 +1,222 @@
+---
+title: "Modo Normal: el poder de Vim"
+post_slug: "modo-normal-el-poder-de-vim"
+date: "2026-04-09"
+excerpt: "El modo Normal no es el sitio donde esperas entre pulsaciones — es donde Vim vive. Aprende movimientos por palabras, la gramática operador+movimiento y cómo un puñado de teclas te da un poder de edición casi infinito."
+language: "es"
+categories: ["vim"]
+course: "domina-vim-desde-cero"
+order: 4
+cover: "/images/tutorials/cabecera-vim-curso.jpg"
+i18n: "normal-mode-power-of-vim"
+---
+
+Todos los usuarios nuevos de Vim cometen el mismo error: tratan el modo Normal como una incomodidad — ese estado extraño por el que tienes que pasar para llegar al modo Insert, donde ocurre el "trabajo de verdad". Pulsan `i`, escriben una palabra, pulsan `Esc`, vuelven a pulsar `i`, escriben otra palabra. El modo Normal es solo el vestíbulo.
+
+El problema es que el modo Normal no es el vestíbulo. Es el edificio entero.
+
+En VS Code o Sublime, pasas el 80% del tiempo navegando: moviendo el cursor, seleccionando texto, borrando palabras, saltando entre líneas. El teclado gestiona quizás el 20% de eso; el ratón hace el resto. Vim le da la vuelta completamente. El modo Normal te da un vocabulario de movimientos y operaciones precisas y combinable — y cuando eres fluido en él, navegas y editas sin levantar las manos del teclado en ningún momento.
+
+Este tutorial es donde Vim empieza a encajar.
+
+## Moverse más rápido que un carácter cada vez
+
+`hjkl` te metió en el juego. Ahora toca jugarlo de verdad.
+
+### Movimientos por palabras
+
+En lugar de pulsar `l` diecisiete veces para llegar a la palabra que quieres, Vim te permite saltar por palabras:
+
+- `w` — saltar al **inicio** de la siguiente palabra
+- `b` — saltar **atrás** al inicio de la palabra anterior
+- `e` — saltar al **final** de la palabra actual (o de la siguiente)
+
+Estos tres forman un triángulo. `w` y `b` son opuestos; `e` te deja en el último carácter de una palabra. En la práctica usarás `w` y `b` constantemente, y `e` cuando necesitas aterrizar exactamente en el último carácter.
+
+```
+The quick brown fox jumps over the lazy dog
+^   ^     ^     ^   ^     ^    ^   ^    ^
+                              movimientos w (uno por pulsación)
+```
+
+También hay variantes en mayúscula: `W`, `B`, `E`. Hacen lo mismo, pero definen "palabra" de forma diferente — ignoran la puntuación y tratan `user_name`, `foo.bar` y `http://ejemplo.com` como palabras únicas. La `w` minúscula se detiene en cada guión bajo y cada punto.
+
+```vim
+" Cursor en 'u' de user_name
+w    " → se detiene en '_' (entre user y name)
+W    " → salta al siguiente fragmento separado por espacio
+```
+
+Regla general: usa minúsculas cuando te importan los límites de puntuación, mayúsculas cuando quieres saltar sobre el "fragmento" entero.
+
+### Movimientos dentro de la línea
+
+Para moverse dentro de una línea:
+
+- `0` — ir al **inicio absoluto** de la línea (columna 1)
+- `^` — ir al **primer carácter no en blanco** (ignora la indentación)
+- `$` — ir al **final** de la línea
+- `g_` — ir al **último carácter no en blanco** (ignora espacios finales)
+
+Usarás `^` y `$` mucho más que `0` y `g_`. El código tiene indentación; `^` te pone en el primer carácter real del código, no en la columna 1.
+
+### Movimientos por el archivo
+
+- `gg` — saltar a la **primera línea** del archivo
+- `G` — saltar a la **última línea** del archivo
+- `5G` o `:5` — saltar a la **línea 5** (sustituye 5 por cualquier número)
+- `Ctrl+d` — bajar media página (d de down)
+- `Ctrl+u` — subir media página (u de up)
+- `Ctrl+f` — página completa hacia adelante
+- `Ctrl+b` — página completa hacia atrás
+
+El par `Ctrl+d` / `Ctrl+u` merece una mención especial. Cuando estos estén en tu memoria muscular, navegarás por archivos a una velocidad completamente diferente. Abajo, abajo, abajo, arriba — se acabó arrastrar una barra de desplazamiento con el ratón.
+
+## La gramática de Vim: operador + movimiento
+
+Aquí es donde todo encaja. Aguanta un momento.
+
+Cada comando en Vim sigue una gramática simple:
+
+```
+[cuenta] operador movimiento
+```
+
+- **cuenta** (opcional): cuántas veces aplicarlo
+- **operador**: qué hacer (`d` para borrar, `c` para cambiar, `y` para copiar)
+- **movimiento**: dónde hacerlo (`w` para palabra, `$` para final de línea, `j` para abajo)
+
+Ya conoces varios movimientos: `w`, `b`, `e`, `$`, `0`, `G`. En el momento en que aprendes un solo operador, puedes combinarlo con todos los movimientos que conoces.
+
+### Los operadores
+
+| Operador | Qué hace                                                 |
+| -------- | -------------------------------------------------------- |
+| `d`      | **Delete** (y guarda en portapapeles — es un "cortar")   |
+| `c`      | **Change** (borra y entra inmediatamente en modo Insert) |
+| `y`      | **Yank** (copia al portapapeles sin borrar)              |
+| `p`      | **Put** (pega — después del cursor por defecto)          |
+| `P`      | **Put before** — pega antes del cursor                   |
+
+### Combinándolos
+
+```vim
+dw    " borra desde el cursor al inicio de la siguiente palabra
+db    " borra desde el cursor al inicio de la palabra actual
+d$    " borra desde el cursor al final de la línea
+d0    " borra desde el cursor al inicio de la línea
+dG    " borra desde el cursor hasta el final del archivo
+d5j   " borra la línea actual + 5 líneas abajo (6 en total)
+
+cw    " change word (borra la palabra, entra al modo Insert)
+c$    " change hasta el final de la línea
+c^    " change desde el inicio del código hasta el cursor
+
+yw    " yank (copia) una palabra
+y$    " yank hasta el final de la línea
+yy    " yank la línea entera (caso especial — operador doble = línea completa)
+```
+
+Ese último vale la pena destacarlo: **doblar un operador lo aplica a la línea completa**. `dd` borra la línea actual. `yy` la copia. `cc` la cambia. Usarás `dd` e `yy` constantemente.
+
+### Un ejemplo concreto
+
+Imagina que estás editando esta función de Python y quieres renombrar `calcular_total`:
+
+```python
+def calcular_total(items):
+    return sum(item.precio for item in items)
+```
+
+Coloca el cursor en la `c` de `calcular_total`. Ahora:
+
+```vim
+cw    " borra 'calcular_total' y te deja en modo Insert
+```
+
+Escribe `calcular_suma`, pulsa `Esc`. Listo. Dos pulsaciones para borrar la palabra, escribir el reemplazo, salir del modo Insert.
+
+Sin Vim: clic al inicio de la palabra, clic-arrastrar hasta el final, escribir el reemplazo. Cinco gestos, dos de los cuales requieren el ratón.
+
+## El comando punto: la tecla más poderosa de Vim
+
+Una vez que has hecho un cambio, puedes repetirlo al instante: pulsa `.` (punto).
+
+El comando `.` repite el último cambio que hiciste — fuera el que fuera. ¿Añadiste `async` antes de una función? Pulsa `.` para añadirlo a la siguiente. ¿Borraste una línea con `dd`? Pulsa `.` para borrar la siguiente. ¿Cambiaste una palabra con `cw`? Pulsa `.` para cambiar la siguiente de la misma forma.
+
+```vim
+cw    " cambia la palabra actual, escribe 'nuevoNombre', pulsa Esc
+w     " muévete a la siguiente ocurrencia
+.     " repite: cambia esa palabra a 'nuevoNombre' también
+w
+.     " y otra vez
+```
+
+Así es como los usuarios de Vim hacen lo que parece edición con múltiples cursores sin usar múltiples cursores. Encuentra el patrón, haz el cambio una vez, y luego recorre el archivo con `.`.
+
+No subestimes `.`. Los usuarios con experiencia piensan sus ediciones en términos de "¿cómo hago este cambio una vez, de forma repetible?"
+
+## Cuentas: hazlo N veces
+
+Cualquier comando puede ir precedido de un número para repetirlo:
+
+```vim
+3w      " avanza 3 palabras
+5j      " baja 5 líneas
+3dd     " borra 3 líneas
+2p      " pega dos veces
+10G     " va a la línea 10
+```
+
+Cuentas más operadores más movimientos te dan un sistema genuinamente expresivo. `d3w` significa "borra 3 palabras". `y5j` significa "copia la línea actual más las 5 de abajo". No estás memorizando una lista de comandos; estás hablando un idioma.
+
+## Algunos atajos esenciales
+
+Ciertas combinaciones aparecen tan a menudo que se han ganado su propia tecla individual:
+
+| Atajo | Equivalente | Qué hace                                     |
+| ----- | ----------- | -------------------------------------------- |
+| `D`   | `d$`        | Borra hasta el final de la línea             |
+| `C`   | `c$`        | Cambia hasta el final de la línea            |
+| `Y`   | `yy`        | Copia la línea entera                        |
+| `x`   | `dl`        | Borra el carácter bajo el cursor             |
+| `s`   | `cl`        | Sustituye el carácter (borrar + modo Insert) |
+| `S`   | `cc`        | Sustituye la línea entera                    |
+
+Estos no son excepciones a la gramática — son abreviaciones de combinaciones frecuentes. Apréndelos como atajos, no como reglas separadas.
+
+## Ejercicio práctico
+
+Abre cualquier archivo de código en el que hayas estado trabajando y dedica cinco minutos a esto:
+
+1. Navega hasta el nombre de una función o método usando solo `w` y `b` — sin flechas
+2. Usa `cw` para renombrarlo, escribe el nuevo nombre, pulsa `Esc`
+3. Pulsa `gg` para ir al inicio del archivo
+4. Pulsa `G` para ir al final
+5. Usa `10G` (o el número de línea que tenga sentido) para saltar a algún punto en medio
+6. Borra tres líneas con `3dd`
+7. Pégalas de nuevo con `p`
+8. Encuentra otra palabra que quieras borrar y usa `dw`
+9. Pulsa `u` para deshacer
+10. Pulsa `.` — fíjate en qué pasa
+
+Si en este punto te sientes un poco abrumado, es completamente normal. Por ahora, no te agobies con memorizar cada combinación — céntrate en la gramática: **operador + movimiento**. Cuando eso esté en tu cabeza, lo demás llega solo.
+
+## Conceptos clave de esta lección
+
+- **Movimientos por palabras**: `w` / `b` / `e` saltan por palabra; `W` / `B` / `E` saltan por WORD (ignoran puntuación)
+- **Movimientos en línea**: `^` → primer no-blanco, `$` → final de línea
+- **Movimientos por archivo**: `gg` → inicio, `G` → final, `Ctrl+d` / `Ctrl+u` → scroll
+- **La gramática**: `[cuenta] operador movimiento` — `d3w`, `c$`, `y5j`
+- **Operadores**: `d` (delete/cut), `c` (change), `y` (yank/copy), `p` (put/paste)
+- **Operadores dobles** = línea completa: `dd`, `yy`, `cc`
+- **`.`** repite el último cambio — úsalo constantemente
+- **Cuentas** multiplican cualquier comando: `3dd`, `5j`, `2p`
+
+---
+
+Ahora entiendes qué hace a Vim fundamentalmente diferente de cualquier editor que hayas usado antes. No es la cantidad de atajos — es la gramática. Los operadores se combinan con movimientos, las cuentas los escalan, y `.` los repite. No estás memorizando; estás componiendo.
+
+El siguiente paso es entender el otro lado de la gramática: **el modo Insert en profundidad**. Hay más ahí de lo que parece — Vim tiene formas poderosas de entrar y salir del modo Insert que harán tus ediciones más precisas y tus repeticiones con `.` más efectivas.
+
+¡Nunca dejes de programar!
