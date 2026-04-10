@@ -1,0 +1,155 @@
+---
+title: "Cómo funcionan los LLMs (sin matemáticas)"
+post_slug: "como-funcionan-los-llms-sin-matematicas"
+date: "2026-04-10"
+excerpt: "Entiende cómo funcionan los Large Language Models por dentro — sin ecuaciones, con analogías que explican por qué alucina con tanta seguridad y cómo usar eso a tu favor."
+language: "es"
+categories: ["ia"]
+course: "ia-para-programadores"
+order: 2
+cover: "/images/tutorials/cabecera-ia-para-programadores-curso.jpg"
+i18n: "how-llms-work-without-the-math"
+---
+
+En el tutorial anterior dijimos que los LLMs "predicen texto". Y probablemente pensaste: "vale, pero eso no me dice nada útil". Tienes razón. Necesitamos ir un nivel más abajo — no al nivel de las matemáticas, sino al nivel del _qué está pasando realmente_, porque eso explica directamente por qué la IA a veces se inventa funciones que no existen, por qué el mismo prompt puede dar respuestas distintas, y por qué darle más contexto marca una diferencia enorme.
+
+Este tutorial es quizás el más importante del módulo. No por lo que vas a aprender a hacer, sino por el modelo mental que vas a construir. Y ese modelo mental, te lo garantizo, va a ahorrarte horas de frustración.
+
+## La máquina de predecir la siguiente palabra
+
+Aquí va la verdad incómoda: un LLM no "entiende" nada. No tiene criterio propio, no ha vivido experiencias, no tiene intuición. Lo que tiene es algo más extraño y, en cierta forma, más impresionante: ha leído cantidades absurdas de texto y ha aprendido, estadísticamente, qué palabras suelen ir después de otras.
+
+La tarea durante el entrenamiento era brutal en su simplicidad:
+
+```
+Texto de entrenamiento:  "El gato se sentó en el..."
+Objetivo:                 Predecir "tejado"
+```
+
+Esto, multiplicado por billones de ejemplos, durante semanas, con miles de GPUs. El resultado es un modelo que, dado cualquier fragmento de texto, puede predecir con sorprendente precisión qué viene después.
+
+Y aquí está la magia que nadie esperaba: **predecir bien la siguiente palabra requiere entender muchísimo sobre el mundo**. Para predecir que después de "El presidente firmó el..." viene algo relacionado con legislación o acuerdos, el modelo tiene que haber aprendido qué es un presidente, qué hace, en qué contextos actúa. No como concepto abstracto — como patrón estadístico extraído de millones de textos.
+
+¿Es eso "entender"? Los filósofos llevan años discutiéndolo. Para nosotros como programadores, la respuesta práctica es: da igual. Lo que importa es que el comportamiento emergente es útil, y que conocer su origen nos hace usarlo mejor.
+
+## El becario que ha leído todo Stack Overflow
+
+La analogía más útil que conozco para un LLM es esta:
+
+Imagina un **becario extraordinariamente bien leído**. Ha leído la documentación completa de Python, Node.js, Rust y otros 50 lenguajes. Ha procesado millones de posts de Stack Overflow. Ha visto decenas de miles de repositorios de GitHub. Ha leído artículos técnicos, posts de blog, libros de programación. Todo eso está ahí dentro, comprimido de alguna forma.
+
+Pero hay cosas que ese becario no puede hacer:
+
+```
+Lo que sí puede:
+✅ Sintetizar información de múltiples fuentes rápidamente
+✅ Escribir código coherente y estructurado
+✅ Explicar conceptos con distintos niveles de detalle
+✅ Generar tests, docs y boilerplate a alta velocidad
+✅ Reconocer patrones y sugerir mejoras
+
+Lo que no puede:
+❌ Buscar información nueva (a menos que tenga herramientas para ello)
+❌ Recordar lo que hablasteis ayer
+❌ Saber si algo que dice es correcto con certeza
+❌ Acceder a tu codebase (a menos que se lo muestres)
+❌ Conocer nada posterior a su fecha de entrenamiento
+```
+
+Ese último punto — la fecha de entrenamiento — es importante. El modelo no sabe lo que pasó después de que cerraron el grifo de datos. Si la API de una librería cambió hace seis meses, el LLM puede darte la sintaxis antigua con total confianza. No miente: genuinamente no lo sabe.
+
+## Por qué la IA dice tonterías con seguridad absoluta
+
+Esto es lo que se llama **alucinación**, y entender por qué ocurre es fundamental para no caer en la trampa.
+
+El modelo genera texto prediciendo la siguiente palabra. En ningún momento tiene acceso a un mecanismo que diga "espera, ¿esto es verdad?". No existe una consulta a una base de datos de hechos. No hay un módulo de verificación. Hay predicción estadística, y ya.
+
+Entonces, cuando le preguntas por una función de Python que no existe:
+
+```python
+# Pregunta: "¿Cómo uso python.utils.magic_sort()?"
+# Respuesta de la IA:
+import python.utils
+
+result = python.utils.magic_sort(my_list, reverse=True, stable=True)
+# The stable parameter ensures equal elements maintain their relative order
+```
+
+La IA no ha buscado `magic_sort` en ningún sitio. Ha generado texto que _suena como_ la respuesta correcta a esa pregunta, basándose en cómo suelen ser las respuestas sobre funciones de Python. El nombre, los parámetros, la explicación — todo tiene la forma correcta. Solo le falta existir.
+
+Esto no es un bug que vayan a arreglar. Es una consecuencia directa de cómo funcionan estos modelos. Por eso la verificación no es opcional — es parte del flujo de trabajo.
+
+### Señales de alerta que deberías reconocer
+
+Con el tiempo, desarrollas un olfato para esto. Mientras tanto, aquí van las señales más comunes:
+
+- **Respuesta excesivamente confiada** sobre un tema muy específico o poco documentado
+- **Nombres de funciones que "suenan bien"** pero que no reconoces
+- **Versiones concretas** de librerías o fechas de lanzamiento sin fuente
+- **Código que tiene la forma correcta** pero que al ejecutarlo da `AttributeError` o `ModuleNotFoundError`
+- **Explicaciones que cambian** si repites la pregunta con ligeras variaciones
+
+La regla de oro: trata el output de la IA como código de un compañero que es muy listo pero que trabaja de forma apresurada. Revisar antes de confiar, siempre.
+
+## El contexto es tu superpoder
+
+Aquí está la variable que más controlas y que más diferencia hace: **el contexto que le das al modelo**.
+
+El LLM no tiene memoria entre sesiones (a menos que se la proporciones explícitamente). Cada conversación empieza desde cero. Lo único que sabe de ti, de tu proyecto y de tu problema es lo que hay dentro de la ventana de contexto actual.
+
+La **ventana de contexto** es la cantidad de texto que el modelo puede "ver" a la vez. Claude Sonnet, por ejemplo, tiene una ventana de 200.000 tokens — suficiente para un codebase mediano completo. Esto es enorme y relativamente reciente: hace dos años, las ventanas eran de 8.000 tokens y había que gestionar manualmente qué incluir.
+
+¿Qué significa esto para ti en la práctica?
+
+```
+❌ Prompt pobre:
+"Mi código no funciona, ayúdame"
+
+✅ Prompt con contexto:
+"Tengo esta función de Python que debería parsear fechas en formato ISO 8601,
+pero falla cuando el string incluye timezone offset (e.g., 2026-03-07T10:30:00+01:00).
+Aquí está el código: [código]
+Y aquí el error: [error]
+Estoy usando Python 3.12 con dateutil 2.9.0"
+```
+
+La diferencia en calidad de respuesta es abismal. No porque el modelo sea más listo — sino porque tiene la información que necesita para predecir respuestas relevantes.
+
+## La temperatura: por qué la misma pregunta da respuestas distintas
+
+Si alguna vez has preguntado lo mismo dos veces y te han dado respuestas distintas, no es un fallo. Es por diseño.
+
+Cuando el modelo predice la siguiente palabra, no elige siempre la más probable. Hay un parámetro llamado **temperatura** que controla cuánta aleatoriedad se inyecta en esa elección. Con temperatura alta (más creativa), puede elegir palabras menos probables. Con temperatura baja (más determinista), casi siempre elige la más probable.
+
+```
+Temperatura 0.0  → muy determinista, respuestas consistentes
+Temperatura 0.5  → balance entre creatividad y consistencia
+Temperatura 1.0  → más variación, más creativo, más errático
+```
+
+Para código, generalmente quieres temperatura baja: quieres que el modelo te dé la solución más probable, no que experimente. Para brainstorming o generación de ideas, algo más de temperatura ayuda a salir de los patrones habituales.
+
+OpenCode gestiona esto automáticamente según el tipo de tarea, pero es bueno saber que existe el concepto — especialmente cuando notes que la IA "se vuelve más conservadora" o "más creativa" según el contexto.
+
+## Más nuevo no siempre significa mejor (para ti)
+
+Un último punto que rompe expectativas: que salga un modelo nuevo no significa que debas cambiarte a él inmediatamente para todo.
+
+Los modelos se optimizan para diferentes objetivos. Un modelo muy nuevo puede ser mejor en razonamiento matemático pero peor en seguir instrucciones complejas. O puede tener una ventana de contexto más pequeña. O puede ser significativamente más lento o caro.
+
+La elección del modelo debería ser pragmática:
+
+| Tarea                           | Prioridad                  |
+| ------------------------------- | -------------------------- |
+| Análisis de codebase completo   | Ventana de contexto grande |
+| Generación de código repetitivo | Velocidad y coste          |
+| Diseño de arquitectura          | Capacidad de razonamiento  |
+| Respuestas rápidas y simples    | Cualquier modelo ligero    |
+
+OpenCode te permite especificar el modelo por sesión. En la práctica, Claude Sonnet es un excelente punto de partida para la mayoría de tareas de desarrollo — buen equilibrio entre calidad, velocidad y coste. Profundizaremos en esto cuando veamos el paisaje de modelos en el tutorial 5.
+
+---
+
+Con este modelo mental en la cabeza, ya puedes empezar a trabajar con la IA de forma más inteligente: sabes por qué verifica, sabes por qué el contexto importa, y sabes que las alucinaciones no son magia oscura sino aritmética mal aplicada. En el siguiente tutorial, bajamos al siguiente nivel: **el cambio de paradigma que supone pasar de escribir código a dirigir a una IA** — y por qué eso convierte el saber especificar en la habilidad más valiosa que puedes desarrollar.
+
+¡Nunca dejes de programar!

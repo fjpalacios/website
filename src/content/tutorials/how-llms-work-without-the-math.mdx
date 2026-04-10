@@ -1,0 +1,155 @@
+---
+title: "How LLMs Work (Without the Math)"
+post_slug: "how-llms-work-without-the-math"
+date: "2026-04-10"
+excerpt: "Understand how Large Language Models work under the hood — no equations, just the mental models that explain why they hallucinate so confidently and how to use that to your advantage."
+language: "en"
+categories: ["ai"]
+course: "ai-for-developers"
+order: 2
+cover: "/images/tutorials/cabecera-ia-para-programadores-curso.jpg"
+i18n: "como-funcionan-los-llms-sin-matematicas"
+---
+
+In the previous tutorial, we said LLMs "predict text." And you probably thought: "okay, but that doesn't actually tell me anything useful." Fair. We need to go one level deeper — not down to the math level, but to the level of _what's actually happening_, because that directly explains why AI sometimes invents functions that don't exist, why the same prompt can give different answers, and why giving it more context makes a massive difference.
+
+This tutorial is arguably the most important one in this module. Not because of what you'll learn to do, but because of the mental model you'll build. And that mental model, I promise, will save you hours of frustration.
+
+## The next-word prediction machine
+
+Here's the uncomfortable truth: an LLM doesn't "understand" anything. It has no opinions of its own, no lived experience, no intuition. What it has is something stranger and, in a way, more impressive: it's read absurd quantities of text and learned, statistically, what words tend to follow other words.
+
+The task during training was brutal in its simplicity:
+
+```
+Training text:  "The cat sat on the..."
+Objective:       Predict "roof"
+```
+
+Multiply that by trillions of examples, over weeks, across thousands of GPUs. The result is a model that, given any fragment of text, can predict with surprising accuracy what comes next.
+
+And here's the magic nobody expected: **predicting the next word well requires understanding an enormous amount about the world**. To predict that after "The president signed the..." comes something related to legislation or agreements, the model has to have learned what a president is, what they do, in what contexts they act. Not as an abstract concept — as a statistical pattern extracted from millions of texts.
+
+Is that "understanding"? Philosophers have been arguing about it for years. For us as developers, the practical answer is: it doesn't matter. What matters is that the emergent behavior is useful, and knowing its origin makes us use it better.
+
+## The intern who has read all of Stack Overflow
+
+The most useful analogy I know for an LLM is this:
+
+Imagine an **extraordinarily well-read intern**. They've read the complete documentation for Python, Node.js, Rust, and 50 other languages. They've processed millions of Stack Overflow posts. They've seen tens of thousands of GitHub repositories. They've read technical articles, blog posts, programming books. All of that is in there, compressed somehow.
+
+But there are things that intern simply cannot do:
+
+```
+What they can do:
+✅ Synthesize information from multiple sources quickly
+✅ Write coherent, structured code
+✅ Explain concepts at different levels of detail
+✅ Generate tests, docs, and boilerplate at high speed
+✅ Recognize patterns and suggest improvements
+
+What they can't do:
+❌ Look up new information (unless given tools to do so)
+❌ Remember what you talked about yesterday
+❌ Know with certainty whether what they're saying is correct
+❌ Access your codebase (unless you show it to them)
+❌ Know anything that happened after their training cutoff
+```
+
+That last point — the training cutoff — matters. The model doesn't know what happened after they closed the data tap. If a library's API changed six months ago, the LLM might give you the old syntax with total confidence. It's not lying: it genuinely doesn't know.
+
+## Why AI says nonsense with absolute confidence
+
+This is what's called **hallucination**, and understanding why it happens is fundamental to not falling into the trap.
+
+The model generates text by predicting the next word. At no point does it have access to a mechanism that says "wait, is this actually true?" There's no query to a facts database. No verification module. There's statistical prediction, and that's it.
+
+So when you ask about a Python function that doesn't exist:
+
+```python
+# Prompt: "How do I use python.utils.magic_sort()?"
+# AI response:
+import python.utils
+
+result = python.utils.magic_sort(my_list, reverse=True, stable=True)
+# The stable parameter ensures equal elements maintain their relative order
+```
+
+The AI didn't look up `magic_sort` anywhere. It generated text that _sounds like_ the correct answer to that question, based on how answers about Python functions tend to look. The name, the parameters, the explanation — all of it has the right shape. It just doesn't exist.
+
+This isn't a bug they're going to fix. It's a direct consequence of how these models work. That's why verification isn't optional — it's part of the workflow.
+
+### Warning signs you should learn to recognize
+
+Over time, you develop a nose for this. In the meantime, here are the most common signals:
+
+- **Overly confident response** about a very specific or poorly-documented topic
+- **Function names that "sound right"** but that you don't recognize
+- **Specific library versions** or release dates with no source
+- **Code that has the right shape** but throws `AttributeError` or `ModuleNotFoundError` when you run it
+- **Explanations that shift** when you repeat the question with slight variations
+
+The golden rule: treat AI output like code from a colleague who's very smart but works in a rush. Review before you trust, always.
+
+## Context is your superpower
+
+Here's the variable you control the most and that makes the biggest difference: **the context you give the model**.
+
+The LLM has no memory between sessions (unless you explicitly provide it). Every conversation starts from zero. The only thing it knows about you, your project, and your problem is what's inside the current context window.
+
+The **context window** is the amount of text the model can "see" at once. Claude Sonnet, for example, has a 200,000-token window — enough for a medium-sized complete codebase. This is enormous and relatively recent: two years ago, windows were 8,000 tokens and you had to manually manage what to include.
+
+What does this mean for you in practice?
+
+```
+❌ Weak prompt:
+"My code doesn't work, help me"
+
+✅ Context-rich prompt:
+"I have this Python function that should parse dates in ISO 8601 format,
+but it fails when the string includes a timezone offset (e.g., 2026-03-07T10:30:00+01:00).
+Here's the code: [code]
+And here's the error: [error]
+I'm using Python 3.12 with dateutil 2.9.0"
+```
+
+The difference in response quality is enormous. Not because the model got smarter — but because it has the information it needs to predict relevant answers.
+
+## Temperature: why the same question gives different answers
+
+If you've ever asked the same thing twice and gotten different answers, that's not a bug. It's by design.
+
+When the model predicts the next word, it doesn't always pick the most probable one. There's a parameter called **temperature** that controls how much randomness gets injected into that choice. With high temperature (more creative), it might pick less probable words. With low temperature (more deterministic), it almost always picks the most probable one.
+
+```
+Temperature 0.0  → very deterministic, consistent responses
+Temperature 0.5  → balance between creativity and consistency
+Temperature 1.0  → more variation, more creative, more erratic
+```
+
+For code, you generally want low temperature: you want the model to give you the most probable solution, not to experiment. For brainstorming or idea generation, a bit more temperature helps break out of familiar patterns.
+
+opencode manages this automatically based on task type, but it's good to know the concept exists — especially when you notice the AI being "more conservative" or "more creative" depending on context.
+
+## Newer doesn't always mean better (for you)
+
+One last expectation-breaker: just because a new model came out doesn't mean you should immediately switch to it for everything.
+
+Models are optimized for different objectives. A very new model might be better at mathematical reasoning but worse at following complex instructions. Or it might have a smaller context window. Or it might be significantly slower or more expensive.
+
+Model choice should be pragmatic:
+
+| Task                       | Priority              |
+| -------------------------- | --------------------- |
+| Full codebase analysis     | Large context window  |
+| Repetitive code generation | Speed and cost        |
+| Architecture design        | Reasoning capability  |
+| Quick, simple answers      | Any lightweight model |
+
+opencode lets you specify the model per session. In practice, Claude Sonnet is an excellent starting point for most development tasks — a good balance of quality, speed, and cost. We'll go deeper on this when we look at the model landscape in tutorial 5.
+
+---
+
+With this mental model in place, you can start working with AI more intelligently: you know why verification matters, you know why context is everything, and you know that hallucinations aren't dark magic — they're statistical prediction applied confidently. In the next tutorial, we go to the next level: **the paradigm shift of going from writing code to directing an AI** — and why the ability to specify clearly becomes the most valuable skill you can develop.
+
+Never stop coding!
