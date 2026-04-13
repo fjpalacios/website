@@ -103,7 +103,7 @@ const itemListSchema = generateItemListSchema(
   <!-- Short indexable description for Pagefind -->
   <p class="sr-only" aria-hidden="true">{description}</p>
 
-  <div data-pagefind-ignore>
+  <div data-pagefind-ignore="all">
     <PostList posts={content} lang={lang} />
   </div>
 
