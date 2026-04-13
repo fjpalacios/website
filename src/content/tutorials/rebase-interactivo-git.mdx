@@ -1,0 +1,261 @@
+---
+title: "Rebase interactivo en Git: edita tu historial como un profesional"
+post_slug: "rebase-interactivo-git"
+date: "2026-04-14"
+excerpt: "Aprende a usar git rebase -i para reorganizar, combinar, renombrar y eliminar commits antes de integrar tu trabajo. Controla tu historial commit a commit."
+language: "es"
+categories: ["git"]
+course: "domina-git-desde-cero"
+order: 20
+cover: "/images/tutorials/cabecera-git.jpg"
+i18n: "interactive-rebase-git"
+---
+
+Llevas dos días en una feature. Has hecho doce commits. Uno se llama "fix", otro "arreglo", otro "ahora sí", y hay tres seguidos que dicen "wip". Cuando abres el pull request, tu historial parece el borrador de un novelista en crisis, no el trabajo de un profesional.
+
+Eso lo puedes limpiar antes de que nadie lo vea.
+
+`git rebase -i` —rebase interactivo— es la herramienta que te da control total sobre tus commits: puedes reordenarlos, combinarlos, cambiarles el mensaje, partirlos en dos o simplemente borrarlos. Todo antes de que lleguen al historial compartido. Es como tener derecho a revisión antes de publicar.
+
+## Qué es el rebase interactivo
+
+El rebase interactivo es `git rebase` con el flag `-i` (de _interactive_). En lugar de reaplicar commits automáticamente, Git te abre un editor con la lista de commits y te deja decidir qué hacer con cada uno.
+
+La invocación más habitual es:
+
+```bash
+git rebase -i HEAD~n
+```
+
+Donde `n` es el número de commits hacia atrás que quieres revisar. Si quieres editar los últimos cinco:
+
+```bash
+git rebase -i HEAD~5
+```
+
+Git abrirá tu editor configurado (vim, nano, VSCode, lo que tengas) con algo parecido a esto:
+
+```
+pick a1b2c3d Add login form
+pick b2c3d4e Add password validation
+pick c3d4e5f fix
+pick d4e5f6a wip
+pick e5f6a7b ahora sí
+pick f6a7b8c Add remember me option
+pick g7b8c9d fix typo
+pick h8c9d0e tests
+pick i9d0e1f arreglo
+pick j0e1f2a wip final
+pick k1f2a3b Add logout button
+
+# Rebase 9f8e7d6..k1f2a3b onto 9f8e7d6 (11 commands)
+#
+# Commands:
+# p, pick <commit> = use commit
+# r, reword <commit> = use commit, but edit the commit message
+# e, edit <commit> = use commit, but stop for amending
+# s, squash <commit> = use commit, and meld into previous commit
+# f, fixup <commit> = like "squash" but keep only the previous commit's log message
+# x, exec <command> = run command (the rest of the line) using shell
+# b, break = stop here (continue rebase later with 'git rebase --continue')
+# d, drop <commit> = remove commit
+# ...
+```
+
+La lista muestra los commits **del más antiguo al más reciente** (al revés que `git log`). Esto es una de esas cosas que confunde a todo el mundo las primeras veces. Sí, es contraintuitivo. No, no puedes hacer nada al respecto.
+
+## Las operaciones principales
+
+Cada línea empieza con una **acción** (por defecto `pick`) seguida del hash y el mensaje del commit. Cambias la acción en el editor, guardas, cierras, y Git hace el trabajo.
+
+### pick: conservar como está
+
+```
+pick a1b2c3d Add login form
+```
+
+No tocas nada. El commit queda tal cual. Es la acción por defecto.
+
+### reword: cambiar solo el mensaje
+
+```
+reword c3d4e5f fix
+```
+
+Git aplica el commit pero se detiene para dejarte editar el mensaje. El contenido no cambia, solo el texto. Perfecto para esos mensajes de "fix" o "arreglo" que en código producción gritan "no tenía ni idea de lo que estaba haciendo".
+
+### squash: combinar con el anterior
+
+```
+pick a1b2c3d Add login form
+squash b2c3d4e Add password validation
+```
+
+Git combina `b2c3d4e` con `a1b2c3d` y te muestra un editor para que escribas el mensaje final del commit combinado. Puedes conservar ambos mensajes, eliminar uno, o escribir uno nuevo desde cero.
+
+### fixup: combinar y descartar el mensaje
+
+```
+pick a1b2c3d Add login form
+fixup c3d4e5f fix
+fixup d4e5f6a wip
+```
+
+Como `squash`, pero descarta automáticamente el mensaje del commit que combinas. El commit absorbido desaparece sin dejar rastro ni pedirte confirmación. Es el modo "quiero que esto exista pero que nadie sepa que lo hice en tres intentos".
+
+### drop: eliminar el commit
+
+```
+drop d4e5f6a wip
+```
+
+El commit y todos sus cambios desaparecen. Úsalo con cuidado —el código que contiene se pierde. Si tienes dudas, usa `squash` o `fixup` en lugar de `drop`.
+
+### edit: detenerse para modificar
+
+```
+edit b2c3d4e Add password validation
+```
+
+Git aplica el commit y se detiene para que puedas modificarlo: añadir archivos olvidados, cambiar código, o incluso partirlo en varios commits. Cuando terminas:
+
+```bash
+git rebase --continue
+```
+
+## Un ejemplo completo
+
+Partimos de este historial desastroso:
+
+```
+pick a1b2c3d Add login form
+pick b2c3d4e fix
+pick c3d4e5f wip
+pick d4e5f6a Add password validation
+pick e5f6a7b fix typo
+pick f6a7b8c Add remember me option
+```
+
+Lo que queremos:
+
+- Combinar `b2c3d4e` (fix) con `a1b2c3d` (login form)
+- Combinar `c3d4e5f` (wip) también con el login form
+- Renombrar `e5f6a7b` (fix typo) en algo más descriptivo
+- El resto, tal cual
+
+Editamos el archivo para que quede:
+
+```
+pick a1b2c3d Add login form
+fixup b2c3d4e fix
+fixup c3d4e5f wip
+pick d4e5f6a Add password validation
+reword e5f6a7b fix typo
+pick f6a7b8c Add remember me option
+```
+
+Guardamos y cerramos. Git:
+
+1. Aplica `a1b2c3d`
+2. Absorbe `b2c3d4e` y `c3d4e5f` silenciosamente
+3. Aplica `d4e5f6a`
+4. Aplica `e5f6a7b` y abre el editor para el mensaje — escribes "Fix email validation regex"
+5. Aplica `f6a7b8c`
+
+Resultado:
+
+```
+* f6a7b8c Add remember me option
+* e5f6a7b Fix email validation regex
+* d4e5f6a Add password validation
+* a1b2c3d Add login form
+```
+
+Cuatro commits limpios donde había seis. El historial ahora cuenta _qué_ hiciste, no _cómo_ lo intentaste.
+
+## Reordenar commits
+
+El rebase interactivo también permite cambiar el orden. Simplemente mueves las líneas en el editor:
+
+```
+# Original
+pick a1b2c3d Add login form
+pick d4e5f6a Add password validation
+pick f6a7b8c Add remember me option
+
+# Reordenado: password validation antes que el form
+pick d4e5f6a Add password validation
+pick a1b2c3d Add login form
+pick f6a7b8c Add remember me option
+```
+
+Ten en cuenta que si los commits dependen uno del otro (el segundo modifica un archivo que crea el primero), reordenarlos puede generar conflictos. Git te avisará si ocurre.
+
+## Partir un commit en varios
+
+A veces pasa lo contrario: tienes un commit monolítico que mezcla demasiadas cosas. El modo `edit` te permite dividirlo:
+
+```bash
+git rebase -i HEAD~3
+# Marca el commit que quieres partir como: edit
+```
+
+Cuando Git se detiene en ese commit:
+
+```bash
+# Deshace el commit pero mantiene los cambios en el área de trabajo
+git reset HEAD^
+
+# Ahora puedes hacer commits selectivos
+git add src/auth/login.ts
+git commit -m "Add login form component"
+
+git add src/auth/validation.ts
+git commit -m "Add email and password validation"
+
+# Continúa el rebase
+git rebase --continue
+```
+
+Donde antes había un commit "Add auth stuff", ahora hay dos commits concretos y separados.
+
+## El autosquash: automatizar la limpieza
+
+Si desde el principio sabes que un commit va a ser un "fix" de otro anterior, puedes crearlo con un formato especial:
+
+```bash
+# Crear un commit que se aplastará automáticamente sobre abc123
+git commit --fixup abc123
+
+# O sobre el último commit
+git commit --fixup HEAD
+```
+
+Esto crea un commit con el mensaje `fixup! Add login form`. Cuando luego haces el rebase interactivo con `--autosquash`:
+
+```bash
+git rebase -i --autosquash HEAD~5
+```
+
+Git reordena automáticamente los commits `fixup!` junto a su objetivo y les asigna la acción `fixup`. Tú solo confirmas el orden y cierras el editor.
+
+Es el workflow más eficiente si tienes la disciplina de usarlo desde el principio.
+
+## Cuándo usar el rebase interactivo
+
+El rebase interactivo es tu herramienta antes de abrir un pull request. La pregunta que tienes que hacerte es: _¿este historial le sirve de algo a alguien que venga después?_
+
+- ¿Tienes commits "wip", "fix", "arreglo", "prueba"? → `fixup` o `squash`
+- ¿Tienes commits con mensajes poco descriptivos? → `reword`
+- ¿Tienes un commit que mezcla varias cosas distintas? → `edit` + `reset` + re-commit
+- ¿Tienes commits en el orden equivocado? → reordena las líneas
+
+Lo que **no** debes hacer es usar el rebase interactivo en commits que ya has subido a una rama compartida. La regla de oro del rebase se aplica aquí igual que en el rebase normal: ramas que solo son tuyas, sí; ramas que otros han clonado, nunca.
+
+---
+
+El rebase interactivo es una de esas herramientas que al principio parece intimidante —abres el editor, ves una lista de comandos crípticos, y piensas "aquí voy a romper algo". Pero con un poco de práctica se convierte en un hábito. Un historial limpio no es vanidad: es documentación. Es el contexto que alguien va a necesitar en seis meses para entender por qué el código está como está.
+
+En la siguiente lección veremos **cherry-pick**: cómo coger un commit concreto de cualquier rama y aplicarlo en otra sin necesidad de fusionar todo. Es la herramienta perfecta para cuando tienes un fix crítico en una rama de feature y necesitas llevarlo a producción ya.
+
+¡Nunca dejes de programar!

@@ -1,0 +1,261 @@
+---
+title: "Interactive Rebase in Git: Edit Your History Like a Pro"
+post_slug: "interactive-rebase-git"
+date: "2026-04-14"
+excerpt: "Learn how to use git rebase -i to reorder, combine, rename, and delete commits before integrating your work. Take full control of your history, commit by commit."
+language: "en"
+categories: ["git"]
+course: "mastering-git-from-scratch"
+order: 20
+cover: "/images/tutorials/cabecera-git.jpg"
+i18n: "rebase-interactivo-git"
+---
+
+You've been working on a feature for two days. Twelve commits. One says "fix", another "more fixes", one says "ok now it works", and three in a row say "wip". When you open the pull request, your history looks like a novelist's rough draft, not the work of a professional.
+
+You can clean that up before anyone sees it.
+
+`git rebase -i` — interactive rebase — gives you full control over your commits: you can reorder them, combine them, rename them, split them, or delete them entirely. All before they land in the shared history. It's like having editorial rights before publishing.
+
+## What is interactive rebase?
+
+Interactive rebase is `git rebase` with the `-i` flag (for _interactive_). Instead of replaying commits automatically, Git opens an editor with a list of your commits and lets you decide what to do with each one.
+
+The most common invocation:
+
+```bash
+git rebase -i HEAD~n
+```
+
+Where `n` is how many commits back you want to review. To edit the last five:
+
+```bash
+git rebase -i HEAD~5
+```
+
+Git will open your configured editor (vim, nano, VS Code, whatever you have) with something like this:
+
+```
+pick a1b2c3d Add login form
+pick b2c3d4e Add password validation
+pick c3d4e5f fix
+pick d4e5f6a wip
+pick e5f6a7b ok now it works
+pick f6a7b8c Add remember me option
+pick g7b8c9d fix typo
+pick h8c9d0e tests
+pick i9d0e1f more fixes
+pick j0e1f2a final wip
+pick k1f2a3b Add logout button
+
+# Rebase 9f8e7d6..k1f2a3b onto 9f8e7d6 (11 commands)
+#
+# Commands:
+# p, pick <commit> = use commit
+# r, reword <commit> = use commit, but edit the commit message
+# e, edit <commit> = use commit, but stop for amending
+# s, squash <commit> = use commit, and meld into previous commit
+# f, fixup <commit> = like "squash" but keep only the previous commit's log message
+# x, exec <command> = run command (the rest of the line) using shell
+# b, break = stop here (continue rebase later with 'git rebase --continue')
+# d, drop <commit> = remove commit
+# ...
+```
+
+The list shows commits **oldest to newest** — the opposite of `git log`. This trips everyone up the first few times. Yes, it's counterintuitive. No, there's nothing you can do about it.
+
+## The main operations
+
+Each line starts with an **action** (defaulting to `pick`) followed by the hash and commit message. You change the action in the editor, save, close, and Git does the work.
+
+### pick: keep as-is
+
+```
+pick a1b2c3d Add login form
+```
+
+Leave it alone. The commit stays exactly as it is. The default action.
+
+### reword: change only the message
+
+```
+reword c3d4e5f fix
+```
+
+Git applies the commit but pauses to let you edit the message. The content doesn't change, only the text. Perfect for those "fix" or "wip" messages that scream "I had no idea what I was doing" in production history.
+
+### squash: combine with the previous commit
+
+```
+pick a1b2c3d Add login form
+squash b2c3d4e Add password validation
+```
+
+Git combines `b2c3d4e` into `a1b2c3d` and opens an editor for you to write the final commit message. You can keep both messages, discard one, or write a new one from scratch.
+
+### fixup: combine and discard the message
+
+```
+pick a1b2c3d Add login form
+fixup c3d4e5f fix
+fixup d4e5f6a wip
+```
+
+Like `squash`, but automatically discards the absorbed commit's message. It disappears without a trace, no editor, no questions asked. It's the mode for: "I want this change to exist, but I don't want anyone to know it took me three attempts."
+
+### drop: delete the commit
+
+```
+drop d4e5f6a wip
+```
+
+The commit and all its changes vanish. Use with care — the code it contains is gone. If in doubt, use `squash` or `fixup` instead.
+
+### edit: stop to amend
+
+```
+edit b2c3d4e Add password validation
+```
+
+Git applies the commit and pauses so you can modify it: add forgotten files, change code, or even split it into multiple commits. When you're done:
+
+```bash
+git rebase --continue
+```
+
+## A complete example
+
+Start with this disaster:
+
+```
+pick a1b2c3d Add login form
+pick b2c3d4e fix
+pick c3d4e5f wip
+pick d4e5f6a Add password validation
+pick e5f6a7b fix typo
+pick f6a7b8c Add remember me option
+```
+
+What we want:
+
+- Combine `b2c3d4e` (fix) into `a1b2c3d` (login form)
+- Combine `c3d4e5f` (wip) into the login form as well
+- Give `e5f6a7b` (fix typo) a proper message
+- Leave the rest alone
+
+Edit the file:
+
+```
+pick a1b2c3d Add login form
+fixup b2c3d4e fix
+fixup c3d4e5f wip
+pick d4e5f6a Add password validation
+reword e5f6a7b fix typo
+pick f6a7b8c Add remember me option
+```
+
+Save and close. Git:
+
+1. Applies `a1b2c3d`
+2. Silently absorbs `b2c3d4e` and `c3d4e5f`
+3. Applies `d4e5f6a`
+4. Applies `e5f6a7b` and opens the editor — you write "Fix email validation regex"
+5. Applies `f6a7b8c`
+
+Result:
+
+```
+* f6a7b8c Add remember me option
+* e5f6a7b Fix email validation regex
+* d4e5f6a Add password validation
+* a1b2c3d Add login form
+```
+
+Four clean commits where there were six. The history now tells _what_ you did, not _how many tries it took_.
+
+## Reordering commits
+
+Interactive rebase also lets you change the order. Just move the lines in the editor:
+
+```
+# Original
+pick a1b2c3d Add login form
+pick d4e5f6a Add password validation
+pick f6a7b8c Add remember me option
+
+# Reordered: password validation before the form
+pick d4e5f6a Add password validation
+pick a1b2c3d Add login form
+pick f6a7b8c Add remember me option
+```
+
+Keep in mind that if commits depend on each other (the second one modifies a file the first one creates), reordering them can cause conflicts. Git will let you know if that happens.
+
+## Splitting a commit into multiple
+
+Sometimes the opposite problem: a monolithic commit that mixes too many things. The `edit` mode lets you break it apart:
+
+```bash
+git rebase -i HEAD~3
+# Mark the commit you want to split as: edit
+```
+
+When Git stops at that commit:
+
+```bash
+# Undo the commit but keep the changes in the working directory
+git reset HEAD^
+
+# Now commit in logical chunks
+git add src/auth/login.ts
+git commit -m "Add login form component"
+
+git add src/auth/validation.ts
+git commit -m "Add email and password validation"
+
+# Continue the rebase
+git rebase --continue
+```
+
+Where there was one "Add auth stuff" commit, there are now two specific, focused commits.
+
+## Autosquash: automating the cleanup
+
+If you already know a commit is going to be a fix for a previous one, you can create it with a special format from the start:
+
+```bash
+# Create a commit that will be auto-squashed onto abc123
+git commit --fixup abc123
+
+# Or onto the last commit
+git commit --fixup HEAD
+```
+
+This creates a commit with the message `fixup! Add login form`. When you later run interactive rebase with `--autosquash`:
+
+```bash
+git rebase -i --autosquash HEAD~5
+```
+
+Git automatically moves the `fixup!` commits next to their target and assigns them the `fixup` action. You just confirm the order and close the editor.
+
+It's the most efficient workflow if you have the discipline to use it from the start.
+
+## When to use interactive rebase
+
+Interactive rebase is your pre-PR tool. The question to ask yourself: _does this history help anyone who comes after me?_
+
+- Do you have "wip", "fix", "temp", "asdf" commits? → `fixup` or `squash`
+- Are your commit messages vague or misleading? → `reword`
+- Does one commit mix unrelated things? → `edit` + `reset` + re-commit in pieces
+- Are commits in the wrong logical order? → reorder the lines
+
+What you **don't** want to do is use interactive rebase on commits you've already pushed to a shared branch. The golden rule of rebase applies here the same as anywhere: branches that are only yours, yes; branches others have cloned, never.
+
+---
+
+Interactive rebase is one of those tools that feels intimidating at first — you open the editor, see a list of cryptic commands, and think "I'm going to break something here." But with a bit of practice it becomes a habit. A clean history isn't vanity: it's documentation. It's the context someone is going to need six months from now to understand why the code is the way it is.
+
+In the next lesson we'll look at **cherry-pick**: how to take a specific commit from any branch and apply it to another without merging everything. It's the perfect tool for when you have a critical fix buried in a feature branch and need to get it to production now.
+
+Never stop coding!
