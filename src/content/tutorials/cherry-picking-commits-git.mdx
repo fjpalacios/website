@@ -1,0 +1,238 @@
+---
+title: "Cherry-picking commits in Git"
+post_slug: "cherry-picking-commits-git"
+date: "2026-04-15"
+excerpt: "Learn how to use git cherry-pick to apply specific commits from one branch to another—perfect for backporting hotfixes, rescuing buried work, and surgical history management."
+language: "en"
+categories: ["git"]
+course: "mastering-git-from-scratch"
+order: 21
+cover: "/images/tutorials/cabecera-git.jpg"
+i18n: "cherry-pick-git"
+---
+
+Production is down. There's a null pointer exception in the payment service and your on-call rotation landed on a Tuesday. You know exactly where the fix is: that commit from three days ago on `feature/payments`, the one called "Fix null pointer in payment service." The problem? That branch is a warzone — an unfinished refactor, a half-baked API that breaks half the existing code, and at least two commits named "wip" (there are always at least two commits named "wip"). Merging that branch into `main` would be like performing surgery by dropping a bowling ball on the patient.
+
+You don't need the whole branch. You need that one commit.
+
+That's exactly what `git cherry-pick` is for.
+
+## What is cherry-pick?
+
+Think of your Git history as a playlist. Branches are playlists, commits are individual tracks. A merge is like saying "add this entire album to my playlist." A rebase is like moving your songs so they come after a different album. `git cherry-pick` is you pulling a single track from someone else's playlist and adding it to yours — without subscribing to their whole discography.
+
+The mechanics: Git takes the diff introduced by that specific commit (what changed between it and its parent), and replays that diff on top of your current branch as a brand-new commit. Same content, different hash. The original commit stays exactly where it was. You just get a copy of the change.
+
+That's worth repeating: **the new commit gets a new hash**. We'll come back to why that matters.
+
+## Basic usage
+
+First, find the hash of the commit you need. Run `git log` on the source branch:
+
+```bash
+git log feature/payments --oneline
+```
+
+```
+a3f9c12 Fix null pointer in payment service
+b7e4d89 WIP: new payment gateway integration
+c2a8f01 Refactor billing module (incomplete)
+d6c3b47 Add payment model
+```
+
+There it is — `a3f9c12`. Switch to your target branch and apply it:
+
+```bash
+git switch main
+git cherry-pick a3f9c12
+```
+
+```
+[main 9b1d4e3] Fix null pointer in payment service
+ Date: Mon Apr 14 18:32:01 2026 +0200
+ 1 file changed, 3 insertions(+), 1 deletion(-)
+```
+
+That's it. The fix is in `main`. The other fourteen commits are still sitting on `feature/payments`, waiting to be ready. Production breathes again.
+
+## Cherry-picking multiple commits
+
+Sometimes one commit isn't enough. You have two options.
+
+### Individual commits
+
+Pass multiple hashes in the order you want them applied:
+
+```bash
+git cherry-pick a3f9c12 d6c3b47 e1f2a03
+```
+
+Git applies them one by one, in that order. If any of them causes a conflict, it stops and waits for you to sort it out before continuing.
+
+### A range of commits
+
+If the commits you need are consecutive, use range syntax:
+
+```bash
+git cherry-pick a3f9c12..e1f2a03
+```
+
+⚠️ Watch out: this syntax is **exclusive on the left**. `a3f9c12..e1f2a03` applies every commit _after_ `a3f9c12` up to and including `e1f2a03`. If you also want `a3f9c12` itself, use the `^` suffix:
+
+```bash
+git cherry-pick a3f9c12^..e1f2a03
+```
+
+This catches everyone exactly once. File it under "Git syntax that looks like line noise but actually makes sense once you've been burned by it."
+
+## Useful flags
+
+### `-n` / `--no-commit`: stage without committing
+
+```bash
+git cherry-pick -n a3f9c12
+```
+
+Git applies the changes to the staging area but doesn't create a commit. Useful when you want to combine changes from multiple commits into a single one, or when you want to inspect what's about to happen before pulling the trigger:
+
+```bash
+git cherry-pick -n a3f9c12 d6c3b47
+git status              # review staged changes
+git commit -m "Apply payment fixes from feature branch"
+```
+
+### `-e` / `--edit`: edit the message before committing
+
+```bash
+git cherry-pick -e a3f9c12
+```
+
+Opens your editor with the original commit message so you can modify it. Handy when the original said "fix" and you want something that actually describes what was fixed.
+
+### `-x`: record where the commit came from
+
+```bash
+git cherry-pick -x a3f9c12
+```
+
+Appends a line to the commit message pointing back to the original:
+
+```
+Fix null pointer in payment service
+
+(cherry picked from commit a3f9c12b3e4f5a6b7c8d9e0f1a2b3c4d5e6f7a8)
+```
+
+Free traceability. Six months from now, when someone's auditing `release/1.x` and wondering why a commit clearly born on a feature branch is sitting there, the message explains itself. In projects with multiple maintainers or multiple active release branches, `-x` is effectively mandatory. Use it.
+
+## Handling conflicts
+
+Cherry-pick isn't always painless. If the changes you're bringing in touch the same lines that have changed in the target branch since the original commit was made, you'll get a conflict. Here's where things get fun (and by "fun" I mean mildly annoying, but entirely manageable).
+
+When Git hits a conflict mid-cherry-pick, it stops and tells you:
+
+```
+error: could not apply a3f9c12... Fix null pointer in payment service
+hint: After resolving the conflicts, mark them with
+hint: "git add/rm <pathspec>", then run
+hint: "git cherry-pick --continue".
+hint: You can instead skip this commit with "git cherry-pick --skip".
+hint: To abort and get back to the state before "git cherry-pick",
+hint: run "git cherry-pick --abort".
+```
+
+The resolution flow is the same as merge or rebase conflicts:
+
+```bash
+# 1. Open the conflicting files, resolve manually
+# (look for <<<<<<< / ======= / >>>>>>> markers and choose what stays)
+
+# 2. Mark the conflict as resolved
+git add src/services/payment.ts
+
+# 3. Continue
+git cherry-pick --continue
+```
+
+If the commit you're trying to apply already exists in the target branch (maybe it was merged in earlier), Git might try to apply an empty diff. In that case:
+
+```bash
+git cherry-pick --skip   # skip this commit and continue with the rest
+```
+
+And if you want to back out entirely and pretend this never happened:
+
+```bash
+git cherry-pick --abort  # back to square one, no harm done
+```
+
+Don't stress about conflicts — they're unavoidable when you're moving code between branches with diverged histories. Resolve them carefully, verify the result compiles and passes tests, then carry on.
+
+## Real-world scenarios
+
+### Backporting a hotfix to release branches
+
+You maintain `v1.x` and `v2.x` in production. A security vulnerability surfaces and you fix it on `main`. Both versions need the patch, but you absolutely don't want to push all of `main` into either release branch:
+
+```bash
+# Fix is on main as commit f4e3d2c
+git switch release/1.x
+git cherry-pick -x f4e3d2c
+
+git switch release/2.x
+git cherry-pick -x f4e3d2c
+```
+
+The `-x` flag leaves a paper trail in both branches. This is **backporting** — carrying fixes backward in time without merging entire version lines. Cherry-pick is the standard tool for it, and it handles this use case extremely well.
+
+### Rescuing commits from a dead branch
+
+You've been on a refactoring branch for weeks. The scope ballooned, priorities shifted, and the branch isn't going anywhere. But it has two commits — utility functions, an HTTP client abstraction — that you genuinely want to keep. Those commits deserve better than dying with the branch.
+
+```bash
+git log feature/big-refactor --oneline | head -20
+```
+
+```
+7a9b1c2 Add generic retry helper
+8b0c2d3 Extract HTTP client abstraction
+c1d3e4f Refactor entire codebase (never mind)
+...
+```
+
+```bash
+git switch main
+git cherry-pick 7a9b1c2 8b0c2d3
+```
+
+The branch closes. The useful work survives. Everything else disappears without drama. If you're like me when I started, you probably assumed losing a branch meant losing everything in it — cherry-pick makes it easy to be selective about what's worth saving.
+
+## When NOT to use cherry-pick
+
+Cherry-pick is sharp, precise, and genuinely useful — which makes it tempting to reach for it in situations where it's the wrong tool. Using it wrong leaves you with a duplicate-commit-infested history, perpetual conflicts, and teammates giving you looks in standup.
+
+**Don't use cherry-pick when you need a full merge or rebase.**
+
+If a feature branch is done and ready to integrate, use `git merge` or `git rebase`. Cherry-picking commit by commit is slow, error-prone, and destroys the natural traceability of your history:
+
+```bash
+# ❌ Pulling in an entire feature one commit at a time
+git cherry-pick a1b2c3d e2f3a4b f3a4b5c g4b5c6d h5c6d7e
+
+# ✅ Integrating the feature properly
+git merge feature/my-feature
+# or
+git rebase feature/my-feature
+```
+
+**Don't use cherry-pick as a branch synchronization strategy.** If you find yourself cherry-picking the same commits across three different branches on a regular basis, you don't have a Git problem — you have a branching strategy problem. That's a different conversation.
+
+**The duplicate hash problem.** When you cherry-pick a commit, Git creates a _new_ commit with the same content but a different hash. If you later merge the original branch, Git sees those changes as new and tries to apply them again — leading to conflicts or outright duplicates. The longer those branches coexist, the worse this gets. The rule is simple: use cherry-pick for specific, one-off situations (hotfixes, rescues, backports). Don't make it your routine synchronization mechanism.
+
+---
+
+Cherry-pick is the scalpel of Git: precise, effective, and the wrong choice when what you actually need is a shovel. For hotfixes, backports, and rescuing useful work from abandoned branches, nothing beats it. For integrating complete features, merge and rebase do the job with far less collateral damage.
+
+In the next tutorial we'll look at `git reflog` — Git's internal diary that records every movement of every reference, including ones you've deleted. If you've ever `reset --hard` to the wrong commit, deleted a branch by accident, or stared at an empty working tree wondering what you just did, reflog is your safety net. We'll cover how to read it, how to navigate it, and how to recover work that feels permanently gone.
+
+Never stop coding!

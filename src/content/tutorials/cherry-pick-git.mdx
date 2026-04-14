@@ -1,0 +1,236 @@
+---
+title: "Cherry-pick en Git: aplica commits quirúrgicamente"
+post_slug: "cherry-pick-git"
+date: "2026-04-15"
+excerpt: "Aprende a usar git cherry-pick para trasladar commits concretos entre ramas sin hacer un merge completo: ideal para backports, hotfixes y rescatar trabajo enterrado."
+language: "es"
+categories: ["git"]
+course: "domina-git-desde-cero"
+order: 21
+cover: "/images/tutorials/cabecera-git.jpg"
+i18n: "cherry-picking-commits-git"
+---
+
+Producción está caída. Hay un bug crítico. La solución está en tu rama de feature —ese commit de hace tres días, el que se llama "Fix null pointer in payment service". El problema es que esa rama también tiene otros quince commits de cosas a medias: un refactor sin terminar, una API nueva que rompe la mitad del código existente, y dos commits que dicen "wip" (siempre hay dos commits que dicen "wip"). Hacer merge de esa rama sería un desastre. Pero necesitas ese commit. Solo ese.
+
+Para eso existe `git cherry-pick`.
+
+## ¿Qué es el cherry-pick?
+
+Imagina que tienes un árbol con ramas llenas de cerezas. Puedes coger todo el árbol, o puedes extender la mano y coger exactamente la cereza que quieres sin tocar las demás. El cherry-pick es eso: tomar un commit específico de cualquier rama y aplicarlo en la rama donde estás, como si lo hubieras hecho allí desde el principio.
+
+A diferencia del merge —que fusiona toda una rama— o del rebase —que reasienta tu trabajo sobre otra base—, el cherry-pick es quirúrgico. Un commit, un destino, sin ruido.
+
+Git coge los cambios que introdujo ese commit (el diff entre el commit y su padre) y los aplica en tu rama actual como un commit nuevo. El hash será diferente; el contenido, el mismo.
+
+## Uso básico
+
+Necesitas el hash del commit que quieres. Lo consigues con `git log` sobre la rama de origen:
+
+```bash
+git log feature/payments --oneline
+```
+
+```
+a3f9c12 Fix null pointer in payment service
+b7e4d89 WIP: new payment gateway integration
+c2a8f01 Refactor billing module (incomplete)
+d6c3b47 Add payment model
+```
+
+Ese primer commit, `a3f9c12`, es el que necesitas. Cambias a tu rama de destino y lo aplicas:
+
+```bash
+git switch main
+git cherry-pick a3f9c12
+```
+
+```
+[main 9b1d4e3] Fix null pointer in payment service
+ Date: Mon Apr 14 18:32:01 2026 +0200
+ 1 file changed, 3 insertions(+), 1 deletion(-)
+```
+
+Listo. El fix está en `main`. Los otros catorce commits siguen en su rama, esperando a estar listos. La producción respira.
+
+## Cherry-pick de múltiples commits
+
+A veces necesitas más de uno. Tienes dos opciones.
+
+### Commits individuales
+
+Puedes pasar varios hashes de golpe, en el orden en que quieres aplicarlos:
+
+```bash
+git cherry-pick a3f9c12 d6c3b47 e1f2a03
+```
+
+Git los aplica en ese orden, uno por uno. Si alguno genera conflicto, se detiene —ya veremos cómo gestionar eso.
+
+### Rango de commits
+
+Si los commits que necesitas son consecutivos, puedes usar la sintaxis de rango:
+
+```bash
+git cherry-pick a3f9c12..e1f2a03
+```
+
+⚠️ Ojo con esta sintaxis: el rango es **exclusivo por la izquierda**. `a3f9c12..e1f2a03` aplica todos los commits _después_ de `a3f9c12` hasta `e1f2a03` incluido. Si también quieres `a3f9c12`, usa `^`:
+
+```bash
+git cherry-pick a3f9c12^..e1f2a03
+```
+
+Es uno de esos detalles de Git que a todo el mundo le pilla exactamente una vez, sin excepción. Ya puedes tachar ese rito de iniciación.
+
+## Flags útiles
+
+### `-n` / `--no-commit`: solo hacer stage, sin commitear
+
+```bash
+git cherry-pick -n a3f9c12
+```
+
+Git aplica los cambios al área de stage pero no crea el commit. Útil cuando quieres combinar los cambios de varios commits en uno solo, o revisar lo que va a entrar antes de commitear:
+
+```bash
+git cherry-pick -n a3f9c12 d6c3b47
+git status              # review staged changes
+git commit -m "Apply payment fixes from feature branch"
+```
+
+### `-e` / `--edit`: editar el mensaje antes de commitear
+
+```bash
+git cherry-pick -e a3f9c12
+```
+
+Abre el editor con el mensaje original del commit para que lo modifiques. Útil cuando el mensaje original era "fix" y quieres algo más descriptivo en la rama destino.
+
+### `-x`: referenciar el commit original en el mensaje
+
+```bash
+git cherry-pick -x a3f9c12
+```
+
+Añade automáticamente una línea al mensaje del commit indicando de dónde vino:
+
+```
+Fix null pointer in payment service
+
+(cherry picked from commit a3f9c12b3e4f5a6b7c8d9e0f1a2b3c4d5e6f7a8)
+```
+
+Es trazabilidad gratuita. Si alguien se pregunta por qué ese commit está en `main` cuando claramente nació en otra rama, el mensaje se lo explica. En proyectos con varios mantenedores o múltiples ramas de release, `-x` es casi obligatorio.
+
+## Gestión de conflictos
+
+El cherry-pick no siempre es indoloro. Si los cambios que quieres traer tocan las mismas líneas que han cambiado en la rama destino desde que esos commits fueron creados, habrá conflicto. Aquí es donde se pone interesante (y por "interesante" quiero decir ligeramente frustrante, pero manejable).
+
+Cuando Git encuentra un conflicto durante el cherry-pick, se detiene y te lo avisa:
+
+```
+error: could not apply a3f9c12... Fix null pointer in payment service
+hint: After resolving the conflicts, mark them with
+hint: "git add/rm <pathspec>", then run
+hint: "git cherry-pick --continue".
+hint: You can instead skip this commit with "git cherry-pick --skip".
+hint: To abort and get back to the state before "git cherry-pick",
+hint: run "git cherry-pick --abort".
+```
+
+El flujo de resolución es igual que en un merge o rebase:
+
+```bash
+# 1. Abre los archivos con conflictos, resolverlos manualmente
+# (busca los marcadores <<<<<<< / ======= / >>>>>>> y elige qué queda)
+
+# 2. Marca el conflicto como resuelto
+git add src/services/payment.ts
+
+# 3. Continúa con el cherry-pick
+git cherry-pick --continue
+```
+
+Si el commit que estás intentando aplicar ya existe en la rama destino (por ejemplo, ya se mergeó antes), puede que Git intente aplicar un diff vacío. En ese caso:
+
+```bash
+git cherry-pick --skip   # skip this commit and continue with the rest
+```
+
+Y si te arrepientes de todo y quieres dejarlo como estaba:
+
+```bash
+git cherry-pick --abort  # back to square one, no harm done
+```
+
+No te agobies con los conflictos: son inevitables cuando llevas código entre ramas con historiales divergentes. La clave es resolverlos con calma, verificar que el resultado es correcto, y seguir.
+
+## Casos reales
+
+### Backport de un hotfix a ramas de release
+
+Tienes versiones `1.x` y `2.x` en producción. Encuentras un bug de seguridad y lo corriges en `main`. Ambas versiones necesitan el fix, pero no quieres subir los cambios de `main` a ninguna de las dos:
+
+```bash
+# Fix is on main as commit f4e3d2c
+git switch release/1.x
+git cherry-pick -x f4e3d2c
+
+git switch release/2.x
+git cherry-pick -x f4e3d2c
+```
+
+El flag `-x` deja trazabilidad en ambas ramas. Si alguien audita el historial de `release/1.x` dentro de seis meses, sabe exactamente de dónde vino ese commit. Esto es backporting: llevar arreglos hacia atrás sin fusionar versiones completas. Cherry-pick es la herramienta estándar para hacerlo.
+
+### Rescatar trabajo de una rama muerta
+
+Llevas semanas en una rama de refactor que al final no va a salir adelante: demasiado scope, el cliente cambió de opinión, o simplemente no fue aprobado. Pero hay dos commits en esa rama con utilidades genéricas que sí quieres conservar:
+
+```bash
+git log feature/big-refactor --oneline | head -20
+```
+
+```
+7a9b1c2 Add generic retry helper
+8b0c2d3 Extract HTTP client abstraction
+c1d3e4f Refactor entire codebase (never mind)
+...
+```
+
+```bash
+git switch main
+git cherry-pick 7a9b1c2 8b0c2d3
+```
+
+La rama se cierra. El trabajo útil vive. El resto desaparece sin drama. Si eres como yo cuando empecé, probablemente pensabas que perder una rama significaba perder todo lo que había en ella — pero con cherry-pick puedes rescatar exactamente lo que vale la pena.
+
+## Cuándo NO usar cherry-pick
+
+Cherry-pick es una herramienta poderosa que se presta al abuso. Usarlo mal puede dejarte con un historial duplicado, conflictos perpetuos y compañeros de equipo que te miran raro en el standup.
+
+**No uses cherry-pick cuando lo que necesitas es un merge o rebase completo.**
+
+Si una rama de feature está lista y quieres integrarla en `main`, usa `git merge` o `git rebase`. Cherry-pick commit a commit es lento, propenso a errores, y rompe la trazabilidad natural de la historia:
+
+```bash
+# ❌ Traer una feature entera con cherry-pick
+git cherry-pick a1b2c3d e2f3a4b f3a4b5c g4b5c6d h5c6d7e
+
+# ✅ Integrar la feature correctamente
+git merge feature/my-feature
+# or
+git rebase feature/my-feature
+```
+
+**No uses cherry-pick como sustituto de un flujo de integración.** Si te encuentras haciendo cherry-pick de los mismos commits en tres ramas distintas de forma rutinaria, tienes un problema de arquitectura de ramas, no de Git.
+
+**El peligro del historial duplicado.** Cuando cherry-pickeas un commit, Git crea un commit _nuevo_ con el mismo contenido pero un hash diferente. Si más adelante haces merge de la rama original, Git intentará aplicar esos cambios de nuevo y probablemente generará conflictos o duplicados. En ramas de larga duración, esto se acumula. La regla: cherry-pick para casos puntuales (hotfixes, rescates), no como estrategia habitual de sincronización entre ramas.
+
+---
+
+El cherry-pick es el bisturí de Git: preciso, útil, y peligroso si lo usas donde necesitabas una llave inglesa. Para hotfixes, backports, y rescatar trabajo enterrado en ramas olvidadas, no tiene rival. Para integrar features completas, merge y rebase hacen un trabajo mucho mejor con mucho menos drama.
+
+En la siguiente lección veremos `git reflog` y cómo recuperar trabajo que parece perdido para siempre: commits huérfanos, ramas borradas por accidente, resets que fueron demasiado lejos. Si alguna vez has sentido el pánico de "acabo de borrar algo importante", la siguiente lección es para ti.
+
+¡Nunca dejes de programar!
