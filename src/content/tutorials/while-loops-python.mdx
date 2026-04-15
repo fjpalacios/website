@@ -1,0 +1,250 @@
+---
+title: "while loops in Python: repetition with a condition"
+post_slug: "while-loops-python"
+date: "2026-04-17"
+excerpt: "You already know how to make decisions with if. Now learn how to repeat them. while loops execute code over and over as long as a condition holds — and yes, infinite loops are very real."
+language: "en"
+categories: ["programming"]
+course: "learn-to-code-from-scratch-python"
+order: 7
+cover: "/images/tutorials/cabecera-python-curso.jpg"
+i18n: "bucles-while-python"
+---
+
+Picture this: you ask the user to type a number between 1 and 10. You write the `input`, check with an `if` whether it's in range, and if it isn't... what do you do? Copy and paste the `input` five times and hope they get it right by the third try? No. What you need is a loop.
+
+**Loops** are the solution when you need to repeat something without knowing exactly how many times. They're not the last tool you'll learn, but they're one of the most important. And in Python, the most fundamental one is `while`.
+
+## What is a while loop?
+
+A `while` loop executes a block of code **as long as** a condition is true. When the condition becomes false, the loop stops. If the condition was already false from the start, the block never runs at all.
+
+The structure is intentionally similar to `if`:
+
+```python
+while condition:
+    # This code repeats as long as the condition is True
+    do_something()
+```
+
+Same colon. Same mandatory indentation. The difference is that instead of running once, the block keeps cycling until the condition is no longer met.
+
+A concrete example: counting from 1 to 5.
+
+```python
+counter = 1
+
+while counter <= 5:
+    print(counter)   # Print current count
+    counter += 1     # Increment — or we'll be here forever
+```
+
+```
+1
+2
+3
+4
+5
+```
+
+Every time Python reaches the end of the block, it goes back to the `while` header and re-evaluates the condition. When `counter` hits 6, `6 <= 5` is `False` and the loop ends.
+
+There are three components that almost always appear together in a `while`:
+
+1. **Initialization** — `counter = 1` (before the loop)
+2. **Condition** — `counter <= 5` (in the header)
+3. **Update** — `counter += 1` (inside the loop)
+
+Forget the third one and you have a problem. A pretty famous one.
+
+## The infinite loop: it's not a myth
+
+If your `while` condition never becomes `False`, the loop doesn't stop. Ever. Your program stays stuck running that block forever — or until you kill it with `Ctrl+C`.
+
+```python
+# ⚠️ Infinite loop — don't run this unless you enjoy Ctrl+C
+x = 1
+while x > 0:
+    print(x)
+    x += 1   # x keeps growing, condition never becomes False
+```
+
+Feeling a slight sense of dread? Good. That means you already understand why updating the control variable matters.
+
+Infinite loops aren't always accidental. Sometimes you use them on purpose — more on that in a moment. But when it's not intentional, they usually come from one of these:
+
+- You forgot to update the control variable
+- You're updating it in the wrong direction
+- The exit condition is impossible to reach with your logic
+
+The quickest way out in the terminal is `Ctrl+C`. And whenever your program seems frozen... there's probably a `while True` hiding somewhere.
+
+## break: exit on your terms
+
+Sometimes you need to leave the loop before the condition goes false. That's what `break` is for: it stops the `while` immediately and jumps to whatever code comes after the loop.
+
+```python
+number = 1
+
+while number <= 10:
+    if number == 6:
+        break   # Exit loop immediately when we hit 6
+    print(number)
+    number += 1
+
+print("Loop ended")
+```
+
+```
+1
+2
+3
+4
+5
+Loop ended
+```
+
+`break` really shines in the `while True` pattern, where the loop is designed to run indefinitely and the exit condition lives inside the block:
+
+```python
+while True:
+    answer = input("Do you want to continue? (y/n) ")
+    if answer == "n":
+        break   # The only way out
+    print("Continuing...")
+
+print("Program ended")
+```
+
+This pattern — `while True` with an inner `break` — is completely legitimate and very common for menus, games, or anything that keeps going until the user decides to stop.
+
+## continue: skip one iteration
+
+`continue` is `break`'s smaller sibling. Instead of exiting the loop, it **jumps back to the start of the next iteration** — re-evaluates the condition and picks up from there if it's still true.
+
+```python
+number = 0
+
+while number < 10:
+    number += 1
+    if number % 2 == 0:
+        continue   # Skip even numbers
+    print(number)
+```
+
+```
+1
+3
+5
+7
+9
+```
+
+When `number` is even, `continue` sends Python straight back to the `while` header without executing `print`. Only the odd numbers make it through.
+
+A warning about `continue`: make sure the variable update happens **before** the `continue`. Look at what happens when it doesn't:
+
+```python
+# ⚠️ Infinite loop — number never increments when it's even
+number = 0
+while number < 10:
+    if number % 2 == 0:
+        continue   # Jumps back before number += 1... forever
+    number += 1
+    print(number)
+```
+
+When `number` is 0 (even), `continue` fires before `number += 1` has a chance to run. Next iteration, `number` is still 0. And the next. And the next. Instant infinite loop, even though it doesn't look like one at first glance.
+
+## Real-world use cases
+
+`while` shines in situations where you don't know in advance how many repetitions you'll need. A few common patterns:
+
+### Validating user input
+
+```python
+while True:
+    age = input("Enter your age: ")
+    if age.isdigit() and int(age) >= 0:
+        age = int(age)
+        break   # Valid input, exit loop
+    print("Please enter a valid number.")
+
+print(f"Your age is {age}.")
+```
+
+The loop keeps asking until the user gives something valid. Doesn't matter how many attempts it takes.
+
+### Counter with a business condition
+
+```python
+attempts = 0
+max_attempts = 3
+correct_password = "python123"
+
+while attempts < max_attempts:
+    password = input("Enter your password: ")
+    if password == correct_password:
+        print("Access granted.")
+        break
+    attempts += 1
+    remaining = max_attempts - attempts
+    if remaining > 0:
+        print(f"Wrong password. You have {remaining} attempts left.")
+
+if attempts == max_attempts:
+    print("Too many failed attempts. Account locked.")
+```
+
+This is the kind of logic behind any login form. The `while` controls the attempts; the `break` exits on success; the final `if` handles total failure.
+
+### Guessing game
+
+```python
+import random
+
+secret_number = random.randint(1, 100)  # Random number between 1 and 100
+attempts = 0
+
+print("Guess the number between 1 and 100.")
+
+while True:
+    try:
+        guess = int(input("Your guess: "))
+    except ValueError:
+        print("That's not a number.")
+        continue
+
+    attempts += 1
+
+    if guess < secret_number:
+        print("Too low.")
+    elif guess > secret_number:
+        print("Too high.")
+    else:
+        print(f"Correct! You got it in {attempts} attempts.")
+        break
+```
+
+Here the `while True` has no explicit exit condition in the header — the only way out is the `break` inside the `else`. Until the user guesses the number, the game keeps going.
+
+## while vs for: when to use each
+
+If you've used other languages, you're probably already wondering when to pick `while` and when to pick `for`. Spoiler: you'll learn `for` loops in the next tutorial, and they're the preferred choice whenever you know how many iterations you want.
+
+The rule is straightforward:
+
+- **`while`**: when the stopping condition depends on something that can change unpredictably (user input, network data, game state...)
+- **`for`**: when you're iterating over a sequence of known length (a list, a range of numbers, a file...)
+
+If you can phrase it as "repeat this N times" or "go through this list", use `for`. If you're thinking "keep doing this until something happens", use `while`.
+
+---
+
+You now know how to make Python both make decisions and repeat code in a controlled way. The natural next step is the `for` loop — more predictable, more expressive for most everyday iteration, and the one you'll reach for most often in real Python code. You'll also meet `range()`, which turns numbers into iterable sequences without having to manage counters by hand.
+
+Never stop coding!
+
+---
+
+**💡 Challenge**: Write a guessing game where the user has exactly 5 attempts to guess a number between 1 and 20. After each failed attempt, tell them whether their guess is too high or too low. When the 5 attempts are up without success, reveal the secret number. Bonus: track how many attempts they used when they win, and congratulate them with a different message depending on whether they got it in 1, 2–3, or 4–5 attempts.
