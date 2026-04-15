@@ -1,0 +1,277 @@
+---
+title: "Interactive containers and exec: get inside, run commands, get out"
+post_slug: "interactive-containers-exec-docker"
+date: "2026-04-16"
+excerpt: "Learn to open shells inside containers, run commands in live containers with docker exec, copy files with docker cp, and know when to use interactive vs. detached mode."
+language: "en"
+categories: ["docker"]
+course: "mastering-docker-from-scratch"
+order: 4
+cover: "/images/tutorials/cabecera-docker-curso.jpg"
+i18n: "contenedores-interactivos-exec-docker"
+---
+
+Up until now, you've been treating containers like vending machines: put in a coin, take the snack, walk away. That's fine for learning the basics, but the moment something breaks in a real environment — and it will — you're going to need to open the machine and look inside.
+
+That's what `docker exec` and interactive mode are for. And once you're comfortable with them, you'll realize they're probably the commands you'll reach for most.
+
+## Interactive mode: what `-it` actually means
+
+When you see `docker run -it`, those two letters aren't a typo or a habit. They're two separate flags:
+
+- `-i` (interactive): keeps `stdin` open, even if you're not attached to it
+- `-t` (tty): allocates a pseudo-terminal so the session behaves like a real shell
+
+On their own, neither does much. Together, they give you something that looks, feels, and behaves like a proper terminal session inside the container. Without them, the process either starts and immediately exits, or sits waiting for input you can't give it.
+
+```bash
+# With -it: you get an interactive shell
+docker run -it ubuntu bash
+```
+
+```
+root@7a2f1d3c9e4b:/#
+```
+
+You're in. That thing before `/#` is the container ID. Now you can run anything:
+
+```bash
+root@7a2f1d3c9e4b:/# ls /etc
+root@7a2f1d3c9e4b:/# cat /etc/os-release
+root@7a2f1d3c9e4b:/# apt-get update
+root@7a2f1d3c9e4b:/# exit
+```
+
+When you type `exit`, the main process of the container — `bash`, in this case — terminates. The container stops. It doesn't disappear, but it's no longer running.
+
+This is the key mental model: **the container's lifecycle is tied to its main process**. When `bash` exits, the container stops. This feels obvious in retrospect, but it trips people up the first few times.
+
+## Detached mode: the `-d` you already know
+
+The opposite of interactive mode is detached mode (`-d`). The container starts in the background and you get the control back immediately. Perfect for services that are supposed to run indefinitely: web servers, databases, message queues.
+
+```bash
+# Without -d: process stays in the foreground, locks your terminal
+docker run nginx
+
+# With -d: starts in the background, returns control
+docker run -d --name my-nginx nginx
+```
+
+```
+3f4e5d6c7b8a9e1f2d3c4b5a6e7f8d9c
+```
+
+That hash is the full container ID. Your terminal is free. The container is running, serving HTTP on its internal port 80 — though nobody outside Docker can reach it yet. That's what port mapping is for, and we'll get there next lesson.
+
+To verify it's running:
+
+```bash
+docker ps
+```
+
+```
+CONTAINER ID   IMAGE   COMMAND                  CREATED         STATUS        PORTS   NAMES
+3f4e5d6c7b8a   nginx   "/docker-entrypoint.…"   3 seconds ago   Up 3 seconds   80/tcp  my-nginx
+```
+
+## `docker exec`: get inside a running container
+
+Here's the one you'll use most. `docker exec` runs an additional command inside an already-running container, without stopping or restarting it.
+
+```bash
+# Open a bash shell in the already-running my-nginx container
+docker exec -it my-nginx bash
+```
+
+```
+root@3f4e5d6c7b8a:/#
+```
+
+The difference from `docker run -it` is worth making explicit:
+
+- `docker run -it` **creates a new container** and drops you inside it
+- `docker exec -it` **enters an existing container** that's already running
+
+When you `exit` from a `docker exec` session, the container keeps running. The main process — Nginx, in this case — hasn't been touched. You just closed the extra shell you'd opened on the side.
+
+### Common exec patterns
+
+```bash
+# Inspect Nginx's config file
+docker exec -it my-nginx cat /etc/nginx/nginx.conf
+
+# Open a bash shell to poke around
+docker exec -it my-nginx bash
+
+# Some containers don't have bash — sh is always there
+docker exec -it my-alpine sh
+
+# Check the environment variables of the running process
+docker exec my-nginx env
+
+# See what processes are running inside
+docker exec my-nginx ps aux
+
+# Install something for a one-off debugging session
+docker exec -it my-nginx bash -c "apt-get update && apt-get install -y curl"
+```
+
+⚠️ Anything you install inside a running container with `exec` disappears when the container is removed. If you need something to be there permanently, it goes in the Dockerfile. `exec` is for inspection and debugging only.
+
+### `exec` without `-it`
+
+You don't always need the interactive flags. If you just want to run a command and see the output, skip them:
+
+```bash
+# Run a command and see the output directly
+docker exec my-nginx nginx -t
+```
+
+```
+nginx: the configuration file /etc/nginx/nginx.conf syntax is ok
+nginx: configuration file /etc/nginx/nginx.conf test is successful
+```
+
+Without `-it`, the command runs, prints its output, and exits. No interactive shell, no pseudo-terminal. This is the form you'd use in scripts or CI pipelines.
+
+## The Alpine trap: bash vs sh
+
+This one will catch you off guard eventually. Not all images have `bash`. Alpine-based images — which are wildly popular because of their tiny size — ship with `sh` only:
+
+```bash
+# ❌ This fails on an Alpine image
+docker exec -it my-alpine-container bash
+```
+
+```
+OCI runtime exec failed: exec: "bash": executable file not found in the PATH
+```
+
+```bash
+# ✅ Use sh instead
+docker exec -it my-alpine-container sh
+```
+
+If you genuinely need `bash` in Alpine for something:
+
+```bash
+docker exec -it my-alpine-container sh -c "apk add bash && bash"
+```
+
+Honestly though, `sh` covers 99% of what you'll need during an inspection session.
+
+## Copying files with `docker cp`
+
+Sometimes you don't need to enter the container — you just need to get a file out (or put one in). `docker cp` copies files between the host filesystem and a container's filesystem.
+
+### From container to host
+
+```bash
+# Copy Nginx's config file out of the container to your local machine
+docker cp my-nginx:/etc/nginx/nginx.conf ./nginx.conf
+```
+
+Useful for: grabbing a config you want to inspect and edit locally, pulling out logs generated inside the container, extracting build artifacts.
+
+### From host to container
+
+```bash
+# Copy a local file into the running container
+docker cp ./my-config.conf my-nginx:/etc/nginx/conf.d/custom.conf
+```
+
+And then reload without restarting the container:
+
+```bash
+docker exec my-nginx nginx -s reload
+```
+
+### `docker cp` vs volumes
+
+`docker cp` is a one-off tool — great for debugging, for pulling a file out of a live container, for quick one-time injections. For ongoing file sync between host and container (like your application source code during development), you want **volumes**. Volumes are the right mechanism for that, and we'll cover them later in the course.
+
+Think of `docker cp` as the Swiss Army knife. Volumes are the power tools.
+
+## Seeing what's happening: logs and inspect
+
+Two more commands that pair naturally with `exec`:
+
+### `docker logs`
+
+```bash
+# See all logs from the container
+docker logs my-nginx
+
+# Follow logs in real time (like tail -f)
+docker logs -f my-nginx
+
+# Show only the last 50 lines
+docker logs --tail 50 my-nginx
+
+# Add timestamps
+docker logs --timestamps my-nginx
+```
+
+### `docker inspect`
+
+While `logs` tells you what's coming out, `inspect` tells you everything about how the container is configured: environment variables, port mappings, mounted volumes, the network it's connected to, the image it came from:
+
+```bash
+docker inspect my-nginx
+```
+
+It returns a large JSON blob. Use `jq` to extract what you need:
+
+```bash
+# Check environment variables
+docker inspect my-nginx | jq '.[0].Config.Env'
+
+# Check the image ID
+docker inspect my-nginx | jq '.[0].Image'
+
+# Check the container's current state
+docker inspect my-nginx | jq '.[0].State'
+```
+
+## A typical debugging workflow
+
+Here's what all of this looks like in practice when something's broken:
+
+```bash
+# 1. Container is running but something's wrong
+docker ps
+docker logs --tail 100 -f my-app
+
+# 2. Logs aren't enough — enter the container to inspect
+docker exec -it my-app bash
+
+# 3. Inside the container, investigate
+root@abc123:/# ls /var/log/
+root@abc123:/# cat /var/log/app.log
+root@abc123:/# env | grep DATABASE
+
+# 4. Found a config file worth looking at — exit and pull it out
+root@abc123:/# exit
+docker cp my-app:/app/config.json ./config.json
+
+# 5. Edit it locally, push it back in
+docker cp ./config.json my-app:/app/config.json
+
+# 6. Reload the process without restarting the container (if the app supports it)
+docker exec my-app kill -HUP 1
+```
+
+This is what makes Docker genuinely useful for debugging: you can get in, look around, modify, and reload without taking the service down.
+
+---
+
+With `docker exec`, `-it`, and `docker cp` in your toolkit, you can actually interact with your containers rather than just launching them and hoping for the best. The ability to step inside a running container and see exactly what's happening is what separates someone who "uses Docker" from someone who understands it.
+
+Next up: **port mapping** — how to make a service running inside a container accessible from your browser or from other processes outside Docker. This is where containers start feeling truly useful for building real applications.
+
+Never stop coding!
+
+---
+
+**💡 Challenge**: Start an Nginx container in detached mode. Use `docker exec` to open a bash shell inside it. Copy `/etc/nginx/nginx.conf` to your machine with `docker cp`. Change `worker_processes auto;` to `worker_processes 2;`, push the file back into the container, and reload with `docker exec my-nginx nginx -s reload`. Verify the configuration is valid using `docker exec my-nginx nginx -t`.

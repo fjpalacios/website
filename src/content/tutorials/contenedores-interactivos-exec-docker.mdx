@@ -1,0 +1,279 @@
+---
+title: "Contenedores interactivos y exec: entra, ejecuta y sal de tus contenedores"
+post_slug: "contenedores-interactivos-exec-docker"
+date: "2026-04-16"
+excerpt: "Aprende a abrir shells dentro de contenedores, ejecutar comandos en contenedores en marcha con docker exec, copiar archivos con docker cp, y cuándo usar modo interactivo vs. detached."
+language: "es"
+categories: ["docker"]
+course: "domina-docker-desde-cero"
+order: 4
+cover: "/images/tutorials/cabecera-docker-curso.jpg"
+i18n: "interactive-containers-exec-docker"
+---
+
+Has estado lanzando contenedores y destruyéndolos. Pero hasta ahora los has tratado como cajas negras: les das una orden, hacen algo, los eliminas. Eso está bien para aprender el modelo mental, pero en el mundo real vas a necesitar entrar dentro de un contenedor en marcha para depurar algo que no funciona, inspeccionar un archivo de configuración, o simplemente entender qué está pasando ahí dentro.
+
+Para eso existen `docker exec` y el modo interactivo. Y una vez que los dominas, te das cuenta de que son dos de los comandos que más vas a usar.
+
+## Modo interactivo: `-it`, no es un accidente tipográfico
+
+Cuando ves `docker run -it`, el `-it` son dos flags combinados:
+
+- `-i` (interactive): mantiene `stdin` abierto, aunque no estés viendo la salida
+- `-t` (tty): asigna un pseudo-terminal, para que la sesión se comporte como una terminal real
+
+Por separado no tienen mucho sentido. Juntos, te dan algo que parece y se comporta como una terminal de verdad dentro del contenedor. Sin ellos, el proceso arranca y te devuelve el control inmediatamente — o se queda esperando input sin que puedas dárselo.
+
+```bash
+# Con -it: tienes una shell interactiva
+docker run -it ubuntu bash
+```
+
+```
+root@7a2f1d3c9e4b:/#
+```
+
+Estás dentro. Eso que ves a la izquierda del prompt es el ID del contenedor. Ahora puedes ejecutar cualquier comando como si fuera una máquina Ubuntu real:
+
+```bash
+root@7a2f1d3c9e4b:/# ls /etc
+root@7a2f1d3c9e4b:/# cat /etc/os-release
+root@7a2f1d3c9e4b:/# apt-get update
+root@7a2f1d3c9e4b:/# exit
+```
+
+Cuando haces `exit`, el proceso principal del contenedor (la shell `bash`) termina, y el contenedor se detiene. No lo elimina, solo lo detiene — sigue existiendo en estado `Stopped`.
+
+Esto es fundamental entenderlo: **el ciclo de vida del contenedor está ligado a su proceso principal**. Si el proceso principal termina, el contenedor se detiene. Si el proceso principal es `bash` y escribes `exit`, el contenedor se detiene.
+
+## Modo detached: el `-d` que ya conoces
+
+El otro extremo del espectro es el modo detached (`-d`). El contenedor arranca en segundo plano y te devuelve el ID del contenedor. Perfecto para servicios que deben ejecutarse indefinidamente — servidores web, bases de datos, colas de mensajes.
+
+```bash
+# Sin -d: el proceso se queda en primer plano, bloquea tu terminal
+docker run nginx
+
+# Con -d: arranca en segundo plano, te devuelve el control
+docker run -d --name mi-nginx nginx
+```
+
+```
+3f4e5d6c7b8a9e1f2d3c4b5a6e7f8d9c
+```
+
+Ese hash es el ID completo del contenedor. Ahora tu terminal está libre. El contenedor está corriendo, sirviendo peticiones HTTP en su puerto 80 interno — pero nadie puede acceder a él todavía desde fuera (eso es el mapeo de puertos, que veremos en la próxima lección).
+
+Para ver qué está corriendo:
+
+```bash
+docker ps
+```
+
+```
+CONTAINER ID   IMAGE   COMMAND                  CREATED         STATUS        PORTS   NAMES
+3f4e5d6c7b8a   nginx   "/docker-entrypoint.…"   3 seconds ago   Up 3 seconds   80/tcp  mi-nginx
+```
+
+## `docker exec`: entra en un contenedor que ya está corriendo
+
+Aquí está el comando que más vas a usar en el día a día. `docker exec` te permite ejecutar un comando adicional dentro de un contenedor que ya está en marcha — sin detenerlo ni reiniciarlo.
+
+```bash
+# Abre una shell bash en el contenedor mi-nginx que ya está corriendo
+docker exec -it mi-nginx bash
+```
+
+```
+root@3f4e5d6c7b8a:/#
+```
+
+La diferencia con `docker run -it` es importante:
+
+- `docker run -it` **crea un contenedor nuevo** y te mete dentro
+- `docker exec -it` **entra en un contenedor que ya existe** y está corriendo
+
+Cuando haces `exit` de un `docker exec`, el contenedor sigue corriendo. El proceso principal (en el caso de `mi-nginx`, el proceso de Nginx) no se ha tocado. Solo has salido de la shell extra que habías abierto.
+
+### Comandos frecuentes con exec
+
+```bash
+# Ver los archivos de configuración de Nginx
+docker exec -it mi-nginx cat /etc/nginx/nginx.conf
+
+# Abrir una shell bash para explorar el sistema de archivos
+docker exec -it mi-nginx bash
+
+# Algunos contenedores no tienen bash — sh siempre está disponible
+docker exec -it mi-alpine sh
+
+# Ver las variables de entorno del proceso en marcha
+docker exec mi-nginx env
+
+# Ver los procesos dentro del contenedor
+docker exec mi-nginx ps aux
+
+# Instalar algo dentro del contenedor (para debugging puntual — no para producción)
+docker exec -it mi-nginx bash -c "apt-get update && apt-get install -y curl"
+```
+
+⚠️ Todo lo que instales dentro de un contenedor en marcha con `exec` desaparece cuando el contenedor se elimina. Si necesitas que algo esté disponible en el futuro, va en el Dockerfile. Esto es solo para inspección y debugging.
+
+### `exec` sin `-it`
+
+No siempre necesitas `-it`. Si solo quieres ejecutar un comando y ver el resultado, puedes omitirlo:
+
+```bash
+# Ejecutar un comando y ver el output directamente
+docker exec mi-nginx nginx -t
+```
+
+```
+nginx: the configuration file /etc/nginx/nginx.conf syntax is ok
+nginx: configuration file /etc/nginx/nginx.conf test is successful
+```
+
+Sin `-it`, el comando se ejecuta, devuelve el output y termina. No hay shell interactiva, no hay pseudo-terminal. Perfecto para scripting o para checks rápidos desde un pipeline de CI.
+
+## Diferencias entre imágenes de base: ¿bash o sh?
+
+Aquí hay algo que te va a pillar desprevenido tarde o temprano. No todas las imágenes tienen `bash`. Las imágenes basadas en Alpine Linux — que son muy populares por su tamaño mínimo — solo tienen `sh`:
+
+```bash
+# ❌ Esto falla en una imagen Alpine
+docker exec -it mi-contenedor-alpine bash
+```
+
+```
+OCI runtime exec failed: exec: "bash": executable file not found in the PATH
+```
+
+```bash
+# ✅ Usa sh en su lugar
+docker exec -it mi-contenedor-alpine sh
+```
+
+Si necesitas `bash` en Alpine para algo concreto, puedes instalarlo:
+
+```bash
+docker exec -it mi-contenedor-alpine sh -c "apk add bash && bash"
+```
+
+Pero en la práctica, `sh` es suficiente para el 99% de las necesidades de inspección.
+
+## Copiar archivos con `docker cp`
+
+A veces no necesitas entrar dentro del contenedor — solo necesitas sacar (o meter) un archivo. `docker cp` copia archivos entre el sistema de archivos del host y el de un contenedor.
+
+### Del contenedor al host
+
+```bash
+# Copia el archivo de configuración de Nginx de dentro del contenedor a tu máquina local
+docker cp mi-nginx:/etc/nginx/nginx.conf ./nginx.conf
+```
+
+Útil para: obtener un archivo de configuración y editarlo, sacar logs generados dentro del contenedor, extraer artefactos de un build.
+
+### Del host al contenedor
+
+```bash
+# Copia un archivo de tu máquina local a dentro del contenedor
+docker cp ./mi-config.conf mi-nginx:/etc/nginx/conf.d/custom.conf
+```
+
+Y luego puedes recargar la configuración sin reiniciar el contenedor:
+
+```bash
+docker exec mi-nginx nginx -s reload
+```
+
+### `docker cp` vs volúmenes
+
+`docker cp` es una solución puntual — genial para debugging, para sacar un archivo de un contenedor en marcha, para inyectar algo rápidamente. Pero para la sincronización continua de archivos entre host y contenedor (por ejemplo, el código fuente de tu app durante el desarrollo), usarás **volúmenes**. Los volúmenes son el mecanismo correcto para eso, y los cubriremos más adelante en el curso.
+
+`docker cp` es la navaja multiusos. Los volúmenes son la carpintería seria.
+
+## Ver qué está pasando dentro: logs e inspect
+
+Dos comandos más que complementan bien a `exec`:
+
+### `docker logs`
+
+```bash
+# Ver todos los logs del contenedor
+docker logs mi-nginx
+
+# Seguir los logs en tiempo real (como tail -f)
+docker logs -f mi-nginx
+
+# Ver solo las últimas 50 líneas
+docker logs --tail 50 mi-nginx
+
+# Añadir timestamps a los logs
+docker logs --timestamps mi-nginx
+```
+
+### `docker inspect`
+
+Si `logs` te dice qué está saliendo, `inspect` te dice todo lo que hay que saber sobre la configuración del contenedor en marcha: variables de entorno, mapeos de puertos, volúmenes montados, la red a la que está conectado, el ID de la imagen de la que viene:
+
+```bash
+docker inspect mi-nginx
+```
+
+Devuelve un JSON bastante grande. Para buscar algo concreto, `jq` es tu amigo:
+
+```bash
+# Ver solo las variables de entorno del contenedor
+docker inspect mi-nginx | jq '.[0].Config.Env'
+
+# Ver el ID de la imagen
+docker inspect mi-nginx | jq '.[0].Image'
+
+# Ver el estado del contenedor
+docker inspect mi-nginx | jq '.[0].State'
+```
+
+## Un flujo de trabajo típico de debugging
+
+Para que todo esto tenga sentido en un contexto real, así es como se ve un ciclo de debugging típico con estos comandos:
+
+```bash
+# 1. El contenedor está corriendo pero algo va mal
+docker ps
+docker logs --tail 100 -f mi-app
+
+# 2. Los logs no son suficientes — entras a inspeccionar el sistema de archivos
+docker exec -it mi-app bash
+
+# 3. Dentro del contenedor, investigas
+root@abc123:/# ls /var/log/
+root@abc123:/# cat /var/log/app.log
+root@abc123:/# env | grep DATABASE
+
+# 4. Encuentras el archivo de configuración que necesitas revisar
+root@abc123:/# exit
+
+# 5. Lo sacas al host para editarlo cómodamente
+docker cp mi-app:/app/config.json ./config.json
+
+# 6. Lo editas, lo vuelves a meter
+docker cp ./config.json mi-app:/app/config.json
+
+# 7. Recargas el proceso sin reiniciar el contenedor (si la app lo soporta)
+docker exec mi-app kill -HUP 1
+```
+
+Esto es lo que hace que Docker sea tan potente para debugging: puedes entrar, inspeccionar, modificar y recargar sin tirar el servicio.
+
+---
+
+Con `docker exec`, `-it` y `docker cp` ya puedes interactuar de verdad con tus contenedores — no solo lanzarlos y rezar. La capacidad de entrar dentro de un contenedor en marcha y ver exactamente lo que está pasando es lo que separa a alguien que "usa Docker" de alguien que "entiende Docker".
+
+En la próxima lección llegamos al **mapeo de puertos**: cómo hacer que un servicio que corre dentro de un contenedor sea accesible desde tu navegador o desde otro proceso fuera de Docker.
+
+¡Nunca dejes de programar!
+
+---
+
+**💡 Reto**: Lanza un contenedor Nginx en modo detached (`-d`). Usa `docker exec` para abrir una shell bash dentro de él. Copia el archivo `/etc/nginx/nginx.conf` a tu máquina con `docker cp`. Cambia la línea `worker_processes auto;` por `worker_processes 2;`, devuelve el archivo al contenedor con `docker cp`, y recarga la configuración con `docker exec mi-nginx nginx -s reload`. Verifica que nginx reporta la configuración como válida con `docker exec mi-nginx nginx -t`.
