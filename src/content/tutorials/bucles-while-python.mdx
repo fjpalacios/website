@@ -1,0 +1,250 @@
+---
+title: "Bucles while en Python: repetición con condición"
+post_slug: "bucles-while-python"
+date: "2026-04-17"
+excerpt: "Con if ya sabes tomar decisiones. Ahora aprende a repetirlas. Los bucles while ejecutan código una y otra vez mientras se cumpla una condición — y sí, los bucles infinitos son reales."
+language: "es"
+categories: ["programacion"]
+course: "aprende-a-programar-desde-cero-python"
+order: 7
+cover: "/images/tutorials/cabecera-python-curso.jpg"
+i18n: "while-loops-python"
+---
+
+Imagina que tienes que pedirle a un usuario un número entre 1 y 10. Escribes el `input`, compruebas con un `if` si está en rango, y si no lo está... ¿qué haces? ¿Copias y pegas el `input` cinco veces y rezas para que el usuario lo entienda a la tercera? No. Lo que necesitas es un bucle.
+
+Los **bucles** son la solución cuando necesitas repetir algo sin saber exactamente cuántas veces. No son la última herramienta que aprenderás, pero sí una de las más importantes. Y en Python, el más fundamental de todos es el `while`.
+
+## ¿Qué es un bucle while?
+
+Un `while` ejecuta un bloque de código **mientras** una condición sea verdadera. Cuando la condición se vuelve falsa, el bucle para. Si la condición ya era falsa desde el principio, el bloque no se ejecuta ni una sola vez.
+
+La estructura es intencionalmente parecida a la del `if`:
+
+```python
+while condicion:
+    # This code repeats as long as the condition is True
+    hacer_algo()
+```
+
+Mismos dos puntos. Misma indentación obligatoria. La diferencia es que en vez de ejecutarse una vez, el bloque se repite en un ciclo hasta que la condición deja de cumplirse.
+
+Un ejemplo concreto: contar del 1 al 5.
+
+```python
+contador = 1
+
+while contador <= 5:
+    print(contador)   # Print current count
+    contador += 1     # Increment — or we'll be here forever
+```
+
+```
+1
+2
+3
+4
+5
+```
+
+Cada vez que Python llega al final del bloque, vuelve a la cabecera del `while` y reevalúa la condición. Cuando `contador` llega a 6, `6 <= 5` es `False` y el bucle termina.
+
+Hay tres componentes que casi siempre van juntos en un `while`:
+
+1. **Inicialización** — `contador = 1` (antes del bucle)
+2. **Condición** — `contador <= 5` (en la cabecera)
+3. **Actualización** — `contador += 1` (dentro del bucle)
+
+Si olvidas el tercero, tienes un problema. Uno bastante conocido.
+
+## El bucle infinito: no es un mito
+
+Si la condición de tu `while` nunca se vuelve `False`, el bucle no para. Nunca. Tu programa se queda ejecutando ese bloque para siempre — o hasta que lo matas con `Ctrl+C`.
+
+```python
+# ⚠️ Infinite loop — don't run this unless you like Ctrl+C
+x = 1
+while x > 0:
+    print(x)
+    x += 1   # x keeps growing, condition never becomes False
+```
+
+¿Sensación de pánico? Perfecto. Eso significa que ya entiendes por qué la actualización de la variable es tan importante.
+
+Los bucles infinitos no siempre son accidentales. A veces los usas a propósito — más sobre eso en un momento. Pero cuando no es tu intención, suelen deberse a una de estas cosas:
+
+- Olvidaste actualizar la variable de control
+- Actualizas la variable en la dirección equivocada
+- La condición de salida es imposible de alcanzar con la lógica que tienes
+
+La forma más rápida de salir de uno en la terminal es `Ctrl+C`. Y si en algún momento tu program parece colgado... probablemente sea un `while True` en algún sitio.
+
+## break: salir cuando quieras
+
+A veces necesitas salir del bucle antes de que la condición se vuelva falsa. Para eso existe `break`: interrumpe el `while` inmediatamente y salta al código que sigue después del bucle.
+
+```python
+numero = 1
+
+while numero <= 10:
+    if numero == 6:
+        break   # Exit loop immediately when we hit 6
+    print(numero)
+    numero += 1
+
+print("Bucle terminado")
+```
+
+```
+1
+2
+3
+4
+5
+Bucle terminado
+```
+
+El `break` es especialmente útil en el patrón `while True`, donde el bucle está diseñado para ejecutarse indefinidamente y la condición de salida viene desde dentro:
+
+```python
+while True:
+    respuesta = input("¿Quieres continuar? (s/n) ")
+    if respuesta == "n":
+        break   # The only way out
+    print("Continuando...")
+
+print("Programa terminado")
+```
+
+Este patrón — `while True` con un `break` interno — es legítimo y muy común para menús, juegos o cualquier situación donde el bucle sigue hasta que el usuario decide parar.
+
+## continue: saltar una iteración
+
+`continue` es el hermano menor de `break`. En lugar de salir del bucle, **salta al inicio de la siguiente iteración** — evalúa la condición de nuevo y continúa desde ahí si sigue siendo verdadera.
+
+```python
+numero = 0
+
+while numero < 10:
+    numero += 1
+    if numero % 2 == 0:
+        continue   # Skip even numbers
+    print(numero)
+```
+
+```
+1
+3
+5
+7
+9
+```
+
+Cuando `numero` es par, el `continue` hace que Python vuelva a la cabecera del `while` sin ejecutar el `print`. Solo los impares llegan a imprimirse.
+
+Una advertencia con `continue`: asegúrate de que la actualización de la variable ocurre **antes** del `continue`. Mira qué pasa si no:
+
+```python
+# ⚠️ Infinite loop — numero never increments when it's even
+numero = 0
+while numero < 10:
+    if numero % 2 == 0:
+        continue   # Jumps back before numero += 1... forever
+    numero += 1
+    print(numero)
+```
+
+Cuando `numero` es 0 (par), el `continue` salta antes de que `numero += 1` se ejecute. El siguiente ciclo, `numero` sigue siendo 0. Y el siguiente. Y el siguiente. Tienes un bucle infinito, aunque no lo parezca a primera vista.
+
+## Casos de uso reales
+
+El `while` brilla en situaciones donde no sabes de antemano cuántas repeticiones necesitas. Algunos patrones habituales:
+
+### Validar entrada del usuario
+
+```python
+while True:
+    edad = input("Introduce tu edad: ")
+    if edad.isdigit() and int(edad) >= 0:
+        edad = int(edad)
+        break   # Valid input, exit loop
+    print("Por favor, introduce un número válido.")
+
+print(f"Tu edad es {edad} años.")
+```
+
+El bucle sigue pidiendo datos hasta que el usuario introduce algo válido. No importa cuántos intentos necesite.
+
+### Contador con condición de negocio
+
+```python
+intentos = 0
+max_intentos = 3
+contrasena_correcta = "python123"
+
+while intentos < max_intentos:
+    contrasena = input("Introduce tu contraseña: ")
+    if contrasena == contrasena_correcta:
+        print("Acceso concedido.")
+        break
+    intentos += 1
+    restantes = max_intentos - intentos
+    if restantes > 0:
+        print(f"Contraseña incorrecta. Te quedan {restantes} intentos.")
+
+if intentos == max_intentos:
+    print("Demasiados intentos fallidos. Cuenta bloqueada.")
+```
+
+Este es el tipo de lógica que hay detrás de cualquier formulario de login. El `while` controla los intentos; el `break` sale cuando tiene éxito; el `if` final gestiona el fallo total.
+
+### Juego de adivinanza
+
+```python
+import random
+
+numero_secreto = random.randint(1, 100)  # Random number between 1 and 100
+intentos = 0
+
+print("Adivina el número entre 1 y 100.")
+
+while True:
+    try:
+        intento = int(input("Tu número: "))
+    except ValueError:
+        print("Eso no es un número.")
+        continue
+
+    intentos += 1
+
+    if intento < numero_secreto:
+        print("Muy bajo.")
+    elif intento > numero_secreto:
+        print("Muy alto.")
+    else:
+        print(f"¡Correcto! Lo encontraste en {intentos} intentos.")
+        break
+```
+
+Aquí el `while True` no tiene condición de salida explícita en la cabecera — el único camino de salida es el `break` dentro del `else`. Hasta que el usuario no adivine el número, el juego no termina.
+
+## La diferencia entre while y for
+
+Si vienes de otros lenguajes, puede que ya te estés preguntando cuándo usar `while` y cuándo usar `for`. Spoiler: en el próximo tutorial aprenderás los bucles `for`, que son la opción preferida cuando sabes cuántas iteraciones quieres.
+
+La regla es simple:
+
+- **`while`**: cuando la condición de parada depende de algo que puede cambiar de forma imprevisible (input del usuario, datos de red, estado de un juego...)
+- **`for`**: cuando iteras sobre una secuencia de longitud conocida (una lista, un rango de números, un archivo...)
+
+Si puedes expresarlo como "repite esto N veces" o "recorre esta lista", usa `for`. Si piensas "repite esto hasta que pase algo", usa `while`.
+
+---
+
+Ya sabes hacer que Python tome decisiones y que repita código de forma controlada. El siguiente nivel natural es el bucle `for` — más predecible, más expresivo para la mayoría de iteraciones cotidianas, y el que usarás con más frecuencia en Python real. También aprenderás `range()`, que convierte números en secuencias iterables sin necesidad de gestionar contadores manualmente.
+
+¡Nunca dejes de programar!
+
+---
+
+**💡 Reto**: Escribe un juego de adivinanza donde el usuario tenga exactamente 5 intentos para adivinar un número entre 1 y 20. Después de cada intento fallido, dile si su número es demasiado alto o demasiado bajo. Al terminar los 5 intentos sin acierto, muestra el número secreto. Bonus: lleva la cuenta de cuántos intentos usó si gana, y felicítale con un mensaje diferente según si lo consiguió en 1, 2–3 o 4–5 intentos.
