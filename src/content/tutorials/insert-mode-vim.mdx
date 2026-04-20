@@ -1,0 +1,150 @@
+---
+title: "Insert Mode in depth: more than you think"
+post_slug: "insert-mode-vim"
+date: "2026-04-20"
+excerpt: "Insert mode isn't just 'press i and type'. Learn the nine ways to enter it, the keyboard shortcuts inside it, and the golden rule that separates Vim beginners from people who actually know what they're doing."
+language: "en"
+categories: ["vim"]
+course: "mastering-vim-from-scratch"
+order: 5
+cover: "/images/tutorials/cabecera-vim-curso.jpg"
+i18n: "modo-insert-vim"
+---
+
+After the previous tutorial, you might have the impression that Insert mode is the poor relation of Vim. Normal mode has the grammar, the operators, the `.` command. Insert mode is where you... type. Like in any other editor.
+
+And that's partially true. But there's a real difference between someone who uses Insert mode the way they'd use VS Code and someone who understands how it actually works. That difference is what determines whether your edits are precise, composable, and repeatable with `.` — or a mess of keystrokes that "kind of work."
+
+This tutorial is the bridge between "I can survive in Vim" and "I'm starting to feel at home."
+
+## Nine ways to enter Insert mode
+
+The most familiar is `i`. But Vim has nine — and each one exists for a reason.
+
+### The basics: where to land the cursor
+
+| Command | Where it starts inserting                                |
+| ------- | -------------------------------------------------------- |
+| `i`     | **Before** the cursor (the default)                      |
+| `a`     | **After** the cursor (append)                            |
+| `I`     | At the **start** of the line (first non-blank character) |
+| `A`     | At the **end** of the line                               |
+| `o`     | Opens a **new line below** and enters Insert mode        |
+| `O`     | Opens a **new line above** and enters Insert mode        |
+
+The difference between `i` and `a` seems minimal — one character apart — but it matters. If the cursor is on the `f` in `foo` and you want to type something before it, use `i`. If you want to type after the whole word `foo`, navigate to the `o` and use `a`. In practice, `a` comes up a lot when adding something to the end of an expression.
+
+`A` deserves a special mention: jumping to the end of the line and entering Insert mode is so common it has its own key. The sequence `$a` works, but `A` is a single command.
+
+And `o` and `O` are hidden gems. Opening a new line and entering Insert mode at the same time is what you do 90% of the time when writing new code. In VS Code you'd press `End` + `Enter`. In Vim it's `o`. One character.
+
+### The change variants: delete and enter
+
+| Command | What it does                                                 |
+| ------- | ------------------------------------------------------------ |
+| `s`     | Deletes the **character under the cursor** and enters Insert |
+| `S`     | Deletes the **entire line** and enters Insert                |
+| `cw`    | Deletes the **word** and enters Insert mode                  |
+
+You saw `s` and `S` briefly in the previous tutorial as shortcuts for `cl` and `cc`. The key insight is that they're not just shortcuts — they're the semantic way of saying "replace this." `s` means "substitute this character," `S` means "substitute this line."
+
+`cw` isn't really an "entry" command on its own — it's the `c` operator with the `w` motion. But it's so common it belongs on this list. You'll find that `c` followed by any motion is the dominant pattern for editing existing text: `ce`, `c$`, `c^`, `ciw` (more on text objects in future tutorials).
+
+## Inside Insert mode: it's not a dead zone
+
+Once you're in Insert mode, most people just type and press `Esc`. But there are shortcuts that work inside Insert mode that are worth their weight in gold:
+
+### Deleting without leaving
+
+| Shortcut | What it does                                                |
+| -------- | ----------------------------------------------------------- |
+| `Ctrl+h` | Delete the previous character (same as `Backspace`)         |
+| `Ctrl+w` | Delete the **previous word** (very useful when you mistype) |
+| `Ctrl+u` | Delete **everything you've typed** on the current line      |
+
+`Ctrl+w` is the one I use most. You type `calculate_totlll` and instead of mashing `Backspace` three times, `Ctrl+w` wipes the whole word at once. It'll be in your muscle memory within three days.
+
+`Ctrl+u` looks aggressive, but it's perfect when you've completely gone off the rails and want to restart the line from scratch without leaving Insert mode.
+
+### The `Ctrl+o` trick
+
+This one is the most interesting. `Ctrl+o` momentarily drops you into Normal mode, executes a single command, and returns to Insert mode.
+
+```vim
+" You're typing, cursor is in the middle of a line
+" You want to jump to the start of the line without leaving Insert mode
+Ctrl+o + ^    " → goes to first non-blank and returns to Insert mode
+Ctrl+o + $    " → goes to end of line and returns to Insert mode
+Ctrl+o + dw   " → deletes a word and returns to Insert mode
+```
+
+Don't obsess over `Ctrl+o` at the beginning. But once you've been using Vim for weeks and hit that situation where you need to do something quick without leaving Insert mode, you'll know it's there.
+
+### Native autocomplete
+
+Vim has native autocomplete inside Insert mode, with no plugins:
+
+| Shortcut        | What it does                                   |
+| --------------- | ---------------------------------------------- |
+| `Ctrl+n`        | Next suggestion — based on words in the buffer |
+| `Ctrl+p`        | Previous suggestion                            |
+| `Ctrl+x Ctrl+f` | Autocomplete **file paths**                    |
+| `Ctrl+x Ctrl+l` | Autocomplete **entire lines** from the buffer  |
+
+The `Ctrl+n` / `Ctrl+p` autocomplete looks at all words across your open buffers. It's not the smart LSP autocomplete — but it works with zero configuration, even with vanilla Vim, even on a remote SSH server with no internet.
+
+LazyVim already ships with a more powerful autocomplete plugin (nvim-cmp), so in your current setup you probably won't need `Ctrl+n` daily. But knowing it exists saves you the day you're on a bare remote server with unconfigured vim.
+
+## The golden rule of Insert mode
+
+Here's the difference between someone who uses Vim and someone who uses it well:
+
+**Enter Insert mode to make ONE logical change. Then leave.**
+
+Not: `i`, type three words, delete two, rewrite, add a parenthesis, remove the parenthesis...
+
+Yes: `i`, type the word, `Esc`. `a`, add the parenthesis, `Esc`.
+
+Why? Because the `.` command replays the **entire last change**. If you enter Insert mode, do ten different things, and leave — `.` will replay all that chaos. If you make one clean change and leave, `.` will replay exactly that.
+
+The granularity of your change is what makes `.` a surgical editing tool or a confetti cannon.
+
+```vim
+" ✅ Clean, repeatable change
+cw                " change one word
+newName           " type the replacement
+Esc               " leave Insert mode → one change registered
+w                 " move to the next occurrence
+.                 " repeat exactly the same thing
+
+" ❌ Entangled change, hard to repeat
+i
+first this then that and delete and rewrite Esc
+```
+
+This also applies to `o` and `O`. If you open a new line, write what you need, and leave — that's a repeatable change. If you open a new line and start reorganizing the entire function logic... it's not.
+
+## Arrow keys in Insert mode (and why not to use them)
+
+Technically you can use arrow keys inside Insert mode to navigate. Vim allows it.
+
+Don't.
+
+The issue isn't that it's "wrong." It's that it costs time and messes up the cursor position for the `.` command. Every time you move with arrows inside Insert mode, you're in "I don't know exactly what change I'm making" territory. Leave to Normal mode, navigate with `hjkl` or word movements, come back to the exact spot, enter Insert mode.
+
+This sounds rigid at first. Two weeks in, you won't even think about it.
+
+## Key concepts from this lesson
+
+- **Nine Insert mode entries**: `i`, `a`, `I`, `A`, `o`, `O`, `s`, `S`, `c<motion>`
+- **`o` and `O`** open a new line and enter Insert — the most common when writing code
+- **`Ctrl+w`** deletes the previous word without leaving Insert mode
+- **`Ctrl+o`** executes one Normal mode command momentarily and returns to Insert
+- **Native autocomplete**: `Ctrl+n` / `Ctrl+p` with no plugins
+- **The golden rule**: one logical change per Insert session → `.` works beautifully
+
+---
+
+You now have the two core pieces of Vim editing: Normal mode and Insert mode, and how to move between them deliberately. The next step is **Visual mode** — explicitly selecting text to operate on, including the block visual mode (`Ctrl+v`) that's one of those features that makes people ask "wait, a text editor can do that?"
+
+Never stop coding!
