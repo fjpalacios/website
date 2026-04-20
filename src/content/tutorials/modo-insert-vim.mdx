@@ -1,0 +1,150 @@
+---
+title: "Modo Insert en profundidad: más de lo que crees"
+post_slug: "modo-insert-vim"
+date: "2026-04-20"
+excerpt: "El modo Insert no es solo 'pulsa i y escribe'. Aprende las nueve formas de entrar en él, los atajos de teclado dentro de él, y la regla de oro que separa a los principiantes de los usuarios que realmente saben usar Vim."
+language: "es"
+categories: ["vim"]
+course: "domina-vim-desde-cero"
+order: 5
+cover: "/images/tutorials/cabecera-vim-curso.jpg"
+i18n: "insert-mode-vim"
+---
+
+Después del tutorial anterior, puede que tengas la sensación de que el modo Insert es el pariente pobre de Vim. El modo Normal tiene la gramática, los operadores, el comando `.`. El modo Insert es donde... escribes. Como en cualquier editor.
+
+Y es verdad, hasta cierto punto. Pero hay una diferencia importante entre alguien que usa el modo Insert como lo usaría en VS Code y alguien que sabe cómo funciona de verdad. Esa diferencia es la que marca que tus ediciones sean precisas, combinables y repetibles con `.` — o que sean un batiburrillo de teclas que "más o menos funcionan".
+
+Este tutorial es el puente entre "sobrevivo en Vim" y "empiezo a sentirme cómodo".
+
+## Nueve formas de entrar en modo Insert
+
+La más conocida es `i`. Pero Vim tiene nueve — y cada una existe por una razón.
+
+### Las básicas: dónde aterrizar el cursor
+
+| Comando | Dónde empieza a insertar                               |
+| ------- | ------------------------------------------------------ |
+| `i`     | **Antes** del cursor (la opción por defecto)           |
+| `a`     | **Después** del cursor (append)                        |
+| `I`     | Al **inicio** de la línea (primer no-blanco)           |
+| `A`     | Al **final** de la línea                               |
+| `o`     | Abre una **nueva línea debajo** y entra en Insert mode |
+| `O`     | Abre una **nueva línea encima** y entra en Insert mode |
+
+La diferencia entre `i` y `a` parece mínima — un carácter de distancia — pero importa. Si el cursor está en la `f` de `foo` y quieres escribir algo antes de la `f`, usas `i`. Si quieres escribir después de toda la palabra `foo`, navegas hasta la `o` y usas `a`. En la práctica, `a` se usa mucho para añadir algo al final de una expresión.
+
+`A` merece una mención especial: ir al final de la línea y entrar en modo Insert es tan común que tiene su propia tecla. La secuencia `$a` funciona, pero `A` es un solo comando.
+
+Y `o` y `O` son joyas escondidas. Abrir una nueva línea y entrar en modo Insert al mismo tiempo es lo que haces el 90% de las veces que quieres añadir código nuevo. En VS Code serías `End` + `Enter`. En Vim es `o`. Un carácter.
+
+### Las de cambio: borra y entra
+
+| Comando | Qué hace                                                    |
+| ------- | ----------------------------------------------------------- |
+| `s`     | Borra el **carácter bajo el cursor** y entra en Insert mode |
+| `S`     | Borra la **línea entera** y entra en Insert mode            |
+| `cw`    | Borra la **palabra** y entra en Insert mode                 |
+
+`s` y `S` los viste brevemente en el tutorial anterior como atajos de `cl` y `cc`. La clave es que no son solo atajos — son la forma "semántica" de decir "sustituye esto". `s` es "sustituye este carácter", `S` es "sustituye esta línea".
+
+`cw` no es realmente una forma "de entrar en Insert" — es el operador `c` con el movimiento `w`. Pero es tan habitual que merece estar en esta lista. Verás que `c` seguido de cualquier movimiento es el patrón más común para editar texto existente: `ce`, `c$`, `c^`, `ciw` (más sobre *text objects* en tutoriales futuros).
+
+## Dentro del modo Insert: no es tierra de nadie
+
+Una vez dentro del modo Insert, la mayoría de la gente escribe y pulsa `Esc`. Pero hay atajos que funcionan dentro del modo Insert que valen su peso en oro:
+
+### Borrar sin salir
+
+| Atajo    | Qué hace                                                     |
+| -------- | ------------------------------------------------------------ |
+| `Ctrl+h` | Borra el carácter anterior (igual que `Backspace`)           |
+| `Ctrl+w` | Borra la **palabra** anterior (muy útil cuando te equivocas) |
+| `Ctrl+u` | Borra **todo lo que has escrito** en la línea actual         |
+
+`Ctrl+w` es el que más uso. Escribes `calcular_totlll` y en lugar de pulsar `Backspace` tres veces, `Ctrl+w` borra toda la palabra de golpe. Está en tu memoria muscular en tres días.
+
+`Ctrl+u` parece agresivo, pero es perfecto cuando te has ido completamente por las ramas y quieres empezar la línea desde cero sin salir del modo Insert.
+
+### El truco de `Ctrl+o`
+
+Este es el más interesante. `Ctrl+o` te saca **momentáneamente** al modo Normal, ejecuta un solo comando, y vuelve al modo Insert.
+
+```vim
+" Estás escribiendo texto, el cursor está en medio de una línea
+" Quieres ir al inicio de la línea sin salir del modo Insert
+Ctrl+o + ^    " → va al primer no-blanco y vuelve al modo Insert
+Ctrl+o + $    " → va al final de la línea y vuelve al modo Insert
+Ctrl+o + dw   " → borra una palabra y vuelve al modo Insert
+```
+
+No te obsesiones con `Ctrl+o` al principio. Pero cuando lleves semanas usando Vim y tengas esa situación donde "necesito hacer algo rápido sin salir del modo Insert", ya sabes que existe.
+
+### Autocompletar nativo
+
+Vim tiene autocompletado nativo dentro del modo Insert, sin plugins:
+
+| Atajo           | Qué hace                                                    |
+| --------------- | ----------------------------------------------------------- |
+| `Ctrl+n`        | Siguiente sugerencia (next) — basada en palabras del buffer |
+| `Ctrl+p`        | Sugerencia anterior (previous)                              |
+| `Ctrl+x Ctrl+f` | Autocompletar **rutas de archivos**                         |
+| `Ctrl+x Ctrl+l` | Autocompletar **líneas completas** del buffer               |
+
+El autocompletado con `Ctrl+n` y `Ctrl+p` mira todas las palabras que existen en los buffers abiertos. No es el autocompletado inteligente de un LSP — pero funciona sin configuración, incluso con Vim vanilla, incluso en un servidor SSH sin conexión a internet.
+
+LazyVim por defecto ya tiene un plugin de autocompletado más potente (nvim-cmp), así que en tu setup actual probablemente no necesitas `Ctrl+n` a diario. Pero saber que existe te salva el día cuando estás en un servidor remoto con vim sin configurar.
+
+## La regla de oro del modo Insert
+
+Aquí está la diferencia entre alguien que usa Vim y alguien que lo usa bien:
+
+**Entra en modo Insert para hacer UN cambio lógico. Luego sal.**
+
+No: `i`, escribir tres palabras, borrar dos, reescribir, añadir un paréntesis, quitar el paréntesis...
+
+Sí: `i`, escribir la palabra, `Esc`. `a`, añadir el paréntesis, `Esc`.
+
+¿Por qué? Porque el comando `.` repite el **último cambio completo**. Si entras en Insert mode, haces diez cosas distintas y sales, `.` repetirá todo ese caos. Si haces un cambio limpio y sales, `.` repetirá exactamente ese cambio.
+
+La granularidad del cambio es lo que hace que `.` sea una herramienta de edición o un cañón de confeti.
+
+```vim
+" ✅ Cambio limpio y repetible
+cw                " cambia una palabra
+nuevoNombre       " escribe el reemplazo
+Esc               " sale del modo Insert → un cambio registrado
+w                 " mueve al siguiente
+.                 " repite exactamente lo mismo
+
+" ❌ Cambio difícil de repetir
+i
+primero esto luego aquello y borro y reescribo Esc
+```
+
+Esto también se aplica a `o` y `O`. Si abres una línea nueva, escribes lo que necesitas y sales, eso es un cambio repetible. Si abres una línea nueva y te pones a reorganizar la lógica de la función entera... ya no.
+
+## Las flechas en modo Insert (y por qué no usarlas)
+
+Técnicamente puedes usar las flechas del teclado dentro del modo Insert para moverte. Vim te lo permite.
+
+No las uses.
+
+El problema no es que esté mal. El problema es que te cuesta tiempo y sacrificas la posición del cursor para el comando `.`. Cada vez que te mueves con las flechas dentro del modo Insert estás en territorio "ya no sé exactamente qué cambio estoy haciendo". Sal al modo Normal, navega con `hjkl` o movimientos por palabras, vuelve al punto exacto, entra en Insert mode.
+
+Esto suena rígido al principio. A las dos semanas, ni lo recuerdas.
+
+## Conceptos clave de esta lección
+
+- **Nueve entradas al modo Insert**: `i`, `a`, `I`, `A`, `o`, `O`, `s`, `S`, `c<movimiento>`
+- **`o` y `O`** abren línea nueva y entran en Insert — lo más común cuando escribes código
+- **`Ctrl+w`** borra la palabra anterior sin salir del modo Insert
+- **`Ctrl+o`** ejecuta un comando Normal de forma momentánea y vuelve a Insert
+- **Autocompletado nativo**: `Ctrl+n` / `Ctrl+p` sin plugins
+- **La regla de oro**: un cambio lógico por entrada en modo Insert → `.` funciona bien
+
+---
+
+Ahora tienes las dos piezas fundamentales de la edición en Vim: el modo Normal y el modo Insert, y cómo moverse entre ellos de forma deliberada. El siguiente paso es el **modo Visual** — seleccionar texto de forma explícita para operar sobre él, incluyendo el modo Visual de bloques (`Ctrl+v`) que es una de esas funcionalidades que hacen que la gente diga "¿eso se puede hacer en un editor?".
+
+¡Nunca dejes de programar!
