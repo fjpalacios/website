@@ -1,0 +1,219 @@
+---
+title: "AI Limitations and How to Detect Hallucinations"
+post_slug: "ai-limitations-detecting-hallucinations"
+date: "2026-04-21"
+excerpt: "AI lies with total conviction. Learn to detect hallucinations, understand context blindness, and apply the verification checklist that separates code that works from code that looks like it works."
+language: "en"
+categories: ["ai"]
+course: "ai-for-developers"
+order: 4
+cover: "/images/tutorials/cabecera-ia-para-programadores-curso.jpg"
+i18n: "limitaciones-ia-detectar-alucinaciones"
+---
+
+This has either already happened to you or it's going to. You ask the AI to help with something concrete — parsing a JSON response using a library you've been using for years. It gives you the code. The syntax looks right, the names make sense, the comments are clear. You copy, paste, run.
+
+`AttributeError: module 'requests' has no attribute 'get_json'`.
+
+`requests.get_json` doesn't exist. It never existed. But the AI served it up with the same confidence it would use for `response.json()` — the function that's actually real — with no warning, no footnote, no "hey, I'm not totally sure about this one."
+
+That's a hallucination. And here's where it gets fun.
+
+## Why AI lies with such conviction
+
+In tutorial 2, we established that LLMs predict the next word. Hallucinations flow directly from that mechanic.
+
+The model doesn't have access to a database of verified facts. It doesn't consult the official documentation before answering you. There's no internal module that says "wait, is this actually true?" What it has is a statistical model trained to generate text that sounds coherent and plausible.
+
+When you ask about a function that doesn't exist, it isn't deliberately lying — it generates text that has the _shape_ of a correct answer. It's seen thousands of responses about library functions and it "knows" what a correct answer looks like. The content may be invented. The form is always impeccable. That's the trap.
+
+```python
+# What you asked for:
+# "How do I parse a JSON response body with requests?"
+
+# What the AI might give you (invented with full confidence):
+import requests
+response = requests.get("https://api.example.com/data")
+data = requests.get_json(response)  # ❌ Does not exist
+
+# What's actually correct:
+import requests
+response = requests.get("https://api.example.com/data")
+data = response.json()  # ✅ Method on the Response object
+```
+
+Both versions have the same structure, the same descriptive names, the same "this works" energy. Only one of them actually works. And the one that doesn't — if you're like me when I first started using AI for code — is exactly the one you copy without blinking because it looks so reasonable.
+
+## The three types of AI error
+
+Not all hallucinations are the same. Recognizing the type gives you a clue about where to look.
+
+### Invented information
+
+The model generates something that never existed: a function, a parameter, a class, an endpoint. Like `requests.get_json`. This is the friendliest type — it fails fast and loudly. The code doesn't run, the error is obvious.
+
+The typical pattern: names that sound right but don't appear in the official documentation. If a function name the AI gave you doesn't show up in your editor's autocomplete or in the docs... suspect it.
+
+### Outdated information
+
+This one is more complicated. The model has a **training cutoff date** — the point when they stopped feeding it new data. Anything that happened after that date simply doesn't exist for it. It's not ignoring it — it genuinely doesn't know.
+
+That includes:
+
+- APIs that went through a major version change (Flask 2.x → 3.x, Django 4.x → 5.x)
+- Deprecated methods that were removed in recent versions
+- Security patterns that turned out to be vulnerable
+- New approaches to things that used to be done differently
+
+What makes this dangerous is that the code **works** — just on an older version of the library. On your project, with your current `requirements.txt`, it might fail silently, behave differently, or introduce a known vulnerability. Works on my machine™ taken to its logical extreme.
+
+```python
+# What the AI might recommend (older Flask, perfectly valid in its day):
+from flask import request
+
+@app.route('/login', methods=['POST'])
+def login():
+    data = request.get_json(force=True)
+
+# What you might want to be using today:
+from flask import request
+
+@app.route('/login', methods=['POST'])
+def login():
+    data = request.get_json()  # force is no longer needed in Flask 3.x for JSON content-type
+```
+
+Neither throws an error. But one can produce unexpected behavior depending on your version. The AI doesn't know — it genuinely doesn't know which version you're running unless you tell it.
+
+### Context blindness
+
+This is the subtlest, the most common in real work, and the hardest to catch. The model doesn't know your codebase, your team's conventions, your architecture's constraints. It makes assumptions — the most statistically reasonable ones. Which aren't necessarily yours.
+
+Imagine asking for help adding authentication to an endpoint. The model assumes:
+
+- You're using JWT (reasonable — it's the most common approach)
+- You have a `users` table in your database (reasonable)
+- The token header is called `Authorization` (it's the standard)
+- You have an authentication middleware available (might not be true)
+
+If any of those assumptions doesn't apply to your system, the generated code might compile, pass a quick review, and fail in production in non-obvious ways.
+
+```python
+# What the AI assumes:
+@require_auth          # Do you have this decorator? Is that what it's called in your project?
+@app.route('/api/v1/users/profile')
+def get_profile():
+    user_id = g.current_user.id  # Do you have g.current_user? With that exact name?
+    ...
+
+# What your project might actually have:
+@login_required        # Your decorator has a different name
+@app.route('/api/v1/users/profile')
+def get_profile():
+    user_id = session['user']['id']  # Your project uses sessions, not JWT
+    ...
+```
+
+The error here isn't that the AI is "wrong" in the abstract. It's answering your question while assuming a context that isn't yours.
+
+## The warning signs to learn
+
+Over time, you develop a nose for this. How do I know this output is suspicious? How do I tell what it knows from what it's inventing? In the meantime, here are the most common red flags:
+
+**Names you don't recognize.** If the AI gives you a function, method, or class name that doesn't show up in your autocomplete or the official docs, stop before going further. It's not that you're behind — it might be straight-up invented.
+
+**Maximum confidence on specific or poorly-documented topics.** The more obscure the topic, the higher the risk. The AI has far more training data about Flask than about your internal company library, or about the standard ORM versus the tuned version your team has been running since 2019 (and nobody ever properly documented, let's be honest).
+
+**Specific version numbers without a source.** "This works since version 3.2" — where did that number come from? If it can't cite a source, treat the claim as unverified.
+
+**Code with the right shape that fails at runtime.** `ModuleNotFoundError`, `AttributeError`, `ImportError` after running "looks-correct" code — classic signature of an API hallucination.
+
+**Answers that shift when you rephrase the question.** If you ask the same thing two different ways and get contradictory answers, the AI doesn't have certainty — it's generating plausible versions, not verified facts.
+
+## The verification checklist
+
+This isn't theory. It's what keeps AI-generated code from becoming a production problem. Five steps, in order, before merging any block you didn't write yourself.
+
+```
+1. Does it execute without errors?
+   → Run it. An immediate stack trace = start hunting for the invented name
+
+2. Do the functions it uses exist in the official documentation?
+   → Search for the exact name in the docs for your version, not the latest
+
+3. Is the syntax valid for your version?
+   → Check the changelog if something looks "weird" or suspiciously new
+
+4. Do the edge cases work?
+   → Null, empty string, empty list, negative number — test the ones that matter to you
+
+5. Do the assumptions it makes apply to your context?
+   → Naming conventions, project structure, available libraries
+```
+
+Step 2 is the most commonly skipped — and the one that lets the most hallucinations through. "It works" doesn't mean "it uses real functions." It might work in your environment with your version of the library and break in CI, in production, or on another developer's machine. Don't ask me how I know.
+
+Verification doesn't need to be exhaustive for every line. For a 10-line block doing something familiar, a quick glance is enough. For authentication code, for code that touches the database, for code that handles money or permissions — careful verification, no exceptions.
+
+## The "show me the documentation" tactic
+
+When you suspect a hallucination, there's a move that works surprisingly well: ask the AI to cite its source.
+
+```
+"Which version introduced the strict_mode parameter for json.loads()?
+Can you give me the exact link to that section in the official documentation?"
+```
+
+When it's hallucinating, it usually can't give you a valid URL — or it gives you one that 404s. If it can give you the exact URL and the correct version number, the information is probably real.
+
+Fair warning: it's not foolproof. Newer models can generate URLs that look completely legitimate and aren't (because _inventing a plausible-sounding URL_ is also just predicting coherent text). But it adds a useful friction layer.
+
+```
+You: "Can you cite the section of the requests docs that covers get_json()?"
+AI:  "My information may be outdated. Let me check..."
+     [invented URL that 404s]
+     → Stop. Verify before continuing.
+```
+
+## How to compensate for context blindness
+
+The antidote is giving it context. This sounds obvious, but the practical difference between a context-free prompt and a context-rich one is enormous — not because the model gets smarter, but because it has to make fewer assumptions.
+
+```python
+# ❌ No context:
+"Help me add caching to this database query function"
+
+# ✅ With context:
+"""I have this function in Python 3.12 with SQLAlchemy 2.0:
+
+[function code]
+
+I want to add caching with Redis. In our project we already use redis-py 5.x
+and have a client available as redis_client (injected singleton via DI).
+We follow the repository pattern — caching should be transparent to the business layer.
+"""
+```
+
+With the second prompt, the AI knows you already have Redis, which version, what the client is called, and which architectural pattern to respect. Far fewer assumptions to make — and the ones it does make are far more likely to be correct.
+
+The practical rule: before asking for help with production code, ask yourself what a new colleague would need to know to help you without making mistakes. That's exactly what the AI needs.
+
+## What the AI can never know
+
+There are things that won't be in any LLM's training context, no matter when it was trained:
+
+- Your team's specific conventions
+- Known bugs in your internal services
+- The architectural decisions you made two years ago and why
+- The business context behind why something works "strangely"
+- The implicit dependencies between modules that nobody ever documented
+
+For these things, AI is a starting point, not an endpoint. It can generate the structure, give you the general pattern, save you the boilerplate. The adjustment to your project's context — that part is yours.
+
+This isn't a criticism of AI. It's the nature of the problem. A senior developer joining your team also doesn't know any of this on day one. The difference is that the human can ask proactively and learn over time. The AI only knows what you show it in the current context window.
+
+---
+
+You now have the full map of why AI fails and how to catch it before it reaches production. The next step is putting this into practice — and for that, you need the tools. In the next tutorial, we install and configure **opencode**, the agent we'll use for the rest of the course, and run the first real AI-assisted coding session on an actual project.
+
+Never stop coding!

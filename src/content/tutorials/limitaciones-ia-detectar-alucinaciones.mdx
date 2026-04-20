@@ -1,0 +1,219 @@
+---
+title: "Limitaciones de la IA y cómo detectar alucinaciones"
+post_slug: "limitaciones-ia-detectar-alucinaciones"
+date: "2026-04-21"
+excerpt: "La IA miente con total convicción. Aprende a detectar alucinaciones, qué provoca la ceguera contextual, y el checklist de verificación que separa el código que funciona del que parece que funciona."
+language: "es"
+categories: ["ia"]
+course: "ia-para-programadores"
+order: 4
+cover: "/images/tutorials/cabecera-ia-para-programadores-curso.jpg"
+i18n: "ai-limitations-detecting-hallucinations"
+---
+
+Esto ya te ha pasado, o te va a pasar pronto. Le pides a la IA que te ayude con algo concreto — parsear una respuesta JSON con una librería que llevas años usando. Te da el código. La sintaxis es correcta, los nombres tienen sentido, los comentarios son claros. Copias, pegas, ejecutas.
+
+`AttributeError: module 'requests' has no attribute 'get_json'`.
+
+No existe `requests.get_json`. Nunca existió. Pero la IA te lo sirvió con la misma seguridad con que te habría dado `response.json()`, que es la función real. Sin aviso, sin nota al pie, sin un "oye, no estoy del todo seguro de esto".
+
+Eso es una alucinación. Y aquí es donde se pone interesante.
+
+## Por qué la IA miente con tanta convicción
+
+En el tutorial 2 vimos que los LLMs predicen la siguiente palabra. De esa mecánica sale, directamente, el fenómeno de las alucinaciones.
+
+El modelo no tiene acceso a una base de datos de hechos verificados. No consulta la documentación oficial antes de responderte. No tiene un módulo interno que diga "espera, ¿esto es verdad?". Lo que tiene es un modelo estadístico entrenado para generar texto que suene coherente y plausible.
+
+Cuando le preguntas por una función que no existe, no miente deliberadamente — genera texto que tiene la _forma_ de la respuesta correcta. Ha visto miles de respuestas sobre funciones de librería y "sabe" cómo suena una respuesta correcta. El contenido puede ser inventado. La forma siempre es impecable. Esa es la trampa.
+
+```python
+# Lo que pediste:
+# "Cómo parseo el body de una respuesta JSON con requests?"
+
+# Lo que la IA puede darte (inventado con total confianza):
+import requests
+response = requests.get("https://api.example.com/data")
+data = requests.get_json(response)  # ❌ No existe
+
+# Lo correcto:
+import requests
+response = requests.get("https://api.example.com/data")
+data = response.json()  # ✅ Método del objeto Response
+```
+
+Las dos versiones tienen la misma estructura, los mismos nombres descriptivos, la misma pinta de "esto funciona". Solo una de ellas funciona. Y la que no funciona es, si eres como yo cuando empecé con esto, exactamente la que copias sin pestañear porque tiene muy buena pinta.
+
+## Los tres tipos de error que comete la IA
+
+No todas las alucinaciones son iguales. Reconocer el tipo te da pistas de dónde buscar.
+
+### Información inventada
+
+El modelo genera algo que nunca existió: una función, un parámetro, una clase, un endpoint. Como `requests.get_json`. Es el tipo más amable — falla rápido y ruidosamente. El código no ejecuta, el error es obvio.
+
+El patrón habitual: nombres que suenan bien pero que no aparecen en la documentación oficial. Si el nombre de una función que te dio la IA no sale en la autocomplete de tu editor ni en la docs... sospecha.
+
+### Información desactualizada
+
+Aquí la cosa se complica. El modelo tiene una **fecha de corte de entrenamiento** — el momento en que dejaron de darle nuevos datos. Cualquier cosa que ocurrió después simplemente no existe para él. No es que lo ignore — es que no lo sabe.
+
+Eso incluye:
+
+- APIs que cambiaron de versión principal (Flask 2.x → 3.x, Django 4.x → 5.x)
+- Métodos deprecados que se eliminaron en versiones recientes
+- Patrones de seguridad que resultaron ser vulnerables
+- Nuevas formas de hacer algo que antes se hacía diferente
+
+Lo peligroso de este tipo es que el código **funciona** — pero en una versión anterior de la librería. En tu proyecto, con tu `requirements.txt` actual, puede fallar silenciosamente, comportarse diferente, o introducir una vulnerabilidad conocida. Works on my machine™ llevado a su máxima expresión.
+
+```python
+# Lo que la IA podría recomendarte (Flask antiguo, perfectamente válido en su época):
+from flask import request
+
+@app.route('/login', methods=['POST'])
+def login():
+    data = request.get_json(force=True)
+
+# Lo que quizás deberías estar usando hoy:
+from flask import request
+
+@app.route('/login', methods=['POST'])
+def login():
+    data = request.get_json()  # force ya no es necesario en Flask 3.x para content-type JSON
+```
+
+Ninguno da error. Pero uno puede generar comportamientos inesperados dependiendo de tu versión. La IA no lo sabe — genuinamente no sabe en qué versión estás, a menos que se lo digas.
+
+### Ceguera contextual
+
+Esta es la más sutil, la más frecuente en el trabajo real, y la que más cuesta detectar. El modelo no conoce tu codebase, no conoce las convenciones de tu equipo, no conoce las restricciones de tu arquitectura. Hace suposiciones. ¿Cuáles? Las más razonables estadísticamente. Que no necesariamente son las tuyas.
+
+Imagina que le pides ayuda para añadir autenticación a un endpoint. El modelo asume:
+
+- Que usas JWT (razonable — es lo más común)
+- Que tienes una tabla `users` en tu base de datos (razonable)
+- Que el campo del token se llama `Authorization` (es el estándar)
+- Que tienes un middleware de autenticación disponible (puede que no)
+
+Si alguna de esas suposiciones no aplica a tu sistema, el código que genera puede compilar, pasar una revisión rápida, y fallar en producción de formas nada obvias.
+
+```python
+# Lo que la IA asume:
+@require_auth          # ¿Tienes este decorator? ¿Se llama así en tu proyecto?
+@app.route('/api/v1/users/profile')
+def get_profile():
+    user_id = g.current_user.id  # ¿Tienes g.current_user? ¿Con ese nombre exacto?
+    ...
+
+# Lo que quizás tiene tu proyecto:
+@login_required        # Tu decorator tiene otro nombre
+@app.route('/api/v1/users/profile')
+def get_profile():
+    user_id = session['user']['id']  # Tu proyecto usa sesiones, no JWT
+    ...
+```
+
+El error aquí no es que la IA esté "equivocada" en abstracto. Es que está respondiendo a tu pregunta asumiendo un contexto que no es el tuyo.
+
+## Las señales que deberías aprender a reconocer
+
+Con el tiempo desarrollas un olfato. ¿Cómo sé que este output es sospechoso? ¿Cómo distingo lo que sabe de lo que inventa? Mientras tanto, estas son las banderas rojas más comunes:
+
+**Nombres que no reconoces.** Si la IA te da el nombre de una función, método o clase que no aparece en tu autocomplete ni en la documentación oficial, para antes de continuar. No es que estés desactualizado — puede ser directamente inventado.
+
+**Confianza máxima en temas específicos o poco documentados.** Cuanto más oscuro es el tema, mayor el riesgo. La IA tiene muchos más datos de entrenamiento sobre Flask que sobre tu librería interna de empresa, o sobre el ORM estándar que sobre la versión tuneada que usa tu equipo desde 2019 (y que nadie ha documentado bien, seamos honestos).
+
+**Versiones concretas sin fuente.** "Esto funciona desde la versión 3.2" — ¿de dónde sacó ese número? Si no puede citarte la fuente, trátalo como no verificado.
+
+**Código que tiene la forma correcta pero falla en runtime.** `ModuleNotFoundError`, `AttributeError`, `ImportError` después de ejecutar código que "parecía correcto" — firma clásica de alucinación de API.
+
+**Respuestas que cambian si reformulas la pregunta.** Si preguntas lo mismo de dos formas y obtienes respuestas contradictorias, la IA no tiene certeza — está generando versiones plausibles, no hechos verificados.
+
+## El checklist de verificación
+
+Esto no es teoría. Es lo que evita que el código generado por IA se convierta en un problema en producción. Cinco pasos, en orden, antes de hacer merge de cualquier bloque que no hayas escrito tú.
+
+```
+1. ¿Ejecuta sin errores?
+   → Ejecútalo. Un stack trace inmediato = empieza a buscar el nombre inventado
+
+2. ¿Las funciones que usa existen en la documentación oficial?
+   → Busca el nombre exacto en las docs de la versión que usas tú, no la última
+
+3. ¿La sintaxis es válida en tu versión?
+   → Revisa el changelog si algo parece "raro" o demasiado nuevo
+
+4. ¿Los edge cases funcionan?
+   → Null, string vacío, lista vacía, número negativo — prueba los que te importan
+
+5. ¿Las suposiciones que hace aplican a tu contexto?
+   → Naming conventions, estructura del proyecto, librerías disponibles
+```
+
+El paso 2 es el que más se salta — y el que más alucinaciones deja pasar. "Funciona" no significa "usa funciones reales". Puede funcionar en tu entorno con tu versión de la librería y romperse en CI, en producción, o en el portátil de otro desarrollador. No preguntes cómo lo sé.
+
+La verificación no tiene que ser exhaustiva para cada línea. Para un bloque de 10 líneas que hace algo que conoces bien, un vistazo rápido basta. Para código de autenticación, para código que toca la base de datos, para código que maneja dinero o permisos — verificación cuidadosa, sin excepciones.
+
+## La táctica de "muéstrame la documentación"
+
+Cuando sospechas de una alucinación, hay un movimiento que funciona sorprendentemente bien: pídele a la IA que te cite la fuente.
+
+```
+"¿En qué versión se introdujo el parámetro strict_mode de json.loads()?
+¿Puedes darme el link exacto a la sección de la documentación oficial?"
+```
+
+Si alucina, suele no poder darte una URL válida — o te da una que 404. Si puede darte la URL exacta y el número de versión correcto, la información probablemente es real.
+
+Ojo: no es infalible. Los modelos más nuevos pueden generar URLs que tienen toda la pinta de ser válidas y no lo son (porque también _inventar una URL que suene bien_ es predecir texto coherente). Pero añade una capa de fricción útil.
+
+```
+Tú: "¿Puedes citar la sección de la docs de requests donde aparece get_json()?"
+IA:  "Mi información puede estar desactualizada. Déjame comprobar..."
+     [URL inventada que 404]
+     → Para. Verifica antes de seguir.
+```
+
+## Cómo compensar la ceguera contextual
+
+El antídoto es darle contexto. Suena obvio, pero la diferencia práctica entre un prompt sin contexto y uno con contexto es enorme — no porque el modelo sea más listo, sino porque tiene que hacer menos suposiciones.
+
+```python
+# ❌ Prompt sin contexto:
+"Ayúdame a añadir caching a esta función de consulta a base de datos"
+
+# ✅ Prompt con contexto:
+"""Tengo esta función en Python 3.12 con SQLAlchemy 2.0:
+
+[código de la función]
+
+Quiero añadir caching con Redis. En nuestro proyecto ya usamos redis-py 5.x
+y tenemos un cliente disponible como redis_client (singleton inyectado por DI).
+Seguimos el patrón repository — el caching debe ser transparente para la capa de negocio.
+"""
+```
+
+Con el segundo prompt, la IA sabe que ya tienes Redis, qué versión, cómo se llama el cliente, y qué patrón arquitectónico tiene que respetar. Las suposiciones que tiene que hacer son muchas menos — y las que hace, más probables de ser correctas.
+
+La regla práctica: antes de pedir ayuda con código de producción, pregúntate qué tendría que saber un compañero nuevo para ayudarte sin equivocarse. Eso es exactamente lo que necesita la IA.
+
+## Lo que la IA no puede saber nunca
+
+Hay cosas que no van a estar en el contexto de entrenamiento de ningún LLM, sin importar cuándo fue entrenado:
+
+- Las convenciones específicas de tu equipo
+- Los bugs conocidos de tus servicios internos
+- Las decisiones arquitectónicas que tomásteis hace dos años y por qué
+- El contexto de negocio de por qué algo funciona "raro"
+- Las dependencias implícitas entre módulos que nadie documentó
+
+Para este tipo de cosas, la IA es un punto de partida, no un punto de llegada. Puede generarte la estructura, puede darte el patrón general, puede ahorrarte el boilerplate. El ajuste al contexto de tu proyecto — ese es tuyo.
+
+No es una crítica a la IA. Es la naturaleza del problema. Un senior developer que se incorpora a tu equipo tampoco conoce nada de esto el primer día. La diferencia es que el humano puede preguntar de forma proactiva y aprender con el tiempo. La IA solo sabe lo que le muestras en la ventana de contexto actual.
+
+---
+
+Ya tienes el mapa completo de por qué la IA falla y cómo detectarlo antes de que llegue a producción. El siguiente paso es poner esto en práctica — y para eso necesitas las herramientas. En el siguiente tutorial, instalamos y configuramos **opencode**, el agente que usaremos durante todo el resto del curso, y hacemos la primera sesión real de trabajo con IA en un proyecto de código.
+
+¡Nunca dejes de programar!
