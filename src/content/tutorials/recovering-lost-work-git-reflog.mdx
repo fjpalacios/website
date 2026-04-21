@@ -1,0 +1,219 @@
+---
+title: "Recovering lost work with git reflog"
+post_slug: "recovering-lost-work-git-reflog"
+date: "2026-04-23"
+excerpt: "Learn to use git reflog to recover deleted commits, lost branches, and any change that seemed gone forever after a reset or a Git mistake."
+language: "en"
+categories: ["git"]
+course: "mastering-git-from-scratch"
+order: 22
+cover: "/images/tutorials/cabecera-git.jpg"
+i18n: "recuperando-trabajo-perdido-reflog-git"
+---
+
+If you're like me when I started, you've done a `git reset --hard` at least once and immediately felt that specific kind of dread. Did my commits just disappear? Where's the branch I deleted? Can I get it back or did I just nuke two days of work? The short answer is: almost always, yes, you can get it back. The long answer is this lesson.
+
+Git has a safety net that almost nobody knows about until they desperately need it. It doesn't show up in intro tutorials, it's not mentioned in project onboarding docs, and nothing about the Git interface hints at its existence. It's called `reflog`, and once you know it's there, doing "destructive" operations stops being scary.
+
+## What is the reflog
+
+The **reflog** (short for _reference log_) is a private journal that Git silently keeps of every movement made by any reference in your repository. Every commit, checkout, reset, rebase, merge — anything that moves `HEAD` — gets logged with a timestamp and the hash it was pointing to at that moment.
+
+Think of it as your code editor's undo history, except it covers the entire repository. That `Ctrl+Z` you can mash twenty times to get back to how things looked ten minutes ago? That's the reflog, but for your whole Git state.
+
+One thing to be clear about upfront: **the reflog is entirely local**. It doesn't get pushed, your teammates can't see it, it's not on GitHub. It belongs to your machine. By default, Git keeps entries for 90 days before the garbage collector cleans them up. If the disaster happened yesterday, you're fine. If it was four months ago — well, here's where it gets interesting.
+
+## Viewing the reflog
+
+```bash
+git reflog
+```
+
+The output looks like this:
+
+```
+a3f9c12 (HEAD -> main) HEAD@{0}: commit: Add user authentication
+7b2d8e4 HEAD@{1}: rebase (finish): returning to refs/heads/main
+7b2d8e4 HEAD@{2}: rebase (pick): Fix null pointer in payment service
+3c1e9f6 HEAD@{3}: rebase (start): checkout main
+f4a7b3d HEAD@{4}: reset: moving to HEAD~3
+9e8c2a1 HEAD@{5}: commit: WIP: refactor login flow
+b1d4f8e HEAD@{6}: commit: Add password validation
+c2e5a9b HEAD@{7}: checkout: moving from feature/auth to main
+```
+
+Each line has three parts: the hash `HEAD` was pointing to at that moment, the relative reference (`HEAD@{n}`, where `n` is how many positions back), and the description of what caused the move. Your entire movement history, readable at a glance.
+
+You can filter by branch or time if the reflog gets long:
+
+```bash
+git reflog show feature/auth       # reflog of a specific branch
+git reflog --since="2 days ago"    # only recent entries
+```
+
+## Recovering commits lost after a reset
+
+The classic scenario: you ran `git reset --hard` pointing at the wrong commit. Or the right one, but without saving what you had. It feels like emptying the recycle bin and remembering three seconds later what was in it. The key difference: Git doesn't actually empty that bin right away.
+
+```bash
+git reflog
+```
+
+```
+f4a7b3d (HEAD -> main) HEAD@{0}: reset: moving to HEAD~3
+9e8c2a1 HEAD@{1}: commit: WIP: refactor login flow
+b1d4f8e HEAD@{2}: commit: Add password validation
+c2e5a9b HEAD@{3}: commit: Add login form
+```
+
+The reset is at `HEAD@{0}`. The commits you "lost" are sitting at `HEAD@{1}`, `HEAD@{2}`, and `HEAD@{3}`. Hash `9e8c2a1` is the last state you had before things went sideways. Two paths forward:
+
+### Restore the full state
+
+```bash
+git reset --hard 9e8c2a1
+```
+
+Your branch points back to the last commit you had. The three commits are back. Git had kept them all along — you'd only lost the reference, not the data.
+
+### Create a branch from that point (the cautious route)
+
+If you'd rather not move your current branch until you're sure:
+
+```bash
+git branch recovered-work 9e8c2a1
+git switch recovered-work
+git log --oneline
+```
+
+Inspect, verify everything's there, then decide whether to merge or cherry-pick. No rush.
+
+## Recovering a deleted branch
+
+You deleted `feature/new-api` with `git branch -D`, convinced everything had landed in `main`. Then you check `main` and a commit is missing. The branch is gone — but its commits aren't.
+
+```bash
+git reflog
+```
+
+```
+a3f9c12 (HEAD -> main) HEAD@{0}: checkout: moving from feature/new-api to main
+e7b3c9d HEAD@{1}: commit: Add rate limiting to API endpoints
+d6a2b8f HEAD@{2}: commit: Implement new API versioning
+c5f1a7e HEAD@{3}: checkout: moving from main to feature/new-api
+```
+
+Just before the final checkout (`HEAD@{0}`), you were at `HEAD@{1}` with hash `e7b3c9d` — the last commit on the deleted branch. One line to bring it back:
+
+```bash
+git branch feature/new-api e7b3c9d
+```
+
+The branch is back with all its commits. Git doesn't delete commits when it deletes branches; it only deletes the pointer. The reflog gives you the pointer back.
+
+## Recovering from a bad rebase
+
+This is where things get genuinely gnarly. Interactive rebase is one of Git's most powerful operations, and also one of the most creative ways to end up in a state you don't fully understand. Commits squashed that shouldn't have been, messages rewritten incorrectly, content mixed between commits. You're not the first. You won't be the last.
+
+The reflog captures the exact state from the moment the rebase started. Find it:
+
+```bash
+git reflog | grep "rebase (start)"
+```
+
+```
+3c1e9f6 HEAD@{8}: rebase (start): checkout main
+```
+
+That hash is the snapshot from just before the rebase began. Return to it:
+
+```bash
+git reset --hard 3c1e9f6
+```
+
+⚠️ If you already pushed the branch after the rebase, you'll need `git push --force-with-lease` to overwrite the remote. Only do this on branches that are exclusively yours — force-pushing `main` or a shared branch would export your problem to everyone on the team.
+
+## The ORIG_HEAD trick
+
+Git, being Git, quietly saves a special reference called `ORIG_HEAD` every time it makes a drastic move: a merge, a rebase, a reset. No announcement. No prompt asking if you want it. It just does it (this time, thankfully).
+
+```bash
+# Undo last merge
+git reset --hard ORIG_HEAD
+
+# Undo last rebase
+git reset --hard ORIG_HEAD
+```
+
+The limitation: `ORIG_HEAD` gets overwritten by each new drastic operation. It's perfect for immediate regret — you just did the merge/rebase and don't like the result — but useless if you've done more things since. That's what the reflog is for.
+
+## Finding a commit by its content
+
+Sometimes you don't know exactly when you lost something. You just have a vague clue: a filename, a partial commit message, a rough date. The reflog pairs well with `git log` to track down the exact commit.
+
+If you remember part of the message:
+
+```bash
+git log --all --oneline | grep "rate limiting"
+```
+
+```
+e7b3c9d Add rate limiting to API endpoints
+```
+
+The `--all` flag is the key here. It includes commits no longer referenced by any active branch — exactly the "orphan" commits that appear when you delete a branch or do a reset. If that commit ever existed on your machine, `--all` will find it. Don't stress about scrolling through the reflog line by line if you have any clue about the message — `git log --all` is faster.
+
+To inspect any reflog entry before restoring it:
+
+```bash
+git show HEAD@{5}           # content of that entry
+git show HEAD@{5} --stat    # just the changed files
+```
+
+## Practical cases
+
+### "I dropped the wrong stash"
+
+Stashes have their own reflog. If you ran `git stash drop` by mistake:
+
+```bash
+git reflog show stash
+```
+
+```
+9a1b2c3 stash@{0}: WIP on main: current stash
+f8e7d6c stash@{1}: WIP on feature/auth: login work
+```
+
+If it was recent, it's probably still there. Recover it with:
+
+```bash
+git stash apply f8e7d6c
+```
+
+### "I just force-pushed to main"
+
+This is a genuine emergency (it should not have happened). First, find in the reflog the commit `main` was pointing to before the force push:
+
+```bash
+git reflog
+```
+
+Find the hash from before the mistake, reset to it, and push again:
+
+```bash
+git reset --hard <hash-before-the-mistake>
+git push --force-with-lease origin main
+```
+
+Then tell your team to `git fetch` and realign their local branches. This is one of those situations where the time between "I realized" and "I fixed it" genuinely matters.
+
+---
+
+The reflog is proof that Git is, in practice, nearly impossible to use in a truly unrecoverable way. "I lost my work" in Git almost always means "I lost the reference to my work" — the commits are still there, waiting to be found.
+
+The rule that would have saved me several scary moments early on: **when something goes wrong in Git, the first thing you do is `git reflog`**. Before panicking. Before opening Stack Overflow. Before telling anyone what happened. Open the reflog, find the state you want, go back to it. Almost every time, it's that simple.
+
+In the next tutorial we'll cover `git bisect`, which lets you run a binary search through your commit history to find exactly which commit introduced a bug — and yes, you can automate it with a script so Git does the bisecting while you drink your coffee.
+
+Never stop coding!

@@ -1,0 +1,219 @@
+---
+title: "Recuperando trabajo perdido con git reflog"
+post_slug: "recuperando-trabajo-perdido-reflog-git"
+date: "2026-04-23"
+excerpt: "Aprende a usar git reflog para recuperar commits borrados, ramas eliminadas y cualquier cambio que parecía perdido para siempre tras un reset o error de Git."
+language: "es"
+categories: ["git"]
+course: "domina-git-desde-cero"
+order: 22
+cover: "/images/tutorials/cabecera-git.jpg"
+i18n: "recovering-lost-work-git-reflog"
+---
+
+Si eres como yo cuando empecé, probablemente has hecho `git reset --hard` alguna vez y te has quedado mirando la pantalla durante unos segundos muy largos. ¿Desaparecieron mis commits? ¿Dónde está esa rama que borré? ¿Puedo recuperarlo o acabo de cargarme dos días de trabajo? La respuesta corta es: casi siempre puedes recuperarlo. La respuesta larga es esta lección.
+
+Git tiene una red de seguridad que muy poca gente conoce hasta que la necesita. No aparece en los tutoriales de introducción, no se menciona en el onboarding de los proyectos, y su existencia no es obvia por ningún lado. Se llama `reflog`, y una vez que sabes que existe, deja de dar miedo hacer operaciones destructivas.
+
+## Qué es el reflog
+
+El **reflog** (abreviatura de _reference log_) es un diario privado que Git lleva en silencio de cada movimiento que hace cualquier referencia del repositorio. Cada vez que haces un commit, un checkout, un reset, un rebase, un merge —cualquier cosa que mueva `HEAD`— Git anota la operación y el hash al que apuntaba en ese momento.
+
+Piénsalo como el historial de deshacer de tu editor de código. ¿Sabes ese `Ctrl+Z` que puedes pulsar veinte veces seguidas y recuperar el estado de hace diez minutos? El reflog es eso, pero para todo el repositorio, con timestamps y etiquetas de qué pasó en cada paso.
+
+Una cosa importante antes de seguir: **el reflog es completamente local**. No se sube cuando haces push, no lo ven tus compañeros, no está en GitHub. Es tuyo y solo tuyo. Por defecto, Git conserva las entradas durante 90 días antes de que el garbage collector las limpie. Así que si el desastre fue ayer, estás bien. Si fue hace cuatro meses... aquí es donde se pone interesante.
+
+## Ver el reflog
+
+```bash
+git reflog
+```
+
+La salida tiene esta pinta:
+
+```
+a3f9c12 (HEAD -> main) HEAD@{0}: commit: Add user authentication
+7b2d8e4 HEAD@{1}: rebase (finish): returning to refs/heads/main
+7b2d8e4 HEAD@{2}: rebase (pick): Fix null pointer in payment service
+3c1e9f6 HEAD@{3}: rebase (start): checkout main
+f4a7b3d HEAD@{4}: reset: moving to HEAD~3
+9e8c2a1 HEAD@{5}: commit: WIP: refactor login flow
+b1d4f8e HEAD@{6}: commit: Add password validation
+c2e5a9b HEAD@{7}: checkout: moving from feature/auth to main
+```
+
+Cada línea tiene tres partes: el hash del commit al que apuntaba `HEAD` en ese momento, la referencia relativa (`HEAD@{n}`, donde `n` es cuántas posiciones atrás), y la descripción de qué operación lo causó. Es toda la historia de tus movimientos, legible de un vistazo.
+
+Puedes filtrar por rama o por tiempo si el reflog es largo:
+
+```bash
+git reflog show feature/auth       # reflog of a specific branch
+git reflog --since="2 days ago"    # only recent entries
+```
+
+## Recuperar commits perdidos tras un reset
+
+El escenario clásico: hiciste `git reset --hard` apuntando al commit equivocado. O al correcto pero sin haber guardado lo que tenías. La sensación es la de vaciar la papelera de reciclaje y acordarte tres segundos después de que el archivo que necesitabas estaba ahí. Diferencia clave: Git no vacía esa papelera en el acto.
+
+```bash
+git reflog
+```
+
+```
+f4a7b3d (HEAD -> main) HEAD@{0}: reset: moving to HEAD~3
+9e8c2a1 HEAD@{1}: commit: WIP: refactor login flow
+b1d4f8e HEAD@{2}: commit: Add password validation
+c2e5a9b HEAD@{3}: commit: Add login form
+```
+
+El reset está en `HEAD@{0}`. Los commits que "perdiste" están en `HEAD@{1}`, `HEAD@{2}` y `HEAD@{3}`. El hash `9e8c2a1` es el último estado que tenías antes de liarla. Ahora hay dos caminos:
+
+### Restaurar el estado completo
+
+```bash
+git reset --hard 9e8c2a1
+```
+
+Tu rama vuelve a apuntar al último commit que tenías. Los tres commits están de vuelta. Git los había guardado — tú simplemente habías perdido la referencia, no los datos.
+
+### Crear una rama desde ese punto (la opción cautelosa)
+
+Si no quieres mover tu rama actual hasta estar seguro:
+
+```bash
+git branch recovered-work 9e8c2a1
+git switch recovered-work
+git log --oneline
+```
+
+Inspeccionas, verificas que está todo, y entonces decides si haces merge o cherry-pick. No hay prisa.
+
+## Recuperar una rama borrada
+
+Borraste `feature/nueva-api` con `git branch -D` convencido de que todo había llegado a `main`. Luego revisas `main` y falta un commit. La rama se fue, pero sus commits no.
+
+```bash
+git reflog
+```
+
+```
+a3f9c12 (HEAD -> main) HEAD@{0}: checkout: moving from feature/nueva-api to main
+e7b3c9d HEAD@{1}: commit: Add rate limiting to API endpoints
+d6a2b8f HEAD@{2}: commit: Implement new API versioning
+c5f1a7e HEAD@{3}: checkout: moving from main to feature/nueva-api
+```
+
+Justo antes del checkout final (`HEAD@{0}`), estabas en `HEAD@{1}` con hash `e7b3c9d` — el último commit de la rama borrada. Una línea para resucitarla:
+
+```bash
+git branch feature/nueva-api e7b3c9d
+```
+
+Vuelve a existir con todos sus commits, como si no hubiera pasado nada. Git no borra commits cuando borra ramas; solo borra el puntero. El reflog te devuelve el puntero.
+
+## Recuperar tras un rebase que salió mal
+
+Aquí es donde las cosas se ponen realmente interesantes. El rebase interactivo es de las operaciones más potentes de Git, y también de las que más margen dan para acabar en un estado en el que no sabes muy bien qué pasó. Commits fusionados que no tocaba fusionar, mensajes cambiados, contenido mezclado. No eres el primero, no serás el último.
+
+El reflog guarda el estado exacto del momento en que el rebase empezó. Búscalo:
+
+```bash
+git reflog | grep "rebase (start)"
+```
+
+```
+3c1e9f6 HEAD@{8}: rebase (start): checkout main
+```
+
+Ese hash es el fotograma justo antes de que empezara el rebase. Volver a él:
+
+```bash
+git reset --hard 3c1e9f6
+```
+
+⚠️ Si ya habías hecho push de la rama después del rebase, necesitarás `git push --force-with-lease` para sobrescribir el remoto. Hazlo solo en ramas propias — en `main` o en ramas compartidas estarías recreando el desastre en casa de todo el equipo.
+
+## El truco de ORIG_HEAD
+
+Git, siendo Git, guarda automáticamente una referencia especial llamada `ORIG_HEAD` cada vez que haces una operación que mueve `HEAD` de forma drástica: un merge, un rebase, un reset. No te avisa. No te pregunta si la quieres. La guarda y punto (esta vez, agradecido).
+
+```bash
+# Undo last merge
+git reset --hard ORIG_HEAD
+
+# Undo last rebase
+git reset --hard ORIG_HEAD
+```
+
+La limitación: `ORIG_HEAD` se sobreescribe con cada operación nueva. Funciona perfecto para el arrepentimiento inmediato —acabas de hacer el merge/rebase y no te gusta el resultado— pero no sirve si ya hiciste más cosas después. Para eso, el reflog.
+
+## Encontrar un commit por su contenido
+
+A veces no sabes cuándo perdiste algo, solo tienes una pista vaga: el nombre del archivo que cambiaste, algo del mensaje del commit, una fecha aproximada. El reflog se puede combinar con `git log` para pescar el commit exacto.
+
+Si buscas por mensaje:
+
+```bash
+git log --all --oneline | grep "rate limiting"
+```
+
+```
+e7b3c9d Add rate limiting to API endpoints
+```
+
+El flag `--all` es la clave. Incluye commits que ya no están referenciados por ninguna rama activa — exactamente los commits "huérfanos" que aparecen cuando borras una rama o haces un reset. Si ese commit alguna vez existió en tu máquina, `--all` lo encuentra. No te agobies buscando en el reflog línea a línea si tienes alguna pista del mensaje: `git log --all` hace el trabajo más rápido.
+
+Para inspeccionar cualquier punto del reflog antes de restaurarlo:
+
+```bash
+git show HEAD@{5}           # content of that entry
+git show HEAD@{5} --stat    # just the changed files
+```
+
+## Casos prácticos
+
+### "Borré el stash equivocado"
+
+Los stashes tienen su propio reflog. Si ejecutaste `git stash drop` sin querer:
+
+```bash
+git reflog show stash
+```
+
+```
+9a1b2c3 stash@{0}: WIP on main: current stash
+f8e7d6c stash@{1}: WIP on feature/auth: login work
+```
+
+Si lo borraste recientemente, probablemente sigue ahí. Recupéralo con:
+
+```bash
+git stash apply f8e7d6c
+```
+
+### "Acabo de hacer push --force a main"
+
+Esto ya es urgente de verdad (no debería haber pasado). Primero, localiza en el reflog el commit al que apuntaba `main` antes del force push:
+
+```bash
+git reflog
+```
+
+Encuentra el hash anterior, y haz push de nuevo a ese estado:
+
+```bash
+git reset --hard <hash-before-the-mistake>
+git push --force-with-lease origin main
+```
+
+Luego avisa al equipo para que hagan `git fetch` y realineen sus ramas locales. Este es de esos momentos en que el tiempo entre "me di cuenta" y "lo arreglé" importa bastante.
+
+---
+
+El reflog es la prueba de que Git es, en la práctica, casi imposible de usar de forma verdaderamente irrecuperable. "Perdí mi trabajo" en Git casi siempre significa "perdí la referencia a mi trabajo" — los commits siguen ahí, esperando a que los encuentres.
+
+La regla que me habría ahorrado varios sustos cuando aprendía: **cuando algo sale mal en Git, lo primero que haces es `git reflog`**. Antes de entrar en pánico. Antes de abrir Stack Overflow. Antes incluso de decirle a alguien lo que pasó. Abre el reflog, localiza el estado que quieres, y vuelve a él. Casi siempre es tan sencillo como eso.
+
+En la siguiente lección veremos `git bisect`, que permite hacer búsqueda binaria sobre el historial para encontrar exactamente en qué commit se introdujo un bug — y sí, se puede automatizar con un script para que Git lo haga solo mientras tú te tomas el café.
+
+¡Nunca dejes de programar!
