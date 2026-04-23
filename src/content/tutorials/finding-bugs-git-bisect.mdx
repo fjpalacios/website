@@ -1,0 +1,179 @@
+---
+title: "Finding bugs with git bisect"
+post_slug: "finding-bugs-git-bisect"
+date: "2026-04-24"
+excerpt: "Learn to use git bisect to find the exact commit that introduced a bug using binary search — and how to automate it so Git does all the work while you grab a coffee."
+language: "en"
+categories: ["git"]
+course: "mastering-git-from-scratch"
+order: 23
+cover: "/images/tutorials/cabecera-git.jpg"
+i18n: "encontrando-bugs-git-bisect"
+---
+
+There's a bug in production. It wasn't there yesterday. Someone introduced it in one of the last two weeks of commits, but the log has 200 entries — "fix", "wip", "refactor auth", "more fixes", the usual suspects. You could check out commits one by one going backwards, testing each time. You could also read every changed line of code looking for the culprit, or try to guess based on commit messages and gut instinct. All of that is brute-force debugging: slow, exhausting, and dependent on luck in a way that should be illegal.
+
+`git bisect` does binary search on your commit history. Instead of reviewing 200 commits, you review 8. Git picks which one to test each time, you tell it whether the bug is there or not, and in a few steps it points a finger at the exact culprit commit. It's one of those tools where you find out it exists and immediately wonder how you've been debugging without it.
+
+## How binary search works here
+
+Same idea as finding a word in a dictionary: you don't start at page one. You open to the middle, decide whether the word comes before or after, and discard the irrelevant half. Repeat with the remaining half. Seven steps covers a 128-page dictionary.
+
+Git applies that exact logic to your commit history. You say: "I know the bug didn't exist at `v2.0.0`, and I know it exists right now." Git checks out the middle commit, you test, you say `good` or `bad`, it discards the wrong half. Keep going until only one commit remains — that's the one that introduced the problem.
+
+With 200 commits, bisect needs at most **8 steps**. With 1,000, around 10. The math doesn't lie.
+
+## Basic usage
+
+Before starting, make sure your working tree is clean. Bisect is going to do several automatic checkouts and doesn't want to find half-finished changes in the way.
+
+```bash
+git stash          # save any work in progress
+git bisect start
+```
+
+Now tell it which state is bad (current) and which was known good:
+
+```bash
+git bisect bad          # current commit has the bug
+git bisect good v2.0.0  # this tag/commit was clean
+```
+
+Git calculates how many commits sit between the two points and checks out the middle one:
+
+```
+Bisecting: 99 revisions left to test after this (roughly 7 steps)
+[a3f9c12] Refactor authentication middleware
+```
+
+Now you test. Does the bug appear? If yes:
+
+```bash
+git bisect bad
+```
+
+If no:
+
+```bash
+git bisect good
+```
+
+Git discards the wrong half, checks out the next candidate, and waits for your verdict. Repeat. After a few steps you'll see something like this:
+
+```
+a3f9c12 is the first bad commit
+commit a3f9c12
+Author: Ana García <ana@example.com>
+Date:   Mon Apr 14 11:23:01 2026 +0200
+
+    Refactor authentication middleware
+
+ src/auth/middleware.ts | 47 ++++++++++++++++++++++++++-----------
+ 1 file changed, 33 insertions(+), 14 deletions(-)
+```
+
+Git hands you the exact commit: hash, author, date, message, and changed files. What you do with that information is up to you — bisect has done its job.
+
+When you're done, whether you found the bug or just want to exit:
+
+```bash
+git bisect reset
+```
+
+This puts you back exactly where you were before starting. Clean slate.
+
+## Using references instead of hashes
+
+You don't need to know the exact hash of the "good" commit. Any reference Git understands works:
+
+```bash
+git bisect good v2.0.0          # a tag
+git bisect good main~30         # 30 commits before main
+git bisect good 2026-04-01      # approximate date
+git bisect good origin/release  # a remote branch
+```
+
+The approximate date is particularly handy when you know "it worked last week" but don't remember which commit you were on. Git interprets it and finds the nearest commit.
+
+## Automating bisect with a script
+
+This is where bisect goes from "useful" to "unreasonably powerful." If you have an automated test that reproduces the bug, you can tell Git to run that test at each step and classify commits on its own. You walk away to get coffee and come back to a solved mystery.
+
+```bash
+git bisect start
+git bisect bad HEAD
+git bisect good v2.0.0
+git bisect run npm test
+```
+
+Git runs `npm test` on each candidate commit. Exit code 0 means the commit is **good**. Exit codes 1–127 mean **bad**. Bisect advances on its own until it finds the culprit.
+
+The script can be anything: a specific test, a bash script that checks a particular behavior, even a `curl` against a local endpoint. The only rule is that the exit code must honestly reflect whether the bug is present:
+
+```bash
+#!/bin/bash
+# check-bug.sh
+
+# Start the app in background
+node server.js &
+SERVER_PID=$!
+sleep 1
+
+# Test if the bug is present
+RESULT=$(curl -s http://localhost:3000/api/user/1 | jq '.name')
+
+# Clean up
+kill $SERVER_PID
+
+# Exit 0 = good (no bug), exit 1 = bad (bug present)
+if [ "$RESULT" = "null" ]; then
+  exit 1   # bug present — name should not be null
+else
+  exit 0   # all good
+fi
+```
+
+```bash
+git bisect run ./check-bug.sh
+```
+
+There's one special exit code worth knowing: **125**. If your script exits with 125, bisect treats that commit as untestable — it skips it without marking it good or bad. Use this when a commit doesn't compile, has broken dependencies, or otherwise can't be tested. It keeps that commit from contaminating the result.
+
+```bash
+# Example: skip if the project doesn't compile
+if ! npm run build; then
+  exit 125   # skip this commit, can't test it
+fi
+npm test
+```
+
+## Checking bisect progress
+
+If you lose track of where you are in the search:
+
+```bash
+git bisect log      # full history of verdicts so far
+git bisect view     # visual representation of the remaining range
+```
+
+`git bisect log` is also useful for reproducing a session later. Save its output and use `git bisect replay` if you need to repeat the same search from scratch.
+
+## When bisect isn't the right tool
+
+Bisect is spectacular for regression bugs — something that worked before and stopped working. That's exactly what it was designed for.
+
+But there are cases where it doesn't help as much:
+
+- **The bug was always there**: if no "good" commit exists, bisect has no starting point.
+- **The bug is intermittent**: if behavior changes between runs, `good`/`bad` verdicts become unreliable and bisect will lead you astray.
+- **Tests take too long**: if each step takes ten minutes, automation loses most of its appeal. Bisect is still useful in manual mode, but the "walk away and come back to an answer" magic evaporates.
+
+For those cases, `git log -S "string"` (finds commits that added or removed a specific string) and `git blame` are more direct alternatives. We'll cover both in the next lesson.
+
+---
+
+Bisect is one of those commands that looks like magic the first time you see it work. You have 300 commits, five minutes of back-and-forth, and Git hands you the commit, the author, and the changed files. It's genuinely satisfying — especially if the commit author turns out to be someone else (or past-you from three weeks ago, which is practically the same thing).
+
+In the next tutorial we cover `git blame` and the history exploration toolkit: how to find out who touched which line, when, and why — everything you need to make sense of a codebase you've been staring at for five minutes.
+
+Never stop coding!

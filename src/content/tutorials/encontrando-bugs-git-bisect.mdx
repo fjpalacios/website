@@ -1,0 +1,179 @@
+---
+title: "Encontrando bugs con git bisect"
+post_slug: "encontrando-bugs-git-bisect"
+date: "2026-04-24"
+excerpt: "Aprende a usar git bisect para encontrar con búsqueda binaria el commit exacto que introdujo un bug, y a automatizarlo para que Git lo haga solo mientras tú esperas."
+language: "es"
+categories: ["git"]
+course: "domina-git-desde-cero"
+order: 23
+cover: "/images/tutorials/cabecera-git.jpg"
+i18n: "finding-bugs-git-bisect"
+---
+
+Hay un bug en producción. No estaba ayer. Alguien lo introdujo en algún commit de las últimas dos semanas, pero el historial tiene 200 entradas — "fix", "wip", "refactor auth", "more fixes", los clásicos. Podrías ir uno a uno hacia atrás haciendo checkout y probando si el bug aparece. Podrías. También podrías buscar el bug mirando el código línea a línea, o adivinar quién lo metió basándote en el nombre del commit y la intuición. Todo eso es debugging por fuerza bruta: lento, agotador, y con una tasa de éxito que depende demasiado de la suerte.
+
+`git bisect` hace búsqueda binaria sobre tu historial. En lugar de revisar 200 commits, revisas 8. Git elige cuál probar cada vez, tú le dices si el bug está o no, y en unos pocos pasos te señala el commit culpable con el dedo. Es una de esas herramientas que cuando la descubres te preguntas cómo has podido vivir sin ella.
+
+## Cómo funciona la búsqueda binaria
+
+La idea es la misma que para buscar una palabra en un diccionario: no empiezas por la primera página. Abres por el medio, decides si la palabra está antes o después, y descartas la mitad que no te interesa. Luego repites con la mitad restante. En siete pasos puedes recorrer un diccionario de 128 páginas.
+
+Git aplica exactamente esa lógica al historial de commits. Le dices: "sé que en el commit `v2.0.0` el bug no existía, y sé que ahora mismo sí existe." Git hace checkout del commit del medio, tú pruebas, le dices `good` o `bad`, y descarta la mitad incorrecta. Sigues hasta que solo queda un commit — ese es el que introdujo el problema.
+
+Con 200 commits, bisect necesita como máximo **8 pasos**. Con 1000, unos 10. La matemática no miente.
+
+## Uso básico
+
+Antes de empezar, asegúrate de que tienes el working tree limpio. Bisect va a hacer varios checkouts automáticos y no quiere encontrarse cambios a medias por el camino.
+
+```bash
+git stash          # save any work in progress
+git bisect start
+```
+
+Ahora le dices cuál es el estado actual (malo) y cuál es el último punto en que sabes que todo funcionaba (bueno):
+
+```bash
+git bisect bad          # current commit has the bug
+git bisect good v2.0.0  # this tag/commit was clean
+```
+
+Git calcula cuántos commits hay entre los dos puntos y hace checkout del del medio:
+
+```
+Bisecting: 99 revisions left to test after this (roughly 7 steps)
+[a3f9c12] Refactor authentication middleware
+```
+
+Ahora pruebas. ¿El bug aparece? Si sí:
+
+```bash
+git bisect bad
+```
+
+Si no:
+
+```bash
+git bisect good
+```
+
+Git descarta la mitad incorrecta, hace checkout del siguiente commit candidato, y espera tu veredicto. Repites. En unos pocos pasos verás algo así:
+
+```
+a3f9c12 is the first bad commit
+commit a3f9c12
+Author: Ana García <ana@example.com>
+Date:   Mon Apr 14 11:23:01 2026 +0200
+
+    Refactor authentication middleware
+
+ src/auth/middleware.ts | 47 ++++++++++++++++++++++++++-----------
+ 1 file changed, 33 insertions(+), 14 deletions(-)
+```
+
+Git te entrega el commit exacto: hash, autor, fecha, mensaje y archivos cambiados. Lo que hagas con esa información ya es problema tuyo — bisect ha hecho su trabajo.
+
+Cuando termines, tanto si encontraste el bug como si quieres salir por cualquier otro motivo:
+
+```bash
+git bisect reset
+```
+
+Esto te devuelve al estado en que estabas antes de empezar. Sin rastro.
+
+## Usando referencias en lugar de hashes
+
+No tienes que saber el hash exacto del commit "bueno". Puedes usar cualquier referencia que Git entienda:
+
+```bash
+git bisect good v2.0.0          # a tag
+git bisect good main~30         # 30 commits before main
+git bisect good 2026-04-01      # approximate date (Git interprets this)
+git bisect good origin/release  # a remote branch
+```
+
+La fecha aproximada es especialmente útil cuando sabes "hace una semana funcionaba" pero no recuerdas en qué commit estabas. Git la interpreta y encuentra el commit más cercano.
+
+## Automatizar bisect con un script
+
+Aquí es donde bisect pasa de "útil" a "absurdamente potente". Si tienes un test automatizado que reproduce el bug, puedes decirle a Git que ejecute ese test en cada paso y clasifique los commits solo. Tú te levantas a buscar un café y cuando vuelves Git ya tiene la respuesta.
+
+```bash
+git bisect start
+git bisect bad HEAD
+git bisect good v2.0.0
+git bisect run npm test
+```
+
+Git ejecuta `npm test` en cada commit candidato. Si el comando sale con código 0, el commit es **bueno**. Si sale con código 1–127, es **malo**. Bisect avanza solo hasta encontrar el culpable.
+
+El script puede ser cualquier cosa: un test concreto, un script bash que comprueba un comportamiento específico, incluso un `curl` contra un endpoint local. Lo importante es que el código de salida refleje si el bug está presente o no:
+
+```bash
+#!/bin/bash
+# check-bug.sh
+
+# Start the app in background
+node server.js &
+SERVER_PID=$!
+sleep 1
+
+# Test if the bug is present
+RESULT=$(curl -s http://localhost:3000/api/user/1 | jq '.name')
+
+# Clean up
+kill $SERVER_PID
+
+# Exit 0 = good (no bug), exit 1 = bad (bug present)
+if [ "$RESULT" = "null" ]; then
+  exit 1   # bug present — name should not be null
+else
+  exit 0   # all good
+fi
+```
+
+```bash
+git bisect run ./check-bug.sh
+```
+
+Hay un código de salida especial que vale la pena conocer: el **125**. Si tu script sale con 125, bisect interpreta que ese commit no se puede probar (por ejemplo, no compila, tiene dependencias rotas, o el entorno no está listo) y lo salta sin marcarlo como bueno ni malo. Es la salida de emergencia para commits que no son relevantes para la búsqueda — no contamina el resultado.
+
+```bash
+# Example: skip if the project doesn't compile
+if ! npm run build; then
+  exit 125   # skip this commit, can't test it
+fi
+npm test
+```
+
+## Ver el estado del bisect en curso
+
+Si en algún momento pierdes el hilo de dónde estás en la búsqueda:
+
+```bash
+git bisect log      # full history of good/bad verdicts so far
+git bisect view     # visual representation of the remaining range
+```
+
+`git bisect log` también es útil para reproducir una sesión después. Puedes guardar su salida y usarla con `git bisect replay` si necesitas repetir la búsqueda desde el principio.
+
+## Cuándo bisect no es la herramienta adecuada
+
+Bisect es espectacular para bugs de regresión — algo que antes funcionaba y dejó de funcionar. Para eso es exactamente para lo que fue diseñado.
+
+Pero hay casos en los que no ayuda tanto:
+
+- **El bug siempre estuvo ahí**: si no existe ningún commit "bueno" de referencia, bisect no tiene punto de partida.
+- **El bug es intermitente**: si el comportamiento cambia entre ejecuciones, los veredictos `good`/`bad` no son fiables y bisect te llevará por el camino incorrecto.
+- **Los tests tardan mucho**: si cada paso tarda diez minutos, la automatización pierde parte de su encanto. Bisect sigue siendo útil en modo manual, pero la magia del "voy a por un café y cuando vuelvo está" desaparece.
+
+Para esos casos, `git log -S "string"` (busca commits que añadieron o quitaron una cadena concreta) y `git blame` son alternativas más directas. Los veremos en la siguiente lección.
+
+---
+
+Bisect es uno de esos comandos que parece cosa de magia la primera vez que lo ves funcionar. Tienes 300 commits, cinco minutos de sesión interactiva, y Git te entrega el nombre del commit, el autor y los archivos cambiados. La sensación es bastante satisfactoria — especialmente si el autor del commit resulta ser otra persona (o tú de hace tres semanas, que es casi lo mismo).
+
+En la siguiente lección nos metemos con `git blame` y las herramientas de exploración del historial: cómo saber quién tocó qué línea, cuándo, y por qué — el toolkit completo para entender un codebase que llevas cinco minutos viendo por primera vez.
+
+¡Nunca dejes de programar!
