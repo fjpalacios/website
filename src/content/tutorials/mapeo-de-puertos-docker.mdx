@@ -1,0 +1,178 @@
+---
+title: "Mapeo de puertos en Docker: conecta tus contenedores con el mundo exterior"
+post_slug: "mapeo-de-puertos-docker"
+date: "2026-04-27"
+excerpt: "Aprende cómo funciona el aislamiento de red en Docker, cómo publicar puertos con -p, inspeccionar la configuración de red y coordinar múltiples contenedores en el mismo host."
+language: "es"
+categories: ["docker"]
+course: "domina-docker-desde-cero"
+order: 5
+cover: "/images/tutorials/cabecera-docker-curso.jpg"
+i18n: "port-mapping-docker"
+---
+
+En la lección anterior lanzaste un contenedor Nginx en modo detached. `docker ps` mostraba el contenedor como `Up`, la columna `PORTS` decía `80/tcp`, todo parecía correcto. Abriste el navegador, escribiste `http://localhost:80` y... nada. Pantalla en blanco. O un error de conexión rechazada.
+
+¿El contenedor no está corriendo? Sí está. ¿Nginx está fallando? No, está perfectamente. ¿Es tu red? ¿Tu máquina? ¿El universo conspirando?
+
+No. Es el **aislamiento de red** de Docker haciendo exactamente lo que se supone que debe hacer — y tú sin saberlo todavía.
+
+## El contenedor vive en su propia burbuja de red
+
+Cada contenedor Docker tiene su propia interfaz de red, su propia dirección IP, sus propios puertos — completamente separados del host en el que corre. Si eres como yo cuando empecé, esto parece una complicación innecesaria. ¿Por qué no simplemente escucha en `localhost` como cualquier otro proceso?
+
+Porque eso rompería el aislamiento que hace que Docker sea útil. Si cada contenedor pudiera escuchar en los puertos del host sin restricción, dos contenedores intentando usar el puerto 80 chocarían. No habría forma de correr múltiples servicios en el mismo host sin conflictos constantes.
+
+Piénsalo así: cada contenedor es como un apartamento en un edificio. Tiene sus propias ventanas (puertos), su propia dirección interior, su propio timbre. Pero desde la calle, si no hay un número de portal visible, nadie sabe que ese apartamento existe. El `80/tcp` que ves en `docker ps` es la ventana del patio interior — nadie fuera del edificio puede verla.
+
+Para que sea accesible desde la calle, hay que mapearla a la fachada exterior. Eso es exactamente lo que hace `-p`.
+
+## Publicar puertos con `-p`
+
+```bash
+# host_port:container_port
+docker run -d -p 8080:80 --name mi-nginx nginx
+```
+
+Ahora `http://localhost:8080` muestra la página de bienvenida de Nginx. El tráfico fluye así:
+
+```
+Tu navegador → localhost:8080 → Docker → contenedor:80 → Nginx
+```
+
+Docker intercepta lo que llega al puerto 8080 del host y lo reenvía al puerto 80 del contenedor. Nginx ni sabe que está escuchando en el 8080 — desde su perspectiva, siempre ha estado en el 80. Works on my machine, porque literalmente estás remapeando qué máquina es "tu máquina".
+
+### Variantes de la sintaxis
+
+```bash
+# Puerto diferente en host y contenedor (lo más común)
+docker run -d -p 8080:80 nginx
+
+# Mismo puerto en ambos lados (más directo, pero cuidado con conflictos)
+docker run -d -p 80:80 nginx
+
+# Solo exponer en localhost del host, no en interfaces externas
+docker run -d -p 127.0.0.1:8080:80 nginx
+
+# -P mayúscula: Docker asigna puertos aleatorios del host automáticamente
+docker run -d -P nginx
+```
+
+La `-P` mayúscula es cómoda para pruebas rápidas, pero en producción es una pesadilla — los puertos cambian con cada reinicio del contenedor y nadie sabe a qué puerto conectarse. No uses `-P` en producción. Sí, eso incluye el entorno de staging que "es casi producción".
+
+### Múltiples puertos
+
+```bash
+docker run -d \
+  -p 80:80 \
+  -p 443:443 \
+  --name mi-app \
+  mi-imagen
+```
+
+Repite `-p` tantas veces como necesites.
+
+## Verificar los mapeos activos
+
+```bash
+docker ps
+```
+
+```
+CONTAINER ID   IMAGE   COMMAND                  CREATED         STATUS        PORTS                  NAMES
+a1b2c3d4e5f6   nginx   "/docker-entrypoint.…"   3 seconds ago   Up 3 seconds  0.0.0.0:8080->80/tcp   mi-nginx
+```
+
+La columna `PORTS` ahora muestra `0.0.0.0:8080->80/tcp`. El formato se lee así:
+
+- `0.0.0.0` → escucha en todas las interfaces del host
+- `8080` → puerto del host
+- `->80/tcp` → mapeado al puerto 80 del contenedor
+
+Si ves solo `80/tcp` sin la flecha — como al principio — el puerto está expuesto internamente pero no publicado. Nadie fuera puede acceder.
+
+Para ver los mapeos de un contenedor concreto sin el ruido de `docker ps`:
+
+```bash
+docker port mi-nginx
+```
+
+```
+80/tcp -> 0.0.0.0:8080
+```
+
+## Inspeccionar la red con `docker inspect`
+
+Cuando necesites entender exactamente cómo está conectado un contenedor — IP interna, gateway, mapeos completos — `docker inspect` lo tiene todo:
+
+```bash
+docker inspect mi-nginx | jq '.[0].NetworkSettings'
+```
+
+```json
+{
+  "IPAddress": "172.17.0.2",
+  "Ports": {
+    "80/tcp": [{ "HostIp": "0.0.0.0", "HostPort": "8080" }]
+  },
+  "Networks": {
+    "bridge": {
+      "IPAddress": "172.17.0.2",
+      "Gateway": "172.17.0.1"
+    }
+  }
+}
+```
+
+El contenedor tiene su propia IP (`172.17.0.2`) dentro de la red `bridge` de Docker. La gateway (`172.17.0.1`) es el host — Docker actúa como router entre la red interna de contenedores y el exterior.
+
+Técnicamente podrías acceder al contenedor directamente desde el host usando esa IP interna, sin mapear puertos. Pero esa IP cambia cada vez que reinicias el contenedor y no es accesible desde fuera del host. El mapeo de puertos es la solución estable.
+
+## Varios contenedores en el mismo host
+
+Aquí es donde la cosa se pone interesante. ¿Qué pasa si lanzas dos Nginx a la vez?
+
+```bash
+docker run -d -p 8080:80 --name nginx-1 nginx
+docker run -d -p 8080:80 --name nginx-2 nginx  # ❌
+```
+
+```
+docker: Error response from daemon: driver failed programming external connectivity
+on endpoint nginx-2: Bind for 0.0.0.0:8080 failed: port is already allocated.
+```
+
+¿Sensación de frustración? Normal. El error tiene sentido en retrospectiva: el puerto 8080 del host ya está ocupado por `nginx-1`. El host solo tiene un puerto 8080, igual que una ciudad solo tiene una calle Mayor.
+
+Lo que sí pueden compartir son los puertos internos — el aislamiento de red garantiza que el puerto 80 de `nginx-1` y el puerto 80 de `nginx-2` son completamente independientes. Lo único que no puede repetirse es el puerto del host:
+
+```bash
+docker run -d -p 8080:80 --name nginx-1 nginx  # ✅
+docker run -d -p 8081:80 --name nginx-2 nginx  # ✅
+```
+
+```
+CONTAINER ID   IMAGE   PORTS                  NAMES
+a1b2c3d4e5f6   nginx   0.0.0.0:8080->80/tcp   nginx-1
+b7c8d9e0f1a2   nginx   0.0.0.0:8081->80/tcp   nginx-2
+```
+
+`http://localhost:8080` → `nginx-1`. `http://localhost:8081` → `nginx-2`. Mismo servicio, dos instancias, cero conflictos.
+
+### ¿Y si los contenedores necesitan hablar entre sí?
+
+Un matiz que confunde cuando empiezas: el mapeo de puertos (`-p`) es para comunicación desde _fuera_ — tu navegador, una API externa, un cliente. Para que dos contenedores se comuniquen entre sí, usar sus IPs internas funciona técnicamente pero es frágil (las IPs cambian). La solución correcta son las **redes Docker**, que permiten que los contenedores se descubran por nombre. Eso lo cubrimos en el módulo de networking, más adelante en el curso.
+
+Por ahora: `-p` es para el mundo exterior, las redes Docker son para la comunicación interna. No los mezcles.
+
+---
+
+Con el mapeo de puertos completas el ciclo fundamental de un contenedor: arranca aislado, hace su trabajo internamente, y expone al mundo exactamente lo que tú decides — nada más. Es una de esas decisiones de diseño de Docker que parece una molestia al principio y con el tiempo se convierte en lo que más aprecias.
+
+En el próximo módulo damos el salto a los **Dockerfiles**: hasta ahora has usado imágenes oficiales tal como vienen; a partir de L6 aprenderás a construir las tuyas propias desde cero.
+
+¡Nunca dejes de programar!
+
+---
+
+**💡 Reto**: Lanza dos contenedores Nginx en puertos distintos del host (`8080` y `8081`). Verifica con `docker ps` que los dos están corriendo y que puedes acceder a cada uno desde el navegador. Luego usa `docker inspect` con `jq` para extraer la IP interna de cada uno. ¿Son diferentes? ¿Están en la misma red `bridge`?

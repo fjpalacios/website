@@ -1,0 +1,178 @@
+---
+title: "Docker port mapping: connect your containers to the outside world"
+post_slug: "port-mapping-docker"
+date: "2026-04-27"
+excerpt: "Learn how Docker network isolation works, how to publish ports with -p, inspect network configuration, and run multiple containers on the same host without conflicts."
+language: "en"
+categories: ["docker"]
+course: "mastering-docker-from-scratch"
+order: 5
+cover: "/images/tutorials/cabecera-docker-curso.jpg"
+i18n: "mapeo-de-puertos-docker"
+---
+
+In the previous lesson you launched an Nginx container in detached mode. `docker ps` showed it as `Up`, the `PORTS` column said `80/tcp`, everything looked fine. You opened the browser, typed `http://localhost:80`, and got... nothing. Blank screen. Or a connection refused error.
+
+Is the container not running? It is. Is Nginx broken? No, it's fine. Is it your network? Your machine? The universe conspiring against you?
+
+No. It's Docker's **network isolation** doing exactly what it's supposed to — and you just didn't know about it yet.
+
+## Containers live in their own network bubble
+
+Every Docker container has its own network interface, its own IP address, its own ports — completely separate from the host it runs on. If you're like me when I started, this seems like unnecessary complexity. Why can't it just listen on `localhost` like any other process?
+
+Because that would break the isolation that makes Docker useful. If containers could bind to host ports freely, two containers trying to use port 80 would collide. You couldn't run multiple services on the same host without constant conflicts.
+
+Think of it this way: each container is like an apartment in a building. It has its own windows (ports), its own internal address, its own doorbell. But from the street, if there's no visible unit number, nobody knows that apartment exists. The `80/tcp` you see in `docker ps` is the window facing the interior courtyard — nobody outside the building can see it.
+
+To make it accessible from the street, you need to map it to the building's front facade. That's exactly what `-p` does.
+
+## Publishing ports with `-p`
+
+```bash
+# host_port:container_port
+docker run -d -p 8080:80 --name my-nginx nginx
+```
+
+Now `http://localhost:8080` shows Nginx's welcome page. Traffic flows like this:
+
+```
+Your browser → localhost:8080 → Docker → container:80 → Nginx
+```
+
+Docker intercepts traffic arriving at port 8080 on the host and forwards it to port 80 inside the container. Nginx doesn't know it's listening on 8080 — from its perspective, it's always been on port 80. Works on my machine, because you're literally remapping which machine "your machine" is.
+
+### Syntax variants
+
+```bash
+# Different ports on host and container (most common)
+docker run -d -p 8080:80 nginx
+
+# Same port on both sides (simpler, but watch for conflicts)
+docker run -d -p 80:80 nginx
+
+# Bind only to localhost — not exposed on external interfaces
+docker run -d -p 127.0.0.1:8080:80 nginx
+
+# -P (uppercase): Docker auto-assigns random host ports
+docker run -d -P nginx
+```
+
+The uppercase `-P` is handy for quick experiments, but in production it's a nightmare — ports change on every container restart and nobody knows what to connect to. Don't use `-P` in production. Yes, that includes the staging environment that's "basically production."
+
+### Multiple ports
+
+```bash
+docker run -d \
+  -p 80:80 \
+  -p 443:443 \
+  --name my-app \
+  my-image
+```
+
+Repeat `-p` as many times as you need.
+
+## Checking active port mappings
+
+```bash
+docker ps
+```
+
+```
+CONTAINER ID   IMAGE   COMMAND                  CREATED         STATUS        PORTS                  NAMES
+a1b2c3d4e5f6   nginx   "/docker-entrypoint.…"   3 seconds ago   Up 3 seconds  0.0.0.0:8080->80/tcp   my-nginx
+```
+
+The `PORTS` column now shows `0.0.0.0:8080->80/tcp`. Read it like this:
+
+- `0.0.0.0` → listening on all host interfaces
+- `8080` → host port
+- `->80/tcp` → forwarded to port 80 inside the container
+
+If you see just `80/tcp` without the arrow — like at the beginning — the port is exposed internally but not published. Nobody outside can reach it.
+
+To see the mappings for a specific container without the noise of `docker ps`:
+
+```bash
+docker port my-nginx
+```
+
+```
+80/tcp -> 0.0.0.0:8080
+```
+
+## Inspecting the network with `docker inspect`
+
+When you need to understand exactly how a container is connected — internal IP, gateway, full port mappings — `docker inspect` has everything:
+
+```bash
+docker inspect my-nginx | jq '.[0].NetworkSettings'
+```
+
+```json
+{
+  "IPAddress": "172.17.0.2",
+  "Ports": {
+    "80/tcp": [{ "HostIp": "0.0.0.0", "HostPort": "8080" }]
+  },
+  "Networks": {
+    "bridge": {
+      "IPAddress": "172.17.0.2",
+      "Gateway": "172.17.0.1"
+    }
+  }
+}
+```
+
+The container has its own IP (`172.17.0.2`) inside Docker's `bridge` network. The gateway (`172.17.0.1`) is the host — Docker acts as a router between the container's internal network and the outside world.
+
+Technically you could reach the container from the host using that internal IP directly, no port mapping needed. But that IP changes every time you restart the container and isn't accessible from outside the host. Port mapping is the stable solution.
+
+## Multiple containers on the same host
+
+Here's where it gets interesting. What happens if you launch two Nginx containers at the same time?
+
+```bash
+docker run -d -p 8080:80 --name nginx-1 nginx
+docker run -d -p 8080:80 --name nginx-2 nginx  # ❌
+```
+
+```
+docker: Error response from daemon: driver failed programming external connectivity
+on endpoint nginx-2: Bind for 0.0.0.0:8080 failed: port is already allocated.
+```
+
+Feeling confused? Good — this is actually the system working correctly. Port 8080 on the host is already taken by `nginx-1`. The host only has one port 8080, the same way a city only has one Main Street.
+
+What containers _can_ share are their internal ports — Docker's network isolation means port 80 in `nginx-1` and port 80 in `nginx-2` are completely independent. The only thing that can't repeat is the host port:
+
+```bash
+docker run -d -p 8080:80 --name nginx-1 nginx  # ✅
+docker run -d -p 8081:80 --name nginx-2 nginx  # ✅
+```
+
+```
+CONTAINER ID   IMAGE   PORTS                  NAMES
+a1b2c3d4e5f6   nginx   0.0.0.0:8080->80/tcp   nginx-1
+b7c8d9e0f1a2   nginx   0.0.0.0:8081->80/tcp   nginx-2
+```
+
+`http://localhost:8080` → `nginx-1`. `http://localhost:8081` → `nginx-2`. Same service, two instances, zero conflicts.
+
+### What if containers need to talk to each other?
+
+One thing that trips people up: port mapping (`-p`) is for communication from _outside_ — your browser, an external API, a client. For containers to communicate with each other, using their internal IPs works technically but is fragile (IPs change on restart). The right solution is **Docker networks**, which let containers discover each other by name instead of IP. We'll cover that properly in the networking module later in the course.
+
+For now: `-p` is for the outside world, Docker networks are for internal container-to-container communication. Don't mix them up.
+
+---
+
+With port mapping you complete the fundamental container cycle: starts isolated, does its work internally, and exposes to the world exactly what you decide — nothing more. It's one of those Docker design decisions that feels like friction at first and becomes one of the things you most appreciate once you've debugged a port collision in production at 2 AM.
+
+In the next module we jump into **Dockerfiles**: so far you've been using official images as-is; starting from L6 you'll learn to build your own from scratch.
+
+Never stop coding!
+
+---
+
+**💡 Challenge**: Launch two Nginx containers on different host ports (`8080` and `8081`). Verify with `docker ps` that both are running and that you can reach each from the browser. Then use `docker inspect` with `jq` to extract the internal IP of each. Are they different? Are they on the same `bridge` network?
