@@ -64,7 +64,7 @@
     "@astrojs/rss": "4.0.18",
     "@astrojs/sitemap": "3.7.2",
     "astro": "5.18.1",
-    "fast-xml-parser": "5.7.1",
+    "fast-xml-parser": "5.7.2",
     "marked": "^18.0.2",
     "mdast-util-to-hast": "13.2.1",
     "mysql2": "^3.22.1",
