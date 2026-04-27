@@ -1,0 +1,202 @@
+---
+title: "Introduction to Dockerfiles: build your own images"
+post_slug: "introduction-dockerfiles-docker"
+date: "2026-04-28"
+excerpt: "Learn what a Dockerfile is, how the layered build process works, the basic instructions FROM, RUN, COPY, CMD and EXPOSE, and build your first custom image."
+language: "en"
+categories: ["docker"]
+course: "mastering-docker-from-scratch"
+order: 6
+cover: "/images/tutorials/cabecera-docker-curso.jpg"
+i18n: "introduccion-dockerfiles-docker"
+---
+
+You have an application running on your machine. A Python web server, a Node API, whatever. Someone tells you: "put it in Docker." And you realize that until now you've only used official images from Docker Hub — Nginx, Ubuntu, Alpine — images someone else built and you just downloaded. But your application isn't on Docker Hub. Your application is yours.
+
+How do you package something of your own? How do you tell Docker what to install, which files to copy, what command to run at startup? How do you build an image from scratch?
+
+The answer is a **Dockerfile**.
+
+## What is a Dockerfile?
+
+A Dockerfile is a plain text file — literally called `Dockerfile`, no extension — that contains the instructions for building a Docker image. Each instruction is a step: start from this base image, install these packages, copy these files, run this command on startup.
+
+The most direct analogy is a recipe. The recipe isn't the dish — it's the set of instructions to produce it reproducibly. The Dockerfile isn't the image; it's what tells Docker how to build it. And the image isn't the running container; it's the result of following that recipe, ready to instantiate as many times as you want.
+
+Recipe → image → container. Dockerfile → `docker build` → `docker run`.
+
+What makes a Dockerfile especially powerful is that the process is **reproducible and versionable**. The same Dockerfile produces the same image on your machine, your colleague's machine, the CI server, and in production. No "it worked on my machine." No "I don't know what I have installed." No manual configuration nobody documented.
+
+## The basic instructions
+
+A Dockerfile has its own language: uppercase instructions, each with a specific purpose. How many are there? Quite a few. Do you need to know all of them now? No. With six instructions you can build 90% of the images you'll ever need in practice. Here are those six:
+
+### `FROM` — the base image
+
+Every Dockerfile starts with `FROM`. It defines the image you're building on top of.
+
+```dockerfile
+FROM python:3.12-slim
+```
+
+You're not building from absolute zero. You start from an existing image that already has the OS, the runtime, the basic tools. `python:3.12-slim` is Python 3.12 on Debian with the minimum necessary packages. From there, you add your own layer.
+
+### `WORKDIR` — the working directory
+
+```dockerfile
+WORKDIR /app
+```
+
+Sets the working directory inside the container. All subsequent instructions (`RUN`, `COPY`, `CMD`) run from here. If the directory doesn't exist, Docker creates it. It's the equivalent of `mkdir /app && cd /app`, but explicit and declarative.
+
+Without `WORKDIR`, your files end up scattered across the container's filesystem and nobody knows where anything is. Always set it.
+
+### `COPY` — copy files into the container
+
+```dockerfile
+COPY requirements.txt .
+COPY . .
+```
+
+Copies files from the build context (your machine) to the container's filesystem. The first argument is the source (relative to the Dockerfile's directory), the second is the destination inside the container.
+
+`COPY requirements.txt .` copies only the dependencies file. `COPY . .` copies everything else. The order isn't arbitrary — that's where Docker's layer caching lives, and we'll cover it in the next lesson.
+
+### `RUN` — execute commands during the build
+
+```dockerfile
+RUN pip install --no-cache-dir -r requirements.txt
+```
+
+Runs a command during image construction and saves the result as a new layer. This is where you install dependencies, compile code, create directories, whatever you need. The result gets frozen into the image — it doesn't run every time a container starts, only when you build the image.
+
+### `EXPOSE` — document which ports the app uses
+
+```dockerfile
+EXPOSE 5000
+```
+
+Declares which port the application listens on inside the container. Note: this is **documentation**, not port mapping. It doesn't publish the port to the host — you still need `-p` when running `docker run`. But it's useful information for anyone using the image, and some tools read it.
+
+### `CMD` — the command that starts the app
+
+```dockerfile
+CMD ["python", "app.py"]
+```
+
+Defines the main process of the container — what runs when you do `docker run`. Only one `CMD` per Dockerfile (if you put multiple, only the last one counts). Use the array form (`["python", "app.py"]`), not the string form — avoids issues with OS signals.
+
+## Your first complete Dockerfile
+
+A minimal Flask app — the kind of thing you have running locally and are now going to package into an image:
+
+```python
+# app.py
+from flask import Flask
+
+app = Flask(__name__)
+
+@app.route("/")
+def hello():
+    return "Hello from Docker!"
+
+if __name__ == "__main__":
+    app.run(host="0.0.0.0", port=5000)
+```
+
+```
+# requirements.txt
+flask==3.0.3
+```
+
+```dockerfile
+# Dockerfile
+FROM python:3.12-slim
+
+WORKDIR /app
+
+COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
+
+COPY . .
+
+EXPOSE 5000
+
+CMD ["python", "app.py"]
+```
+
+## Building the image with `docker build`
+
+```bash
+docker build -t my-flask-app .
+```
+
+- `-t my-flask-app` — the name (tag) for the resulting image
+- `.` — the **build context**: the directory Docker uses to access your files. Almost always the current directory
+
+```
+[+] Building 23.4s (9/9) FINISHED
+ => [internal] load build definition from Dockerfile
+ => [internal] load .dockerignore
+ => [internal] load metadata for docker.io/library/python:3.12-slim
+ => [1/4] FROM python:3.12-slim
+ => [2/4] WORKDIR /app
+ => [3/4] COPY requirements.txt .
+ => [4/4] RUN pip install --no-cache-dir -r requirements.txt
+ => [5/4] COPY . .
+ => exporting to image
+ => naming to docker.io/library/my-flask-app
+```
+
+Each line in the output is a layer. Docker builds the image step by step, and that output scrolling by — which looks like noise at first — is the layer system doing its job. In the next lesson you'll see why that order matters a lot for build performance.
+
+When it finishes, the image is available locally:
+
+```bash
+docker images
+```
+
+```
+REPOSITORY      TAG       IMAGE ID       CREATED          SIZE
+my-flask-app    latest    a1b2c3d4e5f6   12 seconds ago   148MB
+```
+
+## Running the container
+
+```bash
+docker run -d -p 5000:5000 --name my-app my-flask-app
+```
+
+`http://localhost:5000` returns `Hello from Docker!`. Your application, in a container, built from your own Dockerfile.
+
+## The build context and why `.dockerignore` is not optional
+
+When you run `docker build .`, Docker packages the entire contents of the `.` directory and sends it to the daemon so it can access those files during the build. That's called the **build context**.
+
+The problem is "entire contents." If you have `node_modules` with its 200,000 files that everyone pretends not to see, or a `.git` directory with the project's full history, or environment files with credentials — all of that gets sent. The build slows down, the image grows, and if someone puts a `.env` with passwords in the context, those passwords end up baked into the image forever. This is where things get unnecessarily dangerous.
+
+The solution is `.dockerignore`, which works exactly like `.gitignore`:
+
+```
+# .dockerignore
+.git
+.env
+node_modules
+__pycache__
+*.pyc
+.DS_Store
+```
+
+Always include it. It's not optional.
+
+---
+
+With this you can package any application into a Docker image. Dockerfile → `docker build` → image → `docker run` → container. The full cycle under your control.
+
+But right now your image takes just as long to build whether you change one line of your app or reinstall all dependencies from scratch. In the next lesson we look at how Docker's **layer caching** system works — and how to order your Dockerfile instructions so builds are ten times faster.
+
+Never stop coding!
+
+---
+
+**💡 Challenge**: Create a minimal Flask app using the Dockerfile from this lesson. Build the image, launch the container and verify it responds at `http://localhost:5000`. Then modify only the response message in your app, rebuild, and check how many layers get rebuilt from scratch. Do you see the pattern? We explain it in detail in the next lesson.
