@@ -1,0 +1,202 @@
+---
+title: "Introducción a los Dockerfiles: construye tus propias imágenes"
+post_slug: "introduccion-dockerfiles-docker"
+date: "2026-04-28"
+excerpt: "Aprende qué es un Dockerfile, cómo funciona el proceso de construcción por capas, las instrucciones básicas FROM, RUN, COPY, CMD y EXPOSE, y construye tu primera imagen personalizada."
+language: "es"
+categories: ["docker"]
+course: "domina-docker-desde-cero"
+order: 6
+cover: "/images/tutorials/cabecera-docker-curso.jpg"
+i18n: "introduction-dockerfiles-docker"
+---
+
+Tienes una aplicación funcionando en tu máquina. Un servidor web en Python, una API en Node, lo que sea. Ahora alguien te dice: "métela en Docker". Y te das cuenta de que hasta ahora solo has usado imágenes oficiales de Docker Hub — Nginx, Ubuntu, Alpine — imágenes que alguien más construyó y tú simplemente descargaste. Pero tu aplicación no está en Docker Hub. Tu aplicación eres tú.
+
+¿Cómo empaquetas algo propio? ¿Cómo le dices a Docker qué tiene que instalar, qué archivos copiar, qué comando ejecutar al arrancar? ¿Cómo se construye una imagen desde cero?
+
+La respuesta es un **Dockerfile**.
+
+## Qué es un Dockerfile
+
+Un Dockerfile es un archivo de texto — literalmente se llama `Dockerfile`, sin extensión — que contiene las instrucciones para construir una imagen Docker. Cada instrucción es un paso: parte de esta imagen base, instala estos paquetes, copia estos archivos, ejecuta este comando al arrancar.
+
+La analogía más directa es una receta de cocina. La receta no es el plato — es el conjunto de instrucciones para producirlo de forma reproducible. El Dockerfile no es la imagen; es lo que le dice a Docker cómo construirla. Y la imagen no es el contenedor en marcha; es el resultado de seguir esa receta, listo para instanciar cuantas veces quieras.
+
+Receta → imagen → contenedor. Dockerfile → `docker build` → `docker run`.
+
+Lo que hace especialmente potente a un Dockerfile es que ese proceso es **reproducible y versionable**. El mismo Dockerfile produce la misma imagen en tu máquina, en la de tu compañero, en el servidor de CI, y en producción. Sin "en mi máquina funcionaba". Sin "no sé qué tengo instalado". Sin configuración manual que nadie documentó.
+
+## Las instrucciones básicas
+
+Un Dockerfile tiene su propio lenguaje: instrucciones en mayúsculas, cada una con su propósito. ¿Cuántas hay? Bastantes. ¿Necesitas saberlas todas ahora? No. Con seis instrucciones puedes construir el 90% de las imágenes que vas a necesitar en la vida real. Vamos con esas seis:
+
+### `FROM` — la imagen base
+
+Todo Dockerfile empieza con `FROM`. Define la imagen sobre la que construyes — la base de tu imagen.
+
+```dockerfile
+FROM python:3.12-slim
+```
+
+No construyes desde cero absoluto. Partes de una imagen existente que ya tiene el sistema operativo, el runtime, las herramientas básicas. `python:3.12-slim` es Python 3.12 sobre Debian con los paquetes mínimos necesarios. A partir de ahí, añades lo tuyo.
+
+### `WORKDIR` — el directorio de trabajo
+
+```dockerfile
+WORKDIR /app
+```
+
+Establece el directorio de trabajo dentro del contenedor. Todos los comandos posteriores (`RUN`, `COPY`, `CMD`) se ejecutan desde aquí. Si el directorio no existe, Docker lo crea. Es el equivalente de hacer `mkdir /app && cd /app`, pero de forma explícita y declarativa.
+
+Sin `WORKDIR`, tus archivos acaban esparcidos por el sistema de archivos del contenedor y nadie sabe dónde está nada. Ponlo siempre.
+
+### `COPY` — copiar archivos al contenedor
+
+```dockerfile
+COPY requirements.txt .
+COPY . .
+```
+
+Copia archivos desde el contexto de build (tu máquina) al sistema de archivos del contenedor. El primer argumento es el origen (relativo al directorio donde está el Dockerfile), el segundo es el destino dentro del contenedor.
+
+`COPY requirements.txt .` copia solo el archivo de dependencias. `COPY . .` copia todo el resto. El orden no es arbitrario — ahí está el corazón del sistema de caché de Docker, que veremos en la próxima lección.
+
+### `RUN` — ejecutar comandos durante el build
+
+```dockerfile
+RUN pip install --no-cache-dir -r requirements.txt
+```
+
+Ejecuta un comando durante la construcción de la imagen y guarda el resultado como una nueva capa. Aquí instalas dependencias, compilas código, creas directorios, lo que necesites. El resultado queda frozen en la imagen — no se ejecuta cada vez que arranca un contenedor, solo cuando construyes la imagen.
+
+### `EXPOSE` — documentar qué puertos usa la app
+
+```dockerfile
+EXPOSE 5000
+```
+
+Declara en qué puerto escucha la aplicación dentro del contenedor. Ojo: esto es **documentación**, no mapeo de puertos. No publica el puerto al host — para eso sigue siendo necesario `-p` al hacer `docker run`. Pero es información útil para quien use la imagen, y algunas herramientas la leen.
+
+### `CMD` — el comando que arranca la app
+
+```dockerfile
+CMD ["python", "app.py"]
+```
+
+Define el proceso principal del contenedor — lo que se ejecuta cuando haces `docker run`. Solo puede haber un `CMD` por Dockerfile (si pones varios, solo cuenta el último). Usa la forma de array (`["python", "app.py"]`), no la forma de string — evita problemas con señales del sistema operativo.
+
+## Tu primer Dockerfile completo
+
+Una aplicación Flask mínima — el tipo de cosa que tienes corriendo en local y que ahora vamos a meter en una imagen:
+
+```python
+# app.py
+from flask import Flask
+
+app = Flask(__name__)
+
+@app.route("/")
+def hello():
+    return "Hello from Docker!"
+
+if __name__ == "__main__":
+    app.run(host="0.0.0.0", port=5000)
+```
+
+```
+# requirements.txt
+flask==3.0.3
+```
+
+```dockerfile
+# Dockerfile
+FROM python:3.12-slim
+
+WORKDIR /app
+
+COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
+
+COPY . .
+
+EXPOSE 5000
+
+CMD ["python", "app.py"]
+```
+
+## Construir la imagen con `docker build`
+
+```bash
+docker build -t mi-flask-app .
+```
+
+- `-t mi-flask-app` — el nombre (tag) de la imagen resultante
+- `.` — el **contexto de build**: el directorio desde el que Docker copia archivos. Casi siempre es el directorio actual
+
+```
+[+] Building 23.4s (9/9) FINISHED
+ => [internal] load build definition from Dockerfile
+ => [internal] load .dockerignore
+ => [internal] load metadata for docker.io/library/python:3.12-slim
+ => [1/4] FROM python:3.12-slim
+ => [2/4] WORKDIR /app
+ => [3/4] COPY requirements.txt .
+ => [4/4] RUN pip install --no-cache-dir -r requirements.txt
+ => [5/4] COPY . .
+ => exporting to image
+ => naming to docker.io/library/mi-flask-app
+```
+
+Cada línea del output es una capa. Docker construye la imagen paso a paso, y ese output desfilando — que al principio parece ruido — en realidad es el sistema de capas trabajando. En la próxima lección verás por qué ese orden importa muchísimo para el rendimiento.
+
+Cuando termina, la imagen está disponible localmente:
+
+```bash
+docker images
+```
+
+```
+REPOSITORY      TAG       IMAGE ID       CREATED          SIZE
+mi-flask-app    latest    a1b2c3d4e5f6   12 seconds ago   148MB
+```
+
+## Ejecutar el contenedor
+
+```bash
+docker run -d -p 5000:5000 --name mi-app mi-flask-app
+```
+
+`http://localhost:5000` devuelve `Hello from Docker!`. Tu aplicación, en un contenedor, construida desde tu propio Dockerfile.
+
+## El contexto de build y por qué `.dockerignore` es obligatorio
+
+Cuando ejecutas `docker build .`, Docker empaqueta todo el contenido del directorio `.` y lo envía al daemon para que pueda acceder a esos archivos durante el build. Eso se llama el **contexto de build**.
+
+El problema es "todo el contenido". Si tienes `node_modules` con sus 200.000 archivos que todos fingimos no ver, o un directorio `.git` con el historial completo del proyecto, o archivos de entorno con credenciales — todo eso se envía. El build se ralentiza, la imagen crece, y si alguien mete un `.env` con contraseñas en el contexto, esas contraseñas acaban horneadas dentro de la imagen para siempre. Aquí es donde las cosas se ponen innecesariamente peligrosas.
+
+La solución es `.dockerignore`, que funciona exactamente igual que `.gitignore`:
+
+```
+# .dockerignore
+.git
+.env
+node_modules
+__pycache__
+*.pyc
+.DS_Store        # (porque macOS, ya sabes)
+```
+
+Ponlo siempre. No es opcional.
+
+---
+
+Con esto ya puedes empaquetar cualquier aplicación en una imagen Docker. Dockerfile → `docker build` → imagen → `docker run` → contenedor. El ciclo completo bajo tu control.
+
+Pero ahora mismo tu imagen tarda lo mismo en construirse tanto si cambias una línea de tu app como si instalas todas las dependencias desde cero. En la próxima lección vemos cómo funciona el sistema de **caché por capas** de Docker — y cómo ordenar correctamente las instrucciones del Dockerfile para que los builds sean diez veces más rápidos.
+
+¡Nunca dejes de programar!
+
+---
+
+**💡 Reto**: Crea una aplicación Flask mínima con el Dockerfile de esta lección. Construye la imagen, lanza el contenedor y verifica que responde en `http://localhost:5000`. Luego modifica solo el mensaje de respuesta de la app, reconstruye y comprueba cuántas capas se reconstruyen desde cero. ¿Ves el patrón? Lo explicamos en detalle en la próxima lección.
