@@ -1,0 +1,269 @@
+---
+title: "for loops and range() in Python: iterate without the busywork"
+post_slug: "for-loops-range-python"
+date: "2026-04-29"
+excerpt: "while gives you control. for gives you clarity. Learn to iterate over sequences, generate number ranges with range(), and write nested loops — without managing a counter by hand."
+language: "en"
+categories: ["programming"]
+course: "learn-to-code-from-scratch-python"
+order: 8
+cover: "/images/tutorials/cabecera-python-curso.jpg"
+i18n: "bucles-for-range-python"
+---
+
+You already know how to count from 1 to 10 with `while`. A counter, a condition, an increment — four lines of code where three of them exist only to serve the fourth. That works. But Python has a better tool for situations like this:
+
+```python
+# while: you manage the counter yourself
+counter = 1
+while counter <= 10:
+    print(counter)
+    counter += 1
+
+# for: Python manages it for you
+for i in range(1, 11):
+    print(i)
+```
+
+Same result. Half the ceremony. The difference isn't just aesthetic — it's about intent. The `for` loop says "I know exactly what I want to iterate over." The `while` says "keep going until this condition is false." When you know the sequence upfront, `for` is the right tool.
+
+## What is a for loop?
+
+A `for` loop iterates over a **sequence** of elements — one at a time, in order — and runs a block of code for each one. When it runs out of elements, it stops on its own.
+
+```python
+fruits = ["apple", "pear", "grape"]
+
+for fruit in fruits:
+    print(fruit)  # Print each fruit
+```
+
+```
+apple
+pear
+grape
+```
+
+The structure is `for <variable> in <sequence>:`. On each iteration, the variable (`fruit`) takes the value of the next element. No indexing, no incrementing — the loop handles it.
+
+One thing that catches beginners off guard: the loop variable doesn't disappear when the loop ends. After the `for` finishes, it's still in scope, holding the value from the last iteration.
+
+```python
+for fruit in fruits:
+    print(fruit)
+
+print(fruit)  # "grape" — still accessible after the loop
+```
+
+It's not a bug — it's just how Python scoping works for loop variables. File this away; you'll appreciate knowing it the first time you need to debug something after a loop.
+
+## range(): generating number sequences
+
+Iterating over an existing list is useful, but often you just want to repeat something a set number of times. That's what `range()` is for — it generates a sequence of integers on demand.
+
+It comes in three forms:
+
+### range(stop)
+
+The simplest: generates numbers from `0` up to (but not including) `stop`.
+
+```python
+for i in range(5):
+    print(i)
+```
+
+```
+0
+1
+2
+3
+4
+```
+
+Notice: `range(5)` gives you five numbers starting at `0`. The stop value is **not included** — this is the same "half-open interval" convention you'll see everywhere in Python, from slicing to indexing.
+
+### range(start, stop)
+
+When you want to start somewhere other than zero:
+
+```python
+for i in range(1, 6):
+    print(i)  # 1, 2, 3, 4, 5
+```
+
+```
+1
+2
+3
+4
+5
+```
+
+Clean and readable — no `+ 1` hacks.
+
+### range(start, stop, step)
+
+The third argument controls the step — how much the sequence advances on each iteration.
+
+```python
+for i in range(0, 11, 2):
+    print(i)  # Even numbers from 0 to 10
+```
+
+```
+0
+2
+4
+6
+8
+10
+```
+
+A negative step lets you count backwards:
+
+```python
+for i in range(10, 0, -1):
+    print(i)  # Countdown from 10 to 1
+```
+
+```
+10
+9
+8
+7
+6
+5
+4
+3
+2
+1
+```
+
+Don't stress about memorizing all three forms right now. You'll use `range(n)` the vast majority of the time — "repeat this n times" covers most everyday cases. The rest you'll pick up as you go.
+
+## Iterating over other sequences
+
+`for` loops aren't limited to lists and ranges. They work with anything **iterable** — which, for now, you can read as "anything that has elements to loop through."
+
+Strings are iterable — each character is its own element:
+
+```python
+for char in "Python":
+    print(char)
+```
+
+```
+P
+y
+t
+h
+o
+n
+```
+
+You'll get a full introduction to lists in the next tutorial, but the pattern is exactly the same as you saw with the fruits example. The `for` loop is generic — it doesn't care whether you're going through characters, numbers, or anything else. The mechanism is always the same.
+
+## break: stop early
+
+Just like with `while`, you can cut a `for` loop short with `break`. The moment Python hits a `break`, it exits the loop immediately — no remaining elements are processed.
+
+```python
+numbers = [3, 7, 2, 9, 4, 6, 1]
+
+for number in numbers:
+    if number == 9:
+        print("Found 9, stopping.")
+        break   # No need to keep looking
+    print(number)
+```
+
+```
+3
+7
+2
+Found 9, stopping.
+```
+
+Once `break` fires, `4`, `6`, and `1` never get touched. If what you're looking for appears early in a long list, `break` saves you from processing the entire thing.
+
+Here's where it gets interesting: Python has an `else` clause for `for` loops. The `else` block runs only if the loop completed **without** hitting a `break`. If `break` fires, the `else` is skipped entirely:
+
+```python
+emails = ["user@example.com", "admin@site.com", "support@company.com"]
+target = "another@email.com"
+
+for email in emails:
+    if email == target:
+        print("Email found.")
+        break
+else:
+    print("Email not found in the list.")  # Only runs if no break occurred
+```
+
+```
+Email not found in the list.
+```
+
+If you've used other languages and this `for-else` pattern feels strange — you're not alone. It surprises most people the first time. But once it clicks, it's genuinely useful for "search and report" scenarios where you want different behavior depending on whether the search succeeded.
+
+## Nested loops: a for inside a for
+
+You can put a `for` inside another `for`. For every iteration of the outer loop, the inner loop runs completely through all of its iterations before the outer loop moves on.
+
+```python
+for row in range(1, 4):
+    for col in range(1, 4):
+        print(f"({row},{col})", end=" ")  # Print on same line
+    print()  # New line after each row
+```
+
+```
+(1,1) (1,2) (1,3) 
+(2,1) (2,2) (2,3) 
+(3,1) (3,2) (3,3) 
+```
+
+The outer loop handles rows; the inner loop handles columns. A multiplication table is the classic example:
+
+```python
+for i in range(1, 6):
+    for j in range(1, 6):
+        result = i * j
+        print(f"{result:3}", end="")  # Right-align in 3 chars
+    print()
+```
+
+```
+  1  2  3  4  5
+  2  4  6  8 10
+  3  6  9 12 15
+  4  8 12 16 20
+  5 10 15 20 25
+```
+
+Nested loops work well for two-dimensional structures: tables, grids, coordinate pairs. One thing to keep in mind: the operations **multiply**. A loop of 100 inside a loop of 100 is 10,000 total operations. Add a third loop of 100 and you're at 1,000,000. Two levels of nesting is fine; three levels is usually a sign to rethink the approach.
+
+## for vs while: the definitive breakdown
+
+| Situation | Use |
+|-----------|-----|
+| You know how many times to repeat | `for` |
+| You have a sequence to iterate over | `for` |
+| Reading a file from start to finish | `for` |
+| Iterating over a list, string, or range | `for` |
+| The stopping condition depends on external input | `while` |
+| Waiting for valid user input | `while` |
+| A game that runs until the player loses | `while` |
+| Retry loops with unpredictable timing | `while` |
+
+In practice, you'll reach for `for` far more often than `while`. Most iteration in Python has a concrete sequence to go through, and `for` handles it more clearly and directly than managing the loop yourself.
+
+---
+
+With `for` and `range()` in your toolkit, you can iterate over any sequence without tracking a counter. The natural next step is having something interesting to iterate over: in the next tutorial you'll learn about **lists** — Python's most versatile data structure — including how to create them, access elements by index, and combine them with everything you've learned so far.
+
+Never stop coding!
+
+---
+
+**💡 Challenge**: Write a program that generates and prints the multiplication tables from 1 to 10, formatted so each result takes the same amount of space (try `f"{result:4}"` for alignment). Bonus: ask the user to enter a number between 1 and 10 and show only that table — with the option to request another one until they decide to quit.
