@@ -1,0 +1,139 @@
+---
+title: "El panorama de los modelos de IA en 2026: quién es quién y cuál usar"
+post_slug: "el-panorama-de-los-modelos-de-ia-en-2026"
+date: "2026-04-30"
+excerpt: "Claude, GPT, Gemini, Copilot, Cursor, OpenCode — demasiados nombres para elegir. Aquí tienes el mapa: qué hace cada uno, en qué se diferencian la API y la suscripción, y por dónde empezar."
+language: "es"
+categories: ["ia"]
+course: "ia-para-programadores"
+order: 5
+cover: "/images/tutorials/cabecera-ia-para-programadores-curso.jpg"
+i18n: "the-ai-model-landscape-2026"
+---
+
+Antes de empezar: este tutorial envejecerá mal. No el concepto — el concepto aguanta. Pero los nombres, los precios, los rankings específicos... el panorama de los modelos de IA cambia tan rápido que cualquier tabla comparativa tiene fecha de caducidad. Lo que hoy es el mejor modelo para código puede ser la segunda opción el próximo trimestre, y el que ahora mismo parece caro puede ser el más razonable cuando lo estés leyendo.
+
+Dicho eso: el **mapa mental** para navegar este paisaje no cambia. Qué preguntas hacerte al elegir un modelo, cómo funciona la diferencia entre API y suscripción, qué significa "ventana de contexto" en la práctica real y no en un paper — eso sí es estable. Con ese mapa, puedes actualizarte solo cuando el panorama cambie. Y cambiará.
+
+## Los modelos frontera: los tres grandes
+
+Los **modelos frontera** son los más capaces de cada momento. En 2026, la competencia se concentra en tres:
+
+**Claude Sonnet 4.6 (Anthropic)** es el modelo que usarás a lo largo de este curso, y la referencia actual para tareas de código. Junto con Opus 4.7, tiene una ventana de contexto de **1M tokens disponible a precio estándar** — sin headers especiales, sin plan premium requerido. Destaca en razonamiento sostenido, escritura técnica y seguimiento de instrucciones complejas con precisión. Sonnet 4.6 es el equilibrio entre velocidad y calidad; Opus 4.7 es más potente pero más lento y caro.
+
+**GPT-5.4 (OpenAI)** — lanzado en marzo de 2026 — es el primer modelo de propósito general con **computer use nativo**: puede operar interfaces de escritorio y ejecutar flujos de trabajo complejos entre aplicaciones. Llega al millón de tokens de contexto, incorpora las capacidades de código de GPT-5.3-Codex, y viene en múltiples variantes — Thinking, Pro, mini (tier gratuito) y nano (solo API) — lo que lo convierte en el más accesible de los tres. Recientemente ha sido lanzado GPT-5.5, con mejoras en velocidad y razonamiento.
+
+OpenAI mantiene además la familia **Codex** como línea separada: GPT-5.3-Codex está optimizado para ingeniería de software agentic compleja y lidera benchmarks como SWE-Bench Pro; GPT-5.3-Codex-Spark es su variante ultrarrápida, diseñada para respuesta en tiempo real. No son siempre la mejor opción — para razonamiento general o tareas mixtas, GPT-5.4 suele cubrir mejor el territorio — pero si tu caso de uso es engineering agentic intensivo, vale la pena conocerlos.
+
+**Gemini 3.1 Pro (Google)** — lanzado en febrero de 2026 — tiene 1M tokens de contexto y un rendimiento destacado en benchmarks de razonamiento complejo: 77.1% en ARC-AGI-2, que mide la capacidad de resolver patrones lógicos completamente nuevos. Su ventaja natural sigue siendo la integración con el ecosistema de Google — Workspace, Cloud, Android, NotebookLM. Para proyectos que ya viven en Google Cloud, es difícil ignorarlo.
+
+La pregunta "¿cuál es el mejor?" tiene respuesta fácil y respuesta honesta. La fácil: Claude. La honesta: depende de la tarea, cambia cada pocos meses, y los benchmarks que se publican con fanfarria un viernes suelen estar desactualizados antes de que alguien los cite en serio el lunes siguiente. La diferencia real entre los tres en el día a día es menor de lo que esas tablas sugieren.
+
+Hay algo más contraintuitivo que vale la pena decir aquí: para el trabajo diario, la **herramienta** que envuelve al modelo importa más que el propio modelo. Copilot con GPT-4o integrado en tu editor puede ser más productivo que Claude sin integración, aunque Claude sea técnicamente superior en el benchmark que más te guste. Llegaremos a eso en la siguiente sección.
+
+## Los modelos especializados para código
+
+Además de los modelos frontera, hay herramientas diseñadas específicamente para el flujo de trabajo de desarrollo. La distinción importante: no son modelos en sí mismos — son **interfaces y asistentes** que utilizan modelos frontera por debajo.
+
+**GitHub Copilot** — y en particular su plan **Pro+** — es la opción con mayor variedad de modelos disponibles dentro de un solo entorno. Puedes alternar entre Claude Sonnet 4.6, GPT-5.3-Codex, Gemini 3 Pro y otros directamente desde el chat, sin cambiar de herramienta. La integración en VS Code y JetBrains es la más madura del mercado, con un agente autónomo que puede editar archivos, ejecutar comandos e iterar sobre errores sin intervención manual.
+
+Su punto flaco es el contexto: el límite nativo es de 128K tokens, bastante por debajo del millón de los modelos frontera. El modo Workspace compensa esto con indexación RAG de tu codebase, pero no es lo mismo que coherencia real en un contexto largo. Si necesitas sesiones largas con mucho código en vuelo, Cursor o OpenCode tienen ventaja aquí. Si lo que más valoras es la variedad de modelos y la integración profunda con el editor, Copilot Pro+ es difícil de batir.
+
+**Cursor** es un editor completo (fork de VS Code) con IA integrada en el flujo de edición. Permite hablar con el editor sobre el código, hacer cambios en múltiples archivos desde una instrucción, y revisar diffs antes de aplicar. Es más agresivo que Copilot — no autocompleta, dialoga. Si el flujo te encaja, es difícil volver atrás.
+
+**OpenCode** es el agente de terminal que usarás en este curso a partir del módulo 3. A diferencia de Copilot o Cursor, no tiene suscripción mensual propia — se conecta a los proveedores que elijas, ya sea con tu cuenta existente (haciendo login) o con una clave de API. OpenCode orquesta; el modelo lo pone quien ya tienes contratado.
+
+Para empezar sin gastar nada, OpenCode incluye 8 modelos gratuitos a través de su servicio Zen (solo disponibles desde la CLI): modelos principalmente chinos — MiniMax, GLM, Kimi — que permiten explorar la herramienta sin tarjeta. Tienen limitaciones reales en velocidad, razonamiento y contexto; son un punto de partida, no un sustituto de los modelos frontera.
+
+Por otro lado, tienes OpenCode Go, que por $5 el primer mes y $10/mes después, te da acceso a un conjunto curado de modelos de calidad chinos — versiones más recientes de los anteriormente mencionados y otros más — con límites basados en consumo bastante generosos. Es una opción intermedia para quienes quieren más potencia y más tiempo de uso que los modelos gratuitos de OpenCode Zen pero no meterse en planes más caros de los modelos frontera.
+
+Cuando quieras más potencia, tienes varias vías:
+
+- **Login con tu cuenta del proveedor**: si ya tienes suscripción con OpenAI, Google u otros, puedes usarla directamente desde OpenCode — igual que desde su web o app oficial.
+- **OpenCode Zen** (pay-as-you-go): acceso por tokens sin margen — solo repercuten el coste de transacción de la tarjeta.
+- **Tu propia clave de API**: conectas directamente con el proveedor que prefieras.
+
+Un detalle importante: **Anthropic es la excepción**. Ha prohibido expresamente el uso de sus planes de suscripción mensual (Claude Pro) con herramientas de terceros como OpenCode — solo permite acceso vía API de pago. Esto no es una limitación de OpenCode, sino una decisión unilateral de Anthropic que podría repetirse con otros proveedores en el futuro; mejor tenerlo en mente desde el principio.
+
+Todo lo que os cuento en estas dos últimas secciones — los mejores modelos, los precios, etc — seguirá siendo cierto en términos generales, pero los nombres específicos de los modelos y sus precios pueden cambiar. Lo importante es entender el mapa mental: qué hace cada tipo de modelo, qué diferencia hay entre API y suscripción, y cómo elegir la herramienta que mejor encaja con tu flujo de trabajo.
+
+### El ecosistema CLI y los plugins de editor
+
+OpenCode no es el único agente de terminal. Las principales compañías tienen sus propias herramientas CLI que funcionan de forma muy similar — misma filosofía, mismo acceso desde la línea de comandos:
+
+- **Claude Code** (Anthropic): el CLI oficial de Anthropic, con plugin para VS Code ya disponible y especialmente bien integrado.
+- **Codex CLI** (OpenAI): el agente de terminal de OpenAI, orientado a tareas de ingeniería de software intensiva.
+- **Copilot CLI** (GitHub): la extensión de terminal de GitHub Copilot.
+
+En este curso usaremos OpenCode como referencia para no multiplicar los ejemplos con cada herramienta, pero el modelo mental que aprenderás aplica a todas ellas por igual.
+
+Para quienes prefieren no abrir una ventana de terminal separada: todos los editores de código tienen una **terminal embebida**. Si no existe todavía un plugin específico para tu herramienta preferida — o si no está tan bien integrado como el de Claude Code para VS Code —, ejecutar el agente desde esa terminal embebida funciona sin problemas.
+
+Si has intentado responder la pregunta "¿qué herramienta de IA usas para programar?" sin necesitar treinta segundos de preámbulo, estás en una minoría. No es ignorancia — es que la frontera entre estas herramientas se mueve más rápido de lo que nadie puede estar al día, y las propias herramientas cambian de modelo subyacente cada pocos meses sin anunciarlo demasiado. La elección real no es tanto "cuál es mejor" como "en qué punto de tu flujo quieres que la IA aparezca."
+
+## API o suscripción: la diferencia que importa
+
+Hay dos formas de acceder a los modelos, y la confusión entre ellas es más común de lo que parece — en parte porque los propios proveedores usan los mismos nombres para cosas distintas según el contexto. Si nunca lo tuviste del todo claro, no es un problema tuyo.
+
+**La suscripción** (ChatGPT Plus, Claude Pro, Gemini Advanced) es acceso a tarifa plana: pagas un fijo mensual y puedes usar el modelo desde la web o la app del proveedor, desde sus herramientas propias (CLI, desktop, plugins para editores), y en la mayoría de los casos también desde herramientas de terceros como OpenCode haciendo login con tu cuenta. Tiene límites de uso —tokens por día, requests por semana, dependiendo del proveedor— y cuando los alcanzas, el acceso se corta hasta que se reinicia el contador. La ventaja es la previsibilidad: sabes exactamente cuánto pagarás este mes.
+
+**La API** es acceso programático de pago por consumo: recibes una clave, llamas al modelo desde tu código o desde cualquier integración que necesites construir. Pagas por los tokens que envías y los que recibes, no por el tiempo. También tiene rate limits —por minuto u hora, según el proveedor y el tier—, pero no hay un techo mensual fijo: si consumes mucho, pagas mucho. El coste es variable y, dependiendo del uso, puede superar con creces lo que costaría una suscripción.
+
+La diferencia real, entonces, no es "básico vs. avanzado" ni "para la web vs. para herramientas" — es coste fijo y predecible frente a coste variable sin techo. La API es necesaria cuando quieres construir una aplicación propia con funcionalidades de IA, o cuando el proveedor no permite usar tu suscripción con herramientas de terceros (el caso de Anthropic, como ya vimos). Para todo lo demás, con una suscripción llegas lejos.
+
+¿Necesitas la API de pago para aprender con este curso? Spoiler: no. Los módulos iniciales usan la interfaz web, que está cubierta con la suscripción gratuita o básica. La API entra cuando lleguemos a OpenCode — y en ese momento, el uso típico de aprendizaje cuesta menos de lo que parece.
+
+## La ventana de contexto: más allá del número
+
+Todos los modelos anuncian su ventana de contexto en tokens. Los tres grandes — Claude 4.6, GPT-5.4 y Gemini 3.1 Pro — llegan al millón. El número suena impresionante.
+
+Pies en la tierra: la ventana de contexto es la cantidad de información que el modelo puede "ver" en una sola conversación — tu mensaje, el historial de mensajes anteriores, y cualquier archivo o código que hayas adjuntado. Todo junto.
+
+200k tokens suena a mucho. En la práctica, son unas 150.000 palabras o unos 600KB de código. Suficiente para pegar un codebase completo de tamaño mediano. Para responder una pregunta puntual sobre una función, te sobran 2.000.
+
+Lo que importa no es el número máximo sino dos cosas: primero, si el modelo **mantiene coherencia** a lo largo de un contexto largo (no todos lo hacen igual de bien). Segundo, cómo gestiona el **coste** cuando el contexto crece — porque en la API pagas por tokens de entrada también, y una conversación larga con mucho código adjunto puede consumir presupuesto rápido.
+
+## Los rate limits y cómo afectan al flujo real
+
+Los **rate limits** son los límites que los proveedores ponen al número de peticiones o tokens que puedes enviar por minuto, hora o día. Varían según el plan y el proveedor.
+
+En la práctica, para aprendizaje no los notarás. El rate limit se convierte en un problema real cuando:
+
+- Usas la API en producción con múltiples usuarios simultáneos
+- Tienes un proceso automatizado que hace muchas llamadas seguidas
+- Estás en el tier gratuito durante una sesión de trabajo intensa
+
+La señal de que has alcanzado un rate limit suele ser un error `429 Too Many Requests`. Si lo ves, la solución es esperar unos minutos o subir de plan. No pasa nada — no es un error de tu código.
+
+## Cuánto cuesta realmente
+
+Ya te lo digo yo: para aprender, el coste es irrelevante. La mayoría de los modelos tienen un tier gratuito que cubre perfectamente las primeras semanas de uso. Claude.ai tiene un free tier. ChatGPT tiene un free tier. Las suscripciones básicas rondan los 20€/mes.
+
+La API es donde el coste se vuelve variable — y la variación puede sorprender la primera vez que ves la factura de una sesión de debugging de tarde larga. Los precios se miden en **dólares por millón de tokens**. En 2026, Claude Sonnet está alrededor de $3 por millón de tokens de entrada y $15 por millón de tokens de salida. GPT-5.4 en rangos similares.
+
+¿Qué significa eso en la práctica? Una sesión de trabajo típica con OpenCode — unas horas de trabajo con idas y vueltas, código adjunto, contexto del proyecto — puede costar entre $0.50 y $3. Una sesión intensa con un codebase grande y muchas iteraciones puede llegar a $10. Para uso diario de aprendizaje, la cifra mensual suele estar entre $5 y $20.
+
+El consejo práctico: pon un límite de gasto en tu cuenta de API desde el primer día. Todos los proveedores permiten configurarlo. No porque vayas a gastar sin darte cuenta, sino porque la tranquilidad de saber que hay un techo merece los 30 segundos que tarda configurarlo.
+
+## Por dónde empezar
+
+Con todo esto encima de la mesa, la pregunta real es: ¿qué hago yo ahora?
+
+La respuesta depende de dónde estés:
+
+| Situación | Recomendación |
+|-----------|---------------|
+| Acabas de descubrir esto | Claude.ai gratis — sin configuración, sin coste, directo al grano |
+| Quieres probar varios modelos sin salir del editor | GitHub Copilot Pro+ (mayor variedad de modelos) |
+| Quieres el flujo más integrado en el editor | Cursor (prueba gratis disponible) |
+| Necesitas sesiones largas con contexto amplio | OpenCode o Cursor (1M tokens reales, no RAG) |
+| Sigues este curso hasta el módulo 3 | Claude.ai hasta entonces, luego OpenCode |
+| Ya tienes cuenta y quieres empezar con la API | Claude API con límite de gasto configurado |
+
+No hace falta elegir uno para siempre. La mayoría de los desarrolladores que llevan tiempo con estas herramientas usan dos o tres según el contexto — la interfaz web para exploración rápida, una herramienta de editor para autocompletado, y un agente de terminal para tareas que requieren acceso a archivos y comandos.
+
+---
+
+Ya tienes el mapa. Sabes quiénes son los jugadores, qué diferencia hay entre un modelo y una herramienta, cuándo la API tiene sentido, y cómo pensar en el coste sin que sea un freno. En el próximo tutorial exploramos las **primeras conversaciones reales con IA**: cómo estructurar un prompt de código, qué contexto dar, y cómo evaluar si lo que te devuelve merece confianza antes de pegarlo en tu proyecto.
+
+¡Nunca dejes de programar!

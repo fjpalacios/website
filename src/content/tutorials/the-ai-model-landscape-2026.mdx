@@ -1,0 +1,137 @@
+---
+title: "The AI Model Landscape in 2026: who's who and where to start"
+post_slug: "the-ai-model-landscape-2026"
+date: "2026-04-30"
+excerpt: "Claude, GPT, Gemini, Copilot, Cursor, OpenCode — too many names to choose from. Here's the map: what each one does, how API and subscription differ, and where to actually start."
+language: "en"
+categories: ["ai"]
+course: "ai-for-developers"
+order: 5
+cover: "/images/tutorials/cabecera-ia-para-programadores-curso.jpg"
+i18n: "el-panorama-de-los-modelos-de-ia-en-2026"
+---
+
+Let me be upfront about something: this tutorial will age badly. Not the concepts — those hold. But the specific names, the price points, the rankings — the AI model landscape moves fast enough that any comparison table has an expiration date. What's the best model for code today might be second place next quarter. The one that seems expensive now might be the obvious choice by the time you're reading this.
+
+That said: the **mental model** for navigating this landscape doesn't expire. What questions to ask when choosing a model, how API access differs from a subscription, what "context window" actually means on a regular Tuesday — that's stable. With the right map, you can update yourself when things change. And they will.
+
+## The frontier models: the big three
+
+**Frontier models** are the most capable models at any given moment. In 2026, the competition comes down to three:
+
+**Claude Sonnet 4.6 (Anthropic)** is the model you'll be using throughout this course, and the current benchmark for coding tasks. Together with Opus 4.7, it ships with a **1M token context window at standard pricing** — no special headers, no premium plan required. It stands out for sustained reasoning, precise technical writing, and following complex multi-step instructions. Sonnet 4.6 is the speed-quality balance; Opus 4.7 is more powerful but slower and more expensive.
+
+**GPT-5.4 (OpenAI)** — released March 2026 — is the first general-purpose model with **native computer use**: it can operate desktop interfaces and execute complex workflows across applications. It reaches 1M tokens of context, incorporates the coding capabilities of GPT-5.3-Codex, and comes in multiple variants — Thinking, Pro, mini (free tier), and nano (API-only) — making it the most accessible of the three. Recently, GPT-5.5 has been released, with improvements in speed and reasoning.
+
+OpenAI also maintains the **Codex** family as a separate line: GPT-5.3-Codex is optimized for complex agentic software engineering and leads benchmarks like SWE-Bench Pro; GPT-5.3-Codex-Spark is its ultra-fast variant, designed for real-time response. They're not always the best choice — for general reasoning or mixed tasks, GPT-5.4 covers more ground — but if your use case is intensive agentic engineering, they're worth knowing about.
+
+**Gemini 3.1 Pro (Google)** — released February 2026 — has a 1M token context window and strong performance on complex reasoning benchmarks: 77.1% on ARC-AGI-2, which measures the ability to solve entirely new logical patterns. Its natural advantage remains Google ecosystem integration — Workspace, Cloud, Android, NotebookLM. For projects already living in Google Cloud, it's hard to ignore.
+
+The "which is best?" question has an easy answer and an honest one. Easy: Claude. Honest: it depends on the task, changes every few months, and benchmarks published with great fanfare on a Friday tend to be outdated before anyone seriously cites them the following Monday. The real practical difference between all three in day-to-day use is smaller than those leaderboards suggest.
+
+There's also something counterintuitive worth naming: for everyday work, the **tool** wrapping the model matters more than the model itself. Copilot with GPT-4o integrated directly into your editor can be more productive than Claude with no integration, even if Claude outperforms it on whatever benchmark you prefer. More on that in the next section.
+
+## Specialized coding tools
+
+Beyond the frontier models, there are tools built specifically for development workflows. The key distinction: these aren't models — they're **interfaces and assistants** that use frontier models under the hood.
+
+**GitHub Copilot** — specifically its **Pro+** plan — is the option with the widest model roster inside a single environment. You can switch between Claude Sonnet 4.6, GPT-5.3-Codex, Gemini 3 Pro, and others directly from the chat interface, without changing tools. The VS Code and JetBrains integration is the most mature on the market, with an autonomous agent that can edit files, run terminal commands, and iterate on errors without manual intervention.
+
+Its weak point is context: the native limit is 128K tokens, well below the 1M of the frontier models. Workspace mode partially compensates with RAG indexing of your codebase, but that's not the same as real coherence across a long context window. If you need long sessions with a lot of code in flight, Cursor or OpenCode have the edge. If you value model variety and deep editor integration, Copilot Pro+ is hard to beat.
+
+**Cursor** is a full editor (a VS Code fork) with AI woven into the editing flow. You talk to it about your code, make changes across multiple files from a single instruction, and review diffs before applying. It's more assertive than Copilot — it doesn't just complete, it collaborates. If the workflow clicks for you, going back feels like a downgrade.
+
+**OpenCode** is the terminal agent you'll use from Module 3 onward in this course. Unlike Copilot or Cursor, it has no monthly subscription of its own — it connects to whichever providers you choose, either by logging into your existing account or by supplying an API key. OpenCode orchestrates; the model comes from whoever you already have a contract with.
+
+To get started without spending anything, OpenCode includes 8 free models through its Zen service (CLI-only): mainly Chinese models — MiniMax, GLM, Kimi — that let you explore the tool without a credit card. They have real limitations in speed, reasoning, and context; they're a starting point, not a substitute for frontier models.
+
+On the other hand, there’s OpenCode Go, which, for $5 in the first month and $10 a month thereafter, gives you access to a curated selection of high-quality Chinese models — the latest versions of those mentioned above and others — with fairly generous usage-based limits. It’s a middle-of-the-road option for those who want more power and longer usage time than the free OpenCode Zen models offer, but don’t want to commit to the more expensive plans for the Frontier models.
+
+When you want more power, you have several paths:
+
+- **Log in with your provider account**: if you already have a subscription with OpenAI, Google, or others, you can use it directly from OpenCode — the same way you would from their web interface or official app.
+- **OpenCode Zen** (pay-as-you-go): token access with no markup — you pay only the card transaction cost on top of the provider's price.
+- **Your own API key**: connect directly to whichever provider you prefer.
+
+One important exception: **Anthropic**. It has explicitly banned the use of its monthly subscription plans (Claude Pro) with third-party tools like OpenCode — API access only. This isn't an OpenCode limitation — it's a unilateral Anthropic policy decision that could be repeated by other providers; worth keeping in mind from the start.
+
+Everything I’ve told you in these last two sections — the best models, prices, etc. — will generally still hold true, but the specific model names and their prices may change. The important thing is to understand the big picture: what each type of model does, the difference between API and subscription, and how to choose the tool that best suits your workflow.
+
+### The CLI ecosystem and editor plugins
+
+OpenCode isn't the only terminal agent. The major AI companies have their own CLI tools that work very similarly — same philosophy, same command-line access:
+
+- **Claude Code** (Anthropic): Anthropic's official CLI, with a VS Code plugin already available and especially well integrated.
+- **Codex CLI** (OpenAI): OpenAI's terminal agent, focused on intensive software engineering tasks.
+- **Copilot CLI** (GitHub): GitHub Copilot's terminal extension.
+
+This course uses OpenCode as the reference to avoid multiplying examples across every tool, but the mental model you'll build applies equally to all of them.
+
+For those who'd rather not open a separate terminal window: every code editor has an **embedded terminal**. If a specific plugin doesn't exist yet for your preferred tool — or isn't as well-integrated as Claude Code's VS Code plugin — running the agent from that embedded terminal works without issues.
+
+Try answering "which AI tool do you use for coding?" without a thirty-second preamble. It's harder than it sounds — not because you don't know, but because the boundary between these tools shifts faster than anyone can track, and the underlying model a given tool uses quietly changes every few months anyway. The real question isn't "which is better" but "at which point in your workflow do you want AI to show up."
+
+## API or subscription: the difference that matters
+
+There are two ways to access these models, and the confusion between them is more common than you'd expect — partly because providers use the same product names to mean different things depending on context. If this has never been fully clear to you, that's not a gap in your knowledge; it's a gap in how the industry communicates.
+
+**A subscription** (Claude Pro, ChatGPT Plus, Gemini Advanced) is flat-rate access: fixed monthly fee, and you can use the model from the provider's web interface or app, from their own tools (CLI, desktop, editor plugins), and in most cases from third-party tools like OpenCode by logging into your account. It has usage limits — tokens per day, requests per week, depending on the provider — and when you hit them, access is cut off until the counter resets. The upside is predictability: you know exactly what you'll pay this month.
+
+**The API** is programmatic, pay-per-use access: you get a key and call the model from your code or from whatever integration you need to build. You pay for the tokens you send and the tokens you receive, not for time. Rate limits still exist — per minute or per hour, depending on provider and tier — but there's no fixed monthly ceiling: consume more, pay more. The cost is variable, and depending on usage, it can easily exceed what a subscription would have cost.
+
+The real distinction, then, isn't "basic vs. advanced" or "for the web vs. for tools" — it's predictable fixed cost versus variable, uncapped cost. The API is necessary when you want to build your own application with AI capabilities, or when a provider doesn't allow using your subscription with third-party tools (Anthropic's case, as we saw). For everything else, a subscription gets you far.
+
+Do you need the paid API to follow this course? Spoiler: you don't. The early modules use the web interface, covered by the free or basic subscription tier. The API comes in when we reach OpenCode — and at that point, typical learning usage costs less than you'd expect.
+
+## The context window: beyond the number
+
+Every model advertises its context window in tokens. All three frontier models — Claude 4.6, GPT-5.4, and Gemini 3.1 Pro — now reach one million. The number sounds impressive.
+
+Reality check: the context window is how much information the model can "see" in a single conversation — your message, the conversation history, and any files or code you've attached. Everything together.
+
+200k tokens sounds like a lot. In practice, that's roughly 150,000 words or about 600KB of code. Enough to paste an entire medium-sized codebase. For answering a quick question about one function, 2,000 tokens is plenty.
+
+What actually matters isn't the maximum number — it's two things. First, whether the model **maintains coherence** across a long context (not all models do this equally well). Second, how **cost scales** as the context grows, because in the API you pay for input tokens too. A long conversation with a large codebase attached can burn through budget faster than expected.
+
+## Rate limits and how they affect real work
+
+**Rate limits** are the caps providers put on how many requests or tokens you can send per minute, hour, or day. They vary by plan and provider.
+
+For learning purposes, you won't notice them. Rate limits become a real problem when:
+
+- You're running the API in production with multiple simultaneous users
+- You have an automated process making many calls in sequence
+- You're on the free tier during a heavy working session
+
+The signal that you've hit a rate limit is usually a `429 Too Many Requests` error. The fix: wait a few minutes or upgrade your plan. It's not a code error — it's a usage cap.
+
+## What this actually costs
+
+I'll save you the deliberation: for learning, cost is essentially a non-issue. Most models have free tiers that comfortably cover the first few weeks of use. Claude.ai has a free tier. ChatGPT has a free tier. Basic subscriptions are around $20/month.
+
+The API is where cost becomes variable — and that variability can surprise you the first time you see the bill after an afternoon debugging session that went longer than planned. Pricing is measured in **dollars per million tokens**. In 2026, Claude Sonnet is around $3 per million input tokens and $15 per million output tokens. GPT-5.4 is in a similar range.
+
+What does that mean practically? A typical working session with OpenCode — a few hours of back-and-forth with code attached and project context — runs between $0.50 and $3. An intensive session with a large codebase and many iterations might reach $10. For daily learning use, the monthly total usually lands between $5 and $20.
+
+Practical advice: set a spending limit on your API account from day one. Every provider lets you configure this. Not because you'll accidentally spend a fortune, but because knowing there's a ceiling is worth the 30 seconds it takes to set it.
+
+## Where to actually start
+
+With all of this on the table, the real question is: what do I do right now?
+
+| Situation                                              | Recommendation                                            |
+| ------------------------------------------------------ | --------------------------------------------------------- |
+| Just discovered this                                   | Claude.ai free — no setup, no cost, straight to the point |
+| Want to try multiple models without leaving the editor | GitHub Copilot Pro+ (widest model roster)                 |
+| Want the most integrated editor experience             | Cursor (free trial available)                             |
+| Need long sessions with genuinely large context        | OpenCode or Cursor (real 1M tokens, not RAG)              |
+| Following this course through Module 3                 | Claude.ai until then, then OpenCode                       |
+| Ready to start with the API                            | Claude API with a spending limit configured               |
+
+You don't have to pick one forever. Most developers who've been working with these tools for a while use two or three depending on context — the web interface for quick exploration, an editor tool for autocomplete, and a terminal agent for tasks that need file access and command execution.
+
+---
+
+You now have the map. You know who the players are, how models differ from tools built on top of them, when the API makes sense, and how to think about cost without letting it become a blocker. In the next tutorial we get into **real conversations with AI**: how to structure a code prompt, what context to include, and how to evaluate the response before you commit it to your project.
+
+Never stop coding!
