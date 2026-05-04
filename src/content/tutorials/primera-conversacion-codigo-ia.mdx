@@ -1,0 +1,184 @@
+---
+title: "Tu primera conversación de código con IA"
+post_slug: "primera-conversacion-codigo-ia"
+date: "2026-05-04"
+excerpt: "La primera vez que usas IA para programar de verdad: cómo estructurar la conversación, qué esperar de las respuestas y el proceso de evaluación que separa el código útil del que solo lo parece."
+language: "es"
+categories: ["ia"]
+course: "ia-para-programadores"
+order: 6
+cover: "/images/tutorials/cabecera-ia-para-programadores-curso.jpg"
+i18n: "your-first-code-conversation-with-ai"
+---
+
+Tienes el chat abierto. La IA espera. Y entonces te bloqueas.
+
+No porque no sepas lo que quieres preguntar — sabes exactamente qué problema tienes. Te bloqueas porque de repente no sabes cómo *plantear* la pregunta. ¿Es demasiado vaga? ¿Demasiado larga? ¿Debería dar más contexto? ¿Menos? ¿Qué pasa si la respuesta no sirve?
+
+Hay una manera de salir de ese bloqueo: escribir cualquier cosa y mandarla. Esta primera conversación no tiene que ser perfecta. La perfección llega en el Módulo 2.
+
+## La diferencia fundamental: diálogo, no búsqueda
+
+Usar IA para código no es como buscar en Stack Overflow. En una búsqueda tienes una oportunidad: una consulta vaga devuelve resultados vagos y vuelves a empezar.
+
+Con la IA el modelo es diferente: es una **conversación**. Puedes empezar impreciso y afinar. Puedes preguntar por qué hizo algo de una forma determinada. Puedes decirle "esto no funciona" y continuar desde ahí. Puedes añadir contexto que olvidaste mencionar al principio. La IA recuerda todo lo que has dicho en esa sesión — no se resetea entre mensaje y mensaje.
+
+Eso cambia cómo tienes que pensar en esto. No es "tengo que hacer la pregunta perfecta de una vez". Es "voy a ir construyendo la respuesta con ella".
+
+## Configura tu primera sesión
+
+Si usas Claude, abre [claude.ai](https://claude.ai). El free tier cubre perfectamente estos primeros módulos: sin API key, sin terminal, sin configuración. Solo un campo de texto y un botón.
+
+¿Tienes que dominar el arte del prompt antes de empezar? No — eso es el Módulo 2. Para esta primera conversación, el único requisito es tener el chat abierto y una pregunta real.
+
+Una cosa que vale la pena entender desde el principio: **cada conversación es independiente**. La IA no recuerda nada de sesiones anteriores. Todo lo que vimos sobre hallucinations y context blindness aplica aquí: solo sabe lo que hay en *esta* conversación, nada más.
+
+## Experimento 1: pídele que explique algo
+
+Para tu primera sesión, trabaja en territorio conocido. No empieces pidiendo que construya algo desde cero — empieza pidiéndole que explique código que ya existe.
+
+Toma este fragmento de Python:
+
+```python
+numbers = [3, 1, 4, 1, 5, 9, 2, 6]
+result = sorted(numbers, key=lambda x: -x)[:3]
+```
+
+Y escribe algo como:
+
+```
+Explícame qué hace este código Python, línea por línea:
+
+numbers = [3, 1, 4, 1, 5, 9, 2, 6]
+result = sorted(numbers, key=lambda x: -x)[:3]
+```
+
+La primera respuesta llega en unos segundos, formateada, con la terminología correcta. Tu primer instinto puede ser: "¿ya?" Sí. Ahora viene la parte importante.
+
+¿La explicación tiene sentido? ¿Describe el mismo comportamiento que verías si ejecutaras el código? Ejecútalo:
+
+```python
+numbers = [3, 1, 4, 1, 5, 9, 2, 6]
+result = sorted(numbers, key=lambda x: -x)[:3]
+print(result)  # [9, 6, 5]
+```
+
+¿La explicación de la IA predecía ese output? Si sí — bien. Si no — eso es información útil sobre los límites de esa respuesta en concreto.
+
+Esto no es un examen a la IA. Es el proceso. Siempre: recibe la respuesta, entiéndela, verifica. En ese orden.
+
+## Experimento 2: pídele que arregle algo
+
+El segundo experimento es más cercano al uso real. Tienes código que no funciona. Se lo das a la IA.
+
+```python
+def calculate_average(numbers):
+    total = 0
+    for num in numbers:
+        total += num
+    return total / len(numbers)
+
+print(calculate_average([]))  # ZeroDivisionError
+```
+
+El bug es obvio con experiencia. Pero si eres nuevo, o si estás en medio de algo más grande y no tienes el foco para esto ahora mismo, la IA puede resolverlo en segundos:
+
+```
+Este código lanza ZeroDivisionError cuando la lista está vacía. ¿Cómo lo arreglo?
+
+def calculate_average(numbers):
+    total = 0
+    for num in numbers:
+        total += num
+    return total / len(numbers)
+```
+
+La respuesta va a proponer algo como:
+
+```python
+def calculate_average(numbers):
+    if not numbers:  # Handle empty list
+        return 0  # or None, or raise ValueError — depends on your use case
+    total = 0
+    for num in numbers:
+        total += num
+    return total / len(numbers)
+```
+
+Aquí hay algo que vale la pena notar: la IA probablemente te dé opciones — `return 0`, `return None`, `raise ValueError`. Eso es correcto. No sabe cuál encaja en tu proyecto. Esa decisión es tuya.
+
+Copiar código de la IA y pegarlo en tu editor genera una sensación concreta — no es confianza pura, es curiosidad mezclada con "espera, ¿esto está bien?". Esa tensión está bien. Lo que no está bien es ignorarla y hacer merge directamente. Lee el fix, entiende por qué funciona, elige la opción que se ajusta a tu contexto.
+
+## Experimento 3: pídele que genere algo
+
+El tercer experimento es el que más impresiona al principio — y el que más cuidado requiere. Darle a la IA una especificación y que genere código desde cero.
+
+Empieza con algo pequeño y verificable:
+
+```
+Escribe una función en Python que reciba una lista de strings y devuelva
+solo los que tienen más de 5 caracteres, en orden alfabético.
+Incluye un ejemplo de uso.
+```
+
+La respuesta va a ser algo como:
+
+```python
+def filter_and_sort_strings(strings):
+    # Filter strings longer than 5 characters, then sort alphabetically
+    return sorted([s for s in strings if len(s) > 5])
+
+# Example usage
+words = ["cat", "banana", "apple", "elephant", "fig", "mango"]
+result = filter_and_sort_strings(words)
+print(result)  # ['banana', 'elephant', 'mango']
+```
+
+Ejecuta el ejemplo. Verifica que el output es lo que esperabas. Después, prueba con tus propios casos:
+
+```python
+# What about empty strings?
+print(filter_and_sort_strings(["", "a", "hello world"]))  # ['hello world']
+
+# What about exactly 5 characters?
+print(filter_and_sort_strings(["exact", "longer"]))  # ['longer'] — "exact" tiene 5 chars, no > 5
+```
+
+¿El comportamiento en los edge cases tiene sentido para tu caso de uso? El código es correcto en abstracto. Si tú querías "5 o más caracteres" en vez de "más de 5", esa diferencia solo la puedes detectar tú — la IA implementó exactamente lo que pediste.
+
+Esa es la diferencia entre generación correcta y generación *adecuada*. La primera es tarea de la IA. La segunda es tuya.
+
+## El proceso de evaluación
+
+Después de cada respuesta — ya sea explicación, fix o generación — hay tres preguntas que hacerse antes de usar el código:
+
+**¿Funciona?** Ejecútalo. Un `AttributeError` o un `SyntaxError` inmediato es información: algo en la respuesta no es correcto. Un output inesperado también cuenta.
+
+**¿Lo entiendo?** Si no puedes explicar qué hace cada línea, no lo uses en producción. No porque la IA sea mala — sino porque el código que no entiendes es código que no puedes debuggear cuando algo vaya mal. Y algo siempre acaba yendo mal.
+
+**¿Encaja en mi contexto?** El código de la IA funciona en abstracto. Tu proyecto tiene convenciones, dependencias, restricciones. ¿La solución respeta eso? ¿O asume algo que no es cierto en tu caso?
+
+Estas tres preguntas son rápidas para los casos simples. Para un `sorted()` con un `key`, un vistazo basta. Para código de autenticación, validación, o lógica de negocio — son tres preguntas que se convierten en revisión seria.
+
+## El challenge: construye una calculadora
+
+Ya tienes las tres dinámicas: explicar, arreglar, generar. Ponlas en práctica juntas.
+
+**💡 Challenge:** Usa la IA para construir una calculadora simple en Python. Requisitos:
+
+- Acepta dos números y una operación (`+`, `-`, `*`, `/`)
+- Devuelve el resultado
+- Maneja la división entre cero
+- Incluye al menos un ejemplo de uso por operación
+
+Regla: verifica cada pieza de código que recibas antes de pedir la siguiente. No hagas copy-paste de toda la solución de golpe.
+
+Cuando termines, habrás completado tu primera conversación de código con IA de principio a fin.
+
+---
+
+Has usado la IA para explicar, arreglar y generar código. Sabes que el ciclo siempre tiene tres pasos: recibir, entender, verificar. Y has comprobado que la IA no toma las decisiones de contexto por ti — esas son tuyas.
+
+En el próximo tutorial arrancamos el **Módulo 2: Prompting Efectivo para Desarrolladores**. El primer tema es el framework RCTF — Rol, Contexto, Tarea, Formato — y la diferencia concreta entre un prompt que da lo que necesitas y uno que da algo plausible pero inútil.
+
+¡Nunca dejes de programar!

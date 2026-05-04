@@ -1,0 +1,181 @@
+---
+title: "Your First Code Conversation with AI"
+post_slug: "your-first-code-conversation-with-ai"
+date: "2026-05-04"
+excerpt: "The first time you use AI for real coding: how to structure the conversation, what to expect from responses, and the evaluation loop that separates code that works from code that just looks like it works."
+language: "en"
+categories: ["ai"]
+course: "ai-for-developers"
+order: 6
+cover: "/images/tutorials/cabecera-ia-para-programadores-curso.jpg"
+i18n: "primera-conversacion-codigo-ia"
+---
+
+The first real coding message you send to an AI is usually the wrong one. Too vague, missing half the context, not entirely sure what you're even asking for. You type something, look at it, delete it, rephrase, look at it again — and somehow the blank cursor feels more intimidating than any compiler error you've ever seen.
+
+Here's the thing: send it anyway. The first message doesn't need to be good. Getting the dialogue started is the work.
+
+## Dialogue, not search
+
+Using AI for code is not like searching Stack Overflow or querying a documentation site. With search, you get one shot — a vague query returns vague results and you start over. There's no back-and-forth, no way to clarify, no memory of what you tried before.
+
+With AI it works differently: it's a **conversation**. You can start imprecise and sharpen as you go. You can ask why it chose a particular approach. You can say "this doesn't work" and continue from there without repeating all the context. The model carries everything said in the current session — you're always building on what came before.
+
+That's the mental shift. Not "I need to formulate the perfect question." It's "I'll build toward the right answer together with it."
+
+## Setting up your first session
+
+If you're using Claude, open [claude.ai](https://claude.ai). The free tier covers everything in these first modules — no API key, no terminal, no configuration required. A text field and a send button.
+
+Do you need a well-crafted prompt before starting? No — Module 2 is entirely about that. For now, the only requirement is an open chat window and a real problem.
+
+One thing to understand from the start: **each conversation is independent**. The model has no memory of previous sessions. Everything we covered in earlier tutorials about hallucinations and context blindness applies here: it only knows what's in *this* conversation.
+
+## Experiment 1: ask it to explain something
+
+For your very first session, work in familiar territory. Don't start by asking it to build something from scratch — start by asking it to explain code that already exists.
+
+Take this Python snippet:
+
+```python
+numbers = [3, 1, 4, 1, 5, 9, 2, 6]
+result = sorted(numbers, key=lambda x: -x)[:3]
+```
+
+And write something like:
+
+```
+Explain what this Python code does, line by line:
+
+numbers = [3, 1, 4, 1, 5, 9, 2, 6]
+result = sorted(numbers, key=lambda x: -x)[:3]
+```
+
+The response comes back in a few seconds — formatted, technically precise, with clear explanations. Your first reaction might be: "that's it?" Yes. Now the important part starts.
+
+Does the explanation make sense? Does it describe the behavior you'd actually see if you ran the code? Run it:
+
+```python
+numbers = [3, 1, 4, 1, 5, 9, 2, 6]
+result = sorted(numbers, key=lambda x: -x)[:3]
+print(result)  # [9, 6, 5]
+```
+
+Did the explanation predict that output? If yes — good. If not — that's useful information about the limits of that particular response. Not a failure, just data.
+
+This isn't a test you're running on the AI. It's the process: receive, understand, verify. Always in that order.
+
+## Experiment 2: ask it to fix something
+
+The second experiment is closer to everyday use. You have broken code. You hand it to the AI.
+
+```python
+def calculate_average(numbers):
+    total = 0
+    for num in numbers:
+        total += num
+    return total / len(numbers)
+
+print(calculate_average([]))  # ZeroDivisionError
+```
+
+The bug is obvious if you have experience. But if you're new to Python, or you're in the middle of something larger and don't have the bandwidth for this right now, the AI can solve it in seconds:
+
+```
+This code throws ZeroDivisionError when the list is empty. How do I fix it?
+
+def calculate_average(numbers):
+    total = 0
+    for num in numbers:
+        total += num
+    return total / len(numbers)
+```
+
+The response will likely propose something like:
+
+```python
+def calculate_average(numbers):
+    if not numbers:  # Handle empty list
+        return 0  # or None, or raise ValueError — depends on your use case
+    total = 0
+    for num in numbers:
+        total += num
+    return total / len(numbers)
+```
+
+Notice: the AI will probably give you options — `return 0`, `return None`, `raise ValueError`. That's not hedging, it's accurate. It doesn't know which behavior fits your project. That decision belongs to you.
+
+There's a specific feeling that comes with pasting AI-generated code into your editor — not quite confidence, not quite skepticism. Somewhere in between. That feeling is correct. It means you're thinking, not just copying. Don't override it. Read the fix, understand why it works, pick the option that matches your actual requirements.
+
+## Experiment 3: ask it to generate something
+
+The third experiment is the one that impresses you first — and the one that requires the most care. Give the AI a specification and watch it write code from scratch.
+
+Start with something small and verifiable:
+
+```
+Write a Python function that takes a list of strings and returns only those
+longer than 5 characters, sorted alphabetically. Include a usage example.
+```
+
+The response will be something like:
+
+```python
+def filter_and_sort_strings(strings):
+    # Filter strings longer than 5 characters, then sort alphabetically
+    return sorted([s for s in strings if len(s) > 5])
+
+# Example usage
+words = ["cat", "banana", "apple", "elephant", "fig", "mango"]
+result = filter_and_sort_strings(words)
+print(result)  # ['banana', 'elephant', 'mango']
+```
+
+Run the example. Verify the output matches what you expected. Then test with your own cases:
+
+```python
+# What about empty strings?
+print(filter_and_sort_strings(["", "a", "hello world"]))  # ['hello world']
+
+# What about exactly 5 characters?
+print(filter_and_sort_strings(["exact", "longer"]))  # ['longer'] — "exact" is 5 chars, not > 5
+```
+
+Does the behavior on edge cases match your use case? The code is correct in the abstract. If you wanted "5 or more characters" instead of "more than 5", that difference is yours to catch — the AI implemented exactly what you asked for, not necessarily what you meant.
+
+That gap — between correct generation and *appropriate* generation — is the one that bites you in production. The first is the AI's job. The second is yours.
+
+## The evaluation loop
+
+After every response — explanation, fix, or generated code — three questions before you use it:
+
+**Does it run?** Execute it. An immediate `AttributeError` or `SyntaxError` is data: something in the response isn't right. Unexpected output is also data.
+
+**Do I understand it?** If you can't explain what each line does, don't merge it. Not because the AI is unreliable — because code you don't understand is code you can't debug when things go wrong. And things always go wrong eventually.
+
+**Does it fit my context?** AI-generated code works in the abstract. Your project has conventions, dependencies, constraints. Does the solution respect them? Or does it assume something that isn't true in your system?
+
+These questions are fast for simple cases. For a `sorted()` with a custom key, a glance is enough. For authentication code, data validation, or business logic — these become a real review, not a quick skim.
+
+## The challenge: build a calculator
+
+You've seen the three dynamics — explain, fix, generate. Now combine them.
+
+**💡 Challenge:** Use AI to build a simple Python calculator. Requirements:
+
+- Accept two numbers and an operation (`+`, `-`, `*`, `/`)
+- Return the result
+- Handle division by zero gracefully
+- Include at least one usage example per operation
+
+One rule: verify each piece of code you receive before asking for the next one. Don't paste the entire solution in a single shot.
+
+When you're done, you'll have completed your first end-to-end AI-assisted coding session.
+
+---
+
+You've used the AI to explain, fix, and generate code. The cycle is three steps: receive, understand, verify. And you've seen directly that the AI doesn't make context decisions for you — those belong to you.
+
+In the next tutorial, we start **Module 2: Effective Prompting for Developers**. First topic: the RCTF framework — Role, Context, Task, Format — the concrete difference between a prompt that gets what you need and one that returns something plausible but not useful.
+
+Never stop coding!
