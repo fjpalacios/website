@@ -289,6 +289,16 @@ export const shelf: ShelfData = {
     { title: "El hobbit", author: "J. R. R. Tolkien", sortName: "Tolkien, J. R. R." },
     { title: "El Silmarillion", author: "J. R. R. Tolkien", sortName: "Tolkien, J. R. R." },
     { title: "Los hijos de Húrin", author: "J. R. R. Tolkien", sortName: "Tolkien, J. R. R." },
+    { title: "Las leyendas del anillo de Tolkien", author: "David Day", sortName: "Day, David" },
+    { title: "Un atlas de Tolkien", author: "David Day", sortName: "Day, David" },
+    { title: "El infiltrado", author: "Marta Querol", sortName: "Querol, Marta" },
+    {
+      title: "La leyenda de Drizzt: El elfo oscuro",
+      author: "R. A. Salvatore",
+      sortName: "Salvatore, R. A.",
+      series: "La Leyenda de Drizzt",
+      seriesOrder: 1,
+    },
     {
       title: "Harry Potter y la piedra filosofal",
       author: "J. K. Rowling",
@@ -418,6 +428,13 @@ export const shelf: ShelfData = {
       sortName: "Sanderson, Brandon",
       series: "Nacidos de la Bruma",
       seriesOrder: 2,
+    },
+    {
+      title: "El héroe de las eras",
+      author: "Brandon Sanderson",
+      sortName: "Sanderson, Brandon",
+      series: "Nacidos de la Bruma",
+      seriesOrder: 3,
     },
     {
       title: "Ángeles y demonios",
