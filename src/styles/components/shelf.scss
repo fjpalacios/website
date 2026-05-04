@@ -209,6 +209,13 @@
     }
   }
 
+  &__series {
+    font-size: 0.75rem;
+    font-style: italic;
+    margin-top: 0.35rem;
+    line-height: 1.3;
+  }
+
   // Hover effect only when it contains a link (has review)
   &--has-review {
     cursor: pointer;
