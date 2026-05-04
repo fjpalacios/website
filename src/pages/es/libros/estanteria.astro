@@ -42,10 +42,22 @@ const classifyAndSort = <T extends { title: string; sortName: string }>(books: T
   const classified = classifyBooksByReviewLanguage(allBooks, books, lang);
 
   // Sort each category by sortName, then by title
-  const sortBooks = <U extends { title: string; sortName: string }>(arr: U[]) =>
+  const sortBooks = <U extends { title: string; sortName: string; series?: string; seriesOrder?: number }>(arr: U[]) =>
     arr.sort((a, b) => {
       const authorCompare = a.sortName.localeCompare(b.sortName, lang);
       if (authorCompare !== 0) return authorCompare;
+
+      if (a.series && b.series) {
+        const seriesCompare = a.series.localeCompare(b.series, lang);
+        if (seriesCompare !== 0) return seriesCompare;
+        if (a.seriesOrder !== undefined && b.seriesOrder !== undefined && a.seriesOrder !== b.seriesOrder) {
+          return a.seriesOrder - b.seriesOrder;
+        }
+      }
+
+      if (a.series && !b.series) return -1;
+      if (!a.series && b.series) return 1;
+
       return a.title.localeCompare(b.title, lang);
     });
 
@@ -109,6 +121,12 @@ const totalBooks = totalPhysical + totalDigital;
                 >
                   <div class="shelf-book__title">{book.title}</div>
                   <div class="shelf-book__author">{book.author}</div>
+                  {book.series && (
+                    <div class="shelf-book__series">
+                      {book.series}
+                      {book.seriesOrder !== undefined ? ` #${book.seriesOrder}` : ""}
+                    </div>
+                  )}
                 </a>
               ))}
             </div>
@@ -137,6 +155,12 @@ const totalBooks = totalPhysical + totalDigital;
                   >
                     <div class="shelf-book__title">{book.title}</div>
                     <div class="shelf-book__author">{book.author}</div>
+                    {book.series && (
+                      <div class="shelf-book__series">
+                        {book.series}
+                        {book.seriesOrder !== undefined ? ` #${book.seriesOrder}` : ""}
+                      </div>
+                    )}
                     <span class="shelf-book__lang-badge" aria-label={`Reseña en ${book.review.data.language}`}>
                       {book.review.data.language === "en" ? "🇬🇧" : "🇪🇸"}
                     </span>
@@ -165,6 +189,12 @@ const totalBooks = totalPhysical + totalDigital;
                 <div class="shelf-book shelf-book--no-review">
                   <div class="shelf-book__title">{book.title}</div>
                   <div class="shelf-book__author">{book.author}</div>
+                  {book.series && (
+                    <div class="shelf-book__series">
+                      {book.series}
+                      {book.seriesOrder !== undefined ? ` #${book.seriesOrder}` : ""}
+                    </div>
+                  )}
                 </div>
               ))}
             </div>
@@ -192,6 +222,12 @@ const totalBooks = totalPhysical + totalDigital;
                 >
                   <div class="shelf-book__title">{book.title}</div>
                   <div class="shelf-book__author">{book.author}</div>
+                  {book.series && (
+                    <div class="shelf-book__series">
+                      {book.series}
+                      {book.seriesOrder !== undefined ? ` #${book.seriesOrder}` : ""}
+                    </div>
+                  )}
                 </a>
               ))}
             </div>
@@ -220,6 +256,12 @@ const totalBooks = totalPhysical + totalDigital;
                   >
                     <div class="shelf-book__title">{book.title}</div>
                     <div class="shelf-book__author">{book.author}</div>
+                    {book.series && (
+                      <div class="shelf-book__series">
+                        {book.series}
+                        {book.seriesOrder !== undefined ? ` #${book.seriesOrder}` : ""}
+                      </div>
+                    )}
                     <span class="shelf-book__lang-badge" aria-label={`Reseña en ${book.review.data.language}`}>
                       {book.review.data.language === "en" ? "🇬🇧" : "🇪🇸"}
                     </span>
@@ -248,6 +290,12 @@ const totalBooks = totalPhysical + totalDigital;
                 <div class="shelf-book shelf-book--no-review">
                   <div class="shelf-book__title">{book.title}</div>
                   <div class="shelf-book__author">{book.author}</div>
+                  {book.series && (
+                    <div class="shelf-book__series">
+                      {book.series}
+                      {book.seriesOrder !== undefined ? ` #${book.seriesOrder}` : ""}
+                    </div>
+                  )}
                 </div>
               ))}
             </div>

@@ -49,6 +49,8 @@ export interface ShelfBook {
   title: string;
   author: string;
   sortName: string;
+  series?: string;
+  seriesOrder?: number;
 }
 
 export interface ShelfData {
