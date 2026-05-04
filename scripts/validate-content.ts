@@ -104,7 +104,8 @@ function validateBook(file: string, content: string): void {
   }
 
   // Validate date
-  if (frontmatter.date && !/^\d{4}-\d{2}-\d{2}$/.test(frontmatter.date)) {
+  const dateValue = frontmatter.date ? frontmatter.date.replace(/"/g, "") : "";
+  if (dateValue && !/^\d{4}-\d{2}-\d{2}$/.test(dateValue)) {
     logError(file, `Invalid date format: ${frontmatter.date} (expected YYYY-MM-DD)`);
   }
 
@@ -179,7 +180,8 @@ function validatePost(file: string, content: string): void {
   }
 
   // Validate date
-  if (frontmatter.date && !/^\d{4}-\d{2}-\d{2}$/.test(frontmatter.date)) {
+  const dateValue = frontmatter.date ? frontmatter.date.replace(/"/g, "") : "";
+  if (dateValue && !/^\d{4}-\d{2}-\d{2}$/.test(dateValue)) {
     logError(file, `Invalid date format: ${frontmatter.date} (expected YYYY-MM-DD)`);
   }
 
@@ -213,7 +215,8 @@ function validateTutorial(file: string, content: string): void {
   }
 
   // Validate date
-  if (frontmatter.date && !/^\d{4}-\d{2}-\d{2}$/.test(frontmatter.date)) {
+  const dateValue = frontmatter.date ? frontmatter.date.replace(/"/g, "") : "";
+  if (dateValue && !/^\d{4}-\d{2}-\d{2}$/.test(dateValue)) {
     logError(file, `Invalid date format: ${frontmatter.date} (expected YYYY-MM-DD)`);
   }
 
