@@ -1,6 +1,6 @@
 // @ts-check
 import path from "path";
-import { fileURLToPath } from "url";
+import { fileURLToPath, pathToFileURL } from "url";
 
 import mdx from "@astrojs/mdx";
 import sitemap, { ChangeFreqEnum } from "@astrojs/sitemap";
@@ -146,9 +146,26 @@ export default defineConfig({
     locales: ["es", "en"],
     routing: {
       prefixDefaultLocale: true,
+      redirectToDefaultLocale: true,
     },
   },
   vite: {
+    css: {
+      preprocessorOptions: {
+        scss: {
+          importers: [
+            {
+              // Workaround for Vite 7 regression: aliases no longer resolved in Sass @use
+              // https://github.com/vitejs/vite/issues/20292
+              findFileUrl(url) {
+                if (!url.startsWith("@/")) return null;
+                return pathToFileURL(path.resolve(__dirname, "src", url.slice(2)));
+              },
+            },
+          ],
+        },
+      },
+    },
     resolve: {
       alias: {
         "@components": path.resolve(__dirname, "./src/components"),
