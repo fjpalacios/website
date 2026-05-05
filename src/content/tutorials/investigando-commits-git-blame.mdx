@@ -1,0 +1,149 @@
+---
+title: "Investigar qué cambió en cada línea con git blame"
+post_slug: "investigando-commits-git-blame"
+date: "2026-05-05"
+excerpt: "¿quién escribió esa línea que rompe todo? Git blame te lo dice línea por línea, y cuando el historial se fastidia, git log tiene opciones que no conocías para seguir el código incluso cuando cambió de nombre."
+language: "es"
+categories: ["git"]
+course: "domina-git-desde-cero"
+order: 24
+cover: "/images/tutorials/cabecera-git.jpg"
+i18n: "investigating-commits-git-blame"
+---
+
+Te ha pasado. Estás mirando un archivo y hay una función de 50 líneas que no tiene ningún sentido. Nadie en el equipo sabe para qué sirve. El que la escribió ya no está en la empresa. Y el commit dice "WIP". O "fix". O, mi favorito personal, "asdfgh".
+
+¿Quién hizo esto? ¿Cuándo? ¿Había alguien supervisando?
+
+Aquí es donde `git blame` pasa de ser una herramienta útil a convertirse en tu mejor aliado para hacer arqueología de código (y posiblemente el más odiado por tus compañeros de equipo de hace dos años).
+
+## git blame línea por línea
+
+El nombre es dramático a propósito. Te dice exactamente quién añadió cada línea, en qué commit, y cuándo. No hay forma de esconderse.
+
+```bash
+git blame archivo.py
+```
+
+El output tiene toda la información que necesitas:
+
+```
+abcdef1 (María Gómez 2026-03-15 10:23 +0200  1) def calculate_total(items):
+bcdef12 (María Gómez 2026-03-15 10:23 +0200  2)     total = 0
+1234567 (Juan Pérez  2026-04-02 14:05 +0200  3)     for item in items:
+abcdef1 (María Gómez 2026-03-15 10:23 +0200  4)         total += item.price
+defa456 (María Gómez 2026-04-05 16:41 +0200  5)     return total * 1.21  # TODO: hardcoded tax
+```
+
+Cada línea tiene: hash del commit, autor, fecha y hora, número de línea, y contenido.
+
+Ves el `# TODO: hardcoded tax` en la línea 5 y pillas el hash `defa456`. Un segundo después:
+
+```bash
+git show defa456
+```
+
+Ahí ves el commit completo: qué cambió, por qué, y en qué contexto. La próxima vez que alguien diga "esto siempre estuvo así", tú tienes la fecha y la hora exactas.
+
+### Blame en un rango de líneas
+
+Si el archivo tiene 800 líneas, no necesitas el blame de todo. Puedes limitarlo a las que te importan:
+
+```bash
+git blame -L 45,90 archivo.py     # líneas 45 a 90
+git blame -L 45,+20 archivo.py    # 20 líneas desde la 45
+```
+
+Mucho más manejable cuando ya sabes dónde está el problema.
+
+## Ignorar el ruido: -w y -M
+
+Por defecto, `git blame` muestra el autor de la última persona que tocó esa línea. Pero si alguien reformateó el archivo (indentación, espacios en blanco), señala a la persona equivocada. Y eso lleva a conversaciones incómodas innecesarias.
+
+```bash
+git blame -w archivo.py       # ignora cambios de whitespace
+git blame -M archivo.py       # detecta líneas movidas dentro del archivo
+```
+
+El `-M` es especialmente útil para refactors donde alguien movió funciones de un lado a otro del archivo. Te da el autor original, no el que hizo el ctrl+c ctrl+v interno.
+
+## git log -p: el historial con diffs completos
+
+A veces te da igual quién tocó qué. Quieres ver TODO el historial de un archivo con el diff completo de cada commit, sin tener que hacer `git show` para cada uno manualmente:
+
+```bash
+git log -p archivo.py
+```
+
+Navega con las flechas y sal con `:q`.
+
+No te agobies si el output es enorme — `git log` tiene opciones de filtrado precisamente para eso, y las vemos a continuación.
+
+## git log --follow: cuando el archivo cambió de nombre
+
+Un archivo puede renombrarse varias veces a lo largo de su vida. `git log archivo.py` muestra su historia, pero si antes se llamaba `calculador.py`, no lo ve.
+
+```bash
+git log --follow archivo.py
+```
+
+Git sigue el archivo aunque haya cambiado de nombre y muestra el historial completo: el archivo tal como se llamó en cada momento de su vida.
+
+(En Windows los sistemas de archivos no distinguen mayúsculas por defecto — ya sabes cómo va esto — así que si alguien renombró `Auth.py` a `auth.py`, Git pierde la pista sin este flag.)
+
+## git log -S: buscar cuándo apareció un trozo de código
+
+Esta es la opción más potente para cuando sabes *qué* buscas pero no sabes *cuándo* apareció.
+
+```bash
+git log -S "calculate_total" --oneline
+```
+
+Muestra todos los commits que añadieron o eliminaron esa cadena del código. No busca en los mensajes de commit — busca en el diff real. Si eres como yo cuando empecé, esto te va a parecer magia negra. No lo es, pero se le acerca.
+
+Es ideal para:
+
+- "¿Cuándo se introdujo este bug?"
+- "Esta función ya no se usa, ¿cuándo se dejó de usar?"
+- "¿Quién añadió esta dependencia sin avisar a nadie?"
+
+Combínalo con `-p` para ver el contexto completo de cada commit:
+
+```bash
+git log -S "calculate_total" -p
+```
+
+**Nota**: `-S` busca por cadena exacta y detecta cuándo cambia el número de ocurrencias. Si necesitas regex, usa `-G` en su lugar.
+
+## git show: ver el estado de un archivo en cualquier punto
+
+Con el hash en mano — del blame, del log, o de donde sea — ver el commit completo es trivial:
+
+```bash
+git show abc1234
+git show abc1234:src/app.py       # el archivo exacto en ese commit
+git show abc1234 --stat           # resumen de cambios, sin el diff completo
+```
+
+El `git show hash:ruta/archivo` es especialmente útil cuando necesitas ver cómo estaba un archivo en un momento concreto sin tener que hacer checkout. Ves el contenido, copias lo que necesitas, y sigues con lo tuyo.
+
+## Workflow práctico
+
+Llegas a una codebase nueva. Encuentras una función rara. Quieres saber su historia. Este es el camino:
+
+1. **¿Quién la añadió?** `git blame archivo.py` → coges el hash de las líneas sospechosas
+2. **¿Qué cambió en ese commit?** `git show hash` → contexto completo
+3. **¿Cuándo apareció exactamente?** `git log -S "nombre_funcion"` → timeline completo
+4. **¿El archivo se renombró?** `git log --follow archivo.py` → historial completo con renombrados
+
+Cuatro comandos para la investigación forense completa del código. Después de esto, "no sé quién escribió eso" deja de ser una respuesta válida en tu equipo.
+
+## Para el siguiente tutorial
+
+En el próximo tutorial vamos a por lo que hace falta cuando la cosa se pone seria: merges. Conflictos de merge, estrategias para resolverlos, y cómo evitarlos hablando con tu equipo antes de que ocurran. Que es el camino fácil, claro.
+
+---
+
+💡 **Desafío**: Elige un archivo de tu proyecto actual que no conozcas bien y usa los cuatro comandos de este tutorial para averiguar cómo ha ido evolucionando. Verás cosas que no esperabas. Probablemente cosas que no querías ver.
+
+¡Nunca dejes de programar!

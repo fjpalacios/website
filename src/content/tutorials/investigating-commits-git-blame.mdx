@@ -1,0 +1,149 @@
+---
+title: "Investigating Code Changes Line by Line with git blame"
+post_slug: "investigating-commits-git-blame"
+date: "2026-05-05"
+excerpt: "Who broke everything? git blame tells you line by line, and when history gets messy, git log has options you probably did not know to trace code even after it changed names."
+language: "en"
+categories: ["git"]
+course: "mastering-git-from-scratch"
+order: 24
+cover: "/images/tutorials/cabecera-git.jpg"
+i18n: "investigando-commits-git-blame"
+---
+
+You've been there. You're staring at a file with a 50-line function that makes zero sense. Nobody on the team knows what it does. The person who wrote it left the company. And the commit says "WIP". Or "fix". Or — my personal favorite — "asdfgh".
+
+Who wrote this? When? Was anyone even reviewing code at this point?
+
+This is where `git blame` goes from a useful tool to your best ally for code archaeology (and possibly the most hated person in your team's history).
+
+## git blame line by line
+
+The name is dramatic on purpose. It tells you exactly who added each line, in which commit, and when. There's no hiding from it.
+
+```bash
+git blame file.py
+```
+
+The output gives you everything you need:
+
+```
+abcdef1 (Maria Gomez 2026-03-15 10:23 +0200  1) def calculate_total(items):
+bcdef12 (Maria Gomez 2026-03-15 10:23 +0200  2)     total = 0
+1234567 (John Perez  2026-04-02 14:05 +0200  3)     for item in items:
+abcdef1 (Maria Gomez 2026-03-15 10:23 +0200  4)         total += item.price
+defa456 (Maria Gomez 2026-04-05 16:41 +0200  5)     return total * 1.21  # TODO: hardcoded tax
+```
+
+Each line shows: commit hash, author, date and time, line number, and content.
+
+You spot the `# TODO: hardcoded tax` on line 5, grab the hash `defa456`, and run:
+
+```bash
+git show defa456
+```
+
+Full commit right there: what changed, why, and in what context. Next time someone says "that code was always there", you've got the exact timestamp.
+
+### Blame on a line range
+
+If the file has 800 lines, you don't need blame for all of them. Limit it:
+
+```bash
+git blame -L 45,90 file.py     # lines 45 to 90
+git blame -L 45,+20 file.py    # 20 lines starting from line 45
+```
+
+Much more manageable when you already know where the problem is.
+
+## Filtering the noise: -w and -M
+
+By default, `git blame` shows the author of the last person who touched that line. But if someone reformatted the file — indentation, whitespace — it blames the wrong person. That leads to unnecessary awkward conversations.
+
+```bash
+git blame -w file.py       # ignore whitespace changes
+git blame -M file.py       # detect lines moved within the file
+```
+
+The `-M` flag is especially useful after big refactors where someone shuffled functions around the file. It shows the original author, not the one who did the internal copy-paste.
+
+## git log -p: history with full diffs
+
+Sometimes you don't care who touched what. You want to see ALL the changes in a file over time, with the complete diff in every commit — without running `git show` for each one manually:
+
+```bash
+git log -p file.py
+```
+
+Navigate with the arrow keys, exit with `:q`.
+
+Don't stress if the output is massive — `git log` has filtering options for exactly this, and we'll cover them next.
+
+## git log --follow: when the file was renamed
+
+A file can be renamed several times over its life. `git log file.py` shows its history, but if it used to be called `old_file.py`, it won't see that.
+
+```bash
+git log --follow file.py
+```
+
+Git follows the file even after name changes. You get the complete history — what the file was called at every point in its life.
+
+(On Windows, filesystems are case-insensitive by default — you know how this goes — so if someone renamed `Auth.py` to `auth.py`, Git loses the trail without this flag.)
+
+## git log -S: find when a piece of code appeared
+
+This is the most powerful option when you know *what* you're looking for but not *when* it appeared.
+
+```bash
+git log -S "calculate_total" --oneline
+```
+
+Shows all commits that added or removed that string from the code. It doesn't search commit messages — it searches the actual diff. If you're like me when I started, this feels like dark magic. It isn't, but it's close.
+
+Perfect for:
+
+- "When was this bug introduced?"
+- "This variable isn't used anymore — when did it stop being used?"
+- "Who added this dependency without telling anyone?"
+
+Combine with `-p` to see the full context in each commit:
+
+```bash
+git log -S "calculate_total" -p
+```
+
+**Note**: `-S` searches for an exact string and detects when the occurrence count changes. If you need regex, use `-G` instead.
+
+## git show: see a file at any point in time
+
+Once you've got a hash — from blame, log, or anywhere — looking at the full commit is trivial:
+
+```bash
+git show abc1234
+git show abc1234:src/app.py        # the file as it was at that commit
+git show abc1234 --stat           # changes summary, no full diff
+```
+
+The `git show hash:path/to/file` is especially useful when you need to see what a file looked like at a specific point without having to checkout. See it, copy what you need, move on.
+
+## Practical workflow
+
+You're new to a codebase. You find a weird function. You want to know its story. Here's the process:
+
+1. **Who added it?** `git blame file.py` → grab the hash from the suspicious lines
+2. **What changed in that commit?** `git show hash` → full context
+3. **When did it appear?** `git log -S "function_name"` → complete timeline
+4. **Was the file renamed?** `git log --follow file.py` → full history including renames
+
+Four commands for a complete code forensics investigation. After this, "I don't know who wrote that" stops being a valid answer on your team.
+
+## For the next tutorial
+
+Next up is what you need when things get serious: merges. Merge conflicts, strategies to resolve them, and how to avoid them by just talking to your team before they happen. That last one sounds obvious. It isn't.
+
+---
+
+💡 **Challenge**: Pick a file in your current project you don't know well and use the four commands in this tutorial to reconstruct its history. You'll find things you didn't expect. Probably things you didn't want to find.
+
+Never stop coding!
