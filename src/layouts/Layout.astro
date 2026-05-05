@@ -8,7 +8,7 @@ import { hasContentInLanguage } from "@config/navigation";
 import { TIMINGS } from "@config/timings";
 import { t } from "@locales";
 import type { ContactItem } from "@types/content";
-import { ViewTransitions } from "astro:transitions";
+import { ClientRouter } from "astro:transitions";
 
 import { getUrlSegment, type LanguageKey } from "@/config/languages";
 
@@ -157,7 +157,7 @@ const nextPageUrl =
       data-auto-track="false"
       data-domains="fjp.es"></script>
 
-    <ViewTransitions />
+    <ClientRouter />
     <style is:global lang="scss">
       @use "../styles/main";
     </style>

@@ -32,15 +32,15 @@ describe("Layout component", () => {
       expect(content).toMatch(/<link\s+rel="dns-prefetch"\s+href="https:\/\/cloudflareinsights\.com"/);
     });
 
-    it("should place resource hints before ViewTransitions and other scripts", () => {
+    it("should place resource hints before ClientRouter and other scripts", () => {
       content = fs.readFileSync(LAYOUT_PATH, "utf-8");
 
       const preconnectPos = content.indexOf('rel="preconnect"');
-      const viewTransitionsPos = content.indexOf("<ViewTransitions");
+      const clientRouterPos = content.indexOf("<ClientRouter");
 
       expect(preconnectPos).toBeGreaterThan(-1);
-      expect(viewTransitionsPos).toBeGreaterThan(-1);
-      expect(preconnectPos).toBeLessThan(viewTransitionsPos);
+      expect(clientRouterPos).toBeGreaterThan(-1);
+      expect(preconnectPos).toBeLessThan(clientRouterPos);
     });
   });
 
