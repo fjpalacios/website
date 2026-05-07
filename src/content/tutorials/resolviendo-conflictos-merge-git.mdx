@@ -1,0 +1,248 @@
+---
+title: "Cómo resolver conflictos de merge en Git"
+post_slug: "resolviendo-conflictos-merge-git"
+date: "2026-05-07"
+excerpt: "Los markers de conflicto tienen su lógica: una vez que entiendes el merge de tres vías, sabes exactamente qué significa cada sección y cómo resolver conflictos con o sin herramientas visuales."
+language: "es"
+categories: ["git"]
+course: "domina-git-desde-cero"
+order: 25
+cover: "/images/tutorials/cabecera-git.jpg"
+i18n: "resolving-git-merge-conflicts"
+---
+
+Llevas días en tu rama. Has hecho commits limpios, el código funciona, y decides hacer merge con `main`. Un par de segundos de espera, y entonces:
+
+```
+Auto-merging src/auth/middleware.ts
+CONFLICT (content): Merge conflict in src/auth/middleware.ts
+Automatic merge failed; fix conflicts and then commit the result.
+```
+
+Abres el archivo y ves esto:
+
+```
+<<<<<<< HEAD
+  const token = req.headers.authorization?.split(' ')[1];
+  if (!token) return res.status(401).json({ error: 'Unauthorized' });
+=======
+  const authHeader = req.headers.authorization;
+  const token = authHeader && authHeader.startsWith('Bearer ')
+    ? authHeader.split(' ')[1]
+    : null;
+  if (!token) return res.status(401).json({ error: 'No token provided' });
+>>>>>>> feature/auth-improvements
+```
+
+Primera reacción natural: ¿qué significa `HEAD`? ¿Cuál es la versión correcta? ¿Tengo que elegir una u otra, o puedo mezclarlas? ¿Borro todos los markers? ¿Qué pasa si me dejo uno?
+
+Tranquilo. Los conflictos tienen su lógica, y una vez que la entiendes, resolverlos deja de ser estresante para convertirse en algo que sigue siendo un poco tedioso, pero al menos sabes exactamente lo que estás haciendo.
+
+## Los markers de conflicto
+
+Cuando Git no puede resolver un merge automáticamente, marca las zonas problemáticas con una sintaxis que lleva décadas siendo igual (sí, esa sintaxis con tres signos de menor que que parece diseñada por alguien que odia profundamente a los programadores — y sin embargo, aquí estamos). La estructura es siempre la misma:
+
+```
+<<<<<<< HEAD                          ← start of your version (current branch)
+tu versión del código
+=======                               ← separator
+la versión de la otra rama
+>>>>>>> feature/auth-improvements     ← end of their version (branch being merged)
+```
+
+`HEAD` es tu rama actual — lo que tienes tú ahora mismo. La otra etiqueta es el nombre de la rama que estás mergeando. El `=======` es el separador.
+
+Para resolver el conflicto tienes tres opciones: quedarte con la versión de arriba (la tuya), con la de abajo (la de ellos), o escribir una nueva que integre lo mejor de ambas. Lo que NO puedes hacer es dejar los markers en el archivo — eso rompe el código y el siguiente que lo abra te va a odiar, o vas a odiarte a ti mismo si lo descubres en producción.
+
+### La variante con diff3
+
+Hay una configuración que te da mucho más contexto y que deberías activar ya:
+
+```bash
+git config --global merge.conflictstyle diff3
+```
+
+Con `diff3`, los markers incluyen una sección extra: el **ancestro común** — la versión del archivo antes de que ninguno de los dos lo tocase:
+
+```
+<<<<<<< HEAD
+  const token = req.headers.authorization?.split(' ')[1];
+  if (!token) return res.status(401).json({ error: 'Unauthorized' });
+||||||| merged common ancestors
+  const token = req.headers['x-auth-token'];
+  if (!token) return res.status(403).json({ error: 'Forbidden' });
+=======
+  const authHeader = req.headers.authorization;
+  const token = authHeader && authHeader.startsWith('Bearer ')
+    ? authHeader.split(' ')[1]
+    : null;
+  if (!token) return res.status(401).json({ error: 'No token provided' });
+>>>>>>> feature/auth-improvements
+```
+
+Ahora ves de dónde viene cada versión. La sección `|||||||` es lo que había antes de que nadie tocase el archivo. Eso cambia completamente cómo tomas decisiones: ves que tú cambiaste el header de `x-auth-token` a `authorization`, y ellos también cambiaron el header pero además añadieron validación de formato Bearer. La resolución correcta está en esa información — mezclar los dos cambios, no elegir uno y tirar el otro.
+
+## El merge de tres vías
+
+`diff3` tiene más sentido si entiendes cómo funciona un merge por dentro. Cuando mergeas dos ramas, Git no compara solo tu versión contra la de ellos. Compara **ambas versiones contra el ancestro común** — el último commit que las dos ramas comparten. Por eso se llama _three-way merge_: tres versiones, tres vías.
+
+La lógica es elegante: si solo uno de los dos tocó una línea, Git puede resolverlo automáticamente — coge la versión que cambió, porque la otra no hizo nada diferente. El conflicto solo aparece cuando **los dos** tocaron la misma zona de código, de formas distintas. Git no sabe cuál era la intención, así que te pasa el marrón a ti.
+
+Sin el ancestro común, no puedes saber si tu versión "gana" o si debes integrar los dos cambios. Con él, tienes el contexto completo para decidir.
+
+## Resolviendo conflictos a mano
+
+`git status` te dice exactamente qué archivos tienen conflictos:
+
+```bash
+git status
+```
+
+```
+On branch main
+You have unmerged paths.
+  (fix conflicts and run "git commit")
+  (use "git merge --abort" to abort the merge)
+
+Unmerged paths:
+  (use "git add <file>..." to mark resolution)
+        both modified:   src/auth/middleware.ts
+        both modified:   src/config/database.ts
+```
+
+El flujo para cada archivo en conflicto:
+
+1. Abrirlo y buscar los markers `<<<<<<<`
+2. Decidir qué código queda (el tuyo, el de ellos, o una mezcla)
+3. Borrar **todos** los markers (`<<<<<<<`, `|||||||`, `=======`, `>>>>>>>`)
+4. Guardar el archivo
+5. `git add src/auth/middleware.ts`
+
+Cuando hayas resuelto todos los archivos en conflicto:
+
+```bash
+git commit
+```
+
+Git tiene preparado el mensaje de commit del merge. Puedes editarlo o dejarlo tal cual.
+
+### Para archivos enteros: --ours y --theirs
+
+Si hay un archivo donde sabes que una versión gana completamente — sin mezclar nada — no necesitas editar markers a mano:
+
+```bash
+git checkout --ours src/package-lock.json    # take our version entirely
+git checkout --theirs src/yarn.lock          # take their version entirely
+git add src/package-lock.json src/yarn.lock
+```
+
+Esto es especialmente útil para archivos generados automáticamente como lockfiles. El resultado correcto es el que surge de instalar dependencias en tu entorno, no el de intentar fusionar dos lockfiles línea a línea — eso es una batalla que no quieres pelear.
+
+## Herramientas de merge
+
+Resolver conflictos a mano en archivos grandes es viable pero puede ser lento y propenso a errores. Las herramientas de merge te dan una vista visual de las versiones en conflicto — sin tener que desplazarte por el archivo buscando markers a ojo.
+
+### lazygit
+
+Si vives en la terminal — o si la idea de abrir VS Code para resolver cuatro conflictos te parece un poco como llamar a los bomberos porque se ha quemado una tostada —, `lazygit` es la herramienta. Un TUI (terminal UI) completo para Git: sin Electron, sin tres segundos de carga, sin que el ventilador decida que ahora es el momento de imitar un motor de avión.
+
+```bash
+# Install lazygit
+brew install lazygit          # macOS / Linux via Homebrew
+pacman -S lazygit             # Arch (no sorprende a nadie)
+apt install lazygit           # Debian/Ubuntu
+```
+
+Abres `lazygit` en el repositorio y los archivos en conflicto aparecen marcados en el panel de **Files**. Seleccionas uno y el panel derecho muestra los hunks en conflicto: puedes navegar entre ellos, elegir tu versión o la de ellos con una sola tecla, o abrir el archivo directamente en tu `$EDITOR` si el conflicto necesita una solución más quirúrgica. Cuando terminas, el archivo está listo para hacer stage — sin haber abierto ninguna ventana nueva ni cambiado de contexto.
+
+Para quienes resuelven conflictos con frecuencia, la diferencia en velocidad es notable. No porque lazygit sea mágico, sino porque no tienes que esperar a que cargue ninguna aplicación.
+
+### VS Code e IntelliJ
+
+Para los que prefieren una interfaz gráfica con vista de tres paneles (tu versión, el ancestro, la de ellos), VS Code e IntelliJ IDEA tienen soporte de merge integrado. La configuración para usarlos con `git mergetool`:
+
+```bash
+git config --global merge.tool vscode
+git config --global mergetool.vscode.cmd 'code --wait $MERGED'
+```
+
+```bash
+git mergetool
+```
+
+Git abre cada archivo con conflictos en tu herramienta configurada, uno a uno. Funciona bien para conflictos complejos donde quieres ver todo el contexto de un archivo grande en una pantalla amplia.
+
+### vimdiff
+
+`vimdiff` está disponible sin configuración extra. Los usuarios de Arch ya saben de qué va esto; el resto lo descubre por accidente un día que no tiene instalado nada más, aprende más atajos de Vim de los que quería, y sale con una relación ambigua con la herramienta. Funciona. No es exactamente amigable. Pero lleva décadas funcionando, que no es poco.
+
+Y si el accidente te deja con más preguntas que respuestas — o directamente atrapado en el buffer sin recordar cómo salir —, [hay un curso de Vim desde cero](/es/cursos/domina-vim-desde-cero) que empieza exactamente desde ahí.
+
+## git merge --abort
+
+A veces la respuesta correcta es salir.
+
+```bash
+git merge --abort
+```
+
+Esto deshace el merge completamente y te devuelve al estado exacto en que estabas antes de ejecutar `git merge`. Sin rastro, sin commits a medias, sin markers colgando en el código. Como si nunca hubiera pasado.
+
+Cuándo tiene sentido usarlo:
+
+- Los conflictos son tan extensos que necesitas replantear el approach antes de continuar
+- Mergeaste la rama equivocada
+- Necesitas sincronizar con el equipo antes de tomar decisiones sobre el código en conflicto
+- Tu herramienta de merge se colgó a la mitad (esto pasa más de lo que debería)
+
+No es rendirse. Es saber cuándo parar para hacerlo bien en lugar de forzar una resolución que no entiendes del todo.
+
+## Estrategias para conflictos complejos
+
+### Dejar que un lado gane siempre
+
+Si sabes que en caso de conflicto siempre quieres tu versión (o siempre la de ellos), puedes decírselo a Git desde el principio:
+
+```bash
+git merge -X ours feature/rama    # on conflict: take our version
+git merge -X theirs feature/rama  # on conflict: take their version
+```
+
+Esto solo actúa cuando hay un conflicto real — no toca los cambios que Git puede resolver automáticamente. Es útil para merges de ramas de mantenimiento donde el criterio de qué versión prevalece es claro de antemano.
+
+### Rebase primero, merge después
+
+Los conflictos son menos frecuentes — y cuando aparecen, más pequeños y con más contexto — cuando tu rama está al día con `main`. En lugar de mergear directamente después de semanas de divergencia, sincroniza primero:
+
+```bash
+git fetch origin
+git rebase origin/main
+# resolve conflicts one commit at a time if they appear
+git push --force-with-lease origin feature/tu-rama
+```
+
+El rebase aplica tus commits encima de `main` actualizado. Si hay conflictos, los resuelves commit a commit — en pequeñas dosis, con el contexto claro de qué cambió en cada paso. Mucho más manejable que un merge acumulado con semanas de divergencia.
+
+## Prevenir conflictos
+
+La mejor resolución es la que no tienes que hacer.
+
+**Sincroniza con frecuencia.** Una rama que lleva tres semanas sin tocar `main` acumula conflictos. El `git rebase origin/main` diario (o cada vez que haya cambios relevantes en main) mantiene las ramas cortas de diferencia.
+
+**Ramas pequeñas y cortas.** Cuanto más tiempo vive una rama, más diverge. Las features largas se rompen en piezas más pequeñas que se mergean antes de empezar la siguiente.
+
+**Habla con tu equipo antes de tocar archivos críticos.** Las migraciones de base de datos, `package.json`, archivos de configuración compartidos — son tierra de conflictos. No es un problema técnico, es un problema de comunicación. Un "voy a tocar el schema de la tabla users esta tarde, ¿os afecta?" en el canal del equipo evita media hora de resolución de conflictos a posteriori.
+
+**Feature flags en lugar de ramas largas.** Si el código está en producción pero desactivado por flag, puedes mergear sin esperar a que la feature esté completa. La rama vive días en lugar de semanas, y los conflictos no tienen tiempo de acumularse.
+
+---
+
+Los conflictos son la parte del trabajo en equipo que Git delega en los humanos — con razón, porque la máquina no sabe cuál era la intención de cada cambio. Entender el merge de tres vías, activar `diff3`, y saber cuándo usar `--abort` en lugar de forzar una resolución que no entiendes son los tres pilares que convierten algo estresante en algo completamente manejable.
+
+En el próximo tutorial empezamos el módulo de flujos de trabajo: cómo organizan los equipos profesionales su día a día con Git, desde el clásico Gitflow hasta trunk-based development, y por qué cada uno tiene su momento y su contexto.
+
+---
+
+💡 **Desafío**: Crea dos ramas desde un mismo commit, modifica las mismas líneas de un archivo en ambas de formas distintas, y después mergea una en la otra. Activa `diff3` antes si aún no lo tienes, y fíjate en cómo el ancestro común te ayuda a entender exactamente qué pasó.
+
+¡Nunca dejes de programar!
