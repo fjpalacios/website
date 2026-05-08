@@ -1,0 +1,200 @@
+---
+title: "Buenas prácticas para commits en Git"
+post_slug: "buenas-practicas-commits-git"
+date: "2026-05-08"
+excerpt: "Commits atómicos, mensajes que explican el porqué, y el estándar Conventional Commits: lo que separa un historial que documenta de uno que solo ocupa espacio."
+language: "es"
+categories: ["git"]
+course: "domina-git-desde-cero"
+order: 26
+cover: "/images/tutorials/cabecera-git.jpg"
+i18n: "git-commit-best-practices"
+---
+
+Hay un tipo de vergüenza que solo conocen los programadores: abrir `git log --oneline` en un proyecto de hace dos años y encontrarse con esto:
+
+```
+a1b2c3d fix
+e4f5g6h wip
+i7j8k9l más cosas
+m0n1o2p ahora sí
+q3r4s5t FINAL
+u6v7w8x FINAL_DE_VERDAD
+```
+
+Y lo peor no es verlo. Lo peor es reconocer la caligrafía. Esos commits los escribiste tú. En un momento de tu vida en el que claramente tenías cosas mejores en las que pensar que en documentar lo que hacías.
+
+El problema no es estético. Es funcional. Cuando en tres meses uses `git bisect` para localizar un bug y Git te señale `q3r4s5t FINAL_DE_VERDAD` como el commit sospechoso, el historial no te va a decir absolutamente nada útil. Tendrás que leer el diff completo línea a línea para entender qué cambió ahí, por qué, y si era intencional. Multiplicado por cada commit del rango. A las dos de la madrugada.
+
+Un historial bien escrito es documentación viva. Esta lección es sobre cómo escribirlo.
+
+## El principio del commit atómico
+
+Antes del formato, la idea más importante: cada commit debe contener **un solo cambio lógico**.
+
+No "trabajo del martes". No "todo lo del sprint". No "varias cosas relacionadas". Un cambio. Con su contexto, bien delimitado.
+
+¿Por qué importa tanto?
+
+- **`git bisect` funciona**: cada commit es verificable de forma independiente. Si un commit mezcla cinco cambios, cuando bisect lo señale como culpable no sabrás cuál de los cinco introdujo el bug.
+- **`git revert` no tiene drama**: deshacer un commit atómico es limpio. Deshacer un commit que mezcla un refactor con un fix con una migración... es otra historia.
+- **`git cherry-pick` es posible**: si necesitas mover ese cambio a otra rama, puedes hacerlo sin arrastrar cosas no relacionadas.
+- **El code review es más rápido**: el revisor entiende exactamente qué está mirando. No tiene que adivinar qué partes forman una unidad lógica.
+
+La tentación es agrupar cosas porque "están relacionadas". Pero "relacionado" es demasiado amplio. Un refactor de una función y los tests que lo cubren — eso puede ir junto. Un refactor, una migración de base de datos y un fix de CSS — eso son tres commits distintos.
+
+## Conventional Commits
+
+Una vez tienes claro qué va en cada commit, hay que decidir cómo describirlo. [Conventional Commits](https://www.conventionalcommits.org) es una especificación que define el formato de los mensajes. Lo usan proyectos como Angular, Vue, Vite y miles de librerías open source, no por estética, sino porque el formato es machine-readable: herramientas como `semantic-release` pueden generar changelogs y calcular la versión siguiente de forma automática basándose en los tipos de tus commits.
+
+El formato:
+
+```
+type(scope): subject
+
+body
+
+footer
+```
+
+Un ejemplo real:
+
+```
+feat(auth): Add Bearer token validation
+
+The authorization header now requires the Bearer prefix.
+Bare tokens sent without it will receive a 401 response.
+
+BREAKING CHANGE: Authorization header format changed
+```
+
+Parece mucha estructura para un mensaje de texto. Pero aguanta un momento — cada parte tiene una razón concreta.
+
+## Los tipos
+
+El tipo describe qué clase de cambio contiene el commit. Los más usados:
+
+| Tipo | Cuándo usarlo |
+|------|---------------|
+| `feat` | Nueva funcionalidad |
+| `fix` | Corrección de un bug |
+| `docs` | Cambios en documentación |
+| `refactor` | Refactor sin cambio de comportamiento observable |
+| `test` | Añadir o corregir tests |
+| `chore` | Mantenimiento: dependencias, configuración, scripts |
+| `perf` | Mejora de rendimiento |
+| `style` | Formato, espacios, comas — sin cambio lógico |
+| `ci` | Configuración de CI/CD |
+| `build` | Sistema de build |
+| `revert` | Revertir un commit anterior |
+
+No te agobies intentando memorizar la tabla completa desde el primer día. `feat`, `fix`, `refactor` y `chore` cubren más del 80% de los commits del día a día. Los demás los vas incorporando cuando los necesitas.
+
+## El scope (opcional)
+
+El scope va entre paréntesis después del tipo e indica el área del código afectada:
+
+```
+feat(auth): Add token refresh endpoint
+fix(api): Return 404 for deleted users
+refactor(database): Extract query builder to its own module
+```
+
+No existe una lista de scopes correcta o incorrecta — cada proyecto define los suyos. Lo importante es que sean **consistentes**: si la capa de autenticación se llama `auth`, úsala siempre así, no `authentication` un día y `auth` otro. El scope sirve para filtrar el historial rápidamente; si cambia de nombre pierde su utilidad.
+
+Si el cambio afecta al proyecto de forma transversal o no encaja en ningún scope concreto, simplemente lo omites.
+
+## El asunto (subject line)
+
+El asunto es la primera línea — lo que ves en `git log --oneline`. Es lo más importante del mensaje y tiene sus reglas:
+
+```
+feat(auth): Add Bearer token validation
+             ↑
+             imperative mood — "Add", not "Added" or "Adding"
+```
+
+**Modo imperativo**: "Add feature", "Fix null check", "Refactor validation". No "Added", no "Adding", no "Fixes". Git usa este mismo estilo en sus propios mensajes (`Merge branch`, `Revert "feat: ..."`); seguirlo es consistencia, no capricho.
+
+**Máximo 70 caracteres**: GitHub y GitLab truncan la primera línea en la interfaz si supera ese límite. Lo que no cabe en el asunto va en el cuerpo.
+
+**Sin punto final**. **Primera letra en mayúscula**.
+
+Y lo más importante: **describe el cambio, no el proceso**. `feat(auth): Add null check before token verification` es útil. `fix: Fix bug` no lo es para nadie.
+
+## El cuerpo (body)
+
+El cuerpo es opcional, pero es donde vive el valor más duradero de un commit: el **porqué**.
+
+Se separa del asunto con una línea en blanco (obligatorio — Git los trata como secciones distintas sin esa línea):
+
+```
+fix(api): Handle null response in user endpoint
+
+Accounts deleted via the legacy migration tool can leave ghost sessions
+in the database. The endpoint was crashing on these instead of
+returning a clean 404.
+
+The migration tool will be deprecated in Q3, but until then this
+null check is necessary.
+```
+
+El diff ya muestra qué cambió. El cuerpo explica el contexto que el diff nunca puede mostrar: por qué existía el bug, qué escenario lo disparaba, qué alternativas se descartaron, qué va a cambiar en el futuro. Esa información desaparece para siempre si no la escribes en el momento — el único que sabe el contexto completo eres tú, ahora mismo, mientras haces el commit.
+
+No todos los commits necesitan cuerpo. `chore: Update dependencies` no necesita explicación adicional. Pero para un fix no obvio, una decisión de diseño, o un cambio que podría sorprender a alguien dentro de seis meses, el cuerpo es inestimable.
+
+## El footer y los breaking changes
+
+El footer es para metadatos estructurados: referencias a issues y, sobre todo, breaking changes.
+
+Un **breaking change** es un cambio que rompe la compatibilidad con versiones anteriores de la API o el comportamiento público. Se declara de dos formas complementarias:
+
+```
+feat(api)!: Remove deprecated v1 endpoints
+
+All v1 endpoints removed. Clients must migrate to the v2 API.
+
+BREAKING CHANGE: v1 endpoints no longer available
+Closes #341
+```
+
+El `!` después del tipo es la señal rápida — visible de un vistazo en el log. El `BREAKING CHANGE:` en el footer es la declaración formal que las herramientas de release usan para saber que toca incrementar la versión mayor en semver. Ambos juntos garantizan que tanto humanos como herramientas entienden la magnitud del cambio.
+
+Las referencias a issues van también en el footer:
+
+```
+fix(auth): Reject expired tokens on silent refresh
+
+Closes #482
+Refs #391
+```
+
+## El workflow práctico: --fixup y --autosquash
+
+El principio del commit atómico colisiona con la realidad de forma predecible: haces un commit, sigues trabajando, y descubres que hay un error en ese commit anterior. La solución instintiva es hacer otro commit con "fix typo" o "oops, esto". La solución correcta es `--fixup`:
+
+```bash
+# You realize commit abc123 needs a correction
+git add -p                    # stage only the fix
+git commit --fixup abc123     # creates: "fixup! feat(auth): Add Bearer..."
+```
+
+Esto crea un commit marcado automáticamente como fixup del original. Cuando limpies el historial antes de hacer merge:
+
+```bash
+git rebase -i --autosquash main
+```
+
+Git reorganiza los commits solo y squashea los fixups en sus commits objetivo. El historial que llega a `main` es limpio: sin "fix", sin "oops", sin "más cosas". La historia del proyecto, contada de forma ordenada.
+
+---
+
+Un historial de commits bien escrito no es documentación extra que alguien decidió mantener — es la documentación que Git te da gratis si la alimentas bien. Dentro de un año, cuando alguien haga `git log -S "función_misteriosa"` para entender por qué existe esa función, los commits que hayas escrito hoy son lo único que va a encontrar.
+
+En el siguiente tutorial vemos las convenciones de nomenclatura de ramas: cómo llamar a las ramas para que el equipo entienda de un vistazo qué contienen, a qué ticket están asociadas, y cuándo borrarlas sin miedo.
+
+---
+
+💡 **Desafío**: Busca en un proyecto tuyo el commit más críptico que encuentres. Escribe cómo lo habrías redactado en formato Conventional Commits con asunto, cuerpo y, si aplica, footer. El ejercicio entrena el ojo para escribir el mensaje en el momento, no reconstruirlo después.
+
+¡Nunca dejes de programar!
