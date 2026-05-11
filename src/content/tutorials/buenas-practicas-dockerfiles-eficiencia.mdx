@@ -1,0 +1,238 @@
+---
+title: "Buenas prácticas en Dockerfiles: caché de capas y optimización"
+post_slug: "buenas-practicas-dockerfiles-eficiencia"
+date: "2026-05-11"
+excerpt: "Aprende cómo funciona el sistema de caché por capas de Docker, cómo ordenar las instrucciones del Dockerfile para builds rápidos, y qué imagen base elegir para imágenes ligeras y eficientes."
+language: "es"
+categories: ["docker"]
+course: "domina-docker-desde-cero"
+order: 7
+cover: "/images/tutorials/cabecera-docker-curso.jpg"
+i18n: "dockerfile-best-practices-efficiency"
+---
+
+Cambias una línea en tu app. Guardas. Ejecutas `docker build`. Y esperas. Y esperas. Y esperas.
+
+Dos minutos y medio de build para una línea de código. El mismo tiempo exacto que tarda cuando instala todas las dependencias desde cero. Porque las instala. Cada vez.
+
+Aquí es donde las cosas se ponen interesantes.
+
+Docker tiene un sistema de caché por capas que, bien aprovechado, hace que el 90% de tus builds sean prácticamente instantáneos. El problema es que ese sistema no se comporta de forma obvia hasta que alguien te lo explica. Cada instrucción del Dockerfile crea una capa, y Docker solo reconstruye desde la primera capa que haya cambiado. Todo lo anterior, desde la caché.
+
+El orden de tus instrucciones no es decorativo. Es rendimiento.
+
+## Cómo funciona la caché de capas
+
+Cuando ejecutas `docker build`, Docker procesa cada instrucción en orden y comprueba: ¿ya tenía esta capa construida? Si la instrucción y sus entradas son idénticas a las de la última vez, usa la caché. Si algo cambió, construye esa capa desde cero — y también todas las que vienen después.
+
+Ese "todas las que vienen después" es la clave. La caché se invalida en cascada. En cuanto una capa cambia, todas las capas posteriores se reconstruyen aunque no hayan cambiado en absoluto.
+
+Mira este Dockerfile típico de alguien que acaba de aprender lo básico:
+
+```dockerfile
+# ❌ Orden que destroza la caché
+FROM python:3.12-slim
+WORKDIR /app
+COPY . .                                    # Copia TODO el proyecto primero
+RUN pip install -r requirements.txt         # Luego instala dependencias
+CMD ["python", "app.py"]
+```
+
+¿El problema? `COPY . .` copia todo tu proyecto: código de la app, archivos de configuración, assets, lo que haya. Cada vez que cambias una sola línea de código, esa capa se invalida. Y todo lo que viene después — incluida la instalación de dependencias — se reconstruye desde cero.
+
+```dockerfile
+# ✅ Orden que aprovecha la caché
+FROM python:3.12-slim
+WORKDIR /app
+COPY requirements.txt .                     # Solo el archivo de dependencias
+RUN pip install -r requirements.txt         # Se cachea si requirements.txt no cambia
+COPY . .                                    # El código va al final
+CMD ["python", "app.py"]
+```
+
+Con este orden, Docker solo reinstala las dependencias cuando `requirements.txt` cambia. Si solo modificas código de la app, las tres primeras capas vienen de caché y el build tarda segundos.
+
+La regla de oro: **lo que cambia poco va arriba; lo que cambia frecuentemente va abajo**.
+
+## El impacto real en los tiempos de build
+
+Esto no es una optimización prematura ni un detalle menor. Con un proyecto mediano de Python:
+
+```
+# Dockerfile mal ordenado — modificas app.py:
+[+] Building 47.3s (8/8) FINISHED
+ => [1/4] FROM python:3.12-slim                0.1s  (caché)
+ => [2/4] WORKDIR /app                         0.0s  (caché)
+ => [3/4] COPY . .                             0.4s  ← todo el proyecto
+ => [4/4] RUN pip install -r requirements.txt 46.1s  ← reinstala todo
+```
+
+```
+# Dockerfile bien ordenado — modificas app.py:
+[+] Building 0.8s (8/8) FINISHED
+ => [1/4] FROM python:3.12-slim                0.0s  (caché)
+ => [2/4] WORKDIR /app                         0.0s  (caché)
+ => [3/4] COPY requirements.txt .              0.0s  (caché)
+ => [4/4] RUN pip install -r requirements.txt  0.0s  (caché) ← ya instalado
+ => [5/5] COPY . .                             0.2s
+```
+
+47 segundos frente a menos de uno. El mismo Dockerfile, distinto orden.
+
+Si eres como yo cuando empecé, ya has pasado por ese ciclo: haces un cambio pequeño, lanzas el build, vas a buscar agua, vuelves a tiempo para ver que terminó. Con el orden correcto, ese ciclo desaparece.
+
+## Combinar comandos `RUN`
+
+Cada instrucción `RUN` en tu Dockerfile crea una nueva capa. Y cada capa añade overhead al tamaño de la imagen y al tiempo de pull. El truco es combinar los `RUN` relacionados en uno solo, especialmente al instalar paquetes del sistema:
+
+```dockerfile
+# ❌ Tres capas innecesarias
+RUN apt-get update
+RUN apt-get install -y curl wget
+RUN rm -rf /var/lib/apt/lists/*
+
+# ✅ Una sola capa
+RUN apt-get update && apt-get install -y \
+    curl \
+    wget \
+    && rm -rf /var/lib/apt/lists/*
+```
+
+El `rm -rf /var/lib/apt/lists/*` al final es crítico, y debe estar en el **mismo `RUN`**. Si lo pones en un `RUN` separado, Docker crea una capa que "elimina" esos archivos — pero los archivos siguen existiendo en la capa anterior. La imagen pesa lo mismo, con una capa extra que simula limpieza sin conseguirla.
+
+Para Node.js, el patrón equivalente:
+
+```dockerfile
+# ✅ Instalar y limpiar en un solo paso
+RUN npm ci --only=production \
+    && npm cache clean --force
+```
+
+No te agobies intentando meter todo en un único `RUN` monolítico. Combina los comandos que están lógicamente relacionados — instalación más limpieza, configuración más compilación. Las instrucciones que no comparten estado pueden estar separadas.
+
+Si quieres ver exactamente qué hay en cada capa de tu imagen — y por qué ocupa lo que ocupa — [`dive`](https://github.com/wagoodman/dive) es el CLI para eso: vista interactiva de capas, tamaño por capa, y qué archivos modificó cada instrucción. Sin Electron, sin esperar a que cargue nada.
+
+## `.dockerignore`: el contexto de build importa
+
+En la lección anterior viste `.dockerignore` para mantener credenciales fuera de la imagen. Pero hay otra razón igual de importante para usarlo, y que casi nadie menciona en los tutoriales de Docker: la velocidad de build.
+
+Piénsalo. Tienes un proyecto Node.js. ¿Cuánto ocupa `node_modules`? ¿200 MB? ¿500 MB? ¿Ese directorio que todos tenemos en el disco y fingimos no ver hasta que nos quedamos sin espacio? El **contexto de build** es todo lo que Docker empaqueta y envía al daemon antes de ejecutar la primera instrucción — no solo lo que copias con `COPY`, sino todo lo que haya en el directorio. Sin `.dockerignore`, Docker empaqueta y transfiere esos cientos de MB en cada build, aunque nunca entren en la imagen.
+
+Si ya conoces [Git](/es/cursos/domina-git-desde-cero), `.dockerignore` funciona exactamente igual que `.gitignore`: misma sintaxis glob, mismo propósito, distinto destino. Tu `.gitignore` ya excluye buena parte de lo que tampoco quieres en el contexto de build — úsalo como punto de partida y añade lo específico de Docker encima.
+
+Un `.dockerignore` completo para un proyecto Node.js:
+
+```
+# Dependencies
+node_modules
+npm-debug.log
+yarn-error.log
+
+# Test coverage
+coverage
+.nyc_output
+
+# Build output
+dist
+build
+.next
+out
+
+# Environment and secrets
+.env
+.env.local
+.env.*.local
+
+# Git history
+.git
+.gitignore
+
+# OS garbage
+.DS_Store
+Thumbs.db
+
+# IDE config
+.vscode
+.idea
+```
+
+Y para Python:
+
+```
+# Virtual environments
+venv
+.venv
+env
+
+# Python bytecode
+__pycache__
+*.pyc
+*.pyo
+*.pyd
+
+# Test coverage
+.pytest_cache
+htmlcov
+.coverage
+
+# Build artifacts
+dist
+build
+*.egg-info
+
+# Git
+.git
+
+# Environment
+.env
+```
+
+La regla es simple: si Docker no necesita ese archivo para construir la imagen, no lo mandes.
+
+## Elegir la imagen base adecuada
+
+La elección en `FROM` determina el tamaño inicial de tu imagen, las vulnerabilidades que hereda, y cuánto tarda en descargarse. Una decisión que parece trivial con consecuencias que no lo son.
+
+Las variantes más comunes de Python — y la lógica aplica a cualquier runtime:
+
+```
+python:3.12         → ~1.02 GB   (Debian completo, con absolutamente todo)
+python:3.12-slim    →  ~148 MB   (Debian sin paquetes extras)
+python:3.12-alpine  →   ~57 MB   (Alpine Linux, mínimo absoluto)
+```
+
+La tentación es ir directo a Alpine porque es la más pequeña. Aquí es donde las cosas se ponen raras — y no es cosa tuya.
+
+Alpine usa `musl libc` en vez de `glibc`. La mayoría del tiempo eso no importa. Pero algunas librerías de Python con extensiones en C — `numpy`, `pandas`, `Pillow`, prácticamente todo lo que hace algo útil — no tienen wheels precompilados para Alpine. ¿Qué hace pip entonces? Compilarlos desde cero. Durante el build. Con todos los headers y herramientas que eso implica instalar.
+
+Resultado: elegiste la imagen más pequeña para que todo fuera más eficiente, y el build ahora tarda 10 minutos en vez de 30 segundos. Ese es el Alpine tax que nadie menciona cuando te recomiendan "usa Alpine para reducir el tamaño de tus imágenes". Elegiste eficiencia y conseguiste lo contrario.
+
+La recomendación práctica:
+
+- **`-slim`**: el punto de partida sensato para la mayoría de proyectos. Significativamente más pequeña que la full, sin los problemas de compatibilidad de Alpine.
+- **`-alpine`**: para imágenes de herramientas simples, binarios de Go, o cuando has verificado que no hay dependencias incompatibles.
+- **Full (sin sufijo)**: solo si necesitas herramientas de compilación específicas de Debian que no puedes instalar tú mismo.
+
+Y una cosa más: **fija la versión**. No uses `python:3.12-slim`; usa `python:3.12.10-slim`. Los tags flotantes como `3.12` pueden cambiar con un `docker pull`. En producción, ese tipo de sorpresa no se agradece.
+
+```dockerfile
+# ❌ Tag flotante — puede cambiar sin avisar
+FROM python:3.12-slim
+
+# ✅ Versión fijada — reproducible siempre
+FROM python:3.12.10-slim-bookworm
+```
+
+Hay más — imágenes distroless de Google, Chainguard, las optimizaciones paralelas de BuildKit. Pero con lo de esta lección ya tienes las herramientas para tener builds rápidos e imágenes razonablemente eficientes en la vida real.
+
+---
+
+Caché de capas con el orden correcto, `RUN` combinados, `.dockerignore` completo, imagen base adecuada. Cuatro prácticas que impactan directamente en el tiempo que pasas mirando un terminal.
+
+En la próxima lección pasamos a la parte que la gente suele ignorar hasta que es demasiado tarde: las **buenas prácticas de seguridad en Dockerfiles**. Hablaremos de por qué correr como root dentro de un contenedor es una idea terrible, cómo hacer scanning de vulnerabilidades, y cómo gestionar secretos sin que acaben horneados en tu imagen para siempre.
+
+¡Nunca dejes de programar!
+
+---
+
+**💡 Reto**: Toma el Dockerfile del reto de la lección anterior (la app Flask). Modifica solo una línea del código de la app y reconstruye con `docker build`. Observa cuántas capas se reconstruyen. Luego reorganiza el Dockerfile para que la instalación de dependencias se cachee correctamente, reconstruye con otro cambio de código y compara los tiempos. El output de `docker build` te dirá exactamente qué viene de caché y qué no.

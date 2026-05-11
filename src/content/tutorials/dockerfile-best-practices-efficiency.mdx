@@ -1,0 +1,238 @@
+---
+title: "Dockerfile Best Practices: Layer Caching and Efficiency"
+post_slug: "dockerfile-best-practices-efficiency"
+date: "2026-05-11"
+excerpt: "Learn how Docker's layer caching system works, how to order Dockerfile instructions for fast builds, and which base image to choose for lean, efficient images."
+language: "en"
+categories: ["docker"]
+course: "mastering-docker-from-scratch"
+order: 7
+cover: "/images/tutorials/cabecera-docker-curso.jpg"
+i18n: "buenas-practicas-dockerfiles-eficiencia"
+---
+
+You change one line in your app. Save. Run `docker build`. And wait. And wait.
+
+Two and a half minutes for a one-line change. Exactly as long as it takes when it installs all your dependencies from scratch. Because it does — every single time.
+
+Here's where it gets interesting.
+
+Docker has a layer caching system that, when used correctly, makes 90% of your builds nearly instant. The catch is that it doesn't behave in an obvious way until someone explains it. Every Dockerfile instruction creates a layer, and Docker only rebuilds starting from the first layer that changed. Everything before it? Straight from cache.
+
+The order of your instructions isn't decorative. It's performance.
+
+## How Docker's layer cache works
+
+When you run `docker build`, Docker processes each instruction in order and checks: did I already build this layer? If the instruction and its inputs are identical to last time, it uses the cache. If anything changed, it rebuilds that layer from scratch — and every layer after it too.
+
+That "every layer after it" is what bites you. The cache invalidates in a cascade. Once one layer changes, all subsequent layers get rebuilt even if nothing about them changed.
+
+Look at this classic Dockerfile from someone who just learned the basics:
+
+```dockerfile
+# ❌ Layer order that destroys the cache
+FROM python:3.12-slim
+WORKDIR /app
+COPY . .                                    # Copy everything first
+RUN pip install -r requirements.txt         # Then install dependencies
+CMD ["python", "app.py"]
+```
+
+The problem? `COPY . .` copies your entire project — app code, config files, assets, everything. Every time you change a single line of code, that layer gets invalidated. And everything after it — including dependency installation — rebuilds from scratch.
+
+```dockerfile
+# ✅ Layer order that uses the cache
+FROM python:3.12-slim
+WORKDIR /app
+COPY requirements.txt .                     # Only the dependency manifest
+RUN pip install -r requirements.txt         # Cached unless requirements.txt changed
+COPY . .                                    # Code goes last
+CMD ["python", "app.py"]
+```
+
+With this order, Docker only reinstalls dependencies when `requirements.txt` actually changes. Modify your app code? The first three layers hit cache and the build takes seconds.
+
+The golden rule: **what changes rarely goes near the top; what changes often goes near the bottom**.
+
+## What this looks like in practice
+
+This isn't premature optimization. On a medium-sized Python project:
+
+```
+# Badly ordered Dockerfile — you change app.py:
+[+] Building 47.3s (8/8) FINISHED
+ => [1/4] FROM python:3.12-slim                0.1s  (cached)
+ => [2/4] WORKDIR /app                         0.0s  (cached)
+ => [3/4] COPY . .                             0.4s  ← full project copy
+ => [4/4] RUN pip install -r requirements.txt 46.1s  ← reinstalls everything
+```
+
+```
+# Well-ordered Dockerfile — you change app.py:
+[+] Building 0.8s (8/8) FINISHED
+ => [1/4] FROM python:3.12-slim                0.0s  (cached)
+ => [2/4] WORKDIR /app                         0.0s  (cached)
+ => [3/4] COPY requirements.txt .              0.0s  (cached)
+ => [4/4] RUN pip install -r requirements.txt  0.0s  (cached) ← already done
+ => [5/5] COPY . .                             0.2s
+```
+
+47 seconds versus under one. Same Dockerfile, different order.
+
+If you're like me when I started, you've been through that loop: make a tiny change, kick off the build, go refill your water, come back just in time to see it finish. The right layer order eliminates that loop entirely.
+
+## Combining `RUN` commands
+
+Every `RUN` instruction in your Dockerfile creates a new layer. Each layer adds overhead to image size and pull times. The trick is combining related `RUN` instructions into one, especially when installing system packages:
+
+```dockerfile
+# ❌ Three unnecessary layers
+RUN apt-get update
+RUN apt-get install -y curl wget
+RUN rm -rf /var/lib/apt/lists/*
+
+# ✅ One single layer
+RUN apt-get update && apt-get install -y \
+    curl \
+    wget \
+    && rm -rf /var/lib/apt/lists/*
+```
+
+The `rm -rf /var/lib/apt/lists/*` cleanup at the end is critical — and it **must be in the same `RUN`**. Put it in a separate `RUN` and Docker creates a layer that "deletes" those files, but they still exist in the previous layer. Your image ends up the same size with an extra layer that pretends to clean up without actually doing it.
+
+For Node.js, the equivalent:
+
+```dockerfile
+# ✅ Install and clean in a single step
+RUN npm ci --only=production \
+    && npm cache clean --force
+```
+
+Don't stress about cramming everything into one giant monolithic `RUN`. Combine instructions that are logically related — install plus clean, configure plus compile. Instructions that don't share state can stay separate.
+
+If you want to see exactly what's in each layer — and why your image weighs what it weighs — [`dive`](https://github.com/wagoodman/dive) is the CLI for that: interactive layer inspection, size per layer, and which files each instruction touched. No Electron, no waiting for an app to load.
+
+## `.dockerignore`: the build context matters
+
+You saw `.dockerignore` in the last lesson as a way to keep secrets out of your image. There's an equally important reason almost nobody mentions: build speed.
+
+Think about it. You have a Node.js project. How big is `node_modules`? 200 MB? 500 MB? That directory everyone has on their machine and pretends not to look at? The **build context** is everything Docker packages and sends to the daemon before executing the first instruction — not just what you `COPY` into the image, but everything in the directory. Without `.dockerignore`, Docker packages and ships all those hundreds of MB on every build, even if they never make it into the image.
+
+If you've used [Git](/en/courses/mastering-git-from-scratch), `.dockerignore` works exactly like `.gitignore`: same glob syntax, same idea, different destination. Your existing `.gitignore` already excludes most of what you don't want in the build context — use it as a starting point and add Docker-specific entries on top.
+
+A complete `.dockerignore` for a Node.js project:
+
+```
+# Dependencies
+node_modules
+npm-debug.log
+yarn-error.log
+
+# Test coverage
+coverage
+.nyc_output
+
+# Build output
+dist
+build
+.next
+out
+
+# Environment and secrets
+.env
+.env.local
+.env.*.local
+
+# Git history
+.git
+.gitignore
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# IDE config
+.vscode
+.idea
+```
+
+And for Python:
+
+```
+# Virtual environments
+venv
+.venv
+env
+
+# Python bytecode
+__pycache__
+*.pyc
+*.pyo
+*.pyd
+
+# Test coverage
+.pytest_cache
+htmlcov
+.coverage
+
+# Build artifacts
+dist
+build
+*.egg-info
+
+# Git
+.git
+
+# Environment
+.env
+```
+
+The rule: if Docker doesn't need that file to build the image, don't send it.
+
+## Choosing the right base image
+
+Your `FROM` choice determines your image's starting size, the vulnerabilities it inherits, and how long it takes to pull. A decision that looks trivial with consequences that aren't.
+
+The most common Python variants — and the logic applies to any runtime:
+
+```
+python:3.12         → ~1.02 GB   (full Debian, everything included)
+python:3.12-slim    →  ~148 MB   (Debian without extras)
+python:3.12-alpine  →   ~57 MB   (Alpine Linux, minimum possible)
+```
+
+The temptation is to go straight for Alpine because it's the smallest. This is where things get genuinely weird.
+
+Alpine uses `musl libc` instead of `glibc`. Most of the time that's invisible. But Python libraries with C extensions — `numpy`, `pandas`, `Pillow`, basically everything that does anything useful — don't have precompiled wheels for Alpine. So what does pip do? Compiles them from source. During the build. Along with all the headers and tooling that requires installing first.
+
+The result: you picked the smallest base image to be efficient, and your build now takes 10 minutes instead of 30 seconds. You optimized for size and got the opposite. That's the Alpine tax that every "reduce your Docker image size" tutorial conveniently leaves out.
+
+The practical recommendation:
+
+- **`-slim`**: the sensible starting point for most projects. Significantly smaller than full, without Alpine's compatibility headaches.
+- **`-alpine`**: for simple tool images, Go binaries, or when you've verified there are no incompatible dependencies.
+- **Full (no suffix)**: only when you need specific Debian build tools you can't install yourself.
+
+One more thing: **pin your version**. Don't use `python:3.12-slim`; use `python:3.12.10-slim`. Floating tags can silently change with a `docker pull`. In production, that kind of surprise tends to happen at the worst possible moment.
+
+```dockerfile
+# ❌ Floating tag — can change without warning
+FROM python:3.12-slim
+
+# ✅ Pinned version — reproducible everywhere
+FROM python:3.12.10-slim-bookworm
+```
+
+There's more to explore — distroless images from Google, Chainguard images, BuildKit's parallel execution. But what's in this lesson already gets you fast builds and lean images for real-world projects.
+
+---
+
+Layer cache with the right ordering, combined `RUN` instructions, a solid `.dockerignore`, and a sensible base image choice. Four practices that directly affect the time you spend staring at a terminal.
+
+In the next lesson, we get to the part everyone tends to ignore until it's too late: **Dockerfile security best practices**. We'll cover why running as root inside a container is a terrible idea, how to scan for vulnerabilities, and how to handle secrets without baking them into your image for eternity.
+
+Never stop coding!
+
+---
+
+**💡 Challenge**: Take the Dockerfile from the previous lesson's challenge (the Flask app). Change one line of app code and rebuild with `docker build`. Watch which layers rebuild. Then reorder the Dockerfile so dependency installation gets cached correctly, rebuild again with a code change, and compare the times. The `docker build` output will tell you exactly what hit cache and what didn't.
