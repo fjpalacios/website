@@ -123,6 +123,13 @@ interface Props {
    * - 'auto': Browser decides (default)
    */
   fetchpriority?: "high" | "low" | "auto";
+
+  /**
+   * How the image fits its dimensions when width and height are both specified
+   * - 'contain' (default): scale to fit without cropping
+   * - 'cover': crop to fill exact dimensions
+   */
+  fit?: "contain" | "cover" | "fill" | "inside" | "outside";
 }
 
 const {
@@ -137,6 +144,7 @@ const {
   sizes,
   widths = [400, 800, 1200, 1600],
   fetchpriority = "auto",
+  fit = "contain",
 } = Astro.props;
 
 // Determine if this is an imported image or public path
@@ -163,4 +171,5 @@ if (!isImportedImage && (!width || !height)) {
   quality={quality}
   widths={widths}
   sizes={sizes}
+  fit={fit}
 />
