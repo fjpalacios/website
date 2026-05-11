@@ -1,0 +1,169 @@
+---
+title: "Listas en Python: tu primera estructura de datos"
+post_slug: "listas-basicas-python"
+date: "2026-05-12"
+excerpt: "Un solo valor no es suficiente para la mayoría de los problemas reales. Aprende a crear listas, acceder a sus elementos por índice, cortarlas con slicing e iterar sobre ellas con for."
+language: "es"
+categories: ["programacion"]
+course: "aprende-a-programar-desde-cero-python"
+order: 9
+cover: "/images/tutorials/cabecera-python-curso.jpg"
+i18n: "lists-basics-python"
+---
+
+Imagina que estás escribiendo un programa para una tienda online. Necesitas guardar los productos del carrito: camiseta, pantalón, zapatillas. Tres variables, una por producto. Vale. ¿Pero si el usuario añade diez artículos? ¿`producto_1`, `producto_2`... `producto_10`? ¿Y si después elimina el tercero? En ese punto, "copiar y pegar variables" deja de ser una estrategia y empieza a ser un problema.
+
+Para eso existen las listas.
+
+## ¿Qué es una lista?
+
+Una **lista** es una colección **ordenada** de elementos. Ordenada no significa que estén alfabéticamente — significa que cada elemento tiene una **posición fija**, y esa posición es lo que te permite acceder a él. Puedes imaginarla como una fila de cajas numeradas: sabes exactamente en qué caja está cada cosa.
+
+```python
+productos = ["camiseta", "pantalón", "zapatillas"]
+numeros = [1, 2, 3, 4, 5]
+mezcla = [42, "hola", True, 3.14]   # Python allows mixed types
+```
+
+La sintaxis es simple: corchetes, elementos separados por comas. Si vienes de Java o C, estás esperando que tengas que declarar el tipo y el tamaño desde el principio. Python no. Una lista se crea con lo que tienes y crece o decrece sin que tengas que pedirle permiso a nadie.
+
+Una lista vacía es perfectamente válida — la crearás y la rellenarás después:
+
+```python
+carrito = []   # Empty list, will be filled as the user shops
+```
+
+## Acceder a elementos: el índice
+
+Cada posición en una lista tiene un número llamado **índice**. Los índices empiezan en `0`, no en `1`:
+
+```python
+frutas = ["manzana", "pera", "uva", "kiwi"]
+#              0        1      2       3
+
+print(frutas[0])   # "manzana"
+print(frutas[2])   # "uva"
+```
+
+El primer elemento siempre es el `0`. Parece arbitrario hasta que empiezas a trabajar con aritmética de posiciones y tiene todo el sentido — pero eso es para otro momento.
+
+Si intentas acceder a un índice que no existe, Python no adivina ni improvisa:
+
+```python
+print(frutas[10])   # IndexError: list index out of range
+```
+
+El `IndexError` es el error más frecuente al trabajar con listas. Lo verás. Lo pasarás mal con él exactamente una vez. A partir de la segunda, sabrás en qué línea está el problema antes de leer el traceback completo.
+
+### Índices negativos
+
+¿Qué pasa si necesitas el último elemento de una lista pero no sabes cuántos elementos tiene? ¿Calculas la longitud y le restas uno? Python tiene algo mejor: los **índices negativos**.
+
+`[-1]` es siempre el último elemento. `[-2]` es el penúltimo. Y así hacia atrás:
+
+```python
+frutas = ["manzana", "pera", "uva", "kiwi"]
+
+print(frutas[-1])   # "kiwi"  — last
+print(frutas[-2])   # "uva"   — second to last
+print(frutas[-4])   # "manzana" — same as [0]
+```
+
+Sin índices negativos, "dame el último elemento" sería `frutas[len(frutas) - 1]`. Con ellos, es `frutas[-1]`. La diferencia no es solo cosmética — es que cuando lees el código tres semanas después, `frutas[-1]` dice exactamente lo que hace sin necesidad de descifrar nada.
+
+## Slicing: extraer un rango de elementos
+
+Hasta ahora has accedido a un elemento con `[índice]`. Con **slicing** puedes acceder a un rango completo usando `[inicio:fin]`:
+
+```python
+frutas = ["manzana", "pera", "uva", "kiwi", "naranja"]
+
+print(frutas[1:3])   # ["pera", "uva"] — indices 1 and 2, not 3
+print(frutas[:2])    # ["manzana", "pera"] — from start to index 1
+print(frutas[2:])    # ["uva", "kiwi", "naranja"] — from index 2 to end
+print(frutas[:])     # All elements — a full copy
+```
+
+El patrón es exactamente el mismo que `range()`: el inicio está incluido, el final no. Si lo recuerdas de [la lección anterior sobre bucles for](/es/tutoriales/bucles-for-range-python), ya sabes cómo funciona — Python usa este convenio de forma consistente.
+
+También puedes añadir un paso, igual que `range(start, stop, step)`:
+
+```python
+numeros = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
+
+print(numeros[::2])    # [0, 2, 4, 6, 8] — every other element
+print(numeros[::-1])   # [9, 8, 7, 6, 5, 4, 3, 2, 1, 0] — reversed
+```
+
+Ese `[::-1]` para invertir una lista es uno de esos one-liners que aparecen en Stack Overflow sin explicación, seguido de cuarenta votos positivos y ningún comentario. No es magia — es un paso negativo que recorre la lista de atrás hacia delante. Ahora ya sabes lo que hace cuando lo veas.
+
+## Iterar con for
+
+Ya lo hiciste en la lección anterior. Los bucles `for` y las listas son combinación natural — de hecho, son exactamente el tipo de secuencia para la que el `for` de Python fue diseñado:
+
+```python
+frutas = ["manzana", "pera", "uva", "kiwi"]
+
+for fruta in frutas:
+    print(fruta)
+```
+
+```
+manzana
+pera
+uva
+kiwi
+```
+
+Si necesitas el índice además del valor, Python tiene `enumerate()`:
+
+```python
+for indice, fruta in enumerate(frutas):
+    print(f"{indice}: {fruta}")
+```
+
+```
+0: manzana
+1: pera
+2: uva
+3: kiwi
+```
+
+`enumerate()` devuelve pares (índice, elemento). Es la forma correcta de recorrer una lista cuando necesitas la posición. La alternativa — iterar con `range(len(frutas))` y acceder con `frutas[i]` — funciona, pero delata a quien aprendió otro lenguaje antes que Python.
+
+## len() y el operador in
+
+Dos herramientas que usarás constantemente con listas:
+
+**`len()`** devuelve el número de elementos:
+
+```python
+frutas = ["manzana", "pera", "uva", "kiwi"]
+print(len(frutas))   # 4
+```
+
+**`in`** comprueba si un elemento está en la lista:
+
+```python
+print("pera" in frutas)      # True
+print("plátano" in frutas)   # False
+```
+
+Y `not in` para el caso contrario:
+
+```python
+if "plátano" not in frutas:
+    print("No hay plátanos")
+```
+
+Juntos, responden las dos preguntas más frecuentes al trabajar con colecciones: ¿cuántas cosas hay aquí? ¿está esta cosa aquí? Con `len()` e `in`, el 80% de esas comprobaciones quedan resueltas en una línea.
+
+---
+
+Ya sabes crear listas, acceder a sus elementos por posición (positiva y negativa), extraer rangos con slicing, iterar con `for` y `enumerate()`, y comprobar existencia con `in`. Eso cubre la parte de **lectura**. En el próximo tutorial aprenderás la parte de **escritura**: los métodos para añadir elementos con `append()`, eliminar con `remove()`, y una primera toma de contacto con las list comprehensions — que son una de esas cosas de Python que, cuando las ves por primera vez, no puedes creer que funcionen.
+
+¡Nunca dejes de programar!
+
+---
+
+**💡 Reto**: Crea una lista con los nombres de cinco películas que te gusten. Después: (1) imprime la primera y la última usando índices positivo y negativo respectivamente; (2) muestra las tres del medio con slicing; (3) pide al usuario un título e indícale si está o no en tu lista; (4) imprime todas las películas numeradas del 1 en adelante usando `enumerate()`. Bonus: añade una sexta película a tu lista antes de imprimirla (necesitarás `append()` — ya lo verás en el siguiente tutorial, pero puedes buscarlo).

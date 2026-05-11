@@ -1,0 +1,169 @@
+---
+title: "Lists in Python: your first data structure"
+post_slug: "lists-basics-python"
+date: "2026-05-12"
+excerpt: "A single variable can only hold one value. Lists hold as many as you need — and let you access, slice, and iterate over them with almost no ceremony."
+language: "en"
+categories: ["programming"]
+course: "learn-to-code-from-scratch-python"
+order: 9
+cover: "/images/tutorials/cabecera-python-curso.jpg"
+i18n: "listas-basicas-python"
+---
+
+At some point, one variable isn't enough. You're writing a program to track a shopping cart, a list of players in a game, or the results of a search — and you need to store multiple values that belong together. You could create `product_1`, `product_2`, `product_3`... but we both know where that ends up.
+
+That's what lists are for.
+
+## What is a list?
+
+A **list** is an **ordered** collection of elements. Ordered doesn't mean alphabetically sorted — it means every element has a fixed **position**, and that position is how you reach it. Think of it as a numbered row of slots: you know exactly where everything is.
+
+```python
+products = ["shirt", "pants", "sneakers"]
+numbers = [1, 2, 3, 4, 5]
+mixed = [42, "hello", True, 3.14]   # Python allows mixed types
+```
+
+Square brackets, elements separated by commas. If you're coming from Java or C, you're waiting for the type declaration and the size. Python doesn't ask. A list is created with whatever you give it, grows when you need it to grow, and shrinks when you remove things.
+
+An empty list is perfectly fine — you'll create it first and fill it as you go:
+
+```python
+cart = []   # Empty list, will be filled as the user shops
+```
+
+## Accessing elements: the index
+
+Every position in a list has a number called an **index**. Indices start at `0`, not `1`:
+
+```python
+fruits = ["apple", "pear", "grape", "kiwi"]
+#           0         1       2        3
+
+print(fruits[0])   # "apple"
+print(fruits[2])   # "grape"
+```
+
+The first element is always `0`. It seems arbitrary until you start doing position arithmetic and it makes complete sense — but that's a conversation for another day.
+
+Try to access an index that doesn't exist, and Python won't guess or make something up:
+
+```python
+print(fruits[10])   # IndexError: list index out of range
+```
+
+The `IndexError` is the most common error when working with lists. You'll see it. You'll be annoyed by it exactly once. After that, you'll know where the problem is before you even finish reading the traceback.
+
+### Negative indices
+
+What if you need the last element of a list but you don't know how many elements it has? Calculate the length and subtract one? Python has something better: **negative indices**.
+
+`[-1]` is always the last element. `[-2]` is second to last. And so on:
+
+```python
+fruits = ["apple", "pear", "grape", "kiwi"]
+
+print(fruits[-1])   # "kiwi"  — last
+print(fruits[-2])   # "grape" — second to last
+print(fruits[-4])   # "apple" — same as [0]
+```
+
+Without negative indices, "give me the last element" would be `fruits[len(fruits) - 1]`. With them, it's `fruits[-1]`. The difference isn't just shorter — it's that when you read this code three weeks from now, `fruits[-1]` says exactly what it does with no mental overhead.
+
+## Slicing: extracting a range of elements
+
+You've been accessing one element at a time with `[index]`. **Slicing** lets you grab a range of elements with `[start:end]`:
+
+```python
+fruits = ["apple", "pear", "grape", "kiwi", "orange"]
+
+print(fruits[1:3])   # ["pear", "grape"] — indices 1 and 2, not 3
+print(fruits[:2])    # ["apple", "pear"] — from start to index 1
+print(fruits[2:])    # ["grape", "kiwi", "orange"] — from index 2 to end
+print(fruits[:])     # All elements — a full copy
+```
+
+The pattern is the same as `range()`: start is included, end is not. If you remember that from [the previous lesson on for loops](/en/tutorials/for-loops-range-python), you already know how this works — Python uses this convention consistently.
+
+You can also add a step, just like `range(start, stop, step)`:
+
+```python
+numbers = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
+
+print(numbers[::2])    # [0, 2, 4, 6, 8] — every other element
+print(numbers[::-1])   # [9, 8, 7, 6, 5, 4, 3, 2, 1, 0] — reversed
+```
+
+That `[::-1]` to reverse a list is one of those Stack Overflow answers that gets forty upvotes and zero comments explaining what's happening. It's not magic — it's a negative step that walks the list from the end to the beginning. Now you know what you're looking at when you see it.
+
+## Iterating with for
+
+You already did this in the previous lesson. `for` loops and lists are a natural fit — lists are exactly the kind of sequence the Python `for` was built for:
+
+```python
+fruits = ["apple", "pear", "grape", "kiwi"]
+
+for fruit in fruits:
+    print(fruit)
+```
+
+```
+apple
+pear
+grape
+kiwi
+```
+
+If you need the index alongside the value, use `enumerate()`:
+
+```python
+for index, fruit in enumerate(fruits):
+    print(f"{index}: {fruit}")
+```
+
+```
+0: apple
+1: pear
+2: grape
+3: kiwi
+```
+
+`enumerate()` gives you pairs of (index, element). It's the right way to iterate over a list when you need the position. The alternative — looping with `range(len(fruits))` and accessing with `fruits[i]` — works, but it's a tell that you learned another language before Python.
+
+## len() and the in operator
+
+Two tools you'll use constantly with lists:
+
+**`len()`** returns the number of elements:
+
+```python
+fruits = ["apple", "pear", "grape", "kiwi"]
+print(len(fruits))   # 4
+```
+
+**`in`** checks if an element is in the list:
+
+```python
+print("pear" in fruits)     # True
+print("banana" in fruits)   # False
+```
+
+And `not in` for the opposite:
+
+```python
+if "banana" not in fruits:
+    print("No bananas here")
+```
+
+Together, these answer the two most common questions you'll have about a collection: how many things are in here, and is this specific thing in here? With `len()` and `in`, 80% of those checks are a single line.
+
+---
+
+You can now create lists, access elements by position (positive and negative), extract ranges with slicing, iterate with `for` and `enumerate()`, and check membership with `in`. That covers the **reading** side. The next tutorial covers **writing**: adding elements with `append()`, removing them with `remove()`, and a first look at list comprehensions — one of those Python features that feels like it shouldn't work until you run it and it just does.
+
+Never stop coding!
+
+---
+
+**💡 Challenge**: Create a list with the names of five movies you like. Then: (1) print the first and last using positive and negative indices respectively; (2) display the three in the middle using slicing; (3) ask the user for a movie title and tell them whether it's in your list; (4) print all movies numbered from 1 onward using `enumerate()`. Bonus: add a sixth movie before printing the full list (you'll need `append()` — covered in the next tutorial, but feel free to look it up).
