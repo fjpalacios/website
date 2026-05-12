@@ -1,0 +1,119 @@
+---
+title: "Modo Visual en Vim: selecciona, opera, domina"
+post_slug: "modo-visual-vim"
+date: "2026-05-13"
+excerpt: "El modo Visual no es 'seleccionar con el teclado como con el ratón'. Es una herramienta de tres variantes con operaciones directas y un modo de bloques que simula múltiples cursores sin un solo plugin."
+language: "es"
+categories: ["vim"]
+course: "domina-vim-desde-cero"
+order: 6
+cover: "/images/tutorials/cabecera-vim-curso.jpg"
+i18n: "visual-mode-vim"
+---
+
+La primera reacción de casi todo el mundo cuando llega al modo Visual es un suspiro de alivio: "por fin, algo con lo que ya sé cómo lidiar". Puedes seleccionar texto antes de borrarlo, copiarlo o indentarlo. Como siempre has hecho. Como en cualquier editor.
+
+Y está bien. Ese es exactamente el punto de entrada. Pero si usas el modo Visual solo como "seleccionar texto con el teclado antes de hacer algo", te estás perdiendo las dos partes que lo hacen realmente potente: los operadores que funcionan de forma diferente aquí, y el modo de bloques que simula múltiples cursores sin un solo plugin.
+
+## Los tres modos dentro del modo Visual
+
+El modo Visual no es uno solo — son tres, cada uno con un comportamiento diferente:
+
+| Comando  | Modo                | Qué selecciona                                      |
+| -------- | ------------------- | --------------------------------------------------- |
+| `v`      | Visual por carácter | Selección carácter a carácter                       |
+| `V`      | Visual por línea    | Líneas completas, sin importar dónde esté el cursor |
+| `Ctrl+v` | Visual de bloques   | Un rectángulo de texto (columnas)                   |
+
+El `v` es el más intuitivo. Pulsas `v`, mueves el cursor y la selección crece. Funciona con cualquier movimiento del modo Normal: `w`, `e`, `$`, `gg`, `G`, incluso búsquedas. Si sabes moverte en modo Normal, ya sabes seleccionar en modo Visual por caracteres.
+
+`V` selecciona siempre líneas completas. No importa dónde esté el cursor al entrar — la selección arranca desde la línea actual completa y se expande línea a línea. Práctico cuando trabajas con bloques de código donde la granularidad de carácter no aporta nada.
+
+`Ctrl+v` es la joya. Lo dejamos para su sección porque merece espacio.
+
+### `gv`: volver a la última selección
+
+Un comando pequeño que merece estar aquí: después de hacer una operación sobre una selección y volver al modo Normal, `gv` restaura exactamente la última selección visual. Útil cuando indentaste con `>` pero no era suficiente, o cuando quieres aplicar otra operación al mismo rango sin reseleccionar desde cero.
+
+## Operar sobre la selección
+
+Con texto seleccionado, los comandos más útiles son:
+
+| Comando | Qué hace sobre la selección          |
+| ------- | ------------------------------------ |
+| `d`     | Borra la selección                   |
+| `c`     | Borra la selección y entra en Insert |
+| `y`     | Copia (yank) la selección            |
+| `>`     | Indenta la selección                 |
+| `<`     | Deindenta la selección               |
+| `=`     | Autoformatea la selección            |
+| `~`     | Alterna mayúsculas/minúsculas        |
+| `u`     | Convierte a minúsculas               |
+| `U`     | Convierte a mayúsculas               |
+
+Por ahora no te agobies con la tabla entera. `d`, `y` y `>` son el 90% del uso real. El resto lo irás incorporando cuando aparezca la necesidad.
+
+Una combinación que vale la pena conocer desde el principio: `vap` — entra en Visual mode y selecciona el párrafo completo (el _text object_ `ap` = "a paragraph"). En código, un párrafo es básicamente un bloque contiguo sin líneas vacías: en Python eso suele ser una función completa, en HTML un elemento. `vap` + `>` lo indenta, `vap` + `d` lo borra, `vap` + `y` lo copia.
+
+## El modo Visual de bloques
+
+Aquí es donde las cosas se ponen interesantes. De verdad.
+
+`Ctrl+v` activa el Visual de bloques. En lugar de seleccionar caracteres o líneas completas, seleccionas un **rectángulo**: un rango de columnas en múltiples líneas simultáneamente. Si mueves el cursor tres líneas abajo y cinco columnas a la derecha, seleccionas exactamente esa área rectangular.
+
+El caso de uso más clásico: añadir el mismo texto al principio de varias líneas a la vez.
+
+```vim
+" Tienes este código:
+const name = 'Alice'
+const age  = 30
+const role = 'admin'
+
+" Quieres comentar las tres líneas con //
+" 1. Coloca el cursor en la 'c' de la primera línea
+" 2. Ctrl+v → activa Visual de bloques
+" 3. 2j → expande la selección dos líneas hacia abajo
+" 4. I → entras en Insert al principio de la selección
+" 5. //  → escribes el comentario (solo ves el cambio en la primera línea)
+" 6. Esc → Vim replica el Insert en todas las líneas del bloque
+```
+
+Ese `Esc` final es el momento mágico: lo que escribiste aparece en todas las líneas del bloque a la vez. Esto es la simulación de múltiples cursores en Vim, sin plugins, sin `Ctrl+D` de VS Code, sin `Alt+click`. Solo `Ctrl+v`, `I`, texto, `Esc`.
+
+La misma mecánica funciona con `A` en lugar de `I` para añadir al final de cada línea — aunque las líneas tengan distinta longitud, Vim extiende la selección hasta la más larga.
+
+¿Sensación de que acabas de ver un truco de magia? Es exactamente lo que es. El Visual de bloques es uno de esos comandos que convierten a alguien que "usa Vim porque le toca" en alguien que empieza a entender por qué la gente lo defiende.
+
+## Visual o gramática de Vim: cuándo usar cada uno
+
+Después de aprender el modo Visual, alguien siempre pregunta lo mismo: "¿para qué seleccionar con Visual si puedo hacer `d3w` o `ci"` directamente desde el modo Normal?"
+
+Buena pregunta. La respuesta honesta: hay situaciones donde cada uno gana.
+
+**Usa Visual cuando:**
+- No sabes exactamente hasta dónde llega el rango y necesitas verlo antes de actuar
+- La selección tiene forma irregular que ningún movimiento describe de forma limpia
+- Quieres aplicar la misma operación al mismo rango varias veces (`gv` + operación)
+
+**Usa operador-movimiento cuando:**
+- Sabes exactamente qué quieres hacer y el movimiento lo describe con precisión
+- Vas a repetir la operación con `.` — porque el modo Visual rompe esa repetibilidad
+
+Ese último punto es crítico y pocas personas lo saben al principio. Cuando haces `d3w` en modo Normal, el comando `.` puede repetirlo exactamente: tres palabras borradas, donde sea que esté el cursor. Cuando seleccionas con `v` y luego borras, `.` solo repite el borrado pero no la selección. Pierde la "forma" del cambio.
+
+Si estás haciendo lo mismo en varios sitios del código, [la gramática del modo Normal](/es/tutoriales/modo-normal-el-poder-de-vim) con operadores y movimientos es más rápida y repetible. Si solo lo haces una vez y necesitas ver el rango antes de confirmar, el modo Visual es el correcto.
+
+## Conceptos clave de esta lección
+
+- **Tres variantes**: `v` (carácter), `V` (línea), `Ctrl+v` (bloque)
+- **`gv`** restaura la última selección visual — para operar sobre el mismo rango sin reseleccionar
+- **`vap`** selecciona el párrafo completo — útil con bloques de código
+- **Visual de bloques** + `I` / `A` + texto + `Esc` = múltiples cursores sin plugins
+- **Cuándo usar Visual**: rango incierto, selección irregular, sin necesidad de repetir con `.`
+- **Cuándo usar operador-movimiento**: rango conocido, cambio repetible, trabajo en serie
+
+---
+
+El modo Visual completa el trío de modos fundamentales de Vim. A partir de aquí la curva de aprendizaje cambia: lo que viene no son más modos, sino formas de moverte más rápido. El próximo tutorial cubre la **búsqueda con `/`, `?` y `*`** — la forma de saltar a cualquier punto del archivo en cuestión de caracteres.
+
+¡Nunca dejes de programar!
