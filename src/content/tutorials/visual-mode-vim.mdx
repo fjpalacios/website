@@ -1,0 +1,119 @@
+---
+title: "Visual mode in Vim: select, operate, own it"
+post_slug: "visual-mode-vim"
+date: "2026-05-13"
+excerpt: "Visual mode isn't 'using the keyboard like a mouse'. It's a three-variant tool with direct operations and a block mode that simulates multiple cursors with zero plugins."
+language: "en"
+categories: ["vim"]
+course: "mastering-vim-from-scratch"
+order: 6
+cover: "/images/tutorials/cabecera-vim-curso.jpg"
+i18n: "modo-visual-vim"
+---
+
+Most people discover Visual mode and feel a small wave of relief: finally, something familiar. Select text, then do something with it. That's how every other editor works. That's how your hands already think.
+
+That's a perfectly fine starting point. The problem is if you stop there — using Visual mode as "keyboard-driven mouse selection" and nothing else. Because there are two things here that go well beyond that: operators that behave differently in this context, and a block mode that does things VS Code needs a plugin to simulate.
+
+## The three Visual modes
+
+Visual mode isn't one thing — it's three, each with distinct behavior:
+
+| Command  | Mode            | What it selects                                        |
+| -------- | --------------- | ------------------------------------------------------ |
+| `v`      | Characterwise   | Character by character                                 |
+| `V`      | Linewise        | Full lines, regardless of cursor position              |
+| `Ctrl+v` | Blockwise       | A rectangular region (columns across multiple lines)   |
+
+`v` is the intuitive one. Press `v`, move the cursor, the selection grows. Every Normal mode motion works: `w`, `e`, `$`, `gg`, `G`, even search patterns. If you can navigate in Normal mode, you already know how to select in characterwise Visual.
+
+`V` always grabs full lines. It doesn't matter where the cursor is when you enter — you get the entire current line, and each movement extends by whole lines. Useful when you're working with code blocks where character-level precision doesn't add anything.
+
+`Ctrl+v` is the interesting one. Its own section.
+
+### `gv`: bring back the last selection
+
+A small command worth knowing early: after operating on a selection and returning to Normal mode, `gv` restores exactly your last visual selection. Useful when you indented with `>` but not enough, or when you want a second operation on the same range without reselecting from scratch.
+
+## Operating on a selection
+
+With text selected, the most useful commands are:
+
+| Command | What it does to the selection        |
+| ------- | ------------------------------------ |
+| `d`     | Delete the selection                 |
+| `c`     | Delete the selection and enter Insert|
+| `y`     | Yank (copy) the selection            |
+| `>`     | Indent the selection                 |
+| `<`     | Dedent the selection                 |
+| `=`     | Auto-format the selection            |
+| `~`     | Toggle case                          |
+| `u`     | Lowercase                            |
+| `U`     | Uppercase                            |
+
+Don't try to memorize all of this now. `d`, `y`, and `>` cover 90% of real-world usage. The rest will show up naturally when you need them.
+
+One combination worth learning early: `vap` — enters Visual mode and selects the entire paragraph (the text object `ap` = "a paragraph"). In code, a paragraph is a contiguous block with no blank lines separating it: a Python function, an HTML element, a JSON object. `vap` + `>` indents it, `vap` + `d` deletes it, `vap` + `y` copies it.
+
+## Block Visual mode
+
+Here's where things get genuinely interesting.
+
+`Ctrl+v` activates blockwise Visual mode. Instead of selecting characters or full lines, you select a **rectangle**: a column range across multiple lines simultaneously. Move three lines down and five columns right — you've selected exactly that rectangular area.
+
+The most common use case: inserting the same text at the start of multiple lines at once.
+
+```vim
+" You have this code:
+const name = 'Alice'
+const age  = 30
+const role = 'admin'
+
+" You want to comment out all three lines with //
+" 1. Place the cursor on the 'c' of the first line
+" 2. Ctrl+v → activate blockwise Visual
+" 3. 2j → extend the selection two lines down
+" 4. I → enter Insert at the start of the selection
+" 5. //  → type the comment (you only see it on the first line)
+" 6. Esc → Vim replays the Insert across every line in the block
+```
+
+That `Esc` at the end is the magic moment: what you typed appears on all the lines at once. This is Vim's multiple cursors — no plugins, no `Ctrl+D` from VS Code, no `Alt+click`. Just `Ctrl+v`, `I`, text, `Esc`.
+
+The same mechanic works with `A` instead of `I` to append at the end of each line — even if the lines have different lengths, Vim extends the selection to match the longest one.
+
+If this feels like a magic trick, that's because it kind of is. Block Visual mode is one of those features that turns someone who uses Vim because they have to into someone who starts to get why people are so loud about it.
+
+## Visual vs Vim's grammar: when to use each
+
+After learning Visual mode, someone always asks: "why bother selecting with Visual when I can just do `d3w` or `ci"` straight from Normal mode?"
+
+Fair question. Honest answer: each one wins in different situations.
+
+**Use Visual when:**
+- You don't know exactly where the range ends and need to see it before committing
+- The selection has an irregular shape that no single motion describes cleanly
+- You want to apply multiple operations to the same range (`gv` + operation)
+
+**Use operator-motion when:**
+- You know exactly what you want and the motion describes it precisely
+- You're going to repeat the operation with `.` — because Visual mode breaks that repeatability
+
+That last point is what most people miss early on. When you do `d3w` in Normal mode, `.` can replay it exactly — three words deleted, wherever the cursor ends up next. When you select with `v` and then delete, `.` only repeats the deletion but not the selection. It loses the "shape" of the change.
+
+If you're making the same edit in multiple places, [Normal mode's grammar](/en/tutorials/normal-mode-power-of-vim) with operators and motions is faster and repeatable. If you're doing it once and need to see the range before confirming, Visual is the right call.
+
+## Key concepts from this lesson
+
+- **Three variants**: `v` (characterwise), `V` (linewise), `Ctrl+v` (blockwise)
+- **`gv`** restores the last visual selection — operate on the same range without reselecting
+- **`vap`** selects the entire paragraph — works well with code blocks
+- **Block Visual** + `I` / `A` + text + `Esc` = multiple cursors with no plugins
+- **When to use Visual**: uncertain range, irregular shape, no need to repeat with `.`
+- **When to use operator-motion**: known range, repeatable change, serial edits
+
+---
+
+Visual mode completes the trio of core Vim modes. From here the learning curve shifts: what comes next isn't more modes — it's ways to move faster. The next tutorial covers **searching with `/`, `?`, and `*`** — how to jump anywhere in a file in a handful of keystrokes.
+
+Never stop coding!
