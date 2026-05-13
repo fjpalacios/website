@@ -1,0 +1,173 @@
+---
+title: "Convenciones de nomenclatura de ramas en Git"
+post_slug: "convenciones-nomenclatura-ramas-git"
+date: "2026-05-14"
+excerpt: "Cómo nombrar las ramas para que el equipo entienda de un vistazo qué contienen, a qué ticket están asociadas y cuándo es seguro borrarlas."
+language: "es"
+categories: ["git"]
+course: "domina-git-desde-cero"
+order: 27
+cover: "/images/tutorials/cabecera-git.jpg"
+i18n: "branch-naming-conventions-git"
+---
+
+Llevas tres meses en el proyecto. Clonas el repositorio en un ordenador nuevo, ejecutas `git branch -a` para ver el estado del mundo, y esto es lo que encuentras:
+
+```
+  remotes/origin/test
+  remotes/origin/test2
+  remotes/origin/test-final
+  remotes/origin/javi
+  remotes/origin/carlos-stuff
+  remotes/origin/nueva-feature
+  remotes/origin/nueva-feature-v2
+  remotes/origin/TEMP
+  remotes/origin/arreglo
+  remotes/origin/arreglo-de-verdad
+  remotes/origin/DO-NOT-MERGE
+  remotes/origin/main
+```
+
+Doce ramas. Cero información. ¿Cuáles están mergeadas? ¿Cuáles son activas? ¿Qué contiene `carlos-stuff`? ¿Carlos sigue trabajando aquí? ¿Cuándo se creó `TEMP`? ¿Alguien sabe qué pasa si la borramos? ¿Y qué diferencia hay entre `arreglo` y `arreglo-de-verdad`, cuál fue al remoto?
+
+El problema no son las ramas — las ramas son la herramienta más útil que tiene Git. El problema son los nombres. Sin una convención, cada desarrollador del equipo inventa los suyos, y el remote acaba pareciéndose a un cementerio sin lápidas: todo el mundo sabe que hay algo enterrado, pero nadie sabe exactamente qué.
+
+## Por qué importa el nombre de una rama
+
+Puedes pensar que el nombre de una rama es un detalle menor, cosmético. No lo es.
+
+Un nombre de rama es un contrato temporal con el equipo: dice qué tipo de trabajo contiene, a qué ticket o funcionalidad corresponde, y cuándo tiene sentido eliminarla. Cuando ese contrato falta, cada interacción con el historial de ramas empieza con la misma pregunta: "espera, ¿qué es esto?"
+
+Tres síntomas de que hay un problema:
+- Alguien pregunta "¿puedo borrar esta rama?" y nadie sabe la respuesta
+- Usas `git branch -a` y tardas más tiempo leyendo nombres que haciendo trabajo
+- Hay dos ramas activas llamadas `feature-nueva` y `feature-nueva-v2` y nadie recuerda cuál es la buena
+
+Una buena convención hace que el nombre de la rama se explique solo.
+
+## Los patrones más comunes
+
+La mayoría de equipos usa un prefijo que describe el tipo de trabajo, separado del resto del nombre con una barra:
+
+```
+feature/user-authentication
+fix/null-check-in-api-endpoint
+hotfix/critical-payment-failure
+release/2.3.0
+chore/update-dependencies
+docs/api-reference-v2
+```
+
+Los prefijos más habituales:
+
+| Prefijo | Cuándo usarlo |
+|---------|---------------|
+| `feature/` o `feat/` | Nueva funcionalidad |
+| `fix/` o `bugfix/` | Corrección de un bug en desarrollo |
+| `hotfix/` | Fix urgente que va directo a producción |
+| `release/` | Rama de preparación de una versión |
+| `chore/` | Mantenimiento: dependencias, configuración |
+| `docs/` | Cambios solo en documentación |
+| `refactor/` | Refactor sin cambio observable de comportamiento |
+| `test/` | Añadir o corregir tests |
+
+Si el tutorial anterior sobre [buenas prácticas de commits](/es/tutoriales/buenas-practicas-commits-git) te suena familiar, reconocerás los tipos — son exactamente los de Conventional Commits. No es casualidad. Cuando tus ramas y tus commits hablan el mismo idioma, el historial del proyecto se vuelve mucho más fácil de leer de un vistazo.
+
+No tienes que usarlos todos. Un equipo pequeño con `feature/`, `fix/` y `hotfix/` tiene suficiente para funcionar bien. La clave no es la exhaustividad, es la consistencia.
+
+## Añadir el número de issue
+
+El prefijo de tipo es la mitad de la información. La otra mitad es saber a qué ticket o issue corresponde la rama. La convención más extendida es incluir el número antes de la descripción:
+
+```
+feature/123-user-authentication
+fix/482-null-response-user-endpoint
+hotfix/561-payment-gateway-timeout
+```
+
+El número va primero por una razón práctica: las ramas se ordenan alfabéticamente en la mayoría de herramientas, y poner el número al principio agrupa automáticamente las ramas del mismo issue. También facilita la búsqueda: si sabes el número del ticket, filtras directamente.
+
+GitHub y GitLab además reconocen los números de issue en los nombres de rama y los enlazan automáticamente en la interfaz. Un detalle pequeño que ahorra una cantidad sorprendente de clics a lo largo del tiempo.
+
+Si tu equipo no usa un issue tracker (pasa, no te juzgo), puedes usar solo la descripción. Pero si lo usáis, el número es gratis y no cuesta nada incluirlo.
+
+## Las reglas de formato
+
+El nombre de una rama va a aparecer en `git log`, en pull requests, en mensajes de CI/CD y posiblemente en el changelog. Vale la pena que tenga buena pinta en todos esos contextos.
+
+**kebab-case siempre**: minúsculas, palabras separadas por guiones. Sin espacios (Git los convierte y el resultado es un desastre), sin underscores, sin camelCase.
+
+```
+feature/user-auth          # ✅
+feature/userAuth           # ❌
+feature/user_auth          # ❌
+feature/User Auth          # ❌ (y Git se quejará)
+```
+
+**Descriptivo pero no un párrafo**: el nombre debería ser legible en `git log --oneline`. `feature/123-add-email-verification-to-user-registration-flow` es técnicamente correcto pero innecesariamente largo. `feature/123-email-verification` dice lo mismo.
+
+**Sin "new", "final", "v2"**: esos nombres envejecen fatal. `feature/new-login` deja de tener sentido en cuanto hay una segunda implementación del login. `hotfix/final-fix` es una promesa que el software no puede cumplir.
+
+**Sin nombres personales en ramas compartidas**: `carlos-stuff` tiene sentido en local mientras estás explorando algo. En el remote, un nombre personal no aporta información relevante para el equipo — y cuando Carlos se va, la rama queda ahí para siempre, siendo un misterio para todo el que llegue después.
+
+## Convenciones del equipo vs preferencias personales
+
+Si trabajas solo, puedes ser tan informal como quieras con los nombres de tus ramas de trabajo local. Nadie va a juzgar una rama llamada `wip-intento-3` en tu máquina.
+
+En el remote, en cambio, el nombre es público. Y un nombre que tiene sentido para ti ahora mismo puede no tenerlo para un colega la semana que viene, o para ti mismo dentro de tres meses (que a efectos prácticos es prácticamente lo mismo).
+
+La forma más sostenible de mantener una convención en equipo es documentarla donde alguien la vea antes de crear su primera rama: en el `README.md`, en el `CONTRIBUTING.md`, o mejor todavía, reforzarla con un hook de Git que valide el formato automáticamente. No hace falta que sea sofisticado — un script de `pre-push` que verifique que el nombre empieza con un prefijo reconocido ya elimina el 90% de los nombres incorrectos sin que nadie tenga que hacer de policía.
+
+Si eres como yo cuando empecé, puede que la convención parezca burocracia innecesaria. El proyecto va rápido, el nombre de la rama es lo de menos, ya lo arreglaremos después. Ese "ya lo arreglaremos" raramente ocurre. Y cuando tienes 80 ramas en el remote y nadie sabe cuáles se pueden borrar, te acuerdas de esta conversación.
+
+## El ciclo de vida de las ramas
+
+Las ramas tienen fecha de caducidad. Nacen para un propósito concreto, se mergean, y deberían morir. El problema es que en la práctica raramente mueren.
+
+Para ver qué ramas ya están mergeadas en `main`:
+
+```bash
+git branch --merged main
+```
+
+Para borrar una rama local que ya fue mergeada (safe — Git no la borrará si tiene cambios sin mergear):
+
+```bash
+git branch -d feature/123-user-auth
+```
+
+Si necesitas borrarla aunque no esté mergeada (por ejemplo, decidiste descartar ese trabajo):
+
+```bash
+git branch -D feature/abandoned-experiment
+```
+
+La `D` en mayúscula es intencional — es el flag de "hazlo aunque crea que no está bien". Úsalo cuando sabes lo que haces, no como forma de que Git deje de quejarse.
+
+Para borrar una rama en el remote:
+
+```bash
+git push origin --delete feature/123-user-auth
+```
+
+Y para limpiar las referencias locales a ramas remotas que ya no existen:
+
+```bash
+git fetch --prune
+# o equivalente
+git remote prune origin
+```
+
+Si prefieres gestionar todo esto de forma visual, `lazygit` tiene una vista dedicada para ramas donde puedes navegar, borrar y fusionar con teclado sin tener que recordar la sintaxis. Sin Electron, sin que el ventilador decida que ahora es el momento de imitar un motor de avión. Para los que prefieren el ratón, GitLens en VS Code también cubre esto bastante bien.
+
+---
+
+Una convención de nomenclatura no resuelve problemas de arquitectura ni hace que el código sea mejor. Pero elimina toda una clase de preguntas que no deberían ser preguntas: ¿qué hay aquí? ¿esto está mergeado? ¿puedo borrarlo? Con nombres consistentes, esas respuestas están en el propio nombre.
+
+En el siguiente tutorial vemos **Git Flow**: el workflow que toma estos prefijos de rama y los formaliza en un proceso estructurado con roles claros para `main`, `develop`, `feature/`, `release/` y `hotfix/`. Una manera de coordinar el trabajo en equipos donde varias personas tocan el mismo repositorio al mismo tiempo.
+
+---
+
+💡 **Desafío**: Abre un repositorio en el que hayas trabajado (o uno open source de GitHub) y ejecuta `git branch -a`. Evalúa los nombres según las convenciones de esta lección: ¿cuáles son autoexplicativos? ¿cuáles requieren contexto adicional? Si los reescribieras hoy, ¿cómo quedarían?
+
+¡Nunca dejes de programar!
