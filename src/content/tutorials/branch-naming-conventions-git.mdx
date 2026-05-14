@@ -1,0 +1,172 @@
+---
+title: "Branch naming conventions in Git"
+post_slug: "branch-naming-conventions-git"
+date: "2026-05-14"
+excerpt: "How to name branches so your team understands at a glance what they contain, which ticket they map to, and when it's safe to delete them."
+language: "en"
+categories: ["git"]
+course: "mastering-git-from-scratch"
+order: 27
+cover: "/images/tutorials/cabecera-git.jpg"
+i18n: "convenciones-nomenclatura-ramas-git"
+---
+
+You join a new project. Clone the repo. Run `git branch -a` to get a feel for the landscape. This is what you find:
+
+```
+  remotes/origin/test
+  remotes/origin/test2
+  remotes/origin/test-final
+  remotes/origin/johns-branch
+  remotes/origin/new-feature
+  remotes/origin/new-feature-v2
+  remotes/origin/TEMP
+  remotes/origin/fix
+  remotes/origin/actual-fix
+  remotes/origin/DO-NOT-MERGE
+  remotes/origin/main
+```
+
+Eleven branches. Zero information. Which ones are merged? What's in `johns-branch` — and does John still work here? When was `TEMP` created, and does anyone know what happens if you delete it? What's the difference between `fix` and `actual-fix`, and which one made it to production?
+
+The problem isn't that there are branches. Branches are one of Git's best features. The problem is that without a naming convention, each developer on the team invents their own system — and the remote ends up looking like a graveyard where you know things are buried but have no idea where.
+
+## Why branch names matter
+
+It's easy to think of a branch name as a minor detail, a label that only matters while the branch is alive. That framing is wrong.
+
+A branch name is a temporary contract with your team. It communicates what kind of work the branch contains, which ticket or feature it's tied to, and when it's appropriate to delete it. Without that contract, every branch interaction starts with the same question: "wait, what is this?"
+
+Three signs you have a naming problem:
+- Someone asks "can I delete this branch?" and no one knows the answer
+- You run `git branch -a` and spend more time reading names than doing actual work
+- There are two active branches called `feature-new` and `feature-new-v2` and no one remembers which one is current
+
+A good naming convention makes the branch self-documenting.
+
+## The common patterns
+
+Most teams use a prefix that describes the type of work, separated from the rest of the name by a forward slash:
+
+```
+feature/user-authentication
+fix/null-check-in-api-endpoint
+hotfix/critical-payment-failure
+release/2.3.0
+chore/update-dependencies
+docs/api-reference-v2
+```
+
+The most common prefixes:
+
+| Prefix | When to use |
+|--------|-------------|
+| `feature/` or `feat/` | New functionality |
+| `fix/` or `bugfix/` | Bug fix during active development |
+| `hotfix/` | Urgent fix going straight to production |
+| `release/` | Release preparation branch |
+| `chore/` | Maintenance: dependencies, config |
+| `docs/` | Documentation-only changes |
+| `refactor/` | Code refactoring without behavior change |
+| `test/` | Adding or fixing tests |
+
+If the [commit best practices](/en/tutorials/git-commit-best-practices) tutorial from last lesson looks familiar, you'll notice the prefixes map directly to Conventional Commits types — that's not a coincidence. When your branches and your commits speak the same language, the project history becomes much easier to read at a glance.
+
+You don't need to use all of them. A small team running `feature/`, `fix/`, and `hotfix/` has everything it needs. The key isn't exhaustiveness — it's consistency.
+
+## Including the issue number
+
+The type prefix is half the information. The other half is knowing which ticket or issue the branch corresponds to. The most widely used convention puts the issue number before the description:
+
+```
+feature/123-user-authentication
+fix/482-null-response-user-endpoint
+hotfix/561-payment-gateway-timeout
+```
+
+The number comes first for a practical reason: branches sort alphabetically in most tools, and putting the number first automatically groups branches for the same issue together. It also makes searching trivial — if you know the ticket number, you can filter directly.
+
+GitHub and GitLab also recognize issue numbers in branch names and link them automatically in the interface — a small detail that saves a surprising amount of navigation over time.
+
+If your team doesn't use an issue tracker (it happens, no judgment), just use the description alone. But if you do, the number is free and there's no reason not to include it.
+
+## Format rules
+
+A branch name is going to appear in `git log`, in pull requests, in CI/CD output, and possibly in changelogs. Worth making it look right in all of those contexts.
+
+**Always kebab-case**: lowercase, words separated by hyphens. No spaces (Git converts them and the result is a mess), no underscores, no camelCase.
+
+```
+feature/user-auth          # ✅
+feature/userAuth           # ❌
+feature/user_auth          # ❌
+feature/User Auth          # ❌ (and Git will complain)
+```
+
+**Descriptive but not a paragraph**: the name should be readable in `git log --oneline`. `feature/123-add-email-verification-to-user-registration-flow` is technically correct but unnecessarily verbose. `feature/123-email-verification` says the same thing.
+
+**Avoid "new", "final", "v2"**: these names age badly. `feature/new-login` becomes meaningless as soon as there's a second login implementation. `hotfix/final-fix` is a promise no software can keep.
+
+**No personal names on shared branches**: `johns-branch` is fine locally while you're exploring something. On the remote, a personal name carries no information relevant to the rest of the team — and once John leaves, the branch sits there forever, a mystery for everyone who comes after.
+
+## Team conventions vs personal preferences
+
+If you work alone, you can be as informal as you like with local branch names. No one's going to judge a branch called `wip-attempt-3` on your machine.
+
+On the remote, though, names are public. And a name that makes perfect sense to you right now might mean nothing to a teammate next week, or to yourself in three months (which is essentially the same thing).
+
+The most sustainable way to keep a convention alive on a team is to document it somewhere visible before someone creates their first branch — in the `README.md`, in `CONTRIBUTING.md`, or better yet, enforce it with a Git hook that validates the format automatically. It doesn't need to be sophisticated — a `pre-push` script that checks the name starts with a recognized prefix already eliminates 90% of poorly named branches without anyone having to play enforcer.
+
+If you're like me when I started, conventions can feel like unnecessary overhead. The project is moving fast, the branch name is the least of your problems, you'll sort it out later. You won't. And when you have 80 branches on the remote and no one knows what's safe to delete, you'll remember this conversation.
+
+## Branch lifecycle
+
+Branches have an expiration date. They're created for a specific purpose, they get merged, and they should die. In practice, they rarely do.
+
+To see which branches are already merged into `main`:
+
+```bash
+git branch --merged main
+```
+
+To delete a local branch that's been merged (safe — Git won't delete it if it has unmerged changes):
+
+```bash
+git branch -d feature/123-user-auth
+```
+
+To delete it even if it hasn't been merged (you're scrapping that work):
+
+```bash
+git branch -D feature/abandoned-experiment
+```
+
+The capital `D` is intentional — it's the "do it even though you think it's a bad idea" flag. Use it when you know what you're doing, not as a way to make Git stop complaining.
+
+To delete a branch on the remote:
+
+```bash
+git push origin --delete feature/123-user-auth
+```
+
+And to clean up local references to remote branches that no longer exist:
+
+```bash
+git fetch --prune
+# or equivalently
+git remote prune origin
+```
+
+If you'd rather manage all of this visually, `lazygit` has a dedicated branch view where you can browse, delete, and navigate entirely by keyboard — no syntax to remember, no Electron, no fan heroics. For those who prefer a mouse, GitLens in VS Code covers this reasonably well too.
+
+---
+
+A naming convention doesn't fix architectural problems or make the code better. But it eliminates an entire class of questions that shouldn't be questions: what's in here? Is this merged? Can I delete it? With consistent names, those answers live in the name itself.
+
+In the next tutorial, we'll look at **Git Flow**: the workflow that takes these branch prefixes and formalizes them into a structured process with clear roles for `main`, `develop`, `feature/`, `release/`, and `hotfix/` — a way to coordinate work across a team where multiple people are pushing to the same repository at the same time.
+
+---
+
+💡 **Challenge**: Open a repository you've worked on (or any popular open source project on GitHub) and run `git branch -a`. Evaluate the names against the conventions in this lesson — which ones are self-documenting? Which ones require additional context to understand? If you were naming those branches today, what would you call them?
+
+Never stop coding!
