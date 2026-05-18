@@ -1,0 +1,289 @@
+---
+title: "Buenas prácticas en Dockerfiles: seguridad"
+post_slug: "buenas-practicas-dockerfiles-seguridad"
+date: "2026-05-19"
+excerpt: "Aprende a crear imágenes Docker seguras: cómo evitar correr como root, escanear vulnerabilidades con Trivy, fijar versiones de forma correcta, y gestionar secretos sin que acaben horneados en tu imagen."
+language: "es"
+categories: ["docker"]
+course: "domina-docker-desde-cero"
+order: 8
+cover: "/images/tutorials/cabecera-docker-curso.jpg"
+i18n: "dockerfile-best-practices-security"
+---
+
+Imagina esta situación: llevas semanas construyendo tu proyecto, llegas al punto de publicarlo, haces `docker push`, y dos días después recibes un email de GitGuardian. O peor, de tu jefe. Tu imagen en Docker Hub tiene una API key de producción hardcodeada, visible para cualquiera que ejecute `docker history tu-imagen`.
+
+¿Cómo ha pasado? En algún momento pusiste `ENV DATABASE_URL=postgres://admin:supersecret@db.prod/app` en el Dockerfile "solo para probar", y se quedó ahí. Docker no juzga. Solo almacena.
+
+Esta no es una historia inventada. Hay investigadores que se dedican a escanear Docker Hub buscando exactamente eso, y lo encuentran con una frecuencia que nadie querría admitir. La lección anterior cubrió eficiencia — [builds rápidos, imágenes ligeras](/es/tutoriales/buenas-practicas-dockerfiles-eficiencia). Esta cubre lo que puede hacerte perder el trabajo o a tu empresa sus clientes.
+
+## No correr como root
+
+Por defecto, los procesos dentro de un contenedor corren como `root`. No como un root limitado ni como un usuario con permisos elevados — como el usuario `root` real, UID 0. Y aunque el contenedor esté aislado del host, ese aislamiento tiene límites que no siempre funcionan como uno espera.
+
+¿Por qué es un problema? ¿Qué puede hacer de malo un root dentro de un contenedor? ¿Acaso el contenedor no está aislado?
+
+Sí y no. Si hay una vulnerabilidad en tu aplicación — y las hay, en todas — un atacante que comprometa el proceso tiene acceso total al sistema de archivos del contenedor como root. Si además hay un fallo de escape del contenedor (que existen, aunque son raros), ese root dentro puede convertirse en root fuera. El principio de mínimo privilegio existe precisamente para este escenario: si tu app no necesita ser root, no debería serlo.
+
+```dockerfile
+# ❌ Default — el proceso corre como root
+FROM python:3.12-slim
+WORKDIR /app
+COPY requirements.txt .
+RUN pip install -r requirements.txt
+COPY . .
+CMD ["python", "app.py"]
+```
+
+```dockerfile
+# ✅ Con usuario no-root
+FROM python:3.12-slim
+WORKDIR /app
+COPY requirements.txt .
+RUN pip install -r requirements.txt
+COPY . .
+
+# Create non-root user and group
+RUN groupadd --system appgroup && \
+    useradd --system --no-create-home --gid appgroup appuser
+
+# Transfer ownership, then switch user
+RUN chown -R appuser:appgroup /app
+USER appuser
+
+CMD ["python", "app.py"]
+```
+
+El orden importa: crea el usuario, transfiere la propiedad de los archivos, y luego usa `USER` para cambiar. Todo lo que venga después del `USER appuser` correrá con ese usuario, incluyendo el `CMD` final.
+
+Un detalle que tropieza a la gente: `WORKDIR` crea el directorio como root antes de que exista el usuario. Por eso el `chown` va después de la creación del usuario pero antes del `USER`. Puedes combinarlo todo en un solo `RUN` para ahorrar capas:
+
+```dockerfile
+RUN groupadd --system appgroup && \
+    useradd --system --no-create-home --gid appgroup appuser && \
+    chown -R appuser:appgroup /app
+USER appuser
+```
+
+Para Node.js, las imágenes oficiales ya incluyen un usuario `node` preparado para esto:
+
+```dockerfile
+FROM node:20-slim
+WORKDIR /app
+COPY package*.json .
+RUN npm ci --only=production
+COPY . .
+
+# node user comes built into official Node.js images
+RUN chown -R node:node /app
+USER node
+
+CMD ["node", "server.js"]
+```
+
+## Escanear vulnerabilidades
+
+Tu imagen hereda las vulnerabilidades de su imagen base y de los paquetes instalados. Con `python:3.12-slim` puedes estar arrastrando decenas de CVEs que no tienen nada que ver con tu código pero sí con lo que tu contenedor expone en producción.
+
+La buena noticia: escanear es trivial. La mala: la mayoría de la gente no lo hace hasta que alguien se lo exige.
+
+**[Trivy](https://trivy.dev)** es el estándar de facto para escaneo de imágenes. Código abierto, rápido, sin configuración necesaria para empezar:
+
+```bash
+# macOS y Linux (Homebrew)
+brew install trivy
+
+# Ubuntu / Debian
+wget -qO - https://aquasecurity.github.io/trivy-repo/deb/public.key | \
+  gpg --dearmor | sudo tee /usr/share/keyrings/trivy.gpg > /dev/null
+echo "deb [signed-by=/usr/share/keyrings/trivy.gpg] \
+  https://aquasecurity.github.io/trivy-repo/deb generic main" | \
+  sudo tee /etc/apt/sources.list.d/trivy.list
+sudo apt-get update && sudo apt-get install -y trivy
+
+# Arch Linux (AUR)
+paru -S trivy
+```
+
+Con eso instalado, escanear es una línea:
+
+```bash
+trivy image python:3.12-slim
+```
+
+```
+python:3.12-slim (debian 12.10)
+===============================
+Total: 47 (UNKNOWN: 0, LOW: 28, MEDIUM: 14, HIGH: 4, CRITICAL: 1)
+```
+
+Ese output no es exagerado. La imagen base incluye componentes del sistema operativo con CVEs conocidos. La mayoría son LOW o MEDIUM — ruido de fondo con el que convives. Los HIGH y CRITICAL son los que merecen atención inmediata. Para ver solo esos y no ahogarte en el resto:
+
+```bash
+trivy image --severity HIGH,CRITICAL mi-app:latest
+```
+
+También puedes escanear tu propia imagen construida, no solo las bases:
+
+```bash
+trivy image mi-app:latest
+```
+
+Si ya tienes Docker Desktop o Docker >= 24, **Docker Scout** viene incluido y hace algo similar desde la terminal o desde el dashboard:
+
+```bash
+docker scout cves mi-app:latest
+```
+
+Trivy tiende a ser más completo y es el que verás en la mayoría de pipelines de CI/CD; Scout es conveniente si prefieres el ecosistema Docker Desktop y su interfaz visual (para los que prefieren el ratón y no les importa abrir otra pestaña en el navegador — sin juicios).
+
+### Reducir vulnerabilidades reconstruyendo
+
+El escaneo te dice qué hay. La solución en muchos casos es más sencilla de lo que parece: reconstruir desde la imagen base actualizada.
+
+```bash
+docker pull python:3.12-slim      # Actualiza la imagen base
+docker build --no-cache .         # Reconstruye sin caché para usar la nueva base
+docker scout cves mi-app:latest   # Comprueba si los CVEs han desaparecido
+```
+
+Muchas vulnerabilidades en imágenes "viejas" desaparecen simplemente reconstruyendo contra la base más reciente. Los mantenedores de las imágenes oficiales parchean continuamente. Si no reconstruyes, no recibes esos parches.
+
+## Fijar versiones correctamente
+
+En la lección anterior viste que fijar el tag de la imagen base — `python:3.12.10-slim` en vez de `python:3.12-slim` — da reproducibilidad. Pero hay un problema de seguridad que los tags no resuelven: **los tags son mutables**.
+
+Cualquiera con acceso al registry puede hacer `docker push mi-imagen:3.12.10-slim` con un contenido diferente y el tag seguirá siendo el mismo. Para imágenes oficiales en Docker Hub esto es prácticamente imposible, pero en pipelines de CI/CD con imágenes privadas o de terceros es un vector real de supply chain attacks.
+
+La alternativa inmutable es usar el **digest SHA256** de la imagen:
+
+```bash
+# Obtener el digest de una imagen
+docker inspect python:3.12-slim --format='{{index .RepoDigests 0}}'
+```
+
+```
+python@sha256:f4f0ef4e6a9a7bbd4954d6e5f4cd89b21f483d39beee63c3a17c840c10f5dd96
+```
+
+```dockerfile
+# ❌ Tag flotante — puede cambiar
+FROM python:3.12-slim
+
+# ✅ Tag fijado — mejor, pero mutable
+FROM python:3.12.10-slim-bookworm
+
+# ✅✅ Digest SHA256 — completamente inmutable
+FROM python:3.12-slim@sha256:f4f0ef4e6a9a7bbd4954d6e5f4cd89b21f483d39beee63c3a17c840c10f5dd96
+```
+
+El digest es inmutable por definición: es el hash del contenido. Esa imagen es exactamente esa imagen, siempre, en cualquier máquina.
+
+El mismo principio aplica a los paquetes del sistema. Si no fijas versiones, `apt-get install curl` instala lo que haya disponible hoy, que puede no ser lo mismo que había ayer:
+
+```dockerfile
+# ❌ Versión sin fijar
+RUN apt-get update && apt-get install -y curl
+
+# ✅ Versión específica
+RUN apt-get update && apt-get install -y curl=8.5.0-2ubuntu1
+```
+
+Para ver las versiones disponibles:
+
+```bash
+apt-cache madison curl
+```
+
+¿Necesitas hacer todo esto en todos tus proyectos? Probablemente no en un side project personal. Sí en imágenes que van a producción, especialmente las que manejan datos sensibles o están en sistemas críticos.
+
+## Secretos: lo que nunca debe estar en tu imagen
+
+Aquí es donde más se lía la gente. Y lo entiendo: durante el desarrollo necesitas credenciales, tokens, API keys. La solución obvia es meterlas en el Dockerfile como `ENV` o `ARG`. Es conveniente, funciona, y es una bomba de tiempo.
+
+El problema no es solo el obvio ("está en mi Dockerfile que está en git"). Es que aunque el Dockerfile nunca llegue a ningún repositorio, **cada capa de Docker queda registrada en la imagen**. Puedes eliminar un `ENV` en una capa posterior y el valor sigue ahí, accesible en el historial:
+
+```dockerfile
+# ❌ El "delete" posterior no borra nada de nada
+FROM python:3.12-slim
+ENV API_KEY=super-secret-key-12345
+RUN make some-api-call-using-the-key
+RUN unset API_KEY   # Completamente inútil — sigue en la capa anterior
+```
+
+```bash
+docker history mi-imagen --no-trunc
+# IMAGE          CREATED BY
+# ...            ENV API_KEY=super-secret-key-12345  ← visible para siempre
+```
+
+Lo mismo con `ARG`, aunque mucha gente piensa que es más seguro porque no persiste como variable de entorno en el contenedor final. Persiste igualmente en la capa del `RUN` que lo usó:
+
+```dockerfile
+ARG API_KEY
+# ❌ El valor queda registrado en esta capa
+RUN curl -H "Authorization: Bearer ${API_KEY}" https://api.example.com/setup
+```
+
+La solución correcta para secretos en tiempo de build es **BuildKit `--mount=type=secret`**:
+
+```dockerfile
+# syntax=docker/dockerfile:1
+FROM python:3.12-slim
+WORKDIR /app
+COPY . .
+
+# The secret is mounted only during this RUN, never stored in any layer
+RUN --mount=type=secret,id=api_key \
+    API_KEY=$(cat /run/secrets/api_key) && \
+    curl -H "Authorization: Bearer ${API_KEY}" https://api.example.com/setup
+```
+
+Lo pasas al build así:
+
+```bash
+docker build --secret id=api_key,src=./secrets/api_key.txt .
+```
+
+El secreto está disponible durante ese `RUN` específico y no aparece en ninguna capa ni en el historial de la imagen. La directiva `# syntax=docker/dockerfile:1` al inicio activa la sintaxis extendida de BuildKit — sin ella, Docker no reconocerá el `--mount`.
+
+Para secretos en **tiempo de ejecución** — credenciales de base de datos, tokens de API que la app necesita mientras corre — la respuesta es directa: **no los metas en la imagen**. Los secretos de runtime se inyectan desde fuera, en el momento del despliegue:
+
+```dockerfile
+# ✅ La imagen no contiene ninguna credencial
+FROM python:3.12-slim
+WORKDIR /app
+COPY . .
+RUN groupadd --system appgroup && \
+    useradd --system --no-create-home --gid appgroup appuser && \
+    chown -R appuser:appgroup /app
+USER appuser
+CMD ["python", "app.py"]
+# La app lee DATABASE_URL desde el entorno en runtime, nunca desde la imagen
+```
+
+```bash
+# En desarrollo
+docker run -e DATABASE_URL=postgres://... mi-app
+
+# En producción con Docker Compose
+services:
+  app:
+    image: mi-app:latest
+    environment:
+      DATABASE_URL: ${DATABASE_URL}  # Variable del sistema, nunca en el Dockerfile
+```
+
+Para entornos con requisitos más serios: Docker Secrets en Swarm, Kubernetes Secrets con acceso controlado, o un gestor de secretos dedicado como HashiCorp Vault. Pero incluso el enfoque básico de inyectar las variables en runtime es infinitamente mejor que hornearlas en la imagen.
+
+---
+
+Usuario no-root, escaneo de vulnerabilidades con Trivy, digest SHA256 en vez de tags flotantes, y secretos fuera de la imagen. Cuatro prácticas que no son complicadas pero que la mayoría ignora hasta que algo sale muy mal.
+
+En la próxima lección llegamos a una de las funcionalidades más potentes de Docker para producción: los **multi-stage builds**. Aprenderás a separar el entorno de compilación del entorno de ejecución, con ejemplos reales en Go y Node.js que consiguen reducir el tamaño de la imagen final de varios cientos de MB a unos pocos.
+
+¡Nunca dejes de programar!
+
+---
+
+**💡 Reto**: Toma la imagen del reto anterior. Añade un usuario no-root y escanéala con `trivy image --severity HIGH,CRITICAL`. Luego compara el resultado contra `python:3.12-alpine` — hay una sorpresa esperando.
