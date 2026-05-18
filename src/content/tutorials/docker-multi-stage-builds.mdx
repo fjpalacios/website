@@ -1,0 +1,217 @@
+---
+title: "Multi-stage builds in Docker: smaller, cleaner images"
+post_slug: "docker-multi-stage-builds"
+date: "2026-05-21"
+excerpt: "Learn to use multi-stage builds in Docker to separate the build environment from the runtime environment, with real Go and Node.js examples that shrink images from hundreds of megabytes down to a handful."
+language: "en"
+categories: ["docker"]
+course: "mastering-docker-from-scratch"
+order: 9
+cover: "/images/tutorials/cabecera-docker-curso.jpg"
+i18n: "multi-stage-builds-docker"
+---
+
+There's a particular kind of waste that happens in Docker images and that everyone accepts as normal until someone points it out: shipping the compiler to production.
+
+You need the Go toolchain to build your binary. You don't need it to run it. You need TypeScript, all your dev dependencies, and a working `tsc` setup to compile your app. You don't need any of that once the JavaScript exists. And yet, in a single-stage Dockerfile, all of it ends up in the image that gets pushed, pulled, and deployed.
+
+Multi-stage builds are Docker's answer to this: use as many environments as you need to build your application, then carry only what's needed to run it.
+
+## The single-stage problem
+
+The most natural Dockerfile for a Go application looks like this:
+
+```dockerfile
+# ❌ Single-stage — drags the entire toolchain to production
+FROM golang:1.22
+WORKDIR /app
+COPY go.mod go.sum ./
+RUN go mod download
+COPY . .
+RUN go build -o server .
+CMD ["./server"]
+```
+
+```bash
+docker build -t my-app .
+docker images my-app
+```
+
+```
+REPOSITORY   TAG       IMAGE ID       SIZE
+my-app       latest    a1b2c3d4e5f6   823MB
+```
+
+823 MB. Your application binary is 12 MB. The other 811 MB is the Go compiler, the complete toolchain, Debian system libraries, and everything the build process touched — none of which runs a single instruction in production.
+
+The same pattern plays out with TypeScript. You need `typescript`, `ts-node`, type definitions, and dev tooling to compile. Once you have the output JavaScript, none of that is needed. But without multi-stage builds, all of it rides along.
+
+## How multi-stage builds work
+
+The mechanism is simple: use multiple `FROM` instructions in a single Dockerfile. Each `FROM` starts a new stage with its own isolated filesystem. The `COPY --from=<stage>` instruction lets you pull specific files from a previous stage into the current one.
+
+The last `FROM` in the file defines the final image.
+
+```dockerfile
+# Stage 1: build
+FROM golang:1.22-alpine AS builder
+WORKDIR /app
+COPY go.mod go.sum ./
+RUN go mod download
+COPY . .
+RUN CGO_ENABLED=0 GOOS=linux go build -ldflags="-w -s" -o server .
+
+# Stage 2: run
+FROM scratch
+COPY --from=builder /app/server /server
+EXPOSE 8080
+CMD ["/server"]
+```
+
+```bash
+docker build -t my-app .
+docker images my-app
+```
+
+```
+REPOSITORY   TAG       IMAGE ID       SIZE
+my-app       latest    f7e8d9c0b1a2   11.2MB
+```
+
+823 MB to 11 MB. The `builder` stage uses the full Go toolchain to compile. The final image starts from `scratch` — literally an empty filesystem — and contains only the compiled binary.
+
+A few things worth noting about the build command:
+
+- **`CGO_ENABLED=0`**: disables CGo and produces a fully statically linked binary. It doesn't depend on any system libraries, which is what makes it work from `scratch`.
+- **`-ldflags="-w -s"`**: strips the symbol table and debug information. Not needed in production, reduces binary size noticeably.
+- **`AS builder`**: names the stage so you can reference it in `COPY --from=builder`. Name it whatever makes sense.
+
+### FROM scratch and its implications
+
+`FROM scratch` is the smallest possible base: an empty filesystem. Ideal for self-contained Go binaries, but with one consequence — there's nothing else there. No shell, no SSL certificates, no system utilities.
+
+If your application makes HTTPS requests, you need root certificates. Copy them from the build stage:
+
+```dockerfile
+FROM scratch
+# Copy SSL certificates for outbound HTTPS
+COPY --from=builder /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/
+COPY --from=builder /app/server /server
+EXPOSE 8080
+CMD ["/server"]
+```
+
+If you need more than a bare binary but less than a full OS, **distroless** images from Google are the middle ground: no shell, no package manager, but with the essential runtime libraries, timezone data, and certificates already in place. They're also a meaningful security improvement — less surface area, fewer things to patch.
+
+```dockerfile
+FROM gcr.io/distroless/static-debian12
+COPY --from=builder /app/server /server
+EXPOSE 8080
+CMD ["/server"]
+```
+
+## Real example: Node.js with TypeScript
+
+The same pattern delivers similar results for JavaScript projects. The gains come from two directions: keeping dev dependencies out of the final image, and not shipping TypeScript source when only the compiled output is needed.
+
+```dockerfile
+# Stage 1: compile TypeScript
+FROM node:20-alpine AS builder
+WORKDIR /app
+COPY package*.json tsconfig.json ./
+RUN npm ci
+COPY src/ ./src/
+RUN npm run build
+
+# Stage 2: production
+FROM node:20-alpine AS production
+WORKDIR /app
+COPY package*.json ./
+RUN npm ci --only=production
+COPY --from=builder /app/dist ./dist
+
+RUN addgroup --system appgroup && \
+    useradd --system --no-create-home --ingroup appgroup appuser && \
+    chown -R appuser:appgroup /app
+USER appuser
+
+EXPOSE 3000
+CMD ["node", "dist/index.js"]
+```
+
+```
+REPOSITORY   TAG          SIZE
+my-app-ts    single       687MB   (typescript, dev deps, source files — all of it)
+my-app-ts    multi-stage  198MB   (node, prod deps, compiled dist only)
+```
+
+The `builder` stage installs everything — TypeScript, type definitions, linters, whatever the build needs — compiles, and its job is done. The `production` stage starts fresh, installs only runtime dependencies, and copies just the compiled JavaScript from `dist`. The TypeScript source never makes it into the final image.
+
+Notice the non-root user setup from [the previous lesson](/en/tutorials/dockerfile-best-practices-security) is in the production stage. Security practices apply to the final image regardless of how many stages preceded it.
+
+## Multiple targets in one Dockerfile
+
+This is where multi-stage builds get genuinely powerful: instead of maintaining separate Dockerfiles for development, testing, and production, you can have them all in one file and build whichever target you need with `--target`.
+
+```dockerfile
+# Shared base
+FROM node:20-alpine AS base
+WORKDIR /app
+COPY package*.json ./
+
+# Target: development (with hot reload)
+FROM base AS development
+RUN npm ci
+COPY . .
+CMD ["npm", "run", "dev"]
+
+# Target: test
+FROM base AS test
+RUN npm ci
+COPY . .
+CMD ["npm", "test"]
+
+# Target: builder (intermediate, not a final target)
+FROM base AS builder
+RUN npm ci
+COPY . .
+RUN npm run build
+
+# Target: production
+FROM base AS production
+RUN npm ci --only=production
+COPY --from=builder /app/dist ./dist
+EXPOSE 3000
+CMD ["node", "dist/index.js"]
+```
+
+Building each environment:
+
+```bash
+# Development server with hot reload
+docker build --target development -t my-app:dev .
+docker run -v $(pwd)/src:/app/src my-app:dev
+
+# Run the test suite
+docker build --target test -t my-app:test .
+docker run --rm my-app:test
+
+# Production image
+docker build --target production -t my-app:prod .
+```
+
+When you don't specify `--target`, Docker builds the last stage in the file — in this case `production`. That means `docker build .` in CI produces the right image without extra flags, and the other targets are available whenever you need them.
+
+The `base` stage is a shared starting point. Change the Node version or add a global package once, and all four targets inherit it.
+
+---
+
+Multi-stage builds are one of those features that, once you understand them, make you wonder how you were shipping images before. One Dockerfile, multiple environments, only what's needed at runtime.
+
+Next up is Docker Compose: how to orchestrate multiple containers that need to work together — database, backend, frontend — with a single configuration file and one command.
+
+Never stop coding!
+
+---
+
+**💡 Challenge**: Take any Go or Node.js/TypeScript project you have. Write a single-stage Dockerfile and measure the image size. Then convert it to multi-stage and compare. If you don't have a project handy, the minimal HTTP server from the Go example works perfectly.
