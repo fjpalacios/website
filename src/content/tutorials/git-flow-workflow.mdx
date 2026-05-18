@@ -1,0 +1,210 @@
+---
+title: "Git Flow: a workflow for managing releases"
+post_slug: "git-flow-workflow"
+date: "2026-05-18"
+excerpt: "Git Flow formalizes the branch prefixes you already know into a structured process: permanent main and develop branches, plus temporary branches for features, releases, and hotfixes."
+language: "en"
+categories: ["git"]
+course: "mastering-git-from-scratch"
+order: 28
+cover: "/images/tutorials/cabecera-git.jpg"
+i18n: "flujo-de-trabajo-git-flow"
+---
+
+It's 4 PM and the PM just posted in the team chat: "can we ship version 2.1 today?" You open the repository to check. Feature A is half-done on its branch. Feature B hasn't been touched in three days and isn't merged. Someone is fixing a production bug locally and hasn't pushed. And `main` has three commits from this week that nobody remembers — are they release candidates or experiments?
+
+Can you ship? What goes in and what doesn't? How do you separate what's ready from what isn't?
+
+Git Flow is the answer to exactly that question. It's not a Git feature — it's a convention about how to organize branches so the team always knows what's in production, what's in development, and how to move between them in a controlled way.
+
+## The core idea: two types of branches
+
+Before the details, the concept that holds everything together: Git Flow draws a hard line between code that **is production** and code that **is headed toward production**.
+
+Two permanent branches handle this:
+
+**`main`** — always production-ready. Every commit on `main` represents a deployable version. It never has half-finished work. Every time something lands on `main`, it gets a version tag.
+
+**`develop`** — where work in progress gets integrated. It's the team's staging branch: finished features flow into it, releases are prepared from it, and it always reflects where the next version is headed.
+
+The separation between `main` and `develop` is the core of Git Flow. `main` is sacred — it only receives merges from release branches or hotfixes, never direct work.
+
+## The temporary branches
+
+On top of those two permanent branches, Git Flow defines three types of temporary branches. Each has a specific origin and a specific destination — and that's what gives the workflow its structure.
+
+### feature/
+
+Your day-to-day working branches. Following the [branch naming conventions from the last tutorial](/en/tutorials/branch-naming-conventions-git), each feature branch corresponds to a specific functionality or ticket.
+
+**Origin**: `develop`
+**Destination**: `develop`
+
+```bash
+# Start a feature from develop
+git switch develop
+git switch -c feature/123-user-auth
+
+# ... work, commit, work, commit ...
+
+# Merge back into develop
+git switch develop
+git merge --no-ff feature/123-user-auth
+git branch -d feature/123-user-auth
+```
+
+The `--no-ff` (no fast-forward) flag matters: it always creates an explicit merge commit even when a fast-forward is possible. That preserves in the history the fact that those commits belonged to a feature branch — useful context months later when someone's trying to understand why that code exists.
+
+Feature branches never touch `main`. Not ever. If a feature isn't ready for the release, it simply doesn't get included.
+
+### release/
+
+When `develop` has enough finished work to justify a new version, you create a release branch. Only bug fixes go in here — no new features. The goal is stabilization, not expansion.
+
+**Origin**: `develop`
+**Destination**: `main` **and** `develop`
+
+```bash
+# Create release branch from develop
+git switch develop
+git switch -c release/2.1.0
+
+# ... fix bugs, update version numbers ...
+
+# Merge into main (with version tag)
+git switch main
+git merge --no-ff release/2.1.0
+git tag -a v2.1.0 -m "Release version 2.1.0"
+
+# Also merge back into develop (to keep the bugfixes)
+git switch develop
+git merge --no-ff release/2.1.0
+
+git branch -d release/2.1.0
+```
+
+The double merge can look surprising at first. Why also merge back into `develop`? Because the bug fixes that went into the release branch need to live in future code too. If you only merged into `main`, those fixes would disappear in the next version — and you'd spend a baffling amount of time re-fixing bugs that were "already fixed." This is the step teams most often forget, and the one that causes the most head-scratching six months later.
+
+### hotfix/
+
+For when something breaks in production and can't wait for the next release. It's the only branch type that starts directly from `main`.
+
+**Origin**: `main`
+**Destination**: `main` **and** `develop`
+
+```bash
+# Create hotfix from main
+git switch main
+git switch -c hotfix/561-payment-gateway-timeout
+
+# ... fix the bug ...
+
+# Merge into main
+git switch main
+git merge --no-ff hotfix/561-payment-gateway-timeout
+git tag -a v2.0.1 -m "Hotfix: payment gateway timeout"
+
+# Also merge into develop
+git switch develop
+git merge --no-ff hotfix/561-payment-gateway-timeout
+
+git branch -d hotfix/561-payment-gateway-timeout
+```
+
+Same double merge, same reason: the fix needs to be in the next release too, not just in the version that's currently deployed.
+
+## The full picture
+
+Put together, the branch diagram of a project using Git Flow looks like this:
+
+```
+         v1.0          v2.0    v2.0.1
+main  ────●─────────────●────────●────────────▶
+           \           ↑ \      ↑ \
+develop  ───●──●──●──●──/──●────/──●──●──▶
+                 \  /       \  /
+feature          ●─●         ●─●
+                        ↑
+                   release/2.0
+```
+
+`develop` advances continuously. Features branch off and merge back into it. When there's enough for a release, the release branch goes out, gets stabilized, and lands on `main` with its version tag. Hotfixes go directly from `main` and propagate to both branches.
+
+Does this feel like a lot of moving parts? It is. Git Flow doesn't aim to be simple — it aims to be predictable. On a team of four people, predictable is worth a lot more than simple.
+
+## The git-flow extension
+
+All of this can be done with plain Git commands (as in the examples above), but there's an extension that automates the repetitive steps: `git-flow`, created by the same Vincent Driessen who designed the workflow in 2010 (in a blog post that has since accumulated roughly 18 million views — turns out a lot of teams had this problem).
+
+```bash
+# macOS and Linux (Homebrew)
+brew install git-flow-avh
+
+# Ubuntu / Debian
+apt install git-flow
+
+# Arch Linux (AUR)
+paru -S gitflow-avh
+```
+
+Initialize it in your repository:
+
+```bash
+git flow init
+```
+
+The command asks a few questions about branch naming (defaults are `main`, `develop`, `feature/`, etc.). Once configured:
+
+```bash
+# Start a feature
+git flow feature start 123-user-auth
+# Equivalent to: git switch -c feature/123-user-auth develop
+
+# Finish a feature
+git flow feature finish 123-user-auth
+# Equivalent to: merge into develop, delete branch
+
+# Start a release
+git flow release start 2.1.0
+
+# Finish a release
+git flow release finish 2.1.0
+# Equivalent to: merge into main + tag + merge into develop + delete branch
+
+# Start a hotfix
+git flow hotfix start 561-payment-timeout
+
+# Finish a hotfix
+git flow hotfix finish 561-payment-timeout
+```
+
+The extension doesn't do anything you can't do by hand, but it eliminates the cognitive load of remembering all the steps — especially the double merge, which is easy to skip when you're in a hurry. For those who prefer a visual interface, GitKraken and SourceTree both have native Git Flow support, if you don't mind waiting for an Electron app to load.
+
+## When to use Git Flow (and when not to)
+
+Git Flow has a reputation that isn't entirely unfair: it's a complex workflow. Many steps, many branches, merging things in two places. Apply it to a project that doesn't justify it and you add ceremony without benefit.
+
+**It makes sense when:**
+
+- The project has versioned releases: libraries, SDKs, mobile apps, packaged software
+- Multiple developers are working on parallel features that need to stay isolated from each other
+- You need to maintain multiple production versions simultaneously (hotfixes on v2.0 while v2.1 is in development)
+- The team has a clear, scheduled release cycle — not continuous deployment
+
+**It doesn't make sense when:**
+
+- Your team does continuous deployment — every merge to `main` goes to production in minutes. In that context, `develop` adds nothing, because "production" and "in development" are practically the same thing
+- The project is small or you're working alone
+- Your release cadence is very short (multiple times per day)
+
+For those cases, the next tutorial covers **GitHub Flow**: a deliberately simpler workflow built for continuous deployment. One stable branch, short-lived feature branches, and deploy directly after merge. Fewer moving parts, less friction, enough structure for most modern web projects.
+
+---
+
+Git Flow isn't the most popular workflow nowadays — that's probably trunk-based development. But it remains the reference for understanding how to separate work in progress from production code, and plenty of projects with versioned releases still use it for exactly that reason. Understanding it gives you the vocabulary to reason about any branching workflow, however simplified.
+
+---
+
+💡 **Challenge**: Think about a project you've worked on (or know well). Which scenario fits it better: versioned releases with parallel work, or continuous deployment? Would Git Flow add value or just overhead? Reason through the answer using the criteria from this lesson.
+
+Never stop coding!
