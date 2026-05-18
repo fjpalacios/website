@@ -1,0 +1,210 @@
+---
+title: "Git Flow: el workflow para gestionar versiones en equipo"
+post_slug: "flujo-de-trabajo-git-flow"
+date: "2026-05-18"
+excerpt: "Git Flow formaliza los prefijos de rama que ya conoces en un proceso estructurado: main y develop permanentes, y ramas temporales para features, releases y hotfixes."
+language: "es"
+categories: ["git"]
+course: "domina-git-desde-cero"
+order: 28
+cover: "/images/tutorials/cabecera-git.jpg"
+i18n: "git-flow-workflow"
+---
+
+Son las cuatro de la tarde y el PM acaba de escribir en el chat del equipo: "necesitamos sacar la versión 2.1 hoy, ¿podemos?". Tú, que eres una persona razonable, abres el repositorio para evaluar el estado. Lo que encuentras: la feature A está a medias en su rama, la feature B lleva tres días sin tocarse pero tampoco está mergeada, hay un bug en producción que alguien está arreglando en su máquina local, y `main` tiene tres commits de esta semana que nadie recuerda si son para el release o eran experimentos.
+
+¿Se puede sacar esa versión? ¿Qué va dentro y qué no? ¿Cómo separas lo que está listo de lo que no lo está?
+
+Git Flow es la respuesta a exactamente esa pregunta. No es una feature de Git — es una convención sobre cómo organizar las ramas para que el equipo siempre sepa qué está en producción, qué está en desarrollo, y cómo pasar de uno al otro de forma controlada.
+
+## La idea central: dos tipos de ramas
+
+Antes de entrar en los detalles, el concepto que lo sostiene todo: en Git Flow hay una separación clara entre el código que **es producción** y el código que **va hacia producción**.
+
+Para eso existen dos ramas permanentes:
+
+**`main`** — siempre production-ready. Cada commit en `main` representa una versión desplegable. Nunca tiene trabajo a medias. Cada vez que algo llega a `main`, lleva un tag de versión.
+
+**`develop`** — donde se integra el trabajo en progreso. Es la rama de staging del equipo: aquí confluyen las features terminadas, se preparan los releases, y se mantiene una visión actualizada de cómo va a quedar la próxima versión.
+
+La separación entre `main` y `develop` es el núcleo de Git Flow. `main` es sagrado: solo recibe merges de ramas de release o de hotfixes, nunca trabajo directo.
+
+## Las ramas temporales
+
+Sobre esas dos ramas permanentes, Git Flow define tres tipos de ramas temporales. Cada una tiene un origen y un destino específicos — y eso es lo que le da al workflow su estructura.
+
+### feature/
+
+Son las ramas de trabajo habitual. Siguiendo las [convenciones de nomenclatura que ya conoces](/es/tutoriales/convenciones-nomenclatura-ramas-git), cada feature branch corresponde a una funcionalidad o ticket concreto.
+
+**Origen**: `develop`
+**Destino**: `develop`
+
+```bash
+# Start a feature from develop
+git switch develop
+git switch -c feature/123-user-auth
+
+# ... work, commit, work, commit ...
+
+# Merge back into develop
+git switch develop
+git merge --no-ff feature/123-user-auth
+git branch -d feature/123-user-auth
+```
+
+El `--no-ff` (no fast-forward) es importante: crea siempre un merge commit explícito aunque sea posible hacer fast-forward. Eso preserva en el historial el hecho de que esos commits pertenecían a una feature branch — útil para entender el contexto meses después.
+
+Las feature branches nunca tocan `main`. Jamás. Si una feature no está lista para el release, simplemente no se incluye.
+
+### release/
+
+Cuando `develop` tiene suficiente trabajo para justificar una nueva versión, se crea una rama de release. En ella solo entran correcciones de bugs — ninguna feature nueva. El objetivo es estabilizar el código, no añadir funcionalidad.
+
+**Origen**: `develop`
+**Destino**: `main` **y** `develop`
+
+```bash
+# Create release branch from develop
+git switch develop
+git switch -c release/2.1.0
+
+# ... fix bugs, update version numbers ...
+
+# Merge into main (with version tag)
+git switch main
+git merge --no-ff release/2.1.0
+git tag -a v2.1.0 -m "Release version 2.1.0"
+
+# Also merge back into develop (to keep bugfixes)
+git switch develop
+git merge --no-ff release/2.1.0
+
+git branch -d release/2.1.0
+```
+
+El doble merge puede sorprender a primera vista. ¿Por qué mergear también en `develop`? Porque los bugfixes que entraron durante la fase de release tienen que vivir también en el código futuro. Si solo mergeases en `main`, esas correcciones desaparecerían en la siguiente versión. Aquí es donde se pone interesante — y donde muchos equipos se olvidan del segundo merge y luego no entienden por qué regresan bugs que "ya estaban arreglados".
+
+### hotfix/
+
+Para cuando algo se rompe en producción y no puede esperar al próximo release. Es el único tipo de rama que sale directamente de `main`.
+
+**Origen**: `main`
+**Destino**: `main` **y** `develop`
+
+```bash
+# Create hotfix from main
+git switch main
+git switch -c hotfix/561-payment-gateway-timeout
+
+# ... fix the bug ...
+
+# Merge into main
+git switch main
+git merge --no-ff hotfix/561-payment-gateway-timeout
+git tag -a v2.0.1 -m "Hotfix: payment gateway timeout"
+
+# Also merge into develop (same reason as release)
+git switch develop
+git merge --no-ff hotfix/561-payment-gateway-timeout
+
+git branch -d hotfix/561-payment-gateway-timeout
+```
+
+Los hotfixes también hacen el doble merge por la misma razón: el fix tiene que estar en el próximo release, no solo en la versión anterior.
+
+## El flujo completo en perspectiva
+
+Puesto todo junto, el diagrama de ramas de un proyecto con Git Flow tiene este aspecto:
+
+```
+         v1.0          v2.0    v2.0.1
+main  ────●─────────────●────────●────────────▶
+           \           ↑ \      ↑ \
+develop  ───●──●──●──●──/──●────/──●──●──▶
+                 \  /       \  /
+feature          ●─●         ●─●
+                        ↑
+                   release/2.0
+```
+
+La rama `develop` avanza continuamente. Las features salen y vuelven a ella. Cuando llega el momento de un release, se crea la rama `release/`, se estabiliza, y llega a `main` con su tag de versión. Los hotfixes van directamente desde `main` y se propagan a ambas ramas.
+
+¿Sensación de que son muchos pasos? Es normal. Git Flow no pretende ser simple — pretende ser predecible. En un equipo de cuatro personas, predecible vale mucho más que simple.
+
+## La extensión git-flow
+
+Toda esta coordinación se puede hacer con comandos Git estándar (como en los ejemplos de arriba), pero existe una extensión que automatiza los pasos repetitivos: `git-flow`, creada por el mismo Vincent Driessen que diseñó el workflow.
+
+```bash
+# macOS y Linux (Homebrew)
+brew install git-flow-avh
+
+# Ubuntu / Debian
+apt install git-flow
+
+# Arch Linux (AUR)
+paru -S gitflow-avh
+```
+
+Una vez instalada, inicializa el workflow en tu repositorio:
+
+```bash
+git flow init
+```
+
+El comando hace algunas preguntas sobre cómo quieres llamar a las ramas (los defaults son `main`, `develop`, `feature/`, etc.). Una vez configurado:
+
+```bash
+# Start a feature
+git flow feature start 123-user-auth
+# Equivalent to: git switch -c feature/123-user-auth develop
+
+# Finish a feature
+git flow feature finish 123-user-auth
+# Equivalent to: merge into develop, delete branch
+
+# Start a release
+git flow release start 2.1.0
+
+# Finish a release
+git flow release finish 2.1.0
+# Equivalent to: merge into main + tag + merge into develop + delete branch
+
+# Start a hotfix
+git flow hotfix start 561-payment-timeout
+
+# Finish a hotfix
+git flow hotfix finish 561-payment-timeout
+```
+
+La extensión no hace nada que no puedas hacer a mano, pero reduce la fricción y elimina los errores de memoria (como olvidarte del segundo merge). Para los que prefieren una interfaz visual, GitKraken y SourceTree tienen soporte nativo para Git Flow — sin Electron en el primer caso, con Electron en el segundo (ya sabes).
+
+## Cuándo usar Git Flow (y cuándo no)
+
+Git Flow tiene una reputación que no es injusta: es un workflow complejo. Hay muchos pasos, muchas ramas, muchos merges en dos sitios. Si lo aplicas a un proyecto que no lo justifica, añades ceremonia sin beneficio real.
+
+**Tiene sentido cuando:**
+
+- El proyecto tiene releases versionadas: librerías, SDKs, aplicaciones móviles, software empaquetado
+- Varios desarrolladores trabajan en features paralelas que no pueden mezclarse entre sí
+- Necesitas mantener múltiples versiones en producción al mismo tiempo (hotfixes en v2.0 mientras ya estás desarrollando v2.1)
+- El equipo tiene un ciclo de release claro, no deployment continuo
+
+**No tiene sentido cuando:**
+
+- Tu equipo hace deployment continuo — cada merge a `main` va a producción en minutos. En ese contexto, la rama `develop` no aporta nada porque "producción" y "en desarrollo" son casi lo mismo
+- El proyecto es pequeño o trabajas solo
+- El ciclo de release es muy corto (varias veces al día)
+
+Para esos casos, el siguiente tutorial cubre **GitHub Flow**: un workflow deliberadamente más simple, pensado para deployment continuo. Una sola rama estable, feature branches cortas, y deploy directo tras el merge. Menos piezas, menos fricción, suficiente estructura para la mayoría de proyectos web actuales.
+
+---
+
+Git Flow no es el workflow más popular en la actualidad — ese honor probablemente lo tiene trunk-based development. Pero sigue siendo la referencia para entender cómo separar el trabajo en progreso del código de producción, y muchos proyectos con releases versionadas lo siguen usando exactamente por eso. Entenderlo bien te da el lenguaje para razonar sobre cualquier workflow de branching, por simplificado que sea.
+
+---
+
+💡 **Desafío**: Piensa en un proyecto en el que hayas trabajado (o uno que conozcas bien). ¿Cuál de los dos escenarios describe mejor su ciclo de vida: releases versionadas y trabajo paralelo, o deployment continuo? ¿Encajaría Git Flow o sería sobredimensionado? Razona la respuesta con los criterios de esta lección.
+
+¡Nunca dejes de programar!
