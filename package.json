@@ -105,7 +105,7 @@
     "tsx": "^4.22.1",
     "typescript": "^5.9.3",
     "typescript-eslint": "^8.59.2",
-    "vite-plugin-istanbul": "^8.0.0",
+    "vite-plugin-istanbul": "^9.0.0",
     "vitest": "^4.1.6",
     "zod": "^4.4.3"
   }
