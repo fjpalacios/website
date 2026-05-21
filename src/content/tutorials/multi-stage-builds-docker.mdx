@@ -1,0 +1,218 @@
+---
+title: "Multi-stage builds en Docker: imágenes más pequeñas y limpias"
+post_slug: "multi-stage-builds-docker"
+date: "2026-05-21"
+excerpt: "Aprende a usar multi-stage builds en Docker para separar el entorno de compilación del entorno de ejecución, con ejemplos reales en Go y Node.js que reducen el tamaño de las imágenes de cientos de MB a pocos."
+language: "es"
+categories: ["docker"]
+course: "domina-docker-desde-cero"
+order: 9
+cover: "/images/tutorials/cabecera-docker-curso.jpg"
+i18n: "docker-multi-stage-builds"
+---
+
+Tu aplicación de Go ocupa 12 MB compilada. Tu imagen de Docker ocupa 823 MB.
+
+En algún punto del camino, alguien metió 800 MB de compilador, herramientas del sistema y librerías de desarrollo que solo hacen falta para construir la aplicación, no para ejecutarla. El resultado aterriza en cada `docker pull`, en cada deploy, en cada máquina del equipo. Tarda más en descargarse, ocupa más en el registro, expone más superficie de ataque. Y todo por 12 MB de binario que podría vivir solo.
+
+Los multi-stage builds resuelven exactamente esto: usar cuantos entornos necesites para construir tu app, y llevar al final solo lo que hace falta para ejecutarla.
+
+## El problema con los builds de un solo stage
+
+El Dockerfile más obvio para una aplicación Go tiene un problema de fondo:
+
+```dockerfile
+# ❌ Single-stage — arrastra todo el toolchain a producción
+FROM golang:1.22
+WORKDIR /app
+COPY go.mod go.sum ./
+RUN go mod download
+COPY . .
+RUN go build -o server .
+CMD ["./server"]
+```
+
+```bash
+docker build -t mi-app .
+docker images mi-app
+```
+
+```
+REPOSITORY   TAG       IMAGE ID       SIZE
+mi-app       latest    a1b2c3d4e5f6   823MB
+```
+
+823 MB. La imagen base de `golang:1.22` pesa unos 800 MB porque incluye el compilador completo de Go, todas las herramientas del toolchain, headers del sistema, y la distribución Debian que los sustenta. Todo eso va a producción aunque en producción nunca se compile nada.
+
+El mismo patrón aparece con TypeScript: necesitas `typescript`, `ts-node`, y decenas de devDependencies para compilar, pero en producción solo necesitas el JavaScript generado y las dependencias de runtime. Sin embargo, el build termina con todo en la imagen.
+
+## Multi-stage builds: la solución
+
+La idea es tan elegante que da un poco de rabia no haberla tenido antes: usa múltiples instrucciones `FROM` en un mismo Dockerfile. Cada `FROM` inicia un nuevo stage con su propio sistema de ficheros aislado. Con `COPY --from=<stage>` puedes copiar artefactos de un stage anterior al siguiente.
+
+El último `FROM` del archivo define la imagen final que se construye.
+
+```dockerfile
+# Stage 1: build
+FROM golang:1.22-alpine AS builder
+WORKDIR /app
+COPY go.mod go.sum ./
+RUN go mod download
+COPY . .
+RUN CGO_ENABLED=0 GOOS=linux go build -ldflags="-w -s" -o server .
+
+# Stage 2: run
+FROM scratch
+COPY --from=builder /app/server /server
+EXPOSE 8080
+CMD ["/server"]
+```
+
+```bash
+docker build -t mi-app .
+docker images mi-app
+```
+
+```
+REPOSITORY   TAG       IMAGE ID       SIZE
+mi-app       latest    f7e8d9c0b1a2   11.2MB
+```
+
+De 823 MB a 11 MB. El stage `builder` usa el toolchain completo de Go para compilar, pero la imagen final parte de `scratch` — literalmente nada, un sistema de ficheros vacío — y solo contiene el binario compilado.
+
+Algunas cosas sobre ese comando de build:
+
+- **`CGO_ENABLED=0`**: deshabilita CGo y produce un binario estáticamente enlazado. No depende de librerías del sistema operativo, lo que lo hace compatible con `scratch`.
+- **`-ldflags="-w -s"`**: elimina la tabla de símbolos y la información de debug. No son necesarias en producción y reducen el tamaño del binario notablemente.
+- **`AS builder`**: le da nombre al stage para poder referenciarlo en `COPY --from=builder`. Puedes nombrarlo como quieras.
+
+Los usuarios de Arch ya saben de qué va esto — Alpine y los builds mínimos son el territorio natural de quien lleva años eligiendo explícitamente qué entra en su sistema.
+
+### FROM scratch y sus implicaciones
+
+`FROM scratch` es la imagen más pequeña posible: un sistema de ficheros vacío. Perfecto para binarios Go autocontenidos, pero con una implicación importante: **no hay nada más**. Sin shell, sin certificados SSL, sin utilidades.
+
+Si tu aplicación hace peticiones HTTPS, necesitas los certificados raíz del sistema. Puedes copiarlos del stage builder:
+
+```dockerfile
+FROM scratch
+# Copy SSL certificates for HTTPS requests
+COPY --from=builder /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/
+COPY --from=builder /app/server /server
+EXPOSE 8080
+CMD ["/server"]
+```
+
+Si necesitas algo más pero sin llegar a Debian completo, las imágenes **distroless** de Google son el punto medio: sin shell, sin package manager, pero con las librerías de runtime esenciales y los certificados incluidos. Son también una buena elección desde el punto de vista de seguridad — menos cosas que parchear, menos superficie de ataque.
+
+```dockerfile
+FROM gcr.io/distroless/static-debian12
+COPY --from=builder /app/server /server
+EXPOSE 8080
+CMD ["/server"]
+```
+
+## Ejemplo real: aplicación Node.js con TypeScript
+
+El patrón es igual de potente para proyectos JavaScript. Aquí la ganancia viene de dos lados: separar las devDependencies del build de las dependencias de runtime, y no incluir el código TypeScript fuente en producción.
+
+```dockerfile
+# Stage 1: build TypeScript
+FROM node:20-alpine AS builder
+WORKDIR /app
+COPY package*.json tsconfig.json ./
+RUN npm ci
+COPY src/ ./src/
+RUN npm run build
+
+# Stage 2: production
+FROM node:20-alpine AS production
+WORKDIR /app
+COPY package*.json ./
+RUN npm ci --only=production
+COPY --from=builder /app/dist ./dist
+
+RUN addgroup --system appgroup && \
+    useradd --system --no-create-home --ingroup appgroup appuser && \
+    chown -R appuser:appgroup /app
+USER appuser
+
+EXPOSE 3000
+CMD ["node", "dist/index.js"]
+```
+
+```
+REPOSITORY     TAG          SIZE
+mi-app-ts      single       687MB   (con ts-node, typescript, todas las devdeps, código fuente)
+mi-app-ts      multi-stage  198MB   (solo node, dependencias de prod, dist compilado)
+```
+
+El stage `builder` instala todo — TypeScript, tipos, linters, lo que haga falta — compila, y listo. El stage `production` empieza fresco, instala solo las dependencias de runtime, y copia únicamente los ficheros `.js` del `dist`. El código TypeScript original nunca llega a la imagen final.
+
+Fíjate que en el stage de producción también añadimos el usuario no-root de la lección anterior. Aplicar las buenas prácticas de seguridad en la imagen final es igual de importante cuando usas multi-stage.
+
+## Stages para distintos targets
+
+Aquí es donde se pone elegante de verdad: en lugar de tener Dockerfiles separados para desarrollo, tests y producción, puedes tenerlos todos en uno usando `--target`.
+
+```dockerfile
+# Base compartida
+FROM node:20-alpine AS base
+WORKDIR /app
+COPY package*.json ./
+
+# Target: development
+FROM base AS development
+RUN npm ci
+COPY . .
+CMD ["npm", "run", "dev"]
+
+# Target: test
+FROM base AS test
+RUN npm ci
+COPY . .
+CMD ["npm", "test"]
+
+# Target: builder (para producción)
+FROM base AS builder
+RUN npm ci
+COPY . .
+RUN npm run build
+
+# Target: production
+FROM base AS production
+RUN npm ci --only=production
+COPY --from=builder /app/dist ./dist
+EXPOSE 3000
+CMD ["node", "dist/index.js"]
+```
+
+Cada entorno se construye especificando el target:
+
+```bash
+# Entorno de desarrollo (con hot reload)
+docker build --target development -t mi-app:dev .
+
+# Ejecutar tests
+docker build --target test -t mi-app:test .
+docker run --rm mi-app:test
+
+# Imagen de producción
+docker build --target production -t mi-app:prod .
+```
+
+Si no especificas `--target`, Docker construye el último stage del archivo — en este caso, `production`. Eso significa que `docker build .` en CI produce la imagen correcta sin flags adicionales, y el resto de stages están disponibles cuando los necesitas.
+
+El stage `base` actúa como punto de partida compartido. Si cambias la versión de Node o añades un paquete global, lo cambias en un solo sitio y los cuatro targets lo reciben.
+
+---
+
+Multi-stage builds es una de esas funcionalidades que, una vez que la entiendes, te preguntas cómo hacías imágenes antes. Un Dockerfile, múltiples entornos, solo lo necesario en producción.
+
+En la próxima lección entramos en Docker Compose: cómo orquestar múltiples contenedores que necesitan trabajar juntos — base de datos, backend, frontend — con un solo fichero de configuración y un único comando.
+
+¡Nunca dejes de programar!
+
+---
+
+**💡 Reto**: Toma cualquier aplicación que tengas en Go o Node.js/TypeScript. Escribe un Dockerfile de un solo stage y mide el tamaño de la imagen resultante. Luego conviértelo a multi-stage y compara. Si no tienes ningún proyecto a mano, el servidor HTTP mínimo de los ejemplos funciona perfectamente.
