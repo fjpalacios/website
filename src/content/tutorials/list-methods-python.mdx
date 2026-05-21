@@ -1,0 +1,208 @@
+---
+title: "List methods in Python: append, remove, and list comprehensions"
+post_slug: "list-methods-python"
+date: "2026-05-22"
+excerpt: "A list you can't modify is just a tuple with extra steps. Learn to add, remove, and transform elements with the most important list methods — and write your first list comprehensions."
+language: "en"
+categories: ["programming"]
+course: "learn-to-code-from-scratch-python"
+order: 10
+cover: "/images/tutorials/cabecera-python-curso.jpg"
+i18n: "metodos-listas-python"
+---
+
+You have the list. The one from the previous tutorial — shopping cart items, player names, search results. You created it, iterated over it with `for`, checked membership with `in`. All good. Then the user adds a product, removes another, and you want to know how many times "t-shirt" appears in their order history. And that's when you realize: knowing how to create a list isn't the same as knowing how to work with one.
+
+Methods are where lists stop being a static container and become actually useful.
+
+## Adding elements
+
+The most common operation by far is `append()` — it adds one element to the end:
+
+```python
+cart = ["t-shirt", "jeans"]
+
+cart.append("sneakers")
+print(cart)   # ["t-shirt", "jeans", "sneakers"]
+```
+
+If you need to insert at a specific position, `insert(index, value)`:
+
+```python
+cart.insert(1, "socks")   # Insert at index 1
+print(cart)   # ["t-shirt", "socks", "jeans", "sneakers"]
+```
+
+Here's the trap that catches everyone exactly once: `append()` vs `extend()`.
+
+`extend()` adds every element of another iterable, one by one. `append()` adds the object as a single element — if you pass it a list, it inserts that entire list as one nested element:
+
+```python
+cart = ["t-shirt", "jeans"]
+
+cart.extend(["sneakers", "cap"])
+print(cart)   # ["t-shirt", "jeans", "sneakers", "cap"] ✅
+
+cart2 = ["t-shirt", "jeans"]
+cart2.append(["sneakers", "cap"])
+print(cart2)  # ["t-shirt", "jeans", ["sneakers", "cap"]] ❌ — nested list
+```
+
+Simple rule: adding one item? `append()`. Merging two lists? `extend()`.
+
+## Removing elements
+
+Python gives you four ways to remove elements, and each one covers a slightly different case. It's not that the language is broken — the use cases are genuinely different.
+
+**`remove(value)`** deletes the first occurrence of a specific value:
+
+```python
+fruits = ["apple", "pear", "grape", "pear"]
+
+fruits.remove("pear")
+print(fruits)   # ["apple", "grape", "pear"] — only the first one removed
+```
+
+⚠️ If the value doesn't exist, `remove()` raises a `ValueError`. Guard with `in` if you're not sure:
+
+```python
+if "kiwi" in fruits:
+    fruits.remove("kiwi")
+```
+
+**`pop(index)`** removes by position and **returns the removed element**. Without an index, it removes the last one:
+
+```python
+fruits = ["apple", "pear", "grape"]
+
+last = fruits.pop()      # Removes "grape" and returns it
+print(last)    # "grape"
+print(fruits)  # ["apple", "pear"]
+
+first = fruits.pop(0)    # Removes "apple"
+print(first)   # "apple"
+```
+
+The key difference from `remove()`: `pop()` works with indexes and gives back what it removed. Useful when you need the element before discarding it — process and delete in one step.
+
+**`del`** is a language statement (not a method). It removes by index or slice, returning nothing:
+
+```python
+fruits = ["apple", "pear", "grape", "kiwi", "orange"]
+
+del fruits[1]       # Removes "pear"
+del fruits[1:3]     # Removes a slice — "grape" and "kiwi" after the previous del
+print(fruits)       # ["apple", "orange"]
+```
+
+And when you need to empty a list entirely while keeping the same reference, `clear()`:
+
+```python
+cart = ["t-shirt", "jeans", "sneakers"]
+cart.clear()
+print(cart)   # []
+```
+
+This isn't the same as `cart = []`. With `cart = []` you create a brand-new list and orphan the old one — anything else pointing to the original won't see the change. With `clear()` you empty the one you already have, in place.
+
+## Modifying elements directly
+
+Access an index and assign a new value:
+
+```python
+fruits = ["apple", "pear", "grape"]
+
+fruits[0] = "peach"
+print(fruits)   # ["peach", "pear", "grape"]
+```
+
+It also works with slices — replace an entire range at once:
+
+```python
+fruits[1:3] = ["mango", "papaya"]
+print(fruits)   # ["peach", "mango", "papaya"]
+```
+
+## Searching inside a list
+
+`index(value)` returns the position of the first occurrence:
+
+```python
+fruits = ["apple", "pear", "grape", "pear"]
+
+print(fruits.index("pear"))   # 1 — first occurrence
+```
+
+⚠️ Like `remove()`, it raises `ValueError` if the element doesn't exist. Protect yourself with `in` before calling it.
+
+`count(value)` counts how many times an element appears:
+
+```python
+votes = ["yes", "no", "yes", "yes", "no", "yes"]
+
+print(votes.count("yes"))   # 4
+print(votes.count("no"))    # 2
+```
+
+## List comprehensions: the first time Python surprises you
+
+This is the part where Python does something that, the first time you see it, looks too clean to be real — but it works, and after five minutes you'll wonder why every language doesn't do this.
+
+Say you have a list of numbers and you want a new list with all of them squared. The long way:
+
+```python
+numbers = [1, 2, 3, 4, 5]
+
+squares = []
+for n in numbers:
+    squares.append(n ** 2)
+
+print(squares)   # [1, 4, 9, 16, 25]
+```
+
+That works. Four lines. Now the same operation with a **list comprehension**:
+
+```python
+squares = [n ** 2 for n in numbers]
+
+print(squares)   # [1, 4, 9, 16, 25]
+```
+
+One line. Same result. Read it left to right: "give me `n ** 2` for every `n` in `numbers`." If that reads almost like plain English, it's because Python designed it exactly that way.
+
+The syntax is `[expression for variable in iterable]`. Add a condition to filter:
+
+```python
+evens = [n for n in numbers if n % 2 == 0]
+
+print(evens)   # [2, 4]
+```
+
+`[expression for variable in iterable if condition]`. Only elements that satisfy the condition make it into the result.
+
+Feeling like this shouldn't be this comfortable? Fair. Developers coming from Java or C++ stare at this with a mix of confusion and mild jealousy. JavaScript folks have `map()` and `filter()` that do the same thing, just with more ceremony. Don't stress if it feels like magic at first — write it slowly, read it aloud, and in a week you'll wonder how you lived without it.
+
+For now, stick to the simple cases: transforming elements and filtering lists. Comprehensions can get more complex, but the pattern is always the same.
+
+---
+
+## Key concepts from this lesson
+
+- `append(value)` adds one element to the end; `extend(iterable)` merges element by element
+- `remove(value)` deletes by value (first occurrence); raises `ValueError` if not found
+- `pop(index)` removes by position and returns the element; without index, removes the last
+- `del list[index]` removes by position without returning anything; also accepts slices
+- `clear()` empties the list keeping the same reference; different from `list = []`
+- `index(value)` returns the position of the first occurrence
+- `count(value)` counts how many times an element appears
+- List comprehension: `[expression for variable in iterable if condition]`
+
+---
+
+That wraps up the Control Flow module. You've gone from conditionals to loops, from basic lists to full method coverage and list comprehensions — you have the tools to handle real collections of data. Next up: functions. You'll learn to define reusable blocks of logic with `def`, pass parameters, return values, and write code that doesn't need to be read from top to bottom every time something breaks.
+
+Never stop coding!
+
+---
+
+**💡 Challenge**: Start with this task list: `["email", "call", "email", "meeting", "email"]`. Work through it step by step: (1) add `"report"` to the end with `append()`; (2) remove the first task using `pop(0)` and store it in a variable; (3) remove all occurrences of `"email"` using a `while` loop and `remove()`; (4) create a new list containing only tasks with more than 4 letters, using a list comprehension. Print the result after each step.
