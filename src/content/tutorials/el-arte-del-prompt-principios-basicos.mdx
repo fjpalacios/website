@@ -1,0 +1,209 @@
+---
+title: "El arte del prompt: principios básicos"
+post_slug: "el-arte-del-prompt-principios-basicos"
+date: "2026-05-25"
+excerpt: "El mismo modelo, el mismo día, treinta segundos de diferencia: dos respuestas completamente distintas según cómo planteas la pregunta. Aquí está el framework RCTF y por qué lo cambia todo."
+language: "es"
+categories: ["ia"]
+course: "ia-para-programadores"
+order: 7
+cover: "/images/tutorials/cabecera-ia-para-programadores-curso.jpg"
+i18n: "the-art-of-the-prompt-core-principles"
+---
+
+Hay un momento que casi todo el mundo tiene la primera semana usando IA para código. Escribes algo como "ayúdame con este error", la IA te da una respuesta genérica que aplica a cualquier cosa menos a tu problema concreto, te frustras, cierras la pestaña y llegas a la conclusión de que esto está sobrevalorado.
+
+Lo que nadie te dice en ese momento: la IA no falló. El prompt sí.
+
+Ese mismo modelo, treinta segundos después, con una pregunta estructurada, te habría dado exactamente lo que necesitabas. La diferencia entre esas dos preguntas no es conocimiento técnico avanzado — es estructura. Y la estructura se aprende.
+
+## Por qué el mismo modelo da respuestas tan distintas
+
+Hay que recordar algo del Módulo 1: la IA no "piensa" en el sentido humano. Predice tokens. Eso significa que si le das poco contexto, rellena los huecos con lo más probable — y en una pregunta vaga, lo más probable es una respuesta vaga. Si tienes curiosidad sobre los mecanismos concretos detrás de eso, [el tutorial sobre alucinaciones](/es/tutoriales/limitaciones-ia-detectar-alucinaciones) lo explica en detalle.
+
+Para ver la diferencia en la práctica, mismo modelo, mismo día, dos sesiones distintas.
+
+**Prompt A:**
+
+```
+¿Cómo manejo errores en Python?
+```
+
+Respuesta típica: una explicación de `try/except` con un ejemplo de `ZeroDivisionError`. Correcta. Completa. Útil para el examen de secundaria. Inútil para lo que probablemente necesitas tú ahora mismo.
+
+**Prompt B:**
+
+```
+Actúa como un senior Python developer.
+
+Contexto: estoy construyendo una CLI tool que hace peticiones HTTP a una API
+externa. Necesito que los errores sean informativos para el usuario final
+(sin traceback) pero que quede registrado el traceback completo en un log.
+
+Tarea: explícame cómo debería estructurar el error handling para este caso.
+
+Formato: respuesta concisa, un ejemplo de código funcional y los trade-offs
+entre las dos o tres opciones principales.
+```
+
+Respuesta típica: una clase `AppError` bien diseñada, dos patrones de manejo con sus pros y contras, un ejemplo completo que puedes adaptar directamente. Lo que necesitabas.
+
+Mismo modelo. Treinta segundos de diferencia. Todo cambia con la estructura.
+
+## El framework RCTF
+
+Si eres como yo cuando empecé, probablemente asumiste que "hacer buenas preguntas" era algo difuso que se aprendía con el tiempo, sin reglas claras. Y es verdad que la experiencia ayuda. Pero también hay un framework concreto que funciona desde el primer día.
+
+Se llama **RCTF**: **R**ol, **C**ontexto, **T**area, **F**ormato.
+
+No es magia — es una lista de comprobación mental que garantiza que la IA tiene lo suficiente para generar una respuesta útil. Vamos por partes.
+
+### R — Rol
+
+Le dices a la IA desde qué perspectiva tiene que responder. Esto no es solo cosmético: cambia cómo pondera y prioriza la información que conoce.
+
+```
+# Without a role — generic answer
+¿Cuál es la mejor estructura de carpetas para un proyecto de Node.js?
+
+# With a role — contextualized answer
+Actúa como un backend engineer con experiencia en proyectos Node.js a escala de equipo.
+¿Cuál es la mejor estructura de carpetas para un proyecto de Node.js?
+```
+
+Sin rol, la IA asume un punto de vista neutro — que en la práctica significa "principiante genérico". No porque sea maliciosa, sino porque en ausencia de instrucciones, apunta al denominador común. Con un rol concreto, cambia el nivel de la respuesta.
+
+La tentación es escribir algo elaborado: "eres un genio de la programación con décadas de experiencia y un doctorado en sistemas distribuidos...". No hace falta. "Actúa como un senior [lenguaje/tecnología] developer" funciona perfectamente en el 90% de los casos. Lo importante es que esté.
+
+### C — Contexto
+
+Aquí se gana o se pierde la calidad de la respuesta. El contexto es todo lo que la IA no puede saber de otra forma: qué stack usas, qué restricciones tienes, cuál es el problema real, qué ya has intentado.
+
+```
+# Without context
+Tengo un bug en mi código de autenticación
+
+# With context
+Tengo un bug en mi código de autenticación. Stack: Express + JWT + bcrypt.
+El problema: cuando el token expira, el middleware devuelve 500 en vez de 401.
+Ya revisé el middleware de validación y el try/catch parece correcto.
+```
+
+Cuanto más contexto das, menos rellena la IA con suposiciones. Una señal clara de contexto insuficiente: cuando la respuesta empieza con "Para ayudarte mejor, necesito saber..." — eso es la IA diciéndote, con mucha educación, que le diste poco.
+
+Un truco que funciona bien: piensa en lo que le dirías a un compañero que no sabe nada de tu proyecto pero es experto en la tecnología. Sin el PowerPoint de onboarding, sin el historial de Slack de los últimos seis meses — solo lo que necesita saber para entender tu problema ahora mismo. Exactamente eso es el contexto.
+
+### T — Tarea
+
+La acción concreta que quieres que realice. No "ayúdame con esto" — el verbo exacto: _revisa_, _refactoriza_, _explica_, _genera_, _compara_, _identifica_.
+
+```
+# Ambiguous task
+Ayúdame con esta función
+
+# Concrete task
+Revisa esta función e identifica posibles memory leaks. No la refactorices
+todavía — solo lista los problemas con una explicación de por qué son problemáticos.
+```
+
+La diferencia entre "ayúdame" y "revisa e identifica" es la diferencia entre una respuesta que lo hace todo (a medias) y una que hace exactamente lo que pediste.
+
+También sirve delimitar lo que _no_ quieres. La IA tiene cierta tendencia natural al over-engineering — si no la contienes, tu función de tres líneas acaba siendo un módulo con su propio sistema de logging y dos interfaces. "No la refactorices todavía" evita ese destino.
+
+### F — Formato
+
+Cómo quieres que se estructure la respuesta. Sin especificar formato, la IA adivina — y a veces acierta, pero muchas veces te da tres párrafos cuando necesitabas código, o código sin comentarios cuando necesitabas una explicación.
+
+```
+# Without format — free-form response
+Explícame cómo funciona el event loop de Node.js
+
+# With format — exactly what you can use:
+Explícame cómo funciona el event loop de Node.js.
+Formato: tres párrafos máximo, con un diagrama en ASCII si ayuda a visualizarlo,
+y un ejemplo de código que muestre la diferencia entre código síncrono y asíncrono.
+```
+
+Los formatos más útiles en desarrollo:
+
+- **Código con comentarios**: para implementaciones
+- **Lista numerada**: para pasos, procedimientos, prioridades
+- **Tabla comparativa**: para elegir entre opciones
+- **Antes / después**: para refactorizaciones
+- **Solo código, sin preámbulo**: cuando ya entiendes el patrón y solo necesitas el output
+
+El F es la parte que más gente omite porque parece opcional. Si lo saltas, la IA elige el formato que más le apetece en ese momento. Spoiler: rara vez coincide con el que tú necesitabas. No es opcional cuando tienes que conectar la respuesta a algo real.
+
+### El Prompt B revisitado
+
+Con el framework en mente, el Prompt B de antes ya no parece largo ni complejo — es simplemente las cuatro partes en orden:
+
+```
+[R] Actúa como un senior Python developer.
+
+[C] Estoy construyendo una CLI tool que hace peticiones HTTP a una API externa.
+    Necesito que los errores sean informativos para el usuario final (sin traceback)
+    pero que quede registrado el traceback completo en un archivo de log.
+
+[T] Explícame cómo debería estructurar el error handling para este caso.
+
+[F] Respuesta concisa, un ejemplo de código funcional y los trade-offs entre
+    las dos o tres opciones principales.
+```
+
+No te agobies si al principio el prompt sale largo. La longitud no es el problema — la falta de estructura sí. Con el tiempo, escribir en RCTF se vuelve tan automático que dejas de pensar en él como un framework y simplemente es cómo escribes.
+
+## Anti-patrones comunes
+
+Hay tres formas de arruinar un prompt que aparecen constantemente. Mejor nombrarlas directamente.
+
+### Demasiado vago
+
+```
+"Ayúdame con mi función de autenticación"
+"Esto no funciona"
+"¿Cómo mejoro este código?"
+```
+
+¿Qué función? ¿Qué no funciona exactamente? ¿Mejorarlo en qué sentido — performance, legibilidad, seguridad, cobertura de tests? La IA va a intentar responder, pero va a adivinar. La regla práctica: si el prompt no tiene al menos un verbo concreto y una pieza de contexto específico, es demasiado vago.
+
+### Sin restricciones
+
+```
+# ❌ Prompt sin restricciones
+"Escribe una función para gestionar usuarios"
+```
+
+¿En qué lenguaje? ¿Qué operaciones necesita? ¿Hay base de datos? ¿Qué campos tiene un usuario? ¿Es un CRUD completo o solo autenticación?
+
+Sin restricciones, la IA genera algo plausible que probablemente no es lo que necesitas. Las restricciones no limitan la respuesta — la enfocan.
+
+```
+# ✅ Con restricciones
+"Escribe una función en Python que reciba un user_id, consulte PostgreSQL y
+devuelva el usuario o None si no existe. Usa psycopg2. Sin ORM."
+```
+
+### Sin especificación de formato
+
+```
+# ❌ Respuesta libre → muro de texto
+"Explícame las diferencias entre SQL y NoSQL"
+
+# ✅ Formato especificado → respuesta que puedes usar directamente
+"Explícame las diferencias entre SQL y NoSQL.
+Formato: tabla comparativa con los criterios de elección más relevantes para
+un backend developer. Tres casos de uso concretos al final."
+```
+
+La versión sin formato te da una respuesta correcta. La versión con formato te da una respuesta correcta que puedes procesar y usar en los próximos dos minutos.
+
+---
+
+RCTF es, en el fondo, una checklist de cuatro items. No es glamuroso. Pero la diferencia en la calidad de las respuestas cuando los cuatro están presentes es suficiente como para que valga la pena convertirlo en hábito antes de que acabe este módulo. La mayoría de los prompts malos no fallan en cuatro cosas a la vez — fallan en una sola, y esa es suficiente para que la respuesta sea inútil.
+
+En el próximo tutorial vamos a profundizar en la **C** del framework: qué significa proporcionar contexto rico de verdad, cómo funciona el prompting iterativo, y cómo especificar formatos complejos para que la respuesta sea exactamente lo que puedes conectar directamente a tu flujo de trabajo.
+
+**💡 Desafío:** Toma tres preguntas que le hayas hecho a la IA esta semana (o invéntatelas si no usaste ninguna) y reescríbelas aplicando RCTF. Para cada una, identifica cuál de las cuatro partes cambia más el resultado. La respuesta suele sorprender.
+
+¡Nunca dejes de programar!

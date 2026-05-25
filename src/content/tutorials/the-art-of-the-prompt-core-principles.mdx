@@ -1,0 +1,209 @@
+---
+title: "The art of the prompt: core principles"
+post_slug: "the-art-of-the-prompt-core-principles"
+date: "2026-05-25"
+excerpt: "Same model, same day, thirty seconds apart — two completely different answers depending on how you frame the question. Here's the RCTF framework and why it changes everything."
+language: "en"
+categories: ["ai"]
+course: "ai-for-developers"
+order: 7
+cover: "/images/tutorials/cabecera-ia-para-programadores-curso.jpg"
+i18n: "el-arte-del-prompt-principios-basicos"
+---
+
+There's a moment almost everyone hits in their first week using AI for code. You type something like "help me with this error," the AI gives you a generic answer that applies to roughly everything except your actual problem, and you close the tab convinced this whole AI thing is overhyped.
+
+Here's what no one tells you in that moment: the AI didn't fail. The prompt did.
+
+That same model, thirty seconds later, with a structured question, would have given you exactly what you needed. The difference between those two questions isn't advanced technical knowledge — it's structure. And structure can be learned.
+
+## Why the same model gives such different answers
+
+A quick callback to Module 1: the AI doesn't "think" in the human sense. It predicts tokens. That means if you give it little context, it fills the gaps with the most probable continuation — and for a vague question, the most probable answer is a vague one. If you want to dig into the mechanics behind that, [the hallucinations tutorial](/en/tutorials/ai-limitations-detecting-hallucinations) covers exactly how this plays out.
+
+To make this concrete, same model, same day, two separate sessions.
+
+**Prompt A:**
+
+```
+How do I handle errors in Python?
+```
+
+Typical response: a clear explanation of `try/except` with a `ZeroDivisionError` example. Correct. Complete. Perfect for a CS101 assignment. Not remotely useful for whatever you're actually building.
+
+**Prompt B:**
+
+```
+Act as a senior Python developer.
+
+Context: I'm building a CLI tool that makes HTTP requests to an external API.
+I need errors to be informative for the end user (no traceback) but I also
+need the full traceback logged to a file.
+
+Task: explain how I should structure the error handling for this case.
+
+Format: concise answer, one working code example, and the trade-offs between
+the two or three main approaches.
+```
+
+Typical response: a well-designed `AppError` class, two handling patterns with their pros and cons, a complete example you can adapt directly. What you actually needed.
+
+Same model. Thirty seconds apart. All because of structure.
+
+## The RCTF framework
+
+If you're anything like I was when I started, you probably assumed that "asking good questions" was one of those fuzzy skills you pick up with experience — no rules, just intuition. And experience does help. But there's also a concrete framework that works from day one.
+
+It's called **RCTF**: **R**ole, **C**ontext, **T**ask, **F**ormat.
+
+It's not magic — it's a mental checklist that guarantees you're giving the AI enough to produce a useful answer. Let's go through each part.
+
+### R — Role
+
+You tell the AI what perspective it should respond from. This isn't just cosmetic: it changes how it weighs and prioritizes everything it knows.
+
+```
+# Without a role — generic answer
+What's the best folder structure for a Node.js project?
+
+# With a role — calibrated answer
+Act as a backend engineer with experience on team-scale Node.js projects.
+What's the best folder structure for a Node.js project?
+```
+
+Without a role, the AI assumes a neutral viewpoint — which in practice means "generic beginner." Not because it's trying to be unhelpful, but because when no instruction is given, it defaults to the lowest common denominator. With a concrete role, the level of the response shifts.
+
+The temptation is to write something elaborate: "you are a legendary engineer with thirty years of experience and three published papers on distributed systems..." Don't bother. "Act as a senior [language/technology] developer" covers 90% of cases. The important thing is that it's there.
+
+### C — Context
+
+This is where the quality of the response is won or lost. Context is everything the AI can't know on its own: what stack you're using, what constraints you're working under, what the real problem is, what you've already tried.
+
+```
+# Without context
+I have a bug in my authentication code
+
+# With context
+I have a bug in my authentication code. Stack: Express + JWT + bcrypt.
+The issue: when a token expires, the middleware returns 500 instead of 401.
+I've already checked the validation middleware and the try/catch looks correct.
+```
+
+The more context you provide, the less the AI fills in with assumptions. A dead giveaway that your context was too thin: when the response starts with "To help you better, I'd need to know..." — that's the AI politely telling you it's working with nothing.
+
+A useful mental model: think about what you'd tell a colleague who knows nothing about your project but is an expert in the technology. Skip the onboarding deck, skip the backstory — just the minimum they need to understand your problem right now. That's context.
+
+### T — Task
+
+The specific action you want performed. Not "help me with this" — the exact verb: _review_, _refactor_, _explain_, _generate_, _compare_, _identify_.
+
+```
+# Ambiguous task
+Help me with this function
+
+# Concrete task
+Review this function and identify potential memory leaks. Don't refactor it
+yet — just list the issues with an explanation of why each one is a problem.
+```
+
+The difference between "help me" and "review and identify" is the difference between a response that does everything (poorly) and one that does exactly what you asked.
+
+Negative constraints work too. The AI has a natural tendency toward over-engineering — leave it unchecked and your three-line function comes back as a module with its own logging system and two interfaces. "Don't refactor it yet" stops that from happening.
+
+### F — Format
+
+How you want the response structured. Without a format, the AI guesses — and sometimes it guesses right, but often you get three paragraphs when you needed code, or code without comments when you needed an explanation.
+
+```
+# Without format — free-form response
+Explain how the Node.js event loop works
+
+# With format — exactly what you can use:
+Explain how the Node.js event loop works.
+Format: three paragraphs max, an ASCII diagram if it helps visualize the flow,
+and a code example showing the difference between synchronous and async execution.
+```
+
+The most useful formats for development work:
+
+- **Code with comments**: for implementations
+- **Numbered list**: for steps, procedures, priorities
+- **Comparison table**: for choosing between options
+- **Before / after**: for refactors
+- **Code only, no preamble**: when you understand the pattern and just need the output
+
+The F is what most people skip because it feels optional. Skip it and the AI picks whatever format it feels like. Spoiler: it rarely matches what you needed. It's not optional when you have to actually use the response for something.
+
+### Prompt B, revisited
+
+With the framework in mind, Prompt B from earlier doesn't look long or complicated anymore — it's just the four parts in order:
+
+```
+[R] Act as a senior Python developer.
+
+[C] I'm building a CLI tool that makes HTTP requests to an external API.
+    I need errors to be informative for the end user (no traceback) but I also
+    need the full traceback logged to a file.
+
+[T] Explain how I should structure the error handling for this case.
+
+[F] Concise answer, one working code example, and the trade-offs between
+    the two or three main approaches.
+```
+
+Don't worry if your prompts feel long at first. Length isn't the problem — lack of structure is. Over time, writing in RCTF becomes automatic. You stop thinking of it as a framework and it's just how you write.
+
+## Common anti-patterns
+
+Three prompt failure modes show up over and over. Worth naming them directly.
+
+### Too vague
+
+```
+"Help me with my authentication function"
+"This isn't working"
+"How do I improve this code?"
+```
+
+Which function? What exactly isn't working? Improve it in what direction — performance, readability, security, test coverage? The AI will try to answer, but it'll be guessing. The practical rule: if your prompt doesn't have at least one concrete verb and one specific piece of context, it's too vague.
+
+### No constraints
+
+```
+# ❌ No constraints
+"Write a function to manage users"
+```
+
+What language? What operations does it need? Is there a database? What fields does a user have? Is this a full CRUD or just the authentication piece?
+
+Without constraints, the AI generates something plausible that probably isn't what you need. Constraints don't limit the response — they focus it.
+
+```
+# ✅ With constraints
+"Write a Python function that takes a user_id, queries PostgreSQL, and returns
+the user or None if not found. Use psycopg2. No ORM."
+```
+
+### No format specification
+
+```
+# ❌ No format → wall of text
+"Explain the differences between SQL and NoSQL"
+
+# ✅ Format specified → something you can actually use
+"Explain the differences between SQL and NoSQL.
+Format: a comparison table with the most relevant selection criteria for a
+backend developer, followed by three concrete use cases."
+```
+
+The no-format version gives you a correct answer. The with-format version gives you a correct answer you can process and use in the next two minutes.
+
+---
+
+RCTF is, at its core, a four-item checklist. Not glamorous. But the difference in response quality when all four are present is significant enough that it's worth making it a habit before this module is done. Most bad prompts don't fail on all four at once — they fail on one, and one is enough to make the answer useless.
+
+In the next tutorial, we go deep on the **C** in RCTF: what rich context actually looks like, how iterative prompting works, and how to specify complex formats so the response connects directly to your workflow.
+
+**💡 Challenge:** Take three questions you've asked an AI recently (or invent them if you haven't) and rewrite each one using RCTF. For each rewrite, identify which of the four parts changes the result the most. The answer tends to be surprising.
+
+Never stop coding!
