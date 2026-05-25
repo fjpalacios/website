@@ -1,0 +1,162 @@
+---
+title: "GitHub Flow: el workflow para equipos que despliegan continuamente"
+post_slug: "flujo-de-trabajo-github-flow"
+date: "2026-05-26"
+excerpt: "GitHub Flow reduce el branching a lo esencial: una sola rama estable, feature branches cortas, Pull Requests para el review, y deploy tras cada merge."
+language: "es"
+categories: ["git"]
+course: "domina-git-desde-cero"
+order: 29
+cover: "/images/tutorials/cabecera-git.jpg"
+i18n: "github-flow-workflow"
+---
+
+Son las diez de la mañana. Tu compañera acaba de arreglar el bug del formulario de pago que llevaba tres días en producción. ¿Cuándo debería estar ese arreglo en producción? Si tu respuesta es "en cuanto el PR se apruebe", estás describiendo GitHub Flow. Si tu respuesta es "cuando el PM decida hacer el release de la versión 2.1.3", estás describiendo Git Flow.
+
+Los dos workflows son válidos. Pero para proyectos web que despliegan varias veces al día, llevar la estructura de Git Flow — con su `develop`, sus ramas de release y su doble merge — es como usar un traje de neopreno para ducharte. Técnicamente funciona, pero sobra mucho material.
+
+GitHub Flow parte de una premisa diferente a la de [Git Flow](/es/tutoriales/flujo-de-trabajo-git-flow): no hay "versión 2.1 en producción mientras desarrollamos la 3.0". Hay `main`, que es lo que está en prod, y hay ramas de trabajo que duran días, no semanas.
+
+## Qué es GitHub Flow
+
+GitHub Flow es un workflow diseñado por GitHub para equipos que practican **deployment continuo**: código que pasa por review, llega a `main`, y va a producción sin esperar a ninguna ventana de release.
+
+La estructura completa se reduce a dos tipos de ramas:
+
+- **`main`** — siempre estable, siempre desplegable. Cada commit en `main` podría ir a producción en este momento.
+- **Feature branches** — ramas cortas y enfocadas, una por tarea, una por ticket, que viven días como mucho.
+
+No hay `develop`. No hay `release/`. No hay `hotfix/`. Y eso no es una omisión accidental — es una decisión de diseño. Cada capa eliminada es una capa de coordinación que el equipo no tiene que mantener.
+
+## El flujo completo
+
+Cada cambio en GitHub Flow sigue el mismo ciclo de seis pasos. Sin excepciones, sin atajos.
+
+### 1. Crear una rama desde main
+
+Antes de tocar nada, una rama. El nombre tiene que describir el trabajo — no quién lo hace, no la fecha en que empezaste. Si necesitas un repaso de las [convenciones de nomenclatura de ramas](/es/tutoriales/convenciones-nomenclatura-ramas-git), el tutorial anterior cubre exactamente eso.
+
+```bash
+git switch main
+git pull origin main          # Always start from the latest main
+git switch -c feature/123-dark-mode
+```
+
+Una regla que parece obvia pero que se salta más veces de las que debería: siempre parte de un `main` actualizado. Empezar desde un `main` desactualizado es crear deuda de merge antes de escribir una sola línea.
+
+### 2. Commits frecuentes y descriptivos
+
+Trabaja en la feature branch con total libertad. Commits pequeños y frecuentes — las [buenas prácticas de commits](/es/tutoriales/buenas-practicas-commits-git) aplican especialmente aquí, porque esos commits son lo que alguien va a leer cuando revise el PR.
+
+```bash
+git add src/components/ThemeToggle.tsx
+git commit -m "feat(ui): add ThemeToggle component"
+
+git add src/hooks/useTheme.ts
+git commit -m "feat(hooks): add useTheme hook with localStorage persistence"
+
+git add src/styles/dark.css
+git commit -m "style: add dark mode CSS variables"
+```
+
+El criterio no es "cuando la feature esté completa" — es "cuando cada commit sea coherente por sí mismo".
+
+### 3. Abrir el Pull Request
+
+Aquí es donde GitHub Flow se separa de simplemente "usar ramas". El Pull Request no es solo el mecanismo para mergear — es la conversación sobre el código.
+
+Abre el PR en cuanto tengas algo que mostrar. Un PR en estado draft es una invitación a feedback temprano, no una declaración de que el trabajo está terminado.
+
+```bash
+git push origin feature/123-dark-mode
+# A partir de aquí: abrir el PR en GitHub, GitLab, o donde esté el remote
+```
+
+Un buen PR tiene un título que dice qué hace (en imperativo: `Add dark mode support`), una descripción que explica por qué y cómo probarlo, y capturas si el cambio es visual.
+
+Si eres como yo cuando empecé, la primera vez que alguien te comenta un PR tienes la sensación de que están atacando tu código. No te agobies — eso que sientes es exactamente lo que el PR está diseñado para generar: una conversación donde el equipo piensa en voz alta sobre cómo el cambio encaja en el sistema. Los comentarios son el proceso funcionando, no un juicio personal.
+
+### 4. Review e iteración
+
+Mientras el PR está abierto, los compañeros revisan, comentan, sugieren. Tú respondes con más commits, con explicaciones, con conversación. No hay que cerrar el PR — los commits nuevos aparecen automáticamente en él.
+
+```bash
+# Addressing review feedback
+git add src/hooks/useTheme.ts
+git commit -m "fix(hooks): persist theme preference across page reloads"
+git push origin feature/123-dark-mode
+```
+
+Cuántas aprobaciones se necesitan para mergear es una decisión del equipo. Lo que importa es que alguien con contexto haya mirado el código antes de que llegue a `main`.
+
+### 5. Deploy desde la feature branch (opcional pero recomendado)
+
+Antes de mergear, algunos equipos despliegan la feature branch a un entorno de staging. Si algo falla, se corrige en la rama sin que `main` esté comprometido.
+
+Plataformas como Vercel, Netlify o Railway generan un preview deploy automático para cada PR. Si tu infraestructura lo soporta, es una validación extra que no cuesta coordinación.
+
+### 6. Merge a main y deploy
+
+PR aprobado. Se mergea a `main`. En GitHub Flow, este paso desencadena el deploy — automáticamente a través de CI/CD o de forma manual, según el equipo.
+
+```bash
+# En la plataforma: click en "Merge pull request"
+# O via CLI:
+git switch main
+git merge --no-ff feature/123-dark-mode
+git push origin main
+git branch -d feature/123-dark-mode
+```
+
+La rama desaparece. El ciclo se cierra. Lo que era una feature branch de tres días es ahora parte de producción.
+
+## El contrato de main
+
+La regla más importante de GitHub Flow es también la más difícil de mantener: **`main` siempre debe ser desplegable**.
+
+No "casi siempre". No "salvo que haya algo a medias". Siempre.
+
+Esto tiene una consecuencia directa: nada entra en `main` sin pasar por PR y review. Ni los "pequeños arreglos de typos". Ni los "cambios de configuración rápidos". Ni los "lo pusheo directamente que es urgente". Ese bypass es exactamente lo que convierte `main` en una rama de la que el equipo no se fía.
+
+¿Urgente? Se crea la rama, se abre el PR, alguien lo revisa en diez minutos, se mergea. Mismo proceso. Un bug crítico en GitHub Flow no tiene un flujo especial — es una feature branch que nació con urgencia y murió rápido.
+
+## GitHub Flow vs Git Flow
+
+|                                   | Git Flow           | GitHub Flow           |
+| --------------------------------- | ------------------ | --------------------- |
+| Ramas permanentes                 | `main` + `develop` | Solo `main`           |
+| Releases versionadas              | ✅                 | ❌                    |
+| Deployment continuo               | Complejo           | Natural               |
+| Múltiples versiones en producción | ✅                 | ❌                    |
+| Gestión de hotfixes               | Rama dedicada      | Feature branch normal |
+| Para proyectos web/SaaS           | Sobredimensionado  | Ideal                 |
+| Para librerías/SDKs               | Encaja bien        | Insuficiente          |
+
+La trampa habitual es asumir que Git Flow es "el serio" y GitHub Flow es para equipos que todavía no han madurado. No funciona así. GitHub Flow es la elección correcta para proyectos con deployment continuo, sin importar el tamaño del equipo. Git Flow es la elección correcta para proyectos con releases versionadas y múltiples versiones activas en producción.
+
+La mayoría de aplicaciones web actuales no tienen "versión 2.1 en producción mientras desarrollamos la 3.0". Tienen `main`, que es lo que está en prod. Para esos proyectos, Git Flow añade capas de proceso que el equipo va a pagar en fricción durante años.
+
+## Herramientas
+
+Para gestionar el estado de las ramas y los PRs sin salir de la terminal, `lazygit` es la opción más rápida:
+
+```bash
+# macOS y Linux (Homebrew)
+brew install lazygit
+
+# Ubuntu / Debian
+apt install lazygit
+
+# Arch Linux (AUR)
+pacman -S lazygit
+```
+
+Si prefieres el ratón y no te importa esperar a que cargue la interfaz gráfica, GitHub Desktop, GitKraken y SourceTree visualizan el flujo de ramas de forma bastante clara. Los usuarios de Arch ya sabéis cómo va esto.
+
+---
+
+GitHub Flow no va a resolver los conflictos de merge, no va a hacer que las feature branches sean más cortas si el equipo no se disciplina, y no va a sustituir una buena cultura de code review. Lo que sí hace es eliminar capas de proceso que, para la mayoría de proyectos web, nunca deberían haber estado ahí.
+
+El siguiente tutorial entra en detalle en los **Pull Requests**: cómo escribir uno que la gente quiera revisar, cómo dar feedback que no suene a ataque personal, y qué hace que un PR sea fácil de mergear.
+
+¡Nunca dejes de programar!

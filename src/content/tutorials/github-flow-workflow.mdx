@@ -1,0 +1,162 @@
+---
+title: "GitHub Flow: the workflow for teams that ship continuously"
+post_slug: "github-flow-workflow"
+date: "2026-05-26"
+excerpt: "GitHub Flow strips branching down to the essentials: one stable branch, short-lived feature branches, Pull Requests for review, and deploy after every merge."
+language: "en"
+categories: ["git"]
+course: "mastering-git-from-scratch"
+order: 29
+cover: "/images/tutorials/cabecera-git.jpg"
+i18n: "flujo-de-trabajo-github-flow"
+---
+
+Last year I watched a team spend forty minutes in a retro debating whether to adopt Git Flow. Their product: a SaaS web app. Team size: four developers. Release strategy: merge to main, pipeline deploys in ten minutes, repeat several times a day. The correct answer was no — and it took forty minutes to get there because Git Flow sounds serious and professional, and GitHub Flow sounds like the simplified version for people who haven't figured it out yet.
+
+It isn't. They're different answers to different questions.
+
+[Git Flow](/en/tutorials/git-flow-workflow) asks: "how do I manage multiple versions of my software in production simultaneously?" GitHub Flow asks: "how do I get code to production as fast as possible without breaking things?" If your project lives in the second world, Git Flow is process you don't need.
+
+## What GitHub Flow is
+
+GitHub Flow was designed by GitHub for teams that practice **continuous deployment**: code that goes through review, lands on `main`, and ships to production without waiting for a release window.
+
+The entire model fits in two types of branches:
+
+- **`main`** — always stable, always deployable. Every commit on `main` could go to production right now.
+- **Feature branches** — short-lived, focused, named after the work they do. Days, not weeks.
+
+No `develop`. No `release/`. No `hotfix/`. Not an oversight — a deliberate design choice. Every layer removed is a layer of coordination the team doesn't have to maintain.
+
+## The six steps
+
+Every change in GitHub Flow follows the same cycle. No exceptions, no shortcuts.
+
+### 1. Branch off main
+
+Before touching anything, create a branch. Name it after the work — not the person doing it, not the date. If you need a refresher on [branch naming conventions](/en/tutorials/branch-naming-conventions-git), the previous tutorial covers exactly that.
+
+```bash
+git switch main
+git pull origin main          # Always start from the latest main
+git switch -c feature/123-dark-mode
+```
+
+One rule that sounds obvious and gets skipped more than it should: always start from an updated `main`. Starting from a stale `main` creates merge debt before you've written a line.
+
+### 2. Commit often
+
+Work freely on the feature branch. Small, frequent commits — [commit best practices](/en/tutorials/git-commit-best-practices) apply here especially, because those commits are what reviewers will read in the PR.
+
+```bash
+git add src/components/ThemeToggle.tsx
+git commit -m "feat(ui): add ThemeToggle component"
+
+git add src/hooks/useTheme.ts
+git commit -m "feat(hooks): add useTheme hook with localStorage persistence"
+
+git add src/styles/dark.css
+git commit -m "style: add dark mode CSS variables"
+```
+
+The test isn't "is the feature done?" — it's "is this commit coherent on its own?"
+
+### 3. Open the Pull Request
+
+This is where GitHub Flow diverges from just "using branches." The Pull Request is not only the mechanism to merge — it's the conversation about the code.
+
+Open it as soon as you have something to show. A draft PR is an invitation for early feedback, not a declaration that the work is ready.
+
+```bash
+git push origin feature/123-dark-mode
+# Then open the PR on GitHub, GitLab, or wherever your remote lives
+```
+
+A good PR has a title that says what it does (imperative: `Add dark mode support`), a description that explains why and how to test it, and screenshots if the change is visual.
+
+If you're like me when I started, the first time someone comments on your PR it feels like an attack on your code. It isn't. It's your team thinking out loud about how the change fits the system. That friction is the process working, not failing.
+
+### 4. Review and iterate
+
+While the PR is open, teammates review, comment, suggest. You respond: with more commits, with discussion, with explanations. No need to close and reopen — new commits appear in the PR automatically.
+
+```bash
+# Addressing review feedback
+git add src/hooks/useTheme.ts
+git commit -m "fix(hooks): persist theme preference across page reloads"
+git push origin feature/123-dark-mode
+```
+
+How many approvals before merging is a team decision. What matters is that someone with context looked at the code before it hit `main`.
+
+### 5. Deploy from the branch (optional, recommended)
+
+Before merging, some teams deploy the feature branch to a staging environment. If something breaks, the branch can be fixed without touching `main`.
+
+Platforms like Vercel, Netlify, and Railway generate a preview deployment automatically for every PR. If your infrastructure supports it, this is free validation.
+
+### 6. Merge to main and deploy
+
+PR approved. Merge to `main`. In GitHub Flow, this triggers the deploy — either automatically through CI/CD or manually, depending on the team's setup.
+
+```bash
+# On the platform: click "Merge pull request"
+# Or via CLI:
+git switch main
+git merge --no-ff feature/123-dark-mode
+git push origin main
+git branch -d feature/123-dark-mode
+```
+
+The branch is gone. The cycle closes. What was a three-day feature branch is now in production.
+
+## The main contract
+
+The most important rule in GitHub Flow is also the hardest to hold: **`main` must always be deployable**.
+
+Not "usually." Not "except when something's half-done." Always.
+
+This means nothing goes into `main` without going through a PR. Not "tiny typo fixes." Not "quick config changes." Not "it's urgent, I'll push directly." That bypass is exactly what makes `main` a branch your team can't trust.
+
+Urgent? Create the branch, open the PR, someone reviews it in ten minutes, merge. Same process. A critical bug in GitHub Flow doesn't have a special track — it's a feature branch born in urgency and merged fast.
+
+## GitHub Flow vs Git Flow
+
+|                                 | Git Flow              | GitHub Flow            |
+| ------------------------------- | --------------------- | ---------------------- |
+| Long-lived branches             | `main` + `develop`    | `main` only            |
+| Versioned releases              | ✅                    | ❌                     |
+| Continuous deployment           | Awkward               | Natural                |
+| Multiple versions in production | ✅                    | ❌                     |
+| Hotfix handling                 | Dedicated branch type | Regular feature branch |
+| Web apps / SaaS                 | Overkill              | Ideal                  |
+| Libraries / SDKs                | Fits well             | Insufficient           |
+
+The common mistake is assuming Git Flow is "the serious one" and GitHub Flow is for teams that haven't matured yet. It doesn't work that way. GitHub Flow is the right choice for continuous deployment projects regardless of team size. Git Flow is the right choice for versioned releases and multiple active versions in production.
+
+Most web apps don't have "version 2.1 in production while we develop 3.0." They have `main`, which is what's in prod. For those projects, Git Flow adds process layers the team will pay for in friction for years.
+
+## Tools
+
+`lazygit` from the terminal gives you a visual overview of branches and stashes without leaving the keyboard:
+
+```bash
+# macOS and Linux (Homebrew)
+brew install lazygit
+
+# Ubuntu / Debian
+apt install lazygit
+
+# Arch Linux (AUR)
+pacman -S lazygit
+```
+
+Arch users already know the drill. For those who prefer a mouse — GitHub Desktop, GitKraken, and SourceTree all visualize branch flow clearly enough. No Electron in the first one, full Electron experience in the other two.
+
+---
+
+GitHub Flow won't fix your merge conflicts, won't make feature branches shorter if the team doesn't stay disciplined, and won't substitute for a real code review culture. What it does is remove process layers that, for most web projects, never should have been there.
+
+The next tutorial goes deep on **Pull Requests**: how to write one people actually want to review, how to give feedback that doesn't read as a personal attack, and what makes a PR easy to merge.
+
+Never stop coding!
