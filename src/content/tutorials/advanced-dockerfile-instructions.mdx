@@ -1,0 +1,240 @@
+---
+title: "Advanced Dockerfile instructions: ARG, ENV, ENTRYPOINT and more"
+post_slug: "advanced-dockerfile-instructions"
+date: "2026-05-29"
+excerpt: "Understand once and for all the difference between ARG and ENV, ENTRYPOINT and CMD, and what HEALTHCHECK, VOLUME and EXPOSE actually do in your Dockerfiles."
+language: "en"
+categories: ["docker"]
+course: "mastering-docker-from-scratch"
+order: 10
+cover: "/images/tutorials/cabecera-docker-curso.jpg"
+i18n: "instrucciones-avanzadas-dockerfile"
+---
+
+Most Dockerfiles have a few lines that everyone copies from an example that worked once and never questions again. `ENTRYPOINT` and `CMD` near the bottom. `ARG` and `ENV` somewhere near the top. The container starts, the app runs, and nobody asks too many questions.
+
+Until it breaks. Or until someone on the team notices the API key getting passed through `ARG` — which shows up in the image history for anyone to read — or asks why the container ignores the command you pass to `docker run`. That conversation should have happened earlier. This lesson is it.
+
+## ARG vs ENV
+
+`ARG` or `ENV`? Which one persists into the container? Which one disappears after the build? Can you combine them? Does the order in the Dockerfile matter? They look similar — both define variables, both accept a name and an optional default value — but they exist at completely different moments in the Docker lifecycle.
+
+**`ARG`** defines a variable that only exists during the build process. Once the image is built, it's gone. The container that runs from that image never sees it. Use `ARG` for things that affect how the image is built: the Node version, the app version string, a compile-time flag.
+
+**`ENV`** defines an environment variable that persists into the running container. Use `ENV` for anything your application needs at runtime.
+
+```dockerfile
+ARG NODE_VERSION=20
+FROM node:${NODE_VERSION}-alpine
+
+ARG APP_VERSION=1.0.0
+ENV APP_VERSION=${APP_VERSION}
+
+WORKDIR /app
+COPY . .
+RUN npm ci
+CMD ["node", "index.js"]
+```
+
+`NODE_VERSION` only exists long enough to pick the base image. After that, it's gone. `APP_VERSION` is explicitly bridged from `ARG` to `ENV` — that's how a build-time value makes it into the running container.
+
+You can override `ARG` at build time, and `ENV` at runtime:
+
+```bash
+# Override ARG during build
+docker build --build-arg NODE_VERSION=22 -t my-app .
+
+# Override ENV when running
+docker run -e APP_VERSION=2.0.0 my-app
+```
+
+### The security gotcha you need to know about
+
+`ARG` is not a safe place for secrets. Values passed through `ARG` end up in the image history:
+
+```bash
+docker history my-app
+```
+
+```
+IMAGE         CREATED       CREATED BY
+abc123def456  2 hours ago   CMD ["node", "index.js"]
+...           ...           ARG API_KEY=s3cr3t          ← right there
+```
+
+If you've passed an API key, token, or any credential through `ARG`, it's recoverable from the image by anyone who can pull it. This is covered in detail in [Dockerfile security best practices](/en/tutorials/dockerfile-best-practices-security) — if you skipped that one, it's worth going back.
+
+The rule: build-time secrets to BuildKit build secrets (next lesson). Runtime secrets to environment variables injected by your secrets management system, never hardcoded in the Dockerfile.
+
+## ENTRYPOINT vs CMD
+
+If you're like most people when they first encounter this, you've copied those lines from Stack Overflow, seen that sometimes both appear and sometimes only one, and assumed Docker has its quirks. It doesn't. It has concrete rules, and once you understand them everything clicks.
+
+**`CMD`** defines the default command a container runs. It's fully replaceable — pass a different command to `docker run` and `CMD` is ignored entirely.
+
+**`ENTRYPOINT`** defines the executable that always runs when the container starts. You can't override it with a regular argument — you need `--entrypoint` explicitly.
+
+When you use both, `CMD` provides the default arguments to `ENTRYPOINT`.
+
+```dockerfile
+# CMD only — fully replaceable command
+FROM ubuntu:22.04
+CMD ["echo", "hello world"]
+```
+
+```bash
+docker run my-image               # → "hello world"
+docker run my-image echo "bye"   # → "bye"  (CMD replaced)
+```
+
+```dockerfile
+# ENTRYPOINT only — fixed executable
+FROM ubuntu:22.04
+ENTRYPOINT ["echo"]
+```
+
+```bash
+docker run my-image               # → ""  (nothing, no args)
+docker run my-image "hello"      # → "hello"
+```
+
+```dockerfile
+# ENTRYPOINT + CMD — the most useful pattern
+FROM ubuntu:22.04
+ENTRYPOINT ["echo"]
+CMD ["hello world"]
+```
+
+```bash
+docker run my-image               # → "hello world"  (default)
+docker run my-image "other text" # → "other text"  (CMD replaced)
+```
+
+The `ENTRYPOINT + CMD` combination is what you want for CLI tools packaged as containers: the tool is fixed, the arguments are defaults you can override without knowing anything about the image internals.
+
+If you're following along but it's not fully clicking yet, that's fine — this is the combination that gets googled most often by people who've been using Docker for months. The 90% case is exec form in `ENTRYPOINT` with `CMD` as default arguments. The rest comes with practice.
+
+### Shell form vs exec form
+
+Both instructions come in two flavors:
+
+```dockerfile
+# Shell form — runs via /bin/sh -c
+CMD echo "hello"
+ENTRYPOINT echo "hello"
+
+# Exec form — executes directly, no shell involved
+CMD ["echo", "hello"]
+ENTRYPOINT ["echo", "hello"]
+```
+
+**Use exec form for `ENTRYPOINT`.** Shell form runs your process as a child of `/bin/sh`, which has two annoying consequences: OS signals like `SIGTERM` (sent when stopping a container) don't reach your process because the shell intercepts them, and on minimal images without a shell the container simply won't start. With exec form, your process is PID 1 and receives signals directly.
+
+## HEALTHCHECK
+
+This is the instruction no one adds until a container fails silently in production and it takes longer than it should to notice. After that, they add it to everything.
+
+`HEALTHCHECK` tells Docker how to verify a container is functioning correctly. Docker runs the specified command on a schedule and updates the container's status: `starting`, `healthy`, or `unhealthy`.
+
+```dockerfile
+FROM node:20-alpine
+WORKDIR /app
+COPY . .
+RUN npm ci
+EXPOSE 3000
+
+HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
+  CMD curl -f http://localhost:3000/health || exit 1
+
+CMD ["node", "index.js"]
+```
+
+The parameters:
+
+- `--interval`: how often the check runs (default: 30s)
+- `--timeout`: if the command takes longer than this, it's a failure (default: 30s)
+- `--start-period`: grace period at startup before failures start counting (default: 0s)
+- `--retries`: how many consecutive failures before marking as `unhealthy` (default: 3)
+
+The check command should return `0` for healthy and `1` for unhealthy. The `|| exit 1` ensures that if `curl` fails — because the server isn't responding or returns an HTTP error — the check reports failure too.
+
+```bash
+docker ps
+```
+
+```
+CONTAINER ID   IMAGE     STATUS
+a1b2c3d4e5f6   my-app    Up 2 minutes (healthy)
+```
+
+That `(healthy)` in `docker ps` means the HEALTHCHECK is running and passing. Docker Compose and orchestrators use this status to know whether a container is ready to accept traffic, whether it needs to be restarted, and whether to consider a deploy successful.
+
+If your image doesn't have `curl` — Alpine or distroless images — use `wget` or a small script in your app's runtime:
+
+```dockerfile
+# With wget (Alpine)
+HEALTHCHECK --interval=30s --timeout=5s \
+  CMD wget -q --spider http://localhost:3000/health || exit 1
+
+# With Node.js runtime
+HEALTHCHECK --interval=30s --timeout=5s \
+  CMD node -e "require('http').get('http://localhost:3000/health', r => process.exit(r.statusCode === 200 ? 0 : 1))"
+```
+
+## VOLUME and EXPOSE
+
+Here's the part nobody documents well because it's genuinely a bit odd: `EXPOSE` doesn't expose anything and `VOLUME` doesn't mount anything. They're very formal comments that Docker decided to turn into instructions. The naming is optimistic.
+
+### EXPOSE
+
+`EXPOSE` declares which port the container listens on. It does not open that port on the host. It does not make the container accessible from outside. It does nothing at runtime. It's executable documentation — it tells anyone reading the Dockerfile what port to publish, and tools like Docker Compose can discover it automatically.
+
+```dockerfile
+EXPOSE 3000
+```
+
+To actually publish the port to the host, you need `-p` when running:
+
+```bash
+docker run -p 8080:3000 my-app
+# Host port 8080 → container port 3000
+```
+
+`EXPOSE` without `-p` or `ports:` in Compose is invisible from the outside. Add it anyway — it's good documentation practice and some orchestrators use it for service discovery.
+
+### VOLUME
+
+`VOLUME` declares a mount point inside the container. Docker will automatically create an anonymous volume for that path when the container starts, ensuring data persists even if the container is removed.
+
+```dockerfile
+VOLUME ["/app/data", "/app/logs"]
+```
+
+What it doesn't do: it doesn't define where on the host the data lives (that's `-v` in `docker run` or `volumes:` in Compose), and it doesn't save you from having to specify the volume if you want control over it.
+
+```bash
+# Without specifying — Docker creates an anonymous volume
+docker run my-app
+
+# Named volume — recommended
+docker run -v my-data:/app/data my-app
+
+# Bind mount — host directory
+docker run -v $(pwd)/data:/app/data my-app
+```
+
+The primary use of `VOLUME` in a Dockerfile is to document which paths contain data that shouldn't be lost. It also has a practical side effect: any content copied into that path before the `VOLUME` instruction is included in the initial volume state. Any `COPY` or `RUN` that writes to that path after `VOLUME` won't behave as expected.
+
+⚠️ For this reason, put `VOLUME` near the end of the Dockerfile, after copying everything that needs to be there.
+
+---
+
+With `ARG`, `ENV`, `ENTRYPOINT`, `CMD`, `HEALTHCHECK`, `VOLUME`, and `EXPOSE` in your vocabulary, you have all the tools to write Dockerfiles that aren't just functional — they're configurable, predictable, and observable.
+
+Next up is BuildKit: how to enable it, what real advantages it brings over the classic builder, and how to use it to handle build secrets and package caches without compromising security.
+
+Never stop coding!
+
+---
+
+**💡 Challenge**: Open a Dockerfile from any project you have or from any open source repo. Check whether it uses shell form or exec form for `ENTRYPOINT` and `CMD`, whether it has a `HEALTHCHECK`, and whether environment variables are in `ARG` or `ENV`. Is there anything you'd change now?
