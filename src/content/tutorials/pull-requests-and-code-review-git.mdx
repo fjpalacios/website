@@ -1,0 +1,240 @@
+---
+title: "Pull Requests and code review: how to make your code easy to review"
+post_slug: "pull-requests-and-code-review-git"
+date: "2026-05-28"
+excerpt: "A Pull Request is not just the mechanism to merge code — it's a conversation. Learn to write PRs that people actually want to review and give feedback that builds instead of blocks."
+language: "en"
+categories: ["git"]
+course: "mastering-git-from-scratch"
+order: 30
+cover: "/images/tutorials/cabecera-git.jpg"
+i18n: "pull-requests-y-code-review-git"
+---
+
+I once approved a PR without reading it. Not because I was lazy — because the description was blank, the title was "fix", and the diff had six hundred lines across eleven files with no explanation of what any of it did. I ran out of patience somewhere around file four and clicked Approve. Three days later, it took down the checkout flow in production.
+
+That PR had a reviewer. It had an approval. It had zero useful review.
+
+The Pull Request as a concept is sound: before code reaches `main`, another human looks at it. The breakdown happens when the PR is written as if review is a bureaucratic gate to get past, instead of a conversation worth having. Getting that distinction right changes everything — how fast your PRs get reviewed, how much friction the process creates, and whether code review makes your team better or just slower.
+
+## What a Pull Request is
+
+A Pull Request (PR) — or Merge Request if you're on GitLab — is a formal request to integrate the changes from one branch into another. That's the technical side. The human side is where a team looks at code together before it goes anywhere near production.
+
+The difference from a local `git merge` is the social layer: a review process, a comment thread, a record of decisions. Not just what changed, but why, who questioned it, what alternatives were considered. That context has a value that's invisible until six months later, when you're in `git blame` staring at a line you don't understand and there's a PR two clicks away with the entire discussion that led to it.
+
+GitHub, GitLab, Bitbucket, Azure DevOps — different implementations, same concept. I'll use GitHub terminology throughout since it's the most common, but everything translates.
+
+## Anatomy of a PR people want to review
+
+The difference between a PR that gets reviewed the same day and one that sits open for three weeks is usually in how it's written, not what it changes.
+
+### The title
+
+The title is the first thing a reviewer sees. If it says `fix` or `stuff` or `update things`, you've already made their job harder — they don't know if this is five minutes or two hours, and when they have four PRs queued up, they'll default to the one that gives them the least resistance.
+
+A good title says **what the PR does**, in the imperative:
+
+```
+✅ feat(auth): add JWT token refresh mechanism
+✅ fix(cart): prevent duplicate items when clicking fast
+✅ refactor: extract payment service from checkout controller
+
+❌ fix
+❌ stuff
+❌ changes
+❌ WIP do not merge  ← these always get merged
+```
+
+If you've been following [commit best practices](/en/tutorials/git-commit-best-practices) throughout this course, your PR title can be the main commit message, or a summary that covers all the commits in the branch.
+
+### The description
+
+This is where you win or lose the reviewer. A good description answers three questions:
+
+1. **Why?** — Context. What problem does this solve or what feature does it add? A link to the ticket or issue if there is one.
+2. **What?** — Summary of the main changes. You don't need to detail every line — that's what the diff is for — but flag the parts that deserve special attention.
+3. **How to test?** — Steps to verify it works. Especially important if the reviewer needs to run something locally.
+
+A simple template that holds up:
+
+```markdown
+## What does this PR do?
+
+Adds JWT token refresh to prevent users from being logged out every hour.
+
+## How to test
+
+1. Log in with any test account
+2. Wait 15 minutes (or set JWT_EXPIRY=1m in .env.test)
+3. Verify the session is still active and the token has been renewed
+
+## Notes
+
+- Extracted refresh logic into AuthService to make it testable
+- /auth/refresh endpoint is now idempotent
+
+Closes #342
+```
+
+If the change is visual, add screenshots. A screenshot beats two paragraphs describing what the new button looks like.
+
+### Size
+
+The size of a PR has a direct impact on the quality of review it gets — not as a moral judgment, but as a cognitive one.
+
+A reviewer can carefully read a 200-line diff. At 800 lines, they start looking for the Approve button to get out alive. At 2000 lines, "LGTM" arrives in four minutes and nothing real has been reviewed.
+
+The working rule: **one PR, one thing**. If you're adding a feature and fixing three unrelated bugs on the side, create three PRs. They're easier to review, easier to revert if something breaks, and easier to understand in the history six months from now.
+
+Large feature? Break it down. Component first, business logic next, integration last. Or by layer: data model first, then services, then UI. Each PR should be reviewable in a sitting.
+
+## Creating a PR from the terminal
+
+Opening the web interface to create a PR works, but if your workflow is already in the terminal, switching to a browser breaks the flow. GitHub's official CLI — `gh` — handles this without ceremony:
+
+```bash
+# macOS and Linux (Homebrew)
+brew install gh
+
+# Ubuntu / Debian
+apt install gh
+
+# Arch Linux (AUR)
+pacman -S github-cli
+```
+
+Authenticate once:
+
+```bash
+gh auth login
+```
+
+From there, creating a PR is one line:
+
+```bash
+gh pr create --title "feat(auth): add JWT token refresh" \
+             --body "Resolves #342. Adds automatic token refresh." \
+             --reviewer teammate1,teammate2
+```
+
+Or interactive mode, which walks you through title, description, and reviewers:
+
+```bash
+gh pr create
+```
+
+Check your PR status without leaving the terminal:
+
+```bash
+gh pr list      # All open PRs in the repo
+gh pr status    # Only the ones involving you
+```
+
+The web interface makes sense for PRs heavy on screenshots or when your team has a description template configured in GitHub. The flow is the same either way: push the branch, go to GitHub, click "Compare & pull request."
+
+## Requesting review
+
+PR is open. Now what? Do you tell someone? Wait for it to show up in their list? Send a Slack message?
+
+Answer: assign reviewers explicitly. In GitHub's sidebar, or with `gh pr edit --add-reviewer`. If your team has conventions about who reviews what, follow them. If you don't have those conventions, that's a conversation worth having.
+
+One detail that changes a lot: **draft PRs**. If you have something half-done but want early feedback — on the direction, on whether the approach makes sense before you develop it fully — open it as a draft:
+
+```bash
+gh pr create --draft
+```
+
+A draft PR is an invitation to a conversation, not a request for approval. The advantage of opening it early is avoiding the opposite problem: two weeks working in the wrong direction, discovering it when the PR already has 800 lines and half of it needs to be thrown out.
+
+When it's ready for real review:
+
+```bash
+gh pr ready
+```
+
+## How to review a PR (when you're the reviewer)
+
+Code review is a skill. Reading the code is the easy part — knowing what to look for and how to communicate it is what takes practice.
+
+### What to look for
+
+Not just whether the code works. Also:
+
+- **Is it correct?** — Does it do what the title says? Are there edge cases not covered?
+- **Is it readable?** — Will someone understand this six months from now without having to ask?
+- **Is it consistent with the rest of the codebase?** — Does it follow established patterns, or introduce a new way of doing things without prior agreement?
+- **Are the tests sufficient?** — Not "are there tests?" but "do they cover the cases that matter?"
+
+### How to say it
+
+This is where many code reviews go wrong — and where the difference between a review that builds trust and one that damages it lives.
+
+The gap is whether the comment sounds like an attack on the code (and by extension, the person who wrote it) or a conversation about the problem:
+
+```
+❌ "This is wrong"
+❌ "Why would you do it this way?"
+❌ "Never do this"
+
+✅ "This could cause a race condition if two requests arrive simultaneously.
+   What do you think about using a mutex here?"
+✅ "Pattern X tends to be more readable for this case. Not blocking,
+   just a suggestion — have you considered it?"
+✅ "I don't follow why this is done this way. Is there context I'm missing?"
+```
+
+Classify your comments by severity. GitHub doesn't do this natively, but a widely used convention is prefixes:
+
+- `[blocking]` — Must be fixed before merging
+- `[nit]` — Minor improvement, not blocking
+- `[question]` — Genuinely asking, no judgment attached
+- `[suggestion]` — Alternative worth considering
+
+If the comments come out a bit blunt at first, don't stress — it's a learned skill. The intent carries: if you're trying to improve the code rather than demonstrate superiority, the tone usually follows.
+
+### The four-second LGTM problem
+
+"LGTM" — _Looks Good To Me_ — is the most common approval in code review. Also the most meaningless when it shows up thirty seconds after a PR with nine hundred lines of diff.
+
+A four-second review doesn't protect `main`. It doesn't catch the subtle bug in the edge case. It doesn't flag the pattern that will cause problems in two months. All it does is give the author the false impression that someone actually reviewed the code, and the reviewer the false impression that they've done their job.
+
+If you don't have time to review a PR properly, say so. It's more honest and more useful than a courtesy LGTM.
+
+## Responding to feedback
+
+You receive comments on your PR. Eighteen of them. This is not a sign that you did something wrong. It's code review working exactly as it should.
+
+First: read all the comments before responding or making changes. Several might be related, and the fix for one resolves others.
+
+Then there are two kinds:
+
+**The ones that are right.** Fix it, add the commit, mark the conversation as resolved:
+
+```bash
+git add src/auth/token-service.ts
+git commit -m "fix(auth): handle concurrent token refresh requests"
+git push origin feature/jwt-refresh
+```
+
+The new commit appears in the PR automatically. The reviewer sees it, verifies the issue is resolved, marks the conversation done.
+
+**The ones you disagree with.** Explain why — not as a defense of your ego, but as a technical conversation:
+
+```
+"I understand the performance concern, but in our case the JWT payload
+is always small (<1KB) and the overhead is negligible.
+What if we add a comment explaining this decision?"
+```
+
+If a blocking comment isn't resolving itself in writing, move it to a five-minute call. Text threads in code review are the worst place to resolve technical disagreements — written tone strips nuance and what is a normal difference of opinion starts reading like a conflict.
+
+And if the reviewer was right and you weren't — which happens, no drama — just fix it. Code review isn't a test of how much you know. It's a process where the whole team pushes the code upward.
+
+---
+
+The Pull Request is where individual work becomes team work. A good PR doesn't just facilitate review — it documents the decision, creates context for the future, and keeps `main` in the state it needs to be in.
+
+This wraps up the Workflows and Best Practices module. The next module covers advanced Git features — we start with **tags**, which are how Git marks specific points in history to signal releases and versions.
+
+Never stop coding!

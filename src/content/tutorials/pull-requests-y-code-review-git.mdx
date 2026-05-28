@@ -1,0 +1,241 @@
+---
+title: "Pull Requests y code review: cómo hacer que tu código sea fácil de revisar"
+post_slug: "pull-requests-y-code-review-git"
+date: "2026-05-28"
+excerpt: "Un Pull Request no es solo el mecanismo para mergear código — es una conversación. Aprende a escribir PRs que la gente quiera revisar y a dar feedback que construya en lugar de bloquear."
+language: "es"
+categories: ["git"]
+course: "domina-git-desde-cero"
+order: 30
+cover: "/images/tutorials/cabecera-git.jpg"
+i18n: "pull-requests-and-code-review-git"
+---
+
+El PR se llama `fix`. La descripción está en blanco. El diff tiene ochocientas líneas repartidas entre catorce ficheros. Lleva tres semanas abierto porque nadie sabe por dónde empezar a revisarlo.
+
+Todo el mundo ha visto ese PR. Muchos lo hemos escrito. Y si nadie nos ha enseñado qué hace que un PR sea fácil de revisar, lo más normal del mundo es que lo hagamos exactamente así: volcamos el código, lo subimos, y esperamos que alguien lo apruebe.
+
+Un Pull Request no es solo el mecanismo técnico para mergear una rama. Es una conversación sobre el código — y como toda conversación, depende de que quien la inicia le dé suficiente contexto a quien tiene que responder. Los quince minutos que inviertes en escribir un buen PR ahorran horas de ida y vuelta en comentarios, preguntas, y malentendidos.
+
+## Qué es un Pull Request
+
+Un Pull Request (PR) — o Merge Request en GitLab, si tu empresa prefiere ese nombre — es una solicitud formal para integrar los cambios de una rama en otra. Eso en la parte técnica. En la parte humana, es donde el equipo mira el código en conjunto antes de que llegue a `main`.
+
+La diferencia con un `git merge` local es que el PR tiene capa social: hay un proceso de revisión, un hilo de comentarios, un histórico de decisiones. Puedes ver no solo qué cambió, sino por qué, quién lo discutió, qué alternativas se consideraron. Ese contexto tiene un valor que no es obvio hasta que, meses después, abres el `git blame`, llegas a una línea que no entiendes, y en lugar de quedarte bloqueado puedes ir al PR donde esa decisión se tomó y leer exactamente qué se debatió.
+
+GitHub, GitLab, Bitbucket, Azure DevOps — todos tienen su propia implementación, pero el concepto es el mismo. Aquí usaré la terminología de GitHub porque es la más extendida.
+
+## Anatomía de un PR que la gente quiere revisar
+
+La diferencia entre un PR que se mergea el mismo día y uno que lleva tres semanas pudriéndose en la lista suele estar en cómo está escrito, no en lo que cambia.
+
+### El título
+
+El título es lo primero que ve quien va a revisar. Si dice `fix` o `stuff` o `cambios varios`, la persona que lo recibe ya empieza con mal pie: no sabe si le va a llevar cinco minutos o dos horas, y cuando tiene cuatro PRs esperando, los que menos fricción dan se atienden primero.
+
+Un buen título describe **qué hace** el PR, en imperativo:
+
+```
+✅ feat(auth): add JWT token refresh mechanism
+✅ fix(cart): prevent duplicate items when clicking fast
+✅ refactor: extract payment service from checkout controller
+
+❌ fix
+❌ cambios
+❌ stuff
+❌ WIP do not merge  ← spoiler: siempre acaban mergeados
+```
+
+Si ya llevas el curso siguiendo las [buenas prácticas de commits](/es/tutoriales/buenas-practicas-commits-git), el título del PR puede ser directamente el mensaje del commit principal, o un resumen que los englobe a todos.
+
+### La descripción
+
+Aquí es donde se gana o se pierde al reviewer. Una buena descripción responde tres preguntas:
+
+1. **¿Por qué?** — Contexto. Qué problema resuelve o qué funcionalidad añade. Un link al ticket o issue si existe.
+2. **¿Qué?** — Resumen de los cambios principales. No tienes que detallar cada línea — para eso está el diff — pero sí los puntos clave que merecen atención especial.
+3. **¿Cómo probarlo?** — Pasos para verificar que funciona. Especialmente importante si el reviewer necesita ejecutar algo localmente.
+
+Un template sencillo que funciona:
+
+```markdown
+## ¿Qué hace este PR?
+
+Añade el mecanismo de refresh de tokens JWT para evitar que los usuarios
+tengan que volver a hacer login cada hora.
+
+## Cómo probarlo
+
+1. Inicia sesión con cualquier usuario de test
+2. Espera 15 minutos (o modifica JWT_EXPIRY=1m en .env.test)
+3. Verifica que la sesión sigue activa y el token se ha renovado automáticamente
+
+## Notas
+
+- He extraído la lógica de refresh en AuthService para facilitar los tests
+- El endpoint /auth/refresh ahora es idempotente
+
+Closes #342
+```
+
+Si el cambio es visual, añade capturas. Un screenshot vale más que dos párrafos describiendo qué aspecto tiene el nuevo botón.
+
+### El tamaño
+
+El tamaño de un PR tiene un impacto directo en la calidad del review que va a recibir — y no es un juicio moral, es cognitivo.
+
+Un reviewer puede revisar con atención un diff de 200 líneas. Con 800, empieza a buscar el botón de "Approve" para salir vivo. Con 2000, el "LGTM" llega en cuatro minutos sin haber mirado nada real.
+
+La regla práctica: **un PR, una cosa**. Si añades una feature y de paso arreglas tres bugs no relacionados, crea tres PRs separados. Son más fáciles de revisar, más fáciles de hacer revert si algo falla, y más fáciles de entender en el histórico seis meses después.
+
+¿Y si la feature es grande? Divídela. Componente primero, lógica de negocio después, integración al final. O por capas: primero el modelo de datos, luego los servicios, luego la UI.
+
+## Crear un PR desde la terminal
+
+Abrir la interfaz web para crear un PR funciona, pero si ya tienes el workflow en la terminal, saltar al navegador rompe el flujo. La CLI oficial de GitHub — `gh` — resuelve esto sin dramas:
+
+```bash
+# macOS y Linux (Homebrew)
+brew install gh
+
+# Ubuntu / Debian
+apt install gh
+
+# Arch Linux (AUR)
+pacman -S github-cli
+```
+
+Autentícate una vez:
+
+```bash
+gh auth login
+```
+
+Y a partir de ahí, crear un PR es una línea:
+
+```bash
+gh pr create --title "feat(auth): add JWT token refresh" \
+             --body "Resolves #342. Adds automatic token refresh." \
+             --reviewer compañero1,compañero2
+```
+
+O en modo interactivo, que te va preguntando título, descripción, reviewers:
+
+```bash
+gh pr create
+```
+
+Para ver el estado de tus PRs:
+
+```bash
+gh pr list      # Todos los PRs abiertos del repo
+gh pr status    # Solo los que te afectan a ti
+```
+
+Si prefieres el navegador — y a veces tiene sentido, especialmente para PRs con muchas capturas o cuando tu equipo tiene un template de descripción configurado en GitHub — el flow es el mismo: rama pusheada, ir a GitHub, clic en "Compare & pull request".
+
+## Pidiendo review
+
+Abres el PR — ¿y ahora qué? ¿Se lo dices a alguien? ¿Esperas a que aparezca solo en su lista? ¿Mandas un mensaje por Slack?
+
+La respuesta: asigna reviewers de forma explícita. En GitHub, en la barra lateral del PR o con `gh pr edit --add-reviewer`. Si tu equipo tiene convenciones sobre quién revisa qué, síguelas. Si no las tiene, es el momento de establecerlas.
+
+Un detalle que cambia mucho las cosas: los **draft PRs**. Si tienes algo a medias pero quieres feedback temprano — sobre la dirección general, sobre si el approach tiene sentido antes de desarrollarlo del todo — ábrelo como draft:
+
+```bash
+gh pr create --draft
+```
+
+Un draft PR es una invitación a la conversación, no una solicitud de aprobación. La ventaja de abrirlo pronto es evitar el problema opuesto: trabajar dos semanas en una dirección equivocada y descubrirlo cuando el PR ya tiene 800 líneas y hay que tirar la mitad.
+
+Cuando esté listo para review real, lo conviertes:
+
+```bash
+gh pr ready
+```
+
+## Cómo revisar un PR (cuando eres el reviewer)
+
+El code review es una habilidad que se aprende. No basta con leer el código — hay que saber qué mirar y cómo comunicarlo.
+
+### Qué mirar
+
+No solo si el código funciona. También:
+
+- **¿Es correcto?** — ¿Hace lo que dice que hace? ¿Hay casos edge no cubiertos?
+- **¿Es legible?** — ¿Dentro de seis meses, alguien va a entender esto sin preguntar?
+- **¿Es coherente con el resto del proyecto?** — ¿Sigue los patrones establecidos o introduce una nueva forma de hacer las cosas sin consenso?
+- **¿Los tests son suficientes?** — No "¿hay tests?" sino "¿cubren los casos que importan?"
+
+### Cómo comunicarlo
+
+Aquí es donde se pone interesante — y donde muchos code reviews se convierten en una experiencia que nadie quiere repetir.
+
+La diferencia entre un comentario que construye y uno que destruye está en si suena a ataque al código (y por extensión, a quien lo escribió) o a conversación sobre el problema:
+
+```
+❌ "Esto está mal"
+❌ "¿Por qué harías esto así?"
+❌ "Nunca hagas esto"
+
+✅ "Este approach puede causar un race condition si dos requests llegan
+   simultáneamente. ¿Qué te parece usar un mutex aquí?"
+✅ "Para este caso, el pattern X suele ser más legible. No es bloqueante,
+   solo una sugerencia — ¿lo has considerado?"
+✅ "No entiendo bien por qué se hace esto así. ¿Hay contexto que me falta?"
+```
+
+Clasifica tus comentarios por severidad. GitHub no lo hace nativamente, pero una convención muy extendida es usar prefijos:
+
+- `[blocking]` — Hay que arreglarlo antes de mergear
+- `[nit]` — Mejora pequeña, no bloqueante
+- `[question]` — Pregunta sin juicio, solo quiero entender
+- `[suggestion]` — Alternativa que vale la pena considerar
+
+No te agobies si al principio los comentarios te salen un poco secos. La clave está en la intención: si estás intentando mejorar el código en lugar de demostrar que sabes más, el tono suele salir solo.
+
+### El problema del LGTM en cuatro segundos
+
+"LGTM" — _Looks Good To Me_ — es la aprobación más común en code review. También la más vacía cuando aparece treinta segundos después de que el PR tiene novecientas líneas de diff.
+
+El review en cuatro segundos no protege `main`. No detecta el bug sutil en el caso edge. No señala el pattern que va a crear problemas en dos meses. Lo único que hace es dar a quien escribió el código la falsa sensación de que alguien lo ha revisado, y a quien lo aprobó la falsa sensación de que ha hecho su trabajo.
+
+Si no tienes tiempo de revisar un PR con atención, dilo. Es más honesto y más útil que un "LGTM" de cortesía.
+
+## Respondiendo al feedback
+
+Recibes comentarios en tu PR. Dieciocho. Esto ya lo anticipábamos al principio. ¿Primera reacción? La sensación de que has hecho algo mal. Respuesta correcta: el code review está funcionando exactamente como tiene que funcionar.
+
+Lo primero: lee todos los comentarios antes de responder o hacer cambios. A veces varios están relacionados y la solución de uno resuelve los otros.
+
+Luego hay dos tipos:
+
+**Los que tienen razón.** Arreglas, añades el commit, marcas la conversación como resuelta:
+
+```bash
+git add src/auth/token-service.ts
+git commit -m "fix(auth): handle concurrent token refresh requests"
+git push origin feature/jwt-refresh
+```
+
+El commit nuevo aparece automáticamente en el PR. El reviewer lo ve, verifica que la conversación está resuelta, y la marca como tal.
+
+**Los que no estás de acuerdo.** Explica por qué. No como defensa del ego, sino como conversación técnica:
+
+```
+"Entiendo la preocupación con el rendimiento, pero en nuestro caso el payload
+de JWT siempre va a ser pequeño (<1KB) y el overhead es despreciable.
+¿Te parece bien si añadimos un comentario explicando esta decisión?"
+```
+
+Si un comentario de bloqueo no llega a resolverse por escrito, lleva la discusión a una llamada de cinco minutos. Los hilos de texto en code review son el peor lugar para resolver desacuerdos técnicos — el tono escrito elimina matices y lo que es una discrepancia técnica normal puede parecer una pelea.
+
+Y si al final el reviewer tenía razón y tú no — que pasa, sin dramatismo — simplemente arréglalo. El code review no es un examen de conocimientos. Es un proceso donde todo el equipo empuja el código hacia arriba.
+
+---
+
+El Pull Request es donde el trabajo individual se convierte en trabajo de equipo. Un buen PR no solo facilita el review — documenta la decisión, crea contexto para el futuro, y mantiene `main` en el estado que tiene que estar.
+
+Con esto cierras el módulo de Workflows y Buenas Prácticas. El siguiente módulo entra en las funcionalidades avanzadas de Git — empezamos con los **tags**, que son la forma que tiene Git de marcar puntos concretos del historial para señalar releases y versiones.
+
+¡Nunca dejes de programar!
