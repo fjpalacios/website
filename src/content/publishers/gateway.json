@@ -1,5 +1,6 @@
 {
   "name": "Gateway",
   "publisher_slug": "gateway",
-  "language": "es"
+  "language": "es",
+  "description": "Sello digital de Gollancz (UK) que recupera y distribuye en formato ebook clásicos del fantasy y la ciencia ficción anglosajona."
 }

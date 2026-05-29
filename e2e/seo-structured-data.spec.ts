@@ -242,7 +242,9 @@ test.describe("SEO Structured Data - Content Pages", () => {
 
       const description = await page.locator('meta[name="description"]').getAttribute("content");
       expect(description).toBeTruthy();
-      expect(description).toContain("libro");
+      // Description now lists book titles instead of a count, so we verify it's
+      // meaningful: contains the author name and at least one real book title.
+      expect(description).toContain("Stephen King");
     });
 
     test("should have proper meta description on category page", async ({ page }) => {

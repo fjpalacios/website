@@ -935,3 +935,121 @@
 /ya-tengo-el-ipod-nano-de-reemplazo-yeah/ /es/ 301
 /yo-tambien-digo-no-a-la-ley-lassalle/ /es/ 301
 /you-can-canon-you-can-loop/ /es/ 301
+
+# ========================================
+# WP patterns — taxonomy & archive catch-all (2026-05-29)
+# These come after specific redirects so they only catch unmapped URLs.
+# ========================================
+
+# Authors not in the specific list (preserves slug so it hits the right Astro page)
+/autor/* /es/autores/:splat 301
+# WP admin author URLs (/author/wizard_/page/77/ etc.) — no slug to preserve
+/author/* /es/autores/ 301
+
+# Blog archive & pagination (/blog/, /blog/page/X/, /blog/post-slug/)
+/blog /es/publicaciones/ 301
+/blog/ /es/publicaciones/ 301
+/blog/* /es/publicaciones/ 301
+
+# WP taxonomies with no Astro equivalent
+/etiqueta/* /es/ 301
+/categoria/* /es/ 301
+/fecha/* /es/ 301
+/puntuacion/* /es/ 301
+/coleccion/* /es/ 301
+/ficcion/* /es/ 301
+/no-ficcion/* /es/ 301
+
+# WP root pagination (/page/X/)
+/page/* /es/ 301
+
+# Feed root
+/feed /es/ 301
+/feed/ /es/ 301
+
+# Book wishlist (old WP feature, removed)
+/book-wishlist/* /es/libros/ 301
+
+# ========================================
+# Specific WP pages without redirect (2026-05-29)
+# ========================================
+
+/buscador /es/ 301
+/buscador/ /es/ 301
+/entrevista /es/ 301
+/entrevista/ /es/ 301
+/entrevista/* /es/ 301
+/estanteria /es/libros/estanteria/ 301
+/estanteria/ /es/libros/estanteria/ 301
+/libros /es/libros/ 301
+/libros/ /es/libros/ 301
+/tutoriales /es/tutoriales/ 301
+/tutoriales/ /es/tutoriales/ 301
+/reporte-de-errores /es/ 301
+/reporte-de-errores/ /es/ 301
+/enlaces /es/ 301
+/contacto /es/ 301
+
+# ========================================
+# Specific WP posts not migrated to Astro (2026-05-29)
+# ========================================
+
+/malditas-facturas /es/ 301
+/malditas-facturas/ /es/ 301
+/lluvia /es/ 301
+/lluvia/ /es/ 301
+/el-tallador-de-lapidas /es/ 301
+/el-tallador-de-lapidas/ /es/ 301
+/el-paquete-de-galletas /es/ 301
+/el-paquete-de-galletas/ /es/ 301
+/la-literatura-juvenil-no-merece-tanta-critica /es/ 301
+/la-literatura-juvenil-no-merece-tanta-critica/ /es/ 301
+/todo-por-culpa-de-un-mal-dia /es/ 301
+/todo-por-culpa-de-un-mal-dia/ /es/ 301
+/antes-de-morir /es/ 301
+/antes-de-morir/ /es/ 301
+/comunactivo /es/ 301
+/comunactivo/ /es/ 301
+/alicia-en-el-pais-de-las-maravillas-lewis-carroll-edicion- /es/libros/ 301
+/fonyou/fonyou /es/ 301
+/fonyou/fonyou/ /es/ 301
+
+# ========================================
+# Astro — URLs rotas o renombradas (2026-05-29)
+# ========================================
+
+# Retos: el prefijo "reto-literario-" fue eliminado de los slugs
+/es/retos/reto-literario-12-meses-12-clasicos-2016 /es/retos/12-meses-12-clasicos-2016/ 301
+/es/retos/reto-literario-12-meses-12-clasicos-2016/ /es/retos/12-meses-12-clasicos-2016/ 301
+/es/retos/reto-literario-stephen-king /es/retos/stephen-king/ 301
+/es/retos/reto-literario-stephen-king/ /es/retos/stephen-king/ 301
+/es/retos/reto-literario-los-155-libros-que-debes-leer-antes-de-morir /es/retos/155-libros/ 301
+/es/retos/reto-literario-los-155-libros-que-debes-leer-antes-de-morir/ /es/retos/155-libros/ 301
+
+# Rutas /article/ obsoletas → /tutorials/
+/en/article/* /en/tutorials/:splat 301
+/es/article/* /en/tutorials/:splat 301
+
+# Estantería y estadísticas con nombre de locale cruzado
+/en/books/estanteria /en/books/shelf 301
+/en/books/estanteria/ /en/books/shelf 301
+/es/libros/shelf /es/libros/estanteria 301
+/es/libros/shelf/ /es/libros/estanteria 301
+/en/books/estadisticas /en/books/stats 301
+/en/books/estadisticas/ /en/books/stats 301
+/es/libros/stats /es/libros/estadisticas 301
+/es/libros/stats/ /es/libros/estadisticas 301
+
+# Paginación ES con la palabra inglesa "page"
+/es/publicaciones/page/2 /es/publicaciones/pagina/2/ 301
+/es/publicaciones/page/4 /es/publicaciones/pagina/4/ 301
+/es/publicaciones/page/6 /es/publicaciones/pagina/6/ 301
+
+# Libro con slug incompleto (le falta -de-aa-vv)
+/es/libros/circulos-infernales /es/libros/circulos-infernales-de-aa-vv/ 301
+/es/libros/circulos-infernales/ /es/libros/circulos-infernales-de-aa-vv/ 301
+
+# Posts EN de contenido que solo existe en ES
+/en/posts/libros-leidos-durante-* /es/publicaciones/libros-leidos-durante-:splat 301
+/en/posts/reto-literario-* /es/publicaciones/reto-literario-:splat 301
+/en/challenges/* /es/retos/:splat 301

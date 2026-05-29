@@ -2,5 +2,6 @@
   "name": "Psicológico",
   "genre_slug": "psicologico",
   "language": "es",
-  "type": "fiction"
+  "type": "fiction",
+  "description": "Narraciones que profundizan en la mente y las motivaciones de sus personajes, explorando traumas, obsesiones y los límites de la razón."
 }

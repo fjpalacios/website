@@ -165,6 +165,9 @@ export const publishersSchema = z.object({
   publisher_slug: z.string().min(1),
   language: z.enum(["es", "en"]),
 
+  // Optional description for SEO
+  description: z.string().optional(),
+
   // i18n
   i18n: z.string().optional(),
 });
@@ -210,6 +213,7 @@ export const genresSchema = z.object({
   genre_slug: z.string().min(1),
   language: z.enum(["es", "en"]),
   type: z.enum(["fiction", "non-fiction"]), // Genre type classification (required)
+  description: z.string().optional(),
   i18n: z.string().optional(),
 });
 

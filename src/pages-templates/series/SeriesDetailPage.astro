@@ -51,9 +51,10 @@ const basePath = buildSeriesUrl(lang, series.data.series_slug);
 
 // SEO description
 const translationKey = totalItems === 1 ? "taxonomy.series.bookCount_one" : "taxonomy.series.bookCount_other";
-const description = t(lang, translationKey)
+const fallbackDescription = t(lang, translationKey)
   .replace("{{count}}", totalItems.toString())
   .replace("{{name}}", series.data.name);
+const description = series.data.description || fallbackDescription;
 
 // Build breadcrumbs
 const breadcrumbs: BreadcrumbItem[] = [

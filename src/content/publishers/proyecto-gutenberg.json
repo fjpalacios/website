@@ -1,5 +1,6 @@
 {
   "name": "Proyecto Gutenberg",
   "publisher_slug": "proyecto-gutenberg",
-  "language": "es"
+  "language": "es",
+  "description": "Proyecto voluntario de digitalización con más de 60.000 libros de dominio público gratuitos disponibles en múltiples formatos digitales."
 }

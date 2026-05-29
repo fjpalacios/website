@@ -2,5 +2,6 @@
   "name": "Realista",
   "genre_slug": "realista",
   "language": "es",
-  "type": "fiction"
+  "type": "fiction",
+  "description": "Ficción que retrata la vida cotidiana y la sociedad con fidelidad, sin elementos fantásticos, centrada en personajes y situaciones verosímiles."
 }

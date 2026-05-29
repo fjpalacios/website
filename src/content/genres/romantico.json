@@ -2,5 +2,6 @@
   "name": "Romántico",
   "genre_slug": "romantico",
   "language": "es",
-  "type": "fiction"
+  "type": "fiction",
+  "description": "Obras cuyo eje central es una historia de amor, con sus conflictos, emociones y la búsqueda de conexión entre los protagonistas."
 }

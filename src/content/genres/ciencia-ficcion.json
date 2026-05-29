@@ -2,5 +2,6 @@
   "name": "Ciencia ficción",
   "genre_slug": "ciencia-ficcion",
   "language": "es",
-  "type": "fiction"
+  "type": "fiction",
+  "description": "Género que explora mundos futuros, tecnologías avanzadas y el impacto científico en la humanidad, desde el space opera hasta el cyberpunk."
 }
