@@ -73,8 +73,8 @@ const articleSchema: Record<string, unknown> = {
 };
 
 // Add modified date if available
-if (post.updated) {
-  articleSchema.dateModified = post.updated.toISOString();
+if (post.update_date) {
+  articleSchema.dateModified = post.update_date.toISOString();
 }
 ---
 
