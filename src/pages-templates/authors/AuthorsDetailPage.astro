@@ -57,11 +57,16 @@ const authorTitle = author.data.gender === "male" ? t(lang, "pages.authorMale") 
 const pageTitle = `${authorTitle}: ${author.data.name}`;
 const basePath = buildAuthorUrl(lang, author.data.author_slug);
 
-// SEO description
+// SEO description: use book titles if available, otherwise fall back to count string
+const bookTitles = content
+  .slice(0, 3)
+  .map((item) => item.title)
+  .join(", ");
 const translationKey = totalItems === 1 ? "taxonomy.author.bookCount_one" : "taxonomy.author.bookCount_other";
-const description = t(lang, translationKey)
+const fallbackDescription = t(lang, translationKey)
   .replace("{{count}}", totalItems.toString())
   .replace("{{name}}", author.data.name);
+const description = bookTitles ? `${author.data.name}: ${bookTitles}.` : fallbackDescription;
 
 // Build breadcrumbs
 const breadcrumbs: BreadcrumbItem[] = [

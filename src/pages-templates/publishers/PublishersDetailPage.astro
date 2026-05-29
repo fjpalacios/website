@@ -56,9 +56,10 @@ const basePath = buildPublisherUrl(lang, publisher.data.publisher_slug);
 
 // SEO description
 const translationKey = totalItems === 1 ? "taxonomy.publisher.bookCount_one" : "taxonomy.publisher.bookCount_other";
-const description = t(lang, translationKey)
+const fallbackDescription = t(lang, translationKey)
   .replace("{{count}}", totalItems.toString())
   .replace("{{name}}", publisher.data.name);
+const description = publisher.data.description || fallbackDescription;
 
 // Build breadcrumbs
 const breadcrumbs: BreadcrumbItem[] = [
