@@ -2,5 +2,6 @@
   "name": "Tecnología",
   "genre_slug": "tecnologia",
   "language": "es",
-  "type": "non-fiction"
+  "type": "non-fiction",
+  "description": "Obras de no ficción que exploran el impacto de la tecnología en la sociedad, desde la programación y la inteligencia artificial hasta el pensamiento digital."
 }

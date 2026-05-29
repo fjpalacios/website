@@ -2,5 +2,6 @@
   "name": "Histórico",
   "genre_slug": "historico",
   "language": "es",
-  "type": "fiction"
+  "type": "fiction",
+  "description": "Novelas ambientadas en épocas pasadas que recrean con rigor el contexto histórico mientras narran historias de personajes reales o ficticios."
 }

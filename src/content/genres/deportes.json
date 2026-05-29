@@ -2,5 +2,6 @@
   "name": "Deportes",
   "genre_slug": "deportes",
   "language": "es",
-  "type": "non-fiction"
+  "type": "non-fiction",
+  "description": "Obras de no ficción centradas en el mundo del deporte, desde biografías de atletas hasta análisis de disciplinas y la cultura deportiva."
 }

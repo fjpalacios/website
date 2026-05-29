@@ -2,5 +2,6 @@
   "name": "Aventuras",
   "genre_slug": "aventuras",
   "language": "es",
-  "type": "fiction"
+  "type": "fiction",
+  "description": "Narraciones protagonizadas por personajes que enfrentan peligros, viajes y hazañas en escenarios exóticos o situaciones de riesgo extremo."
 }

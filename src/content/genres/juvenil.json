@@ -2,5 +2,6 @@
   "name": "Juvenil",
   "genre_slug": "juvenil",
   "language": "es",
-  "type": "fiction"
+  "type": "fiction",
+  "description": "Literatura dirigida a adolescentes y jóvenes adultos, con personajes que afrontan los retos de la identidad, los vínculos y el descubrimiento del mundo."
 }

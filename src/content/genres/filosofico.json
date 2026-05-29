@@ -2,5 +2,6 @@
   "name": "Filosófico",
   "genre_slug": "filosofico",
   "language": "es",
-  "type": "fiction"
+  "type": "fiction",
+  "description": "Obras que utilizan la narrativa o el ensayo para explorar cuestiones fundamentales sobre la existencia, la moral, el conocimiento y el sentido de la vida."
 }

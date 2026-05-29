@@ -2,5 +2,6 @@
   "name": "Memorias",
   "genre_slug": "memorias",
   "language": "es",
-  "type": "non-fiction"
+  "type": "non-fiction",
+  "description": "Relatos autobiográficos en primera persona que narran experiencias vividas, reflexiones personales y episodios significativos de la vida del autor."
 }

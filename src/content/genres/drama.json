@@ -2,5 +2,6 @@
   "name": "Drama",
   "genre_slug": "drama",
   "language": "es",
-  "type": "fiction"
+  "type": "fiction",
+  "description": "Narración centrada en conflictos humanos, emociones intensas y situaciones de tensión que exploran la condición humana en toda su complejidad."
 }

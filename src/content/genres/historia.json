@@ -2,5 +2,6 @@
   "name": "Historia",
   "genre_slug": "historia",
   "language": "es",
-  "type": "non-fiction"
+  "type": "non-fiction",
+  "description": "No ficción centrada en el estudio y divulgación del pasado, desde la crónica documental hasta la biografía histórica y el ensayo sobre civilizaciones."
 }
