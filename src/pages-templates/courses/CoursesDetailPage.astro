@@ -17,7 +17,7 @@ import Title from "@components/Title.astro";
 import Layout from "@layouts/Layout.astro";
 import { t } from "@locales";
 import { buildCourseUrl, buildCoursesIndexUrl } from "@utils/routes";
-import type { CollectionEntry } from "astro:content";
+import { getCollection, type CollectionEntry } from "astro:content";
 
 import type { ContactItem } from "@/types/content";
 import type { Language } from "@/utils/routes";
@@ -68,7 +68,41 @@ const breadcrumbs: BreadcrumbItem[] = [
   { label: course.data.name }, // Current page, no URL
 ];
 
-const breadcrumbSchema = generateBreadcrumbSchema(breadcrumbs, t(lang, "metaData.url"));
+const baseUrl = t(lang, "metaData.url");
+const breadcrumbSchema = generateBreadcrumbSchema(breadcrumbs, baseUrl);
+
+// Course schema for Google rich results
+const courseSchema: Record<string, unknown> = {
+  "@context": "https://schema.org",
+  "@type": "Course",
+  name: course.data.name,
+  url: new URL(basePath, baseUrl).href,
+  provider: {
+    "@type": "Person",
+    name: t(lang, "title"),
+  },
+  inLanguage: lang,
+};
+
+if (course.data.description) {
+  courseSchema.description = course.data.description;
+}
+
+const allCourseTutorials = await getCollection(
+  "tutorials",
+  (t) => t.data.language === lang && t.data.course === course.data.course_slug,
+);
+allCourseTutorials.sort((a, b) => (a.data.order ?? 0) - (b.data.order ?? 0));
+
+if (allCourseTutorials.length > 0) {
+  const tutorialsRoute = t(lang, "routes.tutorials");
+  courseSchema.hasPart = allCourseTutorials.map((tutorial) => ({
+    "@type": "LearningResource",
+    name: tutorial.data.title,
+    url: new URL(`/${lang}/${tutorialsRoute}/${tutorial.data.post_slug}/`, baseUrl).href,
+    description: tutorial.data.excerpt,
+  }));
+}
 
 // Generate ItemList schema for SEO
 const itemListSchema = generateItemListSchema(
@@ -95,6 +129,7 @@ const itemListSchema = generateItemListSchema(
   translationSlug={course.data.i18n}
   hasTargetContent={hasTargetContent}
 >
+  <script slot="schema" type="application/ld+json" set:html={JSON.stringify(courseSchema)} />
   <script slot="schema" type="application/ld+json" set:html={JSON.stringify(itemListSchema)} />
   <script slot="schema" type="application/ld+json" set:html={JSON.stringify(breadcrumbSchema)} />
 

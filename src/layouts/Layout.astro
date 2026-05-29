@@ -175,6 +175,21 @@ const nextPageUrl =
         document.documentElement.setAttribute("data-theme", theme);
       })();
     </script>
+    <!-- WebSite schema (site-wide) -->
+    <script
+      type="application/ld+json"
+      set:html={JSON.stringify({
+        "@context": "https://schema.org",
+        "@type": "WebSite",
+        name: t(lang, "title"),
+        url: baseUrl,
+        inLanguage: lang,
+        author: {
+          "@type": "Person",
+          name: t(lang, "title"),
+        },
+      })}
+    />
     <!-- Person schema for site owner (site-wide, not page-specific) -->
     <script
       type="application/ld+json"

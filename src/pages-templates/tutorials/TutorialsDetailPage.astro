@@ -103,8 +103,8 @@ const tutorialSchema: Record<string, unknown> = {
 };
 
 // Add modified date if available
-if (tutorial.updated) {
-  tutorialSchema.dateModified = tutorial.updated.toISOString();
+if (tutorial.update_date) {
+  tutorialSchema.dateModified = tutorial.update_date.toISOString();
 }
 
 // Add course as part of series if available
