@@ -11,7 +11,7 @@ cover: "/images/tutorials/cabecera-git.jpg"
 i18n: "how-to-undo-commits-in-git"
 ---
 
-En el artículo [Cómo recuperar ficheros tras modificarlos gracias a Git](/es/article/how-to-recover-files-after-modifying-them-thanks-to-git/) ya vimos qué hacer en algunos casos en los que hemos metido la pata modificando un archivo de forma errónea. ¿Pero qué podemos hacer cuando ya hemos hecho _commit_ a aquello que está incorrecto? Aquí trataremos de explicártelo.
+En el artículo [Cómo recuperar ficheros tras modificarlos gracias a Git](/es/tutoriales/como-recuperar-ficheros-git/) ya vimos qué hacer en algunos casos en los que hemos metido la pata modificando un archivo de forma errónea. ¿Pero qué podemos hacer cuando ya hemos hecho _commit_ a aquello que está incorrecto? Aquí trataremos de explicártelo.
 
 Hemos querido esperar a este momento para explicar este punto porque el procedimiento es bastante diferente dependiendo de qué se haya hecho con ese _commit_: si está todavía en nuestro equipo local o si ya se ha enviado a un nodo remoto (a GitHub, por ejemplo). Git dispone de los comandos `reset` (que ya vimos un poco por encima en el artículo mencionado al principio) y `revert`, que sirven ambos para deshacer _commits_ pero cada uno de ellos de una forma diferente. Mientras que `revert` podemos usarlo tanto cuando un _commit_ esté en local como cuando ya haya sido sincronizado con algún nodo remoto, `reset` **sólo debe ser usado** cuando el _commit_ esté todavía en local. Ahora lo explicaremos detalladamente.
 
