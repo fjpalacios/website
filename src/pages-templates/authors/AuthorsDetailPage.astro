@@ -110,8 +110,9 @@ const itemListSchema = generateItemListSchema(
   <Breadcrumbs items={breadcrumbs} lang={lang} />
   <Title title={pageTitle} srOnly={true} useAsPagefindTitle={true} headingLevel="h1" />
 
-  <!-- Short indexable description for Pagefind -->
-  <p class="sr-only" aria-hidden="true">{description}</p>
+  <!-- Description only for meta tags — excluded from Pagefind to avoid author pages
+       appearing in search results when searching by book title -->
+  <p class="sr-only" aria-hidden="true" data-pagefind-ignore>{description}</p>
 
   <div class="author-detail-page__author-section" data-pagefind-ignore="all">
     <AuthorInfo author={author} border={true} />
