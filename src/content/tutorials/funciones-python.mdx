@@ -1,0 +1,326 @@
+---
+title: "Funciones en Python: def, parámetros y return"
+post_slug: "funciones-python"
+date: "2026-06-01"
+excerpt: "Aprende a definir funciones en Python con def, pasar parámetros, devolver valores con return y evitar que tu código se convierta en una cadena de copy-paste imposible de mantener."
+language: "es"
+categories: ["programacion"]
+course: "aprende-a-programar-desde-cero-python"
+order: 11
+cover: "/images/tutorials/cabecera-python-curso.jpg"
+i18n: "defining-functions-python"
+---
+
+Copias tres líneas de código. Luego otras tres. Luego las mismas tres, pero cambiando un número. Al principio parece productividad. A los diez minutos tienes un archivo que parece una fotocopiadora poseída: mucho ruido, poca intención, y cada cambio hay que hacerlo en cuatro sitios distintos porque, claro, ¿qué podía salir mal?
+
+Ahí entran las funciones. No como una cosa académica con nombre elegante, sino como una herramienta para decirle a Python: "esta operación tiene nombre, úsala cuando te la pida".
+
+## Qué es una función
+
+Una **función** es un bloque de código reutilizable. Le das un nombre, metes dentro unas instrucciones, y después puedes ejecutar ese bloque llamando a la función.
+
+Piensa en una cafetera. No quieres repetir manualmente todos los pasos cada mañana: moler café, calentar agua, presionar botón, mirar al vacío mientras compila la vida. Quieres pulsar `hacer_cafe()` y que el proceso ocurra. Una función es eso: un nombre para una secuencia de pasos.
+
+En el tutorial anterior trabajaste con listas y métodos como [`append()` o `remove()`](/es/tutoriales/metodos-listas-python). Si lo piensas, ya has usado funciones todo el rato: `print()`, `len()`, `range()`. La diferencia es que ahora vas a crear las tuyas.
+
+## Tu primera función con def
+
+En Python defines una función con la palabra clave `def`:
+
+```python
+def saludar():
+    print("Hola, Python")
+```
+
+Esto **define** la función, pero todavía no la ejecuta. Es como guardar una receta en un cajón: existe, pero nadie está cocinando nada.
+
+Para ejecutarla, tienes que llamarla por su nombre con paréntesis:
+
+```python
+def saludar():
+    print("Hola, Python")
+
+saludar()
+```
+
+```
+Hola, Python
+```
+
+La estructura básica es esta:
+
+```python
+def nombre_de_la_funcion():
+    # Function body
+    instruccion_1
+    instruccion_2
+```
+
+Fíjate en dos detalles importantes:
+
+- La línea de `def` termina con `:`
+- El cuerpo de la función va indentado
+
+Si olvidas la indentación, Python se queja. Y esta vez tiene razón. Python usa la indentación para saber qué código pertenece a la función y qué código queda fuera. No es decoración: es parte de la sintaxis.
+
+## Por qué las funciones importan
+
+Mira este código:
+
+```python
+precio = 25
+iva = precio * 0.21
+total = precio + iva
+print(total)
+
+precio = 40
+iva = precio * 0.21
+total = precio + iva
+print(total)
+
+precio = 99
+iva = precio * 0.21
+total = precio + iva
+print(total)
+```
+
+Funciona. También funciona pegar cinta americana a una tubería rota. No significa que sea una arquitectura.
+
+El problema no es que el código sea largo; el problema es que la misma idea está repetida. Si mañana el IVA cambia, tienes que acordarte de cambiarlo en todos los bloques. Y si se te escapa uno, enhorabuena: acabas de crear un bug fiscal, que suena aburrido pero duele igual.
+
+Con una función:
+
+```python
+def calcular_total(precio):
+    iva = precio * 0.21
+    total = precio + iva
+    print(total)
+
+calcular_total(25)
+calcular_total(40)
+calcular_total(99)
+```
+
+```
+30.25
+48.4
+119.79
+```
+
+Ahora la lógica vive en un solo sitio. Eso es el principio **DRY**: _Don't Repeat Yourself_. No porque repetir sea pecado, sino porque repetir multiplica los sitios donde puedes equivocarte.
+
+## Parámetros y argumentos
+
+En esta función:
+
+```python
+def calcular_total(precio):
+    iva = precio * 0.21
+    total = precio + iva
+    print(total)
+```
+
+`precio` es un **parámetro**. Es una variable que la función espera recibir.
+
+Cuando llamas a la función:
+
+```python
+calcular_total(25)
+```
+
+`25` es un **argumento**. Es el valor real que pasas a ese parámetro.
+
+La diferencia parece de examen hasta que la necesitas para hablar con precisión:
+
+- **Parámetro**: el nombre en la definición de la función
+- **Argumento**: el valor que envías al llamar a la función
+
+Como decir "plaza reservada" frente a "persona sentada en esa plaza". La plaza es el parámetro; la persona es el argumento. Si eres como yo cuando empecé, llamarás a todo "parámetro" durante una temporada. No pasa nada. Python no te retira el carnet.
+
+Puedes tener varios parámetros:
+
+```python
+def mostrar_usuario(nombre, edad):
+    print(f"{nombre} tiene {edad} años")
+
+mostrar_usuario("Ana", 34)
+mostrar_usuario("Luis", 28)
+```
+
+```
+Ana tiene 34 años
+Luis tiene 28 años
+```
+
+El orden importa: Python asigna el primer argumento al primer parámetro, el segundo al segundo, y así sucesivamente. En el próximo tutorial veremos formas más flexibles de llamar funciones, pero por ahora quédate con la regla simple: el orden manda.
+
+## return: devolver un valor
+
+Hasta ahora nuestras funciones imprimen cosas. Eso está bien para ver resultados, pero una función útil normalmente **devuelve** un valor para que puedas seguir trabajando con él.
+
+Para eso existe `return`:
+
+```python
+def sumar(a, b):
+    return a + b
+
+resultado = sumar(5, 3)
+print(resultado)
+```
+
+```
+8
+```
+
+La diferencia entre `print()` y `return` es enorme:
+
+- `print()` muestra algo en pantalla
+- `return` entrega un valor al código que llamó a la función
+
+Esto es clave. `print()` es como decir algo en voz alta. `return` es como pasar una herramienta a la persona que está trabajando contigo. Una hace ruido; la otra permite continuar.
+
+Mira este ejemplo:
+
+```python
+def crear_mensaje(nombre):
+    return f"Hola, {nombre}"
+
+mensaje = crear_mensaje("Marta")
+print(mensaje.upper())
+```
+
+```
+HOLA, MARTA
+```
+
+Como la función devuelve un string, puedes guardarlo, transformarlo, meterlo en una lista, compararlo, lo que necesites. Si solo lo imprimiera, el valor se perdería en la terminal como lágrimas en logs de producción.
+
+## return termina la función
+
+Cuando Python encuentra un `return`, sale de la función inmediatamente:
+
+```python
+def clasificar_edad(edad):
+    if edad < 18:
+        return "menor de edad"
+
+    return "adulto"
+
+print(clasificar_edad(15))
+print(clasificar_edad(30))
+```
+
+```
+menor de edad
+adulto
+```
+
+Si `edad` es menor que `18`, Python devuelve `"menor de edad"` y no sigue ejecutando el resto de la función. Esto permite escribir funciones más claras, especialmente cuando quieres resolver los casos simples primero y dejar el general al final.
+
+No te agobies con patrones todavía. Por ahora, entiende esta idea: `return` no solo devuelve un valor; también marca la salida.
+
+## Funciones que devuelven None
+
+En Python, todas las funciones devuelven algo. Si no escribes `return`, devuelven `None` automáticamente.
+
+```python
+def saludar(nombre):
+    print(f"Hola, {nombre}")
+
+resultado = saludar("Nora")
+print(resultado)
+```
+
+```
+Hola, Nora
+None
+```
+
+¿Sensación de "espera, yo no he pedido ese `None`"? Normal. Python lo hace de todas formas.
+
+`None` significa "ausencia de valor". No es `0`, no es `""`, no es `False`. Es su propia cosa: un valor especial que representa que no hay resultado útil.
+
+Esto suele pasar cuando una función produce un efecto — por ejemplo, imprimir en pantalla — pero no devuelve datos para seguir trabajando. Más adelante, cuando empieces a escribir programas más grandes, esta diferencia entre "hacer algo" y "devolver algo" será importantísima.
+
+## Nombres de funciones
+
+Los nombres de funciones siguen la misma convención que las variables: `snake_case`.
+
+```python
+def calcular_descuento(precio, porcentaje):
+    return precio - (precio * porcentaje / 100)
+```
+
+El nombre debe explicar qué hace la función. No seas críptico contigo mismo. Tu yo de dentro de tres semanas no es un arqueólogo con ganas de descifrar jeroglíficos.
+
+```python
+def c(p, x):
+    return p - (p * x / 100)  # ❌ Too cryptic
+
+
+def calcular_descuento(precio, porcentaje):
+    return precio - (precio * porcentaje / 100)  # ✅ Clear intent
+```
+
+Una buena regla: si necesitas leer el cuerpo de la función para entender por qué existe, el nombre probablemente es flojo.
+
+## Un caso práctico: calculadora simple
+
+Vamos a montar una calculadora mínima usando funciones. Nada de interfaz, nada de menús raros, nada de `eval()` — no invoquemos demonios por deporte.
+
+```python
+def sumar(a, b):
+    return a + b
+
+
+def restar(a, b):
+    return a - b
+
+
+def multiplicar(a, b):
+    return a * b
+
+
+def dividir(a, b):
+    if b == 0:
+        return "No se puede dividir entre cero"
+
+    return a / b
+
+print(sumar(10, 5))
+print(restar(10, 5))
+print(multiplicar(10, 5))
+print(dividir(10, 5))
+print(dividir(10, 0))
+```
+
+```
+15
+5
+50
+2.0
+No se puede dividir entre cero
+```
+
+Cada función tiene una responsabilidad clara. `sumar()` suma. `restar()` resta. `dividir()` divide y protege el caso problemático. Es código simple, pero ya empieza a tener estructura.
+
+Podrías haber escrito todas las operaciones una detrás de otra, claro. También podrías guardar todos los calcetines en el horno. La pregunta no es si se puede; la pregunta es cuánto vas a sufrir cuando el programa crezca.
+
+## Conceptos clave de esta lección
+
+- Una función es un bloque de código reutilizable con nombre
+- `def` define una función; llamar la función ejecuta su cuerpo
+- Los parámetros viven en la definición; los argumentos son los valores enviados al llamar
+- `return` devuelve un valor y termina la función
+- Si una función no tiene `return`, devuelve `None`
+- `print()` muestra información; `return` permite seguir usando el valor
+- Los nombres de funciones deben usar `snake_case` y describir intención
+- Las funciones reducen duplicación y hacen el código más fácil de cambiar
+
+---
+
+**💡 Reto**: Crea cuatro funciones: `sumar(a, b)`, `restar(a, b)`, `multiplicar(a, b)` y `dividir(a, b)`. Después crea una quinta función, `mostrar_resultado(operacion, resultado)`, que imprima un mensaje como `"Suma: 15"`. Prueba todas las operaciones con varios números e incluye el caso de división entre cero.
+
+Las funciones son el primer paso serio hacia código modular. Ya no escribes una secuencia infinita de instrucciones: empiezas a poner nombres a ideas, separar responsabilidades y construir piezas que puedes reutilizar. En el próximo tutorial iremos un nivel más allá con parámetros por defecto, argumentos con nombre, `*args` y `**kwargs` — la parte donde las funciones dejan de ser una puerta y se convierten en una navaja suiza.
+
+¡Nunca dejes de programar!
