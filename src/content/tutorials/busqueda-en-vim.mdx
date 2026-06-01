@@ -1,0 +1,312 @@
+---
+title: "Búsqueda en Vim: encuentra texto sin perder el ritmo"
+post_slug: "busqueda-en-vim"
+date: "2026-06-02"
+excerpt: "Aprende a buscar en Vim con f, t, /, ?, n, N, *, # y a controlar el resaltado para moverte por el código sin pasear línea a línea."
+language: "es"
+categories: ["vim"]
+course: "domina-vim-desde-cero"
+order: 7
+cover: "/images/tutorials/cabecera-vim-curso.jpg"
+i18n: "search-and-find-vim"
+---
+
+Estás dentro de un archivo de 400 líneas. Necesitas encontrar dónde se usa `userId`, pero tus dedos empiezan con el ritual clásico: `j`, `j`, `j`, `j`, mirar, `j`, `j`, `k` porque te has pasado, suspirar, repetir. ¿Dónde estaba esa variable? ¿Por qué hay tres bloques parecidos? ¿Quién escribió esta función eterna? Ah, tú. Siempre es más divertido cuando el culpable eres tú.
+
+Vim no quiere que recorras archivos como quien busca las llaves por casa apagando y encendiendo luces. Quiere que saltes directamente al sitio. Buscar no es una herramienta secundaria: es una forma de moverte.
+
+## Dos tipos de búsqueda
+
+En Vim hay dos familias que conviene separar desde el principio:
+
+- **Búsqueda dentro de la línea**: `f`, `F`, `t`, `T`
+- **Búsqueda en el archivo**: `/`, `?`, `n`, `N`, `*`, `#`
+
+La primera sirve para moverte rápido dentro de una línea concreta. La segunda sirve para saltar entre apariciones en todo el archivo.
+
+Si vienes del [modo Visual](/es/tutoriales/modo-visual-vim), esto encaja muy bien con lo que ya sabes: cualquier búsqueda puede formar parte de una selección. Puedes pulsar `v`, buscar con `/`, y Vim expande la selección hasta el resultado. No es magia; es la gramática de Vim haciendo horas extra.
+
+## Buscar caracteres dentro de una línea
+
+Empieza con una línea como esta:
+
+```javascript
+const totalPrice = calculatePrice(quantity, unitPrice);
+```
+
+Coloca el cursor al principio de la línea, sobre la `c` de `const`.
+
+`f{carácter}` busca el siguiente carácter en la misma línea y coloca el cursor **encima** de él:
+
+```vim
+fp
+```
+
+Ese comando salta a la `p` de `totalPrice`.
+
+`f` viene de _find_. Fácil de recordar. Por una vez, Vim no decidió llamarlo `zq` o algo que parece un hechizo de router.
+
+La versión hacia atrás es `F{carácter}`:
+
+```vim
+F=
+```
+
+Busca el carácter `=` hacia la izquierda desde donde estés.
+
+La diferencia importante llega con `t` y `T`.
+
+`t{carácter}` busca hacia delante, pero se queda **justo antes** del carácter encontrado:
+
+```vim
+t(
+```
+
+En la línea anterior, eso te deja justo antes del `(` de `calculatePrice(...)`.
+
+`T{carácter}` hace lo mismo hacia atrás: busca hacia la izquierda y se queda justo después del carácter encontrado.
+
+La tabla mental queda así:
+
+| Comando | Dirección     | Dónde termina el cursor |
+| ------- | ------------- | ----------------------- |
+| `f{c}`  | Hacia delante | Sobre el carácter       |
+| `F{c}`  | Hacia atrás   | Sobre el carácter       |
+| `t{c}`  | Hacia delante | Antes del carácter      |
+| `T{c}`  | Hacia atrás   | Después del carácter    |
+
+¿Por qué existe `t` si ya tenemos `f`? Porque muchas veces no quieres caer encima del carácter, sino quedarte antes para operar con precisión.
+
+Por ejemplo, para borrar hasta antes del paréntesis:
+
+```vim
+dt(
+```
+
+Desde `const totalPrice = calculatePrice...`, eso borra desde el cursor hasta justo antes de `(`. Si hubieras usado `df(`, también se llevaría el paréntesis. A veces quieres la puerta; a veces quieres quedarte en el felpudo.
+
+## Repetir búsquedas de carácter con ; y ,
+
+Después de usar `f`, `F`, `t` o `T`, puedes repetir la misma búsqueda con `;`:
+
+```vim
+f,
+;
+;
+```
+
+Imagina esta línea:
+
+```javascript
+createUser(name, email, role, isActive);
+```
+
+`f,` salta a la primera coma. Cada `;` salta a la siguiente coma. Es pequeño, pero en código real lo usas todo el tiempo.
+
+Para repetir en dirección contraria, usa `,`:
+
+```vim
+,
+```
+
+Sí, `;` avanza y `,` retrocede. ¿Es intuitivo? Más o menos. ¿Lo acabarás usando sin pensar? También. Vim tiene muchas cosas que al principio parecen una broma privada y luego se convierten en memoria muscular.
+
+## Buscar texto en todo el archivo con /
+
+Para buscar hacia delante en el archivo, usa `/`:
+
+```vim
+/userId
+```
+
+Pulsa `Enter` y Vim salta a la siguiente aparición de `userId`.
+
+Esto ya cambia la forma de moverte. En vez de contar líneas o machacar `j`, escribes lo que buscas. Si el archivo es una ciudad, `/` es coger el metro. No vas portal por portal mirando timbres.
+
+Para buscar la siguiente aparición, pulsa `n`:
+
+```vim
+n
+```
+
+Para volver a la aparición anterior, pulsa `N`:
+
+```vim
+N
+```
+
+El detalle importante: `n` repite la búsqueda en la misma dirección que usaste originalmente. Si buscaste con `/`, `n` va hacia delante. Si buscaste con `?`, `n` va hacia atrás.
+
+## Buscar hacia atrás con ?
+
+`?` es como `/`, pero busca hacia atrás:
+
+```vim
+?userId
+```
+
+Después:
+
+- `n` sigue buscando hacia atrás
+- `N` invierte la dirección y busca hacia delante
+
+Está liado hasta que lo pillas un par de veces. La regla corta: **`n` repite, `N` invierte**.
+
+Si alguna vez pulsas `n` y el cursor va “al revés” de lo que esperabas, no es que Vim esté de mal humor. Seguramente la última búsqueda empezó con `?`. Pasa. Respiras, pulsas `N`, sigues con tu vida.
+
+## Buscar la palabra bajo el cursor con `*` y `#`
+
+Este es uno de esos comandos que deberías incorporar cuanto antes porque ahorra muchísimo ruido.
+
+Coloca el cursor sobre una palabra y pulsa `*`:
+
+```vim
+*
+```
+
+Vim busca la siguiente aparición de esa palabra completa hacia delante.
+
+Pulsa `#` y hace lo mismo hacia atrás:
+
+```vim
+#
+```
+
+Caso típico: estás sobre `userId`, pulsas `*`, y empiezas a recorrer todos sus usos con `n`. Sin escribir la palabra, sin abrir un panel, sin mover la mano al ratón como si estuvieras pidiendo permiso al editor.
+
+También existen `g*` y `g#`, que buscan coincidencias parciales. La diferencia:
+
+| Comando | Qué busca                          |
+| ------- | ---------------------------------- |
+| `*`     | Palabra completa hacia delante     |
+| `#`     | Palabra completa hacia atrás       |
+| `g*`    | Coincidencia parcial hacia delante |
+| `g#`    | Coincidencia parcial hacia atrás   |
+
+Si estás sobre `user`, `*` busca `user` como palabra completa. `g*` también puede encontrar `userId`, `currentUser` o `users`, según el texto. Útil, pero úsalo con cuidado: buscar demasiado amplio es como pedir “algo de comida” y que te traigan el inventario del supermercado.
+
+## Resaltado de búsquedas: hlsearch, incsearch y noh
+
+Cuando buscas, Vim puede resaltar todas las coincidencias. Esto se controla con `hlsearch`:
+
+```vim
+:set hlsearch
+```
+
+A partir de ahí, cada búsqueda deja marcadas las coincidencias.
+
+También puedes activar `incsearch`:
+
+```vim
+:set incsearch
+```
+
+Con `incsearch`, Vim te muestra coincidencias mientras escribes el patrón. Es decir: escribes `/use`, y antes de pulsar `Enter` ya ves dónde va a caer. Muy útil para evitar búsquedas a ciegas.
+
+Ahora viene el clásico momento Vim: activas `hlsearch`, buscas algo, terminas, y el archivo se queda lleno de resaltados como si alguien hubiera pasado un fluorescente por la pantalla con demasiada cafeína.
+
+Para limpiar el resaltado actual sin desactivar la opción, usa:
+
+```vim
+:nohlsearch
+```
+
+O la versión corta:
+
+```vim
+:noh
+```
+
+Esto no desactiva `hlsearch` para siempre. Solo limpia la búsqueda actual; la próxima búsqueda volverá a resaltar. Justo lo que quieres la mayoría de veces.
+
+## Mayúsculas, minúsculas y búsquedas precisas
+
+Puedes forzar una búsqueda insensible a mayúsculas con `\c`:
+
+```vim
+/userid\c
+```
+
+Eso encuentra `userid`, `userId`, `USERID`, etc.
+
+Y puedes forzar búsqueda sensible a mayúsculas con `\C`:
+
+```vim
+/userId\C
+```
+
+Eso busca exactamente `userId`, respetando mayúsculas y minúsculas.
+
+Hay opciones globales como `ignorecase` y `smartcase`, pero no hace falta meterse ahí todavía. Por ahora, `\c` y `\C` te dan control puntual cuando lo necesitas. No todo tiene que convertirse en configuración permanente; a veces un comando concreto es suficiente. Sí, incluso en Vim.
+
+## Buscar y reemplazar: primer contacto
+
+La sustitución completa merece su propio tutorial más adelante, pero aquí necesitas conocer la base porque está muy ligada a buscar.
+
+Para reemplazar en la línea actual:
+
+```vim
+:s/var/let/g
+```
+
+Eso cambia todas las apariciones de `var` por `let` en la línea actual.
+
+Para reemplazar en todo el archivo:
+
+```vim
+:%s/var/let/g
+```
+
+La parte `%` significa “todo el archivo”. La `g` final significa “todas las apariciones de cada línea”, no solo la primera.
+
+Y ahora la versión que deberías usar cuando no estás 100% seguro:
+
+```vim
+:%s/var/let/gc
+```
+
+La `c` pide confirmación en cada cambio.
+
+Hacer reemplazos globales sin confirmar está bien cuando sabes exactamente lo que haces. Cuando no, es como usar una motosierra para abrir una caja de cartón: técnicamente funciona, pero vas a explicar el resultado durante un rato.
+
+## Búsqueda como movimiento
+
+Lo más potente de buscar en Vim no es encontrar texto. Eso lo hace cualquier editor. Lo potente es que una búsqueda también es un **movimiento**.
+
+Eso significa que puedes combinarla con operadores de la [gramática del modo Normal](/es/tutoriales/modo-normal-el-poder-de-vim):
+
+```vim
+d/userId
+```
+
+Ese comando borra desde el cursor hasta la siguiente aparición de `userId`.
+
+También puedes usar búsquedas después de entrar en modo Visual:
+
+```vim
+v/error
+```
+
+Selecciona desde el cursor hasta la siguiente aparición de `error`.
+
+Aquí es donde Vim deja de parecer una lista de comandos sueltos y empieza a comportarse como un lenguaje pequeño: operador + movimiento + repetición. La búsqueda no es “buscar texto”; es decirle al cursor dónde está el siguiente destino.
+
+## Conceptos clave de esta lección
+
+- `f{c}` y `F{c}` buscan un carácter en la línea y colocan el cursor encima
+- `t{c}` y `T{c}` buscan un carácter, pero se quedan antes o después
+- `;` repite la última búsqueda de carácter; `,` la repite en sentido contrario
+- `/patrón` busca hacia delante; `?patrón` busca hacia atrás
+- `n` repite la búsqueda; `N` invierte la dirección
+- `*` y `#` buscan la palabra bajo el cursor hacia delante o hacia atrás
+- `:noh` limpia el resaltado actual sin desactivar `hlsearch`
+- `:%s/old/new/gc` reemplaza en todo el archivo pidiendo confirmación
+- Una búsqueda también funciona como movimiento dentro de la gramática de Vim
+
+---
+
+**💡 Reto**: Abre un archivo de código real y practica sin usar las flechas ni `j`/`k` para desplazamientos largos. Busca una variable con `*`, recorre sus usos con `n` y `N`, salta entre comas con `f,` y `;`, y prueba un reemplazo seguro con `:%s/old/new/gc` usando nombres que puedas deshacer sin drama.
+
+Ya sabes moverte por un archivo sin caminar línea a línea. En el próximo tutorial veremos **marks y jumps**: cómo dejar “marcadores” dentro del código y volver a posiciones anteriores sin depender de tu memoria, que está bastante ocupada recordando contraseñas, comandos y por qué abriste esa pestaña del navegador.
+
+¡Nunca dejes de programar!
