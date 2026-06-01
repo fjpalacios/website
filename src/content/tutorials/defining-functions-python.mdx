@@ -1,0 +1,326 @@
+---
+title: "Defining functions in Python: def, parameters, and return"
+post_slug: "defining-functions-python"
+date: "2026-06-01"
+excerpt: "Learn how to define Python functions with def, pass parameters, return values, and stop your code from becoming an unmaintainable copy-paste chain."
+language: "en"
+categories: ["programming"]
+course: "learn-to-code-from-scratch-python"
+order: 11
+cover: "/images/tutorials/cabecera-python-curso.jpg"
+i18n: "funciones-python"
+---
+
+You copy three lines of code. Then three more. Then the same three again, but with a different number. At first it feels productive. Ten minutes later your file looks like a haunted photocopier: lots of repetition, very little intention, and every tiny change has to be made in four different places because apparently we enjoy suffering.
+
+That's where functions come in. Not as some academic ritual with fancy terminology, but as a way to tell Python: "this operation has a name; run it whenever I ask."
+
+## What is a function?
+
+A **function** is a reusable block of code. You give it a name, put instructions inside it, and later you execute that block by calling the function.
+
+Think of a coffee machine. You don't want to manually repeat every step each morning: grind beans, heat water, press button, stare into the void while life compiles. You want to press `make_coffee()` and let the process happen. A function is that: a name attached to a sequence of steps.
+
+In the previous lesson you worked with lists and methods like [`append()` and `remove()`](/en/tutorials/list-methods-python). If you think about it, you've already been using functions constantly: `print()`, `len()`, `range()`. The difference now is that you're going to create your own.
+
+## Your first function with def
+
+In Python, you define a function with the `def` keyword:
+
+```python
+def greet():
+    print("Hello, Python")
+```
+
+This **defines** the function, but it doesn't run it yet. It's like putting a recipe in a drawer: it exists, but nobody is cooking.
+
+To execute it, call the function by name with parentheses:
+
+```python
+def greet():
+    print("Hello, Python")
+
+greet()
+```
+
+```
+Hello, Python
+```
+
+The basic structure looks like this:
+
+```python
+def function_name():
+    # Function body
+    statement_1
+    statement_2
+```
+
+Two details matter:
+
+- The `def` line ends with `:`
+- The function body is indented
+
+If you forget the indentation, Python complains. And this time Python is right. Indentation tells Python which code belongs inside the function and which code is outside. It's not decoration; it's syntax.
+
+## Why functions matter
+
+Look at this code:
+
+```python
+price = 25
+tax = price * 0.21
+total = price + tax
+print(total)
+
+price = 40
+tax = price * 0.21
+total = price + tax
+print(total)
+
+price = 99
+tax = price * 0.21
+total = price + tax
+print(total)
+```
+
+It works. Duct tape on a leaking pipe also works for a while. That doesn't make it architecture.
+
+The issue isn't that the code is long; the issue is that the same idea is repeated. If the tax rate changes tomorrow, you have to update it everywhere. Miss one place and congratulations: you've created an accounting bug, which sounds boring until it bites.
+
+With a function:
+
+```python
+def calculate_total(price):
+    tax = price * 0.21
+    total = price + tax
+    print(total)
+
+calculate_total(25)
+calculate_total(40)
+calculate_total(99)
+```
+
+```
+30.25
+48.4
+119.79
+```
+
+Now the logic lives in one place. That's the **DRY** principle: _Don't Repeat Yourself_. Not because repetition is morally wrong, but because repetition multiplies the number of places where bugs can hide.
+
+## Parameters and arguments
+
+In this function:
+
+```python
+def calculate_total(price):
+    tax = price * 0.21
+    total = price + tax
+    print(total)
+```
+
+`price` is a **parameter**. It's the variable the function expects to receive.
+
+When you call the function:
+
+```python
+calculate_total(25)
+```
+
+`25` is an **argument**. It's the actual value passed into that parameter.
+
+The distinction sounds like quiz material until you need to explain code precisely:
+
+- **Parameter**: the name in the function definition
+- **Argument**: the value sent when calling the function
+
+Like a reserved seat versus the person sitting in it. The seat is the parameter; the person is the argument. If you're like me when I started, you'll call everything a parameter for a while. You'll survive. Python won't confiscate your keyboard.
+
+You can define multiple parameters:
+
+```python
+def show_user(name, age):
+    print(f"{name} is {age} years old")
+
+show_user("Ana", 34)
+show_user("Luis", 28)
+```
+
+```
+Ana is 34 years old
+Luis is 28 years old
+```
+
+Order matters: Python assigns the first argument to the first parameter, the second argument to the second parameter, and so on. In the next lesson we'll look at more flexible ways to call functions, but for now keep the simple rule: order wins.
+
+## return: giving a value back
+
+So far our functions print things. That's fine for seeing output, but useful functions usually **return** a value so the rest of your program can keep working with it.
+
+That's what `return` is for:
+
+```python
+def add(a, b):
+    return a + b
+
+result = add(5, 3)
+print(result)
+```
+
+```
+8
+```
+
+The difference between `print()` and `return` is massive:
+
+- `print()` displays something on the screen
+- `return` gives a value back to the code that called the function
+
+This matters. `print()` is like saying something out loud. `return` is like handing someone the tool they need to continue the job. One creates output; the other lets your program move forward.
+
+Look at this example:
+
+```python
+def create_message(name):
+    return f"Hello, {name}"
+
+message = create_message("Marta")
+print(message.upper())
+```
+
+```
+HELLO, MARTA
+```
+
+Because the function returns a string, you can store it, transform it, put it in a list, compare it, whatever you need. If it only printed the string, the value would disappear into the terminal like tears in production logs.
+
+## return exits the function
+
+When Python reaches a `return`, it leaves the function immediately:
+
+```python
+def classify_age(age):
+    if age < 18:
+        return "minor"
+
+    return "adult"
+
+print(classify_age(15))
+print(classify_age(30))
+```
+
+```
+minor
+adult
+```
+
+If `age` is less than `18`, Python returns `"minor"` and doesn't continue running the rest of the function. This lets you write clearer functions, especially when you want to handle simple cases early and leave the general case at the end.
+
+Don't stress about patterns yet. For now, understand this: `return` doesn't just send a value back; it also marks the exit.
+
+## Functions that return None
+
+In Python, every function returns something. If you don't write a `return`, the function returns `None` automatically.
+
+```python
+def greet(name):
+    print(f"Hello, {name}")
+
+result = greet("Nora")
+print(result)
+```
+
+```
+Hello, Nora
+None
+```
+
+Feeling like "wait, I didn't ask for that `None`"? Fair. Python does it anyway.
+
+`None` means "no value here". It's not `0`, not `""`, not `False`. It's its own thing: a special value that represents the absence of a useful result.
+
+This usually appears when a function performs an effect — like printing to the screen — but doesn't return data for the rest of the program to use. Later, when you start writing larger programs, the difference between "doing something" and "returning something" becomes extremely important.
+
+## Function names
+
+Function names follow the same convention as variables: `snake_case`.
+
+```python
+def calculate_discount(price, percentage):
+    return price - (price * percentage / 100)
+```
+
+The name should explain what the function does. Don't be mysterious with your future self. Your future self is not an archaeologist looking for a side quest.
+
+```python
+def c(p, x):
+    return p - (p * x / 100)  # ❌ Too cryptic
+
+
+def calculate_discount(price, percentage):
+    return price - (price * percentage / 100)  # ✅ Clear intent
+```
+
+A good rule: if you have to read the function body to understand why the function exists, the name probably needs work.
+
+## A practical case: simple calculator
+
+Let's build a tiny calculator using functions. No interface, no strange menus, no `eval()` — let's not summon demons for sport.
+
+```python
+def add(a, b):
+    return a + b
+
+
+def subtract(a, b):
+    return a - b
+
+
+def multiply(a, b):
+    return a * b
+
+
+def divide(a, b):
+    if b == 0:
+        return "Cannot divide by zero"
+
+    return a / b
+
+print(add(10, 5))
+print(subtract(10, 5))
+print(multiply(10, 5))
+print(divide(10, 5))
+print(divide(10, 0))
+```
+
+```
+15
+5
+50
+2.0
+Cannot divide by zero
+```
+
+Each function has a clear responsibility. `add()` adds. `subtract()` subtracts. `divide()` divides and protects the problematic case. The code is simple, but it already has structure.
+
+Could you write all operations one after another instead? Of course. You could also store all your socks in the oven. The question isn't whether it can be done; the question is how much you'll suffer when the program grows.
+
+## Key concepts from this lesson
+
+- A function is a reusable block of code with a name
+- `def` defines a function; calling the function executes its body
+- Parameters live in the definition; arguments are the values sent when calling
+- `return` gives a value back and exits the function
+- If a function has no `return`, it returns `None`
+- `print()` displays information; `return` lets you keep using the value
+- Function names should use `snake_case` and describe intention
+- Functions reduce duplication and make code easier to change
+
+---
+
+**💡 Challenge**: Create four functions: `add(a, b)`, `subtract(a, b)`, `multiply(a, b)`, and `divide(a, b)`. Then create a fifth function, `show_result(operation, result)`, that prints a message like `"Addition: 15"`. Test every operation with several numbers, including division by zero.
+
+Functions are the first serious step toward modular code. You're no longer writing an endless sequence of instructions; you're naming ideas, separating responsibilities, and building pieces you can reuse. In the next lesson we'll go deeper into default parameters, keyword arguments, `*args`, and `**kwargs` — the part where functions stop being a door and become a Swiss Army knife.
+
+Never stop coding!
