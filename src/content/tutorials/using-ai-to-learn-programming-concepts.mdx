@@ -1,0 +1,378 @@
+---
+title: "Using AI to learn programming concepts"
+post_slug: "using-ai-to-learn-programming-concepts"
+date: "2026-06-05"
+excerpt: "Learn how to use AI as a technical tutor: basic questions, the Feynman technique, ‘but why?’ chains, and exercises that prove real understanding."
+language: "en"
+categories: ["ai"]
+course: "ai-for-developers"
+order: 9
+cover: "/images/tutorials/cabecera-ia-para-programadores-curso.jpg"
+i18n: "aprender-conceptos-programacion-ia"
+---
+
+You're reading about recursion. The explanation starts fine: “a function that calls itself.” Fair enough. You keep going. There's a factorial example. Still sort of fine. Then suddenly there's a call stack, a base case, return values unwinding in reverse order, and your brain returns `HTTP 500`.
+
+So you do the reasonable thing: you ask AI.
+
+```text
+Explain recursion to me.
+```
+
+And the AI gives you a correct definition, a correct example, and a correct analogy. Everything is correct. You still don't get it. Fantastic. We have produced documentation with a positive attitude and actionable insights.
+
+The problem isn't that AI can't teach. It can. Very well, actually. The problem is that many people use it like a searchable encyclopedia with a chat box, when for learning programming it works much better as a technical tutor: patient, adaptable, and available at 2 AM, which is when questions actually decide to show up. During the day they hide. Like bugs.
+
+In the previous lesson we looked at [advanced context, role, task, and format](/en/tutorials/advanced-rctf-application). Now we'll apply the same idea to something more delicate: learning concepts without settling for an explanation that sounds good but collapses the moment you try to write code.
+
+## AI as a tutor, not an oracle
+
+AI should not be the divine voice descending from the cloud to hand you truth in Markdown. If you use it that way, you train yourself to accept answers that sound convincing. And as we saw earlier in the course, a convincing answer is not always a correct one.
+
+For learning, the useful mental model is this: **AI is a tutor you can direct**.
+
+That changes the conversation. You don't just ask “explain closures” and passively receive. You tell it what you know, what you don't know, what confuses you, and how you want to test your understanding.
+
+Look at the difference:
+
+```text
+❌ Explain closures in Python.
+```
+
+That can work, yes. It can also give you a generic explanation that starts well, becomes abstract, and ends with the same `outer()` and `inner()` example you've seen in twenty blog posts.
+
+Now try this:
+
+```text
+Role: act as a Python mentor for someone learning programming.
+
+Context:
+I understand variables, functions, and local scope, but I struggle to understand
+why an inner function can remember values from an outer function after the outer
+function has finished running.
+
+Task:
+Explain closures by connecting them to what I already know. Don't use decorators yet.
+
+Format:
+1. Short explanation
+2. Realistic analogy
+3. Minimal Python example
+4. Common mistake
+5. One question to check whether I understood it
+```
+
+The second version doesn't ask for “content.” It asks for a learning experience. It's like going to the doctor: “it hurts” doesn't help much; “it hurts here, since yesterday, when I do this” gives someone something to work with.
+
+And yes, you can ask questions that feel too basic. You should, actually.
+
+## “Stupid” questions that are not stupid
+
+One of the best things about using AI to learn is that you can ask without the social pressure of looking lost. No teammate looking over your shoulder. No rushed teacher. No senior sighing because you mixed up `map()` and a `for` loop. Just you, the question, and a text box.
+
+Use that.
+
+```text
+I know this is basic, but: why does Python use indentation instead of braces?
+```
+
+```text
+I don't understand what it means for a variable to be "mutable".
+Explain it assuming I know what a list is, but not what happens underneath.
+```
+
+```text
+I've read the docs about `return`, but I still confuse returning a value
+with printing it to the screen. Can you compare them with small examples?
+```
+
+These questions are gold. Not because they're sophisticated, but because they hit the exact place where your brain is stuck. General documentation can't guess that place.
+
+If you're following the Python course from scratch, this approach fits concepts like [variables and data types](/en/tutorials/variables-data-types-python), [functions](/en/tutorials/defining-functions-python), or lists. Don't just ask “what is a list?” Ask about the specific confusion: “why does `append()` modify the list but `string.upper()` doesn't modify the original string?” That's where real learning starts.
+
+A good learning question usually looks like this:
+
+```text
+I'm learning [concept].
+I already understand [what you know].
+I'm confused by [specific blocker].
+Explain it using [kind of example that helps you].
+Then ask me a question to check whether I understood it.
+```
+
+No ceremony required. You're not submitting a petition to the International Prompt Committee. You're just making it clear where you are and where you fell over.
+
+## The Feynman technique with AI
+
+The Feynman technique is brutally simple: if you want to check whether you understand something, try explaining it in your own words. If you can't, you don't understand it yet. If your explanation is hand-wavy, you don't understand it either. And if you explain it using words you couldn't define, your brain has just outsourced the problem.
+
+With AI, this process has one more participant: someone who doesn't get tired of listening to you explain things badly, doesn't sigh when you take your time, and has exercises ready for when you finish.
+
+Recommended flow:
+
+```text
+Step 1:
+Explain Python generators with a minimal example.
+
+Step 2:
+I'll explain it back in my own words. Correct me if there are errors or vague parts:
+[your explanation]
+
+Step 3:
+Ask me 3 questions to check whether I understood it.
+One should be conceptual, one should be code reading, and one should require writing code.
+
+Step 4:
+Here are my answers:
+[your answers]
+
+Tell me what I understood, what I got wrong, and what I should review.
+```
+
+Notice the important detail: you're not asking for yet another explanation. You're forcing yourself to produce one. That shift costs something. The kind of cost you feel when you've been reading someone else's code for a while and suddenly have to write your own. But that's exactly where learning starts.
+
+Example explanation you might send:
+
+```text
+I think a generator is a function that doesn't return all values at once.
+It uses yield to pause execution and continue later from the same point.
+That helps avoid loading a whole list into memory.
+
+I'm not sure whether the generator remembers local variables between calls or
+recalculates them each time.
+```
+
+That last sentence is the gem: “I'm not sure...” Don't hide it. Explicit doubts are anchors. If you leave them out because you're embarrassed, the AI can't help where it actually matters.
+
+The dangerous part comes next: AI can correct you incorrectly. Yes, shocking, a probabilistic tool can make things up. We're not looking for faith here; we're looking for initial feedback. If the explanation matters, verify it against official docs, tests, or real code.
+
+## The “but why?” chain
+
+Some concepts stay blurry because you memorize them too high up. You can repeat the sentence, but you don't know what holds it up.
+
+“We use functions to avoid repeating code.” Fine. But why is repeating code bad?
+
+“Because it makes maintenance harder.” Fine. But why?
+
+“Because if a rule changes, you have to change it in several places.” Fine. And what happens if you forget one?
+
+Now we're getting somewhere.
+
+You can use AI to walk down that staircase:
+
+```text
+I want to truly understand why code duplication is a problem.
+Run a "but why" chain with me.
+Don't give me a long explanation at the start: ask me, wait for my answer,
+and then go deeper based on what I say.
+```
+
+Or, if you want a single response:
+
+```text
+Explain why we reduce duplicated code in programming using a 5-level chain:
+1. Simple answer
+2. Why that answer matters
+3. What problem appears in a real project
+4. What bug it could cause
+5. What design principle sits underneath
+```
+
+A useful answer might look like this:
+
+```text
+1. We avoid duplication so we don't write the same thing several times.
+2. It matters because each copy can become outdated.
+3. In a real project, a duplicated discount rule might be changed in one endpoint
+   but not another.
+4. That can make two users receive different prices for the same purchase.
+5. The principle underneath is DRY: one rule should have one source of truth.
+```
+
+This turns a textbook phrase into a causal chain. And a causal chain is easier to remember because it has weight. It isn't “DRY because reasons.” It's “DRY because if you duplicate business rules, production eventually sends you a bill with interest.”
+
+AI is especially useful here because it doesn't get tired of your “but why?” A person, by the fourth one, starts looking at the door. AI doesn't. Unfair advantage; use it.
+
+## The connection game
+
+Learning programming is not collecting loose definitions. It's connecting ideas.
+
+A Python list is similar to an array in other languages, but not exactly the same. A `dict` is like an address book where you look things up by name, but it also has internal rules. A pure function is like an honest vending machine: same input, same output. If only all functions were like that. If only vending machines were too.
+
+AI can help you create those connections if you ask explicitly.
+
+```text
+I'm learning Python lists.
+I already understand variables and `for` loops.
+
+Explain lists by connecting them to:
+1. An everyday analogy
+2. How they work with a `for` loop
+3. How they differ from a string
+4. A common beginner mistake
+```
+
+You can also ask for comparisons between technologies:
+
+```text
+How is Django's ORM similar to writing SQL directly?
+How is it different?
+Explain it for someone who knows basic SELECT, INSERT, and WHERE.
+```
+
+Or connections between patterns:
+
+```text
+Is Python's `@timer` decorator related to the design pattern called Decorator?
+Tell me what they share, where they differ, and where people usually get confused.
+```
+
+These questions work because they don't let the concept float in the air. They tie it to something you already know. Learning this way is like building a bridge: if there is no starting bank, it doesn't matter how pretty the bridge is; it ends in the middle of the river. Very poetic for a programming tutorial.
+
+If you're learning several things at once — say Python, Git, and a bit of Docker — ask for connections between them. AI can help you see that a development environment is not a pile of unrelated tools, but a system where each piece has a job. And if you overdo it until everything seems connected to everything else, don't worry: that's also a phase. It passes. Mostly.
+
+## Verify that you understand, not that you nodded
+
+The danger of learning with AI is that explanations often sound very good. Too good. Clean paragraphs, neat structure, confident tone. Your brain reads that and says: “yes, yes, got it.” Sure it did. Your brain also says “I'll just check one quick thing on YouTube,” and we know how that ends.
+
+To know whether you understand, you need to produce something.
+
+Ask for exercises:
+
+```text
+Give me 5 progressive exercises about functions in Python.
+Don't give me the solutions yet.
+Each exercise should check a different concept.
+```
+
+Ask for code reading:
+
+```text
+Show me a small code snippet with lists and loops.
+Ask me 4 questions about what it prints and why.
+Don't reveal the answer until I respond.
+```
+
+Ask it to find errors in your reasoning:
+
+```text
+This is my explanation of the difference between `print()` and `return`:
+[your explanation]
+
+Point out errors, incomplete parts, and sentences that sound good but are imprecise.
+```
+
+And above all, ask for variations:
+
+```text
+Give me a similar exercise, but with a different trap.
+```
+
+That sentence is more powerful than it looks. If you only solve an exercise identical to the example, you may have memorized the visual pattern. A variation checks whether you understood the idea.
+
+Example:
+
+```text
+Concept: `return` ends function execution.
+
+Give me 3 code snippets:
+1. One where `return` appears inside an `if`
+2. One where there is code after `return`
+3. One where a function calls another function that returns a value
+
+Ask me what each one prints and why.
+```
+
+This is less comfortable than reading another explanation. But learning programming was never just reading. Reading is looking at the map. Solving exercises is walking. And yes, sometimes you step in mud. That's called software development.
+
+## Be careful: AI can help you learn wrong faster
+
+AI accelerates learning. That sounds good, but there's a flip side: it can also accelerate misunderstandings.
+
+If it explains a concept incorrectly and you don't verify it, you can internalize a wrong idea with a lot of confidence. Worse: because the explanation was clear, you'll be less likely to suspect it. It's the educational equivalent of a bug with good naming: it looks respectable until it breaks something important.
+
+Practical rules:
+
+- If the concept is basic and general, use AI to understand and practice.
+- If the concept affects security, concurrency, money, or real data, verify with official documentation.
+- If there is code, run it.
+- If you can't run the code, at least ask AI to trace execution step by step, then compare it yourself.
+- If two answers contradict each other, don't choose the one that sounds more elegant. Investigate.
+
+Useful verification prompt:
+
+```text
+I want to check this explanation before trusting it.
+Look for possible inaccuracies, dangerous simplifications, or cases where it doesn't hold:
+
+[paste explanation]
+
+Format:
+1. What is correct
+2. What is imprecise
+3. Example where the explanation fails or needs nuance
+4. Corrected version in 5 lines
+```
+
+You can also ask it to cite documentation, but remember: a made-up citation still looks like a citation. If it matters, open the real docs. Yes, in a browser. I know, very medieval.
+
+## Template for learning any concept
+
+Save this template and use it when a concept refuses to land:
+
+```text
+Role: act as a patient and precise technical mentor.
+
+Context:
+I'm learning [concept].
+I already understand [previous knowledge].
+I'm confused by [specific blocker].
+I'm using [language/tool] and want examples in that context.
+
+Task:
+Help me understand the concept progressively.
+Do not assume I understood it until I can explain it and solve an exercise.
+
+Format:
+1. Explanation in 5-7 lines
+2. Realistic analogy
+3. Minimal example
+4. Counterexample or common mistake
+5. Comprehension question
+6. Small exercise without solution
+```
+
+And after answering the exercise:
+
+```text
+This is my solution:
+[your solution]
+
+Evaluate it using this format:
+1. What is correct
+2. What is wrong or incomplete
+3. What concept my answer proves I understood
+4. What concept I should review
+5. A similar exercise with one variation
+```
+
+The key is closing the loop: explanation, production, feedback, variation. Without that last part, it's easy to confuse familiarity with understanding. Familiarity is “this rings a bell.” Understanding is “I can use it when the example changes.” Not the same thing, even if your brain tries to sell you the bundle.
+
+## Key concepts from this lesson
+
+- Use AI as a directed tutor, not an oracle
+- Basic questions are valuable when they name the exact confusion
+- The Feynman technique works best when you explain and ask for correction
+- The “but why?” chain turns memorized phrases into causal understanding
+- The connection game ties new concepts to previous knowledge
+- To verify understanding, produce something: explain, read code, write code, or solve exercises
+- Clear explanations can still be wrong; verify important claims
+- A good learning session ends with feedback and a variation of the exercise
+
+---
+
+**💡 Challenge:** Pick a concept that still feels uncomfortable — recursion, closures, mutability, `return`, anything — and use the final template. Don't move to the next topic until you've explained the concept in your own words and solved a variation of the exercise.
+
+Learning with AI is not about receiving faster answers; it's about building a smarter practice system. In the next lesson we'll get into prompts for code generation, and the bar goes up: understanding an explanation won't be enough anymore. You'll need to ask for verifiable code without letting AI turn a small function into a cathedral of boilerplate.
+
+Never stop coding!
