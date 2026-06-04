@@ -1,0 +1,377 @@
+---
+title: "Context, role, task, and format: advanced application"
+post_slug: "advanced-rctf-application"
+date: "2026-06-04"
+excerpt: "Turn RCTF into real development prompts: rich context, iterative rounds, and response formats you can plug directly into your daily workflow."
+language: "en"
+categories: ["ai"]
+course: "ai-for-developers"
+order: 8
+cover: "/images/tutorials/cabecera-ia-para-programadores-curso.jpg"
+i18n: "contexto-rol-tarea-formato-aplicacion-avanzada"
+---
+
+Here's how it goes: you discover RCTF, try it out, and something clicks. The AI stops handing you vague garbage. You're sold on it. Then the next day you ask it something real — a weird bug, a half-built feature, a module that needs structure — and it falls flat. Same framework, same four letters, completely hollow answer.
+
+Was RCTF a lie? Do you need more acronyms? Are we three lessons away from a full methodology with a keynote, a certification program, and a branded water bottle?
+
+No. The framework is fine. The problem is that last lesson we used it like a form to fill out. This lesson is about using it the way you'd actually use it at work: with real context, iteration, and formats that give you something you can act on — not just a well-formatted nothing.
+
+If the framework isn't fresh in your head, go back to [the prompt core principles lesson](/en/tutorials/the-art-of-the-prompt-core-principles). This lesson assumes you already know what **role**, **context**, **task**, and **format** mean.
+
+## The mistake: treating RCTF like a form
+
+A prompt can include RCTF and still be bad. That's important.
+
+Look at this:
+
+```text
+Role: act as a senior backend developer.
+Context: I have an API.
+Task: help me improve it.
+Format: give me a list.
+```
+
+It has all four letters. It also has the precision of a weather report written by someone glancing out the window: “there appears to be sky.”
+
+The role is too generic. The context doesn't say stack, problem, constraints, or goal. The task has no useful verb. The format asks for a list, but defines no criteria. It's RCTF in name only.
+
+Now compare it with this:
+
+```text
+Role: act as a backend engineer specialized in REST APIs with Node.js.
+
+Context: I'm maintaining an Express API that manages orders.
+Stack: Node.js 22, Express, PostgreSQL, zod for validation, and Vitest.
+Problem: the POST /orders endpoint has too much logic in the controller:
+it validates input, calculates discounts, writes to the database, and emits events.
+I want to refactor without changing behavior because this is already in production.
+
+Task: propose a refactor plan in small steps. Do not write code yet.
+
+Format:
+1. Diagnosis of mixed responsibilities
+2. Safe 4-6 step plan
+3. Risks for each step
+4. Tests I should add before touching code
+```
+
+Same structure. Completely different result.
+
+It's not about length. Each part removes an assumption. And every assumption the AI doesn't have to make is one fewer ticket in the nonsense lottery. Context is almost always where most of them pile up.
+
+## Rich context doesn't mean your life story
+
+Context is the most important part of RCTF, and also the easiest one to ruin. People often jump from “I give no context” to “here's half the company in Markdown.” Neither extreme helps.
+
+Rich context isn't long context. It's **relevant** context.
+
+A good context block answers these questions:
+
+- What are you building?
+- What stack or tools are you using?
+- What exact area are you touching?
+- What constraints must the solution respect?
+- What have you already tried?
+- What does “good” mean in this case?
+
+Project example:
+
+```text
+Project context:
+I'm working on an e-commerce backend with Django 5 and Django REST Framework.
+The database is PostgreSQL 15. We use Redis for cache and Celery for async jobs.
+The code has type hints, tests with pytest, and the goal is to avoid breaking
+compatibility with the public API.
+
+Relevant domain:
+- orders/: Order, OrderItem, Coupon
+- products/: Product, Category, Inventory
+- users/: CustomUser, Address
+
+Important constraint:
+I cannot change the endpoint contract because published mobile apps consume it.
+```
+
+This isn't a documentation dump. It's the minimum map the AI needs so it doesn't propose something that breaks production in sentence two.
+
+Don't overthink it. Keep a base context block for the project and adapt it per task. Think of it like an `.env.example` file: not the actual secrets, just enough structure that you're not starting from scratch every time.
+
+Project context gets you in the building. Code context puts you in the right room.
+
+## Code context: the bug doesn't live alone
+
+When you ask about a bug, project context helps, but code context does the heavy lifting.
+
+A decent debugging prompt should include four pieces:
+
+```text
+When asking for bug help, include:
+1. The relevant code
+2. The failing test or reproduction steps
+3. The full error message
+4. What you expected vs what actually happened
+```
+
+The fourth point sounds obvious until you forget it. The AI can read the error, but it can't infer your intent. “This fails” isn't a diagnosis; it's a scream. Understandable, yes. Useful, less so.
+
+Weak example:
+
+```text
+This function breaks for users without email. Fix it.
+```
+
+Useful example:
+
+`````text
+Role: act as a senior Python developer.
+
+Context:
+This function normalizes user data imported from CSV. Some users don't have an
+email because they come from old records. In that case I want to return None,
+not raise an exception.
+
+Code:
+````python
+def normalize_email(user):
+    return user["email"].strip().lower()
+````
+
+Error:
+KeyError: 'email'
+
+Expected behavior:
+
+- If user["email"] exists and contains text, return it normalized
+- If it doesn't exist or is empty, return None
+- Keep the function small and easy to test
+
+Task:
+Propose the implementation and 3 pytest tests.
+
+Format:
+
+1. Final code
+2. Tests
+3. Brief explanation of the covered cases
+
+`````
+
+The AI doesn't get better because it has become “smarter.” It gets better because it no longer has to guess the function contract. You gave it the walls of the room before asking it to arrange the furniture.
+
+## Iterate: a conversation, not a vending machine
+
+Here's the mental model most people skip: the AI is not a vending machine. You don't drop in a prompt, wait for the answer to fall out, and walk away with your solution. That's how you get responses that technically address the question and solve nothing.
+
+The next mental shift is this: don't try to solve everything in one giant prompt.
+
+AI works better when the conversation moves in rounds. The same way you'd work with a person: first define direction, then get into details, then review, correct, and test. You don't tell a teammate: “design, implement, test, document, optimize, and deploy this system; I'll be back in ten minutes.” Well, maybe at some companies. And then things happen.
+
+An iterative flow could look like this:
+
+```text
+Round 1:
+Propose a structure for implementing user registration in Flask.
+Architecture and files only, no code.
+
+Round 2:
+Now implement the User model and validation layer.
+Keep the code simple and testable.
+
+Round 3:
+Write tests for the happy path and these error cases:
+- invalid email
+- duplicate email
+- password too short
+
+Round 4:
+The duplicate email test fails with this error: [paste error]
+Diagnose the cause before proposing changes.
+
+Round 5:
+Refactor the validation to reduce duplication without changing behavior.
+```
+
+This avoids two classic problems: huge responses that mix incompatible decisions, and changes you can't evaluate because everything happened at once.
+
+Practical rule: **each round should change one main thing**. Architecture. Implementation. Tests. Debugging. Refactor. If you mix everything, you won't know which part worked and which part just smuggled a gremlin into your repository.
+
+## Format: ask for a response you can actually use
+
+Format isn't decoration. It's the interface between the AI's response and your workflow.
+
+If you ask “explain this,” you get an explanation. If you ask “give me a plan with risks and tests,” you get something you can execute. Sounds small, but it's the difference between reading content and moving work forward.
+
+Useful formats for development:
+
+### For code generation
+
+```text
+Format:
+1. Implementation code
+2. Example usage
+3. Minimal tests
+4. Technical decisions and trade-offs
+```
+
+### For debugging
+
+```text
+Format:
+1. Likely root cause
+2. Why it happens
+3. How to confirm it
+4. Minimal fix
+5. How to prevent it in the future
+```
+
+### For learning a concept
+
+```text
+Format:
+1. One-sentence definition
+2. Realistic analogy
+3. Minimal code example
+4. Common mistake to avoid
+```
+
+### For comparing options
+
+```text
+Format:
+Table with columns:
+- Option
+- When to use it
+- Advantages
+- Risks
+- Recommendation for my case
+```
+
+The trick is asking for the format that matches your next action. If you're deciding, ask for a comparison. If you're implementing, ask for steps and tests. If you're learning, ask for an explanation, analogy, and gotcha. The AI doesn't know your next move unless you tell it.
+
+## Templates you can reuse
+
+Here are three practical templates. Not to copy like scripture, but to adapt.
+
+### Reviewing code
+
+```text
+Role: act as a senior developer specialized in [language/framework].
+
+Context:
+[What the code does]
+[Relevant stack]
+[Constraints: don't change public API, keep compatibility, etc.]
+
+Code:
+[paste code]
+
+Task:
+Review the code for readability issues, potential bugs, and edge cases.
+Do not refactor yet.
+
+Format:
+1. 3-line summary
+2. Issues ordered by impact
+3. For each issue: why it matters and how you would confirm it
+4. Questions that must be answered before touching code
+```
+
+### Designing an implementation
+
+```text
+Role: act as a pragmatic software engineer.
+
+Context:
+[Feature you want to build]
+[Stack]
+[Constraints]
+[What already exists]
+
+Task:
+Propose a simple implementation design. Prioritize small, verifiable changes.
+Do not write code yet.
+
+Format:
+1. Assumptions
+2. Proposed design
+3. Files you would touch
+4. Step-by-step plan
+5. Tests needed
+6. Risks and alternatives
+```
+
+### Asking for a technical explanation
+
+```text
+Role: act as a technical mentor.
+
+Context:
+I'm learning [concept]. I already understand [previous knowledge], but I'm stuck on [specific blocker].
+
+Task:
+Explain [concept] by connecting it to what I already know.
+
+Format:
+1. Short explanation
+2. Analogy
+3. Minimal example
+4. Counterexample
+5. Question to check whether I understood it
+```
+
+A good template doesn't replace thinking. It removes mental boilerplate so you can focus on the actual problem. Like editor snippets: helpful when you know what you're inserting, dangerous when you fire them blindly.
+
+## What not to put in context
+
+Less fun, but necessary: not all context should be shared.
+
+Don't paste:
+
+- API keys
+- tokens
+- passwords
+- real personal data
+- company secrets
+- full database dumps
+- proprietary code if your tool or policy doesn't allow it
+
+Yes, the AI “needs context.” No, it doesn't need your production token. That sentence belongs on a mug, right next to “don't run commands you don't understand.”
+
+If you need to show data, anonymize it:
+
+```json
+{
+  "user_id": "user_123",
+  "email": "user@example.com",
+  "plan": "pro"
+}
+```
+
+And if the problem depends on a sensitive value, describe it:
+
+```text
+The token exists and has a valid JWT format, but the backend returns 401.
+I can't share the real token; I can share the anonymized header and claims.
+```
+
+Context quality isn't measured by how many secrets you expose. It's measured by how many assumptions you remove without creating a new problem.
+
+## Key concepts from this lesson
+
+- RCTF doesn't help if each block is generic; each part must reduce assumptions
+- Rich context means relevant context, not long context
+- For bugs, include code, reproduction, error, and expected behavior
+- AI conversations work better in small rounds than in one giant prompt
+- Each round should change one main thing
+- Format should connect the response to your next action
+- Templates help, but they don't replace thinking
+- Never share secrets, tokens, or real personal data as “context”
+
+---
+
+**💡 Challenge:** Take a real prompt you've used for code help and turn it into a three-round conversation: (1) context and diagnosis, (2) solution proposal, (3) tests or verification. In each round, specify a different format based on what you need to do next.
+
+RCTF is no longer just a checklist: it's a way to direct a technical conversation. In the next lesson we'll look at how to use AI to learn programming concepts without getting stuck with explanations that sound good but collapse under pressure — because real understanding isn't nodding at a convincing answer, it's being able to spot when someone is selling smoke with nice syntax.
+
+Never stop coding!

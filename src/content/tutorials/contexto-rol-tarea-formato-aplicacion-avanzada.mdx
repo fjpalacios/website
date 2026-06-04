@@ -1,0 +1,377 @@
+---
+title: "Contexto, rol, tarea y formato: aplicación avanzada"
+post_slug: "contexto-rol-tarea-formato-aplicacion-avanzada"
+date: "2026-06-04"
+excerpt: "Aprende a convertir RCTF en prompts de trabajo reales: contexto rico, iteración por rondas y formatos que puedes conectar directamente a tu flujo diario."
+language: "es"
+categories: ["ia"]
+course: "ia-para-programadores"
+order: 8
+cover: "/images/tutorials/cabecera-ia-para-programadores-curso.jpg"
+i18n: "advanced-rctf-application"
+---
+
+Hay una escena muy típica: descubres RCTF, escribes un prompt con rol, contexto, tarea y formato, y la respuesta mejora. Funciona. Te vienes arriba. Al día siguiente le pides a la IA algo más real — revisar un bug raro, ayudarte con una feature a medias, proponer una estructura para un módulo — y la respuesta vuelve a oler a plantilla genérica con perfume caro.
+
+¿Qué ha pasado? ¿No era RCTF la solución? ¿Hay que añadir más siglas? ¿Estamos a tres tutoriales de inventar una metodología con póster, consultoría y taza corporativa?
+
+No. El problema no es el framework. El problema es que en el tutorial anterior usamos RCTF como una lista básica. Ahora toca usarlo como lo usarías de verdad en desarrollo: con contexto rico, iteración y formatos pensados para que la respuesta no sea bonita, sino útil.
+
+Si no tienes fresco el framework, vuelve un momento al [tutorial de principios básicos del prompt](/es/tutoriales/el-arte-del-prompt-principios-basicos). Este tutorial asume que ya sabes qué significan **rol**, **contexto**, **tarea** y **formato**.
+
+## El error: usar RCTF como formulario
+
+Un prompt con RCTF puede seguir siendo malo. Esto es importante.
+
+Mira este ejemplo:
+
+```text
+Rol: actúa como senior backend developer.
+Contexto: tengo una API.
+Tarea: ayúdame a mejorarla.
+Formato: dame una lista.
+```
+
+Tiene las cuatro letras. También tiene la precisión de un parte meteorológico escrito por alguien mirando por la ventana: “parece que hay cielo”.
+
+El rol es demasiado genérico. El contexto no dice stack, problema, restricciones ni objetivo. La tarea no tiene verbo útil. El formato pide una lista, pero no define criterios. Es RCTF de cartón piedra.
+
+Ahora compáralo con esto:
+
+```text
+Rol: actúa como backend engineer especializado en APIs REST con Node.js.
+
+Contexto: estoy manteniendo una API Express que gestiona pedidos.
+Stack: Node.js 22, Express, PostgreSQL, zod para validación y Vitest.
+Problema: el endpoint POST /orders tiene demasiada lógica en el controller:
+valida input, calcula descuentos, escribe en base de datos y envía eventos.
+Quiero refactorizar sin cambiar comportamiento porque ya está en producción.
+
+Tarea: propón un plan de refactor en pasos pequeños. No escribas código todavía.
+
+Formato:
+1. Diagnóstico de responsabilidades mezcladas
+2. Plan en 4-6 pasos seguros
+3. Riesgos de cada paso
+4. Tests que debería añadir antes de tocar código
+```
+
+Misma estructura. Otro mundo.
+
+La diferencia no es escribir más por escribir más. La diferencia es que cada parte reduce una suposición. Y cada suposición que no tenga que inventar la IA es una papeleta menos en la tómbola del disparate. El sitio donde más papeletas se acumulan casi siempre es el mismo: el contexto.
+
+## Contexto rico no significa contar tu vida
+
+El contexto es la parte más importante de RCTF y también la que más se estropea. Mucha gente pasa de “no doy contexto” a “te pego media empresa en Markdown”. Ninguno de los dos extremos ayuda.
+
+El contexto rico no es contexto largo. Es contexto **relevante**.
+
+Un buen bloque de contexto responde a estas preguntas:
+
+- ¿Qué estás construyendo?
+- ¿Qué stack o herramientas usas?
+- ¿Qué parte concreta estás tocando?
+- ¿Qué restricciones no puede romper la solución?
+- ¿Qué ya has intentado?
+- ¿Qué significa “bien” en este caso?
+
+Ejemplo para proyecto:
+
+```text
+Contexto del proyecto:
+Estoy trabajando en un backend de e-commerce con Django 5 y Django REST Framework.
+La base de datos es PostgreSQL 15. Usamos Redis para caché y Celery para tareas
+asíncronas. El código tiene type hints, tests con pytest y el objetivo es no romper
+compatibilidad con la API pública.
+
+Dominio relevante:
+- orders/: Order, OrderItem, Coupon
+- products/: Product, Category, Inventory
+- users/: CustomUser, Address
+
+Restricción importante:
+No puedo cambiar el contrato del endpoint porque lo consumen apps móviles ya publicadas.
+```
+
+Esto no es un volcado de documentación. Es el mapa mínimo para que la IA no proponga una solución que rompe producción en la segunda frase.
+
+Y no te agobies con escribirlo perfecto. Puedes tener un bloque base del proyecto y reutilizarlo. Lo ajustas según la tarea. Como tener una mochila preparada: no metes la casa entera, pero tampoco sales sin llaves.
+
+El contexto de proyecto te mete en el edificio. El contexto de código te pone en la habitación correcta.
+
+## Contexto de código: el bug no vive solo
+
+Cuando preguntas por un bug, el contexto de proyecto ayuda, pero el contexto de código manda.
+
+Un prompt de debugging decente debería incluir cuatro piezas:
+
+```text
+Cuando pidas ayuda con un bug, incluye:
+1. El código relevante
+2. El test que falla o los pasos para reproducirlo
+3. El error completo
+4. Qué esperabas que pasara y qué pasa realmente
+```
+
+El cuarto punto parece obvio hasta que no lo pones. La IA puede leer el error, pero no puede adivinar tu intención. “Esto falla” no es un diagnóstico; es un grito. Comprensible, sí. Útil, menos.
+
+Ejemplo flojo:
+
+```text
+Esta función falla con usuarios sin email. Arréglala.
+```
+
+Ejemplo útil:
+
+`````text
+Rol: actúa como senior Python developer.
+
+Contexto:
+Esta función normaliza datos de usuarios importados desde CSV. Algunos usuarios
+no tienen email porque vienen de registros antiguos. En ese caso quiero devolver
+None, no lanzar excepción.
+
+Código:
+````python
+def normalize_email(user):
+    return user["email"].strip().lower()
+````
+
+Error:
+KeyError: 'email'
+
+Comportamiento esperado:
+
+- Si user["email"] existe y tiene texto, devolverlo normalizado
+- Si no existe o está vacío, devolver None
+- Mantener la función pequeña y fácil de testear
+
+Tarea:
+Propón la implementación y 3 tests con pytest.
+
+Formato:
+
+1. Código final
+2. Tests
+3. Explicación breve de los casos cubiertos
+
+`````
+
+La IA no mejora porque “sea más lista”. Mejora porque ya no tiene que adivinar el contrato de la función. Le has dado las paredes de la habitación antes de pedirle que coloque los muebles.
+
+## Iterar: una conversación, no una moneda en una máquina
+
+Aquí está el modelo mental que mucha gente se salta: la IA no es una máquina expendedora. No metes la moneda del prompt, esperas que salga la respuesta por el cajetín y te vas. Así es como consigues respuestas que técnicamente responden a la pregunta y no resuelven nada.
+
+El siguiente salto mental es este: no intentes resolver todo en un prompt gigante.
+
+La IA funciona mejor cuando la conversación avanza por rondas. Igual que trabajarías con una persona: primero defines dirección, luego bajas a detalles, después revisas, corriges y pruebas. No le dices a un compañero: “diseña, implementa, testea, documenta, optimiza y despliega este sistema; vuelvo en diez minutos”. Bueno, quizá en algunas empresas sí. Y luego pasa lo que pasa.
+
+Un flujo iterativo podría ser:
+
+```text
+Ronda 1:
+Propón una estructura para implementar registro de usuarios en Flask.
+Solo arquitectura y archivos, sin código.
+
+Ronda 2:
+Ahora implementa el modelo User y la capa de validación.
+Mantén el código simple y testeable.
+
+Ronda 3:
+Escribe tests para el happy path y estos casos de error:
+- email inválido
+- email duplicado
+- password demasiado corta
+
+Ronda 4:
+El test de email duplicado falla con este error: [pegar error]
+Diagnostica la causa antes de proponer cambios.
+
+Ronda 5:
+Refactoriza la validación para reducir duplicación, sin cambiar comportamiento.
+```
+
+Esto evita dos problemas clásicos: respuestas enormes que mezclan decisiones incompatibles, y cambios que no sabes evaluar porque han ocurrido todos a la vez.
+
+La regla práctica: **cada ronda debe cambiar una cosa principal**. Arquitectura. Implementación. Tests. Debugging. Refactor. Si mezclas todo, luego no sabes qué parte salió bien y cuál te acaba de meter un gremlin en el repositorio.
+
+## Formato: pedir una respuesta que puedas usar
+
+El formato no es decoración. Es la interfaz entre la respuesta de la IA y tu flujo de trabajo.
+
+Si pides “explícame esto”, recibes una explicación. Si pides “dame un plan con riesgos y tests”, recibes algo que puedes ejecutar. Parece una tontería, pero es la diferencia entre leer contenido y avanzar trabajo.
+
+Formatos útiles para desarrollo:
+
+### Para generar código
+
+```text
+Formato:
+1. Código de implementación
+2. Ejemplo de uso
+3. Tests mínimos
+4. Decisiones técnicas y trade-offs
+```
+
+### Para debugging
+
+```text
+Formato:
+1. Causa raíz probable
+2. Por qué ocurre
+3. Cómo confirmarlo
+4. Fix mínimo
+5. Cómo evitar que vuelva a pasar
+```
+
+### Para aprender un concepto
+
+```text
+Formato:
+1. Definición en una frase
+2. Analogía realista
+3. Ejemplo mínimo de código
+4. Error común que debería evitar
+```
+
+### Para comparar opciones
+
+```text
+Formato:
+Tabla con columnas:
+- Opción
+- Cuándo usarla
+- Ventajas
+- Riesgos
+- Recomendación para mi caso
+```
+
+El truco es pedir el formato que encaja con la siguiente acción. Si vas a decidir, pide comparación. Si vas a implementar, pide pasos y tests. Si vas a aprender, pide explicación, analogía y gotcha. La IA no sabe cuál es tu siguiente movimiento si no se lo dices.
+
+## Plantillas que puedes reutilizar
+
+Aquí tienes tres plantillas prácticas. No para copiarlas como religión, sino para adaptarlas.
+
+### Revisar código
+
+```text
+Rol: actúa como senior developer especializado en [lenguaje/framework].
+
+Contexto:
+[Qué hace el código]
+[Stack relevante]
+[Restricciones: no cambiar API pública, mantener compatibilidad, etc.]
+
+Código:
+[pegar código]
+
+Tarea:
+Revisa el código buscando problemas de legibilidad, bugs potenciales y casos borde.
+No refactorices todavía.
+
+Formato:
+1. Resumen en 3 líneas
+2. Lista de problemas ordenada por impacto
+3. Para cada problema: por qué importa y cómo lo confirmarías
+4. Preguntas que necesitas resolver antes de tocar código
+```
+
+### Diseñar una implementación
+
+```text
+Rol: actúa como software engineer pragmático.
+
+Contexto:
+[Feature que quieres construir]
+[Stack]
+[Restricciones]
+[Qué ya existe]
+
+Tarea:
+Propón un diseño de implementación sencillo. Prioriza cambios pequeños y verificables.
+No escribas código todavía.
+
+Formato:
+1. Supuestos
+2. Diseño propuesto
+3. Archivos que tocaría
+4. Plan en pasos
+5. Tests necesarios
+6. Riesgos y alternativas
+```
+
+### Pedir una explicación técnica
+
+```text
+Rol: actúa como mentor técnico.
+
+Contexto:
+Estoy aprendiendo [concepto]. Ya entiendo [conocimiento previo], pero me cuesta [bloqueo concreto].
+
+Tarea:
+Explícame [concepto] conectándolo con lo que ya sé.
+
+Formato:
+1. Explicación breve
+2. Analogía
+3. Ejemplo mínimo
+4. Contraejemplo
+5. Pregunta para comprobar si lo entendí
+```
+
+Una buena plantilla no reemplaza pensar. Te quita el boilerplate mental para que puedas concentrarte en el problema real. Como los snippets del editor: útiles si sabes qué estás insertando, peligrosos si los disparas a ciegas.
+
+## Qué no debes meter en el contexto
+
+Hay una parte menos divertida pero necesaria: no todo contexto debe compartirse.
+
+No pegues:
+
+- API keys
+- tokens
+- contraseñas
+- datos personales reales
+- secretos de empresa
+- dumps completos de base de datos
+- código propietario si tu herramienta o política no lo permite
+
+Sí, la IA “necesita contexto”. No, no necesita tu token de producción. Esa frase debería estar en una taza, justo al lado de “no ejecutes comandos que no entiendes”.
+
+Si necesitas mostrar datos, anonimiza:
+
+```json
+{
+  "user_id": "user_123",
+  "email": "user@example.com",
+  "plan": "pro"
+}
+```
+
+Y si el problema depende de un valor sensible, descríbelo:
+
+```text
+El token existe y tiene formato JWT válido, pero el backend devuelve 401.
+No puedo compartir el token real; puedo compartir el header y claims anonimizados.
+```
+
+La calidad del contexto no se mide por cuántos secretos expones. Se mide por cuántas suposiciones eliminas sin crear un problema nuevo.
+
+## Conceptos clave de esta lección
+
+- RCTF no sirve si cada bloque es genérico; cada parte debe reducir suposiciones
+- Contexto rico significa contexto relevante, no contexto largo
+- Para bugs, incluye código, reproducción, error y comportamiento esperado
+- La conversación con IA funciona mejor por rondas pequeñas que con un prompt gigante
+- Cada ronda debería cambiar una cosa principal
+- El formato debe conectar la respuesta con tu siguiente acción
+- Las plantillas ayudan, pero no sustituyen pensar
+- Nunca compartas secretos, tokens ni datos personales reales como “contexto”
+
+---
+
+**💡 Desafío:** Toma un prompt real que hayas usado para pedir ayuda con código y conviértelo en una conversación de tres rondas: (1) contexto y diagnóstico, (2) propuesta de solución, (3) tests o verificación. En cada ronda, especifica un formato distinto según lo que necesites hacer después.
+
+RCTF ya no es solo una lista de comprobación: ahora es una forma de dirigir una conversación técnica. En el próximo tutorial veremos cómo usar la IA para aprender conceptos de programación sin quedarte en explicaciones bonitas pero frágiles — porque entender de verdad no es asentir ante una respuesta convincente, es poder detectar cuándo te están vendiendo humo con buena sintaxis.
+
+¡Nunca dejes de programar!
