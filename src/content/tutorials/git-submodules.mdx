@@ -1,0 +1,372 @@
+---
+title: "Git submodules: repositories inside repositories without losing your mind"
+post_slug: "git-submodules"
+date: "2026-06-08"
+excerpt: "Learn what Git submodules are, how to add, clone, update, and remove them, and when to avoid creating a tiny .gitmodules-shaped monster."
+language: "en"
+categories: ["git"]
+course: "mastering-git-from-scratch"
+order: 32
+cover: "/images/tutorials/cabecera-git.jpg"
+i18n: "submodulos-git"
+---
+
+You have a project. Inside that project, you need another project. But you don't want to copy it by hand, because every future update will turn into archaeology with `diff`. You also don't want a normal package dependency, because maybe it's an internal template, a private library, shared documentation, or a theme with its own history.
+
+Then someone says: "use a submodule".
+
+Silence. What does that even mean? Is it a dependency? A folder? Another repository? Why is there suddenly a `.gitmodules` file staring at you like you summoned something ancient? Good news: submodules are not dark magic. Bad news: they are one of those Git features that punish you if you treat them like a normal directory.
+
+## What a Git submodule is
+
+A **submodule** is a Git repository embedded inside another Git repository. The main repository is called the **superproject**, which sounds like a comic-book villain but simply means "the repo that contains the other one".
+
+Here is what trips most people up: you see a folder. Git sees a pointer. The main repo does not store the submodule files as its own — it records a note that says: **use this other repository, at exactly this commit**.
+
+It's saying:
+
+> "My project uses `vendor/theme`, but not just any version of `vendor/theme`: exactly commit `a1b2c3d`."
+
+That part matters. A submodule does not point to "the latest version" by default. It points to an exact commit. Git is being strict, yes, but for a reason: it wants anyone cloning your project to get the same state, not "whatever happens to be on `main` today, good luck in production".
+
+If you read the previous lesson on [Git tags](/en/tutorials/releasing-new-versions-of-our-projects-using-git-tags), this should feel familiar: Git is very good at pointing to precise places in history. With a submodule, instead of marking a point in your own repo, you're saying which exact point of another repo belongs to this project.
+
+## When to use submodules and when to run away
+
+Submodules have a reputation. Some of it is deserved. Some of it comes from people using them to solve problems that were never submodule problems.
+
+Use them when you need to keep two repositories separate, with separate histories, while one still needs to live inside the other:
+
+- A shared theme used by multiple static sites.
+- An internal library that is not published to a package registry.
+- Common documentation reused by several projects.
+- A repository of assets or examples that you want pinned to a specific version.
+
+Do not use them as your first option for normal dependencies. If you're in Node, Python, Ruby, Go, or any ecosystem with a decent package manager, use the package manager. That's what it's for. Using submodules where `npm install` would do is like bringing an excavator to plant basil.
+
+Also avoid them if the team doesn't understand the cost: every submodule is another repository to clone, update, review, push, and coordinate. One or two can be reasonable. Twelve nested submodules are a creative way to turn onboarding into an escape room.
+
+## Adding a submodule
+
+Let's use a realistic example: you have a website and want to add a shared theme under `vendor/site-theme`.
+
+```bash
+git submodule add https://github.com/example/site-theme.git vendor/site-theme
+```
+
+Git clones that repository into the path you provided:
+
+```
+Cloning into '/home/dev/my-site/vendor/site-theme'...
+remote: Enumerating objects: 42, done.
+remote: Counting objects: 100% (42/42), done.
+remote: Compressing objects: 100% (31/31), done.
+Receiving objects: 100% (42/42), done.
+```
+
+Now check the status:
+
+```bash
+git status
+```
+
+```
+Changes to be committed:
+  (use "git restore --staged <file>..." to unstage)
+	new file:   .gitmodules
+	new file:   vendor/site-theme
+```
+
+This is the first "wait, what just happened?" moment. Git did not add every file from `vendor/site-theme` to the main repository. It added two things:
+
+1. `.gitmodules`, with the submodule configuration.
+2. A special entry for `vendor/site-theme`, pointing to a specific commit.
+
+The `.gitmodules` file looks like this:
+
+```ini
+[submodule "vendor/site-theme"]
+	path = vendor/site-theme
+	url = https://github.com/example/site-theme.git
+```
+
+This file is versioned like any other file. When someone else clones your project, Git reads it to know where the submodule lives and where to fetch it from.
+
+Run the diff with the submodule flag and you will see what Git is actually recording:
+
+```bash
+git diff --cached --submodule
+```
+
+```
+Submodule vendor/site-theme 0000000...a1b2c3d (new submodule)
+```
+
+That `a1b2c3d` is the submodule commit your main project is recording. It is not recording "the folder". It is recording "this folder must be at this commit".
+
+Commit the change:
+
+```bash
+git commit -m "feat: add shared site theme submodule"
+```
+
+## Cloning a project with submodules
+
+This is the part that gets almost everyone the first time.
+
+You clone a project:
+
+```bash
+git clone https://github.com/example/my-site.git
+cd my-site
+ls vendor/site-theme
+```
+
+And the folder is empty. Or almost empty. If you're anything like me when I started, your first instinct was `git status` followed by staring at the ceiling. Git did not break. It did exactly what you asked: clone the main repository, nothing else.
+
+The painless way is to clone like this from the start:
+
+```bash
+git clone --recurse-submodules https://github.com/example/my-site.git
+```
+
+That makes Git clone the main repo, read `.gitmodules`, initialize the submodules, and check them out at the correct commits.
+
+If you already cloned and forgot the flag — because you're human, not a CI pipeline with repressed feelings — run this from the project root:
+
+```bash
+git submodule update --init --recursive
+```
+
+What each part does:
+
+- `update` checks out the submodule commit expected by the superproject.
+- `--init` initializes submodules not yet registered in your local `.git/config`.
+- `--recursive` does the same for submodules inside submodules.
+
+Yes, submodules inside submodules. This is where Git reminds you that you can technically build a Russian doll out of repositories. That doesn't mean you should.
+
+## Understanding submodule status
+
+The basic command is:
+
+```bash
+git submodule status
+```
+
+Normal output:
+
+```
+ a1b2c3d4e5f678901234567890abcdef12345678 vendor/site-theme (v1.2.0)
+```
+
+The hash is the commit currently checked out inside the submodule. The path is where it lives. The bit in parentheses, when present, comes from `git describe` and usually shows a nearby tag or name.
+
+The important part is the first character:
+
+| Prefix | Meaning                                                                           |
+| ------ | --------------------------------------------------------------------------------- |
+| space  | The submodule is initialized and matches the expected commit.                     |
+| `-`    | The submodule is not initialized. The folder may be empty.                        |
+| `+`    | The submodule is checked out at a different commit than the superproject expects. |
+| `U`    | The submodule has merge conflicts. Fun, but not the kind you asked for.           |
+
+The `+` prefix is the one that confuses people most at first. It means: "inside the submodule you have one commit checked out, but the main repo expects another". That is not necessarily wrong. It may be exactly what you want if you're updating the submodule. But until you run `git add vendor/site-theme` in the main repo and commit it, that change is not recorded.
+
+To see the change in a more human form:
+
+```bash
+git diff --submodule
+```
+
+```
+Submodule vendor/site-theme a1b2c3d..f6e7d8c:
+  > Improve button spacing
+  > Fix dark mode contrast
+```
+
+Much better than staring at two hex strings hoping one of them eventually starts making sense.
+
+## Updating a submodule
+
+Imagine the shared theme has moved forward. There are new commits in `site-theme`, and you want your project to use one of them.
+
+You can enter the submodule and update it like any Git repo:
+
+```bash
+cd vendor/site-theme
+git fetch
+git switch main
+git pull
+```
+
+Then go back to the main repo:
+
+```bash
+cd ../..
+git status
+```
+
+```
+Changes not staged for commit:
+	modified:   vendor/site-theme (new commits)
+```
+
+That message means: "the submodule now points to another commit". To save that update in the superproject:
+
+```bash
+git add vendor/site-theme
+git commit -m "chore: update site theme submodule"
+```
+
+A more direct option is:
+
+```bash
+git submodule update --remote vendor/site-theme
+```
+
+This fetches changes from the submodule remote and moves it to the configured remote branch. By default, that is usually the remote `HEAD` branch. If your team wants the submodule to follow a specific branch, record it:
+
+```bash
+git config -f .gitmodules submodule.vendor/site-theme.branch main
+git submodule update --remote vendor/site-theme
+git add .gitmodules vendor/site-theme
+git commit -m "chore: track main branch for site theme submodule"
+```
+
+Don't stress about this part if you're just starting. The practical rule is: **updating the submodule changes the commit the main repo points to**. That change must be added and committed from the main repo.
+
+## Working inside a submodule
+
+Here's where it gets interesting. And by "interesting" I mean "this is where people lose an afternoon".
+
+When you run `git submodule update`, Git usually leaves the submodule in **detached HEAD**. We've already seen detached HEAD is not the end of the world, but it's also not the place where you want to happily develop like nothing can go wrong.
+
+If you need to modify the submodule, enter it and switch to a branch:
+
+```bash
+cd vendor/site-theme
+git switch main
+```
+
+Make changes, commit, and push inside the submodule:
+
+```bash
+git add styles/buttons.css
+git commit -m "fix: improve button contrast"
+git push origin main
+```
+
+Then return to the main repo and record the new submodule commit:
+
+```bash
+cd ../..
+git add vendor/site-theme
+git commit -m "chore: update site theme submodule pointer"
+```
+
+The order matters:
+
+1. Commit inside the submodule.
+2. Push the submodule.
+3. Commit the pointer in the main repo.
+4. Push the main repo.
+
+If you do steps 3 and 4 without pushing the submodule, your main repo will point to a commit that only exists on your machine. For your teammates, that is like receiving a treasure map where the island doesn't exist.
+
+You can ask Git to check this when pushing:
+
+```bash
+git push --recurse-submodules=check
+```
+
+If any required submodule commit has not been pushed, Git aborts the push. There is also:
+
+```bash
+git push --recurse-submodules=on-demand
+```
+
+This tries to push the required submodules before pushing the main repo. Useful, but use it knowing what it does. Automating things you don't understand is how incidents get proper names.
+
+## Pulling main repo changes when submodules exist
+
+Another common case: someone on the team updates the submodule and pushes the main repo. You pull:
+
+```bash
+git pull
+```
+
+Git may bring the superproject commit, but your submodule folder can remain at the previous commit. If `git status` shows the submodule as modified, run:
+
+```bash
+git submodule update --init --recursive
+```
+
+This command means "put everything where the main repo expects it". It does not blindly update to the latest remote commit; it updates to the exact commit recorded by the superproject.
+
+If your repo uses submodules often, you can configure Git so many operations recurse automatically:
+
+```bash
+git config submodule.recurse true
+```
+
+Heads up: `git clone` still needs its own `--recurse-submodules`. Git had to leave one tiny trap in there. For humility, apparently.
+
+## Removing a submodule
+
+Removing a submodule should not be `rm -rf vendor/site-theme` followed by a short prayer to Linus Torvalds.
+
+The safe recipe is:
+
+```bash
+git submodule deinit -f vendor/site-theme
+git rm -f vendor/site-theme
+git commit -m "chore: remove site theme submodule"
+```
+
+What each command does:
+
+- `git submodule deinit -f vendor/site-theme` removes the local submodule checkout and its local configuration.
+- `git rm -f vendor/site-theme` removes the submodule entry from the index and updates `.gitmodules`.
+- The `commit` records the change for the rest of the team.
+
+Sometimes local metadata may remain under `.git/modules/vendor/site-theme`. If you need to clean it manually, be very careful:
+
+```bash
+rm -rf .git/modules/vendor/site-theme
+```
+
+Read that path again before pressing Enter. `rm -rf` has no sense of humor. You do. Your filesystem does not.
+
+## Best practices for submodules
+
+Submodules work best when the team treats them as what they are: separate repositories coordinated through a pointer.
+
+Practical rules:
+
+- **Document how to clone the project** with `--recurse-submodules` in the README.
+- **Use URLs everyone can access** in `.gitmodules`; your private SSH URL may work on your machine but fail in CI.
+- **Do not edit submodules in detached HEAD** if you want to keep the work. Switch to a branch first.
+- **Push the submodule before the superproject** when you've created new commits inside it.
+- **Avoid submodules for normal dependencies** if a reasonable package manager exists.
+- **Do not nest submodules unless there is a real need**. If you need a diagram to explain how to clone the repo, maybe Git is not the actual problem.
+
+A good sign that a submodule is justified: you can explain why that code needs its own repo, its own history, and its own release cadence. If the explanation is "I saw it on Stack Overflow", pause. Breathe. Reconsider.
+
+## Key concepts from this lesson
+
+- A submodule is a repository inside another repository.
+- The main repo does not store the submodule files: it stores a pointer to a specific commit.
+- `.gitmodules` records the submodule path and URL, and is versioned with the project.
+- To clone with submodules, use `git clone --recurse-submodules`.
+- If you already cloned, use `git submodule update --init --recursive`.
+- Updating a submodule changes the commit recorded by the superproject.
+- If you work inside the submodule, commit and push there before updating the main repo.
+
+---
+
+Submodules are useful when you need to coordinate separate repositories without mixing them together. They are not a normal dependency, not a normal folder, and definitely not something you add because it's Friday afternoon and you feel experimental. But when the use case fits, they give you a precise way to say: "this project depends on exactly this other repo, at exactly this commit".
+
+In the next tutorial we'll look at **Git hooks**, which let you run scripts automatically at specific moments in the Git workflow: before committing, while validating messages, after receiving changes on a server… useful, powerful, and with enough room for someone to turn `git commit` into an obstacle course. We'll take it slowly.
+
+Never stop coding!
