@@ -68,7 +68,7 @@
     "get-tsconfig": "5.0.0-beta.5",
     "marked": "^18.0.4",
     "mdast-util-to-hast": "13.2.1",
-    "mysql2": "^3.22.4",
+    "mysql2": "^3.22.5",
     "normalize.css": "^8.0.1",
     "prismjs": "^1.30.0",
     "rehype-prism-plus": "^2.0.2",
