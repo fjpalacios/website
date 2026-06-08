@@ -16,12 +16,32 @@ export default defineConfig({
     {
       name: "chromium",
       use: { ...devices["Desktop Chrome"] },
-      testIgnore: ["**/responsive.spec.ts", "**/visual-regression.spec.ts", "**/bookshelf.spec.ts"],
+      testIgnore: [
+        "**/responsive.spec.ts",
+        "**/visual-regression.spec.ts",
+        "**/bookshelf.spec.ts",
+        "**/dev-server-routing.spec.ts",
+      ],
     },
     {
       name: "visual-regression",
       use: { ...devices["Desktop Chrome"] },
       testMatch: ["**/visual-regression.spec.ts", "**/bookshelf.spec.ts"],
+    },
+    {
+      // Regression guard for astro #16949: dev-server only empty-props bug
+      // in dynamic catch-all routes. Runs `astro dev` (not preview/build) so
+      // the actual dev server path is exercised. Build is unaffected by the
+      // bug, so the regular e2e suite cannot catch this regression.
+      name: "dev-server",
+      use: { ...devices["Desktop Chrome"] },
+      testMatch: ["**/dev-server-routing.spec.ts"],
+      webServer: {
+        command: "bun run dev",
+        url: "http://localhost:4321",
+        reuseExistingServer: !process.env.CI,
+        timeout: 120_000,
+      },
     },
     {
       name: "mobile-iphone12",
