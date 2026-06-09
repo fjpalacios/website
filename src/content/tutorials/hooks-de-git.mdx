@@ -1,0 +1,381 @@
+---
+title: "Git hooks: automatiza lo que nadie recuerda hacer"
+post_slug: "hooks-de-git"
+date: "2026-06-09"
+excerpt: "Aprende qué son los Git hooks, cuáles merecen tu atención y cómo compartirlos con el equipo usando Husky, pre-commit o lefthook."
+language: "es"
+categories: ["git"]
+course: "domina-git-desde-cero"
+order: 33
+cover: "/images/tutorials/cabecera-git.jpg"
+i18n: "git-hooks"
+---
+
+Estás revisando el historial del proyecto. `fix`. `asdf`. `wip`. `more fixes`. `wip 2`. Luego `fix de verdad`. Y entonces llegas al comentario en el PR que lleva tres semanas abierto: _"oye, ¿podríamos escribir mensajes de commit un poco más descriptivos?"_. Silencio. Todo el mundo le ha dado 👍. Nadie ha cambiado nada.
+
+Porque la disciplina individual no escala. Todos tienen buenas intenciones. Todos están ocupados. Y Git, que podría decir algo, se limita a commitear lo que le pasas sin pronunciarse sobre la calidad literaria del mensaje. Git no juzga. Git ejecuta.
+
+Los **Git hooks** son la forma de añadir criterio a ese proceso sin depender de que alguien se acuerde. No una conversación en la daily, no una guía de estilo en el Confluence que todos prometieron leer — scripts que se ejecutan automáticamente en momentos concretos del flujo de Git y que pueden detener la operación si algo no cuadra.
+
+## Qué son los hooks de Git
+
+Un **hook** es un script que Git ejecuta antes o después de ciertas operaciones: crear un commit, validar su mensaje, recibir un push en el servidor, terminar un rebase... Cuando Git llega al punto donde hay un hook, lo lanza. La decisión es binaria:
+
+- Exit 0 → la operación continúa.
+- Exit distinto de 0 → la operación se aborta.
+
+Un hook puede hacer prácticamente cualquier cosa que haga un script normal:
+
+- Revisar el código con un linter antes de que el commit llegue al historial.
+- Validar que el mensaje sigue el formato de [Conventional Commits](/es/tutoriales/buenas-practicas-commits-git).
+- Lanzar los tests antes de un push al remoto.
+- Rechazar pushes directos a `main` en el servidor.
+- Actualizar dependencias después de un pull.
+
+Git define más de veinte puntos de hook disponibles. En la práctica, todo el mundo usa tres o cuatro. No te agobies con la lista completa.
+
+## Cómo funcionan los hooks
+
+Los hooks viven en `.git/hooks/`. Si abres esa carpeta en cualquier repositorio recién inicializado:
+
+```bash
+ls .git/hooks/
+```
+
+```
+applypatch-msg.sample   post-update.sample      pre-commit.sample
+commit-msg.sample       pre-applypatch.sample   pre-push.sample
+post-checkout.sample    pre-merge-commit.sample pre-rebase.sample
+post-commit.sample      pre-receive.sample      prepare-commit-msg.sample
+update.sample
+```
+
+Todos tienen extensión `.sample` — Git los incluye como referencia pero no los ejecuta. Para activar un hook:
+
+1. Quita la extensión `.sample`.
+2. Dale permisos de ejecución.
+
+```bash
+# Activar el hook pre-commit
+mv .git/hooks/pre-commit.sample .git/hooks/pre-commit
+chmod +x .git/hooks/pre-commit
+```
+
+Ese `chmod +x` no es decorativo. Git lanza el hook como proceso externo — si el script no tiene permisos de ejecución, Git lo ignora en silencio. Sin error, sin aviso, sin nada. Solo tú, el script que debería ejecutarse y la creciente convicción de que algo está muy mal con tu instalación de Git, tu sistema operativo, o quizás con las decisiones que te han traído hasta aquí.
+
+El script puede estar en bash, Python, Node o cualquier intérprete disponible en el sistema. La primera línea indica el intérprete:
+
+```bash
+#!/bin/bash
+# Hook: pre-commit — reject commits with TODO in staged files
+if git diff --cached --name-only | xargs grep -l 'TODO:' 2>/dev/null; then
+  echo "Error: staged files contain TODO comments."
+  exit 1
+fi
+exit 0
+```
+
+## Los hooks de cliente que usarás de verdad
+
+Los hooks de cliente se ejecutan en la máquina del desarrollador, en el ciclo de commit y push.
+
+### pre-commit
+
+Se ejecuta antes de que Git cree el commit, justo cuando los archivos están staged. El momento natural para linting y formateo.
+
+Exit 1 → commit abortado.
+
+```bash
+#!/bin/bash
+# Run ESLint only on staged JS/TS files
+staged=$(git diff --cached --name-only --diff-filter=ACM | grep '\.\(js\|ts\|jsx\|tsx\)$')
+if [ -n "$staged" ]; then
+  echo "$staged" | xargs npx eslint
+  if [ $? -ne 0 ]; then
+    echo "ESLint encontró errores. Corrígelos antes de commitear."
+    exit 1
+  fi
+fi
+exit 0
+```
+
+### commit-msg
+
+Se ejecuta después de que el usuario ha escrito el mensaje de commit, pero antes de guardarlo. Recibe como argumento la ruta al fichero temporal donde Git guardó el mensaje.
+
+Perfecto para validar formato:
+
+```bash
+#!/bin/bash
+# Validate Conventional Commits format
+commit_msg=$(cat "$1")
+pattern="^(feat|fix|docs|style|refactor|test|chore|perf|build|ci|revert)(\(.+\))?: .{1,72}"
+
+if ! echo "$commit_msg" | grep -qP "$pattern"; then
+  echo "El mensaje no sigue el formato de Conventional Commits."
+  echo "Ejemplo: feat(auth): add OAuth2 support"
+  exit 1
+fi
+exit 0
+```
+
+### prepare-commit-msg
+
+Se ejecuta antes de que el editor se abra, después de que Git haya generado el mensaje por defecto. Útil para inyectar información automáticamente — como el número de issue a partir del nombre de la rama:
+
+```bash
+#!/bin/bash
+# Prepend issue number from branch name (e.g., feature/GH-123)
+branch=$(git symbolic-ref --short HEAD)
+issue=$(echo "$branch" | grep -oP 'GH-\d+')
+
+if [ -n "$issue" ]; then
+  sed -i "1s/^/[$issue] /" "$1"
+fi
+```
+
+Si estás en `feature/GH-456-login-form`, cada commit arranca automáticamente con `[GH-456]` sin escribirlo a mano.
+
+### pre-push
+
+Se ejecuta antes de enviar commits al remoto. El último punto de control antes de que otra persona vea tu trabajo:
+
+```bash
+#!/bin/bash
+# Run test suite before push
+npm test
+if [ $? -ne 0 ]; then
+  echo "Tests fallidos. Push abortado."
+  exit 1
+fi
+exit 0
+```
+
+⚠️ Un hook `pre-push` lento convierte cada `git push` en una sala de espera. Si tu suite tarda diez minutos, úsalo en CI y deja el hook local solo para tests rápidos.
+
+## Los hooks de servidor
+
+Los hooks de servidor se ejecutan en el repositorio remoto — un servidor Git propio, un GitLab self-hosted o infraestructura similar. GitHub y Bitbucket Cloud no permiten hooks de servidor arbitrarios.
+
+Los más relevantes:
+
+| Hook           | Cuándo se ejecuta                      | Uso típico                         |
+| -------------- | -------------------------------------- | ---------------------------------- |
+| `pre-receive`  | Antes de aceptar cualquier push        | Rechazar pushes a ramas protegidas |
+| `update`       | Una vez por cada rama que se actualiza | Validaciones específicas por rama  |
+| `post-receive` | Después de aceptar todo el push        | Notificaciones, deploys, webhooks  |
+
+Si usas GitHub, GitLab.com o Bitbucket, estas funciones ya están disponibles como protección de ramas y webhooks — no hay que escribirlos a mano. Los hooks de servidor propios son territorio de quienes gestionan su propia infraestructura Git.
+
+## La trampa que todo el mundo descubre tarde
+
+`.git/hooks/` no se versiona.
+
+El hook `pre-commit` que has configurado, probado y que funciona perfectamente en tu máquina no existe para la persona que clona el repositorio mañana. Ni para la de pasado mañana. Cada desarrollador que se une al proyecto parte de cero, sin hooks, sin saber siquiera que deberían existir.
+
+Git no comparte los hooks automáticamente porque `.git/` es local por diseño — igual que `.git/config`, que también guarda tus preferencias personales sin que viajen con el repositorio.
+
+Si la reacción al leer esto es "entonces, ¿para qué sirven los hooks si el equipo no los tiene?"... esa es exactamente la pregunta correcta. La respuesta viene en la siguiente sección, y no, no es "resignarse y confiar en la disciplina individual".
+
+## Compartiendo hooks con el equipo
+
+Hay varias estrategias. La que uses depende del contexto del proyecto.
+
+### git config core.hooksPath
+
+La opción más directa: guarda los hooks en una carpeta versionada del repositorio y configura Git para que los busque ahí.
+
+```bash
+# Crear la carpeta de hooks versionada
+mkdir .githooks
+
+# Escribir el hook
+cat > .githooks/pre-commit << 'EOF'
+#!/bin/bash
+# hook content here
+exit 0
+EOF
+chmod +x .githooks/pre-commit
+
+# Decirle a Git que use esa carpeta
+git config core.hooksPath .githooks
+```
+
+El problema: cada persona que clone el repo tiene que ejecutar ese `git config` manualmente. Documéntalo en el README y cruza los dedos, o automatízalo con una de las herramientas de abajo.
+
+### Husky (proyectos Node.js)
+
+Si el proyecto tiene `package.json`, [Husky](https://typicode.github.io/husky/) es el estándar de facto. La idea es elegante: hooks que se instalan solos al hacer `npm install`, igual que cualquier otra dependencia. Alguien resolvió el problema, lo publicó en 2 KB sin dependencias y corre en ~1 ms. Aprovéchalo.
+
+```bash
+npm install --save-dev husky
+npx husky init
+```
+
+Esto crea una carpeta `.husky/` con un hook `pre-commit` de ejemplo. Todo lo que pongas ahí queda versionado en el repo y se instala la próxima vez que alguien ejecute `npm install`.
+
+```
+.husky/
+  pre-commit     # ← versionado, ejecutable, autoinstalado
+  commit-msg
+```
+
+En la versión actual (v9.1.7), la configuración es mínima — solo un script `prepare` en `package.json`:
+
+```json
+{
+  "scripts": {
+    "prepare": "husky"
+  }
+}
+```
+
+Husky pesa 2 KB, no tiene dependencias y tarda ~1 ms en ejecutarse. Para proyectos Node, es la opción con menos fricción.
+
+### pre-commit (cualquier lenguaje)
+
+Si el proyecto no tiene Node — o si quieres acceder a una biblioteca de hooks ya escritos — la herramienta [pre-commit](https://pre-commit.com/) es la alternativa más popular.
+
+```bash
+# macOS y Linux (Homebrew)
+brew install pre-commit
+
+# Ubuntu / Debian
+apt install pre-commit
+
+# Arch Linux
+pacman -S pre-commit
+```
+
+La configuración va en `.pre-commit-config.yaml`, que sí se versiona:
+
+```yaml
+repos:
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v5.0.0
+    hooks:
+      - id: trailing-whitespace
+      - id: end-of-file-fixer
+      - id: check-yaml
+  - repo: https://github.com/psf/black
+    rev: 25.3.0
+    hooks:
+      - id: black
+```
+
+Para activarlo localmente:
+
+```bash
+pre-commit install
+```
+
+A partir de ahí, el hook `pre-commit` corre en cada `git commit`. Quien clone el repo ejecuta `pre-commit install` una vez, y el fichero `.pre-commit-config.yaml` describe exactamente qué hooks hay y en qué versión.
+
+La ventaja frente a los scripts a mano: reutilizas hooks de repositorios públicos — linters, formatters, scanners de seguridad — sin escribirlos tú. La comunidad de pre-commit tiene hooks para casi cualquier lenguaje.
+
+### lefthook (alternativa rápida, sin dependencias de runtime)
+
+Vale la pena mencionar [Lefthook](https://github.com/evilmartians/lefthook): está escrito en Go, no tiene dependencias de runtime y puede ejecutar hooks en paralelo.
+
+```bash
+# macOS y Linux (Homebrew)
+brew install lefthook
+
+# Ubuntu / Debian
+apt install lefthook
+
+# Arch Linux (AUR)
+paru -S lefthook
+```
+
+Configuración en `lefthook.yml`:
+
+```yaml
+pre-commit:
+  parallel: true
+  commands:
+    lint:
+      glob: "*.{js,ts}"
+      run: npx eslint {staged_files}
+    format:
+      glob: "*.py"
+      run: black {staged_files}
+
+commit-msg:
+  commands:
+    validate:
+      run: commitlint --edit {1}
+```
+
+Ventaja sobre Husky: funciona igual en proyectos Node y no-Node. Ventaja sobre pre-commit: más rápido en repos grandes porque no levanta entornos Python independientes por cada hook.
+
+Si tu proyecto es Node, usa Husky. Si no, usa pre-commit o lefthook. Si quieres escribir los scripts a mano con `core.hooksPath`, también funciona. Las tres opciones son válidas; el criterio es cuánta infraestructura ya tienes.
+
+## Un ejemplo completo
+
+Un equipo quiere linting y validación de mensajes de commit en un proyecto Node:
+
+```bash
+npm install --save-dev husky lint-staged
+
+npx husky init
+
+cat > .husky/commit-msg << 'EOF'
+#!/bin/sh
+npx --no -- commitlint --edit "$1"
+EOF
+chmod +x .husky/commit-msg
+```
+
+`lint-staged` aplica los linters solo a los archivos staged, no a todo el proyecto:
+
+```json
+{
+  "scripts": {
+    "prepare": "husky"
+  },
+  "lint-staged": {
+    "*.{js,ts}": ["eslint --fix", "prettier --write"],
+    "*.{css,md}": ["prettier --write"]
+  },
+  "devDependencies": {
+    "husky": "^9.1.7",
+    "lint-staged": "^15.0.0"
+  }
+}
+```
+
+```bash
+# .husky/pre-commit
+#!/bin/sh
+npx lint-staged
+```
+
+A partir de aquí, cada `git commit` ejecuta ESLint y Prettier sobre los archivos staged. Si algo falla, el commit se aborta. Todo el equipo tiene los mismos hooks desde el primer `npm install`.
+
+## Saltarse un hook
+
+Cuando hay prisa — y siempre hay prisa — el flag `--no-verify` salta todos los hooks de cliente:
+
+```bash
+git commit -m "hotfix: production is on fire" --no-verify
+```
+
+Esto no desactiva los hooks de forma permanente; los omite una vez. Útil para emergencias reales. Si te encuentras usándolo a menudo, los hooks son demasiado lentos o demasiado estrictos para el flujo real del equipo — ajústalos antes de que `--no-verify` se convierta en el alias que nadie admite tener.
+
+## Conceptos clave de esta lección
+
+- Un hook de Git es un script que se ejecuta automáticamente en momentos concretos del ciclo de vida de Git.
+- Los hooks viven en `.git/hooks/` y necesitan permisos de ejecución.
+- Exit 0 = la operación continúa. Exit distinto de 0 = la operación se aborta.
+- `.git/hooks/` no se versiona — los hooks son locales por defecto.
+- Para compartirlos con el equipo: `core.hooksPath`, Husky (Node), pre-commit o lefthook.
+- `--no-verify` omite los hooks de cliente en una sola operación.
+
+---
+
+Los hooks resuelven un problema específico: el que aparece cuando el proceso depende de que alguien recuerde ejecutar el linter. Un script de diez líneas es más fiable que cualquier cantidad de buenas intenciones y cualquier cantidad de comentarios en pull requests diciendo "oye, acuérdate del linter". No reemplazan el code review ni las decisiones de arquitectura — pero eliminan una categoría entera de fricciones pequeñas que con el tiempo se convierten en la razón por la que las revisiones tardan más de lo que deberían.
+
+En el siguiente tutorial veremos **Git worktrees**, que permiten tener múltiples directorios de trabajo del mismo repositorio activos a la vez — útil cuando necesitas cambiar a una rama de urgencia sin tocar lo que tienes a medias en otra.
+
+¡Nunca dejes de programar!
