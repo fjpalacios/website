@@ -1,0 +1,381 @@
+---
+title: "Git hooks: automating what nobody remembers to do"
+post_slug: "git-hooks"
+date: "2026-06-09"
+excerpt: "Learn how Git hooks work, which ones actually matter, and how to share them with the team using Husky, pre-commit, or lefthook."
+language: "en"
+categories: ["git"]
+course: "mastering-git-from-scratch"
+order: 33
+cover: "/images/tutorials/cabecera-git.jpg"
+i18n: "hooks-de-git"
+---
+
+Your project's commit history reads: `fix`. `stuff`. `wip`. `more stuff`. `ok now fixed for real`. At some point someone left a comment in a PR: _"hey, should we write more descriptive commit messages?"_ Twelve thumbs up. Zero commits changed.
+
+Because good intentions don't scale. Everyone agrees it's a good idea. Everyone has other things to do. And Git, which has the power to stop any of this, just executes what you tell it — no friction, no judgment, no opinion on whether "wip" adequately describes the two hundred lines you staged.
+
+**Git hooks** are how you add that opinion to the process. Not as a Confluence doc nobody reads after onboarding, not as a recurring conversation at standup — as scripts that run automatically at specific points in the Git workflow and can stop an operation if something doesn't look right.
+
+## What are Git hooks
+
+A **hook** is a script Git runs before or after specific operations: creating a commit, validating a commit message, sending a push to the remote, receiving changes on the server.
+
+The logic is binary: if the script exits with code `0`, Git proceeds. If it exits with anything else, the operation is aborted.
+
+A hook can:
+
+- Run a linter against staged files before they become a commit.
+- Check that the commit message follows [Conventional Commits format](/en/tutorials/git-commit-best-practices).
+- Run the test suite before a push reaches the remote.
+- Block direct pushes to `main` on the server.
+- Trigger a deploy after changes land on a release branch.
+
+Git ships with over twenty defined hook points. In practice, most teams use three or four. Don't lose sleep over the full list.
+
+## How hooks work
+
+Hooks live in `.git/hooks/`. Open that directory in any freshly initialized repository:
+
+```bash
+ls .git/hooks/
+```
+
+```
+applypatch-msg.sample   post-update.sample      pre-commit.sample
+commit-msg.sample       pre-applypatch.sample   pre-push.sample
+post-checkout.sample    pre-merge-commit.sample pre-rebase.sample
+post-commit.sample      pre-receive.sample      prepare-commit-msg.sample
+update.sample
+```
+
+Everything ends in `.sample` — Git includes them as reference but doesn't run them. To activate a hook:
+
+1. Remove the `.sample` extension.
+2. Make it executable.
+
+```bash
+mv .git/hooks/pre-commit.sample .git/hooks/pre-commit
+chmod +x .git/hooks/pre-commit
+```
+
+That `chmod +x` is not optional. Git runs hooks as external processes — if the script isn't executable, Git silently ignores it. No error. No warning. Nothing. Just you, a script that should be running, and a growing suspicion that you've somehow broken your entire Git installation when the actual problem is one missing permission bit.
+
+The script can be written in any language available on your system. The shebang tells Git which interpreter to use:
+
+```bash
+#!/bin/bash
+# Hook: pre-commit — reject commits with TODO in staged files
+if git diff --cached --name-only | xargs grep -l 'TODO:' 2>/dev/null; then
+  echo "Error: staged files contain TODO comments."
+  exit 1
+fi
+exit 0
+```
+
+## The client hooks you'll actually use
+
+Client hooks run on the developer's machine during the commit and push lifecycle.
+
+### pre-commit
+
+Runs before Git creates the commit, right when your files are staged. The natural moment for linting and format checks.
+
+Exit `1` → commit aborted.
+
+```bash
+#!/bin/bash
+# Run ESLint only on staged JS/TS files
+staged=$(git diff --cached --name-only --diff-filter=ACM | grep '\.\(js\|ts\|jsx\|tsx\)$')
+if [ -n "$staged" ]; then
+  echo "$staged" | xargs npx eslint
+  if [ $? -ne 0 ]; then
+    echo "ESLint found errors. Fix them before committing."
+    exit 1
+  fi
+fi
+exit 0
+```
+
+### commit-msg
+
+Runs after the user writes the commit message but before Git saves it. Receives the path to the temporary file holding the message as its first argument.
+
+Built for format validation:
+
+```bash
+#!/bin/bash
+# Validate Conventional Commits format
+commit_msg=$(cat "$1")
+pattern="^(feat|fix|docs|style|refactor|test|chore|perf|build|ci|revert)(\(.+\))?: .{1,72}"
+
+if ! echo "$commit_msg" | grep -qP "$pattern"; then
+  echo "Commit message doesn't follow Conventional Commits format."
+  echo "Example: feat(auth): add OAuth2 support"
+  exit 1
+fi
+exit 0
+```
+
+### prepare-commit-msg
+
+Runs before the editor opens, after Git has generated the default message. Good for automatically injecting context into the message — like the issue number from the branch name:
+
+```bash
+#!/bin/bash
+# Prepend issue number from branch name (e.g., feature/GH-123)
+branch=$(git symbolic-ref --short HEAD)
+issue=$(echo "$branch" | grep -oP 'GH-\d+')
+
+if [ -n "$issue" ]; then
+  sed -i "1s/^/[$issue] /" "$1"
+fi
+```
+
+Working on `feature/GH-456-login-form`? Every commit automatically starts with `[GH-456]` without you typing it.
+
+### pre-push
+
+Runs before commits are sent to the remote. The last checkpoint before someone else sees your work:
+
+```bash
+#!/bin/bash
+# Run test suite before push
+npm test
+if [ $? -ne 0 ]; then
+  echo "Tests failed. Push aborted."
+  exit 1
+fi
+exit 0
+```
+
+⚠️ A slow `pre-push` hook turns every `git push` into a waiting game. If the suite takes ten minutes, keep it for CI and use the hook only for fast unit tests.
+
+## Server-side hooks
+
+Server hooks run on the remote repository — your own Git server, self-hosted GitLab, or similar setups. GitHub and Bitbucket Cloud don't allow arbitrary server-side hooks.
+
+The relevant ones:
+
+| Hook           | When it runs                  | Common use                          |
+| -------------- | ----------------------------- | ----------------------------------- |
+| `pre-receive`  | Before accepting any push     | Reject pushes to protected branches |
+| `update`       | Once per branch being updated | Per-branch validation rules         |
+| `post-receive` | After accepting the full push | Notifications, deploys, webhooks    |
+
+If you're on GitHub, GitLab.com, or Bitbucket, these capabilities are already available as branch protection rules and webhooks — no need to write them from scratch. Hand-written server hooks are the territory of teams running their own Git infrastructure.
+
+## The gotcha everyone discovers at the worst moment
+
+`.git/hooks/` is not tracked.
+
+The hook you spent twenty minutes writing, testing, and tweaking lives only on your machine. The person who clones the repository tomorrow gets nothing — no hooks, no indication hooks should exist, nothing. Each new developer starts with a clean `.git/hooks/` full of `.sample` files and no knowledge of what they're missing.
+
+Git doesn't share hooks automatically because `.git/` is intentionally local — same as `.git/config`, which stores your personal settings without pushing them to the remote.
+
+If your reaction to this is "so what exactly is the point of hooks if the team doesn't have them?"... that's exactly the right question. The answer is below, and it's not "accept the chaos and keep leaving PR comments about the linter."
+
+## Sharing hooks across the team
+
+There are a few approaches. The right one depends on the project.
+
+### git config core.hooksPath
+
+The most direct option: store hooks in a versioned directory and tell Git to look there.
+
+```bash
+# Create a versioned hooks directory
+mkdir .githooks
+
+# Write your hook
+cat > .githooks/pre-commit << 'EOF'
+#!/bin/bash
+# hook content here
+exit 0
+EOF
+chmod +x .githooks/pre-commit
+
+# Tell Git to use this directory
+git config core.hooksPath .githooks
+```
+
+The catch: every developer who clones the repo has to run that `git config` manually. Document it in the README and hope people read it, or automate it with one of the tools below.
+
+### Husky (Node.js projects)
+
+If the project has a `package.json`, [Husky](https://typicode.github.io/husky/) is the standard. The idea is clean: hooks that install automatically on `npm install`, just like any other dev dependency. Someone solved the distribution problem, packaged it in 2 KB with zero dependencies, and it runs in ~1ms. Use it.
+
+```bash
+npm install --save-dev husky
+npx husky init
+```
+
+This creates a `.husky/` directory with a sample `pre-commit` hook. Every hook you put there is versioned in the repo and auto-installed the next time anyone runs `npm install`.
+
+```
+.husky/
+  pre-commit     # ← versioned, executable, auto-installed
+  commit-msg
+```
+
+As of v9 (current: 9.1.7), configuration is minimal — just a `prepare` script in `package.json`:
+
+```json
+{
+  "scripts": {
+    "prepare": "husky"
+  }
+}
+```
+
+For Node.js projects, this is the lowest-friction path.
+
+### pre-commit (any language)
+
+For projects without Node — or when you want access to a catalog of ready-made hooks — [pre-commit](https://pre-commit.com/) is the most popular alternative.
+
+```bash
+# macOS and Linux (Homebrew)
+brew install pre-commit
+
+# Ubuntu / Debian
+apt install pre-commit
+
+# Arch Linux
+pacman -S pre-commit
+```
+
+Configuration goes in `.pre-commit-config.yaml`, which gets versioned:
+
+```yaml
+repos:
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v5.0.0
+    hooks:
+      - id: trailing-whitespace
+      - id: end-of-file-fixer
+      - id: check-yaml
+  - repo: https://github.com/psf/black
+    rev: 25.3.0
+    hooks:
+      - id: black
+```
+
+Activate it locally once:
+
+```bash
+pre-commit install
+```
+
+After that, the `pre-commit` hook runs on every `git commit`. Anyone cloning the repo runs `pre-commit install` once, and `.pre-commit-config.yaml` tells them exactly which hooks run and at which version.
+
+The advantage over hand-written scripts: you reuse hooks from public repositories — linters, formatters, security scanners — without writing them yourself. The pre-commit ecosystem has hooks for most languages.
+
+### lefthook (fast, no runtime dependency)
+
+[Lefthook](https://github.com/evilmartians/lefthook) is worth knowing: written in Go, zero runtime dependencies, and can run hooks in parallel.
+
+```bash
+# macOS and Linux (Homebrew)
+brew install lefthook
+
+# Ubuntu / Debian
+apt install lefthook
+
+# Arch Linux (AUR)
+paru -S lefthook
+```
+
+Configuration in `lefthook.yml`:
+
+```yaml
+pre-commit:
+  parallel: true
+  commands:
+    lint:
+      glob: "*.{js,ts}"
+      run: npx eslint {staged_files}
+    format:
+      glob: "*.py"
+      run: black {staged_files}
+
+commit-msg:
+  commands:
+    validate:
+      run: commitlint --edit {1}
+```
+
+Advantage over Husky: works equally well in non-Node projects. Advantage over pre-commit: faster on large repos because it doesn't spin up isolated Python environments per hook.
+
+Node.js project? Use Husky. Everything else? Use pre-commit or lefthook. Want to wire it up manually with `core.hooksPath`? That works too. All three are valid — the choice comes down to what infrastructure you already have.
+
+## A complete example
+
+A team wants linting and commit message validation on a Node.js project:
+
+```bash
+npm install --save-dev husky lint-staged
+
+npx husky init
+
+cat > .husky/commit-msg << 'EOF'
+#!/bin/sh
+npx --no -- commitlint --edit "$1"
+EOF
+chmod +x .husky/commit-msg
+```
+
+`lint-staged` runs linters only against staged files, not the entire project:
+
+```json
+{
+  "scripts": {
+    "prepare": "husky"
+  },
+  "lint-staged": {
+    "*.{js,ts}": ["eslint --fix", "prettier --write"],
+    "*.{css,md}": ["prettier --write"]
+  },
+  "devDependencies": {
+    "husky": "^9.1.7",
+    "lint-staged": "^15.0.0"
+  }
+}
+```
+
+```bash
+# .husky/pre-commit
+#!/bin/sh
+npx lint-staged
+```
+
+Every `git commit` now runs ESLint and Prettier on staged files. Something fails → commit aborted. Every developer on the team has the same hooks from the first `npm install`. The "have you run the linter?" question disappears from pull request reviews, because the answer is structurally yes.
+
+## Bypassing a hook
+
+When it's urgent — and it always is — the `--no-verify` flag skips all client hooks for a single operation:
+
+```bash
+git commit -m "hotfix: production is on fire" --no-verify
+```
+
+This doesn't disable hooks permanently. It skips them once. Useful for genuine emergencies.
+
+If you find yourself using it regularly, the hooks are either too slow or too strict for the team's actual workflow. Fix that before `--no-verify` becomes the first thing everyone types after `git commit`.
+
+## Key concepts from this lesson
+
+- A Git hook is a script that runs automatically at specific points in the Git lifecycle.
+- Hooks live in `.git/hooks/` and require execute permissions.
+- Exit `0` = operation continues. Any other exit code = operation aborted.
+- `.git/hooks/` is not versioned — hooks are local by default.
+- To share hooks with the team: `core.hooksPath`, Husky (Node), pre-commit, or lefthook.
+- `--no-verify` bypasses client hooks for a single operation.
+
+---
+
+Hooks solve a specific class of problem: the one where the process depends on someone remembering to run the linter. A ten-line script is more reliable than any number of good intentions and any number of pull request comments that say "hey, could you run the formatter before merging?" Not because the team isn't capable — because nobody should have to remember this in the first place.
+
+Next up: **Git worktrees**, which let you have multiple working directories of the same repository active at the same time — useful for the moment you're mid-feature and an urgent fix lands in your lap and you'd rather not stash everything and hope nothing breaks.
+
+Never stop coding!
