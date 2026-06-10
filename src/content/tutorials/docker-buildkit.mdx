@@ -1,0 +1,222 @@
+---
+title: "BuildKit in Docker: build secrets, dependency caching, and multi-platform images"
+post_slug: "docker-buildkit"
+date: "2026-06-11"
+excerpt: "BuildKit, Docker's modern build engine: pass secrets safely without leaking them into image layers, cache package downloads between builds, and build for ARM and x86 from one machine."
+language: "en"
+categories: ["docker"]
+course: "mastering-docker-from-scratch"
+order: 11
+cover: "/images/tutorials/cabecera-docker-curso.jpg"
+i18n: "buildkit-docker"
+---
+
+If you've been using Docker for a while, there's a good chance your builds spend a couple of minutes downloading the exact same packages every single time. npm install, pip install, bundle install. Everything. From scratch. The lockfile hasn't changed. The packages haven't changed. Docker just doesn't know that, and nobody told you it could.
+
+Not a Docker design philosophy about build purity. Just something nobody told you existed.
+
+There's also something we left hanging in the [previous lesson](/en/tutorials/advanced-dockerfile-instructions): `ARG` leaves values in the image history, visible to anyone who runs `docker history`. BuildKit has the real solution for that too.
+
+**BuildKit** is Docker's modern build engine. It's been available since Docker 18.09 and has been the default backend since version 23.0. If you have Docker installed in 2024 or 2025, it's already active. What you probably haven't set up are the features that make it actually useful.
+
+## Checking BuildKit and the syntax pragma
+
+On Docker Desktop (Mac and Windows), `docker buildx` comes included. On Linux installed from system packages — Arch, Ubuntu, Debian — the plugin is optional and needs to be installed separately:
+
+```bash
+# macOS and Linux (Homebrew)
+brew install docker-buildx
+
+# Ubuntu / Debian
+apt install docker-buildx-plugin
+
+# Arch Linux
+pacman -S docker-buildx
+```
+
+Verify it's available:
+
+```bash
+docker buildx version
+```
+
+```
+github.com/docker/buildx v0.34.1 ...
+```
+
+If you're on Docker 23.0 or later — which is any installation from 2023 onwards — BuildKit is already the default backend. Nothing else to enable. If you're on an older version for some reason, you can force it per-session with:
+
+```bash
+DOCKER_BUILDKIT=1 docker build .
+```
+
+Regardless of version, add this comment as the first line of your Dockerfiles:
+
+```dockerfile
+# syntax=docker/dockerfile:1
+```
+
+Yes, it's a comment that does something. BuildKit uses "frontends" — versioned Dockerfile parsers with their own independent release cycle. This pragma pins the frontend to the latest stable channel and is what gives you access to modern syntax like `--mount` in `RUN` instructions. Without it, Docker uses the version bundled with your installation, which may or may not include everything we're about to use.
+
+## Build secrets
+
+Quick recap from the previous lesson: passing secrets through `ARG` leaves them embedded in the image history, readable by anyone with access to the image. BuildKit build secrets fix this cleanly: the build can read the secret while it needs it, but it never ends up in any layer.
+
+The mechanism has two parts. In the Dockerfile, you mount the secret inside the `RUN` where you use it — and only there:
+
+```dockerfile
+# syntax=docker/dockerfile:1
+FROM node:20-alpine AS builder
+WORKDIR /app
+COPY package*.json ./
+RUN --mount=type=secret,id=npm_token \
+    npm config set //registry.npmjs.org/:_authToken=$(cat /run/secrets/npm_token) && \
+    npm ci && \
+    npm config delete //registry.npmjs.org/:_authToken
+COPY . .
+RUN npm run build
+```
+
+In the build command, you tell Docker where the secret comes from:
+
+```bash
+# From a file
+docker build --secret id=npm_token,src=.npmtoken .
+
+# From an environment variable
+docker build --secret id=npm_token,env=NPM_TOKEN .
+```
+
+The secret is mounted at `/run/secrets/<id>` for the duration of that `RUN`. When the command finishes, it's gone. Not in the layer, not in the history. You can verify:
+
+```bash
+docker history my-image
+```
+
+```
+IMAGE         CREATED      CREATED BY
+a1b2c3d4e5f6  2 hours ago  CMD ["node", "dist/index.js"]
+...           ...          RUN --mount=type=secret,id=npm_token npm config set ...
+```
+
+The command shows up. The value doesn't. Exactly what you've been trying to achieve since the [Dockerfile security best practices lesson](/en/tutorials/dockerfile-best-practices-security).
+
+### SSH agent forwarding
+
+The same mechanism exists for SSH access — useful when a build needs to clone a private repository without keys ever touching the container:
+
+```dockerfile
+# syntax=docker/dockerfile:1
+FROM node:20-alpine
+WORKDIR /app
+RUN apk add --no-cache git openssh-client
+RUN --mount=type=ssh \
+    git clone git@github.com:your-org/private-library.git /deps
+COPY package*.json ./
+RUN npm ci
+```
+
+```bash
+docker build --ssh default .
+```
+
+`--ssh default` forwards the host's SSH agent. Keys never touch the container filesystem, never end up in any layer, and once the `RUN` finishes the access is gone.
+
+## Cache mounts
+
+The problem from the opening of this lesson has a solution that's exactly one flag long:
+
+```dockerfile
+# syntax=docker/dockerfile:1
+FROM node:20-alpine
+WORKDIR /app
+COPY package*.json ./
+RUN --mount=type=cache,target=/root/.npm \
+    npm ci
+COPY . .
+RUN npm run build
+```
+
+That's the whole thing. First run: npm downloads everything from the internet and stores the cache in `/root/.npm`. Second run — even if you built from scratch, even if you deleted the previous image — the cache is still there. npm finds it, downloads nothing.
+
+The time difference is immediate on projects with any meaningful dependencies:
+
+```
+First run:   2m 21s  (full download from npm)
+Second run:  8s      (cache hit, zero downloads)
+```
+
+The cache path changes depending on the package manager, but the pattern is always the same:
+
+```dockerfile
+# npm
+RUN --mount=type=cache,target=/root/.npm \
+    npm ci
+
+# pip
+RUN --mount=type=cache,target=/root/.cache/pip \
+    pip install -r requirements.txt
+
+# Cargo (Rust)
+RUN --mount=type=cache,target=/usr/local/cargo/registry \
+    cargo build --release
+
+# apt (Debian/Ubuntu)
+RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
+    --mount=type=cache,target=/var/lib/apt,sharing=locked \
+    apt update && apt install -y curl
+```
+
+The `sharing=locked` parameter in the apt example prevents two parallel builds from writing to the cache simultaneously — without it, the apt database can get corrupted if you run concurrent builds.
+
+One honest limitation: the cache lives on the build machine, not in the image. If you add a cache mount, it works great locally, and then you notice CI builds take exactly the same time as before — that's completely normal and doesn't mean you did anything wrong. CI runners are typically ephemeral: each job starts on a clean machine with no prior cache. The fix exists, but it's platform-specific. GitHub Actions, GitLab CI, and most modern providers support persisting BuildKit state between runs. Search "BuildKit cache" followed by your CI platform name.
+
+## Multi-platform builds
+
+Building on a Mac with Apple Silicon? Deploying to x86_64? Any Raspberry Pi in the mix? If more than one architecture is in the picture, you've already seen an image that works perfectly on your machine and fails on the server. Or you've been maintaining two separate tags by building it in two different places.
+
+Multi-platform builds in BuildKit solve this: build the image for multiple architectures from a single machine and publish it under the same tag. Docker automatically selects the right one on `docker pull` based on the host's architecture.
+
+First, create a builder with multi-platform support:
+
+```bash
+docker buildx create --use --name multi-arch-builder
+```
+
+Then build and push. Multi-platform builds need `--push` or `--output` — they can't live in local cache only:
+
+```bash
+docker buildx build \
+  --platform linux/amd64,linux/arm64 \
+  -t your-registry/my-app:latest \
+  --push \
+  .
+```
+
+BuildKit builds images for each platform in parallel. For architectures other than the host's native one, it uses QEMU emulation — which works, but turns your CPU into an actor playing a different CPU, with everything that implies for performance. A 45-second Go build can become an 8-minute one when QEMU translates every instruction on the fly. For compiled languages where build time matters, consider native runners for the target architecture.
+
+Node.js, Python, and other interpreted languages fare much better: the Dockerfile installs a runtime that already exists as a multi-arch image, and the source code doesn't require compilation.
+
+Check what platforms your builder supports:
+
+```bash
+docker buildx inspect --bootstrap
+```
+
+```
+Name:      multi-arch-builder
+Driver:    docker-container
+Platforms: linux/amd64, linux/arm64, linux/arm/v7, linux/386, ...
+```
+
+---
+
+BuildKit is the difference between builds that redo the same work every time and builds that protect secrets, reuse prior work, and run on any architecture. Not an advanced feature for edge cases — just the correct way to build images in 2026.
+
+In the next lesson, we close the images module with the final optimization techniques: distroless images, size analysis with `dive`, and how to produce production images that contain exactly what they need and nothing else.
+
+Never stop coding!
+
+---
+
+**💡 Challenge**: Add a cache mount to the Dockerfile of any project you have. Run `docker build` twice and compare the install step timing. If the second run isn't noticeably faster, check that the cache path matches the correct location for your package manager.
