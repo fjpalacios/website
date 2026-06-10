@@ -1,0 +1,222 @@
+---
+title: "BuildKit en Docker: secretos, cache de dependencias y builds multi-plataforma"
+post_slug: "buildkit-docker"
+date: "2026-06-11"
+excerpt: "BuildKit, el motor moderno de Docker: secretos sin rastro en capas, cache de dependencias entre builds, e imágenes para ARM y x86 desde la misma máquina."
+language: "es"
+categories: ["docker"]
+course: "domina-docker-desde-cero"
+order: 11
+cover: "/images/tutorials/cabecera-docker-curso.jpg"
+i18n: "docker-buildkit"
+---
+
+Si llevas un tiempo usando Docker, hay una buena probabilidad de que cada build descargue los mismos paquetes desde cero. npm install, pip install, bundle install. Todo el catálogo. Desde cero. Aunque el build anterior los descargó hace tres minutos y no has tocado el lockfile.
+
+No es un principio filosófico de Docker sobre la pureza de los builds. Es que nadie te contó que existía una forma mejor.
+
+En [la lección anterior](/es/tutoriales/instrucciones-avanzadas-dockerfile) también quedó una deuda: `ARG` deja los valores en el historial de la imagen, así que no es un lugar seguro para secretos de build. BuildKit tiene la solución real para eso también.
+
+**BuildKit** es el motor de builds moderno de Docker. Lleva disponible desde Docker 18.09 y es el backend por defecto desde la versión 23.0. Si tienes Docker instalado en 2024 o 2025, ya lo tienes activo. Lo que quizás no tienes configurado son las funcionalidades que lo hacen útil de verdad.
+
+## Verificar BuildKit y el pragma de sintaxis
+
+En Docker Desktop (Mac y Windows), `docker buildx` viene incluido. En Linux instalado desde paquetes del sistema — Arch, Ubuntu, Debian — el plugin es opcional y hay que instalarlo por separado:
+
+```bash
+# macOS y Linux (Homebrew)
+brew install docker-buildx
+
+# Ubuntu / Debian
+apt install docker-buildx-plugin
+
+# Arch Linux
+pacman -S docker-buildx
+```
+
+Comprueba que está disponible con:
+
+```bash
+docker buildx version
+```
+
+```
+github.com/docker/buildx v0.34.1 ...
+```
+
+Si tienes Docker 23.0 o superior — que es cualquier instalación de 2023 en adelante — BuildKit ya es el backend por defecto. No hay nada más que activar. Si por algún motivo estás en una versión anterior, puedes forzarlo por sesión con:
+
+```bash
+DOCKER_BUILDKIT=1 docker build .
+```
+
+Independientemente de la versión, añade este comentario como primera línea de tus Dockerfiles:
+
+```dockerfile
+# syntax=docker/dockerfile:1
+```
+
+Sí, es un comentario que hace algo. BuildKit usa "frontends" — parsers del Dockerfile que tienen sus propias versiones independientes. Este pragma fija el frontend al canal estable más reciente, y es lo que te da acceso a la sintaxis moderna como `--mount` en las instrucciones `RUN`. Sin él, Docker usa la versión empaquetada con tu instalación, que puede no incluir todo lo que vamos a ver.
+
+## Build secrets
+
+Recapitulando lo de la lección anterior: pasar secretos por `ARG` los deja grabados en el historial de la imagen, visible con `docker history`. Los build secrets de BuildKit resuelven esto de forma limpia: el build puede leer el secreto mientras lo necesita, pero no queda en ninguna capa.
+
+El mecanismo tiene dos partes. En el Dockerfile, montas el secreto en el `RUN` donde lo usas y solo ahí:
+
+```dockerfile
+# syntax=docker/dockerfile:1
+FROM node:20-alpine AS builder
+WORKDIR /app
+COPY package*.json ./
+RUN --mount=type=secret,id=npm_token \
+    npm config set //registry.npmjs.org/:_authToken=$(cat /run/secrets/npm_token) && \
+    npm ci && \
+    npm config delete //registry.npmjs.org/:_authToken
+COPY . .
+RUN npm run build
+```
+
+En el comando de build, indicas de dónde viene el secreto:
+
+```bash
+# Desde un archivo
+docker build --secret id=npm_token,src=.npmtoken .
+
+# Desde una variable de entorno
+docker build --secret id=npm_token,env=NPM_TOKEN .
+```
+
+El secreto se monta en `/run/secrets/<id>` durante la ejecución de ese `RUN`. Cuando el comando termina, desaparece. No queda en la capa, no queda en el historial. Puedes comprobarlo:
+
+```bash
+docker history mi-imagen
+```
+
+```
+IMAGE         CREATED      CREATED BY
+a1b2c3d4e5f6  2 hours ago  CMD ["node", "dist/index.js"]
+...           ...          RUN --mount=type=secret,id=npm_token npm config set ...
+```
+
+Aparece el comando, no el valor. Exactamente lo que llevabas intentando conseguir desde [la lección de seguridad en Dockerfiles](/es/tutoriales/buenas-practicas-dockerfiles-seguridad).
+
+### SSH agent forwarding
+
+El mismo mecanismo existe para acceso SSH, útil cuando el build necesita clonar un repositorio privado sin que las claves entren en el contenedor:
+
+```dockerfile
+# syntax=docker/dockerfile:1
+FROM node:20-alpine
+WORKDIR /app
+RUN apk add --no-cache git openssh-client
+RUN --mount=type=ssh \
+    git clone git@github.com:tu-org/libreria-privada.git /deps
+COPY package*.json ./
+RUN npm ci
+```
+
+```bash
+docker build --ssh default .
+```
+
+`--ssh default` reenvía el agente SSH del host. Las claves nunca tocan el sistema de ficheros del contenedor, no quedan en ninguna capa, y cuando el `RUN` termina el acceso se cierra.
+
+## Cache mounts
+
+El problema del principio de la lección tiene una solución de exactamente un parámetro en el `RUN`:
+
+```dockerfile
+# syntax=docker/dockerfile:1
+FROM node:20-alpine
+WORKDIR /app
+COPY package*.json ./
+RUN --mount=type=cache,target=/root/.npm \
+    npm ci
+COPY . .
+RUN npm run build
+```
+
+Eso es todo. En la primera ejecución, npm descarga todo de internet y almacena la cache en `/root/.npm`. En la segunda — aunque hayas ejecutado `docker build` desde cero, aunque hayas eliminado la imagen anterior — la cache sigue ahí. npm la encuentra, no descarga nada.
+
+La diferencia en tiempo es inmediata en proyectos con dependencias medianas:
+
+```
+Primera ejecución:  2m 21s  (descarga completa desde npm)
+Segunda ejecución:  8s      (cache hit, cero descargas)
+```
+
+El path del cache varía según el gestor de paquetes, pero el patrón es siempre el mismo:
+
+```dockerfile
+# npm
+RUN --mount=type=cache,target=/root/.npm \
+    npm ci
+
+# pip
+RUN --mount=type=cache,target=/root/.cache/pip \
+    pip install -r requirements.txt
+
+# Cargo (Rust)
+RUN --mount=type=cache,target=/usr/local/cargo/registry \
+    cargo build --release
+
+# apt (Debian/Ubuntu)
+RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
+    --mount=type=cache,target=/var/lib/apt,sharing=locked \
+    apt update && apt install -y curl
+```
+
+El parámetro `sharing=locked` en el ejemplo de apt evita que dos builds paralelos escriban en la cache al mismo tiempo — sin él, las bases de datos de apt pueden corromperse si ejecutas builds concurrentes.
+
+Una limitación honesta: la cache vive en la máquina donde haces el build, no en la imagen. Si añades un cache mount, compruebas que funciona perfecto en local, y luego ves que en CI los builds tardan exactamente lo mismo — eso es completamente normal y no significa que hayas hecho algo mal. Los runners de CI suelen ser efímeros: cada job empieza con una máquina limpia, sin cache previa. La solución existe, pero es específica de la plataforma: GitHub Actions, GitLab CI y la mayoría de proveedores modernos tienen soporte para persistir el estado de BuildKit entre ejecuciones. Busca "BuildKit cache" seguido del nombre de tu plataforma de CI.
+
+## Builds multi-plataforma
+
+¿Desarrollas en Mac con Apple Silicon? ¿Tu servidor corre en x86_64? ¿Hay algún Raspberry Pi en producción? Si más de una arquitectura está en juego, en algún momento habrás visto una imagen que arranca perfectamente en tu máquina y falla en el servidor. O has tenido que construirla en dos sitios distintos y gestionar dos etiquetas separadas.
+
+Los builds multi-plataforma de BuildKit resuelven esto: construyes la imagen para múltiples arquitecturas desde una sola máquina y la publicas bajo la misma etiqueta. Docker elige automáticamente la correcta al hacer `docker pull` según la arquitectura del host.
+
+Primero, crea un builder con soporte multi-plataforma:
+
+```bash
+docker buildx create --use --name multi-arch-builder
+```
+
+Luego construye y publica. Los builds multi-plataforma requieren `--push` o `--output` para tener destino — no pueden quedarse solo en cache local:
+
+```bash
+docker buildx build \
+  --platform linux/amd64,linux/arm64 \
+  -t tu-registro/mi-app:latest \
+  --push \
+  .
+```
+
+BuildKit construye las imágenes para cada plataforma en paralelo. Para arquitecturas distintas a la nativa del host, usa emulación QEMU — que funciona, pero convierte tu procesador en un actor interpretando a otro procesador, con todo lo que eso implica para el rendimiento. Un build de Go de 45 segundos puede convertirse en 8 minutos cuando QEMU traduce cada instrucción al vuelo. Para proyectos con código compilado (Go, Rust, C) en los que el tiempo de build importa, considera usar runners nativos de la arquitectura destino.
+
+Para proyectos en Node.js, Python o cualquier lenguaje interpretado, el coste de emulación es mucho menor: el Dockerfile instala un runtime que ya existe como imagen multi-arch, y el código fuente no requiere compilación.
+
+Comprueba qué plataformas soporta tu builder:
+
+```bash
+docker buildx inspect --bootstrap
+```
+
+```
+Name:      multi-arch-builder
+Driver:    docker-container
+Platforms: linux/amd64, linux/arm64, linux/arm/v7, linux/386, ...
+```
+
+---
+
+BuildKit es la diferencia entre builds que hacen lo mínimo cada vez y builds que protegen secretos, reutilizan trabajo previo y funcionan en cualquier arquitectura. No es una funcionalidad avanzada para casos especiales — es la forma correcta de construir imágenes en 2026.
+
+En la próxima lección cerramos el módulo de imágenes con las técnicas de optimización final: imágenes distroless, análisis de tamaño con `dive`, y cómo llegar a imágenes de producción que contienen exactamente lo que necesitan y nada más.
+
+¡Nunca dejes de programar!
+
+---
+
+**💡 Reto**: Añade un cache mount al Dockerfile de cualquier proyecto que tengas. Ejecuta `docker build` dos veces y compara el tiempo de la sección de instalación de dependencias. Si no notas diferencia en la segunda ejecución, revisa que el path de cache es el correcto para tu gestor de paquetes.
