@@ -1,0 +1,272 @@
+---
+title: "Docker image optimization: from 1.2 GB to 85 MB"
+post_slug: "docker-image-optimization"
+date: "2026-06-12"
+excerpt: "How to go from Docker images that weigh hundreds of MB to production images that contain exactly what they need: minimal base images, distroless, dive, and layer optimization."
+language: "en"
+categories: ["docker"]
+course: "mastering-docker-from-scratch"
+order: 12
+cover: "/images/tutorials/cabecera-docker-curso.jpg"
+i18n: "optimizacion-imagenes-docker"
+---
+
+At some point you run `docker images` and see a number that doesn't look right. A Node.js API with three endpoints and a database connection: 1.2 GB. A Go binary that compiled to 8 MB, sitting inside an 823 MB image. A Python script that reads a CSV and returns JSON: 980 MB.
+
+The container works. It deploys fine. And it's carrying a compiler, a package manager, three versions of libssl, and an entire Debian system that hasn't executed a single instruction since it booted.
+
+This is the last lesson in the images module, and it's where we close the loop: take everything from [multi-stage builds](/en/tutorials/docker-multi-stage-builds), [BuildKit](/en/tutorials/docker-buildkit), and [security practices](/en/tutorials/dockerfile-best-practices-security) and produce images that contain exactly what they need and nothing more.
+
+## The base image pyramid
+
+The choice of base image is the single highest-leverage decision in image optimization. The size differences aren't marginal:
+
+| Base                  | Approximate size  |
+|-----------------------|-------------------|
+| `node:20`             | ~1.1 GB           |
+| `ubuntu:22.04`        | ~77 MB            |
+| `debian:12-slim`      | ~74 MB            |
+| `node:20-alpine`      | ~135 MB           |
+| `alpine:3.19`         | ~7 MB             |
+| `scratch`             | 0 MB              |
+
+`node:20` is built on `debian:12`. `node:20-alpine` is built on `alpine:3.19`. The difference isn't which version of Node they ship — both ship Node 20. The difference is how much operating system comes with it.
+
+Alpine uses musl libc instead of glibc, busybox instead of bash and coreutils, and apk instead of apt. For most applications this makes no difference. For some it does — native dependencies that expect glibc will fail in ways that aren't immediately obvious. Worth testing before assuming compatibility.
+
+Switching from `node:20` to `node:20-alpine` is the highest-ROI optimization in this entire lesson. One line change. 88% smaller image.
+
+### scratch: the extreme case
+
+`FROM scratch` is exactly what it sounds like: an empty filesystem. No OS, no shell, nothing. It only works for fully static binaries, which in Go is the default with `CGO_ENABLED=0`:
+
+```dockerfile
+FROM golang:1.22-alpine AS builder
+WORKDIR /app
+COPY . .
+RUN CGO_ENABLED=0 GOOS=linux go build -ldflags="-w -s" -o app .
+
+FROM scratch
+COPY --from=builder /app/app /app
+ENTRYPOINT ["/app"]
+```
+
+The first time you see the result — 8 MB where there used to be 800 — it feels like finding a cheat code. The second time you try it on a different application, it doesn't start because there are no SSL certificates for outbound HTTPS, and you realize scratch means it. No certificates, no timezone data, nothing you didn't explicitly copy.
+
+Both reactions are completely expected. For runtimes like Node.js, Python, or Java, scratch isn't the answer. That's where distroless comes in.
+
+## Distroless images
+
+Google maintains a set of images designed for exactly this scenario: they contain only what's needed to run your application — the runtime, SSL certificates, timezone data — without a shell, without a package manager, without anything you'd use to poke around inside a container.
+
+If someone asks "what's the most secure minimal base for a production container?", distroless is the answer without needing to think about it. No shell means no shell exploitation. No package manager means no package manager exploitation. Minimal attack surface as a design principle, not as an afterthought.
+
+For Go (or any static binary):
+
+```dockerfile
+FROM golang:1.22-alpine AS builder
+WORKDIR /app
+COPY . .
+RUN CGO_ENABLED=0 go build -o app .
+
+FROM gcr.io/distroless/static-debian12
+COPY --from=builder /app/app /app
+ENTRYPOINT ["/app"]
+```
+
+`static-debian12` ships SSL certificates and timezone data. It weighs around 2 MB. The benefits of scratch without having to remember what you forgot to include.
+
+For Node.js:
+
+```dockerfile
+FROM node:20-alpine AS builder
+WORKDIR /app
+COPY package*.json ./
+RUN npm ci
+COPY . .
+RUN npm run build && npm prune --production
+
+FROM gcr.io/distroless/nodejs22-debian12
+WORKDIR /app
+COPY --from=builder /app/node_modules ./node_modules
+COPY --from=builder /app/dist ./dist
+EXPOSE 3000
+CMD ["dist/index.js"]
+```
+
+Available distroless images for the most common runtimes:
+
+| Runtime          | Image                                     |
+|------------------|-------------------------------------------|
+| Static binary    | `gcr.io/distroless/static-debian12`       |
+| glibc            | `gcr.io/distroless/base-debian12`         |
+| Node.js 22       | `gcr.io/distroless/nodejs22-debian12`     |
+| Python 3         | `gcr.io/distroless/python3-debian12`      |
+| Java 21          | `gcr.io/distroless/java21-debian12`       |
+
+One honest limitation: no shell means no `docker exec -it <container> sh`. If you're used to jumping inside containers to inspect things, distroless changes that workflow. The `:debug` variant adds busybox and enables exec — use it for development environments where you need to debug, not for production.
+
+## Analyzing your image with dive
+
+Before optimizing anything, you need to know what's taking up space. `docker history` gives you layer sizes:
+
+```bash
+docker history my-app:latest
+```
+
+```
+IMAGE         CREATED BY                                      SIZE
+a1b2c3d4e5f6  CMD ["node", "dist/index.js"]                  0B
+...           COPY --from=builder /app/dist ./dist            2.3MB
+...           COPY --from=builder /app/node_modules ./node_m  198MB
+...           RUN npm ci --only=production                    0B
+```
+
+Useful, but it doesn't tell you what's inside each layer. For that, there's `dive`.
+
+### Installation
+
+```bash
+# macOS and Linux (Homebrew)
+brew install dive
+
+# Ubuntu / Debian — dive isn't in the official repos; easiest path is running it via Docker:
+docker run --rm -it -v /var/run/docker.sock:/var/run/docker.sock wagoodman/dive:latest <image>
+
+# Arch Linux
+pacman -S dive
+```
+
+### Basic usage
+
+```bash
+dive my-app:latest
+```
+
+Opens an interactive terminal UI where you can navigate through each layer and see exactly which files were added, modified, or deleted.
+
+There's a specific moment everyone has in their first dive session: you find the layer taking up 60% of the image size, expand it, and recognize it. It's your dev dependencies. Not the base image's — yours. The ones that ended up there because `COPY --from=builder /app/node_modules` copied everything without filtering, and the build stage installed everything including typescript, jest, all the `@types/*` packages, and whatever else your development workflow needs.
+
+```
+Total Image size: 487 MB
+Potential wasted space: 0 B
+Image efficiency score: 87%
+
+Layer 3: COPY --from=builder /app/node_modules ./node_modules  [312 MB]
+  └── node_modules/
+       ├── typescript/          [28 MB]  ← not needed at runtime
+       ├── @types/              [15 MB]  ← definitely not
+       ├── jest/                [12 MB]  ← also no
+       └── ...
+```
+
+```bash
+# CI mode: returns pass/fail based on image efficiency
+CI=true dive my-app:latest
+```
+
+In CI pipelines, this flag evaluates whether files are deleted in later layers (a sign that cleanup could have happened earlier) and returns a non-zero exit code if the image doesn't pass the efficiency threshold. Useful for preventing poorly optimized images from reaching production.
+
+## Layer optimization
+
+Choosing the right base gets you most of the way there. The rest comes from how you write `RUN` instructions.
+
+### Clean up in the same layer
+
+Each `RUN` instruction creates a new layer. If you add files in one `RUN` and delete them in the next, **the files are still in the image** — they're marked as deleted in the new layer, but the original layer with the files is still there:
+
+```dockerfile
+# ❌ The apt files are still in the image — the previous layer keeps them
+RUN apt update && apt install -y curl
+RUN rm -rf /var/lib/apt/lists/*
+
+# ✅ Cleanup happens in the same layer, no trace left
+RUN apt update && apt install -y curl \
+    && rm -rf /var/lib/apt/lists/*
+```
+
+The same principle applies to anything that downloads temporary files during installation: do it all in one instruction.
+
+### npm prune --production
+
+If your Dockerfile installs all dependencies (including dev) to compile the application and then copies `node_modules` to the final stage unfiltered, you're shipping bundlers, linters, TypeScript types, and testing frameworks to production:
+
+```dockerfile
+FROM node:20-alpine AS builder
+WORKDIR /app
+COPY package*.json ./
+RUN npm ci                     # Installs everything: dev + production
+COPY . .
+RUN npm run build
+RUN npm prune --production     # Removes dev dependencies before copying
+
+FROM node:20-alpine
+WORKDIR /app
+COPY --from=builder /app/node_modules ./node_modules
+COPY --from=builder /app/dist ./dist
+CMD ["node", "dist/index.js"]
+```
+
+### .dockerignore
+
+The easiest thing to forget and one of the highest-impact optimizations. Without a `.dockerignore`, you're sending `node_modules`, `.git`, logs, and everything in your working directory to the Docker daemon before the build even starts. That slows down the build context transfer and can end up in the image if you have any imprecise `COPY .` instructions.
+
+A minimal `.dockerignore` for Node.js projects:
+
+```
+node_modules
+.git
+.env
+*.log
+dist
+coverage
+.DS_Store
+```
+
+## Before and after: the complete Dockerfile
+
+Putting it all together — multi-stage builds, BuildKit cache mounts, non-root user, and the optimization techniques from this lesson:
+
+```dockerfile
+# ❌ BEFORE: 1.2 GB
+FROM node:20
+WORKDIR /app
+COPY . .
+RUN npm install
+CMD ["node", "index.js"]
+```
+
+```dockerfile
+# ✅ AFTER: ~85 MB (93% reduction)
+# syntax=docker/dockerfile:1
+FROM node:20-alpine AS builder
+WORKDIR /app
+COPY package*.json ./
+RUN --mount=type=cache,target=/root/.npm \
+    npm ci
+COPY src/ ./src/
+COPY tsconfig.json ./
+RUN npm run build && npm prune --production
+
+FROM node:20-alpine
+RUN addgroup -g 1001 -S appgroup && \
+    adduser -u 1001 -S appuser -G appgroup
+WORKDIR /app
+COPY --from=builder --chown=appuser:appgroup /app/node_modules ./node_modules
+COPY --from=builder --chown=appuser:appgroup /app/dist ./dist
+USER appuser
+EXPOSE 3000
+CMD ["node", "dist/index.js"]
+```
+
+The differences: Alpine instead of full Debian, multi-stage to isolate the build environment, prune to keep only runtime dependencies, non-root user. None of these changes take more than a few minutes — and the result is an image that transfers ten times faster and has a fraction of the attack surface.
+
+---
+
+That closes the images module. We've gone from knowing what a Dockerfile is to building images that are efficient, secure, and production-ready. Next up is Module 3 — Docker Compose: how to orchestrate multiple containers that need to work together — database, backend, frontend — with a single configuration file and one command.
+
+Never stop coding!
+
+---
+
+**💡 Challenge**: Run `dive` against any image you have over 500 MB. Find the three heaviest layers and identify which technique from this lesson would reduce the size the most. If you can get it under 100 MB, you've got it.
