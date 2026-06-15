@@ -1,0 +1,179 @@
+---
+title: "Git Worktrees: multiple working directories from a single repository"
+post_slug: "git-worktrees-multiple-working-directories"
+date: "2026-06-15"
+excerpt: "Work on multiple branches simultaneously without switching directories or stashing. Git worktree lets you have as many working environments as you need, all connected to the same repository."
+language: "en"
+categories: ["git"]
+course: "mastering-git-from-scratch"
+order: 34
+cover: "/images/tutorials/cabecera-git.jpg"
+i18n: "git-worktrees-multiple-directorios"
+---
+
+Somewhere on your machine there's a folder called `my-project-2`. Or `my-project-backup`. Or, if you've been at this long enough, `my-project-FINAL-no-really-this-one`. You don't bring it up in standups. It doesn't live inside the repo, so it's not in `.gitignore` either. It just exists, quietly, at some undisclosed path in your filesystem, doing the job your first manual clone was supposed to handle.
+
+Or you do the [stash](/en/tutorials/stashing-changes-git-stash) dance: `git stash`, switch branch, do the thing, `git stash pop`, untangle whatever the pop left behind — and there's always something — then get back to where you were, slightly less sure of exactly where that was. Every time. It works. Like leaving one screw out of an IKEA shelf works: the thing is standing, but you're not entirely confident it should be.
+
+`git worktree` isn't some obscure command for people who read Git documentation for fun. It's the official answer Git had prepared while everyone was making manual clones and calling it a workflow.
+
+## What a worktree is and why it exists
+
+A clone? A symlink? A renamed copy of the repository? None of those.
+
+A **worktree** is a working directory linked to an existing Git repository. Each worktree has its own active branch, its own working tree and staging area — but they share the same history, the same objects, the same refs. Technical version: multiple working environments connected to the same underlying `.git`. Tuesday morning version: you can have `my-project-hotfix/` and `my-project-feature/` open in your editor at the same time, each on its own branch, and when you commit in one, the other knows.
+
+Think of it as multiple workbenches. One has the feature in progress. One has the urgent hotfix. One has the teammate's branch you need to review. None of them interfere with the others. When you're done with one, you close it and it's gone.
+
+```
+my-project/             ← main directory, branch feature/login
+├── .git/               ← the real .git folder lives here
+└── src/
+
+my-project-hotfix/      ← worktree, branch hotfix/critical-bug
+├── .git                ← file, not folder
+└── src/
+
+my-project-review/      ← worktree, branch fix/auth-issue
+├── .git                ← file, not folder
+└── src/
+```
+
+Secondary worktrees have a `.git` file — not a folder, a plain text file pointing to the main repository. Git handles all the internal plumbing. You don't need to open it, understand it, or think about it; just know that it's what separates a worktree from a clone. All three directories share the disk space for Git history. The only rule: two worktrees can't be on the same branch at the same time.
+
+## Creating your first worktree
+
+The basic command:
+
+```bash
+git worktree add ../my-project-review fix/auth-issue
+```
+
+This creates `../my-project-review` and checks out `fix/auth-issue` there. If the branch doesn't exist yet, create it in the same step:
+
+```bash
+git worktree add -b feature/new-feature ../my-project-feature main
+```
+
+`-b feature/new-feature` creates the branch from `main`. The directory exists, the branch exists, you can work — without touching anything in your current directory.
+
+## Listing all active worktrees
+
+```bash
+git worktree list
+```
+
+```
+/home/fjpalacios/projects/my-project          9f3c2a1 [feature/login]
+/home/fjpalacios/projects/my-project-hotfix   3b7d9e2 [hotfix/critical-bug]
+/home/fjpalacios/projects/my-project-review   8c1f4d3 [fix/auth-issue]
+```
+
+Path, current commit, active branch. Git keeps a record of all worktrees in the repository and shows them here. If you try to check out a branch that's already active in another worktree, Git stops you — not because it's forbidden, but because having the same branch in two places is just confusing.
+
+## Removing a worktree
+
+When you're done:
+
+```bash
+git worktree remove ../my-project-review
+```
+
+This removes the directory and cleans up the internal reference. If there are uncommitted changes, Git refuses:
+
+```
+error: '../my-project-review' contains modified or untracked files, use --force to override
+```
+
+To force it:
+
+```bash
+git worktree remove --force ../my-project-review
+```
+
+`--force` tells Git: "I know what I'm doing, delete without asking." Git always believes you — that's the issue. Use it when you're certain nothing will be lost. Not pretty sure. Not I think so. Certain.
+
+## Real use cases
+
+### Reviewing a PR without leaving your work
+
+You're on `feature/dashboard`, hours in with no commits. A PR comes in for review. Without worktrees: stash, switch, review, come back, pop, untangle. With worktrees:
+
+```bash
+git worktree add ../review-pr-234 origin/feature/pr-to-review
+cd ../review-pr-234
+# Review the code, run the tests, leave comments
+cd ../my-project
+# Everything is exactly where you left it
+```
+
+### Urgent production hotfix
+
+You're on `feature/complex-refactor`, two hours in without committing. Production reports a critical bug:
+
+```bash
+# Create the worktree directly from main
+git worktree add -b hotfix/critical-login ../hotfix-urgent main
+
+# Fix, test, commit, and push from there
+cd ../hotfix-urgent
+# ...fix, commit, push...
+git push origin hotfix/critical-login
+
+# Your feature branch hasn't moved
+cd ../my-project
+```
+
+No stash, no branch switch, no lost context. The main directory stays on `feature/complex-refactor` exactly where you left it.
+
+### Comparing branches side by side
+
+You want to see the differences between `main` and `feature/new-branch` directly in your editor:
+
+```bash
+git worktree add ../my-project-main main
+```
+
+Open both directories in parallel — two terminal panes, or if you're on [Neovim](/en/courses/mastering-vim-from-scratch), diff them directly with `vimdiff`:
+
+```bash
+vimdiff ../my-project/src/auth.ts ../my-project-main/src/auth.ts
+```
+
+For those who prefer a mouse and don't mind the Electron startup tax, `code --diff` does the same.
+
+## Cleaning up orphaned worktrees
+
+Sometimes a worktree ends up in ghost state: you deleted the directory by hand, or removed the branch before the worktree. Git doesn't clean up what it doesn't understand — it keeps the reference registered indefinitely, and throws this error the next time you try to create something with the same name:
+
+```
+fatal: '/home/fjpalacios/projects/my-project-old' already exists
+```
+
+To see all worktrees in detail, including the problematic ones:
+
+```bash
+git worktree list --porcelain
+```
+
+To clean up references to worktrees no longer on disk:
+
+```bash
+git worktree prune
+```
+
+## When not to use worktrees
+
+Worktrees don't replace stash, they don't replace branches, and they're not the tool for every context switch:
+
+- **If you switch branches constantly in the same directory**: worktrees work best when each one has a clear mission and a relatively long life. For fast, frequent context switches, stash is still more direct.
+- **If the repository has large files**: each worktree needs its own working tree. History is shared, but directory contents aren't — if the repo is heavy, multiply accordingly.
+- **If you only need to look at another branch without working on it**: `git show branch:path/to/file` or `git diff main..feature` is enough. You don't need a full directory for that.
+
+---
+
+Worktrees make explicit something that was already happening — chaotically — through manual clones and the stash dance: sometimes you need to be in more than one place at once. `my-project-2` can finally retire. Git had the infrastructure for this all along; it was just waiting for you to use it.
+
+Next tutorial: **Git LFS** — how to manage large files (binaries, assets, datasets) that shouldn't live in your normal Git history.
+
+Never stop coding!
