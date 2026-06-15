@@ -1,0 +1,219 @@
+---
+title: "Git LFS: gestiona archivos grandes sin arruinar el repositorio"
+post_slug: "git-lfs-archivos-grandes"
+date: "2026-06-16"
+excerpt: "Git no fue diseñado para archivos binarios de cientos de megas. Git LFS resuelve el problema almacenando punteros en el repositorio y los archivos reales fuera."
+language: "es"
+categories: ["git"]
+course: "domina-git-desde-cero"
+order: 35
+cover: "/images/tutorials/cabecera-git.jpg"
+i18n: "git-lfs-large-file-storage"
+---
+
+Alguien en el equipo ha añadido los assets al repositorio. PSDs, exports de Figma, el vídeo de demo que se usa en el README, un dump de base de datos "solo para pruebas" que lleva dieciocho meses sin borrarse porque nadie sabe si sigue siendo necesario. Lo han añadido como harían con cualquier archivo: `git add`, `git commit`, `git push`. Git no se ha quejado. Git nunca se queja de estas cosas.
+
+El problema lo descubres seis meses después, cuando intentas clonar el repositorio en una máquina nueva. Han pasado cuatro minutos y el progreso está al 23%.
+
+```bash
+git count-objects -vH
+```
+
+```
+count: 3124
+size: 412.50 KiB
+in-pack: 8932
+packs: 2
+size-pack: 4.73 GiB
+prune-packable: 0
+garbage: 0
+size-garbage: 0 bytes
+```
+
+4.73 GB. Para una aplicación web sin vídeos. Revisas el historial y encuentras que alguien borró el dump de base de datos hace ocho meses. Lo borró del working tree. En Git, borrar un archivo del árbol de trabajo no borra su historial — el objeto sigue ahí, en el packfile, viajando con cada clone hasta el fin de los tiempos.
+
+## Por qué Git y los archivos binarios no se llevan bien
+
+Git es extraordinariamente eficiente con texto. Cuando modificas un fichero de código, no guarda la versión completa otra vez — guarda solo el **delta**: qué cambió exactamente entre la versión anterior y la nueva. Un fichero de 50 KB que modifica veinte líneas genera un delta de unos pocos cientos de bytes. El historial crece despacio. Los clones son rápidos.
+
+Con archivos binarios, esa magia no funciona. Un PSD de 200 MB es, para Git, una secuencia opaca de bytes sin estructura reconocible. No puede calcular un delta útil porque no entiende el formato. Así que almacena el archivo completo en cada commit que lo modifica.
+
+200 MB × 50 iteraciones de diseño = 10 GB que se distribuyen con cada clone, para siempre, aunque el diseñador lleve un año fuera del proyecto, la carpeta se haya borrado hace meses y nadie recuerde para qué era ese archivo.
+
+Esto no es un bug de Git. Es que Git fue diseñado para código fuente, y los binarios grandes sencillamente no encajan en ese modelo.
+
+## Qué es Git LFS
+
+**Git LFS** (Large File Storage) es una extensión oficial de Git que resuelve el problema con una idea elegante: en lugar de almacenar el archivo binario en el repositorio, almacena un **puntero** — un fichero de texto de unos 130 bytes que dice "el archivo real está en este servidor LFS, tiene este hash y pesa esto".
+
+El repositorio de Git solo versiona ese puntero. El archivo binario vive en un servidor de almacenamiento separado — GitHub LFS, GitLab LFS, o uno propio. Cuando necesitas el archivo real, Git LFS lo descarga automáticamente al hacer checkout.
+
+Un puntero de LFS tiene este aspecto:
+
+```
+version https://git-lfs.github.com/spec/v1
+oid sha256:4d7a2f8c1e9b3d6a5c0e7f2a8b4d9c1e3f5a7b2d4c6e8f0a1b3c5d7e9f1a2b3c
+size 209715200
+```
+
+Sí, ese texto de tres líneas representa tu PSD de 200 MB. Es ligeramente absurdo. También funciona.
+
+El repositorio se mantiene ligero porque el historial de Git solo contiene punteros. Los archivos pesados se descargan bajo demanda — solo cuando haces checkout del commit que los necesita.
+
+## Instalación
+
+Git LFS es un binario separado que hay que instalar además de Git:
+
+```bash
+# macOS y Linux (Homebrew)
+brew install git-lfs
+
+# Ubuntu / Debian
+apt install git-lfs
+
+# Arch Linux
+pacman -S git-lfs
+```
+
+Tras instalarlo, actívalo una vez para tu usuario:
+
+```bash
+git lfs install
+```
+
+```
+Updated Git hooks.
+Git LFS initialized.
+```
+
+Este paso instala los hooks de Git necesarios para que LFS intercepte las operaciones de push y pull. Sin él, el comando `git lfs track` no hace nada útil — lo que no produce ningún error, solo silencio, que es peor.
+
+## Configurando qué archivos gestiona LFS
+
+Dentro del repositorio, indica a LFS qué tipos de archivo debe gestionar:
+
+```bash
+git lfs track "*.psd"
+git lfs track "*.mp4"
+git lfs track "*.zip"
+```
+
+⚠️ Las comillas importan. Sin ellas, la shell expande el glob antes de que LFS lo vea, y el resultado es que LFS registra solo los archivos que ya existen en el directorio actual — no el patrón en general. Cada nuevo asset que añadas al proyecto pasará por Git normal, sin LFS, y el problema vuelve a empezar.
+
+Estos comandos modifican (o crean) `.gitattributes`:
+
+```
+*.psd filter=lfs diff=lfs merge=lfs -text
+*.mp4 filter=lfs diff=lfs merge=lfs -text
+*.zip filter=lfs diff=lfs merge=lfs -text
+```
+
+`.gitattributes` sí se versiona — al contrario que los hooks que vimos en `.git/hooks/` en el [tutorial anterior sobre Git hooks](/es/tutoriales/hooks-de-git). Cuando alguien clona el repositorio, LFS sabe exactamente qué archivos gestionar leyendo ese fichero. Confírmalo en el repo:
+
+```bash
+git add .gitattributes
+git commit -m "chore: configure Git LFS tracking"
+```
+
+## El flujo de trabajo diario
+
+Aquí viene la parte buena: una vez configurado, no cambia nada en tu flujo habitual.
+
+```bash
+# Añadir un archivo grande exactamente igual que siempre
+git add assets/video-demo.mp4
+
+# Commitearlo
+git commit -m "feat: add demo video"
+
+# Al hacer push, LFS envía el binario al servidor LFS
+# y el puntero viaja al repositorio de Git
+git push origin main
+```
+
+Git LFS actúa de forma completamente transparente. No hay comandos especiales para el flujo normal. La diferencia está en lo que llega al servidor: el repositorio recibe el puntero de 130 bytes; el servidor LFS recibe el archivo real de 200 MB.
+
+Para ver qué archivos están bajo gestión de LFS en el commit actual:
+
+```bash
+git lfs ls-files
+```
+
+```
+8f3c2a1 * assets/video-demo.mp4
+4d7a219 * design/logo-v3.psd
+a1b2c3d * exports/database-snapshot.zip
+```
+
+## Clonando repositorios con LFS
+
+Al clonar un repo que usa LFS, los archivos rastreados se descargan automáticamente:
+
+```bash
+git clone https://github.com/tu-org/tu-repo.git
+```
+
+Si quieres clonar sin descargar los binarios — una pipeline de CI que solo necesita el código, por ejemplo:
+
+```bash
+GIT_LFS_SKIP_SMUDGE=1 git clone https://github.com/tu-org/tu-repo.git
+```
+
+Los punteros estarán en el working tree, pero los archivos reales no. Cuando los necesites:
+
+```bash
+git lfs pull --include="assets/video-demo.mp4"
+```
+
+En pipelines de CI/CD que se ejecutan decenas de veces al día, saltar la descarga de LFS donde no hace falta no es un detalle de optimización — es la diferencia entre una cuota de bandwidth que dura el mes y una que desaparece en la primera semana.
+
+## Los límites que nadie menciona hasta que los alcanzas
+
+Aquí es donde Git LFS deja de parecer magia y empieza a parecer una decisión de negocio.
+
+GitHub Free incluye **10 GB de almacenamiento y 10 GB de ancho de banda al mes**. Ese límite de bandwidth no es para lo que subes: es para lo que se descarga. Cada clone, cada checkout en CI, cada deploy que necesita los assets — todo consume tu cuota.
+
+10 GB parece razonable. Hasta que tienes ocho desarrolladores que clonan el repositorio regularmente, una pipeline que corre cuarenta veces al día y un diseñador que actualiza los assets cada semana. Entonces no es tanto.
+
+Si superas la cuota, GitHub desactiva el soporte de LFS hasta el siguiente ciclo de facturación. No un aviso, no un throttling: directamente desactivado. Los clones empiezan a fallar de formas opacas porque los punteros ya no pueden resolverse, y quien intente diagnosticar el problema sin saber que existe LFS va a pasarlo mal.
+
+Opciones cuando la cuota no es suficiente:
+
+- **Data pack de GitHub**: 50 GB de almacenamiento + 50 GB de bandwidth por $5/mes.
+- **Servidor LFS propio**: más control, más trabajo de configuración y mantenimiento.
+- **Reconsiderar la arquitectura**: ¿realmente necesitan estar en Git esos archivos?
+
+## Alternativas según el tipo de archivo
+
+Git LFS no es la única opción, y para algunos casos no es la mejor.
+
+### Para datasets de machine learning: DVC
+
+Si trabajas con modelos entrenados, datasets o experimentos de ML, [DVC](https://dvc.org/) está diseñado específicamente para ese caso. Funciona sobre Git, versiona datos junto al código, y puede usar S3, GCS o Azure como backend de almacenamiento. La integración con herramientas del ecosistema ML es considerablemente mejor que LFS.
+
+### Para assets estáticos que no cambian: fuera del repositorio directamente
+
+Si el asset no necesita historial de versiones — una imagen de marketing, un vídeo de demo que se reemplaza entero, un PDF estático — un bucket de S3 o un CDN es más barato y más sencillo que LFS. El repositorio referencia la URL; el archivo vive fuera.
+
+### Para el caso avanzado: Git Annex
+
+[Git Annex](https://git-annex.branchable.com/) permite distribuir archivos grandes con granularidad por repositorio — puedes tener clones que solo descargan los archivos que necesitan, no todos. La curva de configuración es considerablemente más pronunciada que LFS; para la mayoría de equipos, LFS es suficiente.
+
+## Conceptos clave de esta lección
+
+- Git almacena binarios como objetos completos porque no puede calcular deltas útiles sobre ellos — el historial crece linealmente con cada versión.
+- Git LFS almacena un puntero de 130 bytes en el repositorio; el archivo real va a un servidor separado.
+- `git lfs install` se ejecuta una vez por usuario, no una vez por repositorio.
+- `git lfs track "*.psd"` siempre con comillas para que se registre el patrón, no los archivos actuales.
+- `.gitattributes` se versiona — a diferencia de los hooks en `.git/hooks/`.
+- El flujo de trabajo (add, commit, push) no cambia después de la configuración.
+- GitHub Free incluye 10 GB de almacenamiento y 10 GB de bandwidth al mes; al superarlos, LFS se desactiva.
+- En CI/CD con muchas ejecuciones, usa `GIT_LFS_SKIP_SMUDGE=1` donde no necesites los binarios.
+
+---
+
+Git LFS no es una solución perfecta — tiene límites de bandwidth que se hacen visibles antes de lo esperado, y no ayuda si el problema son binarios que ya están en el historial y hay que reescribir el pasado para eliminarlos. Pero es la respuesta oficial al problema más común: añadir archivos grandes al repositorio sin que la experiencia de clonar se convierta en algo que nadie quiere repetir.
+
+Con esto cerramos el **Módulo 8 — Características avanzadas de Git**. En el siguiente tutorial arrancamos el Módulo 9 — Productividad y Herramientas, donde veremos cómo hacer que Git trabaje más rápido para ti con configuraciones, alias y herramientas pensadas para el flujo real de trabajo.
+
+¡Nunca dejes de programar!

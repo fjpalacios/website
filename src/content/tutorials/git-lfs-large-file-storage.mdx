@@ -1,0 +1,219 @@
+---
+title: "Git LFS: managing large files without breaking your repository"
+post_slug: "git-lfs-large-file-storage"
+date: "2026-06-16"
+excerpt: "Git was not designed for binary files that weigh hundreds of megabytes. Git LFS solves the problem by storing pointers in your repository and keeping the actual files elsewhere."
+language: "en"
+categories: ["git"]
+course: "mastering-git-from-scratch"
+order: 35
+cover: "/images/tutorials/cabecera-git.jpg"
+i18n: "git-lfs-archivos-grandes"
+---
+
+Someone on the team added assets to the repository. Figma exports, a design system PSD, the demo video linked from the README, a database snapshot "just for testing" that nobody deleted because nobody was sure if it was still needed. They added it the same way they'd add any file: `git add`, `git commit`, `git push`. Git accepted everything without complaint. Git doesn't have opinions about this kind of thing.
+
+You find out it's a problem when you try to clone the repo on a new machine. Four minutes in, you're at 23%.
+
+```bash
+git count-objects -vH
+```
+
+```
+count: 3124
+size: 412.50 KiB
+in-pack: 8932
+packs: 2
+size-pack: 4.73 GiB
+prune-packable: 0
+garbage: 0
+size-garbage: 0 bytes
+```
+
+4.73 GB. For a web app. No videos, according to a quick scan of the current branch. Except eight months ago someone did add a 600 MB database snapshot and then deleted it in the next commit — from the working tree. In Git, deleting a file from the tree doesn't remove it from history. The object stays in the packfile, riding along with every clone, indefinitely.
+
+## Why Git and binary files don't get along
+
+Git handles text files remarkably well. When you modify a source file, Git doesn't store the whole thing again — it stores a **delta**: exactly what changed between the previous version and the new one. A 50 KB file with twenty modified lines produces a delta measured in bytes. History stays lean. Clones are fast.
+
+Binary files break that model entirely. A 200 MB PSD is, from Git's perspective, an opaque sequence of bytes with no recognizable structure. There's no useful delta to compute. So Git stores the full file every time it changes.
+
+200 MB × 50 design revisions = 10 GB that every developer downloads when they clone, forever, regardless of whether the project still exists, the designer moved on, or the file was "deleted" three versions ago.
+
+This isn't a Git bug. It's a mismatch: Git was designed for source code, and large binaries simply don't fit the model it was built around.
+
+## What Git LFS does
+
+**Git LFS** (Large File Storage) is an official Git extension that solves the problem with a clean idea: instead of storing the binary in the repository, it stores a **pointer** — a 130-byte text file that says "the real file is on this LFS server, it has this hash, and it weighs this much."
+
+Your Git repository only versions that pointer. The binary lives on a separate storage server — GitHub LFS, GitLab LFS, or one you run yourself. When you need the actual file, Git LFS downloads it automatically on checkout.
+
+A pointer file looks like this:
+
+```
+version https://git-lfs.github.com/spec/v1
+oid sha256:4d7a2f8c1e9b3d6a5c0e7f2a8b4d9c1e3f5a7b2d4c6e8f0a1b3c5d7e9f1a2b3c
+size 209715200
+```
+
+That three-line text file represents your 200 MB Photoshop project. It's a bit absurd. It also works.
+
+Your repository stays lightweight because Git history only contains pointers. The heavy files are downloaded on demand — only when you check out a commit that references them.
+
+## Installation
+
+Git LFS is a separate binary you install alongside Git:
+
+```bash
+# macOS and Linux (Homebrew)
+brew install git-lfs
+
+# Ubuntu / Debian
+apt install git-lfs
+
+# Arch Linux
+pacman -S git-lfs
+```
+
+After installing, activate it once for your user account:
+
+```bash
+git lfs install
+```
+
+```
+Updated Git hooks.
+Git LFS initialized.
+```
+
+This sets up the Git hooks LFS needs to intercept push and pull operations. Skip this step and `git lfs track` will appear to work but accomplish nothing — silently, with no error, which is the worst kind of not working.
+
+## Telling LFS what to track
+
+Inside your repository, specify which file types LFS should manage:
+
+```bash
+git lfs track "*.psd"
+git lfs track "*.mp4"
+git lfs track "*.zip"
+```
+
+⚠️ The quotes are not optional. Without them, your shell expands the glob before LFS sees it, and LFS ends up registering only the specific files that exist in the current directory right now — not a general pattern. Every new asset you add later goes through regular Git, untracked by LFS, and you're back where you started.
+
+These commands write to `.gitattributes`:
+
+```
+*.psd filter=lfs diff=lfs merge=lfs -text
+*.mp4 filter=lfs diff=lfs merge=lfs -text
+*.zip filter=lfs diff=lfs merge=lfs -text
+```
+
+`.gitattributes` is committed to the repository — unlike the hooks living in `.git/hooks/` that we covered in the [previous Git hooks tutorial](/en/tutorials/git-hooks). When someone clones the repo, LFS reads that file to know exactly what it's responsible for. Add it:
+
+```bash
+git add .gitattributes
+git commit -m "chore: configure Git LFS tracking"
+```
+
+## The daily workflow
+
+Here's the good part: once LFS is configured, nothing changes in how you work.
+
+```bash
+# Add a large file exactly as you normally would
+git add assets/demo-video.mp4
+
+# Commit it
+git commit -m "feat: add product demo video"
+
+# On push, LFS sends the binary to the LFS server
+# and the pointer goes into your Git repository
+git push origin main
+```
+
+LFS is entirely transparent. No special commands for your regular workflow. What actually happens on push is different — the binary goes to the LFS server, the pointer goes to Git — but from your side, it looks the same.
+
+To see which files are currently managed by LFS:
+
+```bash
+git lfs ls-files
+```
+
+```
+8f3c2a1 * assets/demo-video.mp4
+4d7a219 * design/logo-v3.psd
+a1b2c3d * exports/database-snapshot.zip
+```
+
+## Cloning repositories that use LFS
+
+When you clone a repo that uses LFS, tracked files download automatically:
+
+```bash
+git clone https://github.com/your-org/your-repo.git
+```
+
+If you want to clone without downloading the binaries — a CI pipeline that only needs the code, for example:
+
+```bash
+GIT_LFS_SKIP_SMUDGE=1 git clone https://github.com/your-org/your-repo.git
+```
+
+Pointers land in the working tree, but the actual files don't. Fetch specific ones when you need them:
+
+```bash
+git lfs pull --include="assets/demo-video.mp4"
+```
+
+For CI pipelines running dozens of times per day, skipping LFS downloads where they're not needed isn't a minor optimization — it's the difference between a bandwidth quota that lasts the month and one that runs out before the second week.
+
+## The limits nobody mentions until you hit them
+
+This is where Git LFS stops feeling like a free solution and starts feeling like a product decision.
+
+GitHub Free includes **10 GB of storage and 10 GB of bandwidth per month**. That bandwidth limit is not for what you upload — it's for what gets downloaded. Every clone, every CI checkout, every deploy that pulls your assets counts against your quota.
+
+10 GB sounds reasonable. Then you have eight developers cloning the repo regularly, a pipeline running forty times a day, and a designer pushing updated assets every other week. Turns out it goes faster than you'd expect.
+
+When you exceed the quota, GitHub disables LFS support until the next billing cycle. Not a warning, not a slowdown — disabled. Clones start failing in confusing ways because pointers can no longer be resolved, and anyone troubleshooting the problem without knowing LFS is involved is going to have a rough afternoon.
+
+Options when the free quota isn't enough:
+
+- **GitHub data pack**: 50 GB of storage + 50 GB of bandwidth for $5/month.
+- **Self-hosted LFS server**: more control, more setup and maintenance work.
+- **Reconsider the architecture**: do those files actually need to be in Git?
+
+## Alternatives depending on what you're storing
+
+Git LFS isn't the only option, and for some use cases it's not the right one.
+
+### For machine learning datasets: DVC
+
+If you're working with trained models, datasets, or ML experiments, [DVC](https://dvc.org/) is built specifically for that use case. It works on top of Git, versions data alongside code, and supports S3, GCS, and Azure as storage backends. The integration with ML tooling is considerably better than anything you'd get from LFS.
+
+### For static assets that don't need versioning
+
+If the asset doesn't need a version history — a marketing banner, a demo video that gets fully replaced rather than revised, a static PDF — an S3 bucket or a CDN is cheaper and simpler than LFS. The repository references the URL; the file lives outside of Git entirely.
+
+### For the advanced case: Git Annex
+
+[Git Annex](https://git-annex.branchable.com/) allows distributing large files with per-repository granularity — you can have clones that only download the files they actually need, not everything. The configuration curve is steeper than LFS; for most teams, LFS is sufficient.
+
+## Key concepts from this lesson
+
+- Git stores binary files as full objects because it can't compute useful deltas on them — history grows linearly with every revision.
+- Git LFS stores a 130-byte pointer in your repository; the actual file goes to a separate server.
+- `git lfs install` runs once per user account, not once per repository.
+- `git lfs track "*.psd"` always needs quotes so it registers a pattern, not just current files.
+- `.gitattributes` is committed to the repository — unlike hooks in `.git/hooks/`.
+- The normal workflow (add, commit, push) doesn't change after setup.
+- GitHub Free includes 10 GB of storage and 10 GB of bandwidth per month; exceeding either disables LFS.
+- In high-frequency CI/CD pipelines, use `GIT_LFS_SKIP_SMUDGE=1` where you don't need the binaries.
+
+---
+
+Git LFS isn't a perfect solution — the bandwidth limits surface faster than expected, and it doesn't help with large files already buried in your history (that requires rewriting the past, which is its own category of adventure). But it's the right answer to the most common version of the problem: someone committed large binary files, the repository quietly ballooned, and now every clone is a patience exercise.
+
+That wraps up **Module 8 — Advanced Git Features**. Next, we start Module 9 — Productivity and Tooling, where we'll look at how to make Git work faster for you with configuration, aliases, and tools built around real-world workflows.
+
+Never stop coding!
