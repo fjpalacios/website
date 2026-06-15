@@ -1,0 +1,179 @@
+---
+title: "Git Worktrees: múltiples directorios de trabajo desde un mismo repositorio"
+post_slug: "git-worktrees-multiple-directorios"
+date: "2026-06-15"
+excerpt: "Trabaja en varias ramas simultáneamente sin cambiar de directorio ni hacer stash. Git worktree te permite tener tantos entornos de trabajo como necesites, todos conectados al mismo repositorio."
+language: "es"
+categories: ["git"]
+course: "domina-git-desde-cero"
+order: 34
+cover: "/images/tutorials/cabecera-git.jpg"
+i18n: "git-worktrees-multiple-working-directories"
+---
+
+Tienes una carpeta que se llama `mi-proyecto-2`. O `mi-proyecto-copia`. O, si llevas suficiente tiempo en esto, `mi-proyecto-definitivo-real-ahora-sí`. No la mencionas en la daily. No vive dentro del repo, así que tampoco está en el `.gitignore`. Existe, en silencio, en algún punto del sistema de archivos, haciendo lo que se supone que hacía el primer clon que creaste cuando no sabías cómo cambiar de contexto con Git.
+
+O haces el baile del [stash](/es/tutoriales/guardando-cambios-temporalmente-git-stash): `git stash`, cambias de rama, haces lo que toca, `git stash pop`, resuelves lo que ha dejado el pop — que siempre es algo — y vuelves a donde estabas, ya no tan seguro de dónde estabas exactamente. Funciona. Como funciona tener un tornillo de sobra al montar un mueble de IKEA: la estantería está en pie, pero con una sensación vaga de que algo no encaja del todo.
+
+`git worktree` no es una curiosidad académica de los que leen la documentación de Git por placer. Es la respuesta oficial al problema, la que Git tenía preparada mientras todos hacíamos clones manuales y fingíamos que era una práctica razonable.
+
+## Qué es un worktree y por qué existe
+
+¿Un clone? ¿Un symlink? ¿Una copia del repositorio con otro nombre? Nada de eso.
+
+Un **worktree** es un directorio de trabajo vinculado a un repositorio Git existente. Cada worktree tiene su propia rama activa, su propio working tree y staging area — pero comparten el mismo historial, los mismos objetos y las mismas refs. Versión técnica: varios entornos de trabajo conectados al mismo `.git` subyacente. Versión del martes por la mañana: puedes tener `mi-proyecto-hotfix/` y `mi-proyecto-feature/` abiertas en tu editor al mismo tiempo, cada una en su propia rama, y cuando commiteas en una, la otra lo sabe.
+
+Piénsalo como escritorios de trabajo. En uno tienes la feature a medias. En otro el hotfix urgente. En otro la rama del compañero que hay que revisar. Ninguno interfiere con los demás. Cuando terminas con uno, lo cierras y desaparece.
+
+```
+mi-proyecto/           ← directorio principal, branch feature/login
+├── .git/              ← aquí está todo el historial
+└── src/
+
+mi-proyecto-hotfix/    ← worktree, branch hotfix/critical-bug
+├── .git               ← archivo, no carpeta
+└── src/
+
+mi-proyecto-review/    ← worktree, branch fix/auth-issue
+├── .git               ← archivo, no carpeta
+└── src/
+```
+
+Los worktrees secundarios tienen un archivo `.git` — no una carpeta, un archivo de texto plano con una ruta al repositorio principal. Git gestiona todo internamente. No tienes que abrirlo ni entenderlo; solo saber que es lo que diferencia un worktree de un clone. Los tres directorios comparten el espacio en disco del historial de Git. El único requisito: dos worktrees no pueden estar en la misma rama al mismo tiempo.
+
+## Crear tu primer worktree
+
+El comando básico:
+
+```bash
+git worktree add ../mi-proyecto-review fix/auth-issue
+```
+
+Esto crea el directorio `../mi-proyecto-review` y hace checkout de la rama `fix/auth-issue` en él. Si la rama no existe todavía, créala en el mismo paso:
+
+```bash
+git worktree add -b feature/nueva-funcionalidad ../mi-proyecto-feature main
+```
+
+`-b feature/nueva-funcionalidad` crea la rama a partir de `main`. El directorio existe, la rama existe, puedes trabajar — sin mover nada en tu directorio actual.
+
+## Ver todos los worktrees activos
+
+```bash
+git worktree list
+```
+
+```
+/home/fjpalacios/projects/mi-proyecto          9f3c2a1 [feature/login]
+/home/fjpalacios/projects/mi-proyecto-hotfix   3b7d9e2 [hotfix/critical-bug]
+/home/fjpalacios/projects/mi-proyecto-review   8c1f4d3 [fix/auth-issue]
+```
+
+Ruta, commit actual, rama activa. Git mantiene el registro de todos los worktrees del repositorio y los muestra aquí. Si intentas hacer checkout de una rama que ya está activa en otro worktree, Git te lo impide — no porque sea malo, sino porque sería confuso.
+
+## Eliminar un worktree
+
+Cuando terminas:
+
+```bash
+git worktree remove ../mi-proyecto-review
+```
+
+Esto elimina el directorio y limpia la referencia interna. Si hay cambios sin commitear, Git se niega:
+
+```
+error: '../mi-proyecto-review' contains modified or untracked files, use --force to override
+```
+
+Si quieres eliminarlo de todas formas:
+
+```bash
+git worktree remove --force ../mi-proyecto-review
+```
+
+Con `--force` le dices a Git "ya sé lo que hago, borra sin preguntar". Git siempre te cree — eso es el problema. Úsalo cuando estés absolutamente seguro de que no hay nada que perder: no bastante seguro, no creo que sí, sino seguro.
+
+## Casos de uso reales
+
+### Revisar un PR sin abandonar tu trabajo
+
+Estás en `feature/dashboard`, horas de trabajo en curso. Llega un PR para revisar. Sin worktrees: stash, cambia de rama, revisa, vuelve, pop, resuelve conflictos. Con worktrees:
+
+```bash
+git worktree add ../review-pr-234 origin/feature/pr-a-revisar
+cd ../review-pr-234
+# Revisas el código, ejecutas los tests, escribes comentarios
+cd ../mi-proyecto
+# Todo sigue exactamente donde lo dejaste
+```
+
+### Hotfix urgente en producción
+
+Estás en `feature/complex-refactor`, dos horas sin commitear. Producción reporta un bug crítico:
+
+```bash
+# Creas el worktree directamente desde main
+git worktree add -b hotfix/critical-login ../hotfix-urgent main
+
+# Arreglas, testas, commiteas y haces push desde ahí
+cd ../hotfix-urgent
+# ...fix, commit, push...
+git push origin hotfix/critical-login
+
+# Tu rama de feature no ha movido un píxel
+cd ../mi-proyecto
+```
+
+Sin stash, sin cambio de rama, sin contexto perdido. El directorio principal sigue en `feature/complex-refactor` exactamente donde lo dejaste.
+
+### Comparar ramas lado a lado
+
+Quieres ver las diferencias entre `main` y `feature/nueva-rama` directamente en el editor:
+
+```bash
+git worktree add ../mi-proyecto-main main
+```
+
+Abre los dos directorios en paralelo. Dos paneles de terminal, o si usas [Neovim](/es/cursos/domina-vim-desde-cero), puedes compararlos directamente con `vimdiff`:
+
+```bash
+vimdiff ../mi-proyecto/src/auth.ts ../mi-proyecto-main/src/auth.ts
+```
+
+Para quien prefiera el ratón y no le importe esperar a que cargue el Electron, `code --diff` hace lo mismo.
+
+## Limpiando worktrees huérfanos
+
+A veces un worktree queda en estado fantasma: borraste el directorio a mano, o eliminaste el branch antes de quitar el worktree. Git no recoge lo que no entiende — se queda con la referencia registrada y te da este error la próxima vez que intentas crear algo con el mismo nombre:
+
+```
+fatal: '/home/fjpalacios/projects/mi-proyecto-old' already exists
+```
+
+Para ver todos los worktrees con detalle, incluidos los problemáticos:
+
+```bash
+git worktree list --porcelain
+```
+
+Para limpiar referencias a worktrees que ya no existen en disco:
+
+```bash
+git worktree prune
+```
+
+## Cuándo no usar worktrees
+
+Los worktrees no reemplazan al stash, no reemplazan a los branches y no son la herramienta para cada cambio de contexto:
+
+- **Si cambias de rama constantemente en el mismo directorio**: los worktrees funcionan mejor cuando cada uno tiene una misión clara y una vida relativamente larga. Para cambios de contexto rápidos y frecuentes, el stash sigue siendo más directo.
+- **Si el repositorio tiene archivos grandes**: cada worktree necesita su propio working tree. El historial se comparte, pero los archivos del directorio no — si el repo pesa, multiplica.
+- **Si solo necesitas ver el estado de otra rama sin trabajar en ella**: `git show branch:ruta/al/fichero` o `git diff main..feature` es suficiente. No necesitas un directorio entero para eso.
+
+---
+
+Los worktrees hacen explícito algo que antes hacíamos de forma implícita y caótica: que a veces necesitas estar en más de un sitio a la vez. `mi-proyecto-2` puede jubilarse. El baile del stash puede jubilarse. Git tenía la infraestructura para esto desde hace tiempo — solo faltaba usarla.
+
+En el siguiente tutorial vemos **Git LFS**: cómo gestionar archivos grandes — binarios, assets, datasets — que no deberían vivir en el historial normal de Git.
+
+¡Nunca dejes de programar!
