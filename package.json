@@ -24,6 +24,7 @@
     "test:changed": "vitest run --changed src/__tests__",
     "test:related": "vitest run --related src/__tests__",
     "test:e2e": "bun run scripts/kill-dev-servers.ts && bun run build && playwright test",
+    "test:e2e:dev-server": "bun run scripts/kill-dev-servers.ts && playwright test --config=playwright.dev-server.config.ts",
     "test:e2e:ui": "bun run scripts/kill-dev-servers.ts && playwright test --ui",
     "test:e2e:debug": "bun run scripts/kill-dev-servers.ts && playwright test --debug",
     "test:e2e:update-snapshots": "bun run scripts/kill-dev-servers.ts && bun run build && playwright test --update-snapshots",

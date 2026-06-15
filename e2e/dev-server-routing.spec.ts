@@ -12,8 +12,7 @@
  *
  * `astro build` is unaffected by the bug, so the regular e2e suite (which runs
  * against `astro preview` / built output) does NOT catch this regression.
- * This spec runs against `astro dev` only — see the `dev-server` project in
- * playwright.config.ts.
+ * This spec runs against `astro dev` only — see playwright.dev-server.config.ts.
  *
  * If you see this test failing with "404 - Template Not Found" or empty
  * contentType / pageType, astro has likely been bumped to a broken version.
