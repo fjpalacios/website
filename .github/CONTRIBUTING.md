@@ -1,243 +1,117 @@
 # Contributing Guide
 
-## Branch Protection
+This is a personal Astro site, not a large product team repository. Keep changes small, explicit, and easy to review.
 
-The `master` branch is protected with the following rules:
+## Workflow
 
-### Required Status Checks
-
-All PRs must pass these checks before merging:
-
-- ✅ Lint & Format Check
-- ✅ Unit Tests (95%+ coverage required)
-- ✅ E2E Tests
-- ✅ Build Check
-
-### Pull Request Rules
-
-- ❌ **No direct commits to `master`** - All changes must go through PRs
-- ❌ **No force pushes** - Prevents rewriting history
-- ❌ **No branch deletion** - Master branch cannot be deleted
-- ✅ **Require conversation resolution** - All review comments must be resolved
-
-### Workflow
-
-#### 1. Create a feature branch
-
-```bash
-# Update master first
-git checkout master
-git pull origin master
-
-# Create and checkout new branch
-git checkout -b feature/your-feature-name
-
-# Or for fixes:
-git checkout -b fix/issue-description
-```
-
-#### 2. Make your changes
-
-```bash
-# Make changes to files
-# ...
-
-# Stage and commit
-git add .
-git commit -m "feat: add new feature"
-
-# Push to GitHub
-git push -u origin feature/your-feature-name
-```
-
-#### 3. Create Pull Request
-
-```bash
-# Via GitHub CLI
-gh pr create --title "feat: add new feature" --body "Description of changes"
-
-# Or open in browser
-gh pr create --web
-```
-
-#### 4. Wait for CI/CD
-
-All status checks must pass:
-
-- Lint & Format Check
-- Unit Tests
-- E2E Tests
-- Build Check
-- Lighthouse CI (optional for PRs)
-
-#### 5. Merge
-
-```bash
-# Via GitHub CLI (after approval and checks pass)
-gh pr merge --squash --delete-branch
-
-# Or merge from GitHub web interface
-```
-
-## Branch Naming Conventions
-
-Use conventional commit prefixes for branch names:
-
-- `feature/` - New features
-- `fix/` - Bug fixes
-- `chore/` - Maintenance tasks
-- `docs/` - Documentation updates
-- `refactor/` - Code refactoring
-- `test/` - Test additions/updates
-- `ci/` - CI/CD changes
-
-Examples:
-
-```
-feature/add-contact-form
-fix/lighthouse-ci-failing
-chore/update-dependencies
-docs/update-readme
-refactor/extract-theme-logic
-test/add-e2e-tests
-ci/update-github-actions
-```
-
-## Commit Message Format
-
-Follow [Conventional Commits](https://www.conventionalcommits.org/):
-
-```
-<type>(<scope>): <description>
-
-[optional body]
-
-[optional footer]
-```
-
-### Types
-
-- `feat`: New feature
-- `fix`: Bug fix
-- `docs`: Documentation changes
-- `style`: Code style changes (formatting, etc.)
-- `refactor`: Code refactoring
-- `test`: Adding or updating tests
-- `chore`: Maintenance tasks
-- `ci`: CI/CD changes
-- `perf`: Performance improvements
-
-### Examples
-
-```bash
-git commit -m "feat(auth): add login functionality"
-git commit -m "fix(ci): resolve Lighthouse server issue"
-git commit -m "docs: update contributing guide"
-git commit -m "chore(deps): update Astro to 5.16.6"
-```
-
-## Pre-commit Hooks
-
-Pre-commit hooks run automatically before each commit:
-
-1. **Lint-staged**: Lints and formats only staged files
-2. **Unit tests**: Runs all unit tests to catch regressions
-
-If hooks fail:
-
-```bash
-# Fix linting issues
-bun run lint
-
-# Fix formatting
-bun run format
-
-# Run tests manually
-bun run test:run
-```
-
-## Testing Requirements
-
-### Unit Tests
-
-- Must maintain 95%+ coverage
-- Run: `bun run test:coverage`
-
-### E2E Tests
-
-- All existing tests must pass
-- Add tests for new features
-- Run: `bun run test:e2e`
-
-### Manual Testing
-
-Before creating PR:
-
-```bash
-# Test dev server
-bun run dev
-
-# Test production build
-bun run build
-bun run preview
-
-# Test in both languages
-# - http://localhost:4321/es/
-# - http://localhost:4321/en/
-```
-
-## Code Review
-
-PRs are automatically assigned to @fjpalacios.
-
-Review checklist:
-
-- [ ] Code follows project conventions
-- [ ] All tests pass
-- [ ] Coverage remains above 95%
-- [ ] No console errors/warnings
-- [ ] Works in both languages (es/en)
-- [ ] Works in both themes (dark/light)
-- [ ] Responsive design maintained
-- [ ] Accessibility standards met (WCAG 2.1 AA)
-
-## Merging Strategy
-
-**Squash and merge** is the default strategy:
-
-- Keeps `master` history clean
-- All PR commits squashed into one
-- Commit message uses PR title
-
-## Emergency Hotfixes
-
-For critical production issues:
-
-1. Create hotfix branch from `master`:
+1. Start from `master`:
 
    ```bash
    git checkout master
-   git pull origin master
-   git checkout -b hotfix/critical-issue
+   git pull --ff-only
    ```
 
-2. Make minimal changes to fix the issue
-
-3. Create PR with `[HOTFIX]` prefix:
+2. Create a focused branch:
 
    ```bash
-   gh pr create --title "[HOTFIX] fix critical issue"
+   git checkout -b fix/short-description
    ```
 
-4. Fast-track review and merge
+3. Make the smallest change that solves the problem.
 
-## Getting Help
+4. Stage only intended files:
 
-- **Issues**: <https://github.com/fjpalacios/website/issues>
-- **Discussions**: <https://github.com/fjpalacios/website/discussions>
+   ```bash
+   git add path/to/file
+   ```
 
-## Resources
+   Avoid `git add .` unless you have inspected the working tree first.
 
-- [GitHub Flow](https://guides.github.com/introduction/flow/)
-- [Conventional Commits](https://www.conventionalcommits.org/)
-- [How to Write a Git Commit Message](https://chris.beams.io/posts/git-commit/)
+5. Commit with a Conventional Commit message:
+
+   ```bash
+   git commit -m "fix: describe the fix"
+   ```
+
+6. Push and open a PR:
+
+   ```bash
+   git push -u origin your-branch
+   gh pr create
+   ```
+
+## Branch Naming
+
+Use the same intent as Conventional Commits:
+
+- `feat/...` — new functionality or content features
+- `fix/...` — bug fixes
+- `chore/...` — dependencies, maintenance, generated data
+- `docs/...` — documentation-only changes
+- `refactor/...` — behavior-preserving code cleanup
+- `test/...` — tests only
+- `ci/...` — GitHub Actions or CI config
+
+## Commit Messages
+
+Use [Conventional Commits](https://www.conventionalcommits.org/):
+
+```txt
+<type>(optional-scope): short imperative summary
+```
+
+Examples:
+
+```bash
+fix(routing): preserve props in dev-server routes
+chore(deps): upgrade astro to 6.4.6
+docs: simplify contribution guide
+```
+
+## Checks
+
+Run the checks that match the change. CI will run the full required set for PRs.
+
+| Change type                | Useful local checks                                       |
+| -------------------------- | --------------------------------------------------------- |
+| Code / config              | `bun run lint:check`, `bun run typecheck`, `bun run test` |
+| Astro routing / dev server | `bun run test:e2e:dev-server`                             |
+| UI / templates             | `bun run test:e2e`                                        |
+| Content                    | `bun run validate`, language-specific manual review       |
+| Dependencies               | affected test command + CI                                |
+
+Available commands:
+
+```bash
+bun run lint:check
+bun run format:check
+bun run typecheck
+bun run test
+bun run test:coverage
+bun run test:e2e
+bun run test:e2e:dev-server
+bun run validate
+```
+
+## Project-Specific Rules
+
+- This is a bilingual site. User-facing content usually needs ES and EN versions.
+- Changing a URL requires updating `public/_redirects`.
+- Astro routing or dependency changes must consider the dev-server path, not only build/preview.
+- Dependency PRs should stay one dependency at a time unless versions are explicitly coupled.
+- PR descriptions should explain the PR contents, rationale, and validation. Do not mention unrelated local working-tree state.
+
+## Pull Requests
+
+Keep PR descriptions short and useful:
+
+- what changed;
+- why it changed;
+- how it was validated;
+- any real risk or follow-up.
+
+Delete template sections that do not apply.
+
+## Merging
+
+Use squash merge by default. Do not merge until required checks pass.
