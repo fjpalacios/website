@@ -23,9 +23,14 @@ updates:
       - "automated"
     # No groups - individual PRs per dependency for easier debugging
     # and selective merging when some updates break tests
-    # Ignore major updates for these packages (manual review recommended)
+    # Astro 6.4.x currently breaks the dev server for catch-all getStaticPaths
+    # routes in this project. Keep Astro on 6.3.x until upstream fixes:
+    # https://github.com/withastro/astro/issues/16949
+    # @astrojs/mdx 6.x requires newer Astro internals, so it is blocked too.
     ignore:
       - dependency-name: "astro"
+        update-types: ["version-update:semver-minor", "version-update:semver-major"]
+      - dependency-name: "@astrojs/mdx"
         update-types: ["version-update:semver-major"]
       - dependency-name: "typescript"
         update-types: ["version-update:semver-major"]

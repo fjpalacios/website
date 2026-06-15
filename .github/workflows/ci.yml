@@ -111,7 +111,9 @@ jobs:
         run: bun x playwright install --with-deps chromium
 
       - name: Run E2E tests
-        run: bun run test:e2e --project=chromium
+        run: |
+          bun run test:e2e --project=chromium
+          bun run test:e2e:dev-server
 
       - name: Upload test results
         uses: actions/upload-artifact@v7
