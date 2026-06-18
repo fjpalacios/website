@@ -1,0 +1,203 @@
+---
+title: "Git configuration and optimization: settings that actually matter"
+post_slug: "git-configuration-and-optimization"
+date: "2026-06-18"
+excerpt: "git config does a lot more than store your name and email. The right options cut daily friction, improve your diffs, and make Git behave the way you actually want it to."
+language: "en"
+categories: ["git"]
+course: "mastering-git-from-scratch"
+order: 38
+cover: "/images/tutorials/cabecera-git.jpg"
+i18n: "configuracion-y-optimizacion-git"
+---
+
+Somewhere between a Stack Overflow answer from 2016 and a colleague's dotfiles repo, your `.gitconfig` has become a junk drawer: options you recognize, options you've never questioned, at least one that's been in there since a tutorial you followed during a different job. You've never cleared it out because it works — and that's almost the problem.
+
+`git config` exposes over 500 documented options. The ones that actually affect your day-to-day work are around 10 or 12. This lesson isn't going to cover all 500 — it's going to make sure you know the 12 that matter, and where to find the rest when you need them.
+
+## The configuration hierarchy
+
+Git reads configuration from three levels, and the more local level always wins:
+
+1. **System** (`/etc/gitconfig`) — applies to every user on the machine. Touched by sysadmins, ignored by everyone else.
+2. **Global** (`~/.gitconfig`) — your personal configuration. This is where almost everything lives.
+3. **Local** (`.git/config`) — repository-specific. Overrides the global for that project.
+
+The naming is backwards from what you'd expect: "system" sounds like the most authoritative and "local" sounds like a temporary override. It's the other way around — local wins, then global, then system. The config closest to the work has the final say. This is correct behavior with confusing names, and yes, it's been like this for twenty years.
+
+To see every active option and which file it's coming from:
+
+```bash
+git config --list --show-origin
+```
+
+```
+file:/etc/gitconfig             core.autocrlf=input
+file:/home/javi/.gitconfig      user.name=Javi Palacios
+file:/home/javi/.gitconfig      user.email=javi@fjp.es
+file:.git/config                core.repositoryformatversion=0
+```
+
+To read a single option:
+
+```bash
+git config user.email
+```
+
+To open your global config directly in your editor:
+
+```bash
+git config --global --edit
+```
+
+## The options everyone should have
+
+```ini
+[user]
+  name = Your Name
+  email = you@example.com
+
+[core]
+  editor = nvim
+  autocrlf = input
+```
+
+`core.editor` is the editor Git opens when it needs interactive input: writing a commit message, editing a rebase script, annotating a tag. The default is `vi`. This has trapped more people than any statistic can capture — "how to exit vim" has been one of the most searched developer questions for years, which tells you everything you need to know about whether the default is a good choice. If knowing how to exit is the ceiling of your current Vim experience, [there's a course that starts exactly there](/en/courses/mastering-vim-from-scratch).
+
+Set it to whatever you actually use: `nvim`, `vim`, `nano`, or `"code --wait"` for VS Code (the quotes and `--wait` are both necessary — your laptop fan will handle the launch notification for free).
+
+`core.autocrlf = input` prevents the classic line-ending disaster in mixed-OS teams. On macOS and Linux, `input` is the right value: Git accepts any line ending format when committing but doesn't convert anything on checkout. On Windows, `true` does the bidirectional conversion automatically. Without this aligned across your team, someone will eventually push a commit that "changes" an entire file where the only actual change is line endings — and the diff is useless.
+
+```ini
+[init]
+  defaultBranch = main
+
+[push]
+  autoSetupRemote = true
+```
+
+`push.autoSetupRemote = true` (available since Git 2.37) eliminates the `fatal: The current branch has no upstream branch` error you get the first time you push a new branch. Instead of typing `git push --set-upstream origin branch-name`, plain `git push` works from the start. It's one line in your config that you'll notice every single time you create a branch.
+
+## The options most people don't know exist
+
+```ini
+[merge]
+  conflictstyle = zdiff3
+
+[diff]
+  algorithm = histogram
+
+[rerere]
+  enabled = true
+```
+
+`merge.conflictstyle = zdiff3` changes the conflict marker format to include the base version — what the code looked like before either branch touched it. With the default format, you get "yours" and "theirs" and have to reconstruct the context from memory. With `zdiff3`, you get all three: the original, your version, their version. Available since Git 2.35, and the fact that it's not the default is genuinely inexplicable.
+
+`diff.algorithm = histogram` produces more readable diffs in files with many similar or repeated lines. The default algorithm (`myers`) sometimes decides that a block of code that moved is "the old version" and what's now in its place is "new code" — when what actually happened is that you reordered some functions. `histogram` handles this significantly better.
+
+`rerere.enabled = true` — "reuse recorded resolution" — makes Git remember how you resolved a conflict. If the same conflict appears again, it resolves it automatically. This sounds like an edge case until you've been rebasing a long-running branch onto main and you realize you've resolved the same three conflicts four times in two weeks. The first time rerere silently fixes them without asking, you'll wonder why this isn't on by default.
+
+## What Git shows you
+
+```ini
+[branch]
+  sort = -committerdate
+
+[column]
+  ui = auto
+
+[log]
+  date = iso
+```
+
+`branch.sort = -committerdate` sorts branches by most recent commit, descending. Your most recently touched branches appear first. `git branch -a` stops being an alphabetical list of everything you've ever created and becomes something you can actually navigate.
+
+`column.ui = auto` displays the output of commands like `git branch` in columns when they fit the terminal width — the same way `ls` formats its output. Small change, noticeably more scannable.
+
+`log.date = iso` shows dates in ISO 8601 format (`2026-06-18 10:30:00 +0200`) instead of Git's default format, which is technically correct but tedious to compare at a glance.
+
+## The pager: delta
+
+`core.pager` controls what Git uses to display long output — diffs, logs, blame. The default is `less`. [delta](https://github.com/dandavison/delta) replaces it with syntax highlighting, line numbers, and a layout that makes diffs something you actually want to read:
+
+```bash
+# macOS and Linux (Homebrew)
+brew install git-delta
+
+# Ubuntu / Debian
+apt install git-delta
+
+# Arch Linux
+pacman -S git-delta
+```
+
+```ini
+[core]
+  pager = delta
+
+[interactive]
+  diffFilter = delta --color-only
+
+[delta]
+  navigate = true
+  side-by-side = true
+```
+
+With `side-by-side = true`, diffs appear in two columns — the old code on the left, the new code on the right. If your terminal isn't wide enough, `false` is the right call. With `navigate = true`, `n` and `N` jump between diff hunks directly from the pager.
+
+## Conditional includes: work and personal projects
+
+If you use the same machine for work and personal projects, `includeIf` loads a different config based on where the repository lives:
+
+```ini
+# ~/.gitconfig
+[user]
+  name = Javi Palacios
+  email = javi@fjp.es
+
+[includeIf "gitdir:~/work/"]
+  path = ~/.gitconfig-work
+```
+
+```ini
+# ~/.gitconfig-work
+[user]
+  email = javier.palacios@company.com
+```
+
+Any repository inside `~/work/` uses the work email. Everything else uses the personal one. No local config in every repo, no commits with the wrong email landing in your company's repository on a Friday afternoon.
+
+## For repositories with many files
+
+If you work with monorepos or projects with tens of thousands of files, these two options make a visible difference:
+
+```ini
+[feature]
+  manyFiles = true
+
+[core]
+  fsmonitor = true
+```
+
+`feature.manyFiles = true` enables a set of optimizations — including a more efficient index format — designed for repositories with large numbers of files. `git status` is where you'll notice it most.
+
+`core.fsmonitor = true` (available since Git 2.37) hands off file change tracking to Git's built-in fsmonitor daemon. Instead of scanning every file in the repository to detect modifications, it listens to OS-level filesystem notifications. In an average-sized project, the difference is negligible. In a monorepo with fifteen thousand files, it's the difference between `git status` taking two seconds and taking twenty.
+
+## Key concepts from this lesson
+
+- The hierarchy is system → global → local; local always wins, despite the name suggesting otherwise.
+- `git config --list --show-origin` shows every active option and which file it comes from.
+- `push.autoSetupRemote = true` eliminates the `--set-upstream` step when pushing a new branch.
+- `merge.conflictstyle = zdiff3` adds the base version to conflict markers so you have full context.
+- `rerere.enabled = true` records and reuses conflict resolutions automatically.
+- `branch.sort = -committerdate` orders branches by recent activity, not alphabetically.
+- `includeIf` loads a different config based on the repository's location — perfect for work/personal splits.
+- `delta` as a pager turns diffs from something you tolerate into something you want to look at.
+
+---
+
+If you landed here without going through the [Git aliases tutorial](/en/tutorials/using-git-aliases-to-increase-our-productivity), the natural continuation of this configuration is waiting there: how to create shortcuts for the commands you run most, using the same `.gitconfig` you just tuned.
+
+That wraps up **Module 9 — Productivity and Tooling**. In the next tutorial we start **Module 10 — Modern Git and CI/CD**, where we'll look at how to integrate Git into continuous integration pipelines and make the most of the latest features in the ecosystem.
+
+Never stop coding!

@@ -1,0 +1,203 @@
+---
+title: "Configura Git como un profesional: opciones que marcan la diferencia"
+post_slug: "configuracion-y-optimizacion-git"
+date: "2026-06-18"
+excerpt: "git config hace mucho más que guardar tu nombre y correo. Las opciones correctas eliminan fricción diaria, mejoran los diffs y preparan Git para trabajar bien en tu entorno."
+language: "es"
+categories: ["git"]
+course: "domina-git-desde-cero"
+order: 38
+cover: "/images/tutorials/cabecera-git.jpg"
+i18n: "git-configuration-and-optimization"
+---
+
+El primer commit en un ordenador nuevo tiene siempre el mismo problema: el autor no eres tú. Es "Unknown User", tu usuario del sistema operativo, o —si das con el clásico de la oficina— el nombre del técnico que configuró la máquina hace tres años. Dos líneas de `git config` después, el problema desaparece, y para la mayoría, la historia con la configuración de Git termina exactamente ahí. Lo que queda en el fichero son opciones copiadas de Stack Overflow, heredadas de los dotfiles de un compañero que ya no trabaja en el equipo, sacadas de un tutorial de 2017 que probablemente ya no aplica del todo. Como un cajón de cocina con pilas sueltas, una llave allen que no es de ningún mueble que recuerdes y un cable que en algún momento fue imprescindible — no sabes de dónde vino nada, pero tampoco lo vacías, por si acaso.
+
+`git config` expone más de 500 opciones documentadas. Las que impactan tu flujo real de trabajo son unas 10 o 12. Esta lección no intenta cubrir las 500 — intenta asegurarse de que conoces las que más diferencia hacen y sabes dónde están el resto cuando las necesites.
+
+## La jerarquía de configuración
+
+Git aplica configuración desde tres niveles distintos:
+
+1. **Sistema** (`/etc/gitconfig`) — afecta a todos los usuarios de la máquina. Lo tocan los administradores de servidores y nadie más.
+2. **Global** (`~/.gitconfig`) — tu configuración personal. Aquí vive casi todo lo que configuras.
+3. **Local** (`.git/config`) — específica del repositorio. Sobreescribe la global para ese proyecto.
+
+El nombre "sistema" suena a "el de más peso" y "local" suena a "temporal o menor". Es exactamente al revés: local tiene prioridad sobre global, y global sobre sistema. El orden real de precedencia va de abajo a arriba — lo más cercano al repositorio manda. No, no lo van a cambiar.
+
+Para ver todas las opciones activas y de dónde viene cada una:
+
+```bash
+git config --list --show-origin
+```
+
+```
+file:/etc/gitconfig             core.autocrlf=input
+file:/home/javi/.gitconfig      user.name=Javi Palacios
+file:/home/javi/.gitconfig      user.email=javi@fjp.es
+file:.git/config                core.repositoryformatversion=0
+```
+
+Para leer el valor de una opción concreta:
+
+```bash
+git config user.email
+```
+
+Para abrir el fichero global directamente en tu editor:
+
+```bash
+git config --global --edit
+```
+
+## Opciones que todo el mundo debería tener
+
+```ini
+[user]
+  name = Tu Nombre
+  email = tu@email.com
+
+[core]
+  editor = nvim
+  autocrlf = input
+```
+
+`core.editor` determina qué editor abre Git cuando necesita que escribas algo de forma interactiva: un mensaje de commit, el script de un rebase o el template de anotación de un tag. El valor por defecto es `vi`. Esto ha atrapado a más gente de lo que ninguna estadística puede capturar — basta buscar "how to exit vim" en Google para que el buscador autocomplete antes de que termines de escribir la pregunta. Si salir es lo único que sabes hacer ahí dentro, [hay un curso que enseña todo lo demás](/es/cursos/domina-vim-desde-cero).
+
+Cámbialo a lo que uses: `nvim`, `vim`, `nano`, o `"code --wait"` si usas VS Code (las comillas y el `--wait` son necesarios; el ventilador del portátil ya te avisará gratis de que el proceso ha arrancado).
+
+`core.autocrlf = input` evita el problema habitual con saltos de línea en entornos mixtos. En macOS y Linux, `input` es lo correcto: Git acepta cualquier formato al hacer commit pero no convierte nada al hacer checkout. En Windows, `true` hace la conversión bidireccional automáticamente. Si tienes un equipo con desarrolladores en distintos sistemas operativos y este valor no está configurado de forma consistente, tarde o temprano alguien hace un commit que solo cambia saltos de línea en todo un fichero — y el diff no dice nada útil.
+
+```ini
+[init]
+  defaultBranch = main
+
+[push]
+  autoSetupRemote = true
+```
+
+`push.autoSetupRemote = true` elimina ese `fatal: The current branch has no upstream branch` que aparece la primera vez que haces `git push` en una rama nueva. Sin esta opción, tienes que escribir `git push --set-upstream origin nombre-de-la-rama`. Con ella, `git push` es suficiente siempre. Disponible desde Git 2.37.
+
+## Las opciones que la mayoría no conoce
+
+```ini
+[merge]
+  conflictstyle = zdiff3
+
+[diff]
+  algorithm = histogram
+
+[rerere]
+  enabled = true
+```
+
+`merge.conflictstyle = zdiff3` cambia el formato de los marcadores de conflicto para incluir la versión base — lo que había en ese punto antes de que cualquiera de las dos ramas lo tocara. Con el formato por defecto solo ves "tu versión" y "la de ellos" y tienes que reconstruir el contexto mentalmente. Con `zdiff3` está todo: lo que había, lo que pusiste tú, lo que puso la otra rama. Disponible desde Git 2.35.
+
+`diff.algorithm = histogram` produce diffs más legibles en ficheros con muchas líneas similares o repetidas. El algoritmo por defecto (`myers`) a veces decide que el bloque que se movió "es" la parte de arriba y que lo que hay ahora arriba "es" código nuevo — cuando lo que pasó en realidad es que simplemente reordenaste las funciones. `histogram` lo detecta mejor.
+
+`rerere.enabled = true` — "reuse recorded resolution" — hace que Git memorice cómo resolviste un conflicto. Si el mismo conflicto aparece de nuevo, lo resuelve solo. Suena a caso raro hasta que llevas semanas haciendo rebase de una rama larga sobre main y descubres que estás resolviendo los mismos tres conflictos una y otra vez. La primera vez que rerere los resuelve sin pedirte nada parece magia. No lo es, pero casi.
+
+## Qué ves cuando usas Git
+
+```ini
+[branch]
+  sort = -committerdate
+
+[column]
+  ui = auto
+
+[log]
+  date = iso
+```
+
+`branch.sort = -committerdate` ordena las ramas por fecha del último commit, descendente. Las que has tocado recientemente aparecen primero. `git branch -a` deja de ser una lista interminable en orden alfabético sin contexto y se convierte en algo que puedes leer.
+
+`column.ui = auto` muestra la salida de comandos como `git branch` en columnas si caben en el terminal, igual que hace `ls`. Un detalle pequeño que hace la salida escaneable.
+
+`log.date = iso` muestra las fechas en formato ISO 8601 (`2026-06-18 10:30:00 +0200`) en lugar del formato por defecto de Git, que es correcto pero difícil de comparar de un vistazo.
+
+## El pager: delta
+
+`core.pager` controla qué usa Git para mostrar salida larga — diffs, logs, blame. Por defecto es `less`. [delta](https://github.com/dandavison/delta) es un reemplazo que añade syntax highlighting, números de línea y una presentación que hace que los diffs sean algo que quieres leer en lugar de algo que toleras:
+
+```bash
+# macOS y Linux (Homebrew)
+brew install git-delta
+
+# Ubuntu / Debian
+apt install git-delta
+
+# Arch Linux
+pacman -S git-delta
+```
+
+```ini
+[core]
+  pager = delta
+
+[interactive]
+  diffFilter = delta --color-only
+
+[delta]
+  navigate = true
+  side-by-side = true
+```
+
+Con `side-by-side = true`, los diffs aparecen en dos columnas — el código anterior a la izquierda, el nuevo a la derecha. Si tu terminal no tiene ancho suficiente, `false` es el valor correcto. Con `navigate = true`, `n` y `N` saltan entre los hunks del diff directamente desde el pager.
+
+## Perfiles condicionales: trabajo y proyectos personales
+
+Si usas el mismo ordenador para proyectos personales y del trabajo, `includeIf` carga una configuración diferente según el directorio del repositorio:
+
+```ini
+# ~/.gitconfig
+[user]
+  name = Javi Palacios
+  email = javi@fjp.es
+
+[includeIf "gitdir:~/work/"]
+  path = ~/.gitconfig-work
+```
+
+```ini
+# ~/.gitconfig-work
+[user]
+  email = javier.palacios@empresa.com
+```
+
+Para cualquier repositorio dentro de `~/work/`, Git usa el email del trabajo. Para el resto, el personal. Sin configuración local en cada repo, sin commits con el email equivocado en el repositorio de la empresa un viernes a las seis de la tarde.
+
+## Para repositorios con muchos archivos
+
+Si trabajas en monorepos o proyectos con decenas de miles de ficheros, estas dos opciones hacen una diferencia visible:
+
+```ini
+[feature]
+  manyFiles = true
+
+[core]
+  fsmonitor = true
+```
+
+`feature.manyFiles = true` activa un conjunto de optimizaciones — incluyendo un formato de índice más eficiente — diseñadas para repositorios con muchos ficheros. El comando donde más lo notarás es `git status`.
+
+`core.fsmonitor = true` (disponible desde Git 2.37) delega el tracking de cambios en el sistema de ficheros al demonio fsmonitor incorporado de Git. En lugar de escanear todos los ficheros del repo para detectar modificaciones, escucha notificaciones del sistema operativo. En un proyecto normal de tamaño razonable, la diferencia es imperceptible. En un monorepo con quince mil ficheros, puede ser la diferencia entre un `git status` que tarda dos segundos y uno que tarda veinte.
+
+## Conceptos clave de esta lección
+
+- La jerarquía es sistema → global → local; local siempre gana, aunque el nombre sugiera lo contrario.
+- `git config --list --show-origin` muestra todas las opciones activas y el fichero del que viene cada una.
+- `push.autoSetupRemote = true` elimina el `--set-upstream` de la primera vez en ramas nuevas.
+- `merge.conflictstyle = zdiff3` añade la versión base a los marcadores de conflicto.
+- `rerere.enabled = true` memoriza y reutiliza resoluciones de conflicto automáticamente.
+- `branch.sort = -committerdate` ordena las ramas por actividad reciente, no por nombre.
+- `includeIf` permite configuraciones distintas para trabajo y proyectos personales según el directorio.
+- `delta` como pager transforma los diffs en algo que da gusto leer.
+
+---
+
+Si llegas aquí sin haber pasado por el [tutorial de aliases de Git](/es/tutoriales/utilizando-alias-git-productividad), tienes la continuación natural de esta configuración esperándote ahí: cómo crear atajos de teclado para los comandos que más repites, en el mismo `.gitconfig` que acabas de revisar.
+
+Con esto cerramos el **Módulo 9 — Productividad y Herramientas**. En el siguiente tutorial arrancamos el **Módulo 10 — Git Moderno y CI/CD**, donde veremos cómo integrar Git con pipelines de integración continua y aprovechar las funcionalidades más recientes del ecosistema.
+
+¡Nunca dejes de programar!
