@@ -1,0 +1,238 @@
+---
+title: "Parámetros avanzados en Python: defaults, *args y **kwargs"
+post_slug: "parametros-avanzados-funciones-python"
+date: "2026-06-19"
+excerpt: "Parámetros por defecto, argumentos con nombre, *args y **kwargs hacen tus funciones flexibles. Uno de ellos tiene una trampa que Python no anuncia antes de tenderla."
+language: "es"
+categories: ["programacion"]
+course: "aprende-a-programar-desde-cero-python"
+order: 12
+cover: "/images/tutorials/cabecera-python-curso.jpg"
+i18n: "advanced-function-parameters-python"
+---
+
+La función que escribiste en el tutorial anterior tenía uno o dos parámetros. La que escribirás en seis meses tendrá ocho. Alguien del equipo habrá añadido cuatro sin avisar, uno tiene un nombre que ya nadie recuerda de dónde salió, el séptimo es un booleano llamado `flag` cuyo efecto depende del valor del parámetro anterior, y hay un `mode` que "se entiende por el contexto". No es una predicción; es una ley de la naturaleza del software.
+
+Python ofrece herramientas para que esto no acabe en catástrofe: parámetros con valores por defecto, argumentos con nombre, `*args` y `**kwargs`. En esta lección los verás todos. Y aprenderás por qué uno de ellos tiene una trampa que ha pillado a más programadores de los que admiten.
+
+## Parámetros con valor por defecto
+
+Un parámetro por defecto tiene un valor que Python usa cuando no se le pasa argumento para ese parámetro:
+
+```python
+def saludar(nombre, saludo="Hola"):
+    print(f"{saludo}, {nombre}")
+
+saludar("Ana")               # Hola, Ana
+saludar("Luis", "Buenas")    # Buenas, Luis
+```
+
+El parámetro `saludo` es opcional. Si no lo pasas, Python usa `"Hola"`. Si lo pasas, usa lo que envías.
+
+**Regla de hierro**: los parámetros con valor por defecto siempre van después de los parámetros sin valor por defecto. Python necesita saber qué es obligatorio y qué es opcional, y lo determina por posición.
+
+```python
+def calcular(precio, descuento=0, impuesto=0.21):   # ✅
+    base = precio - descuento
+    return base + (base * impuesto)
+
+def calcular(descuento=0, precio, impuesto=0.21):   # ❌ SyntaxError
+    ...
+```
+
+Si pones el parámetro con default primero, Python no puede saber si el primer argumento que pasas es el `descuento` o el `precio`. La pregunta tiene sentido; la respuesta es un error de sintaxis.
+
+### La trampa que nadie avisa
+
+Los valores por defecto se evalúan **una sola vez**, cuando Python define la función, no cada vez que la llamas. Para `strings`, números y booleanos eso no importa porque son inmutables. Para listas y diccionarios, importa mucho.
+
+```python
+def agregar_elemento(elemento, lista=[]):
+    lista.append(elemento)
+    return lista
+
+print(agregar_elemento("a"))   # ['a']
+print(agregar_elemento("b"))   # ['a', 'b']  ← espera
+print(agregar_elemento("c"))   # ['a', 'b', 'c']  ← esto ya no estaba en el plan
+```
+
+La lista `[]` de la definición se crea una vez. Todas las llamadas que no pasan `lista` comparten exactamente el mismo objeto. Estás acumulando elementos entre llamadas, aunque cada vez parezca que empiezas de cero.
+
+Es como aquella impresora de la oficina que todos usaban y nadie mantenía: cuando llegabas, el papel del trabajo anterior seguía en la bandeja. La bandeja es la lista; los papeles son los elementos de llamadas anteriores; y la pregunta "¿pero yo no lo había dejado vacío?" no tiene respuesta satisfactoria.
+
+La solución correcta:
+
+```python
+def agregar_elemento(elemento, lista=None):
+    if lista is None:
+        lista = []  # New list for each call without an explicit list
+    lista.append(elemento)
+    return lista
+```
+
+La regla práctica: **nunca uses un objeto mutable como valor por defecto** — lista, diccionario o conjunto. Usa `None` y crea el objeto dentro de la función. Sin excepción.
+
+## Argumentos posicionales y con nombre
+
+Hasta ahora has pasado argumentos en orden — eso son argumentos **posicionales**. Python los asigna por posición: el primero al primer parámetro, el segundo al segundo.
+
+Con dos o tres parámetros, todo bien:
+
+```python
+def mostrar_usuario(nombre, edad, ciudad):
+    print(f"{nombre}, {edad} años, {ciudad}")
+
+mostrar_usuario("Ana", 34, "Madrid")
+```
+
+Con seis:
+
+```python
+crear_informe(True, "pdf", "es", None, False, "completo")
+```
+
+¿Qué hace ese `True`? ¿Y el `False`? ¿El `None` es intencional o alguien se olvidó de pasar algo? Sin leer la definición de la función no hay forma de saberlo. Y leer la definición de la función cada vez que llamas a algo no es desarrollo; es arqueología.
+
+Los **argumentos con nombre** resuelven esto:
+
+```python
+mostrar_usuario(nombre="Ana", edad=34, ciudad="Madrid")
+```
+
+Ahora cada valor lleva su etiqueta. Además, puedes cambiar el orden:
+
+```python
+mostrar_usuario(ciudad="Madrid", nombre="Ana", edad=34)
+```
+
+Y mezclar posicionales y con nombre — siempre con los posicionales primero:
+
+```python
+mostrar_usuario("Ana", ciudad="Madrid", edad=34)  # ✅
+mostrar_usuario(nombre="Ana", 34, "Madrid")        # ❌ SyntaxError
+```
+
+¿Por qué molestarse? Para el día en que tu función tenga cuatro parámetros booleanos y quien lea el código en seis meses no seas tú. `incluir_firma=True` dice qué hace. `True` en cuarta posición no dice nada.
+
+## *args: número variable de argumentos posicionales
+
+¿Y si necesitas una función que acepte cualquier cantidad de argumentos? El `*` antes del nombre del parámetro le dice a Python que empaquete todos los argumentos posicionales adicionales en una **tupla**:
+
+```python
+def sumar(*args):
+    return sum(args)
+
+print(sumar(1, 2))              # 3
+print(sumar(1, 2, 3, 4, 5))    # 15
+print(sumar())                  # 0
+```
+
+Dentro de la función, `args` es simplemente una tupla con todo lo que llegó. El nombre `args` es convención — el `*` es lo que hace el trabajo. Podrías llamarlo `*numeros` o `*valores`. En la práctica, `*args` es lo que todo el mundo espera ver.
+
+```python
+def inspeccionar(*args):
+    print(type(args))   # <class 'tuple'>
+    print(args)
+
+inspeccionar(10, 20, "hola")
+# <class 'tuple'>
+# (10, 20, 'hola')
+```
+
+Puedes combinar parámetros normales con `*args`, siempre que `*args` vaya después de los posicionales:
+
+```python
+def mostrar_lista(titulo, *elementos):
+    print(f"{titulo}:")
+    for elemento in elementos:
+        print(f"  - {elemento}")
+
+mostrar_lista("Frutas", "manzana", "naranja", "plátano")
+```
+
+```
+Frutas:
+  - manzana
+  - naranja
+  - plátano
+```
+
+Piensa en `*args` como el cajón de la cocina donde cabe todo lo que no tiene sitio fijo. No decides de antemano cuántas cosas van a entrar — simplemente entran.
+
+## **kwargs: argumentos con nombre variables
+
+`**kwargs` hace lo mismo que `*args`, pero para argumentos con nombre. En lugar de una tupla, Python lo empaqueta en un **diccionario**:
+
+```python
+def configurar(**kwargs):
+    for clave, valor in kwargs.items():
+        print(f"{clave}: {valor}")
+
+configurar(color="azul", tamaño="grande", borde=True)
+```
+
+```
+color: azul
+tamaño: grande
+borde: True
+```
+
+Igual que con `*args`, el nombre `kwargs` es convención. El `**` es lo que cuenta.
+
+`**kwargs` aparece mucho en código que construye o configura objetos, en wrappers de funciones, y en utilidades genéricas que no saben de antemano qué opciones van a recibir.
+
+Una advertencia honesta: `**kwargs` puede hacer tu función muy flexible o completamente opaca. Si alguien llama a `configurar(nombre="test", temperatura=37, pizza=True)` y la función acepta todo sin quejarse, no hay forma de saber desde fuera qué parámetros son realmente válidos. Úsalo cuando la flexibilidad tiene sentido real; no como atajo para no pensar qué acepta tu función. La señal de alarma: si usas `kwargs.get()` en ocho sitios distintos dentro de la misma función, probablemente esa función está haciendo demasiadas cosas.
+
+## Combinando todo
+
+Puedes combinar parámetros normales, `*args` y `**kwargs` en una misma función. El orden siempre es:
+
+1. Parámetros posicionales normales
+2. `*args`
+3. Parámetros solo-keyword (van después de `*args` y **solo** pueden pasarse con nombre)
+4. `**kwargs`
+
+```python
+def registrar(nivel, *mensajes, timestamp=True, **extra):
+    print(f"[{nivel}] timestamp={timestamp}")
+    for msg in mensajes:
+        print(f"  {msg}")
+    if extra:
+        print(f"  extra: {extra}")
+
+registrar("INFO", "Conexión establecida", "Base de datos lista",
+          timestamp=False, usuario="admin", ip="192.168.1.1")
+```
+
+```
+[INFO] timestamp=False
+  Conexión establecida
+  Base de datos lista
+  extra: {'usuario': 'admin', 'ip': '192.168.1.1'}
+```
+
+`timestamp` no es un argumento posicional normal ni parte de `**kwargs` — va entre `*args` y `**kwargs`, lo que lo convierte en **solo-keyword**: solo puede pasarse con nombre, nunca por posición.
+
+## Cuándo usar qué
+
+- **Parámetros por defecto**: cuando un valor razonable aplica en la mayoría de casos. No pongas default en todo "por si acaso" — una función donde todo es opcional es una función sin contrato claro.
+- **Argumentos con nombre**: cuando la firma tiene más de tres parámetros o cuando los tipos de los argumentos no dicen por sí solos qué hace cada uno.
+- ***args**: cuando realmente no sabes cuántos argumentos posicionales van a llegar. Si lo sabes, ponlos explícitamente — una firma explícita siempre comunica más que un `*args`.
+- ****kwargs**: para wrappers, decoradores o funciones de configuración genérica. No como sustituto de pensar la firma.
+
+## Conceptos clave de esta lección
+
+- Los parámetros con valor por defecto van siempre después de los sin valor por defecto.
+- Los valores por defecto se evalúan una sola vez: **nunca uses un objeto mutable como valor por defecto**.
+- Los argumentos con nombre hacen el código más legible cuando la función tiene muchos parámetros.
+- `*args` empaqueta argumentos posicionales en una tupla; `**kwargs` empaqueta argumentos con nombre en un diccionario.
+- Los parámetros que van después de `*args` son solo-keyword: no pueden pasarse por posición.
+- El orden es: posicionales normales → `*args` → solo-keyword → `**kwargs`.
+
+---
+
+**💡 Reto**: Crea una función `registrar(mensaje, nivel="INFO", *tags, timestamp=True, **extra)`. Prueba llamarla de distintas formas: solo con `mensaje`, añadiendo `nivel`, pasando tags extra, con `timestamp=False` y con parámetros adicionales como `usuario="admin"`. ¿Qué imprime en cada caso? ¿Qué pasa si intentas pasar `timestamp` por posición?
+
+En el próximo tutorial veremos el **scope**: cómo Python decide qué variable es visible desde dónde, qué pasa cuando defines una variable dentro de una función con el mismo nombre que una variable exterior, y por qué `global` existe aunque en la mayoría de casos sea mejor idea no usarlo.
+
+¡Nunca dejes de programar!
