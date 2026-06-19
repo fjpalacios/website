@@ -1,0 +1,238 @@
+---
+title: "Advanced function parameters in Python: defaults, *args, and **kwargs"
+post_slug: "advanced-function-parameters-python"
+date: "2026-06-19"
+excerpt: "Default parameters, keyword arguments, *args, and **kwargs make your functions flexible. One of them has a trap Python doesn't warn you about before springing it."
+language: "en"
+categories: ["programming"]
+course: "learn-to-code-from-scratch-python"
+order: 12
+cover: "/images/tutorials/cabecera-python-curso.jpg"
+i18n: "parametros-avanzados-funciones-python"
+---
+
+The function you wrote in the previous tutorial had one or two parameters. The one you'll write in six months will have eight. Someone on the team added four without telling anyone, one has a name nobody remembers the origin of, the seventh is a boolean called `flag` whose behavior depends on the value of the parameter before it, and there's a `mode` that "makes sense in context." This isn't a prediction; it's just how software grows.
+
+Python has tools to keep this from becoming a disaster: default parameters, keyword arguments, `*args`, and `**kwargs`. This lesson covers all of them — including why one of them has a trap that's caught more programmers than will admit it.
+
+## Default parameters
+
+A default parameter has a value Python uses when you don't pass an argument for it:
+
+```python
+def greet(name, greeting="Hello"):
+    print(f"{greeting}, {name}")
+
+greet("Alice")               # Hello, Alice
+greet("Bob", "Hey")          # Hey, Bob
+```
+
+`greeting` is optional. If you don't pass it, Python uses `"Hello"`. If you do, Python uses what you send.
+
+**The rule**: default parameters always come after non-default ones. Python needs to know what's required and what's optional, and it figures that out by position.
+
+```python
+def calculate(price, discount=0, tax=0.21):   # ✅
+    base = price - discount
+    return base + (base * tax)
+
+def calculate(discount=0, price, tax=0.21):   # ❌ SyntaxError
+    ...
+```
+
+If you put the default parameter first, Python can't tell whether the first argument you pass is `discount` or `price`. The question makes sense; the answer is a syntax error.
+
+### The trap nobody warns you about
+
+Default values are evaluated **once**, when Python defines the function — not each time you call it. For strings, numbers, and booleans that's fine because they're immutable. For lists and dictionaries, it matters a lot.
+
+```python
+def add_item(item, items=[]):
+    items.append(item)
+    return items
+
+print(add_item("a"))   # ['a']
+print(add_item("b"))   # ['a', 'b']  ← wait
+print(add_item("c"))   # ['a', 'b', 'c']  ← this wasn't the plan
+```
+
+The `[]` in the definition is created once. Every call that doesn't pass `items` shares the exact same object. You're accumulating items across calls even though it looks like you're starting fresh each time.
+
+Like a shared whiteboard in a meeting room: you walk in expecting a blank surface, but the diagrams from the previous meeting are still there. The whiteboard is the list; the diagrams are the elements from previous calls; and "I thought it started fresh" is wrong every time.
+
+The fix:
+
+```python
+def add_item(item, items=None):
+    if items is None:
+        items = []  # New list for each call without an explicit list
+    items.append(item)
+    return items
+```
+
+The rule: **never use a mutable object as a default value** — list, dict, or set. Use `None` and create the object inside the function. No exceptions.
+
+## Positional and keyword arguments
+
+So far you've been passing arguments in order — those are **positional** arguments. Python assigns them by position: first to the first parameter, second to the second, and so on.
+
+With two or three parameters, that's fine:
+
+```python
+def show_user(name, age, city):
+    print(f"{name}, {age}, {city}")
+
+show_user("Alice", 34, "London")
+```
+
+With six:
+
+```python
+create_report(True, "pdf", "en", None, False, "full")
+```
+
+What does that `True` do? And the `False`? Is `None` intentional or did someone forget to pass something? You can't know without reading the function definition. And reading the function definition every time you call something isn't development — it's archaeology.
+
+**Keyword arguments** solve this:
+
+```python
+show_user(name="Alice", age=34, city="London")
+```
+
+Now each value carries its label. You can also change the order:
+
+```python
+show_user(city="London", name="Alice", age=34)
+```
+
+And mix positional and keyword — always with positional first:
+
+```python
+show_user("Alice", city="London", age=34)   # ✅
+show_user(name="Alice", 34, "London")       # ❌ SyntaxError
+```
+
+Why bother? For the day your function has four boolean parameters and the person reading the code six months from now isn't you. `include_signature=True` says what it does. `True` in position four says nothing.
+
+## *args: variable number of positional arguments
+
+What if you need a function that accepts any number of arguments? The `*` before the parameter name tells Python to pack all the extra positional arguments into a **tuple**:
+
+```python
+def add(*args):
+    return sum(args)
+
+print(add(1, 2))              # 3
+print(add(1, 2, 3, 4, 5))    # 15
+print(add())                  # 0
+```
+
+Inside the function, `args` is just a tuple with everything that arrived. The name `args` is convention — the `*` does the work. You could call it `*numbers` or `*values`. In practice, `*args` is what everyone expects to see.
+
+```python
+def inspect(*args):
+    print(type(args))   # <class 'tuple'>
+    print(args)
+
+inspect(10, 20, "hello")
+# <class 'tuple'>
+# (10, 20, 'hello')
+```
+
+You can combine regular parameters with `*args`, as long as `*args` comes after the positional ones:
+
+```python
+def show_list(title, *items):
+    print(f"{title}:")
+    for item in items:
+        print(f"  - {item}")
+
+show_list("Fruits", "apple", "orange", "banana")
+```
+
+```
+Fruits:
+  - apple
+  - orange
+  - banana
+```
+
+Think of `*args` like a function that takes however many pizza toppings you want — you don't hardcode three slots for `topping_1`, `topping_2`, `topping_3`. Whatever shows up goes in.
+
+## **kwargs: variable keyword arguments
+
+`**kwargs` does the same thing as `*args`, but for keyword arguments. Instead of a tuple, Python packs everything into a **dictionary**:
+
+```python
+def configure(**kwargs):
+    for key, value in kwargs.items():
+        print(f"{key}: {value}")
+
+configure(color="blue", size="large", border=True)
+```
+
+```
+color: blue
+size: large
+border: True
+```
+
+Same as `*args`, the name `kwargs` is convention. The `**` is what counts.
+
+`**kwargs` shows up a lot in code that builds or configures objects, in function wrappers, and in generic utilities that don't know in advance what options they'll receive.
+
+Honest warning: `**kwargs` can make your function very flexible or completely opaque. If someone calls `configure(name="test", temperature=37, pizza=True)` and the function accepts it without complaint, there's no way to know from the outside which parameters are actually valid. Use it when the flexibility makes real sense; not as a substitute for thinking through your function's interface. The warning sign: if you're calling `kwargs.get()` in eight different places inside the same function, that function is probably doing too many things.
+
+## Combining everything
+
+You can combine regular parameters, `*args`, and `**kwargs` in one function. The order is always:
+
+1. Regular positional parameters
+2. `*args`
+3. Keyword-only parameters (come after `*args` and can **only** be passed by name)
+4. `**kwargs`
+
+```python
+def log(level, *messages, timestamp=True, **extra):
+    print(f"[{level}] timestamp={timestamp}")
+    for msg in messages:
+        print(f"  {msg}")
+    if extra:
+        print(f"  extra: {extra}")
+
+log("INFO", "Connection established", "Database ready",
+    timestamp=False, user="admin", ip="192.168.1.1")
+```
+
+```
+[INFO] timestamp=False
+  Connection established
+  Database ready
+  extra: {'user': 'admin', 'ip': '192.168.1.1'}
+```
+
+`timestamp` isn't a regular positional parameter or part of `**kwargs` — it sits between `*args` and `**kwargs`, which makes it **keyword-only**: it can only be passed by name, never by position.
+
+## When to use what
+
+- **Default parameters**: when a reasonable value works for most cases. Don't put a default on everything "just in case" — a function where everything is optional has no clear contract.
+- **Keyword arguments**: when the signature has more than three parameters or when the argument types don't make their purpose obvious.
+- ***args**: when you genuinely don't know how many positional arguments will arrive. If you know, list them explicitly — an explicit signature always communicates more than `*args`.
+- ****kwargs**: for wrappers, decorators, and generic configuration utilities. Not as a substitute for thinking through the interface.
+
+## Key concepts from this lesson
+
+- Default parameters always go after required ones.
+- Default values are evaluated once: **never use a mutable object as a default value**.
+- Keyword arguments make code more readable when functions have many parameters.
+- `*args` packs positional arguments into a tuple; `**kwargs` packs keyword arguments into a dictionary.
+- Parameters after `*args` are keyword-only: they cannot be passed by position.
+- The order is: positional → `*args` → keyword-only → `**kwargs`.
+
+---
+
+**💡 Challenge**: Create a function `log(message, level="INFO", *tags, timestamp=True, **extra)`. Call it in several ways: just with `message`, adding `level`, passing extra tags, with `timestamp=False`, and with extra keyword arguments like `user="admin"`. What does it print each time? What happens if you try to pass `timestamp` by position?
+
+Next up: **scope** — how Python decides which variable is visible from where, what happens when a function defines a variable with the same name as one outside it, and why `global` exists even though most of the time you're better off not using it.
+
+Never stop coding!
