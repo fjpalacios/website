@@ -1,0 +1,186 @@
+---
+title: "Prompts para generar código con IA"
+post_slug: "prompts-para-generar-codigo-ia"
+date: "2026-06-22"
+excerpt: "Aprende a especificar antes de pedir: scaffold, TDD con IA y cómo revisar el código generado antes de confiar en él."
+language: "es"
+categories: ["ia"]
+course: "ia-para-programadores"
+order: 10
+cover: "/images/tutorials/cabecera-ia-para-programadores-curso.jpg"
+i18n: "prompts-for-code-generation-ai"
+---
+
+Escribes "escríbeme una función que gestione usuarios" y mandas el mensaje.
+
+La IA devuelve 847 líneas. Una entidad, un repositorio, un servicio, un controlador, un DTO, un mapper, un decorador de validación y un README con el diagrama de arquitectura. Tú querías filtrar por nombre.
+
+Bienvenido al código generado por especificación insuficiente: técnicamente correcto, prácticamente inútil.
+
+El problema no es la IA. Es que "gestione usuarios" no es una especificación: es una invitación abierta. Y la IA, cuando no tiene restricciones, tiende a demostrar todo lo que sabe. Como ese compañero de trabajo que cuando le preguntas la hora te explica también cómo funciona un reloj atómico.
+
+En el [tutorial anterior aprendiste a usar la IA como tutor para entender conceptos](/es/tutoriales/aprender-conceptos-programacion-ia). Ahora el objetivo cambia: ya no queremos que explique, queremos que escriba código que podamos usar. Y eso requiere una forma distinta de pedir.
+
+## La especificación antes del código
+
+La regla es brutalmente simple: cuanto mejor describes lo que quieres, más se parece el resultado a lo que querías.
+
+Suena obvio. Lo es, hasta que ves la diferencia en la práctica:
+
+```text
+❌ Especificación vaga:
+"Escríbeme una función para procesar pedidos"
+
+✅ Especificación concreta:
+"Escríbeme una función process_order() en Python que:
+- Reciba un objeto Order con los campos: id, user_id, items (lista
+  de dicts con product_id y quantity) y status
+- Calcule el total sumando price * quantity por cada item
+- Devuelva el objeto Order con total calculado y status a 'processed'
+- Lance ValueError si items está vacío
+- Lance OrderAlreadyProcessedError si el status ya es 'processed'
+- Incluya type hints completos
+- No use dependencias externas"
+```
+
+¿Por qué tanto detalle? Porque "procesar pedidos" puede significar cuarenta cosas distintas dependiendo del sistema. La función que genera el prompt vago puede funcionar perfectamente en un contexto diferente al tuyo.
+
+¿No se supone que la IA ya es lista? Sí. Pero lista no es lo mismo que telepática. Tu colega más capaz también te haría tres preguntas antes de ponerse a escribir. La IA no puede preguntarte porque ya le dijiste que empezara.
+
+Los elementos que no pueden faltar en una especificación:
+
+- **Nombre y firma** de la función o módulo
+- **Qué recibe** (tipos, restricciones de los inputs)
+- **Qué devuelve** (tipo de retorno, forma del resultado)
+- **Comportamiento en errores** (qué excepciones lanzar, cuándo)
+- **Restricciones técnicas** (versión del lenguaje, librerías disponibles, convenciones del proyecto)
+- **Qué NO hacer** — a veces más importante que todo lo anterior
+
+Ese último punto se merece un ejemplo propio:
+
+```text
+"Implementa sin usar recursión.
+No introduzcas dependencias externas.
+No uses sintaxis de tipos de Python < 3.10.
+No generes código de tests todavía — solo la función."
+```
+
+Las restricciones negativas ahorran tiempo. Si no las escribes, la IA toma decisiones razonables para ella que pueden no serlo para ti. Y luego pasas diez minutos preguntándote por qué hay un `functools.reduce` en una función que creías simple.
+
+## El enfoque scaffold: estructura primero, código después
+
+Pedir código directamente es como construir una casa empezando por las cortinas. Las cortinas quedan bien. Luego descubres que las ventanas no tienen el tamaño estándar, los marcos no coinciden y alguien ha diseñado un baño sin puerta.
+
+El scaffold approach funciona al revés: primero la estructura, luego vas implementando pieza a pieza.
+
+```text
+Prompt 1:
+"Dame la estructura completa de archivos para una API REST en Flask
+para una app de tareas pendientes. Solo la estructura: nombres de
+archivos y qué contiene cada uno en una línea. Sin código todavía."
+
+Prompt 2:
+"Ahora implementa models.py con los modelos que describiste."
+
+Prompt 3:
+"Implementa routes.py conectando con los modelos del paso anterior."
+
+Prompt 4:
+"Escribe los tests para routes.py."
+```
+
+Cada paso es verificable antes de avanzar. Si la estructura no te convence, corriges en el prompt 1 y no en el prompt 4, cuando ya tienes 200 líneas de código que dependen de una decisión equivocada.
+
+Hay un beneficio adicional que no es obvio: dividir el trabajo en pasos cortos le da a la IA más espacio para razonar. El modelo trabaja mejor con un prompt específico y concreto que cuando le pides que lo haga todo de golpe y esperas que salga bien.
+
+Una variación útil es el **context block**: un bloque de contexto del proyecto que pegas al inicio de cada conversación importante. Describe el stack, las convenciones, las restricciones. La IA no recuerda conversaciones anteriores, pero sí todo lo que hay en el contexto actual. Dáselo:
+
+```text
+"Contexto del proyecto:
+- API backend en Django 5 con Django REST Framework
+- PostgreSQL 15, Redis para caché, Celery para tareas async
+- Python 3.12, tipado estricto con mypy
+- Todos los modelos siguen snake_case, tests con pytest
+- Dominio separado en apps: orders/, products/, users/
+
+Con este contexto, implementa..."
+```
+
+Una sola vez al inicio de la conversación. No hace falta repetirlo en cada prompt.
+
+## TDD con IA: empieza por los tests
+
+El enfoque test-first con IA es, posiblemente, la forma más honesta de generar código. No porque sea más purista que el resto, sino porque obliga a especificar el comportamiento antes de ver la implementación.
+
+La lógica: los tests son más fáciles de verificar que el código. Puedes leer tres líneas de test y saber exactamente qué se espera. El código de 40 líneas que los pasa es más opaco.
+
+```text
+Prompt 1:
+"Escribe tests en pytest que fallen para una función add_user(name, email) que:
+- Acepta un nombre no vacío y un email válido
+- Lanza ValueError si el nombre está vacío
+- Lanza ValueError si el email no tiene formato válido
+- Devuelve un dict con id generado, name y email
+No implementes la función todavía."
+
+Prompt 2:
+"Ahora implementa add_user() para que pasen estos tests."
+
+Prompt 3:
+"¿Qué casos de borde faltan en mis tests?"
+```
+
+El tercer prompt es el más valioso del proceso. La IA suele señalar escenarios que no consideraste: emails con caracteres Unicode, nombres con 500 caracteres, inputs de tipo `None` en vez de string, emails con espacios al principio. Algunos serán irrelevantes para tu caso; otros serán el bug que habrías encontrado en producción dos semanas después.
+
+Si estás siguiendo también el [curso de Python desde cero](/es/cursos/aprende-a-programar-desde-cero-python), este patrón encaja muy bien con la lección de funciones: defines la firma, especificas el comportamiento con tests y dejas que la implementación venga después. Es una forma de aprender a pensar en interfaces antes que en código.
+
+## Los problemas del código generado
+
+El código que genera la IA funciona. Compila, a veces tiene tests, los nombres de las variables son razonables. Lo que no tiene es contexto de lo que ocurrió la última vez que alguien hizo algo parecido en producción.
+
+Tú sí.
+
+Los problemas más comunes que pasan desapercibidos:
+
+**APIs obsoletas.** La librería cambió hace ocho meses y la IA no lo sabe. El código generado usa la versión anterior. Funciona en desarrollo porque tienes la versión antigua. Rompe en el servidor de producción porque allí está la nueva. El error aparece un viernes por la tarde.
+
+**Valores hardcodeados.** Credenciales de base de datos, tokens de API, URLs de servicios internas. Todo en el código fuente. Como dejar la llave de casa debajo del felpudo con una nota que pone "llave de emergencia". Todo el mundo sabe lo del felpudo. El historial de commits de GitHub también.
+
+**Error handling parcial.** La IA maneja los casos que describiste. Los que no mencionaste no existen para ella. Si no dijiste qué hacer cuando el servicio externo no responde, hay un timeout silencioso esperando su momento en producción.
+
+**Problemas de seguridad.** SQL injection si los inputs no se sanitizan correctamente. Secrets expuestos en logs. Validaciones que parecen estar pero no cubren todos los paths de ejecución.
+
+**Performance que no escala.** Una query que funciona con 100 registros y tarda 45 segundos con 50.000. El N+1 que parece inocente hasta que el tráfico crece y alguien te escribe a las tres de la mañana.
+
+Ninguno de estos problemas es culpa de la IA. Son consecuencia de que tú tienes contexto que ella no tiene: el historial del proyecto, las decisiones de arquitectura anteriores, los bugs que ya pasaron, los requisitos de seguridad del cliente. Ese conocimiento no se transmite con un prompt; se aplica en la revisión.
+
+## El prompt de revisión
+
+Una vez que tienes el código generado, hay una técnica que atrapa la mayoría de problemas antes de que lleguen a producción:
+
+```text
+"Revisa el código que acabas de generar buscando específicamente:
+1. Vulnerabilidades de seguridad (inyección, secrets expuestos, validación de inputs)
+2. Problemas de rendimiento (queries ineficientes, carga innecesaria en memoria)
+3. Error handling ausente o incompleto
+4. Valores hardcodeados que deberían ser configurables
+5. Supuestos sobre el entorno que podrían no cumplirse
+
+Para cada problema: describe qué es, por qué importa y propón la corrección concreta."
+```
+
+La IA pasa por los mismos checks que harías en un code review, antes de que los hagas tú. Y a veces encuentra cosas que se te habrían pasado. No siempre, especialmente los problemas que dependen del contexto de tu sistema. El prompt de revisión reduce el ruido; tu criterio como desarrollador sigue siendo el filtro final.
+
+## Conceptos clave de esta lección
+
+- Una especificación concreta produce código concreto; una vaga produce arquitectura que nadie pidió
+- El scaffold approach (estructura → modelos → rutas → tests) evita reescribir desde la mitad
+- TDD con IA: escribe los tests primero, pide que los pase después, luego pregunta qué casos de borde faltan
+- El código generado funciona para los casos que especificaste — los que no mencionaste son responsabilidad tuya
+- El prompt de revisión es un segundo par de ojos antes del code review, no un sustituto de él
+
+---
+
+Hay un patrón que aparece en cada uno de estos enfoques: rara vez la primera respuesta es la definitiva. El scaffold pide varias rondas, el TDD tiene tres prompts, la revisión añade otra vuelta. Eso no es un problema del proceso; es cómo funciona construir código con IA. En el próximo tutorial veremos exactamente eso: cómo gestionar el diálogo de refinamiento sin perder el hilo ni acabar con una función que ya no se parece nada a lo que pediste al principio.
+
+¡Nunca dejes de programar!
