@@ -7,7 +7,7 @@
  * Features: Breadcrumbs, course relationship, categories, cover image, schema.org
  */
 
-import Breadcrumbs, { generateBreadcrumbSchema, type BreadcrumbItem } from "@components/Breadcrumbs.astro";
+import Breadcrumbs from "@components/Breadcrumbs.astro";
 import CourseNavigation from "@components/CourseNavigation.astro";
 import Icon from "@components/Icon.astro";
 import OptimizedImage from "@components/OptimizedImage.astro";
@@ -15,6 +15,7 @@ import PostTitle from "@components/PostTitle.astro";
 import Share from "@components/Share.astro";
 import Layout from "@layouts/Layout.astro";
 import { t } from "@locales";
+import { generateBreadcrumbSchema, type BreadcrumbItem } from "@utils/breadcrumb";
 import { getTutorialCoverImage } from "@utils/imageImports";
 import { IMAGE_DIMENSIONS, RESPONSIVE_SIZES } from "@utils/images";
 import { buildCategoryUrl, buildCourseUrl, buildTutorialsIndexUrl } from "@utils/routes";

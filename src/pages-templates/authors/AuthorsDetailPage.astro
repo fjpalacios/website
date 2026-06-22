@@ -11,12 +11,13 @@
  */
 
 import AuthorInfo from "@components/AuthorInfo.astro";
-import Breadcrumbs, { generateBreadcrumbSchema, type BreadcrumbItem } from "@components/Breadcrumbs.astro";
+import Breadcrumbs from "@components/Breadcrumbs.astro";
 import Paginator from "@components/Paginator.astro";
 import PostList from "@components/PostList.astro";
 import Title from "@components/Title.astro";
 import Layout from "@layouts/Layout.astro";
 import { t } from "@locales";
+import { generateBreadcrumbSchema, type BreadcrumbItem } from "@utils/breadcrumb";
 import { buildAuthorUrl, buildAuthorsIndexUrl } from "@utils/routes";
 import type { CollectionEntry } from "astro:content";
 
