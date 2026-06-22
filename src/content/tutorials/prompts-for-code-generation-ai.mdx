@@ -1,0 +1,187 @@
+---
+title: "Prompts for Code Generation with AI"
+post_slug: "prompts-for-code-generation-ai"
+date: "2026-06-22"
+excerpt: "Learn to specify before you ask: scaffold approach, TDD with AI, and how to review generated code before trusting it."
+language: "en"
+categories: ["ia"]
+course: "ai-for-developers"
+order: 10
+cover: "/images/tutorials/cabecera-ia-para-programadores-curso.jpg"
+i18n: "prompts-para-generar-codigo-ia"
+---
+
+You type "write a function to manage users" and hit Enter.
+
+The AI comes back with 847 lines. An entity, a repository, a service, a controller, a DTO, a mapper, a validation decorator, and a README explaining the architecture. You wanted to filter by name.
+
+This is what happens when you ask for code without specifying what you actually want: the AI doesn't fill gaps with nothing — it fills them with competence. Impressive, thorough, and completely wrong for your use case.
+
+The problem isn't the AI. It's that "manage users" isn't a specification — it's an open invitation. And without constraints, AI tends to show everything it knows. Like that coworker who, when you ask what time it is, also explains how atomic clocks work.
+
+In the [previous tutorial, you used AI as a learning tutor to understand programming concepts](/en/tutorials/using-ai-to-learn-programming-concepts). Now the goal shifts: instead of asking for explanations, you're asking for code you can actually use. That requires a different way of asking.
+
+## Specification first, code second
+
+The rule is straightforward: the better you describe what you want, the closer the result is to what you wanted.
+
+It sounds obvious. It is, until you see the difference in practice:
+
+```text
+❌ Vague specification:
+"Write a function to process orders"
+
+✅ Concrete specification:
+"Write a Python function process_order() that:
+- Accepts an Order object with fields: id, user_id, items (list
+  of dicts with product_id and quantity), and status
+- Calculates the total by summing price * quantity for each item
+- Returns the Order object with total calculated and status set to 'processed'
+- Raises ValueError if items is empty
+- Raises OrderAlreadyProcessedError if status is already 'processed'
+- Includes full type hints
+- Uses no external dependencies"
+```
+
+Why all the detail? Because "process orders" can mean forty different things depending on the system. The function generated from the vague prompt might work perfectly in a different context than yours.
+
+Isn't the AI supposed to be smart? It is. But smart isn't the same as psychic. Your most capable colleague would also ask three questions before touching the keyboard. The AI can't ask because you already told it to start.
+
+Elements that belong in a solid specification:
+
+- **Name and signature** of the function or module
+- **What it receives** (types, input constraints)
+- **What it returns** (return type, shape of the result)
+- **Error behavior** (which exceptions to raise, when)
+- **Technical constraints** (language version, available libraries, project conventions)
+- **What NOT to do** — sometimes more important than everything else
+
+That last one deserves its own example:
+
+```text
+"Implement without recursion.
+Don't introduce external dependencies.
+Don't use type syntax below Python 3.10.
+Don't generate test code yet — just the function."
+```
+
+Negative constraints save time. Without them, the AI makes decisions that are reasonable from its perspective but may not be from yours. Then you spend ten minutes wondering why there's a `functools.reduce` in a function you thought was simple.
+
+## The scaffold approach: structure first, code second
+
+Asking for code directly is like building a house by starting with the curtains. The curtains look great. Then you discover the windows aren't standard size, the frames don't fit, and someone designed a bathroom with no door.
+
+The scaffold approach works the other way: structure first, then implement piece by piece.
+
+```text
+Prompt 1:
+"Give me the complete file structure for a Flask REST API
+for a todo app. Just the structure: filenames and one line
+describing what each contains. No code yet."
+
+Prompt 2:
+"Now implement models.py with the models you described."
+
+Prompt 3:
+"Implement routes.py connecting to the models from the previous step."
+
+Prompt 4:
+"Write tests for routes.py."
+```
+
+Each step is verifiable before moving forward. If the structure doesn't work for you, you fix it at prompt 1, not at prompt 4 when you already have 200 lines of code that depend on a flawed decision.
+
+There's a non-obvious benefit here too: breaking work into short steps gives the AI more room to reason. A specific, focused prompt consistently outperforms "do everything at once."
+
+A useful variation is a **context block** — a chunk of project context you paste at the start of each important conversation. The AI doesn't remember previous sessions, but it does know everything in the current context. Use that:
+
+```text
+"Project context:
+- Django 5 backend with Django REST Framework
+- PostgreSQL 15, Redis for caching, Celery for async tasks
+- Python 3.12, strict typing with mypy
+- All models follow snake_case, tests with pytest
+- Domain separated into apps: orders/, products/, users/
+
+With this context, implement..."
+```
+
+Once per conversation, at the start. You don't need to repeat it every prompt.
+
+## TDD with AI: tests first
+
+The test-first approach with AI is, arguably, the most honest way to generate code. Not because it's more principled, but because it forces you to specify behavior before seeing the implementation.
+
+The logic: tests are easier to verify than code. You can read three lines of a test and know exactly what's expected. The 40 lines of implementation that make them pass are more opaque.
+
+```text
+Prompt 1:
+"Write failing pytest tests for a function add_user(name, email) that should:
+- Accept a non-empty name and a valid email
+- Raise ValueError if name is empty
+- Raise ValueError if email has invalid format
+- Return a dict with generated id, name, and email
+Don't implement the function yet."
+
+Prompt 2:
+"Now implement add_user() to make these tests pass."
+
+Prompt 3:
+"What edge cases are missing from my tests?"
+```
+
+The third prompt is the most valuable step in the process. The AI typically surfaces scenarios you didn't consider: emails with Unicode characters, names with 500 characters, `None` passed instead of a string, emails with leading spaces. Some will be irrelevant to your use case. Others will be the exact bug you'd have found in production two weeks later.
+
+If you're also working through the [Python from scratch course](/en/courses/learn-to-code-from-scratch-python), this pattern maps naturally to the functions lesson: define the signature, specify behavior through tests, let the implementation come after. It's a way to practice thinking in interfaces before thinking in code.
+
+## The problems with generated code
+
+Generated code works. It compiles, sometimes has tests, the variable names are reasonable. What it doesn't have is context about what happened the last time someone tried something similar in production.
+
+You do.
+
+The most common problems that slip through unnoticed:
+
+**Stale APIs.** The library changed eight months ago and the AI doesn't know. The generated code uses the previous version. It works in development because you have the old version pinned. It breaks on the production server because that one has the new version. The error shows up on a Friday afternoon.
+
+**Hardcoded values.** Database credentials, API tokens, internal service URLs — all in the source code. Like hiding your house key under the welcome mat with a note that says "emergency key." Everybody knows about the welcome mat. So does your git history on GitHub.
+
+**Partial error handling.** The AI handles the cases you described. The ones you didn't mention don't exist to it. If you didn't say what should happen when the external service doesn't respond, there's a silent timeout waiting for its moment in production.
+
+**Security issues.** SQL injection when inputs aren't sanitized correctly. Secrets leaking into logs. Validations that look complete but don't cover every execution path.
+
+**Performance that doesn't scale.** A query that works with 100 records and takes 45 seconds with 50,000. The N+1 that looks innocent until traffic grows and someone messages you at 3 AM.
+
+None of these are the AI's fault. They're a consequence of you having context it doesn't: the project's history, previous architectural decisions, bugs that already happened, the client's security requirements. That knowledge isn't transmitted in a prompt — it gets applied in review.
+
+## The review prompt
+
+Once you have generated code, this prompt catches most issues before they reach production:
+
+```text
+"Review the code you just generated, specifically looking for:
+1. Security vulnerabilities (injection, exposed secrets, input validation)
+2. Performance issues (inefficient queries, unnecessary memory load)
+3. Missing or incomplete error handling
+4. Hardcoded values that should be configurable
+5. Assumptions about the environment that might not hold
+
+For each issue found: describe the problem, explain why it matters,
+and propose the specific fix."
+```
+
+The AI runs through the same checks you'd do in a code review, before you do. And it sometimes catches things you'd have missed. Not always — especially problems that depend on your system's context. The review prompt reduces noise; your judgment as a developer is still the final filter.
+
+## Key concepts from this lesson
+
+- A concrete specification produces concrete code; a vague one produces architecture nobody asked for
+- The scaffold approach (structure → models → routes → tests) avoids rewriting from the middle
+- TDD with AI: write failing tests first, ask for an implementation that passes them, then ask what edge cases you missed
+- Generated code works for the cases you specified — the ones you didn't mention are your responsibility
+- The review prompt is a second pair of eyes before code review, not a replacement for it
+
+---
+
+There's a pattern in all of these approaches: the first response is rarely the final one. The scaffold takes multiple rounds, TDD has three prompts, the review adds another pass. That's not a problem with the process — it's how building code with AI actually works. In the next tutorial, we'll look at exactly that: how to manage the refinement dialogue without losing the thread or ending up with a function that no longer resembles what you asked for in the first place.
+
+Never stop coding!
