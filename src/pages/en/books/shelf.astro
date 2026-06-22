@@ -1,12 +1,13 @@
 ---
 import { getCollection } from "astro:content";
 
-import Breadcrumbs, { generateBreadcrumbSchema } from "@/components/Breadcrumbs.astro";
+import Breadcrumbs from "@/components/Breadcrumbs.astro";
 import Icon from "@/components/Icon.astro";
 import { shelf } from "@/content/shelf";
 import Layout from "@/layouts/Layout.astro";
 import { t } from "@/locales";
 import { classifyBooksByReviewLanguage } from "@/utils/bookLinkHelpers";
+import { generateBreadcrumbSchema } from "@/utils/breadcrumb";
 import { getContact } from "@/utils/content/contact";
 import { buildBookUrl, buildIndexUrl } from "@/utils/routes";
 
