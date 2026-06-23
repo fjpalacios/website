@@ -1,0 +1,166 @@
+---
+title: "git switch and git restore: the end of the all-purpose checkout"
+post_slug: "git-switch-restore-modern-git-commands"
+date: "2026-06-23"
+excerpt: "git checkout has been doing too many things for too long. git switch and git restore arrived in 2019 to fix that design. They've been stable for years — time to use them."
+language: "en"
+categories: ["git"]
+course: "mastering-git-from-scratch"
+order: 39
+cover: "/images/tutorials/cabecera-git.jpg"
+i18n: "git-switch-restore-comandos-modernos"
+---
+
+`git checkout` is Git's Swiss Army knife: five different tools folded on top of each other, and when you need the scissors, you pull out the corkscrew. It switches branches, creates new branches, restores files, restores files to a specific commit's version, and drops you into a detached HEAD state if you give it a hash. All valid. All the same command. None of them particularly obvious about what the others do.
+
+If you've ever felt that `git checkout` was confusing — that it made no sense for the same command to handle branch navigation and file recovery — you were right. It wasn't just you. It was the design. Enough so that in 2019, with Git 2.23, two new commands arrived to split it apart: `git switch` for branches, `git restore` for files. They've been stable for years. This tutorial is about understanding them and making the switch.
+
+## git switch: changing branches without ambiguity
+
+`git switch` does one thing: move HEAD to another branch. That's it. The syntax is straightforward:
+
+```bash
+# Switch to an existing branch
+git switch main
+
+# Create a new branch and switch to it
+git switch -c feature/new-functionality
+
+# Create from a specific base
+git switch -c feature/my-branch origin/develop
+
+# Return to the previous branch
+git switch -
+```
+
+If you're like me after years of muscle memory, `git checkout -b` is wired into your left hand and `git switch -c` will feel redundant for the first few weeks. That's normal. The difference isn't in what it does — it's in what it refuses to do: `git switch` can't restore files, can't go to a specific commit, can't enter detached HEAD unless you explicitly ask for it. It switches branches. That's what makes it predictable.
+
+What happens if you try `git switch abc123` to inspect a specific commit? Git doesn't guess: it gives you an error and tells you to use `--detach` if that's what you want. You have to be intentional:
+
+```bash
+# You have to mean this
+git switch --detach abc123
+```
+
+With `git checkout`, ending up in a detached HEAD was too easy — you'd type a hash without thinking and suddenly be in a repository state that required explaining what HEAD was and why it was floating alone in space. With `git switch`, that doesn't happen by accident.
+
+## git restore: recovering files without the mysterious double dash
+
+The classic way to discard changes in a file was `git checkout -- file.txt`. The `--` there comes from a Unix convention for separating flags from arguments — without it, Git can't tell if you're passing a branch name or a path. Technically necessary. Practically, one of those details you've spent years typing without knowing what that double dash is doing there, because nobody stopped to explain it and you already had it in your muscle memory before you thought to ask.
+
+`git restore` makes it explicit:
+
+```bash
+# Discard working directory changes (restore to last committed version)
+git restore file.txt
+
+# Restore multiple paths at once
+git restore src/ tests/
+
+# Discard all tracked changes in working directory
+git restore .
+
+# Restore a file to its state at a specific commit
+git restore --source=abc123 file.txt
+
+# Unstage a file (move it back from index to working directory)
+git restore --staged file.txt
+
+# Unstage and discard working directory changes in one shot
+git restore --staged --worktree file.txt
+```
+
+The `--staged` flag is the one that makes the biggest difference day-to-day. Before, removing a file from the staging area meant `git reset HEAD file.txt` — which works, but uses the word "reset" for something that isn't a reset, which caused that brief hesitation before hitting Enter. `git restore --staged` does the same thing and says exactly what it does. No hesitation required.
+
+⚠️ `git restore` without `--staged` discards working directory changes permanently. They don't go to the reflog because they were never committed — they're just overwritten. If you're not sure, `git stash` before `git restore`.
+
+## The conversion table
+
+For when muscle memory still reaches for the old command:
+
+| Operation | Before | Now |
+|-----------|--------|-----|
+| Switch branch | `git checkout main` | `git switch main` |
+| Create and switch | `git checkout -b new` | `git switch -c new` |
+| Restore file | `git checkout -- file.txt` | `git restore file.txt` |
+| Restore from commit | `git checkout abc123 -- file` | `git restore --source=abc123 file` |
+| Unstage file | `git reset HEAD file.txt` | `git restore --staged file.txt` |
+| Detached HEAD | `git checkout abc123` | `git switch --detach abc123` |
+
+`git checkout` isn't going anywhere — there's too much code, too many scripts, too much muscle memory in the world to remove it. But if you're onboarding someone new or starting a fresh project, `git switch` and `git restore` are the commands worth teaching first. Not because they're modern, but because each one does exactly one thing.
+
+## git sparse-checkout: when you don't need the whole repository
+
+In a monorepo with fifty packages, you're usually working on two or three of them. Downloading the other forty-seven every time gives you nothing except slower clones and wasted disk space.
+
+`git sparse-checkout` solves that: it lets you check out only the directories you need:
+
+```bash
+# Initialize sparse-checkout (cone mode is the standard)
+git sparse-checkout init --cone
+
+# Specify which directories to include
+git sparse-checkout set packages/my-app src/shared
+
+# Check what's currently configured
+git sparse-checkout list
+
+# Add more directories without replacing the current set
+git sparse-checkout add packages/another-lib
+
+# Disable and restore full checkout
+git sparse-checkout disable
+```
+
+Cone mode (Git 2.26) works with whole directories instead of arbitrary globs, which makes it significantly faster and more predictable. It's the mode you'll want to use in practice.
+
+Combined with `--filter` at clone time, it goes even further:
+
+```bash
+# Only download metadata; file contents are fetched on demand
+git clone --filter=blob:none --sparse https://github.com/org/monorepo
+cd monorepo
+git sparse-checkout set packages/my-app
+```
+
+With `--filter=blob:none`, Git downloads commits and trees but defers file contents until they're actually needed. In a monorepo with years of history, the difference between this and a full clone can be several minutes. In a CI pipeline that runs a hundred times a day, those minutes add up fast.
+
+## git maintenance: the work Git does while you're not looking
+
+As a repository grows, Git's internal operations get slower: the commit graph gets recalculated from scratch, loose objects accumulate, the index grows. `git gc` existed to clean all of that up, but it required either remembering to run it manually or trusting Git to trigger it automatically at the most inconvenient moment.
+
+`git maintenance` (Git 2.31) registers periodic background tasks with the operating system's scheduler to keep the repository healthy without interrupting your work:
+
+```bash
+# Register this repo for background maintenance
+git maintenance start
+
+# Run all maintenance tasks manually
+git maintenance run
+
+# Stop background maintenance for this repo
+git maintenance stop
+```
+
+With `git maintenance start`, Git registers a task in cron (Linux/macOS) or Task Scheduler (Windows) that periodically runs four tasks:
+
+- **commit-graph**: precomputes the commit graph so `git log` and `git merge-base` run faster.
+- **loose-objects**: packs loose objects accumulated since the last pack.
+- **incremental-repack**: reorganizes object packs incrementally, without the cost of a full `git gc`.
+- **prefetch**: downloads objects from the remote in the background so the next `git fetch` is faster.
+
+On a normal-sized repository, the effect is imperceptible. On a repository with years of history and tens of thousands of commits, it can make `git log` and `git status` noticeably faster without changing anything about how you work. Which is, essentially, the best version of any optimization.
+
+## Key concepts from this lesson
+
+- `git switch` replaces `git checkout` for changing branches: it does only that, and detached HEAD requires explicit `--detach`.
+- `git restore` replaces `git checkout -- file` and `git reset HEAD file`: `--staged` moves files out of the index, without the flag it discards working directory changes.
+- `git checkout` will keep working, but `git switch` and `git restore` are what makes sense to use and teach in new projects.
+- `git sparse-checkout --cone` lets you check out only part of the repository: essential in monorepos or repos with large histories.
+- `git maintenance start` registers background maintenance with no cost to your normal workflow.
+
+---
+
+This is the second-to-last lesson in the course. In the final tutorial, we'll look at how Git fits into CI/CD pipelines: shallow clones so builds don't download the full commit history, object caching between runs, and the specific operations that make Git behave well when it's being run by an automated server instead of a developer at a terminal.
+
+Never stop coding!
