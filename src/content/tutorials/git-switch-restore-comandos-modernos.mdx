@@ -1,0 +1,166 @@
+---
+title: "git switch y git restore: el fin del checkout multipropósito"
+post_slug: "git-switch-restore-comandos-modernos"
+date: "2026-06-23"
+excerpt: "git checkout lleva décadas haciendo demasiadas cosas. git switch y git restore llegaron en 2019 para arreglar ese diseño. Ya llevan años siendo estables: es hora de usarlos."
+language: "es"
+categories: ["git"]
+course: "domina-git-desde-cero"
+order: 39
+cover: "/images/tutorials/cabecera-git.jpg"
+i18n: "git-switch-restore-modern-git-commands"
+---
+
+`git checkout` es la navaja suiza de Git: lleva cinco herramientas distintas dobladas una encima de la otra, y cuando quieres las tijeras, sacas el descorchador. Cambia de rama, crea una rama nueva, restaura un archivo a su última versión, restaura ese mismo archivo a la versión de un commit específico, o va al modo "detached HEAD" si le pasas un hash directamente. Todo eso, dependiendo de los flags que uses. Todos válidos. Todos el mismo comando. Ninguno especialmente obvio sobre lo que hace el otro.
+
+Si alguna vez sentiste que `git checkout` era confuso — que no tenía sentido que la misma palabra sirviera para navegar el historial y para recuperar un archivo que te habías cargado — no era cosa tuya. Era cosa del diseño. Lo suficiente como para que en 2019, con Git 2.23, llegaran dos comandos nuevos para dividirlo: `git switch` para lo de las ramas, `git restore` para lo de los archivos. Llevan años siendo estables. Este tutorial es para entenderlos y empezar a usarlos.
+
+## git switch: cambiar de rama sin ambigüedad
+
+`git switch` hace una cosa: mover el HEAD a otra rama. Sin más. La sintaxis es directa:
+
+```bash
+# Switch to an existing branch
+git switch main
+
+# Create a new branch and switch to it
+git switch -c feature/nueva-funcionalidad
+
+# Create from a specific base
+git switch -c feature/mi-rama origin/develop
+
+# Return to the previous branch
+git switch -
+```
+
+Si eres como yo cuando llevaba años trabajando con Git, tienes `git checkout -b` grabado en la memoria muscular y `git switch -c` te va a parecer redundante las primeras semanas. Pasa. La diferencia no está en lo que hace — está en lo que se niega a hacer: `git switch` no restaura archivos, no va a un commit concreto, no se pone en detached HEAD a menos que se lo pidas explícitamente. Solo cambia de rama. Eso lo hace predecible.
+
+¿Qué pasa si intentas `git switch abc123` para ir a un commit específico? Git no infiere nada: te da un error y te dice que si quieres detached HEAD tienes que pedirlo con `--detach`. Tienes que ser intencional:
+
+```bash
+# You have to mean this
+git switch --detach abc123
+```
+
+Con `git checkout`, llegar al detached HEAD era demasiado fácil — escribías un hash sin pensar y de repente el repositorio estaba en un estado que requería explicar qué era HEAD y por qué estaba flotando sola en el espacio. Con `git switch`, eso no ocurre por accidente.
+
+## git restore: recuperar archivos sin el doble guión misterioso
+
+La forma clásica de descartar cambios en un archivo era `git checkout -- archivo.txt`. El `--` ahí viene de una convención de Unix para separar flags de argumentos — sin él, Git no sabe si le estás pasando una rama o un path. Técnicamente necesario. Prácticamente, uno de esos detalles que llevas años escribiendo sin saber qué está haciendo ahí ese doble guión, y que tampoco nadie para a explicar porque ya lo tiene en el músculo y no se acuerda de que alguna vez no lo tuvo.
+
+`git restore` lo hace explícito:
+
+```bash
+# Discard working directory changes (restore to last committed version)
+git restore archivo.txt
+
+# Restore multiple paths at once
+git restore src/ tests/
+
+# Discard all tracked changes in working directory
+git restore .
+
+# Restore a file to its state at a specific commit
+git restore --source=abc123 archivo.txt
+
+# Unstage a file (move it back from index to working directory)
+git restore --staged archivo.txt
+
+# Unstage and discard working directory changes in one shot
+git restore --staged --worktree archivo.txt
+```
+
+El `--staged` es el que más diferencia hace en el día a día. Antes, sacar un archivo del staging area se hacía con `git reset HEAD archivo.txt` — que funciona, pero que usa la palabra "reset" para una operación que no es un reset, lo cual generaba ese momento de duda antes de ejecutarlo. `git restore --staged` hace lo mismo y dice exactamente lo que hace. Sin momento de duda.
+
+⚠️ `git restore` sin `--staged` descarta los cambios del working directory sin posibilidad de recuperación. No van al reflog porque nunca fueron un commit — simplemente se sobreescriben. Si hay alguna duda, `git stash` antes de `git restore`.
+
+## La tabla de conversión
+
+Para tenerla a mano cuando el músculo aún recuerda el comando viejo:
+
+| Operación | Antes | Ahora |
+|-----------|-------|-------|
+| Cambiar de rama | `git checkout main` | `git switch main` |
+| Crear rama y cambiar | `git checkout -b nueva` | `git switch -c nueva` |
+| Restaurar archivo | `git checkout -- archivo.txt` | `git restore archivo.txt` |
+| Restaurar desde commit | `git checkout abc123 -- archivo` | `git restore --source=abc123 archivo` |
+| Sacar del staging | `git reset HEAD archivo.txt` | `git restore --staged archivo.txt` |
+| Detached HEAD | `git checkout abc123` | `git switch --detach abc123` |
+
+`git checkout` no va a desaparecer — hay demasiados scripts, demasiados tutoriales, demasiada memoria muscular en el mundo como para eliminarlo. Pero si incorporas a alguien nuevo al equipo o empiezas un proyecto, `git switch` y `git restore` son los comandos con los que tiene sentido arrancar. No porque sean modernos, sino porque cada uno hace una sola cosa.
+
+## git sparse-checkout: cuando no necesitas el repositorio completo
+
+En un monorepo con cincuenta packages, lo habitual es trabajar en dos o tres. Descargar los otros cuarenta y siete cada vez no aporta nada excepto tiempo y espacio en disco.
+
+`git sparse-checkout` resuelve eso: permite hacer checkout de solo las carpetas que necesitas, ignorando el resto:
+
+```bash
+# Initialize sparse-checkout (cone mode is the standard)
+git sparse-checkout init --cone
+
+# Specify which directories to include
+git sparse-checkout set packages/mi-app src/shared
+
+# Check what's currently configured
+git sparse-checkout list
+
+# Add more directories without replacing the current set
+git sparse-checkout add packages/otra-lib
+
+# Disable and restore full checkout
+git sparse-checkout disable
+```
+
+El modo `--cone` (Git 2.26) trabaja con directorios completos en lugar de globs arbitrarios, lo que lo hace significativamente más eficiente y predecible. En la práctica es el modo que siempre querrás usar.
+
+Combinado con `--filter` al clonar, añade un nivel más:
+
+```bash
+# Only download metadata; file contents are fetched on demand
+git clone --filter=blob:none --sparse https://github.com/org/monorepo
+cd monorepo
+git sparse-checkout set packages/mi-app
+```
+
+Con `--filter=blob:none`, Git descarga commits y árboles pero no los contenidos de los archivos hasta que los necesita. En un monorepo con años de historia, la diferencia entre esto y un clone completo puede ser de varios minutos. En un pipeline de CI que se ejecuta cien veces al día, esos minutos se convierten en horas.
+
+## git maintenance: el mantenimiento que ocurre mientras trabajas
+
+A medida que crece un repositorio, las operaciones internas de Git se vuelven más lentas: el grafo de commits se recalcula cada vez, los objetos sueltos se acumulan, el índice crece. `git gc` existía para limpiar todo eso, pero requería acordarse de ejecutarlo — o confiar en que Git lo lanzara automáticamente en el momento menos conveniente.
+
+`git maintenance` (Git 2.31) registra tareas periódicas en el scheduler del sistema operativo para mantener el repositorio en buen estado sin interrumpir el trabajo:
+
+```bash
+# Register this repo for background maintenance
+git maintenance start
+
+# Run all maintenance tasks manually
+git maintenance run
+
+# Stop background maintenance for this repo
+git maintenance stop
+```
+
+Con `git maintenance start`, Git registra una tarea en cron (Linux/macOS) o en el Task Scheduler de Windows que ejecuta periódicamente cuatro tareas:
+
+- **commit-graph**: precompila el grafo de commits para que `git log` y `git merge-base` sean más rápidos.
+- **loose-objects**: empaqueta objetos sueltos acumulados desde el último pack.
+- **incremental-repack**: reorganiza los packs de objetos incrementalmente, sin el coste de un `git gc` completo.
+- **prefetch**: descarga objetos del remoto en segundo plano para que el siguiente `git fetch` sea más rápido.
+
+En un repositorio de tamaño normal, el efecto es imperceptible. En uno con varios años de historia y decenas de miles de commits, puede hacer que `git log` y `git status` respondan notablemente mejor sin que hayas cambiado nada en tu flujo de trabajo. Que es, básicamente, la mejor versión de cualquier optimización.
+
+## Conceptos clave de esta lección
+
+- `git switch` reemplaza `git checkout` para cambiar de rama: hace solo eso, y el detached HEAD requiere `--detach` explícito.
+- `git restore` reemplaza `git checkout -- archivo` y `git reset HEAD archivo`: `--staged` saca del index, sin flag descarta cambios del working directory.
+- `git checkout` seguirá funcionando, pero `git switch` y `git restore` son lo que tiene sentido usar y enseñar en proyectos nuevos.
+- `git sparse-checkout --cone` permite hacer checkout de solo parte del repositorio: fundamental en monorepos o repos con mucha historia.
+- `git maintenance start` registra mantenimiento en segundo plano sin coste para el flujo habitual.
+
+---
+
+Con esto cerramos la penúltima lección del curso. En la siguiente — la última — veremos cómo Git encaja dentro de un pipeline de CI/CD: shallow clones para que los builds no descarguen el historial completo, caché de objetos entre ejecuciones, y las operaciones concretas que hacen que Git se comporte bien cuando quien lo ejecuta no es una persona sino un servidor automatizado.
+
+¡Nunca dejes de programar!
