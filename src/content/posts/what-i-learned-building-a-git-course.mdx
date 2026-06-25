@@ -1,0 +1,84 @@
+---
+title: "What I learned building the 'Mastering Git from Scratch' course"
+post_slug: "what-i-learned-building-a-git-course"
+date: "2026-06-25"
+excerpt: "Nine years of migrations, a method I didn't know I had, and a Git course I started without knowing enough Git. It all makes sense in hindsight."
+language: "en"
+categories: ["programacion"]
+cover: ""
+i18n: "lo-que-he-aprendido-curso-git"
+---
+
+In 2017 I decided to build a Git course.
+
+No outline. No syllabus. I had Git knowledge — enough to use it daily, not necessarily enough to teach it — and a strong urge to give back to the internet that had taught me everything I knew. That combination of genuine motivation and complete pedagogical unpreparedness is what starts most interesting projects. And also most disasters. It took me nine years to figure out which one this was.
+
+## The method
+
+To understand how I ended up with a Git course, some context is needed. Before the course came the project. Before the project came the problem. The problem was simple: I wanted a place to share what I knew about programming.
+
+This is where, without realizing it at the time, something took shape that I've since called the **learning-by-migration method**. The idea is straightforward: instead of building something from scratch to learn something new, you use an existing real project as your excuse. The design is already solved, the requirements are known — the only thing that changes is the stack. You don't need to spend creative energy figuring out what to build, just how to build it in the new context. Worst case: you end up knowing the same things you already knew, just in a different language. Best case: you discover something that changes how you work.
+
+What I didn't know in 2017 is that I'd apply that method several more times.
+
+### The milestones
+
+**March 25, 2017.** First commit. Stack: PHP and MySQL, built entirely from scratch. Reinventing the wheel with the unchecked enthusiasm of someone who hasn't yet learned the cost of reinventing the wheel.
+
+**July 8, 2017.** I discover that Symfony exists. And that Symfony solves in ten minutes what I've been building by hand for weeks. First application of the method: stop, migrate, learn how things are done with a framework that millions of people have already battle-tested.
+
+**October 18, 2017.** The project goes live under the name SargantanaCode. First post published.
+
+**October 27, 2017.** The "Mastering Git from Scratch" course is born. Pedagogical preparation? Zero. Outline? None. Enough Git knowledge to actually teach it? That's the right question, and the honest answer is I'll only know years later, looking back. At the time there were just intentions, and intentions are sometimes enough to get started.
+
+**May 2, 2018.** SargantanaCode goes on pause. The Git course stalls halfway through. The idea for a learn-to-code course from scratch never gets off the ground either. The personal blog also stops. I stopped writing. I stopped reading.
+
+_(Spoiler: this will happen again. More than once.)_
+
+**July 2018.** I discover Ruby through some coding katas. And I mean discover in the real sense — Ruby on Rails in the background, and something I hadn't felt in a while. There are languages you learn because the job requires them. And there are languages that change how you think about code.
+
+Ruby was the second kind.
+
+I know it's a niche language. I know I haven't been able to use it as much professionally as I would have liked. But if I ever have to explain why I enjoy programming, the answer has something of Ruby in it: its simplicity, its syntax that reads like it was written for humans, its community, its philosophy. The language that makes you understand that code is written to be read by people, not machines. Some languages are tools you use. Ruby is one you think in. There will always be a special place for it.
+
+Time for the method, second iteration: migrate everything to Ruby on Rails.
+
+**August 26, 2018.** Migration done. First post on the new blog, energy restored. Back to the learn-to-code course idea: with Ruby? With Java? With Python and Java combined for "the best of both worlds"? The answer was none of the above. Between lack of time, lack of focus, and that particular mix of motivation and perfectionism that keeps projects in permanent draft mode — the course went nowhere. The blog went quiet. The personal blog too.
+
+_(Yeah. Again.)_
+
+The method kept working for learning other things: Django, Angular, React, Nuxt, NestJS. Frameworks that have passed through this site at various points. But both blogs — SargantanaCode and the personal one — were stalled and accumulating technical debt. Database to maintain, dependencies to update. A personal blog with a database connection is overengineering. I arrived at that conclusion somewhat late.
+
+**March 30, 2020.** The obvious solution had been obvious for a while: a Static Site Generator. No database, static HTML, nothing to maintain. The method, third iteration. I tried Jekyll (my Ruby, it was mandatory), Hugo, Next, and Gatsby. I went with Gatsby: large community, plugins for everything, GraphQL in depth, React underneath. The project started as a CV in code — until then I had it in a design tool, manually exporting PDFs every time something changed, which is a very elegant way to waste time — and later expanded to the blog.
+
+With this move came another decision: shut down SargantanaCode and migrate all its content here. If maintaining one site is hard enough, imagine two.
+
+**December 2025.** Astro appears. Native TypeScript, simple components, without the complexity Gatsby had been accumulating over the years. What finally pushed me wasn't Astro's promise — it was Gatsby's state: a major version upgrade that broke compatibility with everything I had written. The entire blog branch, in TypeScript, needed to migrate to JavaScript to keep working. The CV section I'd already rushed to JavaScript for the same reason. Dropping TypeScript in 2025 to avoid migrating code is a bit like turning off your antivirus because it slows your computer down. The method, fourth iteration.
+
+**February 2026.** The Astro migration is done. It's the cleanest one yet. SargantanaCode disappears — it now redirects here — the content that didn't hold up doesn't get migrated, and everything worth keeping from SargantanaCode ends up where it always should have been: this site. Current stack: comfortable, fast, easy to maintain.
+
+And yes, I've thought "this is the last migration" every single time. I know.
+
+## What doesn't show up in commits
+
+Reading the tutorials I wrote in 2017 makes me cringe a little. Not a lot — they're fine, they're clear, they still hold up — but the gap between how I explained things then and how I explain them now is wide enough to be almost funny. And that's exactly how it should be.
+
+Since then I've mentored people at work, kept learning, kept reading. All of that changes how you explain something. You explain with more judgment about what deserves to be there and what doesn't. More patience for the hard parts, more economy with the obvious ones. And, above all: you stop writing what you know and start writing what someone who doesn't know yet needs to understand. The gap between those two things isn't small.
+
+When I started the Git course I had no idea what order the lessons would go in. I wrote about what I knew, in whatever order it came to me. Now courses exist in their entirety before the first lesson is published: structure, topic dependencies, a planned progression. The difference between the two approaches is the difference between sharing and teaching. Both are valid. Only one scales.
+
+Something this process taught me that I didn't expect: the fastest way to genuinely learn something is to have to explain it to someone else. Not as life advice — as a technical observation. The concepts I understand best are the ones I've had to make clear for someone who didn't know them yet. That process has taught me more about Git than years of daily use. And it's left me with something else: the conviction that sharing knowledge isn't optional when you know there's someone on the other end who needs it. I owe the community what the community gave me when I was starting out. This site is part of that debt.
+
+The learn-to-code course that had been living in my head since 2017 is also here now. With Python instead of Ruby — Ruby is a language I love, but Python is the one in vocational training, in university programs, and in job listings — and with the structure it should have had from the beginning.
+
+Will I look back at what I'm writing now with the same bewilderment I feel looking at 2017? I hope so. That would mean the evolution is still happening.
+
+---
+
+What I've learned from building this course goes far beyond Git: it's about the method, about learning to explain things so they land, and about having to read the official docs to explain something well that I thought I already knew. That last one is the most useful. There's always something you didn't know you didn't know.
+
+And I can't wrap this up without addressing what's at the center of everything right now: artificial intelligence. Some people say this makes learning to code less necessary. I think the opposite. Speed isn't the problem. The problem is not having the judgment to know whether the answer the AI gives you is correct, whether the architecture it proposes makes sense for your specific case, whether the code being generated is going to be a problem in six months. The AI doesn't know that. If you don't either, we have a problem.
+
+The fundamentals will always be there. And they matter more now than before, precisely because the tool is more powerful.
+
+Never stop coding!
