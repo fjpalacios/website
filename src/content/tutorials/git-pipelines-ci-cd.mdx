@@ -1,0 +1,237 @@
+---
+title: "Git en pipelines de CI/CD: del commit al deploy automático"
+post_slug: "git-pipelines-ci-cd"
+date: "2026-06-25"
+excerpt: "Un pipeline de CI/CD empieza con un git push. Esta lección cubre cómo configurar Git correctamente en GitHub Actions y GitLab CI: shallow clones, caché, permisos y las prácticas que marcan la diferencia."
+language: "es"
+categories: ["git"]
+course: "domina-git-desde-cero"
+order: 40
+cover: "/images/tutorials/cabecera-git.jpg"
+i18n: "git-ci-cd-pipelines"
+---
+
+El runner de CI es la máquina más desorientada del equipo. Llega a cada ejecución sin saber quién eres: sin tu `.gitconfig`, sin el pager que configuraste, sin el grafo de commits que `git maintenance` precalculó durante la noche. Un contenedor vacío que clona el repositorio, ejecuta lo que le pides y desaparece. Como montar la estantería de IKEA de nuevo cada vez que necesitas poner un libro — la caja llega completa, sin memoria de la vez anterior, sin el tornillo extra que guardaste. Si sabes lo que haces, puedes dejar las piezas precolocadas para el siguiente build. A eso se le llama caché.
+
+Esta es la última lección del curso. Lo que veremos aquí es cómo Git encaja dentro de un pipeline automatizado: qué cambia respecto al uso local, cómo configurar GitHub Actions y GitLab CI para que Git no se convierta en el cuello de botella, y qué prácticas hacen que la integración entre código y despliegue funcione sin sorpresas.
+
+## Git en un pipeline: qué cambia
+
+En tu máquina, Git tiene contexto: tu configuración global, tu historial local, los objetos empaquetados, los remotos configurados. En un runner de CI, nada de eso existe. Cada ejecución empieza de cero y necesita:
+
+1. Autenticarse para clonar el repositorio
+2. Clonar (o restaurar desde caché)
+3. Ejecutar lo que tenga que ejecutar
+4. Opcionalmente, hacer `push` o desplegar algo
+
+La autenticación es lo que más difiere. En local usas SSH o HTTPS con credenciales guardadas. En CI, las plataformas inyectan un token temporal — `GITHUB_TOKEN` en GitHub Actions, `CI_JOB_TOKEN` en GitLab — que tiene permisos de lectura (y escritura si la tienes configurada) solo para esa ejecución. No necesitas gestionar credenciales manualmente: la plataforma lo hace.
+
+El clon es donde suele haber margen de mejora.
+
+## Shallow clones: el primer ajuste
+
+Por defecto, `git clone` descarga todo el historial del repositorio. En un proyecto con cinco años de commits, eso puede ser cientos de megas de objetos que el runner va a ignorar completamente — ejecutará los tests, generará el build y se olvidará de ellos para siempre.
+
+La solución es el shallow clone:
+
+```bash
+# Only fetch the last commit
+git clone --depth=1 <url>
+```
+
+En GitHub Actions, la action `actions/checkout` hace esto por defecto (`fetch-depth: 1`). En GitLab CI, configuras la variable `GIT_DEPTH`:
+
+```yaml
+# GitHub Actions — default behavior (shallow)
+- uses: actions/checkout@v4
+
+# GitHub Actions — full history when you need it
+- uses: actions/checkout@v4
+  with:
+    fetch-depth: 0
+
+# GitLab CI — shallow clone
+variables:
+  GIT_DEPTH: "1"
+
+# GitLab CI — full history
+variables:
+  GIT_DEPTH: "0"
+```
+
+⚠️ El shallow clone tiene una limitación que descubrirás exactamente cuando no te conviene: si tu build necesita ejecutar `git log`, `git describe`, o cualquier comparación con commits anteriores — para generar números de versión, calcular un changelog, o comparar con un commit base en un PR — Git te dirá que no tiene esos commits. La solución es `fetch-depth: 0`. Ahora lo sabes antes de aprenderlo en producción.
+
+## Caché: dejar las piezas precolocadas
+
+Un pipeline que tarda cuatro minutos y se ejecuta ochenta veces al día suma más de cinco horas de espera distribuidas entre el equipo. De esas cinco horas, veinte minutos pueden ser `npm install` descargando `node_modules` desde cero en cada ejecución. Con caché, eso desaparece.
+
+Las plataformas de CI tienen sistemas de caché integrados que persisten directorios entre ejecuciones — no el contenedor, sino carpetas específicas que guardas y restauras. La clave de la caché suele incluir un hash del fichero de dependencias, para que se invalide automáticamente cuando cambias una dependencia.
+
+### GitHub Actions
+
+```yaml
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/cache@v4
+        with:
+          path: ~/.npm
+          key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-node-
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run tests
+        run: npm test
+```
+
+La `key` se construye con el hash del `package-lock.json`. Si el fichero de lock no ha cambiado, la caché es exactamente la del build anterior y `npm ci` tarda segundos en lugar de minutos. Si ha cambiado — nueva dependencia, versión actualizada — la caché se invalida y se reconstruye.
+
+### GitLab CI
+
+```yaml
+stages:
+  - test
+  - deploy
+
+variables:
+  GIT_DEPTH: "1"
+
+test:
+  stage: test
+  image: node:20-slim
+  cache:
+    key: $CI_COMMIT_REF_SLUG
+    paths:
+      - node_modules/
+  script:
+    - npm ci
+    - npm test
+
+deploy:
+  stage: deploy
+  script:
+    - ./deploy.sh
+  rules:
+    - if: $CI_COMMIT_BRANCH == "main"
+```
+
+GitLab CI usa `cache.key` para identificar la caché. `$CI_COMMIT_REF_SLUG` es el nombre de la rama en formato seguro para ficheros — cada rama tiene su propia caché, lo que evita que una rama rompa la de otra.
+
+## Tests automáticos en cada commit
+
+La razón de conectar Git a un pipeline es precisamente esta: que cada commit sea verificado automáticamente antes de llegar a main. El flujo habitual:
+
+1. Developer hace `git push` a una rama de feature
+2. El pipeline clona, instala dependencias y ejecuta tests
+3. Si los tests fallan, el PR/MR no se puede fusionar
+4. Si pasan, el código puede revisarse y mergearse con confianza
+
+```yaml
+# GitHub Actions: block merges when tests fail
+name: CI
+
+on:
+  push:
+  pull_request:
+    branches: [main]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: npm ci
+      - run: npm test
+      - run: npm run lint
+```
+
+La branch protection en GitHub (`Settings → Branches → Require status checks`) hace que el pipeline sea condición obligatoria para mergear. Sin tests en verde, el botón de merge está desactivado. Sencillo en teoría, salvavidas en la práctica.
+
+## Deploy automático al fusionar
+
+El paso siguiente es conectar el merge a main con el despliegue. El patrón más habitual:
+
+```yaml
+name: Deploy
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Deploy to production
+        env:
+          DEPLOY_KEY: ${{ secrets.DEPLOY_KEY }}
+        run: ./scripts/deploy.sh
+```
+
+El deploy solo se ejecuta en pushes a `main` — no en PRs, no en ramas de feature. Los secretos (`DEPLOY_KEY`, credenciales de nube, tokens de acceso) se guardan en la configuración de secretos de la plataforma y se inyectan como variables de entorno en tiempo de ejecución. Nunca en el repositorio. Nunca en el código. Si alguna vez ves una clave hardcodeada en un script de deploy, ese repositorio tiene un problema que no es de CI.
+
+## Buenas prácticas de Git en CI
+
+Algunas cosas que la mayoría aprende de la peor manera posible:
+
+**Usa `fetch-depth: 0` solo cuando lo necesitas.** El clone superficial es la opción correcta por defecto. Si tienes un paso que necesita historia completa, añade `fetch-depth: 0` solo en ese job, no en todos.
+
+**`git fetch --tags` si tu build necesita tags.** El shallow clone no descarga tags por defecto. Si usas `git describe` o generas versiones a partir de tags, necesitas un fetch explícito:
+
+```yaml
+- uses: actions/checkout@v4
+  with:
+    fetch-depth: 0  # or use fetch-tags: true
+    fetch-tags: true
+```
+
+**Permisos mínimos para el token.** `GITHUB_TOKEN` tiene por defecto permisos de escritura en el repositorio. Si tu workflow solo necesita leer, redúcelos:
+
+```yaml
+permissions:
+  contents: read
+```
+
+**No cachés el directorio `.git`.** Puede parecer una buena idea para evitar el clone, pero el directorio `.git` cambia en cada ejecución y la caché casi nunca es válida. Lo que sí tiene sentido cachear son las dependencias (`node_modules`, `.pip`, `~/.gradle`).
+
+**El pipeline que funciona en tu máquina y falla en CI tiene una causa.** Siempre. Puede ser una variable de entorno que asumiste presente, una dependencia de sistema que tienes instalada globalmente, o — si el runner es `windows-latest` — que alguien del equipo usa Linux y el `core.autocrlf` no está configurado de forma consistente y hay saltos de línea mezclados por el repositorio (los que vimos en la lección de configuración de Git). El runner no miente: ejecuta exactamente lo que le dices. Si falla ahí y funciona local, el entorno local tiene algo que no está en el repositorio.
+
+## Conceptos clave de esta lección
+
+- En CI, cada ejecución empieza desde cero: sin configuración local, sin historial previo, con autenticación inyectada por la plataforma.
+- `fetch-depth: 1` (shallow clone) es la opción correcta por defecto; usa `fetch-depth: 0` solo cuando necesitas historia completa.
+- Cachea las dependencias por hash del fichero de lock — no el directorio `.git`.
+- Los secretos van en la configuración de la plataforma, nunca en el repositorio.
+- Branch protection + status checks = el merge solo ocurre cuando los tests pasan.
+- Si el pipeline falla y local funciona, el entorno local tiene algo implícito que no has declarado.
+
+---
+
+Cuarenta lecciones. Desde `git init` en una carpeta vacía hasta commits firmados, worktrees, hooks automatizados, LFS, submódulos y ahora pipelines que despliegan código sin que nadie pulse un botón. Git es la misma herramienta desde el primer tutorial. Lo que cambió es el tamaño de lo que puedes hacer con ella.
+
+Un apunte de salida sobre quién llega hasta aquí:
+
+Los usuarios de **Arch Linux** probablemente ya tenían `delta`, `rerere` y `fsmonitor` configurados antes de que este curso lo sugiriera, instalaron `lazygit` desde el AUR antes de que llegáramos a la sección de productividad, y han estado abriendo splits en el terminal mientras leían. No necesitan el guiño, pero se lo merecen.
+
+Los usuarios de **Windows**: llevan el mismo camino cubierto, con la diferencia de que en algún punto de estas cuarenta lecciones hubo un `\r\n` inesperado en el historial, Git Bash y WSL2 coexisten en el mismo sistema, y la pregunta de cuál usar sigue técnicamente abierta. Spoiler: WSL2.
+
+Y los que llegaron hasta aquí con **VS Code, el panel de Source Control y el ratón**: Git es exactamente el mismo debajo de los botones. Ahora saben lo que ocurre cuando hacen clic en "Sync". Eso cuenta.
+
+Lo que viene después — si la curiosidad no para — es la infraestructura que da contexto a todo esto. El mismo `git push` que acabas de aprender a conectar a un pipeline puede llegar a actualizar un clúster de Kubernetes, aplicar un plan de Terraform o notificar a un sistema de monitorización de que hay una nueva versión en producción. Eso es exactamente de lo que va el curso de **DevOps y Platform Engineering** que arrancará próximamente: Linux, networking, CI con Jenkins, Docker, Kubernetes, Terraform, observabilidad y todo lo que hay entre el código y el servidor. Git es la herramienta madre. Ahora sabes usarla.
+
+¡Nunca dejes de programar!
