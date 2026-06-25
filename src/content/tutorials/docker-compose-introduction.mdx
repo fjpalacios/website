@@ -1,0 +1,205 @@
+---
+title: "Introduction to Docker Compose: one file, one command"
+post_slug: "docker-compose-introduction"
+date: "2026-06-26"
+excerpt: "Docker Compose turns four `docker run` commands you run from memory into a single declarative file and one command. This is where Docker starts feeling useful on a daily basis."
+language: "en"
+categories: ["docker"]
+course: "mastering-docker-from-scratch"
+order: 13
+cover: "/images/tutorials/cabecera-docker-curso.jpg"
+i18n: "introduccion-docker-compose"
+---
+
+There's a moment where managing Docker manually stops scaling. Not when you add the second container — that one you can keep in your head. It's when you add the third, and the startup order starts to matter, and the API tries to connect to the database before it's ready, and you have four terminal tabs open, and you're running the same four commands from memory in a slightly different order every time.
+
+That moment is when Docker Compose starts making sense.
+
+Instead of remembering which flags you passed to Postgres last week, you describe the entire stack in a single `docker-compose.yml` and run one command. The file lives in your repository. The next person who clones it runs `docker compose up -d` and gets the same environment you have. No terminal history, no sticky notes, no "I have the command somewhere".
+
+## What is Docker Compose?
+
+Docker Compose is a tool for defining and running multi-container applications. You describe your services, their relationships, and their configuration in a YAML file. Compose handles creating the network, starting services in the right order, and managing their lifecycle together.
+
+The approach is declarative: you describe _what_ your stack looks like, not the step-by-step _how_ of starting it.
+
+Here's what running a database, a cache, and an API looked like before Compose:
+
+```bash
+docker network create myapp-network
+
+docker run -d --name db --network myapp-network \
+  -e POSTGRES_PASSWORD=secret postgres
+
+docker run -d --name redis --network myapp-network redis
+
+docker run -d --name api --network myapp-network \
+  -p 3000:3000 -e DATABASE_URL=postgresql://db:5432 myapp-api
+```
+
+Four commands. In the right order. With the exact flags. On the right network. And that's three services — not the twelve you'll have in production.
+
+With Compose:
+
+```yaml
+# docker-compose.yml
+services:
+  db:
+    image: postgres
+    environment:
+      POSTGRES_PASSWORD: secret
+
+  redis:
+    image: redis
+
+  api:
+    image: myapp-api
+    ports:
+      - "3000:3000"
+    environment:
+      DATABASE_URL: postgresql://db:5432
+    depends_on:
+      - db
+      - redis
+```
+
+```bash
+docker compose up -d
+```
+
+One file. One command.
+
+## Installation
+
+Docker Compose v2 ships with Docker Desktop on macOS and Windows. On Linux, it depends on how you installed Docker.
+
+Check if you already have it:
+
+```bash
+docker compose version
+```
+
+If that returns `Docker Compose version 5.1.4`, you're set. If it returns an error, or you have the old `docker-compose` binary (with a hyphen — the v1 Python tool), install the modern version:
+
+```bash
+# macOS and Linux (Homebrew)
+brew install docker-compose
+
+# Ubuntu / Debian
+apt install docker-compose-plugin
+
+# Arch Linux
+pacman -S docker-compose
+```
+
+The modern command is `docker compose` (space, no hyphen). v1 was a separate Python binary, v2 is an official plugin integrated into the Docker CLI. If you installed Docker in 2023 or later, you already have v2.
+
+## Your first docker-compose.yml
+
+The `docker-compose.yml` has three top-level sections:
+
+```yaml
+services: # The containers that make up your application
+volumes: # Named persistent storage
+networks: # Custom networks (optional if the default is enough)
+```
+
+A realistic example — a Node.js API with a Postgres database:
+
+```yaml
+services:
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: myapp
+      POSTGRES_PASSWORD: secret
+      POSTGRES_DB: myapp
+    volumes:
+      - db-data:/var/lib/postgresql/data
+
+  api:
+    build: ./api # Build from the Dockerfile in ./api
+    ports:
+      - "3000:3000"
+    environment:
+      DATABASE_URL: postgresql://myapp:secret@db:5432/myapp
+    depends_on:
+      - db
+
+volumes:
+  db-data:
+```
+
+A few things worth noting:
+
+- `image: postgres:16-alpine` pulls a public image, same as `docker run`.
+- `build: ./api` builds the image from that directory's Dockerfile. No separate `docker build` step needed.
+- In `DATABASE_URL`, the host is `db` — the service name. Compose creates a default network where services resolve each other by name automatically.
+- `db-data` under `volumes:` declares a named volume that Docker manages. Postgres data persists across `docker compose down`. The volume stays until you explicitly remove it.
+
+The file belongs at the root of your project, versioned alongside your code. If you're using [Git](/en/courses/mastering-git-from-scratch), `docker-compose.yml` is just another configuration file — and it's exactly what eliminates the mental overhead of remembering how to start the project.
+
+## Essential commands
+
+These cover the vast majority of what you'll actually need:
+
+```bash
+# Start all services in the background
+docker compose up -d
+
+# Start and rebuild images that have a Dockerfile
+docker compose up -d --build
+
+# Stop containers without removing them
+docker compose stop
+
+# Stop and remove containers + networks (volumes intact)
+docker compose down
+
+# Stop and remove everything, including named volumes
+docker compose down -v
+
+# Show running services and their status
+docker compose ps
+
+# Show logs from all services
+docker compose logs
+
+# Follow logs from a specific service
+docker compose logs -f api
+
+# Run a command inside a running service
+docker compose exec api sh
+docker compose exec db psql -U myapp
+```
+
+The distinction between `stop` and `down`: `stop` halts containers but keeps them, `down` removes them. Named volumes survive `down` — they only get removed if you pass `-v`. Worth knowing before you accidentally wipe a local database.
+
+## depends_on: startup ordering
+
+Without `depends_on`, Compose starts all services roughly in parallel. That means your API can try to connect to Postgres while Postgres is still initializing — which, depending on how patient your connection retry logic is, will either work on the third attempt or fail immediately with a confusing error.
+
+```yaml
+services:
+  db:
+    image: postgres:16-alpine
+
+  api:
+    build: ./api
+    depends_on:
+      - db # Wait for db container to be running before starting api
+```
+
+Here's the nuance worth understanding upfront: `depends_on` waits for the _container_ to be running, not for the _service_ to be ready. The Postgres container can be up and running while Postgres itself is still writing its initial data directory. From Docker's perspective, started. From Postgres's perspective, not yet accepting connections.
+
+The proper solution — waiting until the service is genuinely healthy — uses health checks with `condition: service_healthy`. That's the topic for the next lesson, along with the full `docker-compose.yml` structure.
+
+---
+
+You now have everything needed to run a real development stack with Docker Compose: a declarative file, the commands to manage it, and the basic dependency model. The next lesson covers the complete `docker-compose.yml` structure — environment variables from files, health checks, restart policies, and how to split development and production configuration in the same project.
+
+Never stop coding!
+
+---
+
+**💡 Challenge**: Write a `docker-compose.yml` with three services: Postgres, Redis, and any image you're familiar with. Start the stack with `docker compose up -d`, verify all three services show `Up` in `docker compose ps`, then follow the combined logs with `docker compose logs -f`. When you're done, bring everything down with `docker compose down` and confirm `docker compose ps` shows nothing running.

@@ -1,0 +1,205 @@
+---
+title: "Introducción a Docker Compose: un solo `docker compose up`"
+post_slug: "introduccion-docker-compose"
+date: "2026-06-26"
+excerpt: "Docker Compose convierte cuatro `docker run` que ejecutas por memoria en un único fichero declarativo y un solo comando. Aquí empieza el módulo que hace que Docker sea realmente útil en el día a día."
+language: "es"
+categories: ["docker"]
+course: "domina-docker-desde-cero"
+order: 13
+cover: "/images/tutorials/cabecera-docker-curso.jpg"
+i18n: "docker-compose-introduction"
+---
+
+En algún punto del viaje con Docker, la mayoría acaba con un fichero `commands.txt` en el escritorio. O con un bloque de comentarios al principio de un README que nadie más que tú va a leer. Dentro: cuatro `docker run` distintos, en el orden correcto, con las variables de entorno exactas, en la red adecuada, con los puertos bien mapeados.
+
+Funciona. Como funciona guardar los pasos de instalación en un mensaje de Slack que nadie más tiene: el proyecto arranca en tu máquina, pero con una sensación vaga de que en cuanto alguien nuevo pregunte «¿cómo lo levanto yo?», la respuesta va a ser «tengo el comando por ahí».
+
+Docker Compose es la solución a ese fichero. En lugar de recordar qué flags le pusiste a Postgres la semana pasada, describes todo el stack en un único `docker-compose.yml` y lo arrancas con un solo comando.
+
+## ¿Qué es Docker Compose?
+
+Docker Compose es una herramienta para definir y gestionar aplicaciones multi-contenedor. En lugar de lanzar cada contenedor por separado con sus redes, volúmenes y variables de entorno, describes todo en un fichero YAML y Compose se encarga del resto: crear las redes, arrancar los servicios en orden, gestionar el ciclo de vida conjunto.
+
+La idea es declarativa. No describes *cómo* arrancar los servicios paso a paso, sino *qué* servicios existen y cómo se relacionan.
+
+Antes de Compose, arrancar un stack de desarrollo con base de datos, caché y API requería algo así:
+
+```bash
+docker network create myapp-network
+
+docker run -d --name db --network myapp-network \
+  -e POSTGRES_PASSWORD=secret postgres
+
+docker run -d --name redis --network myapp-network redis
+
+docker run -d --name api --network myapp-network \
+  -p 3000:3000 -e DATABASE_URL=postgresql://db:5432 myapp-api
+```
+
+¿Y si el `db` tarda en inicializar? ¿Y si te olvidaste de añadir `--restart unless-stopped`? ¿Y si dentro de tres semanas no recuerdas en qué red lo pusiste?
+
+Con Compose:
+
+```yaml
+# docker-compose.yml
+services:
+  db:
+    image: postgres
+    environment:
+      POSTGRES_PASSWORD: secret
+
+  redis:
+    image: redis
+
+  api:
+    image: myapp-api
+    ports:
+      - "3000:3000"
+    environment:
+      DATABASE_URL: postgresql://db:5432
+    depends_on:
+      - db
+      - redis
+```
+
+```bash
+docker compose up -d
+```
+
+Un fichero. Un comando. El mismo stack.
+
+## Instalación
+
+Docker Compose v2 viene integrado con Docker Desktop en macOS y Windows. En Linux, depende de cómo hayas instalado Docker.
+
+Para verificar:
+
+```bash
+docker compose version
+```
+
+Si el comando existe y devuelve algo parecido a `Docker Compose version 5.1.4`, ya lo tienes. Si devuelve un error, o tienes instalado el antiguo `docker-compose` (con guión), instala la versión moderna:
+
+```bash
+# macOS y Linux (Homebrew)
+brew install docker-compose
+
+# Ubuntu / Debian
+apt install docker-compose-plugin
+
+# Arch Linux
+pacman -S docker-compose
+```
+
+Una aclaración que ahorra confusión: el comando moderno es `docker compose` (espacio, sin guión). El antiguo era `docker-compose` (con guión). No son lo mismo — v1 era un binario separado escrito en Python, v2 es un plugin oficial integrado en el CLI de Docker. Si tienes Docker instalado desde 2023, ya tienes v2. Úsalo.
+
+## Tu primer docker-compose.yml
+
+El corazón de Compose es el fichero `docker-compose.yml`. Tiene tres secciones principales:
+
+```yaml
+services:    # Los contenedores que forman tu aplicación
+volumes:     # Almacenamiento persistente con nombre
+networks:    # Redes personalizadas (opcionales si no necesitas aislamiento explícito)
+```
+
+Un ejemplo realista: una API de Node.js con Postgres.
+
+```yaml
+services:
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: myapp
+      POSTGRES_PASSWORD: secret
+      POSTGRES_DB: myapp
+    volumes:
+      - db-data:/var/lib/postgresql/data
+
+  api:
+    build: ./api          # Construye desde el Dockerfile en ./api
+    ports:
+      - "3000:3000"
+    environment:
+      DATABASE_URL: postgresql://myapp:secret@db:5432/myapp
+    depends_on:
+      - db
+
+volumes:
+  db-data:
+```
+
+Algunas cosas que vale la pena señalar:
+
+- `image: postgres:16-alpine` usa una imagen pública, igual que en `docker run`.
+- `build: ./api` construye la imagen desde el Dockerfile de ese directorio. No necesitas hacer `docker build` por separado.
+- En `DATABASE_URL`, el host es `db` — el nombre del servicio. Compose crea una red por defecto y los servicios se resuelven entre sí por nombre automáticamente.
+- `db-data` en `volumes:` declara un volumen con nombre que Docker gestiona. Los datos de Postgres persisten aunque hagas `docker compose down`.
+
+El fichero va en la raíz del proyecto, junto al código. Si estás usando [Git](/es/cursos/domina-git-desde-cero), se versiona igual que cualquier otro fichero de configuración — y es exactamente lo que hace que el `commands.txt` del principio desaparezca para siempre.
+
+## Comandos esenciales
+
+Estos son los que vas a usar el 90% del tiempo:
+
+```bash
+# Arranca todos los servicios (en segundo plano)
+docker compose up -d
+
+# Arranca reconstruyendo las imágenes que tengan Dockerfile
+docker compose up -d --build
+
+# Para los contenedores (sin eliminarlos)
+docker compose stop
+
+# Para y elimina contenedores + redes (volúmenes intactos)
+docker compose down
+
+# Para, elimina contenedores, redes y volúmenes
+docker compose down -v
+
+# Estado de los servicios
+docker compose ps
+
+# Logs de todos los servicios
+docker compose logs
+
+# Seguir los logs de un servicio concreto
+docker compose logs -f api
+
+# Ejecutar un comando dentro de un servicio
+docker compose exec api sh
+docker compose exec db psql -U myapp
+```
+
+La diferencia entre `stop` y `down` importa: `stop` para los contenedores pero los conserva, `down` los elimina. Si no quieres perder datos, usa volúmenes con nombre como el `db-data` del ejemplo — `down` no los toca a menos que añadas `-v`. Con `-v` sí.
+
+## depends_on: el orden de arranque
+
+Por defecto, Docker Compose arranca todos los servicios más o menos a la vez. Sin `depends_on`, tu API puede intentar conectarse a Postgres mientras la base de datos todavía está inicializando su directorio de datos.
+
+```yaml
+services:
+  db:
+    image: postgres:16-alpine
+
+  api:
+    build: ./api
+    depends_on:
+      - db    # Espera a que el contenedor de db esté arrancado
+```
+
+Hay una distinción que conviene entender desde el principio: `depends_on` garantiza el *orden de arranque*, no que el servicio esté *listo*. El contenedor de Postgres puede estar corriendo y Docker Compose lo considerará "arrancado", pero Postgres puede seguir inicializando internamente y todavía no aceptar conexiones.
+
+Para esperar a que un servicio esté verdaderamente operativo se usan health checks con `condition: service_healthy`, que es el tema de la siguiente lección junto con el resto de las opciones del `docker-compose.yml`.
+
+---
+
+Con esto tienes lo esencial para arrancar cualquier stack de desarrollo: un fichero que describe los servicios, los comandos para gestionarlos, y la lógica básica de dependencias. La siguiente lección profundiza en la estructura completa del `docker-compose.yml`: variables de entorno desde fichero, health checks, políticas de restart, y cómo separar la configuración de desarrollo de la de producción en un mismo proyecto.
+
+¡Nunca dejes de programar!
+
+---
+
+**💡 Reto**: Escribe un `docker-compose.yml` con tres servicios: Postgres, Redis y cualquier imagen que conozcas. Arranca la stack con `docker compose up -d`, verifica que los tres servicios están en estado `Up` con `docker compose ps`, y prueba `docker compose logs -f` para ver la salida conjunta. Cuando hayas terminado, para todo con `docker compose down` y comprueba que `docker compose ps` no muestra nada.
