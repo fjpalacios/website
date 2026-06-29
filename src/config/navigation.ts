@@ -346,15 +346,7 @@ export async function hasContentInLanguage(routeKey: RouteKey, lang: LanguageKey
     const { getCollection } = await import("astro:content");
     const entries = await getCollection(
       collectionName as
-        | "posts"
-        | "tutorials"
-        | "books"
-        | "authors"
-        | "categories"
-        | "genres"
-        | "publishers"
-        | "challenges"
-        | "courses",
+        "posts" | "tutorials" | "books" | "authors" | "categories" | "genres" | "publishers" | "challenges" | "courses",
     );
 
     // Check if any entry exists for this language
