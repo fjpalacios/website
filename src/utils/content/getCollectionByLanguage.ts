@@ -14,14 +14,7 @@ import type { Language } from "@/utils/routes";
  * (excludes 'books' and 'authors' which are language-agnostic)
  */
 type LanguageFilterableCollection =
-  | "posts"
-  | "tutorials"
-  | "categories"
-  | "publishers"
-  | "genres"
-  | "series"
-  | "challenges"
-  | "courses";
+  "posts" | "tutorials" | "categories" | "publishers" | "genres" | "series" | "challenges" | "courses";
 
 /**
  * Get collection entries filtered by language
