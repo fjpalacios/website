@@ -1,0 +1,312 @@
+---
+title: "Docker Compose file structure: health checks, environment variables, and restart"
+post_slug: "docker-compose-file-structure"
+date: "2026-06-29"
+excerpt: "Real health checks with condition: service_healthy, environment variables from .env, restart policies, and a complete working stack that behaves the same on your laptop and in production."
+language: "en"
+categories: ["docker"]
+course: "mastering-docker-from-scratch"
+order: 14
+cover: "/images/tutorials/cabecera-docker-curso.jpg"
+i18n: "estructura-docker-compose"
+---
+
+The `docker-compose.yml` from the last lesson had a subtle lie built into it. `depends_on: db` sounds like "wait for Postgres to be ready." What it actually means is "wait for the Postgres container to be running." These are not the same thing.
+
+On your machine, Postgres initializes in under a second and you never notice the difference. On a CI runner with a slower disk, your API tries to connect to the database while Postgres is still writing its initial data directory. The connection fails, the container restarts, and you're left with an intermittent error you can't reproduce locally — the worst kind of bug to debug.
+
+The previous tutorial mentioned `condition: service_healthy` as the real solution and left it there. This lesson covers it in full, along with environment variables from files and restart policies. Three additions that take a `docker-compose.yml` from "works on my machine" to "works everywhere."
+
+## Every field a service can have
+
+Before diving into health checks, here's a reference of what a service definition can include. The previous lesson used `image`, `ports`, `environment`, `depends_on`, and `volumes`. There are more:
+
+```yaml
+services:
+  api:
+    # Image or build (not both)
+    image: myapp/api:latest
+    build:
+      context: ./api          # Directory with the Dockerfile
+      dockerfile: Dockerfile  # Dockerfile name (default: Dockerfile)
+      args:
+        NODE_ENV: production   # Build-time arguments
+
+    # Optional: explicit container name (auto-generated if omitted)
+    container_name: myapp-api
+
+    # Port mapping: host:container
+    ports:
+      - "3000:3000"
+
+    # Environment variables inline
+    environment:
+      NODE_ENV: production
+      DATABASE_URL: postgresql://db:5432/myapp
+
+    # Environment variables from a file
+    env_file:
+      - .env
+
+    # Dependencies
+    depends_on:
+      - db
+
+    # Volumes
+    volumes:
+      - ./api/src:/app/src  # Bind mount (development hot reload)
+      - api-data:/app/data  # Named volume
+
+    # Networks this service connects to
+    networks:
+      - backend
+      - frontend
+
+    # Health check
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000/health"]
+      interval: 30s
+      timeout: 3s
+      retries: 3
+      start_period: 40s
+
+    # Restart policy
+    restart: unless-stopped
+```
+
+Not every service needs all of these. Most use five or six fields. This is the full reference — the most relevant ones get detailed treatment in this and the following lessons.
+
+One note on `build`: the short form (`build: ./api`) assumes there's a `Dockerfile` in that directory. The long form with `context`, `dockerfile`, and `args` is for when you need build arguments or a differently named Dockerfile.
+
+## Health checks: waiting for the service, not just the container
+
+A health check tells Docker how to verify that a service is actually ready — not just running. Docker runs that command on a schedule and marks the service `healthy` when it succeeds consistently.
+
+For Postgres, the standard health check uses `pg_isready`, a utility that ships with the image and returns 0 when the database accepts connections:
+
+```yaml
+services:
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: myapp
+      POSTGRES_PASSWORD: secret
+      POSTGRES_DB: myapp
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U myapp -d myapp"]
+      interval: 5s       # How often Docker runs the check
+      timeout: 3s        # Max time allowed per check
+      retries: 5         # Fail after this many consecutive failures
+      start_period: 10s  # Grace period before failures count against retries
+```
+
+`start_period` is worth understanding: during that window, health check failures don't count toward the `retries` limit. This gives Postgres time to finish initializing before Docker starts caring whether the check passes. Without it, a health check could fail during normal startup and prematurely mark the service as `unhealthy`.
+
+With the health check defined, update `depends_on` to use it:
+
+```yaml
+services:
+  api:
+    build: ./api
+    depends_on:
+      db:
+        condition: service_healthy  # Wait until db passes its health check
+```
+
+The syntax changes from a list to a map when you add a condition. `condition: service_healthy` holds the API back until Postgres's health check returns `healthy`. This is what `depends_on: [db]` implied it was doing.
+
+Redis gets a similarly simple check:
+
+```yaml
+redis:
+  image: redis:7-alpine
+  healthcheck:
+    test: ["CMD", "redis-cli", "ping"]
+    interval: 5s
+    timeout: 3s
+    retries: 3
+```
+
+And for an HTTP service you control:
+
+```yaml
+api:
+  build: ./api
+  healthcheck:
+    test: ["CMD-SHELL", "curl -sf http://localhost:3000/health || exit 1"]
+    interval: 10s
+    timeout: 5s
+    retries: 3
+    start_period: 15s
+```
+
+The `|| exit 1` ensures the check fails if `curl` can't connect, times out, or gets a non-2xx response. Without it, the shell returns 0 even when `curl` reports an error, and Docker happily marks the service healthy when it isn't.
+
+## Environment variables: the .env file
+
+Three environment variables inline in a `docker-compose.yml` are fine. Twelve in staging is manageable. Forty-seven in production, where someone hardcoded a password two years ago and there's a JWT secret nobody remembers generating — that's a different situation.
+
+The solution is to move variables out of the YAML.
+
+### Interpolation from .env
+
+Compose automatically reads a `.env` file in the project root and makes its variables available for interpolation in the `docker-compose.yml`:
+
+```bash
+# .env
+POSTGRES_USER=myapp
+POSTGRES_PASSWORD=secret
+POSTGRES_DB=myapp
+API_PORT=3000
+```
+
+```yaml
+# docker-compose.yml
+services:
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+
+  api:
+    build: ./api
+    ports:
+      - "${API_PORT}:3000"
+```
+
+The `${VARIABLE}` syntax pulls values from `.env` or the shell environment. If a variable is missing, Compose substitutes an empty string without complaining. To make it fail loudly when a critical variable is absent:
+
+```bash
+POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}
+```
+
+The `.env` file goes in `.gitignore`. Always. What you do version is a `.env.example` with variable names and placeholder values — so anyone cloning the repo knows what they need to configure.
+
+### env_file: passing a file directly to the container
+
+`env_file` is an alternative that passes all variables from a file directly to the container, without declaring them one by one under `environment`:
+
+```yaml
+services:
+  api:
+    build: ./api
+    env_file:
+      - .env
+      - .env.local  # Local overrides, not versioned
+```
+
+The difference from interpolation: `env_file` injects variables into the container's environment, but they're not available for substitution elsewhere in the YAML. If you need a variable in `ports`, `image`, or `healthcheck`, use interpolation (`${VAR}`). If you just need it inside the container and want a cleaner YAML, `env_file` is the right choice.
+
+## Restart policies
+
+Without a restart policy, a failed container stays down. In development you'll notice immediately. On a server with no active monitoring, it might be down for hours.
+
+The four options:
+
+| Policy | Behavior |
+|--------|----------|
+| `"no"` | Never restart automatically (default) |
+| `always` | Always restart, even after `docker stop` |
+| `on-failure` | Restart only when the process exits with an error |
+| `unless-stopped` | Like `always`, but respects manual `docker compose stop` |
+
+For most cases, `unless-stopped` is the right call: the service recovers if the process crashes, but you can stop it manually without it coming back on its own.
+
+`always` has a behavior that surprises people the first time: if a container was running when you restarted the server, Docker starts it automatically when the Docker daemon starts. In production, that's usually what you want. On a laptop with ten projects, you'll find Docker starting six development stacks you forgot you had.
+
+## A complete stack
+
+Everything together: Node.js API, Postgres, and Redis — with health checks, variables from `.env`, custom networks, and restart policies.
+
+The `.env` file (add to `.gitignore`):
+
+```bash
+POSTGRES_USER=myapp
+POSTGRES_PASSWORD=changeme
+POSTGRES_DB=myapp
+REDIS_PASSWORD=redispass
+API_PORT=3000
+```
+
+The `.env.example` (commit this one):
+
+```bash
+POSTGRES_USER=
+POSTGRES_PASSWORD=
+POSTGRES_DB=
+REDIS_PASSWORD=
+API_PORT=3000
+```
+
+The `docker-compose.yml`:
+
+```yaml
+services:
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+    volumes:
+      - db-data:/var/lib/postgresql/data
+    networks:
+      - backend
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+      start_period: 10s
+    restart: unless-stopped
+
+  redis:
+    image: redis:7-alpine
+    command: redis-server --requirepass ${REDIS_PASSWORD} --loglevel warning
+    networks:
+      - backend
+    healthcheck:
+      test: ["CMD-SHELL", "redis-cli -a ${REDIS_PASSWORD} --no-auth-warning ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 3
+    restart: unless-stopped
+
+  api:
+    build: ./api
+    ports:
+      - "${API_PORT}:3000"
+    environment:
+      DATABASE_URL: postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB}
+      REDIS_URL: redis://:${REDIS_PASSWORD}@redis:6379
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    networks:
+      - backend
+    restart: unless-stopped
+
+volumes:
+  db-data:
+
+networks:
+  backend:
+```
+
+With this file, `docker compose up -d` starts Postgres and Redis, waits for both to pass their health checks, then starts the API. If the API process crashes, `unless-stopped` restarts it. Credentials live in `.env`, outside the repository.
+
+The `networks` field controls what can talk to what. All three services here share `backend`, so the API can resolve `db` and `redis` by name. If you added a frontend service, it would connect to a separate `frontend` network — able to reach the API, but not the database directly. Networking in Compose is its own lesson.
+
+---
+
+With health checks, externalized environment variables, and restart policies, a `docker-compose.yml` stops being a development convenience and starts behaving like real infrastructure. The next lesson goes deep on volumes: how data persists across container restarts, the difference between bind mounts and named volumes, and how to handle backups from Compose itself.
+
+Never stop coding!
+
+---
+
+**💡 Challenge**: Take the `docker-compose.yml` from the previous lesson's challenge and add a Postgres health check using `pg_isready`. Update `depends_on` to use `condition: service_healthy`. Run `docker compose up -d` and watch `docker compose ps` as Postgres transitions from `starting` to `healthy` before the dependent services start.
