@@ -1,0 +1,200 @@
+---
+title: "Marks and jumps in Vim: navigate without losing the thread"
+post_slug: "marks-and-jumps-vim"
+date: "2026-06-30"
+excerpt: "Learn how to use marks, the jump list, and the changelist in Vim to move between positions without losing your place, and how to get real mileage out of gf, gd, and %."
+language: "en"
+categories: ["vim"]
+course: "mastering-vim-from-scratch"
+order: 8
+cover: "/images/tutorials/cabecera-vim-curso.jpg"
+i18n: "marks-y-saltos-vim"
+---
+
+You're editing a function at line 347. Before finishing, you need to check how another function works. You jump with `/`, get there, read it, realize you also need to see a constant you defined near the top. You head up there. When you try to get back to line 347 — you can't find it. You search for the function name, land close, move around a bit. You pick up the thread again. Now you need to check one more thing in another file.
+
+This isn't editing anymore. This is sightseeing.
+
+Vim has a full system for remembering where you've been: marks for manually saving positions, a jump list for the automatic history of your movements, and a changelist for the spots where you made edits. Once you work these into your flow, "where was I?" stops being a question.
+
+## Marks: leaving a signal before you go
+
+A mark is a saved position. To create one, use `m` followed by a letter:
+
+```vim
+ma
+```
+
+That saves your current position under the key `a`. You can use any lowercase letter (a-z). Now move wherever you need to — another function, another section, another file. To return exactly where you were, use backtick followed by the letter:
+
+```vim
+`a
+```
+
+Cursor back to that exact line and column.
+
+There's also the apostrophe version:
+
+```vim
+'a
+```
+
+The difference: `` `a `` (backtick) jumps to the exact position — line **and** column. `'a` (apostrophe) jumps to the line, but to the first non-blank character. It's the difference between remembering "it was in the third drawer, under the old batteries, in the right corner" versus just "the third drawer." Both work. One is more precise.
+
+Which one to use? Backtick. Almost always. Unless you specifically need the first character of the line, backtick puts you back exactly where you left the cursor.
+
+Marks are movements too, which means they compose with [Normal mode grammar](/en/tutorials/normal-mode-power-of-vim):
+
+```vim
+d`a    " delete from cursor to mark a
+y'b    " yank from cursor to the line of mark b
+```
+
+Vim gives you 26 local marks (a-z) and 26 global ones (A-Z) — fifty-two total. Exactly the number that makes you think you need a naming convention and maybe a spreadsheet to track them all. What you'll actually use is two or three: `ma` to mark where you jumped from, `mb` for something you need to check later, and `ms` for that other thing you've been putting off. Always the same two or three.
+
+## Global marks: across files
+
+Uppercase letters (A-Z) are **global** marks: they work across files and persist between Vim sessions.
+
+```vim
+mA
+```
+
+That saves the current position under `A`. Tomorrow, after closing and reopening Vim, `` `A `` takes you right back there — opening the file if needed.
+
+Useful when you're constantly jumping between two or three files: `mA` in the config file, `mB` in the routes file, `mC` in the main entry point. You jump between them without searching for anything.
+
+Honest limitation: only one slot per letter. If you use `mA` in a different file, the previous `A` is gone. Fine with three files; not the right tool if you're trying to build a full project index with 26 active entries. For navigating many files, Vim has better tools you'll see later in the course.
+
+## Automatic marks: the ones Vim sets for you
+
+Vim also saves certain positions automatically. You don't have to do anything — they're already there when you need them.
+
+| Mark | What it stores |
+| ---- | -------------- |
+| `` `. `` | Position of the last change in the file |
+| `` `^ `` | Position where you left Insert mode last time |
+| `` `[ `` | Start of the last yanked or changed text |
+| `` `] `` | End of the last yanked or changed text |
+| `` `< `` | Start of the last visual selection |
+| `` `> `` | End of the last visual selection |
+
+The most useful one day-to-day: `` `. `` jumps to the last place you made a change. No setup, no thinking. `` `. `` and you're there.
+
+Then there's `''` (two apostrophes), or ` `` ` (two backticks) for the exact-position version. Both store where you were **before your last big jump** — a search, `gg`, `G`, jumping to a mark. It's the retroactive "take me back to the start" command. You don't activate it in advance; Vim records it automatically on every large jump.
+
+To see all active marks at any point:
+
+```vim
+:marks
+```
+
+It shows a table with name, line, column, and the text at that line. Useful when you've been working for a while and can't remember which mark points where — which is exactly when you need it.
+
+## The jump list: the editor's history
+
+Beyond manual marks, Vim keeps an automatic position history called the **jump list**. Every large jump — searching with `/`, going to a mark, `gg`, `G`, jumping to a definition — gets recorded.
+
+To navigate that history:
+
+```vim
+Ctrl+o    " go back (older jump)
+Ctrl+i    " go forward (newer jump)
+```
+
+`Ctrl+o` is your browser's back button, but for positions inside the editor. If you've made four jumps from where you started, four `Ctrl+o` presses bring you back one step at a time. `Ctrl+i` goes the other way.
+
+To see the full list:
+
+```vim
+:jumps
+```
+
+The jump list holds 100 positions. A hundred. Just enough to make it look like something you need to actively manage — you don't. When it fills up, the oldest entry quietly disappears. Vim doesn't send a notification. You keep editing.
+
+A note about [searches with `/` and `?`](/en/tutorials/search-and-find-vim): every jump to a result registers in the jump list. If you move through six matches with `n`, you have six entries. `Ctrl+o` undoes the trail.
+
+## The changelist: where you edited
+
+The jump list tracks positions. The **changelist** tracks specifically the spots where you made a change in the file.
+
+```vim
+g;    " go to older change
+g,    " go to newer change
+```
+
+To see the full list:
+
+```vim
+:changes
+```
+
+The common case: you edited something, jumped to another spot to check a variable, and now you want to get back exactly to where you were typing. `g;` and you're there.
+
+The changelist stores the last 100 changes with exact positions — a detailed audit trail of everything you've touched in the file since you opened it. In practice, you'll use `g;` once, to get back to the last place you typed something. That's what it's there for.
+
+## Special jumps
+
+### `%`: the matching pair
+
+Place the cursor on a parenthesis, brace, or bracket, and press `%`:
+
+```vim
+%
+```
+
+It jumps to the matching character. On `(` → jumps to `)`. On `}` → jumps to the `{` that opens it. You can bounce back and forth with repeated `%`.
+
+Useful in heavily nested code: instead of visually counting where a block ends, `%` takes you there directly.
+
+### `gd` and `gD`: go to definition
+
+```vim
+gd    " go to local definition (within the current scope)
+gD    " go to global definition (from the top of the file)
+```
+
+`gd` finds the first occurrence of the word under the cursor within the local scope — useful for jumping to where a variable is declared. `gD` does the same but searches from the beginning of the file.
+
+Not the same as LSP, which you'll see later in the course and which jumps with actual semantic context. `gd` and `gD` are text searches. In files without LSP, or for local variables with clear names, they work without any configuration.
+
+### `gf`: open the file under the cursor
+
+The most underrated command in this lesson.
+
+Place your cursor over a file path in the text:
+
+```
+import { config } from '../config/app'
+require('./utils/format')
+```
+
+And press:
+
+```vim
+gf
+```
+
+Vim opens the file. No extra commands, no file explorer, no copying the path and pasting it into `:e`. If it exists, `gf` goes there. To come back, use `Ctrl+o` — the jump was already recorded in the jump list.
+
+One caveat: `gf` works with the literal text under the cursor. Paths using bundler aliases (`@/components`) or implicit extensions might need extra configuration to resolve. On explicit paths, it works out of the box.
+
+## Key concepts from this lesson
+
+- `m{a-z}` creates a local mark; `` `{letter} `` jumps to the exact line and column; `'{letter}` jumps to the line
+- `m{A-Z}` creates a global mark that persists across sessions and works across files
+- `` `. `` jumps to the last change; `''` jumps to the position before the last big jump
+- `:marks` lists all active marks
+- `Ctrl+o` / `Ctrl+i` move backward and forward through the jump list
+- `g;` / `g,` move through the changelist (edit history)
+- `%` jumps between matching open and close characters
+- `gd` / `gD` jump to the local or global first occurrence of the word under the cursor
+- `gf` opens the file whose path is under the cursor
+
+---
+
+**💡 Challenge**: Open a large file from a real project. Set `ma` where you are, jump to another section with `/`, come back with `` `a ``. Make a small edit, jump with `gg`, come back with `g;`. If there's any file path referenced in the code, place your cursor on it and try `gf`. Then run `:marks` and `:jumps` to see both lists — everything you just did is recorded there.
+
+Marks and jumps close out Vim's core navigation system. You now have the tools to move through any codebase without losing the thread. In the next tutorial, we'll cover **text objects** — what many consider Vim's actual superpower: the ability to operate on "the content inside these quotes," "the block within these braces," or "this whole word" with a single two-key command.
+
+Never stop coding!

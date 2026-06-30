@@ -1,0 +1,200 @@
+---
+title: "Marks y saltos en Vim: navega sin perder el hilo"
+post_slug: "marks-y-saltos-vim"
+date: "2026-06-30"
+excerpt: "Aprende a usar marks, el jump list y el changelist de Vim para moverte entre posiciones sin perder el hilo, y a sacarle partido a gf, gd y % en el trabajo diario."
+language: "es"
+categories: ["vim"]
+course: "domina-vim-desde-cero"
+order: 8
+cover: "/images/tutorials/cabecera-vim-curso.jpg"
+i18n: "marks-and-jumps-vim"
+---
+
+Estás editando una función en la línea 347. Necesitas revisar cómo funciona otra función antes de terminar. Saltas con `/`, llegas, lees, te das cuenta de que también necesitas ver la constante que definiste al principio del archivo. Vas allá. Cuando quieres volver a la línea 347, no la encuentras. Buscas el nombre de la función, llegas cerca, te mueves un poco. Retomas el hilo. Necesitas revisar una última cosa en otro archivo.
+
+Esto ya no es editar código. Esto es turismo.
+
+Vim tiene un sistema para recordar dónde has estado: marks para guardar posiciones manualmente, un jump list para el historial automático de tus movimientos, y un changelist para los sitios donde hiciste cambios. Una vez que los integras en el flujo de trabajo, el "¿dónde estaba?" desaparece.
+
+## Marks: dejar una señal antes de irte
+
+Una mark es una posición guardada. Para crear una, usa `m` seguido de una letra:
+
+```vim
+ma
+```
+
+Eso guarda la posición actual bajo la clave `a`. Puedes usar cualquier letra minúscula (a-z). Ahora muévete a donde necesites — a otra función, a otra sección, a otro archivo. Para volver exactamente a donde estabas, usa el backtick seguido de la letra:
+
+```vim
+`a
+```
+
+Cursor de vuelta a línea y columna exactas.
+
+Existe también la versión con apóstrofe:
+
+```vim
+'a
+```
+
+La diferencia: `` `a `` (backtick) salta a la posición exacta — línea **y** columna. `'a` (apóstrofe) salta a la línea, pero al primer carácter no en blanco. Es la diferencia entre recordar "estaba en el tercer cajón, debajo de las baterías viejas, en la esquina derecha" y recordar simplemente "estaba en el tercer cajón". El segundo también funciona. El primero es más preciso.
+
+¿Cuál usar? El backtick. Casi siempre. A menos que necesites explícitamente el primer carácter de la línea, el backtick te lleva exactamente a donde dejaste el cursor.
+
+Las marks también son movimientos, lo que significa que se componen con la [gramática del modo Normal](/es/tutoriales/modo-normal-el-poder-de-vim):
+
+```vim
+d`a    " borra desde el cursor hasta la mark a
+y'b    " copia desde el cursor hasta la línea de la mark b
+```
+
+Vim te da 26 marks locales (a-z) y 26 globales (A-Z) — cincuenta y dos en total. La cantidad exacta para convencerte de que necesitas organizarlas por módulo o proyecto, quizás con un sistema de nombres coherente. Lo que vas a usar en la práctica son dos o tres: `ma` para marcar el sitio desde donde sales, `mb` para algo que necesitas revisar luego, y `ms` para esa otra cosa que llevas días posponiendo. Siempre las mismas dos o tres.
+
+## Marks globales: entre archivos
+
+Las letras mayúsculas (A-Z) son marks **globales**: funcionan entre archivos y persisten entre sesiones de Vim.
+
+```vim
+mA
+```
+
+Eso guarda la posición actual bajo `A`. Mañana, con Vim cerrado y abierto de nuevo, `` `A `` te lleva exactamente a ese punto, abriendo el archivo si es necesario.
+
+Útil cuando tienes dos o tres archivos que consultas constantemente: `mA` en el archivo de configuración, `mB` en el de rutas, `mC` en el principal. Saltas entre ellos sin buscar nada.
+
+La limitación honesta: solo tienes un slot por letra. Si usas `mA` en otro archivo, la `A` anterior desaparece. No es problema con tres archivos; sí lo es si intentas construir un índice completo del proyecto con 26 entradas. Para navegación entre muchos archivos, Vim tiene herramientas mejores que veremos más adelante en el curso.
+
+## Marks automáticas: las que Vim pone solo
+
+Vim también guarda ciertas posiciones de forma automática. No tienes que hacer nada — ya están ahí cuando las necesitas.
+
+| Mark | Qué guarda |
+| ---- | ---------- |
+| `` `. `` | Posición del último cambio en el archivo |
+| `` `^ `` | Posición donde saliste del modo Insert la última vez |
+| `` `[ `` | Inicio del último texto copiado o cambiado |
+| `` `] `` | Final del último texto copiado o cambiado |
+| `` `< `` | Inicio de la última selección visual |
+| `` `> `` | Final de la última selección visual |
+
+La más útil del día a día: `` `. `` lleva al último punto donde hiciste un cambio. Sin pensar, sin buscar. Un `` `. `` y estás ahí.
+
+Y luego está `''` (dos apóstrofes), o su equivalente con backtick, ` `` ` (dos backticks). Guardan la posición donde estabas **antes del último salto grande** — una búsqueda, `gg`, `G`, saltar a una mark. Es el comando de "llévame al punto de partida" retroactivo. No hace falta activarlo antes de saltar: Vim lo registra automáticamente.
+
+Para ver todas las marks activas en cualquier momento:
+
+```vim
+:marks
+```
+
+Muestra una tabla con nombre, línea, columna y el texto de la línea. Útil cuando llevas un rato trabajando y ya no recuerdas qué pusiste dónde, que es justo cuando más falta hace.
+
+## El jump list: el historial del editor
+
+Además de las marks manuales, Vim lleva un historial automático de posiciones llamado **jump list**. Cada salto grande — buscar con `/`, ir a una mark, `gg`, `G`, saltar a una definición — queda registrado.
+
+Para navegar por ese historial:
+
+```vim
+Ctrl+o    " volver al salto anterior (older)
+Ctrl+i    " avanzar al salto siguiente (newer)
+```
+
+`Ctrl+o` es el botón de atrás del navegador, pero para posiciones dentro del editor. Si llevas cuatro saltos, cuatro `Ctrl+o` te llevan de vuelta al punto de partida, uno a uno. `Ctrl+i` va en la dirección contraria.
+
+Para ver la lista completa:
+
+```vim
+:jumps
+```
+
+El jump list tiene capacidad para 100 posiciones. Cien. El número justo para hacer que parezca un recurso que necesitas gestionar — no hace falta. Cuando se llena, la entrada más antigua desaparece sin aviso. Vim no te manda ninguna notificación. Tú sigues editando.
+
+Nota sobre las [búsquedas con `/` y `?`](/es/tutoriales/busqueda-en-vim): cada salto a un resultado entra en el jump list. Si recorres seis resultados con `n`, tienes seis entradas. `Ctrl+o` deshace el camino.
+
+## El changelist: donde editaste
+
+El jump list recuerda posiciones. El **changelist** recuerda específicamente los sitios donde hiciste un cambio en el archivo.
+
+```vim
+g;    " ir al cambio anterior (older change)
+g,    " ir al cambio siguiente (newer change)
+```
+
+Para ver la lista completa:
+
+```vim
+:changes
+```
+
+El caso de uso habitual: editaste algo, saltaste a otro sitio a revisar una variable, y ahora quieres volver exactamente a donde estabas escribiendo. `g;` y estás ahí.
+
+El changelist guarda los últimos 100 cambios con posición exacta. Como un cuaderno de auditoría de todo lo que has tocado en el archivo desde que lo abriste. El 95% de las veces usarás `g;` una sola vez para volver al último sitio donde escribiste algo. Para eso existe.
+
+## Saltos especiales
+
+### `%`: los pares que se buscan
+
+Coloca el cursor sobre un paréntesis, llave o corchete, y pulsa `%`:
+
+```vim
+%
+```
+
+Salta al carácter correspondiente. Sobre `(` → al `)`. Sobre `}` → al `{` que lo abre. Puedes rebotar entre los dos con `%` repetido.
+
+Útil en código con varios niveles de anidamiento: en vez de contar visualmente dónde termina un bloque, `%` te lleva ahí directamente.
+
+### `gd` y `gD`: ir a la definición
+
+```vim
+gd    " go to local definition (dentro del scope actual)
+gD    " go to global definition (desde el principio del archivo)
+```
+
+`gd` busca la primera aparición de la palabra bajo el cursor dentro del scope local — útil para saltar a donde se declara una variable. `gD` hace lo mismo pero buscando desde el inicio del archivo.
+
+No es lo mismo que el LSP, que veremos más adelante en el curso y que salta con contexto semántico real. `gd` y `gD` son búsquedas de texto. En archivos sin LSP, o para variables locales con nombre claro, funcionan sin fricción y sin configuración.
+
+### `gf`: abrir el archivo bajo el cursor
+
+El comando más subestimado de esta lección.
+
+Coloca el cursor sobre un path en el texto:
+
+```
+import { config } from '../config/app'
+require('./utils/format')
+```
+
+Y pulsa:
+
+```vim
+gf
+```
+
+Vim abre el archivo. Sin comandos extra, sin explorador lateral, sin copiar el path y pegarlo en `:e`. Si existe, `gf` va ahí. Para volver, `Ctrl+o` — el salto ya quedó registrado en el jump list.
+
+La única pega: `gf` trabaja con el texto literal del cursor. Paths con aliases de bundler (`@/components`) o extensiones implícitas pueden necesitar configuración adicional. En paths explícitos, funciona sin nada más.
+
+## Conceptos clave de esta lección
+
+- `m{a-z}` crea una mark local; `` `{letra} `` salta a línea y columna exactas; `'{letra}` salta a la línea
+- `m{A-Z}` crea una mark global que persiste entre sesiones y funciona entre archivos
+- `` `. `` lleva al último cambio; `''` lleva a la posición antes del último salto grande
+- `:marks` muestra todas las marks activas
+- `Ctrl+o` / `Ctrl+i` recorren el jump list hacia atrás y hacia delante
+- `g;` / `g,` recorren el changelist (historial de ediciones)
+- `%` salta entre el carácter de apertura y cierre correspondiente
+- `gd` / `gD` saltan a la primera aparición local o global de la palabra bajo el cursor
+- `gf` abre el archivo cuyo path está bajo el cursor
+
+---
+
+**💡 Reto**: Abre un archivo grande de un proyecto real. Pon `ma` donde estás, salta a otra sección con `/`, vuelve con `` `a ``. Haz un cambio pequeño, salta con `gg`, vuelve con `g;`. Si hay algún path referenciado en el código, coloca el cursor encima y prueba `gf`. Escribe `:marks` y `:jumps` para ver el estado de las listas — todo lo que hiciste está registrado ahí.
+
+Las marks y los saltos cierran el sistema de navegación básica de Vim. Ya tienes las herramientas para moverte por cualquier codebase sin perder el hilo. En el próximo tutorial llega algo que muchos consideran el auténtico superpoder de Vim: los **text objects**, que permiten operar sobre "el contenido entre comillas", "el bloque entre llaves" o "la palabra entera" con dos teclas.
+
+¡Nunca dejes de programar!
