@@ -1,0 +1,101 @@
+---
+title: "Introducing the DevOps, SRE and Platform Engineering Course"
+post_slug: "presentation-devops-sre-platform-engineering-course"
+date: "2026-07-02"
+excerpt: "Production is on fire and you don't know whether to check Jenkins, Kubernetes, DNS, or the router? This free course takes you from Linux basics to modern Platform Engineering."
+language: "en"
+categories: ["programming"]
+cover: "/images/posts/cabecera-devops-post.jpg"
+i18n: "presentacion-curso-devops-sre-platform-engineering"
+---
+
+Production is down. Slack is behaving like a slot machine with notifications. Someone asks whether it's DNS. Someone else says it works locally. Jenkins is red, Kubernetes says `CrashLoopBackOff`, Grafana looks like a Christmas tree, and you're staring at the whole thing with the very specific feeling of sitting in an airplane cockpit where one button has a sticky note saying: “do not touch unless you know what you're doing.”
+
+Is it infrastructure? Networking? The deploy? The database? DNS? Yes, it's probably DNS too. Welcome to the kind of chaos that turns “I just wanted to write code” into “I now have strong opinions about timeouts, logs, and error budgets.”
+
+Welcome to the **DevOps, SRE and Platform Engineering** course: a complete, free course to learn, from scratch, how modern systems are built, deployed, observed, and operated. Not from hype. Not from a slide with attractive cloud icons. From reality: Linux, terminal, networking, CI/CD, Docker, Kubernetes, Terraform, observability, SRE, incidents, error budgets, Backstage, and Internal Developer Platforms.
+
+### Why this course matters in 2026
+
+For years, “doing DevOps” meant wildly different things depending on the company: automating deployments, writing scripts, putting out fires, running Kubernetes, maintaining Jenkins, touching Terraform, checking dashboards, getting paged at 3 AM, and occasionally remembering that life existed outside PagerDuty.
+
+Let's be clear: **DevOps is not buying tools**. You don't do DevOps because you installed Jenkins, Docker, and Kubernetes, the same way you don't become a chef because you own three pans and an air fryer. It helps, sure. But if you don't understand what problem each tool solves, you just have more buttons to press when something breaks.
+
+That's the point of this course: building the full map.
+
+First you'll understand the foundation: Linux, terminal, processes, logs, networking, and Bash. Then come pipelines, containers, Kubernetes, and Terraform. After that we'll move into observability, SRE, incident management, postmortems, chaos engineering, capacity planning, and cost optimization. And finally we'll climb one level higher: Platform Engineering, Golden Paths, Developer Experience, Backstage, service catalogs, and Internal Developer Platforms.
+
+The goal is not to memorize commands like YAML spells from an ancient grimoire. The goal is to understand **why all of this exists** and how it connects.
+
+### What makes this course different?
+
+Many DevOps courses fail for the same reason: they jump straight into Kubernetes like someone starting a house from the roof and then acting surprised when the bathroom is floating.
+
+They teach you `kubectl apply`, but they don't explain Linux properly. They talk about CI/CD, but not feedback loops. They show Terraform, but not the risk of turning infrastructure into “copy-paste with remote state.” They sell Platform Engineering as “install Backstage and you're done.”
+
+It works like having a universal remote with 47 buttons and no labels: technically it controls the TV, but every attempt to increase the volume has a 20% chance of opening Netflix, rebooting the router, or summoning a minor HDMI demon.
+
+**This course takes a different route:**
+
+- **Truly from zero**: we start with Linux and the terminal because the whole tower rests there. If that foundation is weak, Kubernetes won't save you; it will just produce better-formatted errors.
+- **DevOps → SRE → Platform Engineering**: these are not three labels for LinkedIn. They are a natural evolution: automate delivery, manage reliability, and build internal platforms that reduce cognitive load.
+- **Principles before tools**: you'll learn Jenkins, Docker, Kubernetes, Terraform, Prometheus, Grafana, and Backstage, but always as answers to real problems.
+- **Production as context**: deployments, alerts, logs, rollbacks, incidents, postmortems, SLOs, and error budgets. The things that matter once you're no longer inside the happy tutorial path.
+- **Platform Engineering without smoke**: an Internal Developer Platform is not “yet another portal.” It's an internal product for developers. If it doesn't reduce friction, it's corporate decoration with a login screen.
+
+### What will I learn?
+
+The course has **76 lessons across 11 modules**, designed to take you from zero to building a complete internal platform:
+
+1. **Linux and terminal**: filesystem, processes, services, logs, Bash scripting, and Git applied to infrastructure.
+2. **Networking fundamentals**: DNS, HTTP, ports, routing, firewalls, and all the things nobody wants to look at until production decides to do experimental theatre.
+3. **CI with Jenkins**: pipelines, builds, tests, artifacts, and delivery automation.
+4. **Docker**: containers, images, Compose, registries, and best practices. If you want a deeper foundation first, the [Mastering Docker from Scratch](/en/courses/mastering-docker-from-scratch) course is a perfect companion.
+5. **Kubernetes**: pods, deployments, services, ingress, config, secrets, Helm, and basic cluster operations.
+6. **Terraform**: infrastructure as code, modules, state, environments, and cloud provisioning.
+7. **Observability**: metrics, logs, traces, Prometheus, Grafana, alerts, SLOs, and dashboards that are actually useful, not colourful rectangles pretending everything is under control.
+8. **SRE**: error budgets, incident management, postmortems, chaos engineering, capacity planning, on-call, and reliability culture.
+9. **Platform Engineering**: Golden Paths, Developer Experience, self-service, standards, guardrails, and platform metrics.
+10. **Internal Developer Platforms**: Backstage, service catalog, TechDocs, templates, plugins, integrations, and internal tooling.
+11. **Capstone project**: design and implement a realistic IDP for a fictional company with 150 engineers, 80+ microservices, and a generous amount of accumulated pain. In other words, a normal Tuesday in software.
+
+The through line matters: we're not studying disconnected tools. We're building operational judgment. The kind that lets you look at an incident and say: “I don't know exactly what's wrong yet, but I know where to start.” That is gold.
+
+### Do I need prior knowledge?
+
+No. The roadmap is designed for **complete beginners**, even if you've never touched Linux or infrastructure before.
+
+What does help:
+
+- Basic Git confidence. If not, start with [Mastering Git from Scratch](/en/courses/mastering-git-from-scratch), because infrastructure without Git is like doing surgery with oven mitts.
+- Curiosity about what happens to software after it leaves your laptop.
+- Accepting that the terminal will become part of your life. Don't stress: at first it looks like a dark cave; later you discover it has lights, shortcuts, and fewer pop-ups than any Electron GUI.
+- Wanting to understand, not just copy commands.
+
+If you come from backend, Docker, Linux, or cloud, you'll move faster through some modules. If you're starting from zero, the course is designed precisely so you don't have to pretend you understand what a socket is while nodding with a serious face.
+
+### An honest warning
+
+DevOps, SRE, and Platform Engineering are huge disciplines. You don't learn them in one afternoon. Anyone promising “master Kubernetes in 2 hours” probably also sells trading courses with rented Lamborghinis.
+
+This course will require practice. You'll touch the terminal, break things in controlled environments, read logs, write scripts, deploy services, inspect metrics, design runbooks, and think in trade-offs. Because operating software is not about everything going well; it's about being ready when it doesn't.
+
+And here's where it gets fun: the goal is not to never have incidents. That's fantasy. The goal is to build systems that fail in ways you can understand, recover from, and make less dramatic over time. Moving from “who touched production?” to “we have an alert, a runbook, a rollback, and a blameless postmortem.”
+
+That's technical maturity.
+
+### From firefighting to building platforms
+
+The course progression is deliberate.
+
+DevOps teaches you to automate and connect development with operations. SRE teaches you to manage reliability with engineering, data, and explicit limits. Platform Engineering teaches you to turn all that knowledge into a platform other teams can use without opening five tickets and sacrificing a goat to the corporate VPN.
+
+By the end, you won't just know how to deploy an application. You'll know how to design a path so other developers can deploy better, faster, and with fewer surprises. That's a massive mindset shift: from “I operate systems” to “I build the road other teams use to deliver software.”
+
+And when that road is well built, nobody thinks about it. Like good elevators, good DNS, and good office chairs: you only notice them when they fail. Spoiler: DNS gets noticed a lot.
+
+---
+
+**First lesson available July 3rd**: “Introduction to the DevOps World”.
+
+Never stop coding!

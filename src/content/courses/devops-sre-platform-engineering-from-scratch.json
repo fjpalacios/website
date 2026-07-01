@@ -1,0 +1,7 @@
+{
+  "name": "DevOps, SRE and Platform Engineering from Scratch",
+  "course_slug": "devops-sre-platform-engineering-from-scratch",
+  "language": "en",
+  "description": "Learn DevOps, SRE, and Platform Engineering from scratch: Linux, networking, CI/CD, Docker, Kubernetes, Terraform, observability, error budgets, incident management, Backstage, and Internal Developer Platforms. A practical path from fundamentals to modern internal platforms.",
+  "i18n": "devops-sre-platform-engineering-desde-cero"
+}
