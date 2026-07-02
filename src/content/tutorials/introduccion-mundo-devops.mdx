@@ -1,0 +1,277 @@
+---
+title: "Introducción al mundo DevOps: cultura, automatización y feedback"
+post_slug: "introduccion-mundo-devops"
+date: "2026-07-03"
+excerpt: "Empieza el curso de DevOps, SRE y Platform Engineering entendiendo qué problema resuelve DevOps, por qué no es solo un rol y cómo encaja todo el roadmap."
+language: "es"
+categories: ["devops"]
+course: "devops-sre-platform-engineering-desde-cero"
+order: 1
+cover: "/images/tutorials/cabecera-devops-curso.jpg"
+i18n: "introduction-devops-world"
+---
+
+Son las 17:43 de un jueves. Desarrollo acaba de terminar una feature. Operaciones tiene que desplegarla. La feature funciona en local, los tests pasan, el ticket está en Done y alguien ya está pensando en cerrar el portátil con dignidad.
+
+Entonces llega producción y dice: “qué bonito todo, pero no”.
+
+El servidor tiene otra versión de Node. La variable de entorno no existe. El script de deploy depende de un paso manual que solo conoce una persona. Los logs están en una máquina, la configuración en otra, y el documento que explica el proceso se llama `deploy-final-v2-bueno-ahora-si.md`.
+
+¿Quién tiene la culpa? ¿Dev? ¿Ops? ¿La VPN? ¿Ese `README` que nadie actualiza desde 2021? Si estás empezando, esta escena puede parecer exagerada. Si ya has trabajado en software, probablemente acabas de recordar una cara concreta. Lo siento.
+
+Bienvenido al mundo DevOps.
+
+## El problema antes de DevOps
+
+Durante mucho tiempo, el desarrollo de software se organizó con una separación muy clara:
+
+- **Development** escribía código.
+- **Operations** mantenía servidores, redes, despliegues y producción.
+
+Sobre el papel suena razonable. Como separar cocina y sala en un restaurante: unos preparan la comida, otros la sirven. El problema aparece cuando cocina no sabe cómo se sirve el plato, sala no sabe qué lleva el plato, y el cliente está mirando una lasaña que ha llegado congelada por dentro.
+
+En software, esa separación generaba varios síntomas conocidos:
+
+- “En mi máquina funciona.”
+- “El deploy lo hace Ops, pregúntales a ellos.”
+- “No podemos desplegar hasta el viernes porque hay ventana de cambios.”
+- “¿Dónde están los logs?”
+- “¿Quién tocó producción?”
+
+La frase “en mi máquina funciona” es casi patrimonio cultural del sector. Técnicamente no soluciona nada, pero permite ganar tres segundos de silencio incómodo. Como cuando montas un mueble de IKEA, te sobra una pieza metálica y decides que probablemente era decorativa. La estantería está en pie. De momento.
+
+El problema real no era que Dev fuese irresponsable ni que Ops fuese lento. Esa caricatura es cómoda, pero falsa. El problema era **el sistema de trabajo**: equipos separados, objetivos distintos, poca automatización, feedback tarde y despliegues tratados como eventos especiales en vez de parte normal del desarrollo.
+
+Ahí entra DevOps.
+
+## Qué es DevOps
+
+**DevOps** es una cultura y un conjunto de prácticas para entregar software de forma más rápida, segura y fiable mediante colaboración, automatización y feedback continuo.
+
+La frase importante es esta: **DevOps no es una herramienta**.
+
+No es Jenkins. No es Docker. No es Kubernetes. No es Terraform. No es tener un YAML con 400 líneas y la esperanza de que si lo miras con suficiente respeto no falle.
+
+Las herramientas ayudan, claro. Pero DevOps empieza antes: empieza cuando development y operations dejan de trabajar como dos departamentos que se pasan paquetes por encima de una valla y empiezan a compartir responsabilidad sobre todo el ciclo de vida del software.
+
+Ese ciclo completo se parece más a esto:
+
+```text
+Plan → Code → Build → Test → Release → Deploy → Operate → Monitor
+```
+
+DevOps intenta que ese ciclo sea:
+
+- **más rápido**, porque automatizas pasos repetitivos;
+- **más seguro**, porque reduces cambios manuales y sorpresas;
+- **más observable**, porque sabes qué ocurre cuando algo falla;
+- **más colaborativo**, porque el equipo comparte contexto y responsabilidad.
+
+La parte incómoda: DevOps no se “instala”. Se practica. Si una empresa dice “hemos comprado DevOps”, lo que ha comprado probablemente es una herramienta, una consultoría o una pegatina para el portátil. DevOps real cambia cómo se trabaja.
+
+Y para cambiar cómo se trabaja, necesitas tres ideas base.
+
+## Las tres ideas centrales: colaboración, automatización y feedback
+
+Podríamos hacer una lista enorme de principios, pero para empezar quédate con tres. Son el trípode. Si una pata falla, la cámara se cae y la foto sale movida. Metáfora humilde, pero precisa.
+
+### Colaboración
+
+Dev y Ops no deberían encontrarse por primera vez el día del deploy.
+
+La colaboración significa que quienes escriben el código entienden cómo se ejecuta en producción, y quienes operan el sistema entienden qué está cambiando en el producto. No para que todo el mundo haga todo siempre — eso acaba en caos con calendario compartido — sino para que no haya muros absurdos.
+
+Un developer no necesita convertirse en experto en redes BGP para desplegar una API. Pero sí debería entender qué variables necesita, qué puertos expone, qué logs genera y cómo se sabe si está sana.
+
+Un perfil de operaciones no necesita conocer cada detalle del dominio de negocio. Pero sí debería participar en decisiones que afectan despliegue, capacidad, observability y recuperación.
+
+DevOps elimina el “yo ya hice mi parte”. En sistemas reales, esa frase es una trampa. Tu parte no termina cuando haces `git push`; termina cuando el software aporta valor funcionando en un entorno real.
+
+### Automatización
+
+Cada paso manual repetido es una futura incidencia escribiendo su currículum.
+
+Compilar a mano, copiar archivos por SSH, reiniciar servicios “en el orden correcto”, editar configuración directamente en producción... todo eso puede funcionar una vez. También puedes cruzar una calle con los ojos cerrados una vez. No lo convierte en metodología.
+
+La automatización convierte procesos frágiles en pasos reproducibles:
+
+```text
+Código → pipeline → tests → build → deploy → monitorización
+```
+
+En vez de depender de que alguien recuerde el ritual exacto, el proceso vive en scripts, pipelines, repositorios e infraestructura como código.
+
+Aquí entran herramientas que veremos más adelante: Git, Jenkins, Docker, Kubernetes, Terraform, Prometheus, Grafana. Pero fíjate en el orden mental: **primero el problema, luego la herramienta**. Comprar Kubernetes antes de entender el deploy es como comprar una excavadora porque quieres colgar un cuadro.
+
+### Feedback
+
+El feedback rápido evita que los errores lleguen tarde, caros y vestidos de producción.
+
+Tests automáticos, pipelines, alertas, logs, métricas, dashboards, postmortems: todo eso existe para responder preguntas cuanto antes:
+
+- ¿El cambio funciona?
+- ¿El sistema sigue sano?
+- ¿El deploy rompió algo?
+- ¿Los usuarios están sufriendo?
+- ¿Podemos recuperar rápido?
+
+Sin feedback, trabajas a ciegas. Y trabajar a ciegas en infraestructura tiene un nombre técnico: viernes por la tarde.
+
+Con colaboración, automatización y feedback ya puedes entender por qué DevOps no es “poner a alguien a llevar Jenkins”. Es una forma de reducir distancia entre escribir software y operarlo.
+
+## Entonces, ¿DevOps es un rol?
+
+Aquí empieza la confusión divertida. Divertida en el sentido de “hay organigramas que parecen generados por una IA con sueño”.
+
+DevOps nació como cultura y prácticas, no como cargo. Pero la industria hizo lo que la industria hace: convirtió la idea en ofertas de trabajo.
+
+Hoy puedes ver títulos como:
+
+- DevOps Engineer
+- Site Reliability Engineer
+- Platform Engineer
+- Cloud Engineer
+- Infrastructure Engineer
+- Build and Release Engineer
+
+¿Son lo mismo? No. ¿Se solapan? Muchísimo. ¿Depende de la empresa? Sí. ¿Eso ayuda al principiante? En absoluto.
+
+Una forma práctica de verlo:
+
+| Enfoque              | Pregunta principal                                                                |
+| -------------------- | --------------------------------------------------------------------------------- |
+| DevOps               | ¿Cómo entregamos software mejor y con menos fricción?                             |
+| SRE                  | ¿Cómo hacemos que el sistema sea fiable de forma medible?                         |
+| Platform Engineering | ¿Cómo construimos una plataforma para que otros equipos entreguen software mejor? |
+
+DevOps suele enfocarse en colaboración, automatización, CI/CD e infraestructura. SRE toma muchas de esas ideas y las lleva a fiabilidad operativa: SLOs, error budgets, incident response, toil, postmortems. Platform Engineering sube otro nivel: construye herramientas internas, Golden Paths y self-service para que los equipos no tengan que reinventar el despliegue en cada repo.
+
+Si DevOps reduce el muro entre Dev y Ops, SRE pone números a la fiabilidad, y Platform Engineering construye la carretera por la que los equipos circulan. Si la carretera está bien hecha, nadie piensa en ella. Si está mal hecha, todos acaban en una rotonda infinita con un ticket de Jira en la mano.
+
+## Qué hace un DevOps Engineer tradicional
+
+En muchas empresas, el rol de DevOps Engineer mezcla varias responsabilidades:
+
+- Diseñar y mantener **pipelines de CI/CD**.
+- Automatizar **deployments**.
+- Gestionar **infraestructura como código**.
+- Mantener servidores, entornos y configuración.
+- Configurar monitorización básica.
+- Ayudar a los equipos a desplegar de forma más segura.
+
+Eso implica tocar muchas piezas. Algunas muy agradables. Otras con YAML.
+
+Las habilidades habituales son:
+
+- **Linux/Unix**, porque la mayoría de servidores viven ahí.
+- **Terminal y scripting**, sobre todo Bash y a veces Python.
+- **Git**, porque sin control de versiones no hay trazabilidad. Si Git todavía te parece una caja negra con ramas, el curso [Domina Git desde cero](/es/cursos/domina-git-desde-cero) te va a ahorrar sufrimiento real.
+- **Containers**, normalmente Docker. Si quieres entrar por ahí antes de Kubernetes, [Domina Docker desde cero](/es/cursos/domina-docker-desde-cero) es el camino natural.
+- **Cloud providers**, como AWS o GCP.
+- **Observability**, para saber qué está pasando cuando el sistema deja de sonreír.
+
+La clave no es saberlo todo desde el día uno. Nadie serio espera eso. La clave es entender el mapa: qué pieza resuelve qué problema y cómo se comunican entre sí.
+
+Porque si no tienes mapa, cada herramienta parece una solución universal. Y entonces acabas intentando arreglar un problema de DNS con Terraform. No preguntes cómo lo sé.
+
+## El ecosistema DevOps
+
+Una forma sencilla de entender el ecosistema es seguir el viaje de un cambio desde que nace hasta que se observa en producción:
+
+```text
+Development → Build → Test → Deploy → Monitor
+
+Git → Jenkins → Docker → Kubernetes → Prometheus
+      GitHub    Registry   Helm         Grafana
+      GitLab    Artifacts  ArgoCD       Alerts
+```
+
+No memorices todos los nombres ahora. En serio, no te agobies. La lista parece una tienda de herramientas donde alguien mezcló destornilladores, sierras, cables y una máquina de soldar en el mismo pasillo.
+
+Lo importante es entender las categorías:
+
+- **Version control**: dónde vive el código y la historia de cambios.
+- **CI/CD**: cómo automatizas build, tests y deploy.
+- **Packaging**: cómo empaquetas la aplicación para ejecutarla igual en distintos entornos.
+- **Orchestration**: cómo gestionas múltiples servicios y su ciclo de vida.
+- **Infrastructure as Code**: cómo describes infraestructura de forma versionada.
+- **Observability**: cómo ves qué ocurre dentro del sistema.
+
+Cada categoría responde a una pregunta distinta. Y esta distinción te salva de una trampa clásica: aprender herramientas sin entender el problema. Eso produce currículums largos y sistemas frágiles. Mucha tecnología, poco criterio. Como comprar una caja de herramientas profesional para apretar un tornillo y terminar desmontando la lavadora.
+
+## El roadmap del curso
+
+Este curso está diseñado para que el mapa aparezca poco a poco, no como una pared de siglas el primer día.
+
+Lo recorreremos en tres grandes fases.
+
+### Fase 1: DevOps tradicional
+
+Primero construiremos fundamentos:
+
+- Linux y terminal.
+- Procesos, servicios, logs y networking básico.
+- Bash scripting.
+- Git aplicado a infraestructura.
+- CI/CD con Jenkins.
+- Docker y contenedores.
+- Kubernetes.
+- Terraform.
+
+Esta fase responde a la pregunta: **¿cómo automatizo y opero el ciclo de entrega de software?**
+
+Aquí vas a ensuciarte las manos. Bien. DevOps sin tocar terminal es como aprender natación con una presentación de PowerPoint.
+
+### Fase 2: SRE
+
+Después entraremos en Site Reliability Engineering:
+
+- Observability avanzada.
+- SLOs y error budgets.
+- Incident management.
+- Postmortems sin culpa.
+- Chaos engineering.
+- Capacity planning.
+- On-call sostenible.
+
+Esta fase responde a otra pregunta: **¿cómo hago que el sistema sea fiable sin convertir al equipo en una guardia permanente de bomberos?**
+
+SRE introduce algo fundamental: fiabilidad con números. No “queremos que vaya bien”, sino “este servicio debe cumplir este SLO, y este es el margen de error aceptable”. Menos intuición heroica, más ingeniería.
+
+### Fase 3: Platform Engineering
+
+Finalmente llegamos a Platform Engineering:
+
+- Golden Paths.
+- Developer Experience.
+- Self-service.
+- Backstage.
+- Service catalog.
+- Internal Developer Platforms.
+- Tooling interno.
+
+Esta fase responde a la pregunta madura: **¿cómo construyo una plataforma para que otros equipos entreguen software mejor sin depender de mí para cada paso?**
+
+Ese cambio es enorme. Pasas de apagar fuegos a diseñar sistemas que evitan que el fuego empiece. O, siendo realistas, que al menos arda en una zona controlada, con alertas, runbook y extintor que no caducó en 2019.
+
+## Lo que debes llevarte de esta primera lección
+
+DevOps no va de herramientas. Va de reducir fricción entre construir software y operarlo en un entorno real.
+
+Las herramientas importan, pero son consecuencia. Git, Jenkins, Docker, Kubernetes, Terraform, Prometheus o Backstage tienen sentido cuando entiendes qué problema resuelven. Sin ese contexto, son solo nombres caros en una arquitectura que nadie quiere tocar.
+
+Quédate con estas ideas:
+
+- DevOps nace para romper silos entre Development y Operations.
+- La base es colaboración, automatización y feedback rápido.
+- DevOps no es un rol puro, aunque existan roles llamados DevOps Engineer.
+- SRE y Platform Engineering son evoluciones relacionadas, no palabras mágicas.
+- El curso irá de fundamentos reales a plataformas internas modernas, sin saltar directamente al YAML profundo.
+
+---
+
+**💡 Reto**: Piensa en un proyecto real o imaginario que conozcas. Escribe en una nota cómo se entrega hoy un cambio: quién escribe el código, cómo se prueba, cómo se despliega, dónde se ven los logs y cómo se sabe si funciona. Si en algún punto respondes “no lo sé” o “lo hace alguien manualmente”, perfecto: acabas de encontrar una futura lección de este curso.
+
+En el próximo tutorial prepararemos el entorno de trabajo. Veremos opciones como máquina virtual local, cloud y WSL2, y dejaremos una base Linux lista para empezar a tocar terminal sin depender de magia negra ni de “en mi ordenador ya venía configurado”.
+
+¡Nunca dejes de programar!
