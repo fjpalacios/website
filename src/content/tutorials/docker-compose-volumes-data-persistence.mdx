@@ -1,0 +1,413 @@
+---
+title: "Docker Compose volumes and data persistence"
+post_slug: "docker-compose-volumes-data-persistence"
+date: "2026-07-07"
+excerpt: "Learn Docker Compose volumes: named volumes, bind mounts, database persistence, development workflows, and backups without praying to the container gods."
+language: "en"
+categories: ["docker"]
+course: "mastering-docker-from-scratch"
+order: 15
+cover: "/images/tutorials/cabecera-docker-curso.jpg"
+i18n: "volumenes-persistencia-datos-docker-compose"
+---
+
+Docker has a very effective teaching method: you start Postgres, insert data, stop the container, start it again, and everything is still there. Nice. You gain confidence. You clean things up. You run the wrong command. You open the app again and the database is emptier than a sprint retrospective where everyone says “all good”.
+
+Where did the data live? Inside the container? Somewhere in Docker? In a secret folder guarded by a small daemon with trust issues?
+
+Take a breath. Docker doesn't hate your data. Containers are disposable by design. If you want persistence, you need to declare it explicitly. That's what **volumes** are for.
+
+## The problem: containers are not hard drives
+
+A container has its own filesystem. You can write files, modify data, create directories, and feel like everything is under control. The catch is that this writable layer belongs to the container.
+
+Remove the container, and those changes go with it.
+
+```bash
+docker run --name temp-postgres -e POSTGRES_PASSWORD=secret -d postgres:16-alpine
+docker rm -f temp-postgres
+```
+
+The container is gone. Its writable changes are gone too.
+
+That's not a bug. That's the model. Containers should be safe to destroy and recreate. The image contains the application; the data lives outside.
+
+Think of a container as a moving van. Useful, necessary, maybe smelling vaguely of cheap air freshener. But you don't store your lease, family photos, and the only copy of your production database inside the van. Those go in labeled boxes.
+
+In Docker, those boxes are volumes.
+
+## The three volume types you'll actually use
+
+In Compose, a service can mount several kinds of storage:
+
+```yaml
+services:
+  app:
+    image: myapp
+    volumes:
+      - app-data:/app/data
+      - ./src:/app/src
+      - /app/temp
+      - ./config:/app/config:ro
+
+volumes:
+  app-data:
+```
+
+Those four lines are not the same thing. Treating them as interchangeable is how you end up staring at `docker volume ls` like you're reading ancient ruins.
+
+### Named volumes
+
+```yaml
+services:
+  app:
+    image: myapp
+    volumes:
+      - app-data:/app/data
+
+volumes:
+  app-data:
+```
+
+A **named volume** is storage managed by Docker. You give it a name (`app-data`), and Docker decides where it physically lives on the host.
+
+This is the default choice for data you want to keep: databases, uploaded files, persistent caches, internal application state.
+
+The upside: it works consistently across Linux, macOS, and Windows. You don't depend on a specific host path.
+
+The downside: the files are not sitting neatly inside your project directory. Docker stores them internally. If you're like me when I started, that creates a very specific anxiety: “I know my data exists, but I don't know where it lives.” Correct. Welcome to the club.
+
+You can inspect volumes with:
+
+```bash
+docker volume ls
+docker volume inspect myproject_app-data
+```
+
+Compose usually prefixes volume names with the project name. If your directory is called `myproject` and your volume is `app-data`, the real volume might be `myproject_app-data`. Docker isn't trying to be mysterious. It just has a gift for making simple things look slightly like infrastructure archaeology.
+
+### Bind mounts
+
+```yaml
+services:
+  app:
+    image: myapp
+    volumes:
+      - ./src:/app/src
+```
+
+A **bind mount** mounts a host directory into the container. Here, `./src` on your machine appears as `/app/src` inside the container.
+
+This is excellent for development: edit code in your editor, the container sees the change immediately, the dev server reloads, and for one beautiful second software feels like it was designed by someone on your side.
+
+```yaml
+services:
+  api:
+    build: ./api
+    volumes:
+      - ./api/src:/app/src
+    command: npm run dev
+```
+
+But bind mounts depend on the host filesystem. If `./api/src` exists on your laptop but not on the server, deployment fails. If file synchronization is slow on macOS, you'll feel it. If someone changes the path, the container does not develop intuition.
+
+The practical rule:
+
+- **Development**: bind mounts for source code and local configuration.
+- **Persistent data**: named volumes.
+- **Production**: avoid mounting source code from the host unless you have a VERY clear reason.
+
+Not “interesting”. Clear.
+
+### Anonymous volumes
+
+```yaml
+services:
+  app:
+    image: myapp
+    volumes:
+      - /app/temp
+```
+
+An **anonymous volume** has no explicit name. Docker creates one automatically for `/app/temp`.
+
+This can be useful for internal container paths, but for important data it's a trap with good lighting. The volume exists, yes, but you didn't choose a stable name for it. Weeks later, you'll see a list of long IDs and have to guess which one contains what.
+
+It's like having a drawer full of unlabelled cables. One of them is definitely important. Good luck finding the right charger before USB invents another connector.
+
+For data you want to keep and understand, use named volumes.
+
+### Read-only volumes
+
+```yaml
+services:
+  app:
+    image: myapp
+    volumes:
+      - ./config:/app/config:ro
+```
+
+The `:ro` suffix mounts the volume as **read-only**. The container can read `/app/config`, but it can't write there.
+
+Use this for configuration, certificates, static files, or anything the container should not modify. If an application only needs to read a file, don't give it write access. Least privilege applies locally too. Your laptop is not a moral exception.
+
+## Database persistence
+
+The most common Compose case is a database.
+
+```yaml
+services:
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: myapp
+      POSTGRES_PASSWORD: secret
+      POSTGRES_DB: myapp
+    volumes:
+      - db-data:/var/lib/postgresql/data
+
+volumes:
+  db-data:
+```
+
+Postgres stores its data in `/var/lib/postgresql/data`. By mounting `db-data` there, the data lives in the volume, not in the container's writable layer.
+
+Now you can remove and recreate the container without losing the database:
+
+```bash
+docker compose down
+docker compose up -d
+```
+
+The container changes. The volume remains.
+
+But pay attention: `down` and `down -v` are not polite cousins. `docker compose down` removes containers and networks, but keeps named volumes. `docker compose down -v` also removes the volumes declared by Compose.
+
+```bash
+docker compose down     # Keeps named volumes
+docker compose down -v  # Removes named volumes too
+```
+
+That `-v` is tiny, quiet, and destructive. Like a red button without a safety cover. Use it when you deliberately want to delete data: resetting a local database, cleaning a test environment, starting from scratch.
+
+Don't use it as “general cleanup” if the data matters.
+
+For other databases, the idea is the same: mount the volume where the image stores its data.
+
+```yaml
+services:
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_PASSWORD: secret
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+
+  mongo:
+    image: mongo:7
+    volumes:
+      - mongo-data:/data/db
+
+  mysql:
+    image: mysql:8
+    environment:
+      MYSQL_ROOT_PASSWORD: secret
+    volumes:
+      - mysql-data:/var/lib/mysql
+
+volumes:
+  postgres-data:
+  mongo-data:
+  mysql-data:
+```
+
+The path changes depending on the image. The pattern doesn't.
+
+## Initialization scripts
+
+Many official database images can run initialization scripts the first time the database is created.
+
+With Postgres, anything mounted into `/docker-entrypoint-initdb.d` runs when the data directory is initialized:
+
+```yaml
+services:
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: myapp
+      POSTGRES_PASSWORD: secret
+      POSTGRES_DB: myapp
+    volumes:
+      - db-data:/var/lib/postgresql/data
+      - ./init-scripts:/docker-entrypoint-initdb.d:ro
+
+volumes:
+  db-data:
+```
+
+For example:
+
+```sql
+-- init-scripts/01-create-tables.sql
+CREATE TABLE IF NOT EXISTS notes (
+  id SERIAL PRIMARY KEY,
+  title TEXT NOT NULL,
+  created_at TIMESTAMP NOT NULL DEFAULT NOW()
+);
+```
+
+Important detail: these scripts run when the data directory is empty. If the volume already exists and Postgres has already initialized, they do not run again.
+
+Feeling the “but I changed the SQL and nothing happened” moment? Good. The volume already had data. Docker is not going to wipe your database because you edited a file. That would be helpful in a deeply criminal way.
+
+To test initialization changes locally:
+
+```bash
+docker compose down -v
+docker compose up -d
+```
+
+That deletes the volume and forces a fresh initialization. Deliberate, visible, consequences included.
+
+## Development vs production
+
+Volumes also separate two very different needs: fast development and stable runtime behavior.
+
+In development, you want hot reload:
+
+```yaml
+# docker-compose.dev.yml
+services:
+  api:
+    build:
+      context: ./api
+      target: development
+    volumes:
+      - ./api/src:/app/src
+      - ./api/package.json:/app/package.json:ro
+      - /app/node_modules
+    command: npm run dev
+```
+
+The `- /app/node_modules` line creates an anonymous volume so the container's `node_modules` directory doesn't get overwritten by the host. This trick exists because JavaScript decided dependencies should have more emotional mass than the actual project. We're not fixing that today.
+
+In production, you don't mount source code from your machine. You build an image and only mount the data that must persist:
+
+```yaml
+# docker-compose.prod.yml
+services:
+  api:
+    build:
+      context: ./api
+      target: production
+    volumes:
+      - api-data:/app/data
+    command: npm start
+
+volumes:
+  api-data:
+```
+
+Then combine files depending on the environment:
+
+```bash
+# Development
+docker compose -f docker-compose.yml -f docker-compose.dev.yml up
+
+# Production
+docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d
+```
+
+The base `docker-compose.yml` describes the shared stack, and the environment-specific files override what changes. Just like with [Git](/en/courses/mastering-git-from-scratch), you commit what describes the project and keep machine-specific details out.
+
+## Backups: persistence is not a backup
+
+A persistent volume is not a backup. Say it with me: **persistence is not backup**.
+
+A named volume survives container recreation. It does not protect you from `docker compose down -v`, manual deletion, data corruption, an overconfident script, or you on a Friday afternoon thinking “this definitely won't break anything”.
+
+For databases, the best backup is usually the database's own tool. For Postgres:
+
+```bash
+docker compose exec db pg_dump -U myapp myapp > backup.sql
+```
+
+That runs `pg_dump` inside the `db` container and writes the output to your machine. Clear, portable, and database-aware.
+
+You can also make a low-level copy of a volume using a temporary container:
+
+```bash
+docker run --rm \
+  -v myproject_db-data:/data:ro \
+  -v "$(pwd)":/backup \
+  alpine \
+  tar czf /backup/db-data-backup.tar.gz -C /data .
+```
+
+What's happening here:
+
+- `myproject_db-data:/data:ro` mounts the volume read-only.
+- `"$(pwd)":/backup` mounts your current directory as the backup destination.
+- `tar czf` archives the volume contents.
+- `--rm` removes the temporary container when it exits.
+
+If you've spent years fighting shell quotes, you noticed `"$(pwd)"`. If not, don't worry: Bash will get its own course later, because this topic deserves more than “copy this and trust me”. That's not decoration. It keeps the command from breaking when the path contains spaces. The shell is always waiting for a chance to remind you that quotes are not optional.
+
+To restore into an empty volume:
+
+```bash
+docker volume create myproject_db-data
+
+docker run --rm \
+  -v myproject_db-data:/data \
+  -v "$(pwd)":/backup:ro \
+  alpine \
+  tar xzf /backup/db-data-backup.tar.gz -C /data
+```
+
+For databases that are actively running, don't blindly copy files while the engine is writing. It might help in development. In production, use `pg_dump`, consistent snapshots, or the official tooling for your database. Faith can move mountains, but it does not guarantee transactional integrity.
+
+## Cleanup without destroying what matters
+
+These Compose and Docker commands have very different effects:
+
+```bash
+docker compose stop
+docker compose down
+docker compose down -v
+docker volume ls
+docker volume rm myproject_db-data
+docker volume prune
+```
+
+Human translation:
+
+| Command                   | What it does                                         |
+| ------------------------- | ---------------------------------------------------- |
+| `docker compose stop`     | Stops containers, removes nothing                    |
+| `docker compose down`     | Removes containers and networks, keeps named volumes |
+| `docker compose down -v`  | Removes containers, networks, and project volumes    |
+| `docker volume rm <name>` | Removes one specific volume                          |
+| `docker volume prune`     | Removes volumes not used by any container            |
+
+`docker volume prune` asks for confirmation, but it does not know which volume was “emotionally important”. It only knows whether a container is currently using it. If you have an old volume with data you care about and no container is attached to it right now, it can be removed.
+
+Before deleting, inspect:
+
+```bash
+docker volume inspect myproject_db-data
+```
+
+And if you're unsure, back it up first. Boring advice. So is wearing a seatbelt, until the day it stops being boring.
+
+## Practical challenge
+
+Create a `docker-compose.yml` with Postgres and a fake API or any lightweight image you know. Add a named volume for Postgres, start the stack, create some data, run `docker compose down`, then start it again and confirm the data is still there.
+
+After that, back up the volume using the temporary `alpine` container. You don't need an enterprise backup system yet; just understand the flow: volume → `.tar.gz` archive → restore into an empty volume.
+
+---
+
+You can now treat Docker Compose data with the respect it deserves: outside the container, with clear names, with clean separation between development and production, and with backups that don't depend on crossed fingers. In the next tutorial we'll go into Docker Compose networking: default networks, custom networks, service isolation, and why your database should not be cheerfully waving at the entire stack.
+
+Never stop coding!
