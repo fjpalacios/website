@@ -1,0 +1,413 @@
+---
+title: "Volúmenes y persistencia de datos en Docker Compose"
+post_slug: "volumenes-persistencia-datos-docker-compose"
+date: "2026-07-07"
+excerpt: "Aprende a usar volúmenes con Docker Compose: named volumes, bind mounts, datos de bases de datos, entornos de desarrollo y backups sin rezar a los dioses del contenedor."
+language: "es"
+categories: ["docker"]
+course: "domina-docker-desde-cero"
+order: 15
+cover: "/images/tutorials/cabecera-docker-curso.jpg"
+i18n: "docker-compose-volumes-data-persistence"
+---
+
+Hay una experiencia muy educativa en Docker: arrancas Postgres, guardas datos, paras el contenedor, lo vuelves a levantar y todo sigue ahí. Bien. Te vienes arriba. Haces limpieza. Ejecutas el comando equivocado. Vuelves a abrir la aplicación y la base de datos está más vacía que tu motivación un lunes con reunión a las 9.
+
+¿Dónde estaban los datos? ¿En el contenedor? ¿En Docker? ¿En una carpeta secreta? ¿Se han ido a vivir con los calcetines que desaparecen en la lavadora?
+
+Respira. No es que Docker odie tus datos. Es que los contenedores son desechables por diseño. Si quieres persistencia, tienes que declararla explícitamente. Y ahí entran los **volúmenes**.
+
+## El problema: los contenedores no son discos duros
+
+Un contenedor tiene su propio sistema de ficheros. Puedes escribir dentro, crear ficheros, modificar datos y sentir que todo está bajo control. El problema es que ese sistema de ficheros pertenece al contenedor.
+
+Si eliminas el contenedor, eliminas también esa capa escribible.
+
+```bash
+docker run --name temp-postgres -e POSTGRES_PASSWORD=secret -d postgres:16-alpine
+docker rm -f temp-postgres
+```
+
+El contenedor se va. Sus cambios también.
+
+Esto no es un bug. Es la gracia del modelo: los contenedores deben poder destruirse y recrearse sin drama. La imagen contiene la aplicación; los datos viven fuera.
+
+Es como hacer una mudanza: el contenedor es la furgoneta. Útil, necesaria, incluso con olor a ambientador barato. Pero no deberías guardar ahí el contrato de alquiler, las fotos familiares y la única copia de la base de datos de producción. Eso va en cajas etiquetadas.
+
+En Docker, esas cajas son los volúmenes.
+
+## Los tres tipos de volumen que vas a usar
+
+En Compose, la sección `volumes` de un servicio puede montar varios tipos de almacenamiento:
+
+```yaml
+services:
+  app:
+    image: myapp
+    volumes:
+      - app-data:/app/data
+      - ./src:/app/src
+      - /app/temp
+      - ./config:/app/config:ro
+
+volumes:
+  app-data:
+```
+
+Aquí hay cuatro casos distintos, y conviene separarlos mentalmente porque mezclarlos es la receta perfecta para perder una tarde mirando `docker volume ls` con cara de arqueólogo.
+
+### Named volumes
+
+```yaml
+services:
+  app:
+    image: myapp
+    volumes:
+      - app-data:/app/data
+
+volumes:
+  app-data:
+```
+
+Un **named volume** es almacenamiento gestionado por Docker. Tú le das un nombre (`app-data`) y Docker decide dónde guardarlo físicamente en el host.
+
+Es la opción normal para datos que quieres conservar: bases de datos, ficheros subidos por usuarios, cachés persistentes, datos internos de una aplicación.
+
+La ventaja: funciona igual en Linux, macOS y Windows. No dependes de que exista una ruta concreta en el host.
+
+La desventaja: no ves el contenido directamente en tu proyecto. Docker lo guarda en su zona interna. Si eres como yo cuando empecé, esto genera una inquietud muy específica: “sé que mis datos existen, pero no sé dónde están guardados”. Bienvenido. Es normal.
+
+Puedes inspeccionar un volumen así:
+
+```bash
+docker volume ls
+docker volume inspect myproject_app-data
+```
+
+Compose suele prefijar el nombre del volumen con el nombre del proyecto. Si tu carpeta se llama `myproject` y defines `app-data`, el volumen real puede llamarse `myproject_app-data`. Docker no estaba intentando ser misterioso; solo estaba siendo Docker, que a veces se parece bastante.
+
+### Bind mounts
+
+```yaml
+services:
+  app:
+    image: myapp
+    volumes:
+      - ./src:/app/src
+```
+
+Un **bind mount** monta una carpeta del host dentro del contenedor. En este ejemplo, `./src` en tu máquina aparece como `/app/src` dentro del contenedor.
+
+Esto es perfecto para desarrollo: editas código en tu editor, el contenedor ve los cambios al instante, tu servidor recarga, y por un momento todo parece diseñado por alguien que quería ayudarte.
+
+```yaml
+services:
+  api:
+    build: ./api
+    volumes:
+      - ./api/src:/app/src
+    command: npm run dev
+```
+
+Pero un bind mount depende de la estructura del host. Si en tu máquina existe `./api/src` y en el servidor no, el despliegue falla. Si en macOS el rendimiento de sincronización no es ideal, lo notas. Si alguien cambia la ruta, el contenedor no tiene telepatía.
+
+Por eso la regla práctica es sencilla:
+
+- **Desarrollo**: bind mounts para código y configuración local.
+- **Datos persistentes**: named volumes.
+- **Producción**: evita montar código fuente desde el host salvo que tengas una razón MUY clara.
+
+No “creativa”. Clara.
+
+### Anonymous volumes
+
+```yaml
+services:
+  app:
+    image: myapp
+    volumes:
+      - /app/temp
+```
+
+Un **anonymous volume** no tiene nombre explícito. Docker crea uno automáticamente para montar `/app/temp`.
+
+Esto puede ser útil para casos internos, pero para datos importantes es una trampa con buena iluminación. El volumen existe, sí, pero no tiene un nombre estable que tú hayas elegido. Cuando vuelvas semanas después, verás una lista de IDs largos y tendrás que adivinar cuál contiene qué.
+
+Como funciona tener un cajón lleno de cables sin etiquetar: seguro que alguno es importante, pero buena suerte encontrando el cargador correcto antes de que envejezca el estándar USB otra vez.
+
+Para datos que quieras conservar y entender, usa named volumes.
+
+### Volúmenes de solo lectura
+
+```yaml
+services:
+  app:
+    image: myapp
+    volumes:
+      - ./config:/app/config:ro
+```
+
+El sufijo `:ro` monta el volumen en modo **read-only**. El contenedor puede leer `/app/config`, pero no escribir ahí.
+
+Esto es útil para configuración, certificados, ficheros estáticos o cualquier cosa que el contenedor no debería modificar. Si una aplicación solo necesita leer un fichero, no le des permiso para escribirlo. Principio de mínimo privilegio, incluso en local. Sí, también en tu portátil. Tu portátil no es una excepción moral.
+
+## Persistencia de bases de datos
+
+El caso más común: una base de datos en Compose.
+
+```yaml
+services:
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: myapp
+      POSTGRES_PASSWORD: secret
+      POSTGRES_DB: myapp
+    volumes:
+      - db-data:/var/lib/postgresql/data
+
+volumes:
+  db-data:
+```
+
+Postgres guarda sus datos en `/var/lib/postgresql/data`. Al montar `db-data` ahí, los datos viven en el volumen, no en la capa escribible del contenedor.
+
+Ahora puedes eliminar y recrear el contenedor sin perder la base de datos:
+
+```bash
+docker compose down
+docker compose up -d
+```
+
+El contenedor cambia. El volumen sigue.
+
+Pero atención: `down` y `down -v` no son primos educados. `docker compose down` elimina contenedores y redes, pero conserva los named volumes. `docker compose down -v` elimina también los volúmenes declarados por Compose.
+
+```bash
+docker compose down     # Keeps named volumes
+docker compose down -v  # Removes named volumes too
+```
+
+Ese `-v` es pequeño, discreto y destructivo. Como un botón rojo sin tapa de seguridad. Úsalo cuando quieras borrar datos deliberadamente: reiniciar una base de datos local, limpiar un entorno de pruebas, empezar desde cero.
+
+No lo uses como “limpieza general” si hay datos que te importan.
+
+Para otras bases de datos, la idea es la misma: montar el volumen en el directorio donde la imagen guarda sus datos.
+
+```yaml
+services:
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_PASSWORD: secret
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+
+  mongo:
+    image: mongo:7
+    volumes:
+      - mongo-data:/data/db
+
+  mysql:
+    image: mysql:8
+    environment:
+      MYSQL_ROOT_PASSWORD: secret
+    volumes:
+      - mysql-data:/var/lib/mysql
+
+volumes:
+  postgres-data:
+  mongo-data:
+  mysql-data:
+```
+
+La ruta cambia según la imagen. El patrón no.
+
+## Scripts de inicialización
+
+Muchas imágenes oficiales permiten ejecutar scripts de inicialización la primera vez que se crea la base de datos.
+
+En Postgres, todo lo que montes en `/docker-entrypoint-initdb.d` se ejecuta al inicializar un volumen vacío:
+
+```yaml
+services:
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: myapp
+      POSTGRES_PASSWORD: secret
+      POSTGRES_DB: myapp
+    volumes:
+      - db-data:/var/lib/postgresql/data
+      - ./init-scripts:/docker-entrypoint-initdb.d:ro
+
+volumes:
+  db-data:
+```
+
+Y podrías tener algo así:
+
+```sql
+-- init-scripts/01-create-tables.sql
+CREATE TABLE IF NOT EXISTS notes (
+  id SERIAL PRIMARY KEY,
+  title TEXT NOT NULL,
+  created_at TIMESTAMP NOT NULL DEFAULT NOW()
+);
+```
+
+La parte importante: estos scripts se ejecutan cuando el directorio de datos está vacío. Si el volumen ya existe y Postgres ya fue inicializado, no se vuelven a ejecutar.
+
+¿Sensación de “pero yo cambié el SQL y no pasa nada”? Correcto. El volumen ya tenía datos. Docker no va a borrar tu base de datos porque editaste un fichero. Sería servicial de una forma bastante criminal.
+
+Para probar cambios de inicialización en local:
+
+```bash
+docker compose down -v
+docker compose up -d
+```
+
+Ahí sí: borras el volumen y fuerzas una inicialización nueva. Deliberado, visible y con las consecuencias claras.
+
+## Desarrollo vs producción
+
+Los volúmenes también separan dos necesidades muy distintas: desarrollar rápido y ejecutar de forma estable.
+
+En desarrollo quieres hot reload:
+
+```yaml
+# docker-compose.dev.yml
+services:
+  api:
+    build:
+      context: ./api
+      target: development
+    volumes:
+      - ./api/src:/app/src
+      - ./api/package.json:/app/package.json:ro
+      - /app/node_modules
+    command: npm run dev
+```
+
+La línea `- /app/node_modules` crea un volumen anónimo para evitar que el `node_modules` del contenedor sea pisado por el del host. Este truco existe porque JavaScript decidió que las dependencias debían ocupar más espacio emocional que el propio proyecto. No vamos a arreglar eso hoy.
+
+En producción, en cambio, no montas el código fuente desde tu máquina. Construyes una imagen y solo montas los datos que deben persistir:
+
+```yaml
+# docker-compose.prod.yml
+services:
+  api:
+    build:
+      context: ./api
+      target: production
+    volumes:
+      - api-data:/app/data
+    command: npm start
+
+volumes:
+  api-data:
+```
+
+Y combinas ficheros según el entorno:
+
+```bash
+# Development
+docker compose -f docker-compose.yml -f docker-compose.dev.yml up
+
+# Production
+docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d
+```
+
+La idea es que `docker-compose.yml` contenga la base común y los ficheros específicos añadan o sobrescriban detalles. Igual que con [Git](/es/cursos/domina-git-desde-cero), versionas lo que describe el proyecto y dejas fuera lo que pertenece a una máquina concreta.
+
+## Backups: porque persistir no es hacer copia
+
+Un volumen persistente no es un backup. Repite conmigo: **persistencia no es backup**.
+
+Un named volume sobrevive a recrear contenedores. No te protege de `docker compose down -v`, de borrar el volumen manualmente, de corrupción de datos, de un script con demasiada confianza ni de ti un viernes por la tarde pensando “esto seguro que no rompe nada”.
+
+Para bases de datos, el backup más correcto suele ser usar la herramienta propia de la base de datos. Por ejemplo, con Postgres:
+
+```bash
+docker compose exec db pg_dump -U myapp myapp > backup.sql
+```
+
+Ese comando ejecuta `pg_dump` dentro del contenedor `db` y guarda el resultado en tu máquina. Es claro, portable y entiende el formato de la base de datos.
+
+También puedes hacer una copia de bajo nivel del volumen usando un contenedor temporal:
+
+```bash
+docker run --rm \
+  -v myproject_db-data:/data:ro \
+  -v "$(pwd)":/backup \
+  alpine \
+  tar czf /backup/db-data-backup.tar.gz -C /data .
+```
+
+Qué está pasando aquí:
+
+- `myproject_db-data:/data:ro` monta el volumen en modo solo lectura.
+- `"$(pwd)":/backup` monta tu carpeta actual como destino del backup.
+- `tar czf` empaqueta el contenido del volumen.
+- `--rm` elimina el contenedor temporal al terminar.
+
+Si llevas años peleándote con comillas en shell, habrás notado `"$(pwd)"`. Si no, no te preocupes: Bash tendrá su propio curso más adelante, porque este tema merece algo más que “copia esto y confía”. No es decoración. Es para que el comando no se rompa si la ruta contiene espacios. El shell siempre está esperando una oportunidad para recordarte que las comillas no son opcionales.
+
+Para restaurar en un volumen vacío:
+
+```bash
+docker volume create myproject_db-data
+
+docker run --rm \
+  -v myproject_db-data:/data \
+  -v "$(pwd)":/backup:ro \
+  alpine \
+  tar xzf /backup/db-data-backup.tar.gz -C /data
+```
+
+Para bases de datos en uso, no hagas backups de ficheros a lo loco mientras el motor está escribiendo. Para desarrollo puede sacarte de un apuro. Para producción, usa `pg_dump`, snapshots consistentes o la herramienta oficial de tu base de datos. La fe mueve montañas, pero no garantiza integridad transaccional.
+
+## Limpieza sin destruir lo importante
+
+Con Compose, estos comandos tienen efectos muy distintos:
+
+```bash
+docker compose stop
+docker compose down
+docker compose down -v
+docker volume ls
+docker volume rm myproject_db-data
+docker volume prune
+```
+
+La traducción humana:
+
+| Comando                   | Qué hace                                             |
+| ------------------------- | ---------------------------------------------------- |
+| `docker compose stop`     | Para contenedores, no elimina nada                   |
+| `docker compose down`     | Elimina contenedores y redes, conserva named volumes |
+| `docker compose down -v`  | Elimina contenedores, redes y volúmenes del proyecto |
+| `docker volume rm <name>` | Elimina un volumen concreto                          |
+| `docker volume prune`     | Elimina volúmenes no usados por ningún contenedor    |
+
+`docker volume prune` pide confirmación, pero no sabe qué volumen “era importante emocionalmente”. Solo sabe si está en uso. Si tienes un volumen viejo con datos que quieres conservar y ningún contenedor lo usa ahora mismo, puede caer.
+
+Antes de borrar, inspecciona:
+
+```bash
+docker volume inspect myproject_db-data
+```
+
+Y si tienes dudas, haz backup primero. Es aburrido. También lo es llevar cinturón de seguridad hasta el día en que deja de serlo.
+
+## Reto práctico
+
+Crea un `docker-compose.yml` con Postgres y una API falsa o cualquier imagen ligera que conozcas. Añade un named volume para Postgres, arranca la stack, crea algún dato, ejecuta `docker compose down` y vuelve a levantarla para comprobar que el dato sigue ahí.
+
+Después haz una copia del volumen con el contenedor temporal de `alpine`. No hace falta que montes un sistema de backup empresarial; basta con entender el flujo: volumen → archivo `.tar.gz` → restauración en un volumen vacío.
+
+---
+
+Con esto ya puedes tratar los datos en Docker Compose con el respeto que merecen: fuera del contenedor, con nombres claros, con diferencias limpias entre desarrollo y producción, y con backups que no dependen de cruzar los dedos. En el siguiente tutorial entraremos en networking en Docker Compose: redes por defecto, redes personalizadas, aislamiento entre servicios y por qué tu base de datos no debería estar saludando alegremente a todo el mundo.
+
+¡Nunca dejes de programar!
