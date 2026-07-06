@@ -1,0 +1,445 @@
+---
+title: "Preparar tu entorno de trabajo DevOps: Linux, terminal y herramientas base"
+post_slug: "preparar-entorno-trabajo-devops"
+date: "2026-07-06"
+excerpt: "Prepara un entorno DevOps usable desde el primer día: Linux, WSL, cloud, SSH, terminal y herramientas esenciales sin convertir tu portátil en un experimento raro."
+language: "es"
+categories: ["devops"]
+course: "devops-sre-platform-engineering-desde-cero"
+order: 2
+cover: "/images/tutorials/cabecera-devops-curso.jpg"
+i18n: "setting-up-devops-work-environment"
+---
+
+El primer choque real con DevOps no suele ser Kubernetes. Ni Terraform. Ni ese YAML que parece escrito por alguien que odia la alineación vertical.
+
+El primer choque suele ser bastante menos épico: intentas preparar tu entorno, abres la terminal, ves tres opciones distintas para “usar Linux”, alguien menciona SSH keys, otro dice “usa WSL”, otro “mejor una instancia en cloud”, y de repente lo que parecía instalar cuatro herramientas se convierte en elegir sistema operativo como si estuvieras comprando una casa.
+
+¿Uso Linux local? ¿Una VM? ¿WSL? ¿AWS? ¿GCP? ¿Me va a explotar el portátil? No. Bueno, salvo que abras demasiadas pestañas de Chrome mientras VirtualBox intenta respirar. Pero conceptualmente, no.
+
+En esta lección vamos a dejar preparado un entorno de trabajo serio para el curso: suficientemente real para aprender DevOps, suficientemente simple para no pasar tres días configurando el taller antes de tocar una sola herramienta.
+
+## Qué necesita un entorno DevOps para aprender de verdad
+
+Un entorno DevOps no necesita parecerse a producción desde el minuto uno. Eso sería como aprender a conducir entrando directamente en una rotonda de seis carriles con un camión detrás. Muy formativo, sí. También innecesariamente traumático.
+
+Lo que sí necesita es permitirte practicar cuatro cosas:
+
+- usar una **terminal Linux** con comodidad;
+- instalar herramientas de línea de comandos;
+- ejecutar servicios, scripts y procesos;
+- conectarte a máquinas remotas por **SSH**.
+
+Ese último punto es importante. DevOps vive mucho en servidores. Aunque más adelante trabajemos con containers, Kubernetes o cloud providers, la base sigue siendo la misma: una shell, permisos, procesos, logs, red y archivos.
+
+Si todavía no tienes una base sólida de terminal, no pasa nada. Este curso empieza precisamente ahí. Y si Git aún te parece una caja negra con ramas dentro, el curso [Domina Git desde cero](/es/cursos/domina-git-desde-cero) te va a ahorrar bastantes conversaciones tensas contigo mismo.
+
+Primero el criterio; luego las opciones.
+
+## La opción recomendada: una VM local con Ubuntu
+
+Para seguir este curso de forma consistente, la opción recomendada es crear una **VM local con Ubuntu 24.04 LTS**.
+
+No porque Ubuntu sea mágicamente superior, sino porque nos da una base común: Linux real, `systemd`, `systemctl`, `journalctl`, red, permisos, paquetes y una máquina que puedes romper sin tocar tu sistema principal. Es como tener un pequeño servidor de prácticas en casa. Si lo destrozas, lo borras y creas otro. Mucho mejor que aprender electricidad metiendo el destornillador en el cuadro general.
+
+Usaremos **Multipass**, una herramienta de Canonical para crear VMs Ubuntu desde CLI. La idea es esta:
+
+```text
+tu máquina ── multipass ──> VM Ubuntu devops-lab
+```
+
+Antes de seguir: Multipass es la opción recomendada porque nos permite crear una VM Ubuntu de forma sencilla y reproducible. Pero no es una obligación religiosa.
+
+Si trabajas con un equipo corporativo, tienes restricciones de seguridad, usas una herramienta de virtualización aprobada por tu empresa o tu máquina necesita una configuración especial, usa el método que corresponda: VirtualBox, VMware, UTM, Hyper-V, Parallels, libvirt o lo que tengas permitido.
+
+Lo importante no es la herramienta. Lo importante es que acabes con una VM Ubuntu 24.04 LTS —o una distro Linux equivalente— a la que puedas acceder, donde puedas instalar paquetes, ejecutar comandos, gestionar servicios y practicar sin tocar tu sistema principal.
+
+DevOps va de entender sistemas, no de casarte con el primer instalador que aparece en un tutorial.
+
+## Instalar Multipass
+
+Instala Multipass según tu sistema:
+
+```bash
+# macOS y Linux (Homebrew)
+brew install --cask multipass
+
+# Ubuntu / Debian
+sudo snap install multipass
+
+# Arch Linux (AUR)
+paru -S canonical-multipass
+```
+
+Los usuarios de Arch no necesitan más explicación: si `multipassd` no arranca, instala `dnsmasq` y añade `ReadWritePaths=/usr/local/etc/multipassd` al servicio. Si QEMU no encuentra `OVMF.fd`, enlázalo desde `edk2-ovmf` a `/usr/share/qemu/`. Ya sabéis cómo va esto.
+
+En Windows, puedes instalarlo desde PowerShell:
+
+```powershell
+winget install -e --id Canonical.Multipass
+```
+
+Si tu máquina tiene la virtualización desactivada en BIOS/UEFI, políticas corporativas estrictas o Hyper-V haciendo de las suyas, Multipass puede quejarse. No te agobies: no es que DevOps te odie personalmente. Es virtualización. A veces funciona como abrir una puerta; otras veces como pedir permiso a cinco departamentos para mover una silla.
+
+Cuando esté instalado, comprueba que responde:
+
+```bash
+multipass version
+```
+
+Ahora sí: vamos a crear la VM.
+
+## Crear la VM del curso
+
+La VM base del curso se llamará `devops-lab`:
+
+```bash
+multipass launch 24.04 --name devops-lab --cpus 2 --memory 4G --disk 30G
+```
+
+Ese comando crea una máquina Ubuntu 24.04 con:
+
+- 2 CPUs;
+- 4 GB de RAM;
+- 30 GB de disco;
+- nombre `devops-lab`.
+
+Si tu ordenador va justo de recursos, puedes bajar a `--memory 2G`, pero 4 GB será más cómodo para lo que haremos más adelante. Una VM con poca RAM funciona, sí, igual que una silla con una pata floja permite sentarse. La pregunta es cuánto quieres confiar en ella.
+
+Para ver tus VMs:
+
+```bash
+multipass list
+```
+
+Para entrar en la VM:
+
+```bash
+multipass shell devops-lab
+```
+
+Multipass ya sabe cómo entrar en la máquina. No necesitas configurar SSH para usar la VM en el día a día del curso. Es una puerta cómoda gestionada por la herramienta.
+
+Para salir:
+
+```bash
+exit
+```
+
+Para parar la VM:
+
+```bash
+multipass stop devops-lab
+```
+
+Para arrancarla otra vez:
+
+```bash
+multipass start devops-lab
+```
+
+Y si rompes todo con entusiasmo educativo:
+
+```bash
+multipass delete devops-lab
+multipass purge
+```
+
+Romper una VM de laboratorio no es una tragedia. Es casi parte del proceso. Como quemar la primera tortita: no la sirves, pero te enseña cómo está la sartén.
+
+## Alternativas aceptadas
+
+Multipass será la base de los ejemplos, pero no es la única forma válida de seguir el curso.
+
+| Opción      | Cuándo usarla                                      | Trade-off principal                         |
+| ----------- | -------------------------------------------------- | ------------------------------------------- |
+| Multipass   | Opción recomendada del curso                       | Depende de virtualización local             |
+| WSL2        | Usas Windows y Multipass no encaja en tu máquina   | Muy práctico, con alguna rareza propia      |
+| Linux local | Ya usas Linux y sabes lo que estás tocando         | Puedes romper tu sistema real               |
+| Cloud       | Quieres practicar con infraestructura pública real | Más realista, pero aparece billing y riesgo |
+
+### WSL2 en Windows
+
+Si trabajas en Windows y Multipass te da problemas, **WSL2** es una alternativa razonable. Microsoft lo resume oficialmente así: `wsl --install` instala WSL y, por defecto, una distribución Ubuntu.
+
+Desde PowerShell como administrador:
+
+```powershell
+wsl --install
+```
+
+Después reinicia si Windows te lo pide. Windows pidiendo reiniciar: esa tradición cultural que une generaciones.
+
+WSL2 sirve para muchas partes del curso, pero no es exactamente una VM tradicional. Tiene diferencias de filesystem, networking y servicios. Buenísimo para empezar; no siempre idéntico a un servidor.
+
+### Linux local
+
+Si ya usas Linux, perfecto. Estás en casa. Probablemente además tienes una opinión sobre tu distro, tu terminal y tu gestor de paquetes. Los usuarios de Arch no necesitan más explicación; ya sabéis cómo va esto.
+
+Puedes seguir el curso en tu sistema real, pero al principio conviene separar aprendizaje y máquina principal. Igual que no aprendes bricolaje desmontando primero la puerta de entrada de tu casa.
+
+### Cloud más adelante
+
+Cloud aparecerá más adelante cuando lo necesitemos de verdad: IAM, security groups, redes cloud, Terraform contra infraestructura real, managed services y demás piezas con consecuencias.
+
+¿Se puede usar free tier? Sí, si respetas límites y condiciones. ¿Voy a prometer que todo el curso será gratis en cloud? No. Eso sería como decir “tranquilo, este YAML seguro que funciona a la primera”. Técnicamente posible; emocionalmente irresponsable.
+
+## Entrar con Multipass y practicar SSH
+
+Para trabajar durante el curso, entrarás normalmente así:
+
+```bash
+multipass shell devops-lab
+```
+
+También puedes ejecutar comandos sin abrir una shell completa:
+
+```bash
+multipass exec devops-lab -- lsb_release -a
+```
+
+Pero **SSH** sigue siendo fundamental en DevOps. En servidores reales, instancias cloud y muchos entornos de laboratorio, SSH será tu puerta de entrada.
+
+Así que vamos a practicarlo contra nuestra VM local. Primero genera una key si todavía no tienes una:
+
+```bash
+ssh-keygen -t ed25519 -C "devops-course"
+```
+
+Acepta la ruta por defecto (`~/.ssh/id_ed25519`) si no tienes una razón para cambiarla. La parte pública (`id_ed25519.pub`) se copia a la máquina remota. La privada (`id_ed25519`) no se comparte. Nunca. Es como la llave de casa: puedes dar una copia de la cerradura al servidor, pero no publicar tu llave privada en un grupo de Slack. Parece obvio hasta que ocurre. Y ocurre.
+
+Copia la clave pública a la VM:
+
+```bash
+multipass transfer ~/.ssh/id_ed25519.pub devops-lab:/home/ubuntu/id_ed25519.pub
+```
+
+Entra en la VM con Multipass:
+
+```bash
+multipass shell devops-lab
+```
+
+Y dentro de la VM añade la clave a `authorized_keys`:
+
+```bash
+mkdir -p ~/.ssh
+cat ~/id_ed25519.pub >> ~/.ssh/authorized_keys
+chmod 700 ~/.ssh
+chmod 600 ~/.ssh/authorized_keys
+rm ~/id_ed25519.pub
+exit
+```
+
+Ahora consulta la IP de la VM:
+
+```bash
+multipass info devops-lab
+```
+
+Busca la línea `IPv4` y conecta por SSH:
+
+```bash
+ssh ubuntu@<vm-ip>
+```
+
+Si usas una key concreta:
+
+```bash
+ssh -i ~/.ssh/id_ed25519 ubuntu@<vm-ip>
+```
+
+Si esto no funciona en tu sistema, no pasa nada: algunos drivers, firewalls o configuraciones de red pueden bloquear el acceso directo por IP. Para seguir el curso usaremos `multipass shell`; SSH lo trataremos como práctica adicional y volveremos a verlo con cloud más adelante.
+
+La idea importante es esta: Multipass te da una puerta cómoda; SSH es la puerta que usarás en servidores reales. Conviene conocer ambas.
+
+Ahora que ya tienes una forma estable de entrar en una máquina Linux, necesitas las herramientas base.
+
+## Herramientas esenciales
+
+Vamos a instalar lo mínimo razonable para trabajar durante las primeras lecciones:
+
+- `git`, para versionar archivos y scripts;
+- `curl` y `wget`, para hacer peticiones y descargar recursos;
+- `vim`, porque tarde o temprano acabarás editando algo en terminal;
+- `htop`, para ver procesos sin sufrir con `top`;
+- `jq`, para trabajar con JSON;
+- `net-tools` o equivalentes modernos, para comandos de red básicos.
+
+Si Vim te atrapa y no sabes salir, no es un bug, es una experiencia iniciática. El curso [Domina Vim desde cero](/es/cursos/domina-vim-desde-cero) empieza exactamente desde ese tipo de momento existencial.
+
+Si sigues la opción recomendada, entra primero en la VM con `multipass shell devops-lab` y usa los comandos de Ubuntu/Debian. Si estás usando otra alternativa, adapta la instalación a tu sistema:
+
+```bash
+# macOS y Linux (Homebrew)
+brew install git curl wget vim htop jq
+
+# Ubuntu / Debian
+sudo apt update
+sudo apt install -y git curl wget vim htop jq net-tools
+
+# Arch Linux
+sudo pacman -S git curl wget vim htop jq net-tools
+```
+
+Después verifica que todo responde:
+
+```bash
+git --version
+curl --version
+vim --version
+jq --version
+```
+
+No necesitas memorizar cada herramienta ahora. `git` lo usaremos para trazabilidad; `curl` para hablar con servicios; `jq` para leer JSON sin llorar; `htop` para mirar procesos con menos sensación de estar consultando una tabla de contabilidad de 1998.
+
+Con las herramientas listas, toca mejorar un poco la terminal.
+
+## Configurar una terminal cómoda
+
+Podrías hacer todo el curso con la shell por defecto, sin plugins y sin colores. También podrías escribir todo el código en un bloc de notas con fuente de 8px. Que algo sea posible no lo convierte en buena idea.
+
+Para empezar, `bash` está bien. De hecho, es lo que te vas a encontrar en la mayoría de servidores a los que accedas. Pero esta es tu terminal de trabajo, tu entorno personal, y aquí puedes permitirte algunas licencias. Si quieres una experiencia más cómoda, instala `zsh` y, opcionalmente, Oh My Zsh. Si quieres verlo con más calma, ya hay un tutorial específico sobre [cómo instalar ZSH y Oh My ZSH! en GNU/Linux](/es/tutoriales/como-instalar-zsh-oh-my-zsh-gnu-linux), que encaja especialmente bien con esta VM Ubuntu.
+
+```bash
+# macOS y Linux (Homebrew)
+brew install zsh
+
+# Ubuntu / Debian
+sudo apt install -y zsh
+
+# Arch Linux
+sudo pacman -S zsh
+```
+
+Oh My Zsh se instala con un script remoto. Eso es habitual, pero no deja de ser un script remoto. La versión responsable es: léelo antes de ejecutarlo. La versión realista es: al menos ejecútalo desde la fuente oficial y no desde `random-devops-blog-2020.example`, por favor.
+
+```bash
+sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"
+```
+
+Después de instalar, cambia tu shell por defecto a `zsh`. Si estás en la VM recomendada (Multipass), el usuario `ubuntu` no tiene contraseña, así que usa `sudo`:
+
+```bash
+sudo chsh -s $(which zsh) ubuntu
+```
+
+En otros sistemas, `chsh` puede pedir tu contraseña sin `sudo`. Ambos hacen lo mismo: establecer `zsh` como shell por defecto del usuario.
+
+Ahora añade algunos aliases útiles al final de `~/.zshrc` o `~/.bashrc`, según la shell que uses:
+
+```bash
+# DevOps aliases
+alias ll='ls -lah'
+alias ports='sudo ss -tulpn'
+alias logs='sudo journalctl -f'
+alias c='clear'
+```
+
+Recarga la configuración:
+
+```bash
+source ~/.zshrc
+```
+
+O si usas Bash:
+
+```bash
+source ~/.bashrc
+```
+
+No llenes tu shell de 200 aliases el primer día. Eso parece productividad, pero muchas veces es solo decoración con efectos secundarios. Empieza con cuatro o cinco que uses de verdad. La terminal debe ayudarte, no convertirse en una cabina de avión donde no sabes qué botón apaga el motor.
+
+## Crear el workspace del curso
+
+Vamos a dejar una estructura limpia para los próximos ejercicios:
+
+```bash
+mkdir -p ~/devops-course/{scripts,configs,logs,projects,notes}
+cd ~/devops-course
+
+touch notes/lesson-02.md
+printf 'DevOps course workspace ready\n' > notes/lesson-02.md
+```
+
+Comprueba el resultado (con el alias `ll` que acabas de crear):
+
+```bash
+ll
+```
+
+Deberías ver algo parecido a esto:
+
+```text
+drwxr-xr-x  7 user user 4.0K Jul  6 10:00 .
+drwxr-x--- 20 user user 4.0K Jul  6 10:00 ..
+drwxr-xr-x  2 user user 4.0K Jul  6 10:00 configs
+drwxr-xr-x  2 user user 4.0K Jul  6 10:00 logs
+drwxr-xr-x  2 user user 4.0K Jul  6 10:00 notes
+drwxr-xr-x  2 user user 4.0K Jul  6 10:00 projects
+drwxr-xr-x  2 user user 4.0K Jul  6 10:00 scripts
+```
+
+Y ahora inicializa un repo Git para versionar tus notas y scripts:
+
+```bash
+git init
+git status
+```
+
+```text
+On branch main
+
+No commits yet
+
+Untracked files:
+  notes/
+```
+
+Haz el primer commit. Primero, dile a Git quién eres (si es la primera vez que usas Git en esta máquina):
+
+```bash
+git config user.email "tu@email.com"
+git config user.name "Tu Nombre"
+```
+
+Si quieres que esta configuración se aplique a todos tus repositorios, usa `--global`.
+
+Ahora sí, el commit:
+
+```bash
+git add notes/lesson-02.md
+git commit -m "chore: initialize devops course workspace"
+```
+
+Sí, incluso para un workspace de aprendizaje. Especialmente para un workspace de aprendizaje. Si rompes algo, Git te da una forma de volver atrás sin hacer arqueología en tu propio directorio.
+
+## Comprobación final
+
+Antes de cerrar, ejecuta esta mini checklist:
+
+```bash
+pwd
+git --version
+ssh -V
+curl --version
+jq --version
+```
+
+Y confirma mentalmente:
+
+- tengo una terminal Linux usable;
+- tengo un directorio del curso;
+- puedo instalar herramientas;
+- tengo Git funcionando;
+- sé cómo conectarme por SSH o al menos entiendo qué necesito para hacerlo.
+
+Si algo de esto falla, no sigas como si nada. Esa es una de las grandes lecciones de DevOps: un entorno medio roto hoy se convierte en una tarde perdida mañana. Como una silla con una pata floja: puedes sentarte, sí, pero parte de tu cerebro ya está preparando el parte del accidente.
+
+---
+
+Tu entorno ya no es “una terminal abierta donde pasan cosas”. Ahora tienes un taller mínimo: una shell, herramientas base, estructura de trabajo, Git y una idea clara de cómo entrar a una máquina remota.
+
+En la próxima lección vamos a bajar al filesystem de Linux: directorios, archivos, permisos y comandos básicos. Ahí empieza la parte donde `/etc`, `/var`, `/home` y compañía dejan de parecer nombres puestos por alguien que tenía prisa.
+
+¡Nunca dejes de programar!
