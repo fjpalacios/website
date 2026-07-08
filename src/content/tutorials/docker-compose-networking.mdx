@@ -1,0 +1,360 @@
+---
+title: "Docker Compose networking: networks, services, and isolation"
+post_slug: "docker-compose-networking"
+date: "2026-07-08"
+excerpt: "Learn Docker Compose networking: default networks, service names, ports, custom networks, external networks, and aliases without chasing changing IPs."
+language: "en"
+categories: ["docker"]
+course: "mastering-docker-from-scratch"
+order: 16
+cover: "/images/tutorials/cabecera-docker-curso.jpg"
+i18n: "networking-docker-compose"
+---
+
+There is a very Docker Compose moment: Postgres is running, the API is running, the logs look reasonable, and the API still says it can't connect to `localhost:5432`.
+
+You check `docker compose ps`. Postgres is `Up`. You check the `docker-compose.yml`. The port is there. You stare at the screen with that specific mix of suspicion and tiredness that only appears when a tool is technically telling the truth in the least helpful way possible.
+
+Is Postgres down? No. Is the port wrong? Maybe, but probably not. Is `localhost` a trap with good branding? Exactly.
+
+In Docker Compose, each container lives in its own little network world. Once you understand that, the rest stops feeling like dark magic with YAML.
+
+## Compose's default network
+
+When you run `docker compose up`, Compose automatically creates a network for the project. If your directory is called `myapp`, that network is usually named something like `myapp_default`.
+
+All services in the `docker-compose.yml` join that network by default.
+
+```yaml
+services:
+  api:
+    image: myapp/api
+
+  db:
+    image: postgres:16-alpine
+```
+
+Even though you didn't write `networks:` anywhere, Compose did some work for you:
+
+```bash
+docker compose up -d
+docker network ls
+```
+
+You'll see a network like this:
+
+```text
+NETWORK ID     NAME            DRIVER    SCOPE
+abc123def456   myapp_default   bridge    local
+```
+
+Inside that network, services can find each other by **service name**. The API can connect to Postgres using `db` as the hostname.
+
+```text
+postgresql://myapp:secret@db:5432/myapp
+```
+
+Don't use the container IP. Container IPs can change when services are recreated. Using container IPs in Compose is like writing down where you parked three weeks ago on a napkin: technically useful for a few minutes.
+
+Use service names.
+
+## `localhost` inside a container is not your machine
+
+This is the main trap.
+
+From your machine, `localhost` means your machine.
+
+From inside a container, `localhost` means that container.
+
+```yaml
+services:
+  api:
+    image: myapp/api
+    environment:
+      DATABASE_URL: postgresql://myapp:secret@localhost:5432/myapp
+
+  db:
+    image: postgres:16-alpine
+```
+
+That is wrong for container-to-container communication. The API will look for Postgres inside the API container itself. Spoiler: it is not there. If it were, you'd have another problem, probably with a suspicious architecture smell.
+
+The correct version uses the service name:
+
+```yaml
+services:
+  api:
+    image: myapp/api
+    environment:
+      DATABASE_URL: postgresql://myapp:secret@db:5432/myapp
+
+  db:
+    image: postgres:16-alpine
+```
+
+Mental model:
+
+| Connecting from          | Correct host                         |
+| ------------------------ | ------------------------------------ |
+| Your browser to the API  | `localhost` if the port is published |
+| API to Postgres          | `db`                                 |
+| API to Redis             | `redis`                              |
+| One container to another | The service name                     |
+
+Don't stress if this feels counterintuitive at first. `localhost` has spent years looking innocent while ruining entire afternoons with a smile.
+
+## `ports` is not how containers talk to each other
+
+Another classic confusion: thinking you need to publish a port so another container can connect to it.
+
+You don't.
+
+```yaml
+services:
+  api:
+    build: ./api
+    ports:
+      - "3000:3000"
+    environment:
+      DATABASE_URL: postgresql://myapp:secret@db:5432/myapp
+
+  db:
+    image: postgres:16-alpine
+```
+
+The `ports: "3000:3000"` line publishes the API port to your machine. It lets you open `http://localhost:3000` from your browser.
+
+But the API does not need Postgres to have `ports: "5432:5432"` to connect to `db:5432`. Both services are already on the internal Compose network.
+
+This matters for security. If you publish Postgres like this:
+
+```yaml
+services:
+  db:
+    image: postgres:16-alpine
+    ports:
+      - "5432:5432"
+```
+
+You're exposing the database to the host. In development that can be useful if you want to connect with TablePlus, DBeaver, local `psql`, or another external tool. But don't do it “just in case”. “Just in case” in infrastructure is a polite way of saying “I'll leave this door open and see what happens”.
+
+If only the API needs to talk to the database, don't publish the port.
+
+## Custom networks: separate rooms
+
+The default network is fine for small projects. All services can see each other and life goes on.
+
+But in a more realistic application, you might have:
+
+- `web`: frontend or reverse proxy.
+- `api`: backend.
+- `db`: database.
+- `redis`: cache.
+
+There is no reason for `web` to connect directly to `db`. The frontend talks to the API. The API talks to the database. The database should not be standing in the lobby waving at the entire building.
+
+You can model that with custom networks:
+
+```yaml
+services:
+  web:
+    image: nginx:alpine
+    ports:
+      - "8080:80"
+    networks:
+      - frontend
+
+  api:
+    image: myapp/api
+    networks:
+      - frontend
+      - backend
+
+  db:
+    image: postgres:16-alpine
+    networks:
+      - backend
+
+networks:
+  frontend:
+  backend:
+```
+
+Now the rules are clear:
+
+| Service | Networks              | Can talk to |
+| ------- | --------------------- | ----------- |
+| `web`   | `frontend`            | `api`       |
+| `api`   | `frontend`, `backend` | `web`, `db` |
+| `db`    | `backend`             | `api`       |
+
+`web` and `db` do not share a network, so they cannot resolve each other by name or connect directly. This does not replace authentication, firewalls, permissions, or common sense, but it reduces surface area. And reducing surface area is one of those boring things that prevents interesting incidents. Interesting incidents are overrated.
+
+## `expose` vs `ports`
+
+Compose also has `expose`:
+
+```yaml
+services:
+  api:
+    image: myapp/api
+    expose:
+      - "3000"
+```
+
+`expose` documents that a service listens on a port for other services on the network, but it does not publish that port to your machine.
+
+In practice, services on the same network can connect to a container port even if you don't write `expose`. That's why many teams don't use it. It can be useful as documentation inside the `docker-compose.yml`, but don't confuse it with security.
+
+The important difference:
+
+| Field    | Publishes to host | Main use                            |
+| -------- | ----------------- | ----------------------------------- |
+| `ports`  | Yes               | Access from your machine or outside |
+| `expose` | No                | Document internal ports             |
+
+If you want to open something from the browser, use `ports`. If only containers talk to each other, you usually don't need anything.
+
+## External networks
+
+Sometimes you want several Compose projects to share a network. For example, a common reverse proxy (`traefik`, `nginx`, `caddy`) routing multiple local apps or services on the same server.
+
+First create the network manually:
+
+```bash
+docker network create shared-proxy
+```
+
+Then declare it as external:
+
+```yaml
+services:
+  app:
+    image: myapp/api
+    networks:
+      - shared-proxy
+
+networks:
+  shared-proxy:
+    external: true
+```
+
+`external: true` means: “Compose, don't create this network; it already exists, use it.”
+
+If the network doesn't exist, Compose fails. And that's good. Better to fail than silently create a new network and leave you wondering for half an hour why the proxy can't see your app. Docker already has enough material to confuse you without extra help.
+
+## Network aliases
+
+By default, each service resolves by its name: `api`, `db`, `redis`.
+
+Sometimes you want additional names. That's what **aliases** are for.
+
+```yaml
+services:
+  api:
+    image: myapp/api
+    networks:
+      backend:
+        aliases:
+          - api-service
+          - internal-api
+
+  worker:
+    image: myapp/worker
+    networks:
+      - backend
+
+networks:
+  backend:
+```
+
+From `worker`, these hostnames point to the `api` service:
+
+```text
+api
+api-service
+internal-api
+```
+
+Use this carefully. An alias can help when a legacy application expects a specific hostname. But if you start adding three names per service “for convenience”, you'll end up with a tiny home-made DNS system inside YAML. Like having five nicknames for the same person in a group chat: funny until someone new tries to understand the conversation.
+
+## Complete example
+
+A reasonable stack with reverse proxy, API, database, and cache:
+
+```yaml
+services:
+  web:
+    image: nginx:alpine
+    ports:
+      - "8080:80"
+    networks:
+      - frontend
+
+  api:
+    build: ./api
+    environment:
+      DATABASE_URL: postgresql://myapp:secret@db:5432/myapp
+      REDIS_URL: redis://redis:6379
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    networks:
+      - frontend
+      - backend
+
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: myapp
+      POSTGRES_PASSWORD: secret
+      POSTGRES_DB: myapp
+    volumes:
+      - db-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U myapp -d myapp"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+    networks:
+      - backend
+
+  redis:
+    image: redis:7-alpine
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 3
+    networks:
+      - backend
+
+volumes:
+  db-data:
+
+networks:
+  frontend:
+  backend:
+```
+
+Notice three details:
+
+- Only `web` publishes a port to the host.
+- `api` talks to `db` and `redis` using service names.
+- `db` and `redis` are not on `frontend`, so `web` cannot talk to them directly.
+
+This does not turn your app into Fort Knox. But you're no longer putting every service in the same room with a sticky note that says “be nice”.
+
+## Practical challenge
+
+Take the `docker-compose.yml` from the previous tutorial and split it into two networks: `frontend` and `backend`. The API should be on both. Postgres and Redis should only be on `backend`. If you have a web or proxy service, put it only on `frontend` and publish only its port.
+
+Then verify that your internal URLs use service names (`db`, `redis`, `api`) and not `localhost`. If you find a `localhost` inside an environment variable used between containers, don't look at it fondly: change it.
+
+---
+
+You now have the right mental map: Compose creates a default network, services discover each other by name, `ports` is for reaching your machine, and custom networks let you isolate what should not talk directly. In the next tutorial we'll close the Compose module with best practices: environment-specific files, secrets, resource limits, logging, and the small details that separate a useful `docker-compose.yml` from one that looks written during a power outage.
+
+Never stop coding!
