@@ -1,0 +1,105 @@
+---
+title: "Presentación del curso SQL: de cero a DBA"
+post_slug: "presentacion-curso-sql-cero-dba"
+date: "2026-07-09"
+excerpt: "¿Tu ORM genera una query lenta y tú solo puedes mirarla con fe? Este curso gratuito te lleva de cero a SQL, PostgreSQL y criterio de DBA."
+language: "es"
+categories: ["programacion"]
+cover: "/images/posts/cabecera-sql-post.jpg"
+i18n: "presentation-sql-zero-dba-course"
+---
+
+Hay un momento muy concreto en la vida de cualquier developer: la aplicación funciona, los tests pasan, el deploy parece sano… y entonces alguien abre un dashboard y pregunta por qué “la página de pedidos tarda 18 segundos”.
+
+Miras el código. Ves un ORM. Ves una relación que carga otra relación que carga otra relación. Abres los logs y aparece una procesión de `SELECT` como si la base de datos estuviera rezando el rosario en modo debug.
+
+¿Es culpa del ORM? A veces. ¿Es culpa de PostgreSQL? Casi nunca. ¿Es culpa de que nadie entiende realmente qué SQL está ejecutando la aplicación? Aquí es donde la sala se queda incómodamente silenciosa.
+
+Bienvenido al curso **SQL: de cero a DBA**: un curso completo y gratuito para aprender SQL y PostgreSQL desde cero absoluto hasta tener criterio real de diseño, consultas, rendimiento, seguridad y operación de bases de datos. No “sé hacer un `SELECT`”. No “Prisma me lo genera”. Entenderlo de verdad.
+
+### Por qué SQL importa más de lo que parece
+
+Durante años se ha vendido una idea peligrosa: “no necesitas aprender SQL porque usas un ORM”. Suena cómodo. También suena como decir que no necesitas aprender a conducir porque tu coche tiene sensores de aparcamiento.
+
+Los ORMs son útiles. Muchísimo. Pero generan SQL. Y cuando ese SQL es lento, incorrecto o peligroso, alguien tiene que leerlo sin poner la misma cara que pondrías al abrir un mueble de IKEA y encontrar tres bolsas de tornillos, dos manuales y una pieza metálica que no aparece en ningún dibujo.
+
+SQL no es solo sintaxis. Es el lenguaje con el que preguntas cosas a tus datos, modelas relaciones, proteges invariantes, optimizas consultas, evitas corrupción silenciosa y descubres si ese `UPDATE` sin `WHERE` está a punto de convertir producción en una experiencia educativa no solicitada.
+
+El objetivo del curso es construir ese mapa completo: desde qué es una base de datos hasta leer un `EXPLAIN ANALYZE`, entender índices, diseñar esquemas, trabajar con transacciones, detectar N+1, usar window functions y saber cuándo un ORM está ayudando y cuándo está llevando una motosierra a una operación de precisión.
+
+### Qué hace diferente a este curso
+
+Muchos cursos de SQL fallan por el mismo motivo: enseñan comandos como si fueran recetas sueltas.
+
+`SELECT`, `WHERE`, `JOIN`, `GROUP BY`, `INDEX`. Todo ordenado, todo aparentemente claro, todo muy bonito… hasta que aparece `NULL`, una query con cinco joins, una migración en producción o una tabla con diez millones de filas que decide recordarte que la teoría no paga la factura de CPU.
+
+Este curso va por otro camino:
+
+- **Conceptos antes que sintaxis**: primero entendemos qué problema resuelve una base de datos, qué es el modelo relacional y por qué una tabla no es “un Excel con esteroides”. Luego escribimos SQL.
+- **PostgreSQL desde el principio**: usaremos PostgreSQL 18 con Docker, `psql` como herramienta principal y pgAdmin como apoyo visual. CLI primero; el ratón puede venir, pero no conduce.
+- **Rendimiento desde pronto, no como apéndice final**: los problemas de performance aparecen desde los primeros módulos: `LIKE '%texto'`, `OFFSET`, subqueries correlacionadas, casts implícitos, joins sin índice. La base de datos no espera al módulo avanzado para volverse lenta.
+- **Schema design en serio**: normalización, claves primarias, foreign keys, constraints, nombres, documentación y migraciones. Diseñar tablas es arquitectura, no rellenar formularios hasta que algo compile.
+- **ORMs sin religión**: aprenderás qué resuelven, qué esconden, cuándo ayudan y cuándo tienes que escribir SQL tú mismo porque el generador ha decidido improvisar jazz con tus datos.
+- **Mentalidad de producción**: backups, locks, transacciones, índices, seguridad, permisos, monitoring, vacuum, replicación y ese tipo de temas que parecen aburridos hasta que dejan de serlo a las tres de la mañana.
+
+La idea es simple: no quiero que termines el curso diciendo “sé SQL”. Quiero que puedas abrir una query ajena, leerla, respirar hondo y decir: “vale, ya veo dónde va a doler”. Eso es criterio.
+
+### Qué vas a aprender
+
+El curso tiene **75 lecciones en 12 módulos más un proyecto final**, diseñado para llevarte desde cero hasta un nivel cercano a DBA junior con mucho criterio de aplicación real:
+
+1. **Qué es una base de datos**: por qué existen, qué problema resuelven, PostgreSQL con Docker, tablas, filas, columnas, primary keys, `NULL` y tus primeros datos.
+2. **Tus primeras queries con `SELECT`**: columnas, aliases, tipos de datos, strings, fechas, números y la maravillosa lógica de tres valores de `NULL`, que no es rara: es SQL siendo SQL.
+3. **Filtrado, ordenación y consultas multi-paso**: `WHERE`, `ORDER BY`, `LIMIT`, `CASE`, subqueries, CTEs y el orden real de ejecución de una query.
+4. **Modelado relacional**: normalización, relaciones, foreign keys, primary keys, constraints, diseño de esquemas y documentación de base de datos.
+5. **Joins**: `INNER`, `LEFT`, `FULL`, `CROSS`, self joins, rendimiento de joins y el clásico producto cartesiano accidental, que es como abrir una bolsa de confeti dentro del servidor.
+6. **Agregaciones y reporting**: `COUNT`, `SUM`, `GROUP BY`, `HAVING`, window functions, rankings, running totals, percentiles y preguntas reales de negocio.
+7. **Modificar datos sin destruir el mundo**: `INSERT`, `UPDATE`, `DELETE`, transactions, locks, concurrencia y migraciones seguras.
+8. **Índices y performance**: B-tree, GIN, GiST, BRIN, partial indexes, covering indexes, `EXPLAIN ANALYZE`, query plans, keyset pagination y optimización con método.
+9. **SQL avanzado**: views, materialized views, stored procedures, triggers, JSONB, arrays, range types, lateral joins, seguridad, roles, permisos y SQL injection.
+10. **ORMs**: qué son, cómo generan SQL, lazy loading, eager loading, N+1, migrations generadas y cuándo usar ORM, query builder o SQL puro.
+11. **PostgreSQL DBA essentials**: arquitectura interna, backups, recovery, replication, high availability, PgBouncer, monitoring, vacuum, bloat y extensiones como `pg_stat_statements`, `pg_trgm` o `pgvector`.
+12. **Más allá de lo relacional**: NoSQL, document databases, Redis, Cassandra, graph databases, time-series, NewSQL, vector databases y cuándo cada herramienta tiene sentido.
+
+El proyecto final será **BookShelf**, una plataforma ficticia para registrar libros, reseñas, seguidores y recomendaciones. Diseñarás el schema, cargarás datos, escribirás queries reales, analizarás rendimiento, añadirás índices, usarás RLS, crearás una materialized view y documentarás decisiones. O sea: una base de datos con suficiente realidad como para que deje de parecer un ejercicio de juguete.
+
+### ¿Necesito conocimientos previos?
+
+De bases de datos, no. El curso empieza desde cero absoluto: qué es una base de datos, por qué no basta con guardar un CSV y qué significa realmente tener datos persistentes, consultables y relacionados.
+
+Lo que sí necesitas:
+
+- Saber moverte mínimamente por la terminal. No hace falta vivir en ella, pero sí dejar de mirarla como si fuera una cueva con WiFi.
+- Tener Docker instalado y entender lo básico de contenedores y volúmenes. Si aún no lo tienes claro, el curso [Domina Docker desde cero](/es/cursos/domina-docker-desde-cero) encaja justo antes de este, especialmente hasta la lección de volúmenes y persistencia.
+- Ganas de entender, no solo de copiar queries que “parecen funcionar”.
+- Paciencia con `NULL`. No porque sea difícil. Porque tiene personalidad.
+
+Si vienes de backend, analytics, DevOps o cualquier entorno donde haya datos, vas a reconocer muchos problemas. Si empiezas desde cero, mejor todavía: aprenderás el modelo mental antes de acumular supersticiones, que en bases de datos abundan. Algunas incluso tienen documentación corporativa.
+
+### Una advertencia honesta
+
+SQL parece pequeño desde fuera. Cuatro comandos, unas tablas, un par de joins y listo. Esa es la trampa.
+
+La profundidad está en los detalles: cuándo una query usa índice, por qué `COUNT(*)` y `COUNT(column)` no cuentan lo mismo, qué pasa si filtras mal un `LEFT JOIN`, por qué una migración aparentemente inocente bloquea una tabla, cómo elegir una primary key, cuándo un índice ayuda y cuándo convierte los writes en una procesión lenta con velas.
+
+Este curso no promete que “domines bases de datos en un fin de semana”. Eso es marketing con una camiseta de PostgreSQL. Lo que promete es un camino progresivo, práctico y con contexto para que entiendas por qué cada concepto existe y qué problema resuelve.
+
+Porque una base de datos no es una caja donde tiras JSON hasta que alguien inventa un dashboard. Es una pieza central de tu sistema. Si la modelas mal, todo lo demás paga intereses. Si la entiendes bien, tu aplicación respira mejor.
+
+### De escribir queries a pensar en datos
+
+La evolución del curso es deliberada.
+
+Primero aprenderás a preguntar: `SELECT`, `WHERE`, funciones, filtros. Después aprenderás a estructurar: tablas, relaciones, constraints, joins. Luego aprenderás a resumir y analizar: agregaciones, window functions, reporting. Más adelante vendrá lo que separa a quien usa SQL de quien entiende bases de datos: transacciones, locks, índices, planes de ejecución, seguridad, migraciones, backups y operación.
+
+Al final, no quiero que SQL te parezca “esa cosa que hay debajo del ORM”. Quiero que lo veas como lo que es: una herramienta precisa para pensar sobre datos. A veces elegante. A veces peligrosa. A veces con `NULL` mirándote desde una esquina como si no hubiese roto nada.
+
+Y cuando entiendes eso, cambia cómo programas. Cambia cómo diseñas. Cambia cómo revisas código. Cambia incluso cómo lees un ticket que dice “la página carga lenta” sin empezar directamente a culpar a la red, al frontend o a Mercurio.
+
+Y antes de cerrar: un saludo a Marisa, mi profesora de bases de datos. Si me estás leyendo, que sepas que presté atención en tus clases. Tardé años en convertirlo en curso, pero la semilla estaba ahí.
+
+---
+
+**Primera lección disponible el 10 de julio**: “Por qué necesitamos bases de datos”.
+
+¡Nunca dejes de programar!
