@@ -1,0 +1,7 @@
+{
+  "name": "SQL: de cero a DBA",
+  "course_slug": "sql-de-cero-a-dba",
+  "language": "es",
+  "description": "Aprende SQL y PostgreSQL desde cero hasta desarrollar criterio de DBA: modelo relacional, consultas, joins, agregaciones, índices, rendimiento, transacciones, seguridad, ORMs y operación en producción.",
+  "i18n": "sql-from-zero-to-dba"
+}

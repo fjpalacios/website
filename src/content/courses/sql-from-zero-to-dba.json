@@ -1,0 +1,7 @@
+{
+  "name": "SQL: From Zero to DBA",
+  "course_slug": "sql-from-zero-to-dba",
+  "language": "en",
+  "description": "Learn SQL and PostgreSQL from zero to DBA-level judgment: relational modeling, queries, joins, aggregations, indexes, performance, transactions, security, ORMs, and production operations.",
+  "i18n": "sql-de-cero-a-dba"
+}
