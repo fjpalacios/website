@@ -1,0 +1,228 @@
+---
+title: "Why We Need Databases"
+post_slug: "why-we-need-databases"
+date: "2026-07-10"
+excerpt: "Before writing your first query, understand what problem databases solve: persistence, relationships, concurrency, querying, and real guarantees."
+language: "en"
+categories: ["sql"]
+course: "sql-from-zero-to-dba"
+order: 1
+cover: "/images/tutorials/cabecera-sql-curso.jpg"
+i18n: "por-que-necesitamos-bases-datos"
+---
+
+You start a small project. Very small. So small that saving the data in a file feels perfectly reasonable.
+
+A `users.json` here. An `orders.csv` there. Maybe a shared spreadsheet because “business can see it too.” Everything is calm. Everything is under control. Until someone asks: “can we see last month's orders grouped by customer, excluding cancelled ones, sorted by revenue?”
+
+And suddenly your humble file becomes a crime scene investigation: manual filters, copies named `final_v2_good_really_this_time.xlsx`, formulas nobody wants to touch, and the very specific feeling a former coworker once summarized perfectly: “it works because God is good.”
+
+That's where databases begin.
+
+Not because they're more elegant. Not because they sound more professional. Because at some point, **storing data** is not enough. You need to query it, relate it, protect it, modify it safely, and let multiple people or processes work with it at the same time without turning your application into a social experiment.
+
+## The problem: storing data is not managing data
+
+Storing data is easy.
+
+```json
+[
+  {
+    "id": 1,
+    "name": "Ada",
+    "email": "ada@example.com"
+  }
+]
+```
+
+This works. For learning, for a small script, for a demo, for that personal project that starts on a Sunday afternoon and ends up living in production for three years because “we'll clean it up later.” Spoiler: they did not clean it up.
+
+The problem doesn't show up when you have three users. It shows up when you have thousands. Or when two processes write at the same time. Or when you need to know which orders belong to which user. Or when someone deletes a line by mistake. Or when a query that used to be instant now takes long enough for you to reconsider your career choices.
+
+A flat file is not designed to answer complex questions. It's designed to store bytes. That's important, but it's only the first step.
+
+The difference between “I have data” and “I have a database” is the difference between having all the screws for a shelf in a plastic bag and having the shelf assembled, stable, and without that one leftover metal piece staring at you from the table like it knows something you don't.
+
+## What breaks when we use files for everything
+
+Files are not bad. In fact, many databases store information in files internally. The difference is that a database adds a layer of organization, rules, queries, and guarantees on top.
+
+When you use files directly, sooner or later these problems appear:
+
+### 1. Querying data becomes painful
+
+With a small file, finding something is trivial. Open the file, read line by line, find what you need.
+
+Now imagine a CSV with one million orders:
+
+```csv
+order_id,user_id,total,status,created_at
+1,42,99.90,paid,2026-07-01
+2,57,19.50,cancelled,2026-07-02
+3,42,149.00,paid,2026-07-03
+```
+
+Now you want to answer:
+
+- How much has each user spent?
+- What are the top 10 best-selling products?
+- Which orders are paid but not shipped?
+- How much did revenue grow compared to last month?
+
+You can do it with scripts, yes. You can also assemble a shelf with a spoon if you have enough patience. Possible is not the same as reasonable.
+
+SQL exists to ask questions of your data declaratively:
+
+```sql
+SELECT user_id, SUM(total) AS total_spent
+FROM orders
+WHERE status = 'paid'
+GROUP BY user_id
+ORDER BY total_spent DESC;
+```
+
+Don't worry about understanding every word yet. The important idea is this: instead of writing a program that walks through the file step by step, you tell the database **what result you want**. The engine decides how to get it.
+
+That difference changes everything.
+
+## 2. Relationships become manual
+
+Real data almost never lives alone.
+
+A user has orders. An order has line items. A line item points to a product. A product belongs to categories. A review belongs to a user and a book. Everything starts connecting to everything else, because the real world has the rude habit of not organizing itself into one pretty list.
+
+With files, you manage those relationships yourself:
+
+```json
+{
+  "order_id": 1,
+  "user_id": 42,
+  "product_ids": [7, 12, 19]
+}
+```
+
+Does user `42` exist? Do products `7`, `12`, and `19` exist? What happens if product `12` is deleted? Who prevents `user_id` from pointing to someone who no longer exists?
+
+Exactly: you. Your code. Your discipline. Your teammate on Friday at 6:03 PM. Good luck.
+
+A relational database lets you express those rules as part of the model itself:
+
+```sql
+CREATE TABLE orders (
+  id INTEGER PRIMARY KEY,
+  user_id INTEGER REFERENCES users(id)
+);
+```
+
+Again, you don't need to master the syntax now. Keep the concept: the database can know that `orders.user_id` must point to a real user. That's not just storage. That's integrity.
+
+And when data matters, integrity is not a fancy extra. It's the seatbelt.
+
+## 3. Multiple writers at once is a dangerous party
+
+Imagine two processes updating the same file at the same time.
+
+One reads the file. The other reads it too. One writes changes. The other writes later with an older version. Result: lost data. The kind of bug that doesn't scream, doesn't explode, and doesn't leave a stack trace. It just eats information and walks away like nothing happened.
+
+That's the worst kind of bug: the one that doesn't look like a bug until you do the math.
+
+Databases are designed to handle **concurrency**: multiple clients reading and writing at the same time under clear rules. That's why concepts like transactions, locks, isolation levels, and ACID exist. Today we'll only name them; later we'll open them carefully, because there is enough material there to make a spreadsheet cry.
+
+The basic idea is simple: a database doesn't just store data. It coordinates changes.
+
+## 4. Security and guarantees disappear quickly
+
+With files, you usually have operating system permissions: who can read or write the file. That's useful, but it doesn't go far enough.
+
+In a real application, you might want rules like:
+
+- The backend can insert orders, but not delete users.
+- An analyst can read sales, but not emails.
+- A user can only modify their own reviews.
+- Nobody should be able to create an order with a negative total.
+
+A database lets you model permissions, constraints, roles, validations, and access rules in a much finer-grained way. It doesn't replace application security, but it acts as your last line of defense.
+
+And yes: you want that last line. Because trusting all application code to be perfect forever is a beautiful strategy, just like trusting that “this time I will definitely remember to make a backup before touching production.”
+
+## So what is a database?
+
+A **database** is an organized system for storing, querying, modifying, and protecting persistent data.
+
+The key word is not “storing.” A file already does that. The key is the full set:
+
+- **Persistence**: data survives when the application shuts down.
+- **Structure**: data follows an understandable model.
+- **Querying**: you can ask complex questions without writing the whole algorithm by hand.
+- **Relationships**: you can connect entities without relying on human memory and optimistic comments.
+- **Integrity**: you can define rules to avoid invalid states.
+- **Concurrency**: multiple processes can work at the same time without stepping on each other like they're editing the same Word document in 2007.
+- **Security**: you can control who accesses what.
+- **Performance**: you can search through millions of rows without reading everything every time.
+
+Put all of that together and you no longer have “a place to put things.” You have a central piece of your system.
+
+And here's an important point: a database does not magically fix bad design. If you model your data badly, the database will obey. With admirable professionalism and terrible consequences.
+
+## Types of databases from a distance
+
+This course focuses on SQL and PostgreSQL, but it's worth knowing that not all databases use the same model.
+
+| Type | How it thinks about data | Examples | Where it appears |
+| --- | --- | --- | --- |
+| Relational | Tables, rows, columns, and relationships | PostgreSQL, MySQL, SQL Server | Business applications, structured data, strong integrity |
+| Document | JSON/BSON documents | MongoDB, CouchDB | Flexible data, catalogs, semi-structured content |
+| Key-value | Key → value | Redis, Valkey | Cache, sessions, counters, simple queues |
+| Graph | Nodes and relationships | Neo4j | Complex relationships: social networks, recommendations, fraud |
+| Time-series | Data indexed by time | TimescaleDB, InfluxDB | Metrics, sensors, events, observability |
+
+Don't stress about memorizing this now. The goal is to give you a map, not send you out explaining distributed databases on a napkin like you're in a backend interview at 9 AM.
+
+The important idea: each type of database exists to solve different problems. But if you're learning from zero, starting with the relational model is the best investment. Many ideas about data, performance, querying, and integrity are easier to understand from there.
+
+## Why PostgreSQL
+
+We'll use **PostgreSQL 18** throughout the course.
+
+Not because it's the only option. MySQL, MariaDB, SQL Server, Oracle, and SQLite exist and have real use cases. But PostgreSQL is an excellent database to learn with and to work with seriously because it combines several things that are hard to find together:
+
+- It's **open source** and widely used in the industry.
+- It implements SQL in a powerful and mostly standard way.
+- It has advanced types: JSONB, arrays, ranges, UUIDs, full-text search.
+- It supports constraints, transactions, views, materialized views, roles, extensions, and serious tooling.
+- It scales from small projects to large systems.
+- It lets you learn general SQL while also using modern features that appear in production.
+
+PostgreSQL is a good school because it doesn't treat you like you only want to store four rows. It gives you grown-up database tools from the beginning. Some of them won't show up until much later, but it's good to know they're there, patiently waiting for you to stop writing `SELECT *` out of habit.
+
+## What learning SQL really means
+
+Learning SQL is not memorizing commands.
+
+Memorizing commands creates that dangerous feeling of “I know SQL” until a query appears with `LEFT JOIN`, `GROUP BY`, `HAVING`, a subquery, and a `NULL` staring from the corner. Then the castle starts wobbling.
+
+Really learning SQL means understanding questions like these:
+
+- What shape does my data have?
+- What relationship exists between these tables?
+- Which rows am I filtering before grouping?
+- Why is this query reading ten million rows?
+- What index does this access pattern need?
+- What happens if two users modify the same thing at the same time?
+- What is my ORM actually generating?
+
+That's why this course starts here, before installing anything. Because if you understand the problem, the tool stops feeling like magic. And when the tool stops feeling like magic, you start using it with judgment.
+
+## What you take from this lesson
+
+If you understood this, you now have the mental foundation for the course:
+
+- A file can store data, but it doesn't manage querying, relationships, concurrency, and integrity well.
+- A database adds structure, rules, guarantees, and query capabilities.
+- SQL lets you ask for the result you want, not manually describe how to walk through the data step by step.
+- Relational databases remain fundamental because they model structured data and relationships very well.
+- PostgreSQL will be our main tool because it's modern, open, powerful, and widely used in production.
+
+In the next lesson we'll set up the environment: we'll run PostgreSQL 18 with Docker, connect with `psql` and pgAdmin, and leave a database ready for real data. If Docker still looks at you funny, [Mastering Docker from Scratch](/en/courses/mastering-docker-from-scratch) is the perfect warm-up; we'll use it here without turning this lesson into another container-moving day.
+
+Never stop coding!

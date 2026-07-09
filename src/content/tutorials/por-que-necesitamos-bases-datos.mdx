@@ -1,0 +1,228 @@
+---
+title: "Por qué necesitamos bases de datos"
+post_slug: "por-que-necesitamos-bases-datos"
+date: "2026-07-10"
+excerpt: "Antes de escribir tu primera query, entiende qué problema resuelve una base de datos: persistencia, relaciones, concurrencia, consultas y garantías reales."
+language: "es"
+categories: ["sql"]
+course: "sql-de-cero-a-dba"
+order: 1
+cover: "/images/tutorials/cabecera-sql-curso.jpg"
+i18n: "why-we-need-databases"
+---
+
+Empiezas un proyecto pequeño. Muy pequeño. Tan pequeño que guardar los datos en un archivo parece perfectamente razonable.
+
+Un `users.json` por aquí. Un `orders.csv` por allá. Quizá una hoja de cálculo compartida porque “así lo ve negocio también”. Todo tranquilo. Todo bajo control. Hasta que alguien pregunta: “¿podemos ver los pedidos del último mes agrupados por cliente, pero excluyendo los cancelados y ordenados por ingresos?”.
+
+Y de repente tu archivo humilde se convierte en una escena de investigación policial: filtros manuales, copias llamadas `final_v2_bueno_ahora_si.xlsx`, fórmulas que nadie quiere tocar y una sensación muy concreta que un compañero de trabajo resumía perfectamente: “funciona porque Dios es bueno”.
+
+Ahí es donde empiezan las bases de datos.
+
+No porque sean más elegantes. No porque suenen más profesionales. Porque llega un punto en el que **guardar datos** no basta. Necesitas consultarlos, relacionarlos, protegerlos, modificarlos sin romperlos y permitir que varias personas o procesos trabajen con ellos a la vez sin convertir tu aplicación en un experimento social.
+
+## El problema: guardar datos no es gestionar datos
+
+Guardar datos es fácil.
+
+```json
+[
+  {
+    "id": 1,
+    "name": "Ada",
+    "email": "ada@example.com"
+  }
+]
+```
+
+Esto funciona. Para aprender, para un script pequeño, para una demo, para ese proyecto personal que empieza un domingo por la tarde y termina viviendo en producción tres años porque “ya lo limpiaremos”. Spoiler: no lo limpiaron.
+
+El problema no aparece cuando tienes tres usuarios. Aparece cuando tienes miles. O cuando dos procesos escriben al mismo tiempo. O cuando necesitas saber qué pedidos pertenecen a qué usuario. O cuando alguien borra una línea sin querer. O cuando una consulta que antes tardaba nada ahora tarda lo suficiente como para que te dé tiempo a replantearte tus decisiones profesionales.
+
+Un archivo plano no está diseñado para responder preguntas complejas. Está diseñado para almacenar bytes. Y eso es importante, pero es solo el primer peldaño.
+
+La diferencia entre “tengo datos” y “tengo una base de datos” es la diferencia entre tener todos los tornillos de un mueble en una bolsa y tener el mueble montado, estable y sin esa pieza sobrante que te mira desde la mesa como si supiera algo que tú no.
+
+## Qué falla cuando usamos archivos para todo
+
+Los archivos no son malos. De hecho, muchas bases de datos terminan guardando información en archivos internamente. La diferencia es que una base de datos pone encima una capa de organización, reglas, consultas y garantías.
+
+Cuando usas archivos directamente, tarde o temprano aparecen estos problemas:
+
+### 1. Consultar datos se vuelve doloroso
+
+Con un archivo pequeño, buscar algo es trivial. Abres el archivo, lees línea a línea y encuentras lo que quieres.
+
+Pero imagina que tienes un CSV con un millón de pedidos:
+
+```csv
+order_id,user_id,total,status,created_at
+1,42,99.90,paid,2026-07-01
+2,57,19.50,cancelled,2026-07-02
+3,42,149.00,paid,2026-07-03
+```
+
+Ahora quieres responder:
+
+- ¿Cuánto ha gastado cada usuario?
+- ¿Cuáles son los 10 productos más vendidos?
+- ¿Qué pedidos están pagados pero no enviados?
+- ¿Cuánto creció el revenue respecto al mes anterior?
+
+Puedes hacerlo con scripts, sí. También puedes montar una estantería con una cuchara si tienes suficiente paciencia. Que algo sea posible no significa que sea buena idea.
+
+SQL existe para hacer preguntas a tus datos de forma declarativa:
+
+```sql
+SELECT user_id, SUM(total) AS total_spent
+FROM orders
+WHERE status = 'paid'
+GROUP BY user_id
+ORDER BY total_spent DESC;
+```
+
+No te preocupes por entender cada palabra todavía. La idea importante es esta: en vez de escribir un programa que recorra el archivo paso a paso, le dices a la base de datos **qué resultado quieres**. El motor decide cómo obtenerlo.
+
+Y esa diferencia cambia todo.
+
+## 2. Las relaciones se vuelven manuales
+
+Los datos reales casi nunca viven aislados.
+
+Un usuario tiene pedidos. Un pedido tiene líneas. Una línea apunta a un producto. Un producto pertenece a categorías. Una reseña pertenece a un usuario y a un libro. Todo empieza a conectarse con todo, porque el mundo real tiene la mala costumbre de no organizarse en una sola lista bonita.
+
+Con archivos, esas relaciones las gestionas tú:
+
+```json
+{
+  "order_id": 1,
+  "user_id": 42,
+  "product_ids": [7, 12, 19]
+}
+```
+
+¿Existe el usuario `42`? ¿Existen los productos `7`, `12` y `19`? ¿Qué pasa si borras el producto `12`? ¿Quién impide que `user_id` apunte a alguien que ya no existe?
+
+Exacto: tú. Tu código. Tu disciplina. Tu compañero de equipo un viernes a las 18:03. Mucha suerte.
+
+Una base de datos relacional permite expresar esas reglas como parte del propio modelo:
+
+```sql
+CREATE TABLE orders (
+  id INTEGER PRIMARY KEY,
+  user_id INTEGER REFERENCES users(id)
+);
+```
+
+De nuevo, no hace falta dominar la sintaxis ahora. Quédate con el concepto: la base de datos puede saber que `orders.user_id` debe apuntar a un usuario real. No es solo almacenamiento. Es integridad.
+
+Y cuando hablamos de datos importantes, la integridad no es un extra elegante. Es el cinturón de seguridad.
+
+## 3. Varias personas escribiendo a la vez es una fiesta peligrosa
+
+Imagina dos procesos actualizando el mismo archivo al mismo tiempo.
+
+Uno lee el archivo. El otro también. Uno escribe cambios. El otro escribe después con una versión antigua. Resultado: datos perdidos. El tipo de bug que no grita, no explota y no deja stack trace. Simplemente se come información y sigue caminando como si nada.
+
+Ese es el peor tipo de bug: el que no parece bug hasta que haces cuentas.
+
+Las bases de datos están diseñadas para gestionar **concurrencia**: varios clientes leyendo y escribiendo a la vez con reglas claras. Para eso existen conceptos como transacciones, locks, isolation levels y ACID. Hoy solo los mencionamos; más adelante los abriremos con calma, porque ahí hay suficiente material como para hacer llorar a una hoja de cálculo.
+
+La idea básica es sencilla: una base de datos no solo guarda datos. También coordina cambios.
+
+## 4. La seguridad y las garantías desaparecen rápido
+
+Con archivos, normalmente tienes permisos de sistema operativo: quién puede leer o escribir el archivo. Eso está bien, pero se queda corto.
+
+En una aplicación real quizá quieres reglas como:
+
+- El backend puede insertar pedidos, pero no borrar usuarios.
+- Un analista puede leer ventas, pero no emails.
+- Un usuario solo puede modificar sus propias reseñas.
+- Nadie debería poder dejar un pedido con total negativo.
+
+Una base de datos permite modelar permisos, constraints, roles, validaciones y reglas de acceso mucho más finas. No sustituye a la seguridad de la aplicación, pero actúa como última línea de defensa.
+
+Y sí: quieres esa última línea. Porque confiar en que todo el código de aplicación será perfecto para siempre es una estrategia preciosa, igual que confiar en que “esta vez sí me voy a acordar de hacer backup antes de tocar producción”.
+
+## Entonces, ¿qué es una base de datos?
+
+Una **base de datos** es un sistema organizado para almacenar, consultar, modificar y proteger datos de forma persistente.
+
+La palabra clave no es “almacenar”. Eso ya lo hace un archivo. La clave es el conjunto completo:
+
+- **Persistencia**: los datos sobreviven cuando la aplicación se apaga.
+- **Estructura**: los datos siguen un modelo comprensible.
+- **Consulta**: puedes hacer preguntas complejas sin escribir todo el algoritmo a mano.
+- **Relaciones**: puedes conectar entidades sin depender de memoria humana y comentarios optimistas.
+- **Integridad**: puedes definir reglas para evitar estados inválidos.
+- **Concurrencia**: varios procesos pueden trabajar a la vez sin pisarse como si estuvieran editando el mismo Word en 2007.
+- **Seguridad**: puedes controlar quién accede a qué.
+- **Rendimiento**: puedes buscar entre millones de filas sin leerlo todo cada vez.
+
+Cuando juntas todo eso, dejas de tener “un sitio donde guardar cosas” y empiezas a tener una pieza central de tu sistema.
+
+Y aquí conviene decir algo importante: una base de datos no arregla un mal diseño por arte de magia. Si modelas mal los datos, la base de datos obedecerá. Con una profesionalidad admirable y consecuencias terribles.
+
+## Tipos de bases de datos a vista de pájaro
+
+En este curso nos vamos a centrar en SQL y PostgreSQL, pero merece la pena saber que no todas las bases de datos usan el mismo modelo.
+
+| Tipo | Cómo piensa los datos | Ejemplos | Cuándo aparece |
+| --- | --- | --- | --- |
+| Relacional | Tablas, filas, columnas y relaciones | PostgreSQL, MySQL, SQL Server | Aplicaciones de negocio, datos estructurados, integridad fuerte |
+| Documental | Documentos JSON/BSON | MongoDB, CouchDB | Datos flexibles, catálogos, contenido semiestructurado |
+| Key-value | Clave → valor | Redis, Valkey | Caché, sesiones, contadores, colas simples |
+| Grafo | Nodos y relaciones | Neo4j | Relaciones complejas: redes sociales, recomendaciones, fraude |
+| Time-series | Datos indexados por tiempo | TimescaleDB, InfluxDB | Métricas, sensores, eventos, observability |
+
+No te agobies con memorizar esto ahora. La intención es que tengas mapa, no que salgas de aquí explicando bases de datos distribuidas en una servilleta como si estuvieras en una entrevista de backend a las 9 de la mañana.
+
+La idea importante: cada tipo de base de datos nace para resolver problemas distintos. Pero si estás aprendiendo desde cero, empezar por el modelo relacional es la mejor inversión. Muchísimas ideas de datos, rendimiento, consultas e integridad se entienden mejor desde ahí.
+
+## Por qué PostgreSQL
+
+Vamos a usar **PostgreSQL 18** durante el curso.
+
+No porque sea la única opción. MySQL, MariaDB, SQL Server, Oracle y SQLite existen y tienen usos reales. Pero PostgreSQL es una base excelente para aprender y trabajar en serio porque combina varias cosas difíciles de encontrar juntas:
+
+- Es **open source** y muy usado en la industria.
+- Implementa SQL de forma potente y bastante estándar.
+- Tiene tipos avanzados: JSONB, arrays, ranges, UUIDs, full-text search.
+- Soporta constraints, transactions, views, materialized views, roles, extensions y tooling serio.
+- Escala desde proyectos pequeños hasta sistemas grandes.
+- Te permite aprender SQL general y, a la vez, características modernas que se usan en producción.
+
+PostgreSQL es una buena escuela porque no te trata como si solo quisieras guardar cuatro filas. Te da herramientas de base de datos adulta desde el principio. Algunas no las usaremos hasta mucho más adelante, pero está bien saber que están ahí, esperando pacientemente a que dejes de hacer `SELECT *` por costumbre.
+
+## Qué significa aprender SQL de verdad
+
+Aprender SQL no es memorizar comandos.
+
+Memorizar comandos produce esa sensación peligrosa de “sé SQL” hasta que aparece una query con `LEFT JOIN`, `GROUP BY`, `HAVING`, una subquery y un `NULL` mirando desde la esquina. Entonces el castillo se tambalea.
+
+Aprender SQL de verdad significa entender preguntas como estas:
+
+- ¿Qué forma tienen mis datos?
+- ¿Qué relación hay entre estas tablas?
+- ¿Qué filas estoy filtrando antes de agrupar?
+- ¿Por qué esta query lee diez millones de filas?
+- ¿Qué índice necesita este acceso?
+- ¿Qué pasa si dos usuarios modifican lo mismo a la vez?
+- ¿Qué está generando mi ORM realmente?
+
+Por eso este curso empieza aquí, antes de instalar nada. Porque si entiendes el problema, la herramienta deja de parecer magia. Y cuando la herramienta deja de parecer magia, empiezas a usarla con criterio.
+
+## Qué te llevas de esta lección
+
+Si has entendido esto, ya tienes la base mental del curso:
+
+- Un archivo puede guardar datos, pero no gestionar bien consultas, relaciones, concurrencia e integridad.
+- Una base de datos añade estructura, reglas, garantías y capacidad de consulta.
+- SQL permite preguntar a los datos qué quieres obtener, no cómo recorrerlos paso a paso.
+- Las bases de datos relacionales siguen siendo fundamentales porque modelan muy bien datos estructurados y relaciones.
+- PostgreSQL será nuestra herramienta principal porque es moderno, abierto, potente y muy usado en producción.
+
+En la siguiente lección vamos a preparar el entorno: levantaremos PostgreSQL 18 con Docker, conectaremos con `psql` y pgAdmin, y dejaremos una base de datos lista para empezar a tocar datos reales. Si Docker todavía te mira raro, [Domina Docker desde cero](/es/cursos/domina-docker-desde-cero) es la antesala perfecta; aquí vamos a usarlo sin convertir esta lección en otra mudanza de contenedores.
+
+¡Nunca dejes de programar!
