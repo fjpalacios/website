@@ -21,22 +21,6 @@ updates:
     labels:
       - "dependencies"
       - "automated"
-    # No groups - individual PRs per dependency for easier debugging
-    # and selective merging when some updates break tests
-    # Keep major updates manual for high-impact tooling.
-    # @astrojs/mdx 6.x is validated against Astro 6.4.x, so future major
-    # bumps should be evaluated together with Astro core upgrades.
-    ignore:
-      - dependency-name: "astro"
-        update-types: ["version-update:semver-major"]
-      - dependency-name: "@astrojs/mdx"
-        update-types: ["version-update:semver-major"]
-      - dependency-name: "typescript"
-        update-types: ["version-update:semver-major"]
-      - dependency-name: "playwright"
-        update-types: ["version-update:semver-major"]
-      - dependency-name: "vitest"
-        update-types: ["version-update:semver-major"]
 
   # Maintain GitHub Actions
   - package-ecosystem: "github-actions"
