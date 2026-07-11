@@ -67,7 +67,7 @@
     "astro": "6.4.8",
     "fast-xml-parser": "5.10.0",
     "get-tsconfig": "5.0.0-beta.5",
-    "marked": "^18.0.5",
+    "marked": "^18.0.6",
     "mdast-util-to-hast": "13.2.1",
     "mysql2": "^3.22.6",
     "normalize.css": "^8.0.1",
