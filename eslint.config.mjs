@@ -11,24 +11,7 @@ import astroScriptSafety from "./eslint-rules/index.js";
 
 export default tseslint.config(
   {
-    ignores: [
-      "**/public",
-      "**/dist",
-      "**/dist/*",
-      "**/tests/*",
-      "coverage",
-      ".astro/*",
-      "node_modules/*",
-      // Temporary migration scripts (to be removed)
-      "scripts/migrate-from-mysql.ts",
-      "scripts/migrate-wordpress-content.ts",
-      "scripts/generate-redirects.ts",
-      "scripts/explore-wp-db.ts",
-      "scripts/fix-missing-content.ts",
-      "scripts/normalize-book-slugs.ts",
-      "scripts/generate-author-bios.ts",
-      "scripts/rename-book-images.ts",
-    ],
+    ignores: ["**/public", "**/dist", "**/dist/*", "**/tests/*", "coverage", ".astro/*", "node_modules/*"],
   },
   eslint.configs.recommended,
   tseslint.configs.recommended,
