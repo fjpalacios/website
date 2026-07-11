@@ -208,10 +208,9 @@ jobs:
   audit:
     name: Dependency Audit
     runs-on: ubuntu-latest
-    # Non-blocking: report known vulnerabilities but do not fail CI on them.
-    # Dependabot security updates are the canonical path to fix them.
-    continue-on-error: true
-
+    # Strict: fail CI on high or critical vulnerabilities. Moderate and low
+    # are reported in the log but do not block merge. Dependabot security
+    # updates remain the canonical path to fix them.
     steps:
       - name: Checkout code
         uses: actions/checkout@v7
@@ -225,4 +224,4 @@ jobs:
         run: bun install --frozen-lockfile
 
       - name: Run bun audit
-        run: bun audit
+        run: bun audit --audit-level=high
