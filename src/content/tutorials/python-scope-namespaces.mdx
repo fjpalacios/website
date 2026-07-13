@@ -1,0 +1,442 @@
+---
+title: "Scope and namespaces in Python: where your variables live"
+post_slug: "python-scope-namespaces"
+date: "2026-07-13"
+excerpt: "Understand local scope, global scope, nested functions, global, nonlocal, and why Python sometimes seems to hide your variables for sport."
+language: "en"
+categories: ["programming"]
+course: "learn-to-code-from-scratch-python"
+order: 13
+cover: "/images/tutorials/cabecera-python-curso.jpg"
+i18n: "scope-namespaces-python"
+---
+
+You have a variable called `counter`. You can see it. It's right there. You wrote it yourself, probably after a coffee that stopped being warm twenty minutes ago. You run the program and Python tells you it has no idea what variable you're talking about.
+
+Excuse me? Didn't we just see it? Did it leave the building? Do variables have private lives now?
+
+Welcome to **scope**: the part of Python that decides where each name can be seen from. It isn't black magic, although at first it has the same energy as looking for a missing sock inside a washing machine that swears it knows nothing.
+
+## What scope is
+
+**Scope** is the area of a program where a name exists and can be used. That name can be a variable, a function, a parameter, or anything Python can reference.
+
+Look at this example:
+
+```python
+def greet():
+    message = "Hello"
+    print(message)
+
+greet()
+print(message)
+```
+
+The first part works:
+
+```
+Hello
+```
+
+But the last line fails:
+
+```
+NameError: name 'message' is not defined
+```
+
+`message` exists inside `greet()`, but not outside it. It is a **local** variable of that function. From the outside, Python can't see it.
+
+Think of a room with a whiteboard inside. People in the room can read what's on the whiteboard. People outside can't. Shouting louder does not change the building architecture.
+
+## Local variables
+
+A variable created inside a function lives in that function's local scope:
+
+```python
+def calculate_total(price):
+    tax = price * 0.21
+    total = price + tax
+    return total
+
+result = calculate_total(100)
+print(result)
+```
+
+```
+121.0
+```
+
+`price`, `tax`, and `total` are local to `calculate_total()`. They exist while the function runs. When the function finishes, its scope disappears.
+
+That does not mean the returned value disappears. `return total` gives the value back to the outside code, and that value is stored in `result`. But the name `total` itself belonged to the function.
+
+This matters: **returning a value does not export the variable**. It exports the value. The local variable stays home, like that friend who says "I'll join later" and absolutely does not join later.
+
+## Global variables
+
+A variable defined outside any function lives in the module's global scope:
+
+```python
+tax_rate = 0.21
+
+def calculate_total(price):
+    return price + (price * tax_rate)
+
+print(calculate_total(100))
+```
+
+```
+121.0
+```
+
+The function can **read** `tax_rate` because it does not find that name in its local scope, so it looks outside.
+
+So far, everything is calm. The shelf is standing. We haven't found the extra screw yet.
+
+The problem appears when you try to modify a global variable from inside a function:
+
+```python
+counter = 0
+
+def increment():
+    counter = counter + 1
+    return counter
+
+print(increment())
+```
+
+This fails:
+
+```
+UnboundLocalError: cannot access local variable 'counter' where it is not associated with a value
+```
+
+And here Python looks dramatic, but it has a reason. Because there is an assignment to `counter` inside the function, Python decides that `counter` is local to that function. Then, when it evaluates `counter + 1`, it tries to read the local variable before it has a value.
+
+Yes: the global variable exists. Yes: the name is the same. No: Python does not use it in that case. This is where things get interesting, which in programming usually means "you will stare at the screen in silence for thirty seconds."
+
+## The mental rule: Python searches from the inside out
+
+When Python sees a name, it looks for it through a chain of scopes. At this level, keep this idea:
+
+1. First it checks the local scope of the current function
+2. Then enclosing scopes if there are nested functions
+3. Then the module's global scope
+4. Finally built-in names like `print`, `len`, or `range`
+
+This is usually summarized as **LEGB**:
+
+| Letter | Scope     | Meaning                                   |
+| ------ | --------- | ----------------------------------------- |
+| L      | Local     | Inside the current function               |
+| E      | Enclosing | Outer functions when functions are nested |
+| G      | Global    | The current module                        |
+| B      | Built-in  | Names Python provides by default          |
+
+Don't stress about memorizing the acronym like it's a production password. The important part is the direction: Python starts nearby and moves outward.
+
+```python
+name = "global"
+
+def show():
+    name = "local"
+    print(name)
+
+show()
+print(name)
+```
+
+```
+local
+global
+```
+
+Inside `show()`, the local name wins. Outside, the global one is used. Each scope has its own whiteboard.
+
+## What a namespace is
+
+A **namespace** is the map that connects names to objects.
+
+More simply: it's like an internal dictionary where Python stores things like this:
+
+```python
+{
+    "name": "Ada",
+    "age": 36,
+    "greet": <function greet>
+}
+```
+
+You usually don't manipulate that dictionary directly when you're starting out, but it exists. And it helps explain why two scopes can have variables with the same name without overwriting each other.
+
+```python
+message = "outside"
+
+def example():
+    message = "inside"
+    print(message)
+
+example()
+print(message)
+```
+
+```
+inside
+outside
+```
+
+There isn't one single `message` variable fighting for its identity. There are two `message` names in two different namespaces. Same text, different whiteboard.
+
+It's like having two folders called `final-project` in two different directories. Not elegant, but the system understands it. Your brain may not, but the system does.
+
+## The global keyword
+
+If you really want to modify a global variable from inside a function, you can use `global`:
+
+```python
+counter = 0
+
+def increment():
+    global counter
+    counter = counter + 1
+    return counter
+
+print(increment())
+print(increment())
+```
+
+```
+1
+2
+```
+
+`global counter` tells Python: "when I say `counter` inside this function, I mean the global `counter`."
+
+It works. Using a chair as a ladder also works. The question is whether you should.
+
+`global` is not evil because it exists, but it is often a sign that your function depends too much on external state. That makes code harder to test, harder to reuse, and easier to break from somewhere else.
+
+Compare this:
+
+```python
+counter = 0
+
+def increment():
+    global counter
+    counter = counter + 1
+    return counter
+```
+
+With this:
+
+```python
+def increment(counter):
+    return counter + 1
+
+counter = 0
+counter = increment(counter)
+counter = increment(counter)
+print(counter)
+```
+
+```
+2
+```
+
+The second version is more explicit: the function receives a value and returns another one. It does not touch hidden things in another room. If something breaks tomorrow, you have fewer dark hallways to inspect.
+
+## Nested functions
+
+Python lets you define functions inside other functions:
+
+```python
+def create_greeting(name):
+    prefix = "Hello"
+
+    def build_message():
+        return f"{prefix}, {name}"
+
+    return build_message()
+
+print(create_greeting("Ada"))
+```
+
+```
+Hello, Ada
+```
+
+`build_message()` can read `prefix` and `name`, even though they are not defined inside it. They are in the scope of `create_greeting()`, which is its outer scope.
+
+That is the **enclosing** scope in LEGB: an inner function can see names from the function that contains it.
+
+This appears in closures, decorators, and more advanced code. For now, keep the idea: a nested function can look outward, but not randomly. Python follows a specific route; it does not open drawers at random like you do when you're looking for your keys five minutes before leaving.
+
+## The nonlocal keyword
+
+Now for the delicate part. An inner function can read variables from the outer function, but if it wants to modify them it needs `nonlocal`:
+
+```python
+def create_counter():
+    counter = 0
+
+    def increment():
+        nonlocal counter
+        counter = counter + 1
+        return counter
+
+    return increment
+
+counter = create_counter()
+
+print(counter())
+print(counter())
+print(counter())
+```
+
+```
+1
+2
+3
+```
+
+`nonlocal counter` tells Python: "this `counter` is not local to `increment()`, but it is not global either; it lives in an outer function."
+
+Without `nonlocal`, you would get the same `UnboundLocalError` problem as before: Python would see an assignment to `counter` inside `increment()` and assume it is a local variable.
+
+`nonlocal` is used less often than normal variables, and that's fine. You don't need to put nested functions everywhere to feel professional. Sometimes clear code is just a normal function with clear parameters. Revolutionary, I know.
+
+## When to avoid global and nonlocal
+
+The practical rule:
+
+- Use local variables whenever you can.
+- Pass data as parameters.
+- Return results with `return`.
+- Use `global` rarely and with a clear reason.
+- Use `nonlocal` when you are creating an inner function that needs to remember state.
+
+This pattern is usually better:
+
+```python
+def apply_discount(price, discount):
+    return price - (price * discount)
+
+final_price = apply_discount(100, 0.15)
+print(final_price)
+```
+
+Than this:
+
+```python
+discount = 0.15
+final_price = 0
+
+def apply_discount(price):
+    global final_price
+    final_price = price - (price * discount)
+
+apply_discount(100)
+print(final_price)
+```
+
+The second version works, but it leaves side effects behind. The function doesn't just calculate: it also modifies a global variable. It's the kind of code that looks innocent until it grows, multiplies, and one day someone asks why `final_price` is changing without being invited to the party.
+
+## Common scope mistakes
+
+### Thinking a local variable exists outside
+
+```python
+def create_user():
+    name = "Ada"
+
+create_user()
+print(name)
+```
+
+```
+NameError: name 'name' is not defined
+```
+
+Fix: return the value.
+
+```python
+def create_user():
+    name = "Ada"
+    return name
+
+name = create_user()
+print(name)
+```
+
+### Modifying a global without global
+
+```python
+total = 0
+
+def add(price):
+    total = total + price
+    return total
+```
+
+This fails because Python treats `total` as local inside `add()`.
+
+Better solution at this level: avoid global state.
+
+```python
+def add(total, price):
+    return total + price
+
+total = 0
+total = add(total, 10)
+total = add(total, 20)
+print(total)
+```
+
+```
+30
+```
+
+### Shadowing a built-in by accident
+
+You can create a variable called `list`, `sum`, or `str`. Python lets you. Python also lets you make your life harder with a smile.
+
+```python
+list = [1, 2, 3]
+
+numbers = list("123")
+```
+
+That fails because `list` no longer points to the built-in `list`; it points to your variable.
+
+Avoid it. Use names like `numbers`, `items`, or `users`. Your future self does not need more mystery in the workday.
+
+## Key concepts from this lesson
+
+- Scope defines where a name can be seen from.
+- Variables created inside a function are local to that function.
+- Variables defined outside functions live in the module's global scope.
+- Python searches names from the inside out: local, enclosing, global, and built-in.
+- A namespace is the map that connects names to objects.
+- `global` lets you modify global variables from a function, but it should be rare.
+- `nonlocal` lets you modify variables from an outer function when working with nested functions.
+- Passing data through parameters and returning results usually creates clearer code than modifying external state.
+
+---
+
+**💡 Challenge**: Fix this code without using `global`. The function should receive the current value of `total`, add `price`, and return the new total.
+
+```python
+total = 0
+
+def add_product(price):
+    total = total + price
+    return total
+
+total = add_product(15)
+total = add_product(30)
+print(total)
+```
+
+Next up: **lambda functions** and higher-order functions — how to pass functions around as values, when a `lambda` helps, and when it just turns your code into a ransom note written with symbols.
+
+Never stop coding!
