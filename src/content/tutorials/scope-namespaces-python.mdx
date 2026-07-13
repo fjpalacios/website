@@ -1,0 +1,442 @@
+---
+title: "Scope y namespaces en Python: dónde viven tus variables"
+post_slug: "scope-namespaces-python"
+date: "2026-07-13"
+excerpt: "Entiende scope local, global, funciones anidadas, global, nonlocal y por qué Python a veces parece esconder tus variables por deporte."
+language: "es"
+categories: ["programacion"]
+course: "aprende-a-programar-desde-cero-python"
+order: 13
+cover: "/images/tutorials/cabecera-python-curso.jpg"
+i18n: "python-scope-namespaces"
+---
+
+Tienes una variable llamada `contador`. La ves. Está ahí. La has escrito tú, con tus propias manos, probablemente después de un café que ya no estaba caliente. Ejecutas el programa y Python te dice que no sabe de qué variable le estás hablando.
+
+¿Perdona? ¿No la acabamos de ver? ¿Se ha ido a por tabaco? ¿Hay variables con vida privada?
+
+Bienvenido al **scope**: la parte de Python que decide desde dónde se puede ver cada nombre. No es magia negra, aunque al principio tenga la misma energía que buscar un calcetín perdido dentro de una lavadora que jura que no sabe nada.
+
+## Qué es el scope
+
+El **scope** es la zona del programa donde un nombre existe y puede usarse. Ese nombre puede ser una variable, una función, un parámetro o cualquier cosa que Python pueda referenciar.
+
+Mira este ejemplo:
+
+```python
+def saludar():
+    mensaje = "Hola"
+    print(mensaje)
+
+saludar()
+print(mensaje)
+```
+
+La primera parte funciona:
+
+```
+Hola
+```
+
+Pero la última línea falla:
+
+```
+NameError: name 'mensaje' is not defined
+```
+
+`mensaje` existe dentro de `saludar()`, pero no fuera. Es una variable **local** de esa función. Desde fuera, Python no la ve.
+
+Piensa en una habitación con una pizarra dentro. Quien está en la habitación puede leer lo que pone en la pizarra. Quien está fuera, no. Gritar más fuerte no cambia la arquitectura del edificio.
+
+## Variables locales
+
+Una variable creada dentro de una función vive en el scope local de esa función:
+
+```python
+def calcular_total(precio):
+    iva = precio * 0.21
+    total = precio + iva
+    return total
+
+resultado = calcular_total(100)
+print(resultado)
+```
+
+```
+121.0
+```
+
+`precio`, `iva` y `total` son locales a `calcular_total()`. Existen mientras la función se ejecuta. Cuando la función termina, su scope desaparece.
+
+Eso no significa que el valor devuelto desaparezca. `return total` entrega el valor al código exterior, y ese valor se guarda en `resultado`. Pero el nombre `total` como tal pertenecía a la función.
+
+Esto es importante: **devolver un valor no exporta la variable**. Exporta el valor. La variable local se queda en casa, como ese compañero que dice "yo voy luego" y nunca aparece.
+
+## Variables globales
+
+Una variable definida fuera de cualquier función vive en el scope global del módulo:
+
+```python
+iva = 0.21
+
+def calcular_total(precio):
+    return precio + (precio * iva)
+
+print(calcular_total(100))
+```
+
+```
+121.0
+```
+
+La función puede **leer** `iva` porque no encuentra ese nombre en su scope local y entonces busca fuera.
+
+Hasta aquí, todo tranquilo. La estantería está en pie. Todavía no hemos encontrado el tornillo sobrante.
+
+El problema aparece cuando intentas modificar una variable global desde dentro de una función:
+
+```python
+contador = 0
+
+def incrementar():
+    contador = contador + 1
+    return contador
+
+print(incrementar())
+```
+
+Esto falla:
+
+```
+UnboundLocalError: cannot access local variable 'contador' where it is not associated with a value
+```
+
+Y aquí Python parece estar siendo dramático, pero tiene una razón. Como dentro de la función hay una asignación a `contador`, Python decide que `contador` es local a esa función. Entonces, cuando evalúa `contador + 1`, intenta leer la variable local antes de que tenga valor.
+
+Sí: la variable global existe. Sí: el nombre es el mismo. No: Python no la usa en ese caso. Aquí es donde se pone interesante, que en programación suele significar "vas a mirar la pantalla en silencio durante treinta segundos".
+
+## La regla mental: Python busca de dentro hacia fuera
+
+Cuando Python encuentra un nombre, lo busca siguiendo una cadena de scopes. Para este nivel, quédate con esta idea:
+
+1. Primero busca en el scope local de la función actual
+2. Luego en scopes exteriores si hay funciones anidadas
+3. Luego en el scope global del módulo
+4. Finalmente en los nombres built-in como `print`, `len` o `range`
+
+Esto se suele resumir como **LEGB**:
+
+| Letra | Scope     | Qué significa                                      |
+| ----- | --------- | -------------------------------------------------- |
+| L     | Local     | Dentro de la función actual                        |
+| E     | Enclosing | Funciones exteriores cuando hay funciones anidadas |
+| G     | Global    | El módulo actual                                   |
+| B     | Built-in  | Nombres que Python trae de serie                   |
+
+No te agobies con memorizar el acrónimo como si fuera una contraseña de producción. Lo importante es la dirección: Python empieza cerca y va alejándose.
+
+```python
+nombre = "global"
+
+def mostrar():
+    nombre = "local"
+    print(nombre)
+
+mostrar()
+print(nombre)
+```
+
+```
+local
+global
+```
+
+Dentro de `mostrar()`, el nombre local gana. Fuera, se usa el global. Cada scope tiene su propia pizarra.
+
+## Qué es un namespace
+
+Un **namespace** es el mapa que relaciona nombres con objetos.
+
+Más simple: es como un diccionario interno donde Python guarda cosas del estilo:
+
+```python
+{
+    "nombre": "Ada",
+    "edad": 36,
+    "saludar": <function saludar>
+}
+```
+
+Tú no sueles manipular ese diccionario directamente cuando estás empezando, pero existe. Y ayuda a entender por qué dos scopes pueden tener variables con el mismo nombre sin pisarse.
+
+```python
+mensaje = "fuera"
+
+def ejemplo():
+    mensaje = "dentro"
+    print(mensaje)
+
+ejemplo()
+print(mensaje)
+```
+
+```
+dentro
+fuera
+```
+
+No hay una sola variable `mensaje` peleando por su identidad. Hay dos nombres `mensaje` en dos namespaces distintos. Mismo texto, distinta pizarra.
+
+Es como tener dos carpetas llamadas `proyecto-final` en dos directorios distintos. No es elegante, pero el sistema lo entiende. Tu cerebro quizá no, pero el sistema sí.
+
+## El keyword global
+
+Si realmente quieres modificar una variable global desde dentro de una función, puedes usar `global`:
+
+```python
+contador = 0
+
+def incrementar():
+    global contador
+    contador = contador + 1
+    return contador
+
+print(incrementar())
+print(incrementar())
+```
+
+```
+1
+2
+```
+
+`global contador` le dice a Python: "cuando diga `contador` dentro de esta función, me refiero al `contador` global".
+
+Funciona. También funciona usar una silla como escalera. La pregunta es si deberías.
+
+`global` no es malo por existir, pero suele ser una señal de que tu función depende demasiado de estado externo. Eso hace que el código sea más difícil de probar, más difícil de reutilizar y más fácil de romper desde otro sitio.
+
+Compara esto:
+
+```python
+contador = 0
+
+def incrementar():
+    global contador
+    contador = contador + 1
+    return contador
+```
+
+Con esto:
+
+```python
+def incrementar(contador):
+    return contador + 1
+
+contador = 0
+contador = incrementar(contador)
+contador = incrementar(contador)
+print(contador)
+```
+
+```
+2
+```
+
+La segunda versión es más explícita: la función recibe un valor y devuelve otro. No toca cosas escondidas en otra habitación. Si mañana algo falla, tienes menos pasillos oscuros que revisar.
+
+## Funciones anidadas
+
+Python permite definir funciones dentro de otras funciones:
+
+```python
+def crear_saludo(nombre):
+    prefijo = "Hola"
+
+    def construir_mensaje():
+        return f"{prefijo}, {nombre}"
+
+    return construir_mensaje()
+
+print(crear_saludo("Ada"))
+```
+
+```
+Hola, Ada
+```
+
+`construir_mensaje()` puede leer `prefijo` y `nombre`, aunque no están definidos dentro de ella. Están en el scope de `crear_saludo()`, que es su scope exterior.
+
+Ese es el scope **enclosing** de LEGB: una función interna puede ver nombres de la función que la contiene.
+
+Esto aparece en closures, decoradores y código más avanzado. De momento, quédate con la idea: una función anidada puede mirar hacia fuera, pero no hacia cualquier sitio de forma caótica. Python sigue una ruta concreta, no va abriendo cajones al azar como cuando buscas las llaves cinco minutos antes de salir.
+
+## El keyword nonlocal
+
+Ahora viene la parte delicada. Una función interna puede leer variables de la función exterior, pero si quiere modificarlas necesita `nonlocal`:
+
+```python
+def crear_contador():
+    contador = 0
+
+    def incrementar():
+        nonlocal contador
+        contador = contador + 1
+        return contador
+
+    return incrementar
+
+contador = crear_contador()
+
+print(contador())
+print(contador())
+print(contador())
+```
+
+```
+1
+2
+3
+```
+
+`nonlocal contador` le dice a Python: "este `contador` no es local de `incrementar()`, pero tampoco es global; está en una función exterior".
+
+Sin `nonlocal`, tendrías el mismo problema que antes con `UnboundLocalError`: Python vería una asignación a `contador` dentro de `incrementar()` y asumiría que es una variable local.
+
+`nonlocal` se usa menos que variables normales, y eso está bien. No necesitas meter funciones anidadas en todas partes para sentirte profesional. A veces el código claro es simplemente una función normal con parámetros claros. Revolucionario, lo sé.
+
+## Cuándo evitar global y nonlocal
+
+La regla práctica:
+
+- Usa variables locales siempre que puedas.
+- Pasa datos como parámetros.
+- Devuelve resultados con `return`.
+- Usa `global` muy poco y con una razón clara.
+- Usa `nonlocal` cuando estés creando una función interna que necesita recordar estado.
+
+Este patrón suele ser mejor:
+
+```python
+def aplicar_descuento(precio, descuento):
+    return precio - (precio * descuento)
+
+precio_final = aplicar_descuento(100, 0.15)
+print(precio_final)
+```
+
+Que este:
+
+```python
+descuento = 0.15
+precio_final = 0
+
+def aplicar_descuento(precio):
+    global precio_final
+    precio_final = precio - (precio * descuento)
+
+aplicar_descuento(100)
+print(precio_final)
+```
+
+La segunda versión funciona, pero deja efectos por el camino. La función no solo calcula: también modifica una variable global. Es el típico código que parece inocente hasta que crece, se reproduce y un día alguien pregunta por qué `precio_final` cambia sin que nadie lo haya invitado a la fiesta.
+
+## Errores comunes con scope
+
+### Pensar que una variable local existe fuera
+
+```python
+def crear_usuario():
+    nombre = "Ada"
+
+crear_usuario()
+print(nombre)
+```
+
+```
+NameError: name 'nombre' is not defined
+```
+
+Solución: devuelve el valor.
+
+```python
+def crear_usuario():
+    nombre = "Ada"
+    return nombre
+
+nombre = crear_usuario()
+print(nombre)
+```
+
+### Modificar una global sin global
+
+```python
+total = 0
+
+def agregar(precio):
+    total = total + precio
+    return total
+```
+
+Esto falla porque Python trata `total` como local dentro de `agregar()`.
+
+Mejor solución para este nivel: evita el estado global.
+
+```python
+def agregar(total, precio):
+    return total + precio
+
+total = 0
+total = agregar(total, 10)
+total = agregar(total, 20)
+print(total)
+```
+
+```
+30
+```
+
+### Tapar un built-in sin querer
+
+Puedes crear una variable llamada `list`, `sum` o `str`. Python te deja. Python también te deja complicarte la vida con una sonrisa.
+
+```python
+list = [1, 2, 3]
+
+numbers = list("123")
+```
+
+Eso falla porque `list` ya no apunta al built-in `list`; apunta a tu variable.
+
+Evítalo. Usa nombres como `numeros`, `elementos` o `usuarios`. Tu futuro yo no necesita más misterio en su jornada laboral.
+
+## Conceptos clave de esta lección
+
+- El scope define desde dónde se puede ver un nombre.
+- Las variables creadas dentro de una función son locales a esa función.
+- Las variables definidas fuera de funciones viven en el scope global del módulo.
+- Python busca nombres de dentro hacia fuera: local, enclosing, global y built-in.
+- Un namespace es el mapa que relaciona nombres con objetos.
+- `global` permite modificar variables globales desde una función, pero conviene evitarlo salvo casos claros.
+- `nonlocal` permite modificar variables de una función exterior cuando trabajas con funciones anidadas.
+- Pasar datos por parámetros y devolver resultados suele producir código más claro que modificar estado externo.
+
+---
+
+**💡 Reto**: Corrige este código sin usar `global`. La función debe recibir el valor actual de `total`, sumar `precio` y devolver el nuevo total.
+
+```python
+total = 0
+
+def agregar_producto(precio):
+    total = total + precio
+    return total
+
+total = agregar_producto(15)
+total = agregar_producto(30)
+print(total)
+```
+
+En el próximo tutorial veremos **lambda functions** y funciones de orden superior: cómo pasar funciones como valores, cuándo una `lambda` ayuda y cuándo solo convierte tu código en una nota de rescate escrita con símbolos.
+
+¡Nunca dejes de programar!
