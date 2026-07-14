@@ -1,0 +1,397 @@
+---
+title: "Iteration and refinement: the AI dialogue"
+post_slug: "iteration-refinement-ai-dialogue"
+date: "2026-07-14"
+excerpt: "Learn how to refine AI responses without losing the goal: when to iterate, when to start fresh, and how to keep long conversations under control."
+language: "en"
+categories: ["ai"]
+course: "ai-for-developers"
+order: 11
+cover: "/images/tutorials/cabecera-ia-para-programadores-curso.jpg"
+i18n: "iteracion-refinamiento-dialogo-ia"
+---
+
+You ask AI for a small function. Nothing dramatic. A quiet little function that fits on screen and minds its own business.
+
+Three messages later, the function has logging, validation, caching, metrics, timezone support, a `Manager` class, two custom exceptions, and the unmistakable feeling that someone has lost control of the construction site.
+
+When did that happen? Which exact prompt turned a function into a seed-stage startup? Was it you? Was it the AI? Was it enthusiasm? Yes.
+
+Working with AI is not about writing one perfect prompt and waiting for code to fall from the sky smelling faintly of fresh coffee. It's a **refinement dialogue**. You ask for something, evaluate the answer, correct it, tighten it, cut it down, and ask again. Done well, the result improves step by step. Done badly, you end up with a long, contradictory conversation and code that no longer remembers why it was born.
+
+In the [previous lesson we looked at generating code with AI without asking “make me things” and hoping for the best](/en/tutorials/prompts-for-code-generation-ai). Now comes the part immediately after that: what to do when the first answer is not enough. Which is most of the time. Mild surprise.
+
+## The first answer is rarely the right one
+
+The first AI response is usually a **draft**. Sometimes a good draft. Sometimes a draft wearing clown shoes. But still a starting point, not a stone tablet carried down from a mountain.
+
+This matters because many people treat the first answer like a pass/fail exam: if it's wrong, “AI is useless”; if it's right, they copy it; if it's half-right, they copy it anyway but with a worried expression. None of those is a professional workflow.
+
+A healthier flow looks like this:
+
+```text
+Round 1:
+"Create a basic working version. Prioritize clarity over optimization."
+
+Round 2:
+"Now handle the edge case where the list is empty."
+
+Round 3:
+"This version loops over the list twice. Refactor it to use a single pass."
+
+Round 4:
+"The code works, but the names don't explain intent. Improve names without changing behavior."
+
+Round 5:
+"Add tests for the normal case, empty list, and duplicate values."
+```
+
+Notice the structure: each round changes **one specific thing**. You don't say “improve it.” “Improve it” is a black box. It could mean performance, readability, architecture, security, naming, tests, or the AI deciding to introduce a Strategy pattern because apparently today we are doing Enterprise Java.
+
+Good refinement means directing. Not vaguely nudging.
+
+## The refinement loop
+
+The basic pattern has four steps:
+
+1. **Ask** for a concrete version
+2. **Evaluate** what works and what doesn't
+3. **Correct** one specific dimension
+4. **Verify** that the previous behavior still holds
+
+The part people skip is the third or the fourth. Usually both, because humans are optimistic until production educates them.
+
+Look at this example:
+
+```text
+I want a Python function that receives a list of prices and returns the total
+including tax. The tax rate should be configurable. Prioritize clarity.
+```
+
+AI might return this:
+
+```python
+def calculate_total_with_tax(prices, tax_rate=0.21):
+    total = 0
+    for price in prices:
+        total += price
+    return total + (total * tax_rate)
+```
+
+Not bad. But maybe you want type hints and validation:
+
+```text
+Keep the same logic, but add type hints.
+If any price is negative, raise ValueError.
+Do not change the function name.
+```
+
+That `Do not change the function name` looks silly until you don't include it. Then the AI decides `calculate_total_with_tax` is now called `compute_invoice_amount` because it sounds more professional. And yes, it does sound more professional. It also just broke all your tests.
+
+A refined answer might be:
+
+```python
+def calculate_total_with_tax(prices: list[float], tax_rate: float = 0.21) -> float:
+    for price in prices:
+        if price < 0:
+            raise ValueError("Prices cannot be negative")
+
+    total = sum(prices)
+    return total + (total * tax_rate)
+```
+
+Better. Now verify:
+
+```text
+Check whether the change preserves the previous behavior.
+Compare the original version and the new one for these cases:
+1. [10, 20]
+2. []
+3. [0]
+4. [-5]
+
+Format:
+- Case
+- Original result
+- New result
+- Relevant difference
+```
+
+This step is not ceremonial. It's the equivalent of looking both ways before crossing the street. Most days nothing happens. On the day something does, you're glad you weren't crossing while staring at your phone.
+
+## Change one thing at a time
+
+The golden rule of refinement is simple: **one dimension per round**.
+
+Don't do this:
+
+```text
+Make it faster, cleaner, add tests, handle errors, use better architecture,
+explain the changes, and make it production-ready.
+```
+
+That prompt looks productive. It is actually six conversations stuffed into one and asked politely not to collide. What happens if the result gets worse? Was it the optimization? The architecture? The tests? The moon in Capricorn? Good luck debugging that.
+
+Do this instead:
+
+```text
+First, review readability only.
+Do not change behavior.
+Do not optimize yet.
+Return only the refactored version and a list of naming changes.
+```
+
+Then:
+
+```text
+Now review performance.
+Keep the same behavior and the same public interface.
+Point out any trade-off before changing the code.
+```
+
+Then:
+
+```text
+Now add tests.
+Do not modify the implementation unless you find a real bug.
+```
+
+This is not slower. It's how you avoid rebuilding the whole cabinet because you tightened three screws at once and now the door closes like it has unresolved resentment.
+
+Good refinement leaves a trail. You know what changed, why it changed, and what was not supposed to change.
+
+## When to refine and when to start fresh
+
+Here's a decision that separates beginner AI usage from professional AI usage: not every conversation deserves to be rescued.
+
+Refine when the base is good:
+
+- The general idea fits
+- The code works on the happy path
+- The structure makes sense
+- The problems are localized
+- You can clearly describe what you want changed
+
+For example:
+
+```text
+The general solution works for me.
+Refine only the error handling: right now it silently returns None,
+but I want it to raise ValueError with a clear message.
+Do not change the function signature.
+```
+
+Start fresh when the foundation is crooked:
+
+- The architecture doesn't fit your project
+- The AI assumed false requirements
+- The conversation now mixes contradictory decisions
+- You've corrected the same thing three times and it keeps coming back
+- The code works, but by accident and with a damp basement smell
+
+That's when you cut:
+
+```text
+Let's start over.
+Ignore the previous approach.
+
+New goal:
+[clear description]
+
+Constraints:
+- [constraint 1]
+- [constraint 2]
+- [constraint 3]
+
+Do not reuse code from the previous response unless I explicitly ask for it.
+Before writing code, summarize the proposed design in 5 bullets.
+```
+
+“Ignore the previous approach” is not magic, but it helps. The important part is that you provide a clean new specification. You are not trying to patch a conversation that now looks like a 73-message Slack thread where nobody knows whether we're still discussing the original bug.
+
+If you're unsure, use this rule: if you can explain the change in one sentence, refine. If you need to explain the entire history of how you got there, start fresh.
+
+## Managing long conversations
+
+Long AI conversations have a problem: context gets diluted. It doesn't disappear all at once, but it loses weight. Important decisions compete with old details, discarded changes, temporary examples, and that response from twenty minutes ago where you asked for “just a quick test.” Yes, that quick test now lives in the context like inherited furniture.
+
+To stay in control, use **checkpoints**.
+
+Every few rounds, ask for an operational summary:
+
+```text
+Summarize the current state of the solution.
+
+Format:
+1. Original goal
+2. Decisions made
+3. Current requirements
+4. Constraints that must NOT change
+5. Code or files affected
+6. Pending work
+```
+
+Then review the summary. This matters: **do not accept the summary without reading it**. AI can confidently summarize things you never decided. Very human skill, actually; it also happens in meetings.
+
+If the summary is correct, use it as the new anchor:
+
+```text
+Use this summary as the main context for the next responses.
+If anything contradicts earlier messages, prioritize this summary.
+```
+
+And if you're opening a new conversation, paste your own summary:
+
+```text
+Working context:
+- I'm implementing [feature]
+- We already decided [decision]
+- We don't want [constraint]
+- The expected behavior is [behavior]
+- The current problem is [problem]
+
+Task:
+Help me continue from here.
+```
+
+This reduces noise dramatically. Not because AI has “perfect memory,” but because you're putting the map back in front of it. And trust me: in long conversations, the map is not optional. It's the difference between reaching the destination and optimizing a function nobody uses anymore.
+
+## The refinement template
+
+Save this template. It's simple, but it prevents 80% of the chaos:
+
+```text
+Original goal:
+[what I wanted to achieve]
+
+Current response:
+[paste the relevant part, not the whole novel]
+
+What works:
+- [point 1]
+- [point 2]
+
+What I want changed:
+- [specific change]
+
+Constraints:
+- Do not change [interface / name / behavior / format]
+- Keep [convention / style / dependency]
+- Do not add [thing you don't want]
+
+Response format:
+1. Briefly explain the change
+2. Return the refined version
+3. List what stayed the same
+4. Mention any trade-off
+```
+
+Example:
+
+```text
+Original goal:
+Create a function that groups users by country.
+
+Current response:
+[paste function]
+
+What works:
+- The output shape is correct
+- The normal case works
+
+What I want changed:
+- Handle users without a country using the key "unknown"
+
+Constraints:
+- Do not change the name group_users_by_country
+- Do not change the output format
+- Do not add dependencies
+- Do not turn this into a class
+
+Response format:
+1. Briefly explain the change
+2. Return the refined function
+3. List what stayed the same
+4. Mention any trade-off
+```
+
+The sentence “Do not turn this into a class” belongs in a museum. Not because classes are bad, but because AI has a habit of putting formal clothes on problems that were perfectly fine in a t-shirt.
+
+## Ask for differences, not just new versions
+
+When refining, we often ask for “the improved version.” That's fine, but one piece is often missing: understanding **what changed**.
+
+Ask for a conceptual diff:
+
+```text
+Before giving me the final code, summarize the changes from the previous version:
+- What changed
+- What stayed the same
+- Why the change improves the solution
+- What risk it introduces, if any
+```
+
+This forces you to review with judgment. If the AI says “the signature stayed the same” and you can see the signature changed, you now know not to trust that answer without inspection. Excellent: you found the problem before pasting code.
+
+You can also ask it to show only the relevant changes:
+
+```text
+Return only the modified parts.
+Do not repeat the whole file unless necessary.
+```
+
+This is especially useful when working with large files. If every response repeats 300 lines, your conversation fills with noise and you end up scrolling like you're searching for a hidden clause in a phone contract.
+
+Less text does not always mean less quality. Sometimes it means less surface area for things to break unnoticed.
+
+## Don't let AI move the goalposts
+
+The biggest danger in refinement is not that AI makes a mistake. We already expect that. The real danger is that it slowly changes the goal and you don't notice.
+
+You start with:
+
+```text
+I want to validate an email.
+```
+
+Five rounds later you're discussing users, allowed domains, normalization, DNS verification, rate limiting, and a notification service. All of it may be reasonable. It may also be completely unnecessary.
+
+That's why it's useful to repeat the original goal during the conversation:
+
+```text
+Remember the goal: validate the format of an email on the frontend.
+We are not implementing user registration.
+Do not add domain verification.
+Do not introduce network calls.
+```
+
+This is not being rude. It's directing. AI does not pay the maintenance cost of keeping a system simple. You do. You will maintain that code when the excitement is gone and only the repository remains.
+
+A good warning sign: if a response introduces an abstraction you didn't ask for, pause. Ask:
+
+```text
+Why did you introduce this abstraction?
+What concrete problem does it solve in this case?
+What would the simplest version look like without it?
+```
+
+Sometimes the abstraction will be justified. Often it won't. That's where you need to act like an architect, not a spectator. AI proposes; you decide. If you reverse that order, your code starts looking like a house designed by someone paid per hallway.
+
+## Key concepts from this lesson
+
+- The first AI response is usually a draft, not the final result
+- Good refinement changes one concrete dimension per round
+- “Improve it” is too vague; ask for specific, verifiable changes
+- Refine when the base is good; start fresh when the approach is crooked
+- In long conversations, use checkpoints and summaries you actually review
+- Ask what changed and what stayed the same, not just for a new version
+- Repeat the original goal to prevent the conversation from moving the goalposts
+- AI proposes; you direct and decide
+
+---
+
+**💡 Challenge:** Take an AI response you've used recently and run one controlled refinement round. Change only one thing: readability, performance, error handling, or tests. Before accepting the result, ask what changed, what stayed the same, and what risk it introduces.
+
+Refinement is where AI stops being an answer machine and starts becoming a real working tool. But one critical piece is still missing: understanding and verifying the code it generates. In the next lesson we'll review code line by line, spot red flags, and avoid trusting code that works only because God is good.
+
+Never stop coding!
