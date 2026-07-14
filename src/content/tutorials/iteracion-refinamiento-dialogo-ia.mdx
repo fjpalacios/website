@@ -1,0 +1,397 @@
+---
+title: "Iteración y refinamiento: el diálogo con la IA"
+post_slug: "iteracion-refinamiento-dialogo-ia"
+date: "2026-07-14"
+excerpt: "Aprende a refinar respuestas de IA sin perder el objetivo: cuándo iterar, cuándo empezar de cero y cómo mantener conversaciones largas bajo control."
+language: "es"
+categories: ["ia"]
+course: "ia-para-programadores"
+order: 11
+cover: "/images/tutorials/cabecera-ia-para-programadores-curso.jpg"
+i18n: "iteration-refinement-ai-dialogue"
+---
+
+Le pides a la IA una función pequeña. Una cosa tranquila. Una función de esas que caben en pantalla y no hacen ruido.
+
+Tres mensajes después, la función tiene logging, validación, caché, métricas, soporte para zonas horarias, una clase `Manager`, dos excepciones custom y una sensación muy clara de que alguien ha perdido el control de la obra.
+
+¿Cuándo pasó? ¿En qué prompt exacto dejó de ser una función y empezó a parecer una startup en fase seed? ¿Fuiste tú? ¿Fue la IA? ¿Fue el entusiasmo? Sí.
+
+Trabajar con IA no es escribir un prompt perfecto y esperar que caiga código del cielo con olor a café recién hecho. Es un **diálogo de refinamiento**. Pides algo, evalúas la respuesta, corriges, ajustas, recortas, vuelves a pedir. Si lo haces bien, mejoras el resultado paso a paso. Si lo haces mal, acabas con una conversación larga, contradictoria y un código que ya no recuerda por qué nació.
+
+En el [tutorial anterior vimos cómo generar código con IA sin pedir “hazme cosas” y rezar](/es/tutoriales/prompts-para-generar-codigo-ia). Hoy toca la parte que viene justo después: qué hacer cuando la primera respuesta no es suficiente. Que será casi siempre. Sorpresa moderada.
+
+## La primera respuesta rara vez es la buena
+
+La primera respuesta de la IA suele ser un **borrador**. A veces es un buen borrador. A veces es un borrador con zapatos de payaso. Pero sigue siendo un punto de partida, no una sentencia tallada en piedra.
+
+Esto es importante porque mucha gente trata la primera respuesta como si fuera un examen: si está mal, “la IA no sirve”; si está bien, se copia; si está medio bien, se copia igual pero con cara de preocupación. Ninguna de esas opciones es trabajar bien.
+
+Un flujo más sano es este:
+
+```text
+Ronda 1:
+"Crea una versión básica que funcione. Prioriza claridad sobre optimización."
+
+Ronda 2:
+"Ahora añade el caso de borde donde la lista viene vacía."
+
+Ronda 3:
+"Esta versión recorre la lista dos veces. Refactorízala para hacerlo en una sola pasada."
+
+Ronda 4:
+"El código funciona, pero los nombres no explican la intención. Mejora nombres sin cambiar comportamiento."
+
+Ronda 5:
+"Añade tests para el caso normal, lista vacía y valores duplicados."
+```
+
+Fíjate en la estructura: cada ronda cambia **una cosa concreta**. No dices “mejóralo”. “Mejóralo” es una caja negra. Puede significar rendimiento, legibilidad, arquitectura, seguridad, naming, tests o que la IA decida meter un patrón Strategy porque hoy se levantó con ganas de Enterprise Java.
+
+Refinar bien significa dirigir. No empujar vagamente.
+
+## El loop de refinamiento
+
+El patrón básico tiene cuatro pasos:
+
+1. **Pedir** una versión concreta
+2. **Evaluar** qué está bien y qué no
+3. **Corregir** una dimensión específica
+4. **Verificar** que no se ha roto lo anterior
+
+La parte que la gente se salta es la tercera o la cuarta. Normalmente las dos, porque somos optimistas hasta que producción nos educa.
+
+Mira este ejemplo:
+
+```text
+Quiero una función en Python que reciba una lista de precios y devuelva el total
+con IVA incluido. El IVA debe ser configurable. Prioriza claridad.
+```
+
+La IA podría devolver algo así:
+
+```python
+def calculate_total_with_tax(prices, tax_rate=0.21):
+    total = 0
+    for price in prices:
+        total += price
+    return total + (total * tax_rate)
+```
+
+No está mal. Pero quizá quieres type hints y validación:
+
+```text
+Mantén la misma lógica, pero añade type hints.
+Si algún precio es negativo, lanza ValueError.
+No cambies el nombre de la función.
+```
+
+Ese `No cambies el nombre de la función` parece una tontería hasta que no lo pones. Entonces la IA decide que `calculate_total_with_tax` ahora se llama `compute_invoice_amount` porque suena más profesional. Y sí, suena más profesional. También acaba de romper todos tus tests.
+
+Una respuesta refinada podría ser:
+
+```python
+def calculate_total_with_tax(prices: list[float], tax_rate: float = 0.21) -> float:
+    for price in prices:
+        if price < 0:
+            raise ValueError("Prices cannot be negative")
+
+    total = sum(prices)
+    return total + (total * tax_rate)
+```
+
+Mejor. Ahora verificas:
+
+```text
+Comprueba si el cambio mantiene el comportamiento anterior.
+Compara la versión original y la nueva en estos casos:
+1. [10, 20]
+2. []
+3. [0]
+4. [-5]
+
+Formato:
+- Caso
+- Resultado original
+- Resultado nuevo
+- Diferencia relevante
+```
+
+Este paso no es ceremonial. Es el equivalente a mirar a ambos lados antes de cruzar. La mayoría de días no pasa nada. El día que pasa, agradeces no haber cruzado mirando el móvil.
+
+## Cambia una cosa cada vez
+
+La regla de oro del refinamiento es sencilla: **una dimensión por ronda**.
+
+No hagas esto:
+
+```text
+Hazlo más rápido, más limpio, añade tests, maneja errores, usa mejor arquitectura,
+explica los cambios y deja todo listo para producción.
+```
+
+Ese prompt parece productivo. En realidad es meter seis conversaciones en una y esperar que ninguna se pise. ¿Qué pasa si el resultado empeora? ¿Fue por la optimización? ¿Por la arquitectura? ¿Por los tests? ¿Por la luna en Capricornio? Buena suerte depurando eso.
+
+Hazlo así:
+
+```text
+Primero, revisa solo la legibilidad.
+No cambies comportamiento.
+No optimices todavía.
+Devuelve únicamente la versión refactorizada y una lista de cambios de naming.
+```
+
+Después:
+
+```text
+Ahora revisa rendimiento.
+Mantén el mismo comportamiento y la misma interfaz pública.
+Señala cualquier trade-off antes de cambiar el código.
+```
+
+Y después:
+
+```text
+Ahora añade tests.
+No modifiques la implementación salvo que encuentres un bug real.
+```
+
+Esto no es ir más lento. Es evitar reconstruir el mueble entero porque apretaste tres tornillos a la vez y ahora la puerta cierra como si tuviera resentimiento.
+
+El refinamiento bueno deja rastro. Sabes qué cambió, por qué cambió y qué no debía cambiar.
+
+## Cuándo refinar y cuándo empezar de cero
+
+Aquí viene una decisión que separa el uso principiante de la IA del uso profesional: no toda conversación merece ser salvada.
+
+Refina cuando la base es buena:
+
+- La idea general encaja
+- El código funciona en el camino feliz
+- La estructura tiene sentido
+- Los problemas son localizados
+- Puedes describir claramente qué quieres cambiar
+
+Por ejemplo:
+
+```text
+La solución general me vale.
+Refina solo el manejo de errores: ahora mismo devuelve None en silencio,
+pero quiero que lance ValueError con un mensaje claro.
+No cambies la firma de la función.
+```
+
+Empieza de cero cuando la base está torcida:
+
+- La arquitectura no encaja con tu proyecto
+- La IA asumió requisitos falsos
+- La conversación ya mezcla varias decisiones contradictorias
+- Has corregido tres veces lo mismo y sigue reapareciendo
+- El código funciona, pero por accidente y con olor a sótano húmedo
+
+Ahí toca cortar:
+
+```text
+Vamos a empezar de cero.
+Ignora el enfoque anterior.
+
+Nuevo objetivo:
+[descripción clara]
+
+Restricciones:
+- [restricción 1]
+- [restricción 2]
+- [restricción 3]
+
+No reutilices código de la respuesta anterior salvo que lo pida explícitamente.
+Antes de escribir código, resume el diseño propuesto en 5 bullets.
+```
+
+Ese “ignora el enfoque anterior” no es magia, pero ayuda. La parte importante es que le das una especificación nueva y limpia. No intentas arreglar una conversación que ya parece un hilo de Slack de 73 mensajes donde nadie sabe si seguimos hablando del bug original.
+
+Si te cuesta decidir, usa esta regla: si puedes explicar el cambio en una frase, refina. Si necesitas explicar toda la historia de por qué llegaste ahí, empieza de cero.
+
+## Cómo gestionar conversaciones largas
+
+Las conversaciones largas con IA tienen un problema: el contexto se va diluyendo. No desaparece de golpe, pero pierde fuerza. Lo importante compite con detalles antiguos, cambios descartados, ejemplos temporales y esa respuesta de hace veinte minutos donde pediste “solo una prueba rápida”. Sí, esa prueba rápida ahora vive en el contexto como un mueble heredado.
+
+Para mantener el control, usa **checkpoints**.
+
+Cada cierto número de rondas, pide un resumen operativo:
+
+```text
+Resume el estado actual de la solución.
+
+Formato:
+1. Objetivo original
+2. Decisiones tomadas
+3. Requisitos actuales
+4. Restricciones que NO deben cambiar
+5. Código o archivos afectados
+6. Pendientes
+```
+
+Luego revisa el resumen. Esto es importante: **no aceptes el resumen sin leerlo**. La IA puede resumir con seguridad cosas que nunca decidiste. Es una habilidad muy humana, por cierto; también ocurre en reuniones.
+
+Si el resumen es correcto, úsalo como nuevo punto de partida:
+
+```text
+Usa este resumen como contexto principal para las siguientes respuestas.
+Si algo contradice mensajes anteriores, prioriza este resumen.
+```
+
+Y si vas a abrir una conversación nueva, pega tu propio resumen:
+
+```text
+Contexto de trabajo:
+- Estoy implementando [feature]
+- Ya decidimos [decisión]
+- No queremos [restricción]
+- El comportamiento esperado es [comportamiento]
+- El problema actual es [problema]
+
+Tarea:
+Ayúdame a continuar desde aquí.
+```
+
+Esto reduce muchísimo el ruido. No porque la IA tenga “memoria perfecta”, sino porque le estás poniendo el mapa delante otra vez. Y créeme: en conversaciones largas, el mapa no es opcional. Es la diferencia entre llegar al destino y terminar optimizando una función que ya no se usa.
+
+## La plantilla de refinamiento
+
+Guarda esta plantilla. Es simple, pero evita el 80% del caos:
+
+```text
+Objetivo original:
+[qué quería conseguir]
+
+Respuesta actual:
+[pega la parte relevante, no toda la novela]
+
+Qué está bien:
+- [punto 1]
+- [punto 2]
+
+Qué quiero cambiar:
+- [cambio concreto]
+
+Restricciones:
+- No cambies [interfaz / nombre / comportamiento / formato]
+- Mantén [convención / estilo / dependencia]
+- No añadas [cosa que no quieres]
+
+Formato de respuesta:
+1. Explica brevemente el cambio
+2. Devuelve la versión refinada
+3. Lista qué se mantuvo igual
+4. Señala cualquier trade-off
+```
+
+Ejemplo:
+
+```text
+Objetivo original:
+Crear una función que agrupe usuarios por país.
+
+Respuesta actual:
+[pegar función]
+
+Qué está bien:
+- La salida tiene la forma correcta
+- El caso normal funciona
+
+Qué quiero cambiar:
+- Manejar usuarios sin país usando la clave "unknown"
+
+Restricciones:
+- No cambies el nombre group_users_by_country
+- No cambies el formato de salida
+- No añadas dependencias
+- No conviertas esto en una clase
+
+Formato de respuesta:
+1. Explica brevemente el cambio
+2. Devuelve la función refinada
+3. Lista qué se mantuvo igual
+4. Señala cualquier trade-off
+```
+
+La frase “No conviertas esto en una clase” merece estar en un museo. No porque las clases sean malas, sino porque la IA tiene tendencia a vestir de gala problemas que iban perfectamente en camiseta.
+
+## Pide diferencias, no solo versiones nuevas
+
+Cuando refinamos, solemos pedir “dame la versión mejorada”. Eso está bien, pero a veces falta una pieza: entender **qué cambió**.
+
+Pide un diff conceptual:
+
+```text
+Antes de darme el código final, resume los cambios respecto a la versión anterior:
+- Qué cambió
+- Qué se mantiene igual
+- Por qué el cambio mejora la solución
+- Qué riesgo introduce, si alguno
+```
+
+Esto te obliga a revisar con criterio. Si la IA dice “se mantiene igual la firma” y ves que cambió la firma, ya sabes que no puedes confiar en esa respuesta sin mirar. Buenísimo: has encontrado el problema antes de pegar código.
+
+También puedes pedir que marque solo las líneas relevantes:
+
+```text
+Devuelve únicamente las partes modificadas.
+No repitas el archivo entero salvo que sea necesario.
+```
+
+Esto es especialmente útil cuando trabajas con archivos grandes. Si cada respuesta repite 300 líneas, tu conversación se llena de ruido y tú acabas haciendo scroll como si buscaras una cláusula escondida en un contrato de telefonía.
+
+Menos texto no siempre significa menos calidad. A veces significa menos superficie para que algo se rompa sin que lo veas.
+
+## No dejes que la IA mueva la portería
+
+El mayor peligro del refinamiento no es que la IA se equivoque. Eso ya lo esperamos. El peligro real es que cambie el objetivo poco a poco y tú no te des cuenta.
+
+Empiezas con:
+
+```text
+Quiero validar un email.
+```
+
+Cinco rondas después estás hablando de usuarios, dominios permitidos, normalización, verificación DNS, rate limiting y un servicio de notificaciones. Todo puede ser razonable. También puede ser completamente innecesario.
+
+Por eso conviene repetir el objetivo original durante la conversación:
+
+```text
+Recuerda el objetivo: validar el formato de un email en el frontend.
+No estamos implementando registro de usuarios.
+No añadas verificación de dominio.
+No introduzcas llamadas de red.
+```
+
+Esto no es ser borde. Es dirigir. La IA no tiene el coste emocional de mantener un sistema simple. Tú sí. Tú vas a mantener ese código cuando el entusiasmo se vaya y solo quede el repositorio.
+
+Una buena señal de alarma: si una respuesta introduce una abstracción que no pediste, pausa. Pregunta:
+
+```text
+¿Por qué has introducido esta abstracción?
+¿Qué problema concreto resuelve en este caso?
+¿Cuál sería la versión más simple sin ella?
+```
+
+A veces la abstracción estará justificada. Muchas veces no. Y ahí tienes que hacer de arquitecto, no de espectador. La IA propone; tú decides. Si inviertes ese orden, el código empieza a tener pinta de casa diseñada por alguien que cobra por número de pasillos.
+
+## Conceptos clave de esta lección
+
+- La primera respuesta de la IA suele ser un borrador, no el resultado final
+- Refinar bien significa cambiar una dimensión concreta por ronda
+- “Mejóralo” es demasiado vago; pide cambios específicos y verificables
+- Refina cuando la base es buena; empieza de cero cuando el enfoque está torcido
+- En conversaciones largas, usa checkpoints y resúmenes revisados por ti
+- Pide qué cambió y qué se mantuvo igual, no solo una versión nueva
+- Repite el objetivo original para evitar que la conversación mueva la portería
+- La IA propone; tú diriges y decides
+
+---
+
+**💡 Reto:** Coge una respuesta de IA que hayas usado recientemente y haz una ronda de refinamiento controlada. Cambia una sola cosa: legibilidad, rendimiento, error handling o tests. Antes de aceptar el resultado, pide qué cambió, qué se mantuvo igual y qué riesgo introduce.
+
+El refinamiento es donde la IA deja de ser una máquina de respuestas y se convierte en una herramienta de trabajo real. Pero todavía falta una pieza crítica: entender y verificar el código que genera. En el próximo tutorial veremos cómo revisar línea por línea, detectar red flags y no acabar confiando en código que funciona solo porque Dios es bueno.
+
+¡Nunca dejes de programar!
