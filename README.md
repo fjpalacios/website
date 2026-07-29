@@ -109,5 +109,9 @@ src/
 
 ## License
 
-**Code:** MIT License  
-**Content:** © 2026 Francisco Javier Palacios Pérez - All Rights Reserved
+This project is dual-licensed:
+
+- **Code** (Astro components, scripts, workflows, and all source files in `src/`, `scripts/`, and `.github/`, **excluding `src/content/`**) is licensed under the [MIT License](LICENSE).
+- **Written content** (tutorials, book reviews, blog posts, and other authored text in `src/content/`) is licensed under the [Creative Commons Attribution 4.0 International License](https://creativecommons.org/licenses/by/4.0/) (CC BY 4.0).
+
+You may use the code under MIT terms. You may reuse, adapt, and redistribute the written content under CC BY 4.0 with appropriate attribution to the original author.
