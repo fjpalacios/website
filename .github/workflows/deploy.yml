@@ -11,6 +11,12 @@ on:
       - "docs/**"
   workflow_dispatch:
 
+# Restrict the default GITHUB_TOKEN. Cloudflare auth uses a separate
+# secret (CLOUDFLARE_API_TOKEN), not GITHUB_TOKEN, so `contents: read`
+# is enough to check out the repo. See CodeQL alert #2 on this file.
+permissions:
+  contents: read
+
 jobs:
   deploy:
     name: Deploy to Cloudflare Pages

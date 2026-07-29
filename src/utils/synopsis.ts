@@ -22,6 +22,19 @@ export function processSynopsis(synopsis: string): string {
   // Replace literal \\n from YAML with actual newlines
   const withNewlines = synopsis.replace(/\\n/g, "\n");
 
+  // Pre-escape HTML entities so raw HTML in the synopsis (e.g. <script>,
+  // <img onerror>) is rendered as text, not as live elements. The
+  // consumer (BooksDetailPage.astro) inserts the result with set:html,
+  // so without this step an attacker-controlled synopsis could execute
+  // arbitrary script. Markdown formatting (_em_, **bold**, etc.) is
+  // unaffected because it doesn't use angle brackets.
+  // See CodeQL alert #9 on this file.
+  const escaped = withNewlines
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;");
+
   // Configure marked for inline parsing
   marked.setOptions({
     breaks: true, // Convert single \n to <br>
@@ -29,7 +42,7 @@ export function processSynopsis(synopsis: string): string {
   });
 
   // Parse markdown to HTML
-  const html = marked.parse(withNewlines, { async: false }) as string;
+  const html = marked.parse(escaped, { async: false }) as string;
 
   // Return trimmed HTML (keep multiple <p> tags for multi-paragraph synopsis)
   return html.trim();

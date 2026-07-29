@@ -6,6 +6,13 @@ on:
   pull_request:
     branches: [main, master, develop]
 
+# Restrict the default GITHUB_TOKEN. No job in this workflow needs
+# write access, so `contents: read` is sufficient. Jobs that need more
+# must override this at the job level. See CodeQL alerts #1-#8 on
+# .github/workflows/ci.yml.
+permissions:
+  contents: read
+
 jobs:
   lint:
     name: Lint & Format Check
