@@ -56,6 +56,39 @@ describe("processSynopsis", () => {
     // Marked wraps plain text in <p> tags
     expect(output).toBe("<p>Plain text without any formatting</p>");
   });
+
+  // Regression tests for CodeQL alert #9 (incomplete multi-character
+  // sanitization / XSS via raw HTML in synopsis). The previous
+  // implementation passed raw HTML through marked and into set:html,
+  // which would execute <script> payloads. The fix pre-escapes HTML
+  // entities so marked renders them as text.
+  it("escapes <script> tags in synopsis (XSS regression)", () => {
+    const input = "Hello <script>alert(1)</script>";
+    const output = processSynopsis(input);
+    expect(output).not.toContain("<script");
+    expect(output).not.toContain("</script");
+    expect(output).toContain("&lt;script&gt;");
+  });
+
+  it("escapes <img> tags with event handlers in synopsis (XSS regression)", () => {
+    const input = "Click <img src=x onerror=alert(1)> here";
+    const output = processSynopsis(input);
+    // The tag itself must be escaped so the browser does not parse it
+    // as a live element. The `onerror=` substring will still appear in
+    // the rendered text (inside the escaped tag), but that is harmless
+    // because it is not an attribute on a live <img> element.
+    expect(output).not.toContain("<img");
+    expect(output).toContain("&lt;img");
+  });
+
+  it("preserves markdown formatting when XSS payload is present", () => {
+    // Sanity check: the XSS fix must not break legitimate markdown.
+    const input = "A _b_ and **c** with <script>danger</script>";
+    const output = processSynopsis(input);
+    expect(output).toContain("<em>b</em>");
+    expect(output).toContain("<strong>c</strong>");
+    expect(output).toContain("&lt;script&gt;");
+  });
 });
 
 describe("sanitizeSynopsis", () => {
