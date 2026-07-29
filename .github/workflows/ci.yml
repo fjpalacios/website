@@ -303,7 +303,11 @@ jobs:
             exit 1
           }
           mkdir -p /tmp/base-audit
-          cp package.json /tmp/base-audit/
+          # Use the base ref's package.json AND bun.lock together.
+          # Mixing the PR head's package.json with the base's bun.lock
+          # produces a "lockfile had changes, but lockfile is frozen"
+          # error because the resolved versions drift.
+          git show "$BASE_REF:package.json" > /tmp/base-audit/package.json
           git show "$BASE_REF:bun.lock" > /tmp/base-audit/bun.lock
           cd /tmp/base-audit
           bun install --frozen-lockfile
