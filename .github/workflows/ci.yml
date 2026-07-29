@@ -273,7 +273,20 @@ jobs:
         id: head-audit
         run: |
           bun install --frozen-lockfile
+          # `bun audit --json` exits 1 whenever vulnerabilities are
+          # found, regardless of --audit-level. The exit code is
+          # therefore useless as a step-level signal: the diff
+          # script is the source of truth for pass/fail. We capture
+          # the exit code for logging and ignore it here.
+          set +e
           bun audit --json --audit-level=low > /tmp/head-audit.json
+          AUDIT_EXIT=$?
+          set -e
+          if [ ! -s /tmp/head-audit.json ]; then
+            echo "::error::head-audit.json is empty or missing"
+            exit 1
+          fi
+          echo "bun audit exit code: $AUDIT_EXIT (ignored; see diff step for decision)"
         env:
           # Suppress bun's own log lines so the JSON file is clean.
           BUN_AUDIT_QUIET: 1
@@ -294,7 +307,18 @@ jobs:
           git show "$BASE_REF:bun.lock" > /tmp/base-audit/bun.lock
           cd /tmp/base-audit
           bun install --frozen-lockfile
+          # Same exit-code handling as the head step: bun audit's
+          # exit code reflects "vulnerabilities found", not "audit
+          # ran successfully". The JSON is what we care about.
+          set +e
           bun audit --json --audit-level=low > /tmp/base-audit.json
+          AUDIT_EXIT=$?
+          set -e
+          if [ ! -s /tmp/base-audit.json ]; then
+            echo "::error::base-audit.json is empty or missing"
+            exit 1
+          fi
+          echo "bun audit exit code: $AUDIT_EXIT (ignored; see diff step for decision)"
         env:
           BUN_AUDIT_QUIET: 1
 
