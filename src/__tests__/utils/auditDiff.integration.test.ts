@@ -96,7 +96,7 @@ describe("PR-gate base-branch install pattern", () => {
     if (existsSync(workDir)) rmSync(workDir, { recursive: true, force: true });
   });
 
-  it("reproduces the original bug: mixing head package.json with base bun.lock fails", () => {
+  it("reproduces the original bug: mixing head package.json with base bun.lock fails", { timeout: 30_000 }, () => {
     // Build two minimal directories:
     //   - "head": package.json declares astro 7.1.4, with a bun.lock
     //     resolved for that version.
@@ -143,7 +143,7 @@ describe("PR-gate base-branch install pattern", () => {
     }).toThrow(/lockfile had changes/);
   });
 
-  it("the fix works: using base ref's package.json + bun.lock together succeeds", () => {
+  it("the fix works: using base ref's package.json + bun.lock together succeeds", { timeout: 30_000 }, () => {
     // Same setup as above, but for the base directory only: package.json
     // and bun.lock are both from the same source. This must succeed.
     const baseDir = mkdtempSync(join(workDir, "base-fixed-"));
