@@ -205,12 +205,20 @@ jobs:
           temporaryPublicStorage: true
           runs: 3
 
+  # Post-merge regression check. Runs on pushes to master. The PR-gate
+  # counterpart is `audit-pr-gate` below: that one compares the PR's
+  # audit output against the base branch, so a PR is not blocked by
+  # vulnerabilities already living in master. This job enforces the
+  # hard policy: master itself must not introduce new high or critical
+  # vulnerabilities. See docs/security/audit-policy.md.
   audit:
-    name: Dependency Audit
+    name: Dependency Audit (post-merge)
     runs-on: ubuntu-latest
-    # Strict: fail CI on high or critical vulnerabilities. Moderate and low
-    # are reported in the log but do not block merge. Dependabot security
-    # updates remain the canonical path to fix them.
+    if: github.event_name == 'push'
+    # Strict: fail on any high or critical vulnerability present on
+    # master. Moderate and low are reported in the log but do not
+    # block. Dependabot security updates remain the canonical path
+    # to fix them.
     steps:
       - name: Checkout code
         uses: actions/checkout@v7
@@ -233,3 +241,62 @@ jobs:
 
       - name: Run bun audit
         run: bun audit --audit-level=high
+
+  # PR-gate: fail only if the PR introduces new high or critical
+  # advisories. Pre-existing advisories on the base branch are not
+  # the PR's responsibility and are reported in the log for context.
+  # See docs/security/audit-policy.md for the full rationale.
+  audit-pr-gate:
+    name: Dependency Audit (PR-gate)
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request'
+    steps:
+      - name: Checkout PR head
+        uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: 1.3.6
+
+      - name: Cache Bun dependencies
+        uses: actions/cache@v6
+        with:
+          path: ~/.bun/install/cache
+          key: ${{ runner.os }}-bun-${{ hashFiles('**/bun.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-bun-
+
+      - name: Run bun audit on PR head
+        id: head-audit
+        run: |
+          bun install --frozen-lockfile
+          bun audit --json --audit-level=low > /tmp/head-audit.json
+        env:
+          # Suppress bun's own log lines so the JSON file is clean.
+          BUN_AUDIT_QUIET: 1
+
+      - name: Run bun audit on base branch
+        id: base-audit
+        run: |
+          # Materialise base's bun.lock into a temp directory without
+          # touching the working copy. We use `git show` to extract
+          # the file from the base ref and install it isolated.
+          BASE_REF="origin/${{ github.base_ref }}"
+          git rev-parse --verify "$BASE_REF" >/dev/null || {
+            echo "::error::Base ref $BASE_REF not found"
+            exit 1
+          }
+          mkdir -p /tmp/base-audit
+          cp package.json /tmp/base-audit/
+          git show "$BASE_REF:bun.lock" > /tmp/base-audit/bun.lock
+          cd /tmp/base-audit
+          bun install --frozen-lockfile
+          bun audit --json --audit-level=low > /tmp/base-audit.json
+        env:
+          BUN_AUDIT_QUIET: 1
+
+      - name: Compute diff and decide
+        run: bun run scripts/audit-pr-gate.ts /tmp/base-audit.json /tmp/head-audit.json
