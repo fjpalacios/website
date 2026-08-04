@@ -3,7 +3,7 @@ import { describe, expect, it } from "vitest";
 import { serializeJsonForHtml } from "@/utils/serializeJsonForHtml";
 
 describe("serializeJsonForHtml", () => {
-  it("escapes characters that can break out of a script element", () => {
+  it("escapes characters that can break out of a script element", (): void => {
     const serialized = serializeJsonForHtml({
       title: "</script><script>alert('xss')</script>",
       ampersand: "&",
@@ -19,7 +19,7 @@ describe("serializeJsonForHtml", () => {
     expect(serialized).toContain("\\u2029");
   });
 
-  it("preserves the original data when parsed as JSON", () => {
+  it("preserves the original data when parsed as JSON", (): void => {
     const value = { title: "<safe> & text", nested: { enabled: true } };
 
     expect(JSON.parse(serializeJsonForHtml(value))).toEqual(value);

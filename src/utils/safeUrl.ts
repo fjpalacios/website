@@ -1,11 +1,19 @@
 import { z } from "zod";
 
 const SAFE_HTTP_PROTOCOLS = new Set(["http:", "https:"]);
+const URL_SCHEME = /^[A-Za-z][A-Za-z\d+.-]*:/;
 const FIRST_PRINTABLE_CHARACTER_CODE = 0x20;
 const DELETE_CHARACTER_CODE = 0x7f;
+const HTML_ESCAPE_ENTITIES: Record<string, string> = {
+  "&": "&amp;",
+  "<": "&lt;",
+  ">": "&gt;",
+  '"': "&quot;",
+  "'": "&#39;",
+};
 
 function containsControlCharacter(value: string): boolean {
-  return [...value].some((character) => {
+  return [...value].some((character: string): boolean => {
     const code = character.charCodeAt(0);
     return code < FIRST_PRINTABLE_CHARACTER_CODE || code === DELETE_CHARACTER_CODE;
   });
@@ -18,14 +26,14 @@ function containsControlCharacter(value: string): boolean {
  * internal navigation, but protocol-relative URLs are rejected because they
  * can point to an external origin.
  */
-export function isSafeUrl(value: string, allowRelative = true): boolean {
+export function isSafeUrl(value: string, allowRelative: boolean = true): boolean {
   const normalized = value.trim();
 
   if (!normalized || containsControlCharacter(normalized) || /^[\\/]{2}/.test(normalized)) {
     return false;
   }
 
-  if (allowRelative && !normalized.includes(":")) {
+  if (allowRelative && !URL_SCHEME.test(normalized)) {
     return true;
   }
 
@@ -58,15 +66,5 @@ export const safeHttpUrlSchema = z.string().url().refine(isSafeHttpUrl, {
  * Escape text before embedding it in a deliberately controlled HTML fragment.
  */
 export function escapeHtml(value: string): string {
-  return value.replace(
-    /[&<>"']/g,
-    (character) =>
-      ({
-        "&": "&amp;",
-        "<": "&lt;",
-        ">": "&gt;",
-        '"': "&quot;",
-        "'": "&#39;",
-      })[character] ?? character,
-  );
+  return value.replace(/[&<>"']/g, (character: string): string => HTML_ESCAPE_ENTITIES[character] ?? character);
 }

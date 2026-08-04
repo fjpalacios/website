@@ -92,7 +92,7 @@ describe("processSynopsis", () => {
 
   it.each(["javascript:alert(1)", "data:text/html,<script>alert(1)</script>"])(
     "does not render executable Markdown URL %s as a link",
-    (url) => {
+    (url: string): void => {
       const output = processSynopsis(`[unsafe](${url})`);
 
       expect(output).not.toContain("<a href=");

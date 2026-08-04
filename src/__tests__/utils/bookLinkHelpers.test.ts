@@ -165,7 +165,7 @@ describe("bookLinkHelpers", () => {
       expect(result).toBe("<em>SingleTitleBook</em>");
     });
 
-    test("should escape content-derived title and author text", () => {
+    test("should escape content-derived title and author text", (): void => {
       const hostileBook = {
         ...mockBooks[0],
         data: {

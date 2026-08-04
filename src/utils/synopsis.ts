@@ -3,7 +3,7 @@
  * Handles markdown formatting in book synopsis fields
  */
 
-import { marked } from "marked";
+import { marked, type Tokens } from "marked";
 
 import { escapeHtml, isSafeUrl } from "@/utils/safeUrl";
 
@@ -40,7 +40,7 @@ export function processSynopsis(synopsis: string): string {
   // Configure marked for inline parsing. Unsafe links are rendered as text
   // instead of anchors so content cannot execute a URL scheme in the browser.
   const renderer = new marked.Renderer();
-  renderer.link = ({ href, title, tokens }) => {
+  renderer.link = ({ href, title, tokens }: Tokens.Link): string => {
     const text = renderer.parser.parseInline(tokens);
 
     if (!isSafeUrl(href)) {

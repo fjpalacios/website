@@ -5,8 +5,6 @@
  * Used by unified routing system
  */
 
-/* eslint-disable import/order */
-
 import AuthorInfo from "@components/AuthorInfo.astro";
 import Breadcrumbs from "@components/Breadcrumbs.astro";
 import Icon from "@components/Icon.astro";
@@ -17,7 +15,7 @@ import Rating from "@components/Rating.astro";
 import SectionTitle from "@components/SectionTitle.astro";
 import Share from "@components/Share.astro";
 import Layout from "@layouts/Layout.astro";
-import { t } from "../../locales";
+import { t } from "@locales";
 import type { ContactItem } from "@types/content";
 import { generateBreadcrumbSchema, type BreadcrumbItem } from "@utils/breadcrumb";
 import { getBookCoverImage } from "@utils/imageImports";
@@ -27,6 +25,19 @@ import { CommonSchemas, validateProps } from "@utils/validation";
 import { getImage } from "astro:assets";
 import { render, type CollectionEntry } from "astro:content";
 import { z } from "zod";
+
+import {
+  findAuthorBySlug,
+  findPublisherBySlug,
+  findGenresBySlug,
+  findCategoriesBySlug,
+  findSeriesBySlug,
+} from "@/utils/blog";
+import { getAllFromCollection, getCollectionByLanguage } from "@/utils/content/getCollectionByLanguage";
+import { isBookCollectionEntry } from "@/utils/content/guards";
+import { buildBooksIndexUrl, buildSeriesUrl } from "@/utils/routes";
+import { safeHttpUrlSchema } from "@/utils/safeUrl";
+import { processSynopsis } from "@/utils/synopsis";
 
 interface Props {
   bookEntry: CollectionEntry<"books">;
@@ -55,21 +66,6 @@ const validatedProps = validateProps(PropsSchema, Astro.props, "BooksDetailPage"
 const { bookEntry, lang, contact, hasTargetContent } = validatedProps;
 const book = bookEntry.data;
 const { Content } = await render(bookEntry);
-
-// Get related data from props (already loaded in getStaticPaths)
-// We need to reload them here because Astro components can't access arbitrary props
-import {
-  findAuthorBySlug,
-  findPublisherBySlug,
-  findGenresBySlug,
-  findCategoriesBySlug,
-  findSeriesBySlug,
-} from "@/utils/blog";
-import { isBookCollectionEntry } from "@/utils/content/guards";
-import { buildBooksIndexUrl, buildSeriesUrl } from "@/utils/routes";
-import { getAllFromCollection, getCollectionByLanguage } from "@/utils/content/getCollectionByLanguage";
-import { safeHttpUrlSchema } from "@/utils/safeUrl";
-import { processSynopsis } from "@/utils/synopsis";
 
 const allAuthors = await getAllFromCollection("authors");
 const allPublishers = await getCollectionByLanguage("publishers", lang);

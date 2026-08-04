@@ -20,7 +20,7 @@ const validBookEntry = {
 };
 
 describe("isBookCollectionEntry", () => {
-  it("accepts a valid books collection entry", () => {
+  it("accepts a valid books collection entry", (): void => {
     expect(isBookCollectionEntry(validBookEntry)).toBe(true);
   });
 
@@ -30,7 +30,7 @@ describe("isBookCollectionEntry", () => {
     { ...validBookEntry, collection: "posts" },
     { ...validBookEntry, data: { ...validBookEntry.data, score: 0 } },
     { id: "book", collection: "books" },
-  ])("rejects invalid entry %o", (value) => {
+  ])("rejects invalid entry %o", (value: unknown): void => {
     expect(isBookCollectionEntry(value)).toBe(false);
   });
 });
