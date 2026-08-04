@@ -15,7 +15,7 @@ it("renders hostile JSON-LD values without breaking out of the script", async ()
     props: { schema: hostileSchema },
   });
 
-  const scriptContent = html.match(/<script[^>]*>([\s\S]*?)<\/script>/)?.[1];
+  const scriptContent = html.match(/<script\b[^>]*>([\s\S]*?)<\/script\s*>/i)?.[1];
   expect(scriptContent).toBeDefined();
 
   if (scriptContent === undefined) {
