@@ -4,6 +4,7 @@ import Title from "@components/Title.astro";
 import { getDefaultLanguageCode, type LanguageKey } from "@/config/languages";
 import shareEn from "@/content/static/share/en";
 import shareEs from "@/content/static/share/es";
+import { buildShareMessage } from "@/utils/share";
 
 import { t } from "../locales";
 
@@ -24,10 +25,7 @@ const shareContentMap: Record<LanguageKey, string> = {
 const shareContent = shareContentMap[lang] ?? shareContentMap[getDefaultLanguageCode()];
 
 // Replace placeholders
-const message = shareContent
-  .replace(/%TITLE%/g, title)
-  .replace(/%URL%/g, url)
-  .replace(/%TWITTER%/g, twitterUsername.replace("@", ""));
+const message = buildShareMessage(shareContent, title, url, twitterUsername);
 ---
 
 <section class="share">

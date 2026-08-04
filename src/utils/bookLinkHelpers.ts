@@ -7,6 +7,7 @@ import { buildBookUrl } from "@utils/routes";
 import type { CollectionEntry } from "astro:content";
 
 import type { LanguageKey } from "@/types";
+import { escapeHtml } from "@/utils/safeUrl";
 
 /**
  * Detect language from URL pathname
@@ -182,17 +183,17 @@ export const generateDisplayTitle = (title: string, full: boolean, book?: Collec
   if (book) {
     const bookData = parseTitle(book.data.title);
     if (full && bookData.author) {
-      return `<em>${bookData.bookTitle}</em>, ${bookData.author}`;
+      return `<em>${escapeHtml(bookData.bookTitle)}</em>, ${escapeHtml(bookData.author)}`;
     }
-    return `<em>${bookData.bookTitle}</em>`;
+    return `<em>${escapeHtml(bookData.bookTitle)}</em>`;
   }
 
   // Fallback if book not found
   const parsedTitle = parseTitle(title);
   if (full && parsedTitle.author) {
-    return `<em>${parsedTitle.bookTitle}</em>, ${parsedTitle.author}`;
+    return `<em>${escapeHtml(parsedTitle.bookTitle)}</em>, ${escapeHtml(parsedTitle.author)}`;
   }
-  return `<em>${parsedTitle.bookTitle}</em>`;
+  return `<em>${escapeHtml(parsedTitle.bookTitle)}</em>`;
 };
 
 /**

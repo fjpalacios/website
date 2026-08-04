@@ -164,6 +164,22 @@ describe("bookLinkHelpers", () => {
       const result = generateDisplayTitle("SingleTitleBook", true, book);
       expect(result).toBe("<em>SingleTitleBook</em>");
     });
+
+    test("should escape content-derived title and author text", () => {
+      const hostileBook = {
+        ...mockBooks[0],
+        data: {
+          ...mockBooks[0].data,
+          title: '<img src=x onerror="alert(1)">, <script>alert(1)</script>',
+        },
+      };
+
+      const result = generateDisplayTitle("ignored", true, hostileBook);
+
+      expect(result).toBe(
+        "<em>&lt;img src=x onerror=&quot;alert(1)&quot;&gt;</em>, &lt;script&gt;alert(1)&lt;/script&gt;",
+      );
+    });
   });
 
   describe("generateBookUrl", () => {
