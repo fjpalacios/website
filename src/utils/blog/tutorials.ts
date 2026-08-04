@@ -63,16 +63,11 @@ export interface TutorialSummary {
   excerpt: string;
   language: LanguageKey;
   date: Date;
-  category: string;
-  difficulty?: "beginner" | "intermediate" | "advanced";
-  estimatedTime?: number;
+  categories: string[];
   course?: string;
   courseName?: string;
   order?: number;
-  githubRepo?: string;
-  demoUrl?: string;
   cover?: string;
-  featuredImage?: string;
   updateDate?: Date;
 }
 
@@ -100,16 +95,11 @@ export function prepareTutorialSummary(
     excerpt: tutorial.data.excerpt,
     language: tutorial.data.language,
     date: tutorial.data.date,
-    category: tutorial.data.category,
-    difficulty: tutorial.data.difficulty,
-    estimatedTime: tutorial.data.estimated_time,
+    categories: tutorial.data.categories,
     course: tutorial.data.course,
     courseName,
     order: tutorial.data.order,
-    githubRepo: tutorial.data.github_repo,
-    demoUrl: tutorial.data.demo_url,
-    cover: tutorial.data.cover || tutorial.data.featured_image,
-    featuredImage: tutorial.data.featured_image,
+    cover: tutorial.data.cover,
     updateDate: tutorial.data.update_date,
   };
 }

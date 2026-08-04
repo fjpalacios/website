@@ -13,11 +13,11 @@ export interface BookSummary {
   title: string;
   slug: string;
   excerpt: string;
-  score: number;
+  score: number | "fav";
   language: LanguageKey;
   date: Date;
   cover: string | undefined;
-  pages: number;
+  pages?: number;
   authorName?: string;
   authorSlug?: string;
   series?: string;
@@ -30,7 +30,7 @@ export interface BookSummary {
  * Converts relative paths like "./covers/book.jpg" to "/images/books/book.jpg"
  * Returns undefined if no cover is provided (component will use default)
  */
-function normalizeCoverPath(cover: string | undefined): string | undefined {
+function normalizeCoverPath(cover: string | null | undefined): string | undefined {
   // Return undefined if no cover provided (let component handle default)
   if (!cover) {
     return undefined;
@@ -79,7 +79,7 @@ export function prepareBookSummary(
     pages: book.data.pages,
     authorName: author?.data.name,
     authorSlug: author?.data.author_slug,
-    series: book.data.series,
+    series: book.data.series ?? undefined,
     seriesName,
     series_order: book.data.series_order,
   };

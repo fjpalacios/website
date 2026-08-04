@@ -6,6 +6,7 @@
 import { getCollection } from "astro:content";
 
 import { PAGINATION_CONFIG } from "@/config/pagination";
+import type { LanguageKey } from "@/types";
 import type { ContactItem } from "@/types/content";
 import { filterByLanguage, prepareTutorialSummary, sortByDate, type TutorialSummary } from "@/utils/blog";
 import { generateDetailPaths, generatePaginationPaths } from "@/utils/pagination/generator";
@@ -21,12 +22,10 @@ export async function getAllTutorialsForLanguage(lang: string): Promise<Tutorial
   const allCourses = await getCollection("courses");
 
   // Filter courses by language
-  // @ts-expect-error - Astro 5 CollectionEntry type compatibility
-  const langCourses = filterByLanguage(allCourses, lang);
+  const langCourses = filterByLanguage(allCourses, lang as LanguageKey);
 
   // Filter by language
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Astro content collection type inference limitation
-  const langTutorials = filterByLanguage(allTutorials, lang as any);
+  const langTutorials = filterByLanguage(allTutorials, lang as LanguageKey);
 
   // Sort by date (newest first)
   const sortedTutorials = sortByDate(langTutorials, "desc");

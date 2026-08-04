@@ -4,13 +4,18 @@
 
 import type { LanguageKey } from "@/types";
 
-export interface CollectionItem {
+export interface LanguageCollectionItem {
   id?: string; // Astro 5 uses id
   slug?: string; // Legacy property for compatibility
   data: {
+    language: LanguageKey;
+  };
+}
+
+export interface CollectionItem extends LanguageCollectionItem {
+  data: LanguageCollectionItem["data"] & {
     title: string;
     date: Date;
-    language: LanguageKey;
   };
 }
 
@@ -61,7 +66,7 @@ export function sortByDate<T extends CollectionItem>(items: T[], order: "asc" | 
  * filterByLanguage(items, 'es') // Only Spanish items
  * filterByLanguage(items, 'en') // Only English items
  */
-export function filterByLanguage<T extends CollectionItem>(items: T[], language: LanguageKey): T[] {
+export function filterByLanguage<T extends LanguageCollectionItem>(items: T[], language: LanguageKey): T[] {
   return items.filter((item) => item.data.language === language);
 }
 

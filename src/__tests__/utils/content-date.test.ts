@@ -12,10 +12,11 @@ describe("content-date helpers", () => {
           collection: "posts",
           data: {
             title: "Test Post",
-            description: "Test",
             date: new Date("2025-01-15"),
+            excerpt: "Test",
+            post_slug: "test-post",
             categories: [],
-            lang: "es",
+            language: "es",
           },
         } as unknown as CollectionEntry<"posts">;
 
@@ -29,9 +30,10 @@ describe("content-date helpers", () => {
           collection: "posts",
           data: {
             title: "Test Post",
-            description: "Test",
+            excerpt: "Test",
+            post_slug: "test-post",
             categories: [],
-            lang: "es",
+            language: "es",
           },
         } as unknown as CollectionEntry<"posts">;
 
@@ -47,10 +49,11 @@ describe("content-date helpers", () => {
           collection: "tutorials",
           data: {
             title: "Test Tutorial",
-            description: "Test",
             date: new Date("2024-12-01"),
+            excerpt: "Test",
+            post_slug: "test-tutorial",
             categories: [],
-            lang: "es",
+            language: "es",
           },
         } as unknown as CollectionEntry<"tutorials">;
 
@@ -64,9 +67,10 @@ describe("content-date helpers", () => {
           collection: "tutorials",
           data: {
             title: "Test Tutorial",
-            description: "Test",
+            excerpt: "Test",
+            post_slug: "test-tutorial",
             categories: [],
-            lang: "es",
+            language: "es",
           },
         } as unknown as CollectionEntry<"tutorials">;
 
@@ -76,17 +80,22 @@ describe("content-date helpers", () => {
     });
 
     describe("books", () => {
-      it("should extract read_start_date from book", () => {
+      it("should extract date from book", () => {
         const book: CollectionEntry<"books"> = {
           id: "test",
           collection: "books",
           data: {
             title: "Test Book",
-            description: "Test",
-            read_start_date: new Date("2024-08-15"),
+            date: new Date("2024-08-15"),
+            excerpt: "Test",
+            post_slug: "test-book",
             isbn: "1234567890",
-            rating: 4,
-            lang: "es",
+            score: 4,
+            author: "test-author",
+            genres: [],
+            challenges: [],
+            categories: [],
+            language: "es",
           },
         } as CollectionEntry<"books">;
 
@@ -94,16 +103,21 @@ describe("content-date helpers", () => {
         expect(result).toEqual(new Date("2024-08-15"));
       });
 
-      it("should handle book with missing read_start_date (returns epoch)", () => {
+      it("should handle book with missing date (returns epoch)", () => {
         const book: CollectionEntry<"books"> = {
           id: "test",
           collection: "books",
           data: {
             title: "Test Book",
-            description: "Test",
+            excerpt: "Test",
+            post_slug: "test-book",
             isbn: "1234567890",
-            rating: 4,
-            lang: "es",
+            score: 4,
+            author: "test-author",
+            genres: [],
+            challenges: [],
+            categories: [],
+            language: "es",
           },
         } as unknown as CollectionEntry<"books">;
 

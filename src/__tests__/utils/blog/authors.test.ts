@@ -25,9 +25,8 @@ const mockBooks: CollectionEntry<"books">[] = [
       publisher: "pub1",
       genres: [],
       challenges: [],
-      category: "book-reviews",
+      categories: ["book-reviews"],
       cover: "./cover1.jpg",
-      buy_links: [],
     },
   },
   {
@@ -47,9 +46,8 @@ const mockBooks: CollectionEntry<"books">[] = [
       publisher: "pub1",
       genres: [],
       challenges: [],
-      category: "book-reviews",
+      categories: ["book-reviews"],
       cover: "./cover2.jpg",
-      buy_links: [],
     },
   },
   {
@@ -69,9 +67,8 @@ const mockBooks: CollectionEntry<"books">[] = [
       publisher: "pub2",
       genres: [],
       challenges: [],
-      category: "book-reviews",
+      categories: ["book-reviews"],
       cover: "./cover3.jpg",
-      buy_links: [],
     },
   },
 ] as CollectionEntry<"books">[];
@@ -82,12 +79,9 @@ const mockAuthor: CollectionEntry<"authors"> = {
   data: {
     name: "Stephen King",
     author_slug: "stephen-king",
-    bio: "Master of horror",
     language: "en",
-    birth_year: 1947,
-    nationality: "American",
-    website: "https://stephenking.com",
   },
+  body: "Master of horror",
 } as CollectionEntry<"authors">;
 
 describe("getBooksByAuthor", () => {
@@ -125,9 +119,8 @@ describe("prepareAuthorSummary", () => {
   it("should include optional fields when present", () => {
     const summary = prepareAuthorSummary(mockAuthor);
 
-    expect(summary.birthYear).toBe(1947);
-    expect(summary.nationality).toBe("American");
-    expect(summary.website).toBe("https://stephenking.com");
+    expect(summary.picture).toBeUndefined();
+    expect(summary.gender).toBeUndefined();
   });
 
   it("should handle missing optional fields", () => {
@@ -137,17 +130,17 @@ describe("prepareAuthorSummary", () => {
       data: {
         name: "Minimal Author",
         author_slug: "minimal-author",
-        bio: "Just a bio",
         language: "en",
       },
+      body: "Just a bio",
     } as CollectionEntry<"authors">;
 
     const summary = prepareAuthorSummary(minimalAuthor);
 
     expect(summary.name).toBe("Minimal Author");
-    expect(summary.birthYear).toBeUndefined();
-    expect(summary.nationality).toBeUndefined();
-    expect(summary.website).toBeUndefined();
+    expect(summary.bio).toBe("Just a bio");
+    expect(summary.picture).toBeUndefined();
+    expect(summary.gender).toBeUndefined();
   });
 
   it("should include picture path if present", () => {
@@ -164,19 +157,17 @@ describe("prepareAuthorSummary", () => {
     expect(summary.picture).toBe("./authors/stephen-king.jpg");
   });
 
-  it("should include social links if present", () => {
+  it("should include gender if present", () => {
     const authorWithSocial: CollectionEntry<"authors"> = {
       ...mockAuthor,
       data: {
         ...mockAuthor.data,
-        twitter: "@StephenKing",
-        goodreads: "https://www.goodreads.com/author/show/3389.Stephen_King",
+        gender: "male",
       },
     } as CollectionEntry<"authors">;
 
     const summary = prepareAuthorSummary(authorWithSocial);
 
-    expect(summary.twitter).toBe("@StephenKing");
-    expect(summary.goodreads).toBe("https://www.goodreads.com/author/show/3389.Stephen_King");
+    expect(summary.gender).toBe("male");
   });
 });

@@ -24,9 +24,8 @@ const mockBook: CollectionEntry<"books"> = {
     publisher: "test-publisher",
     genres: ["fiction"],
     challenges: [],
-    category: "book-reviews",
+    categories: ["book-reviews"],
     cover: "./covers/test.jpg",
-    buy_links: [],
   },
 } as CollectionEntry<"books">;
 
@@ -36,9 +35,9 @@ const mockAuthor: CollectionEntry<"authors"> = {
   data: {
     name: "Test Author",
     author_slug: "test-author",
-    bio: "Test bio",
     language: "en",
   },
+  body: "Test bio",
 } as CollectionEntry<"authors">;
 
 describe("prepareBookSummary", () => {

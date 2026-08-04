@@ -10,8 +10,13 @@
  * @module utils/content/getLatestPosts
  */
 
-import { filterByLanguage } from "@utils/blog";
-import type { PostSummary } from "@utils/blog";
+import {
+  filterByLanguage,
+  prepareBookSummary,
+  preparePostSummary,
+  prepareTutorialSummary,
+  type ContentSummary,
+} from "@utils/blog";
 import { getCollection } from "astro:content";
 
 import type { LanguageKey } from "@/types";
@@ -21,7 +26,7 @@ import type { LanguageKey } from "@/types";
  *
  * @param language - The language to filter by ('es' | 'en')
  * @param maxItems - Maximum number of items to return (default: 4)
- * @returns Array of PostSummary objects sorted by date (newest first)
+ * @returns Array of content summaries sorted by date (newest first)
  *
  * @example
  * ```typescript
@@ -32,7 +37,7 @@ import type { LanguageKey } from "@/types";
  * const latestPosts = await getLatestPosts("en", 10);
  * ```
  */
-export async function getLatestPosts(language: LanguageKey, maxItems: number = 4): Promise<PostSummary[]> {
+export async function getLatestPosts(language: LanguageKey, maxItems: number = 4): Promise<ContentSummary[]> {
   // Handle edge case: limit of 0
   if (maxItems === 0) {
     return [];
@@ -46,46 +51,14 @@ export async function getLatestPosts(language: LanguageKey, maxItems: number = 4
   // Filter by language
   const langPosts = filterByLanguage(allPosts, language);
   const langTutorials = filterByLanguage(allTutorials, language);
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Dynamic content collection access requires any
-  const langBooks = filterByLanguage(allBooks, language) as any;
+  const langBooks = filterByLanguage(allBooks, language);
 
   // Prepare combined content with unified structure
 
-  const combinedContent: PostSummary[] = [
-    ...langPosts.map((post) => ({
-      type: "post" as const,
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Dynamic field access
-      slug: (post.data as any).post_slug,
-      title: post.data.title,
-      date: post.data.date,
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Dynamic field access
-      excerpt: (post.data as any).excerpt,
-      language: post.data.language,
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Dynamic field access
-      cover: (post.data as any).cover || (post.data as any).featured_image,
-    })),
-    ...langTutorials.map((tutorial) => ({
-      type: "tutorial" as const,
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Dynamic field access
-      slug: (tutorial.data as any).post_slug,
-      title: tutorial.data.title,
-      date: tutorial.data.date,
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Dynamic field access
-      excerpt: (tutorial.data as any).excerpt,
-      language: tutorial.data.language,
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Dynamic field access
-      cover: (tutorial.data as any).cover || (tutorial.data as any).featured_image,
-    })),
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Dynamic content mapping
-    ...langBooks.map((book: any) => ({
-      type: "book" as const,
-      slug: book.data.post_slug,
-      title: book.data.title,
-      date: book.data.date,
-      excerpt: book.data.excerpt,
-      language: book.data.language,
-      cover: book.data.cover,
-    })),
+  const combinedContent: ContentSummary[] = [
+    ...langPosts.map(preparePostSummary),
+    ...langTutorials.map((tutorial) => prepareTutorialSummary(tutorial)),
+    ...langBooks.map((book) => prepareBookSummary(book)),
   ];
 
   // Sort by date (newest first) and limit

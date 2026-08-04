@@ -137,7 +137,6 @@ const mockAuthors: CollectionEntry<"authors">[] = [
     data: {
       name: "Autor Masculino 1",
       author_slug: "author-1",
-      bio: "Biografía",
       language: "es",
       gender: "male",
       sortName: "Masculino 1, Autor",
@@ -149,7 +148,6 @@ const mockAuthors: CollectionEntry<"authors">[] = [
     data: {
       name: "Autora Femenina 1",
       author_slug: "author-2",
-      bio: "Biografía",
       language: "es",
       gender: "female",
       sortName: "Femenina 1, Autora",
@@ -161,7 +159,6 @@ const mockAuthors: CollectionEntry<"authors">[] = [
     data: {
       name: "Autor Masculino 2",
       author_slug: "author-3",
-      bio: "Biografía",
       language: "es",
       gender: "male",
       sortName: "Masculino 2, Autor",
@@ -173,7 +170,6 @@ const mockAuthors: CollectionEntry<"authors">[] = [
     data: {
       name: "English Author",
       author_slug: "author-4",
-      bio: "Bio",
       language: "en",
       gender: "male",
       sortName: "Author, English",
@@ -274,7 +270,6 @@ const mockChallenges: CollectionEntry<"challenges">[] = [
       name: "Reto Stephen King",
       challenge_slug: "stephen-king",
       language: "es",
-      description: "Leer todos los libros de Stephen King",
     },
   },
   {
@@ -284,7 +279,6 @@ const mockChallenges: CollectionEntry<"challenges">[] = [
       name: "Reto Pesadillas",
       challenge_slug: "pesadillas",
       language: "es",
-      description: "Leer libros de terror",
     },
   },
   {
@@ -294,7 +288,6 @@ const mockChallenges: CollectionEntry<"challenges">[] = [
       name: "155 Libros",
       challenge_slug: "155-libros",
       language: "es",
-      description: "Leer 155 libros",
     },
   },
 ] as CollectionEntry<"challenges">[];

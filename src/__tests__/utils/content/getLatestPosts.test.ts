@@ -51,10 +51,10 @@ describe("getLatestPosts utility", () => {
       expect(content).toMatch(/maxItems.*=\s*4/);
     });
 
-    test("should return Promise<PostSummary[]>", () => {
+    test("should return Promise<ContentSummary[]>", () => {
       const content = fs.readFileSync(utilPath, "utf-8");
 
-      expect(content).toContain("Promise<PostSummary[]>");
+      expect(content).toContain("Promise<ContentSummary[]>");
     });
   });
 
@@ -114,41 +114,34 @@ describe("getLatestPosts utility", () => {
     test("should map posts with correct structure", () => {
       const content = fs.readFileSync(utilPath, "utf-8");
 
-      expect(content).toContain('type: "post" as const');
-      expect(content).toMatch(/slug:\s*\(post\.data\s+as\s+any\)\.post_slug/);
-      expect(content).toContain("post.data.title");
-      expect(content).toContain("post.data.date");
-      expect(content).toMatch(/excerpt:\s*\(post\.data\s+as\s+any\)\.excerpt/);
+      expect(content).toContain("preparePostSummary");
+      expect(content).toContain("langPosts.map(preparePostSummary)");
     });
 
     test("should map tutorials with correct structure", () => {
       const content = fs.readFileSync(utilPath, "utf-8");
 
-      expect(content).toContain('type: "tutorial" as const');
-      expect(content).toMatch(/slug:\s*\(tutorial\.data\s+as\s+any\)\.post_slug/);
-      expect(content).toContain("tutorial.data.title");
+      expect(content).toContain("prepareTutorialSummary");
+      expect(content).toContain("langTutorials.map");
     });
 
     test("should map books with correct structure", () => {
       const content = fs.readFileSync(utilPath, "utf-8");
 
-      expect(content).toContain('type: "book" as const');
-      expect(content).toContain("book.data.post_slug");
-      expect(content).toContain("book.data.title");
+      expect(content).toContain("prepareBookSummary");
+      expect(content).toContain("langBooks.map");
     });
 
-    test("should handle cover/featured_image fallback for posts", () => {
+    test("should use canonical cover mapping for posts", () => {
       const content = fs.readFileSync(utilPath, "utf-8");
 
-      expect(content).toMatch(/\(post\.data\s+as\s+any\)\.cover\s*\|\|\s*\(post\.data\s+as\s+any\)\.featured_image/);
+      expect(content).toContain("preparePostSummary");
     });
 
-    test("should handle cover/featured_image fallback for tutorials", () => {
+    test("should use canonical cover mapping for tutorials", () => {
       const content = fs.readFileSync(utilPath, "utf-8");
 
-      expect(content).toMatch(
-        /\(tutorial\.data\s+as\s+any\)\.cover\s*\|\|\s*\(tutorial\.data\s+as\s+any\)\.featured_image/,
-      );
+      expect(content).toContain("prepareTutorialSummary");
     });
   });
 
@@ -182,10 +175,10 @@ describe("getLatestPosts utility", () => {
       expect(content).toContain("return []");
     });
 
-    test("should import PostSummary type", () => {
+    test("should import ContentSummary type", () => {
       const content = fs.readFileSync(utilPath, "utf-8");
 
-      expect(content).toContain("import type { PostSummary }");
+      expect(content).toContain("type ContentSummary");
       expect(content).toContain("@utils/blog");
     });
   });

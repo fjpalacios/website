@@ -553,7 +553,7 @@ export function getClassicsBooks(
  * @param books - All books collection
  * @param lang - Language to filter by
  * @param limit - Maximum number of books to return
- * @returns Array of most recent books, sorted by pubDate (newest first)
+ * @returns Array of most recent books, sorted by date (newest first)
  */
 export function getRecentBooks(
   books: CollectionEntry<"books">[],
@@ -562,8 +562,8 @@ export function getRecentBooks(
 ): CollectionEntry<"books">[] {
   const filteredBooks = filterBooksByLanguage(books, lang);
   const sorted = filteredBooks.sort((a, b) => {
-    const dateA = new Date(b.data.pubDate).getTime();
-    const dateB = new Date(a.data.pubDate).getTime();
+    const dateA = new Date(b.data.date).getTime();
+    const dateB = new Date(a.data.date).getTime();
     return dateA - dateB;
   });
   return sorted.slice(0, limit);
