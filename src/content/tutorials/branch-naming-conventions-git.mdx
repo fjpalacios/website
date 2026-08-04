@@ -38,6 +38,7 @@ It's easy to think of a branch name as a minor detail, a label that only matters
 A branch name is a temporary contract with your team. It communicates what kind of work the branch contains, which ticket or feature it's tied to, and when it's appropriate to delete it. Without that contract, every branch interaction starts with the same question: "wait, what is this?"
 
 Three signs you have a naming problem:
+
 - Someone asks "can I delete this branch?" and no one knows the answer
 - You run `git branch -a` and spend more time reading names than doing actual work
 - There are two active branches called `feature-new` and `feature-new-v2` and no one remembers which one is current
@@ -59,16 +60,16 @@ docs/api-reference-v2
 
 The most common prefixes:
 
-| Prefix | When to use |
-|--------|-------------|
-| `feature/` or `feat/` | New functionality |
-| `fix/` or `bugfix/` | Bug fix during active development |
-| `hotfix/` | Urgent fix going straight to production |
-| `release/` | Release preparation branch |
-| `chore/` | Maintenance: dependencies, config |
-| `docs/` | Documentation-only changes |
-| `refactor/` | Code refactoring without behavior change |
-| `test/` | Adding or fixing tests |
+| Prefix                | When to use                              |
+| --------------------- | ---------------------------------------- |
+| `feature/` or `feat/` | New functionality                        |
+| `fix/` or `bugfix/`   | Bug fix during active development        |
+| `hotfix/`             | Urgent fix going straight to production  |
+| `release/`            | Release preparation branch               |
+| `chore/`              | Maintenance: dependencies, config        |
+| `docs/`               | Documentation-only changes               |
+| `refactor/`           | Code refactoring without behavior change |
+| `test/`               | Adding or fixing tests                   |
 
 If the [commit best practices](/en/tutorials/git-commit-best-practices) tutorial from last lesson looks familiar, you'll notice the prefixes map directly to Conventional Commits types — that's not a coincidence. When your branches and your commits speak the same language, the project history becomes much easier to read at a glance.
 

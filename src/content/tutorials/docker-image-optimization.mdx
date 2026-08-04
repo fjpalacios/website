@@ -21,14 +21,14 @@ This is the last lesson in the images module, and it's where we close the loop: 
 
 The choice of base image is the single highest-leverage decision in image optimization. The size differences aren't marginal:
 
-| Base                  | Approximate size  |
-|-----------------------|-------------------|
-| `node:20`             | ~1.1 GB           |
-| `ubuntu:22.04`        | ~77 MB            |
-| `debian:12-slim`      | ~74 MB            |
-| `node:20-alpine`      | ~135 MB           |
-| `alpine:3.19`         | ~7 MB             |
-| `scratch`             | 0 MB              |
+| Base             | Approximate size |
+| ---------------- | ---------------- |
+| `node:20`        | ~1.1 GB          |
+| `ubuntu:22.04`   | ~77 MB           |
+| `debian:12-slim` | ~74 MB           |
+| `node:20-alpine` | ~135 MB          |
+| `alpine:3.19`    | ~7 MB            |
+| `scratch`        | 0 MB             |
 
 `node:20` is built on `debian:12`. `node:20-alpine` is built on `alpine:3.19`. The difference isn't which version of Node they ship — both ship Node 20. The difference is how much operating system comes with it.
 
@@ -96,13 +96,13 @@ CMD ["dist/index.js"]
 
 Available distroless images for the most common runtimes:
 
-| Runtime          | Image                                     |
-|------------------|-------------------------------------------|
-| Static binary    | `gcr.io/distroless/static-debian12`       |
-| glibc            | `gcr.io/distroless/base-debian12`         |
-| Node.js 22       | `gcr.io/distroless/nodejs22-debian12`     |
-| Python 3         | `gcr.io/distroless/python3-debian12`      |
-| Java 21          | `gcr.io/distroless/java21-debian12`       |
+| Runtime       | Image                                 |
+| ------------- | ------------------------------------- |
+| Static binary | `gcr.io/distroless/static-debian12`   |
+| glibc         | `gcr.io/distroless/base-debian12`     |
+| Node.js 22    | `gcr.io/distroless/nodejs22-debian12` |
+| Python 3      | `gcr.io/distroless/python3-debian12`  |
+| Java 21       | `gcr.io/distroless/java21-debian12`   |
 
 One honest limitation: no shell means no `docker exec -it <container> sh`. If you're used to jumping inside containers to inspect things, distroless changes that workflow. The `:debug` variant adds busybox and enables exec — use it for development environments where you need to debug, not for production.
 

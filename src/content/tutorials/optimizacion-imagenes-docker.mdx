@@ -21,14 +21,14 @@ No es solo un problema estético. Es superficie de ataque innecesaria, velocidad
 
 No todas las imágenes base son iguales, y la diferencia en tamaño no es marginal:
 
-| Base                  | Tamaño aproximado |
-|-----------------------|-------------------|
-| `node:20`             | ~1.1 GB           |
-| `ubuntu:22.04`        | ~77 MB            |
-| `debian:12-slim`      | ~74 MB            |
-| `node:20-alpine`      | ~135 MB           |
-| `alpine:3.19`         | ~7 MB             |
-| `scratch`             | 0 MB              |
+| Base             | Tamaño aproximado |
+| ---------------- | ----------------- |
+| `node:20`        | ~1.1 GB           |
+| `ubuntu:22.04`   | ~77 MB            |
+| `debian:12-slim` | ~74 MB            |
+| `node:20-alpine` | ~135 MB           |
+| `alpine:3.19`    | ~7 MB             |
+| `scratch`        | 0 MB              |
 
 `node:20` viene de `debian:12`. `node:20-alpine` viene de `alpine:3.19`. La diferencia no es qué versión de Node trae — ambas traen Node 20. La diferencia es cuánto sistema operativo arrastra con él.
 
@@ -96,13 +96,13 @@ CMD ["dist/index.js"]
 
 Las variantes disponibles para los runtimes más comunes:
 
-| Runtime          | Imagen                                    |
-|------------------|-------------------------------------------|
-| Binario estático | `gcr.io/distroless/static-debian12`       |
-| glibc            | `gcr.io/distroless/base-debian12`         |
-| Node.js 22       | `gcr.io/distroless/nodejs22-debian12`     |
-| Python 3         | `gcr.io/distroless/python3-debian12`      |
-| Java 21          | `gcr.io/distroless/java21-debian12`       |
+| Runtime          | Imagen                                |
+| ---------------- | ------------------------------------- |
+| Binario estático | `gcr.io/distroless/static-debian12`   |
+| glibc            | `gcr.io/distroless/base-debian12`     |
+| Node.js 22       | `gcr.io/distroless/nodejs22-debian12` |
+| Python 3         | `gcr.io/distroless/python3-debian12`  |
+| Java 21          | `gcr.io/distroless/java21-debian12`   |
 
 Una advertencia real: sin shell, no puedes hacer `docker exec -it <container> sh` para entrar a inspeccionar. Si en producción tienes el hábito de entrar en contenedores a ver qué está pasando, distroless va a requerir ajustar ese flujo. La variante `:debug` añade busybox y permite exec, pero solo para entornos de desarrollo donde necesites depurar.
 

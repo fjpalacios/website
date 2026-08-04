@@ -21,7 +21,7 @@ Docker Compose es la solución a ese fichero. En lugar de recordar qué flags le
 
 Docker Compose es una herramienta para definir y gestionar aplicaciones multi-contenedor. En lugar de lanzar cada contenedor por separado con sus redes, volúmenes y variables de entorno, describes todo en un fichero YAML y Compose se encarga del resto: crear las redes, arrancar los servicios en orden, gestionar el ciclo de vida conjunto.
 
-La idea es declarativa. No describes *cómo* arrancar los servicios paso a paso, sino *qué* servicios existen y cómo se relacionan.
+La idea es declarativa. No describes _cómo_ arrancar los servicios paso a paso, sino _qué_ servicios existen y cómo se relacionan.
 
 Antes de Compose, arrancar un stack de desarrollo con base de datos, caché y API requería algo así:
 
@@ -99,9 +99,9 @@ Una aclaración que ahorra confusión: el comando moderno es `docker compose` (e
 El corazón de Compose es el fichero `docker-compose.yml`. Tiene tres secciones principales:
 
 ```yaml
-services:    # Los contenedores que forman tu aplicación
-volumes:     # Almacenamiento persistente con nombre
-networks:    # Redes personalizadas (opcionales si no necesitas aislamiento explícito)
+services: # Los contenedores que forman tu aplicación
+volumes: # Almacenamiento persistente con nombre
+networks: # Redes personalizadas (opcionales si no necesitas aislamiento explícito)
 ```
 
 Un ejemplo realista: una API de Node.js con Postgres.
@@ -118,7 +118,7 @@ services:
       - db-data:/var/lib/postgresql/data
 
   api:
-    build: ./api          # Construye desde el Dockerfile en ./api
+    build: ./api # Construye desde el Dockerfile en ./api
     ports:
       - "3000:3000"
     environment:
@@ -187,10 +187,10 @@ services:
   api:
     build: ./api
     depends_on:
-      - db    # Espera a que el contenedor de db esté arrancado
+      - db # Espera a que el contenedor de db esté arrancado
 ```
 
-Hay una distinción que conviene entender desde el principio: `depends_on` garantiza el *orden de arranque*, no que el servicio esté *listo*. El contenedor de Postgres puede estar corriendo y Docker Compose lo considerará "arrancado", pero Postgres puede seguir inicializando internamente y todavía no aceptar conexiones.
+Hay una distinción que conviene entender desde el principio: `depends_on` garantiza el _orden de arranque_, no que el servicio esté _listo_. El contenedor de Postgres puede estar corriendo y Docker Compose lo considerará "arrancado", pero Postgres puede seguir inicializando internamente y todavía no aceptar conexiones.
 
 Para esperar a que un servicio esté verdaderamente operativo se usan health checks con `condition: service_healthy`, que es el tema de la siguiente lección junto con el resto de las opciones del `docker-compose.yml`.
 

@@ -78,14 +78,14 @@ The `--staged` flag is the one that makes the biggest difference day-to-day. Bef
 
 For when muscle memory still reaches for the old command:
 
-| Operation | Before | Now |
-|-----------|--------|-----|
-| Switch branch | `git checkout main` | `git switch main` |
-| Create and switch | `git checkout -b new` | `git switch -c new` |
-| Restore file | `git checkout -- file.txt` | `git restore file.txt` |
+| Operation           | Before                        | Now                                |
+| ------------------- | ----------------------------- | ---------------------------------- |
+| Switch branch       | `git checkout main`           | `git switch main`                  |
+| Create and switch   | `git checkout -b new`         | `git switch -c new`                |
+| Restore file        | `git checkout -- file.txt`    | `git restore file.txt`             |
 | Restore from commit | `git checkout abc123 -- file` | `git restore --source=abc123 file` |
-| Unstage file | `git reset HEAD file.txt` | `git restore --staged file.txt` |
-| Detached HEAD | `git checkout abc123` | `git switch --detach abc123` |
+| Unstage file        | `git reset HEAD file.txt`     | `git restore --staged file.txt`    |
+| Detached HEAD       | `git checkout abc123`         | `git switch --detach abc123`       |
 
 `git checkout` isn't going anywhere — there's too much code, too many scripts, too much muscle memory in the world to remove it. But if you're onboarding someone new or starting a fresh project, `git switch` and `git restore` are the commands worth teaching first. Not because they're modern, but because each one does exactly one thing.
 

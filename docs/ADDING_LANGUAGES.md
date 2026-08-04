@@ -46,12 +46,8 @@ Edit `src/config/languages.ts`:
 
 ```typescript
 export const LANGUAGE_CONFIG = {
-  es: {
-    /* ... */
-  },
-  en: {
-    /* ... */
-  },
+  es: {/* ... */},
+  en: {/* ... */},
   fr: {
     // Add your language
     code: "fr",

@@ -78,14 +78,14 @@ El `--staged` es el que más diferencia hace en el día a día. Antes, sacar un 
 
 Para tenerla a mano cuando el músculo aún recuerda el comando viejo:
 
-| Operación | Antes | Ahora |
-|-----------|-------|-------|
-| Cambiar de rama | `git checkout main` | `git switch main` |
-| Crear rama y cambiar | `git checkout -b nueva` | `git switch -c nueva` |
-| Restaurar archivo | `git checkout -- archivo.txt` | `git restore archivo.txt` |
+| Operación              | Antes                            | Ahora                                 |
+| ---------------------- | -------------------------------- | ------------------------------------- |
+| Cambiar de rama        | `git checkout main`              | `git switch main`                     |
+| Crear rama y cambiar   | `git checkout -b nueva`          | `git switch -c nueva`                 |
+| Restaurar archivo      | `git checkout -- archivo.txt`    | `git restore archivo.txt`             |
 | Restaurar desde commit | `git checkout abc123 -- archivo` | `git restore --source=abc123 archivo` |
-| Sacar del staging | `git reset HEAD archivo.txt` | `git restore --staged archivo.txt` |
-| Detached HEAD | `git checkout abc123` | `git switch --detach abc123` |
+| Sacar del staging      | `git reset HEAD archivo.txt`     | `git restore --staged archivo.txt`    |
+| Detached HEAD          | `git checkout abc123`            | `git switch --detach abc123`          |
 
 `git checkout` no va a desaparecer — hay demasiados scripts, demasiados tutoriales, demasiada memoria muscular en el mundo como para eliminarlo. Pero si incorporas a alguien nuevo al equipo o empiezas un proyecto, `git switch` y `git restore` son los comandos con los que tiene sentido arrancar. No porque sean modernos, sino porque cada uno hace una sola cosa.
 

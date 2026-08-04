@@ -114,7 +114,7 @@ mostrar_usuario(nombre="Ana", 34, "Madrid")        # ❌ SyntaxError
 
 ¿Por qué molestarse? Para el día en que tu función tenga cuatro parámetros booleanos y quien lea el código en seis meses no seas tú. `incluir_firma=True` dice qué hace. `True` en cuarta posición no dice nada.
 
-## *args: número variable de argumentos posicionales
+## \*args: número variable de argumentos posicionales
 
 ¿Y si necesitas una función que acepte cualquier cantidad de argumentos? El `*` antes del nombre del parámetro le dice a Python que empaquete todos los argumentos posicionales adicionales en una **tupla**:
 
@@ -159,7 +159,7 @@ Frutas:
 
 Piensa en `*args` como el cajón de la cocina donde cabe todo lo que no tiene sitio fijo. No decides de antemano cuántas cosas van a entrar — simplemente entran.
 
-## **kwargs: argumentos con nombre variables
+## \*\*kwargs: argumentos con nombre variables
 
 `**kwargs` hace lo mismo que `*args`, pero para argumentos con nombre. En lugar de una tupla, Python lo empaqueta en un **diccionario**:
 
@@ -217,8 +217,8 @@ registrar("INFO", "Conexión establecida", "Base de datos lista",
 
 - **Parámetros por defecto**: cuando un valor razonable aplica en la mayoría de casos. No pongas default en todo "por si acaso" — una función donde todo es opcional es una función sin contrato claro.
 - **Argumentos con nombre**: cuando la firma tiene más de tres parámetros o cuando los tipos de los argumentos no dicen por sí solos qué hace cada uno.
-- ***args**: cuando realmente no sabes cuántos argumentos posicionales van a llegar. Si lo sabes, ponlos explícitamente — una firma explícita siempre comunica más que un `*args`.
-- ****kwargs**: para wrappers, decoradores o funciones de configuración genérica. No como sustituto de pensar la firma.
+- **\*args**: cuando realmente no sabes cuántos argumentos posicionales van a llegar. Si lo sabes, ponlos explícitamente — una firma explícita siempre comunica más que un `*args`.
+- \***\*kwargs**: para wrappers, decoradores o funciones de configuración genérica. No como sustituto de pensar la firma.
 
 ## Conceptos clave de esta lección
 
