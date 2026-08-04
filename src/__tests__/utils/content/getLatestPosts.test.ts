@@ -16,7 +16,12 @@ const makePost = (id: string, title: string, date: string, language: "es" | "en"
   },
 });
 
-const makeTutorial = (id: string, title: string, date: string): CollectionEntry<"tutorials"> => ({
+const makeTutorial = (
+  id: string,
+  title: string,
+  date: string,
+  language: "es" | "en",
+): CollectionEntry<"tutorials"> => ({
   id,
   collection: "tutorials",
   data: {
@@ -24,12 +29,12 @@ const makeTutorial = (id: string, title: string, date: string): CollectionEntry<
     post_slug: id,
     date: new Date(date),
     excerpt: `${title} excerpt`,
-    language: "es",
+    language,
     categories: ["testing"],
   },
 });
 
-const makeBook = (id: string, title: string, date: string): CollectionEntry<"books"> => ({
+const makeBook = (id: string, title: string, date: string, language: "es" | "en"): CollectionEntry<"books"> => ({
   id,
   collection: "books",
   data: {
@@ -37,7 +42,7 @@ const makeBook = (id: string, title: string, date: string): CollectionEntry<"boo
     post_slug: id,
     date: new Date(date),
     excerpt: `${title} excerpt`,
-    language: "es",
+    language,
     score: 4,
     author: "test-author",
     genres: [],
@@ -51,8 +56,14 @@ const collections = {
     makePost("post-es", "Spanish post", "2025-01-01", "es"),
     makePost("post-en", "English post", "2025-04-01", "en"),
   ],
-  tutorials: [makeTutorial("tutorial-es", "Spanish tutorial", "2025-03-01")],
-  books: [makeBook("book-es", "Spanish book", "2025-02-01")],
+  tutorials: [
+    makeTutorial("tutorial-es", "Spanish tutorial", "2025-03-01", "es"),
+    makeTutorial("tutorial-en", "English tutorial", "2025-05-01", "en"),
+  ],
+  books: [
+    makeBook("book-es", "Spanish book", "2025-02-01", "es"),
+    makeBook("book-en", "English book", "2025-04-01", "en"),
+  ],
 };
 
 describe("getLatestPosts", () => {
