@@ -5,6 +5,7 @@ import { z } from "zod";
 
 import { getLanguageCodes } from "@/config/languages";
 import type { LanguageKey } from "@/config/languages";
+import { safeHttpUrlSchema } from "@/utils/safeUrl";
 
 /**
  * Create a dynamic language enum validator
@@ -56,12 +57,12 @@ export const booksSchema = z
       .array(
         z.object({
           type: z.enum(["paper", "ebook", "audiobook"]),
-          link: z.string().url(),
+          link: safeHttpUrlSchema,
           store: z.string().optional(), // Amazon, Casa del Libro, etc.
         }),
       )
       .optional(),
-    book_card: z.string().url().optional(), // megustaleer.com link
+    book_card: safeHttpUrlSchema.optional(), // megustaleer.com link
 
     // Images
     cover: z.string().optional(), // Relative path to cover image (fallback to default if not provided)

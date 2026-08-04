@@ -89,4 +89,20 @@ describe("processSynopsis", () => {
     expect(output).toContain("<strong>c</strong>");
     expect(output).toContain("&lt;script&gt;");
   });
+
+  it.each(["javascript:alert(1)", "data:text/html,<script>alert(1)</script>"])(
+    "does not render executable Markdown URL %s as a link",
+    (url) => {
+      const output = processSynopsis(`[unsafe](${url})`);
+
+      expect(output).not.toContain("<a href=");
+      expect(output).toContain("unsafe");
+    },
+  );
+
+  it("preserves safe Markdown links", () => {
+    const output = processSynopsis("[safe](https://example.com)");
+
+    expect(output).toContain('<a href="https://example.com">safe</a>');
+  });
 });

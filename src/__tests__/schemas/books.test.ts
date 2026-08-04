@@ -312,6 +312,25 @@ describe("Books Collection Schema", () => {
     });
   });
 
+  describe("URL validation", () => {
+    it("rejects executable schemes in buy links and book cards", async () => {
+      const { booksSchema } = await import("@/schemas/blog");
+      const book = {
+        title: "Test",
+        post_slug: "test",
+        date: new Date(),
+        excerpt: "Test",
+        language: "es",
+        score: 3,
+        author: "test",
+        buy: [{ type: "ebook", link: "javascript:alert(1)" }],
+        book_card: "data:text/html,payload",
+      };
+
+      expect(booksSchema.safeParse(book).success).toBe(false);
+    });
+  });
+
   describe("Buy links validation", () => {
     it("should accept valid buy links array", async () => {
       const { booksSchema } = await import("@/schemas/blog");
