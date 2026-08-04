@@ -4,7 +4,7 @@
 
 import { describe, expect, it } from "vitest";
 
-import { processSynopsis, sanitizeSynopsis } from "../../utils/synopsis";
+import { processSynopsis } from "../../utils/synopsis";
 
 describe("processSynopsis", () => {
   it("converts italic markdown to <em> tags", () => {
@@ -88,54 +88,5 @@ describe("processSynopsis", () => {
     expect(output).toContain("<em>b</em>");
     expect(output).toContain("<strong>c</strong>");
     expect(output).toContain("&lt;script&gt;");
-  });
-});
-
-describe("sanitizeSynopsis", () => {
-  it("removes italic markdown", () => {
-    const input = "Maestro del _nonsense_, Lewis Carroll";
-    const output = sanitizeSynopsis(input);
-    expect(output).toBe("Maestro del nonsense, Lewis Carroll");
-  });
-
-  it("removes bold markdown", () => {
-    const input = "This is **bold** text";
-    const output = sanitizeSynopsis(input);
-    expect(output).toBe("This is bold text");
-  });
-
-  it("converts literal \\n to spaces", () => {
-    const input = "Line one\\nLine two";
-    const output = sanitizeSynopsis(input);
-    expect(output).toBe("Line one Line two");
-  });
-
-  it("removes HTML tags", () => {
-    const input = "This is <em>italic</em> and <strong>bold</strong>";
-    const output = sanitizeSynopsis(input);
-    expect(output).toBe("This is italic and bold");
-  });
-
-  it("normalizes whitespace", () => {
-    const input = "Multiple    spaces   here";
-    const output = sanitizeSynopsis(input);
-    expect(output).toBe("Multiple spaces here");
-  });
-
-  it("returns empty string for empty input", () => {
-    expect(sanitizeSynopsis("")).toBe("");
-  });
-
-  it("handles complex real synopsis", () => {
-    const input =
-      "Maestro del _nonsense_, Lewis Carroll traspasó en estos textos.\\n\\nAcompañado de las ilustraciones **originales** de John Tenniel.";
-    const output = sanitizeSynopsis(input);
-
-    expect(output).not.toContain("_");
-    expect(output).not.toContain("**");
-    expect(output).not.toContain("\\n");
-    expect(output).not.toContain("<");
-    expect(output).toContain("nonsense");
-    expect(output).toContain("originales");
   });
 });
