@@ -16,8 +16,9 @@
     "format:check": "prettier --check .",
     "lint": "eslint . --ext .astro,.js,.ts,.jsx,.tsx --fix",
     "lint:check": "eslint . --ext .astro,.js,.ts,.jsx,.tsx",
-    "test": "vitest run src/__tests__",
+    "test": "bun run test:unit && bun run test:integration",
     "test:unit": "vitest run src/__tests__",
+    "test:integration": "vitest run --config vitest.astro.config.ts src/__tests__/components/JsonLd.integration.test.ts",
     "test:watch": "vitest src/__tests__",
     "test:ui": "vitest --ui src/__tests__",
     "test:coverage": "vitest run --coverage src/__tests__",
@@ -61,6 +62,7 @@
     ]
   },
   "dependencies": {
+    "@astrojs/markdown-remark": "7.2.2",
     "@astrojs/mdx": "7.0.5",
     "@astrojs/rss": "4.0.19",
     "@astrojs/sitemap": "3.7.3",

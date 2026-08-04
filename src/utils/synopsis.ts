@@ -3,7 +3,9 @@
  * Handles markdown formatting in book synopsis fields
  */
 
-import { marked } from "marked";
+import { marked, type Tokens } from "marked";
+
+import { escapeHtml, isSafeUrl } from "@/utils/safeUrl";
 
 /**
  * Convert synopsis markdown to HTML
@@ -35,14 +37,27 @@ export function processSynopsis(synopsis: string): string {
     .replace(/>/g, "&gt;")
     .replace(/"/g, "&quot;");
 
-  // Configure marked for inline parsing
-  marked.setOptions({
-    breaks: true, // Convert single \n to <br>
-    gfm: true, // GitHub Flavored Markdown
-  });
+  // Configure marked for inline parsing. Unsafe links are rendered as text
+  // instead of anchors so content cannot execute a URL scheme in the browser.
+  const renderer = new marked.Renderer();
+  renderer.link = ({ href, title, tokens }: Tokens.Link): string => {
+    const text = renderer.parser.parseInline(tokens);
+
+    if (!isSafeUrl(href)) {
+      return text;
+    }
+
+    const titleAttribute = title ? ` title="${escapeHtml(title)}"` : "";
+    return `<a href="${escapeHtml(href)}"${titleAttribute}>${text}</a>`;
+  };
 
   // Parse markdown to HTML
-  const html = marked.parse(escaped, { async: false }) as string;
+  const html = marked.parse(escaped, {
+    async: false,
+    breaks: true,
+    gfm: true,
+    renderer,
+  }) as string;
 
   // Return trimmed HTML (keep multiple <p> tags for multi-paragraph synopsis)
   return html.trim();

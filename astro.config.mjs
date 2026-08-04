@@ -2,6 +2,7 @@
 import path from "path";
 import { fileURLToPath, pathToFileURL } from "url";
 
+import { unified } from "@astrojs/markdown-remark";
 import mdx from "@astrojs/mdx";
 import sitemap, { ChangeFreqEnum } from "@astrojs/sitemap";
 import { defineConfig } from "astro/config";
@@ -131,15 +132,17 @@ export default defineConfig({
   ],
   markdown: {
     syntaxHighlight: false, // Disable Shiki
-    rehypePlugins: [
-      [
-        rehypePrism,
-        {
-          showLineNumbers: true,
-          ignoreMissing: true,
-        },
+    processor: unified({
+      rehypePlugins: [
+        [
+          rehypePrism,
+          {
+            showLineNumbers: true,
+            ignoreMissing: true,
+          },
+        ],
       ],
-    ],
+    }),
   },
   i18n: {
     defaultLocale: "es",

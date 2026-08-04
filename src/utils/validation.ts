@@ -18,7 +18,7 @@
  *
  * const PropsSchema = z.object({
  *   lang: z.enum(['es', 'en']),
- *   posts: z.array(z.any()).min(1),
+ *   posts: z.array(z.object({ title: z.string() })).min(1),
  *   showOrderBadges: z.boolean().optional().default(false),
  * });
  *
@@ -35,6 +35,7 @@
 import { z } from "zod";
 
 import { PropsValidationError } from "@/utils/errors";
+import { safeHttpUrlSchema } from "@/utils/safeUrl";
 
 /**
  * PropsValidationError moved to @/utils/errors for centralization
@@ -148,7 +149,7 @@ export const CommonSchemas = {
   /**
    * URL string
    */
-  url: z.string().url(),
+  url: safeHttpUrlSchema,
 
   /**
    * Slug (lowercase, hyphens, no spaces)

@@ -170,7 +170,10 @@ describe("validation", () => {
 
     it("url schema should validate URLs", () => {
       expect(CommonSchemas.url.safeParse("https://example.com").success).toBe(true);
+      expect(CommonSchemas.url.safeParse("http://example.com").success).toBe(true);
       expect(CommonSchemas.url.safeParse("not-a-url").success).toBe(false);
+      expect(CommonSchemas.url.safeParse("javascript:alert(1)").success).toBe(false);
+      expect(CommonSchemas.url.safeParse("data:text/html,payload").success).toBe(false);
     });
 
     it("slug schema should validate slug format", () => {

@@ -1,6 +1,7 @@
 ---
 import BookStatsContainer from "@/components/blog/BookStatsContainer.astro";
 import Breadcrumbs from "@/components/Breadcrumbs.astro";
+import JsonLd from "@/components/JsonLd.astro";
 import Layout from "@/layouts/Layout.astro";
 import { t } from "@/locales";
 import { generateBreadcrumbSchema } from "@/utils/breadcrumb";
@@ -33,7 +34,7 @@ const breadcrumbSchema = generateBreadcrumbSchema(breadcrumbs, t(lang, "metaData
 ---
 
 <Layout {lang} {contact} {title} {description}>
-  <script slot="schema" type="application/ld+json" set:html={JSON.stringify(breadcrumbSchema)} />
+  <JsonLd slot="schema" schema={breadcrumbSchema} />
   <main class="book-stats-page">
     <Breadcrumbs items={breadcrumbs} {lang} />
     <h1 class="sr-only">{title}</h1>

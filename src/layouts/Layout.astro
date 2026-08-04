@@ -1,6 +1,7 @@
 ---
 import Footer from "@components/Footer.astro";
 import Header from "@components/Header.astro";
+import JsonLd from "@components/JsonLd.astro";
 import Menu from "@components/Menu.astro";
 import Search from "@components/Search.astro";
 import SEO from "@components/SEO.astro";
@@ -176,9 +177,8 @@ const nextPageUrl =
       })();
     </script>
     <!-- WebSite schema (site-wide) -->
-    <script
-      type="application/ld+json"
-      set:html={JSON.stringify({
+    <JsonLd
+      schema={{
         "@context": "https://schema.org",
         "@type": "WebSite",
         name: t(lang, "title"),
@@ -188,12 +188,11 @@ const nextPageUrl =
           "@type": "Person",
           name: t(lang, "title"),
         },
-      })}
+      }}
     />
     <!-- Person schema for site owner (site-wide, not page-specific) -->
-    <script
-      type="application/ld+json"
-      set:html={JSON.stringify({
+    <JsonLd
+      schema={{
         "@context": "https://schema.org",
         "@type": "Person",
         name: t(lang, "title"),
@@ -205,7 +204,7 @@ const nextPageUrl =
           addressLocality: "Valencia",
           addressCountry: "ES",
         },
-      })}
+      }}
     />
   </head>
   <body data-lang={lang}>

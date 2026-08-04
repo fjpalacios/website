@@ -5,6 +5,7 @@
  * Used by unified routing system
  */
 
+import JsonLd from "@components/JsonLd.astro";
 import Paginator from "@components/Paginator.astro";
 import PostList from "@components/PostList.astro";
 import Title from "@components/Title.astro";
@@ -69,7 +70,7 @@ const shelfUrl = buildLocalizedPath(lang, "books", "shelf");
   />
 
   <div data-pagefind-ignore>
-    <script type="application/ld+json" set:html={JSON.stringify(itemListSchema)} />
+    <JsonLd schema={itemListSchema} />
 
     {
       books.length > 0 ? (

@@ -9,6 +9,7 @@
  * - JSON-LD structured data for search engines
  */
 
+import JsonLd from "@components/JsonLd.astro";
 import { t } from "@locales";
 import { getCanonicalSegment, getLocalizedRoute, type RouteSegment } from "@utils/routes";
 
@@ -186,4 +187,4 @@ if (currentPage && totalPages && basePath) {
 }
 
 <!-- JSON-LD Structured Data -->
-<script type="application/ld+json" set:html={JSON.stringify(finalSchema)} />
+<JsonLd schema={finalSchema} />

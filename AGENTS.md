@@ -112,6 +112,7 @@ Order (enforced by ESLint `import/order`): **builtin → external → `@/` alias
 ## Testing
 
 - **TDD**: tests first, then implementation. Target **100% coverage**.
+- **Mandatory TDD cycle**: every change follows **RED → GREEN → REFACTOR → REGRESSION**. Demonstrate the focused test failing before the production change, then passing after the minimal fix.
 - Unit tests live in `src/__tests__/`, mirroring `src/` structure.
 - E2E specs in `e2e/`. Playwright projects: `chromium`, `visual-regression`, responsive (iPhone 12, iPhone SE, iPad, large desktop).
 - `astro:content` is mocked via `src/__mocks__/astro-content.ts` — check it before writing content-related tests.

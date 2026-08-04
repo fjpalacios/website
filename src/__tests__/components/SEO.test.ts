@@ -8,6 +8,7 @@ import { describe, it, expect } from "vitest";
 
 describe("SEO Component", () => {
   const componentPath = path.resolve(__dirname, "../../components/SEO.astro");
+  const jsonLdComponentPath = path.resolve(__dirname, "../../components/JsonLd.astro");
 
   it("should exist as a file", () => {
     expect(fs.existsSync(componentPath)).toBe(true);
@@ -196,7 +197,7 @@ describe("SEO Component", () => {
 
   describe("JSON-LD Structured Data", () => {
     it("should render JSON-LD script tag", () => {
-      const content = fs.readFileSync(componentPath, "utf-8");
+      const content = fs.readFileSync(jsonLdComponentPath, "utf-8");
 
       expect(content).toContain('type="application/ld+json"');
     });
@@ -204,8 +205,7 @@ describe("SEO Component", () => {
     it("should render custom schema when provided", () => {
       const content = fs.readFileSync(componentPath, "utf-8");
 
-      expect(content).toContain("schema");
-      expect(content).toMatch(/JSON\.stringify/);
+      expect(content).toContain("<JsonLd schema={finalSchema} />");
     });
 
     it("should have default schema when none provided", () => {
@@ -224,8 +224,9 @@ describe("SEO Component", () => {
     });
 
     it("should use set:html for safe JSON rendering", () => {
-      const content = fs.readFileSync(componentPath, "utf-8");
+      const content = fs.readFileSync(jsonLdComponentPath, "utf-8");
 
+      expect(content).toContain("serializeJsonForHtml");
       expect(content).toContain("set:html");
     });
   });
