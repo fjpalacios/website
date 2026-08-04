@@ -13,9 +13,9 @@ const { getCollection } = await import("astro:content");
 describe("getCollectionByLanguage", () => {
   it("should filter categories by language", async () => {
     const mockCategories = [
-      { data: { language: "es", slug: "cat-1" } },
-      { data: { language: "en", slug: "cat-2" } },
-      { data: { language: "es", slug: "cat-3" } },
+      { data: { language: "es", category_slug: "cat-1" } },
+      { data: { language: "en", category_slug: "cat-2" } },
+      { data: { language: "es", category_slug: "cat-3" } },
     ];
 
     vi.mocked(getCollection).mockImplementation(async (collection: any, filter?: any) => {
@@ -29,15 +29,15 @@ describe("getCollectionByLanguage", () => {
 
     expect(getCollection).toHaveBeenCalledWith("categories", expect.any(Function));
     expect(result).toHaveLength(2);
-    expect(result[0].data.slug).toBe("cat-1");
-    expect(result[1].data.slug).toBe("cat-3");
+    expect(result[0].data.category_slug).toBe("cat-1");
+    expect(result[1].data.category_slug).toBe("cat-3");
   });
 
   it("should filter publishers by language", async () => {
     const mockPublishers = [
-      { data: { language: "en", slug: "pub-1" } },
-      { data: { language: "en", slug: "pub-2" } },
-      { data: { language: "es", slug: "pub-3" } },
+      { data: { language: "en", publisher_slug: "pub-1" } },
+      { data: { language: "en", publisher_slug: "pub-2" } },
+      { data: { language: "es", publisher_slug: "pub-3" } },
     ];
 
     vi.mocked(getCollection).mockImplementation(async (collection: any, filter?: any) => {
@@ -50,12 +50,15 @@ describe("getCollectionByLanguage", () => {
     const result = await getCollectionByLanguage("publishers", "en");
 
     expect(result).toHaveLength(2);
-    expect(result[0].data.slug).toBe("pub-1");
-    expect(result[1].data.slug).toBe("pub-2");
+    expect(result[0].data.publisher_slug).toBe("pub-1");
+    expect(result[1].data.publisher_slug).toBe("pub-2");
   });
 
   it("should filter genres by language", async () => {
-    const mockGenres = [{ data: { language: "es", slug: "genre-1" } }, { data: { language: "es", slug: "genre-2" } }];
+    const mockGenres = [
+      { data: { language: "es", genre_slug: "genre-1" } },
+      { data: { language: "es", genre_slug: "genre-2" } },
+    ];
 
     vi.mocked(getCollection).mockImplementation(async (collection: any, filter?: any) => {
       if (filter) {
@@ -70,7 +73,10 @@ describe("getCollectionByLanguage", () => {
   });
 
   it("should filter series by language", async () => {
-    const mockSeries = [{ data: { language: "en", slug: "series-1" } }, { data: { language: "es", slug: "series-2" } }];
+    const mockSeries = [
+      { data: { language: "en", series_slug: "series-1" } },
+      { data: { language: "es", series_slug: "series-2" } },
+    ];
 
     vi.mocked(getCollection).mockImplementation(async (collection: any, filter?: any) => {
       if (filter) {
@@ -82,13 +88,13 @@ describe("getCollectionByLanguage", () => {
     const result = await getCollectionByLanguage("series", "en");
 
     expect(result).toHaveLength(1);
-    expect(result[0].data.slug).toBe("series-1");
+    expect(result[0].data.series_slug).toBe("series-1");
   });
 
   it("should filter courses by language", async () => {
     const mockCourses = [
-      { data: { language: "es", slug: "course-1" } },
-      { data: { language: "en", slug: "course-2" } },
+      { data: { language: "es", course_slug: "course-1" } },
+      { data: { language: "en", course_slug: "course-2" } },
     ];
 
     vi.mocked(getCollection).mockImplementation(async (collection: any, filter?: any) => {
@@ -101,11 +107,11 @@ describe("getCollectionByLanguage", () => {
     const result = await getCollectionByLanguage("courses", "es");
 
     expect(result).toHaveLength(1);
-    expect(result[0].data.slug).toBe("course-1");
+    expect(result[0].data.course_slug).toBe("course-1");
   });
 
   it("should filter challenges by language", async () => {
-    const mockChallenges = [{ data: { language: "en", slug: "challenge-1" } }];
+    const mockChallenges = [{ data: { language: "en", challenge_slug: "challenge-1" } }];
 
     vi.mocked(getCollection).mockImplementation(async (collection: any, filter?: any) => {
       if (filter) {

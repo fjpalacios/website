@@ -19,11 +19,11 @@ That's a perfectly fine starting point. The problem is if you stop there — usi
 
 Visual mode isn't one thing — it's three, each with distinct behavior:
 
-| Command  | Mode            | What it selects                                        |
-| -------- | --------------- | ------------------------------------------------------ |
-| `v`      | Characterwise   | Character by character                                 |
-| `V`      | Linewise        | Full lines, regardless of cursor position              |
-| `Ctrl+v` | Blockwise       | A rectangular region (columns across multiple lines)   |
+| Command  | Mode          | What it selects                                      |
+| -------- | ------------- | ---------------------------------------------------- |
+| `v`      | Characterwise | Character by character                               |
+| `V`      | Linewise      | Full lines, regardless of cursor position            |
+| `Ctrl+v` | Blockwise     | A rectangular region (columns across multiple lines) |
 
 `v` is the intuitive one. Press `v`, move the cursor, the selection grows. Every Normal mode motion works: `w`, `e`, `$`, `gg`, `G`, even search patterns. If you can navigate in Normal mode, you already know how to select in characterwise Visual.
 
@@ -39,17 +39,17 @@ A small command worth knowing early: after operating on a selection and returnin
 
 With text selected, the most useful commands are:
 
-| Command | What it does to the selection        |
-| ------- | ------------------------------------ |
-| `d`     | Delete the selection                 |
-| `c`     | Delete the selection and enter Insert|
-| `y`     | Yank (copy) the selection            |
-| `>`     | Indent the selection                 |
-| `<`     | Dedent the selection                 |
-| `=`     | Auto-format the selection            |
-| `~`     | Toggle case                          |
-| `u`     | Lowercase                            |
-| `U`     | Uppercase                            |
+| Command | What it does to the selection         |
+| ------- | ------------------------------------- |
+| `d`     | Delete the selection                  |
+| `c`     | Delete the selection and enter Insert |
+| `y`     | Yank (copy) the selection             |
+| `>`     | Indent the selection                  |
+| `<`     | Dedent the selection                  |
+| `=`     | Auto-format the selection             |
+| `~`     | Toggle case                           |
+| `u`     | Lowercase                             |
+| `U`     | Uppercase                             |
 
 Don't try to memorize all of this now. `d`, `y`, and `>` cover 90% of real-world usage. The rest will show up naturally when you need them.
 
@@ -91,11 +91,13 @@ After learning Visual mode, someone always asks: "why bother selecting with Visu
 Fair question. Honest answer: each one wins in different situations.
 
 **Use Visual when:**
+
 - You don't know exactly where the range ends and need to see it before committing
 - The selection has an irregular shape that no single motion describes cleanly
 - You want to apply multiple operations to the same range (`gv` + operation)
 
 **Use operator-motion when:**
+
 - You know exactly what you want and the motion describes it precisely
 - You're going to repeat the operation with `.` — because Visual mode breaks that repeatability
 

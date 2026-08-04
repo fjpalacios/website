@@ -15,7 +15,7 @@ describe("preparePostSummary", () => {
         date: new Date("2024-01-15"),
         excerpt: "This is a test post excerpt",
         language: "es",
-        category: "tutorials",
+        categories: ["tutorials"],
       },
     } as CollectionEntry<"posts">;
 
@@ -26,11 +26,11 @@ describe("preparePostSummary", () => {
     expect(summary.slug).toBe("test-post");
     expect(summary.excerpt).toBe("This is a test post excerpt");
     expect(summary.language).toBe("es");
-    expect(summary.category).toBe("tutorials");
+    expect(summary.categories).toEqual(["tutorials"]);
     expect(summary.date).toEqual(new Date("2024-01-15"));
   });
 
-  it("should handle optional featured_image field", () => {
+  it("should handle optional cover field", () => {
     const mockPost: CollectionEntry<"posts"> = {
       id: "test-post.mdx",
       collection: "posts",
@@ -40,14 +40,14 @@ describe("preparePostSummary", () => {
         date: new Date("2024-01-15"),
         excerpt: "Test excerpt",
         language: "en",
-        category: "tutorials",
-        featured_image: "/images/test.png",
+        categories: ["tutorials"],
+        cover: "/images/test.png",
       },
     } as CollectionEntry<"posts">;
 
     const summary = preparePostSummary(mockPost);
 
-    expect(summary.featuredImage).toBe("/images/test.png");
+    expect(summary.cover).toBe("/images/test.png");
   });
 
   it("should handle optional update_date field", () => {
@@ -60,7 +60,7 @@ describe("preparePostSummary", () => {
         date: new Date("2024-01-15"),
         excerpt: "Test excerpt",
         language: "en",
-        category: "tutorials",
+        categories: ["tutorials"],
         update_date: new Date("2024-02-20"),
       },
     } as CollectionEntry<"posts">;
@@ -70,7 +70,7 @@ describe("preparePostSummary", () => {
     expect(summary.updateDate).toEqual(new Date("2024-02-20"));
   });
 
-  it("should handle optional canonical_url field", () => {
+  it("should handle optional fields when absent", () => {
     const mockPost: CollectionEntry<"posts"> = {
       id: "test-post.mdx",
       collection: "posts",
@@ -80,14 +80,14 @@ describe("preparePostSummary", () => {
         date: new Date("2024-01-15"),
         excerpt: "Test excerpt",
         language: "en",
-        category: "tutorials",
-        canonical_url: "https://example.com/original-post",
+        categories: ["tutorials"],
       },
     } as CollectionEntry<"posts">;
 
     const summary = preparePostSummary(mockPost);
 
-    expect(summary.canonicalUrl).toBe("https://example.com/original-post");
+    expect(summary.cover).toBeUndefined();
+    expect(summary.updateDate).toBeUndefined();
   });
 
   it("should handle posts with all optional fields", () => {
@@ -100,10 +100,9 @@ describe("preparePostSummary", () => {
         date: new Date("2024-01-15"),
         excerpt: "Complete excerpt",
         language: "en",
-        category: "backend",
-        featured_image: "/images/complete.png",
+        categories: ["backend"],
+        cover: "/images/complete.png",
         update_date: new Date("2024-03-01"),
-        canonical_url: "https://example.com/complete",
       },
     } as CollectionEntry<"posts">;
 
@@ -113,10 +112,9 @@ describe("preparePostSummary", () => {
     expect(summary.slug).toBe("complete-post");
     expect(summary.excerpt).toBe("Complete excerpt");
     expect(summary.language).toBe("en");
-    expect(summary.category).toBe("backend");
+    expect(summary.categories).toEqual(["backend"]);
     expect(summary.date).toEqual(new Date("2024-01-15"));
-    expect(summary.featuredImage).toBe("/images/complete.png");
+    expect(summary.cover).toBe("/images/complete.png");
     expect(summary.updateDate).toEqual(new Date("2024-03-01"));
-    expect(summary.canonicalUrl).toBe("https://example.com/complete");
   });
 });

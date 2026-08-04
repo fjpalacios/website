@@ -4,6 +4,7 @@
 import { z } from "zod";
 
 import { getLanguageCodes } from "@/config/languages";
+import type { LanguageKey } from "@/config/languages";
 
 /**
  * Create a dynamic language enum validator
@@ -15,7 +16,9 @@ function createLanguageEnum() {
     throw new Error("No languages configured in src/config/languages.ts");
   }
   // z.enum requires at least 2 values, use type assertion for single language
-  return languages.length === 1 ? z.literal(languages[0]) : z.enum(languages as [string, string, ...string[]]);
+  return languages.length === 1
+    ? z.literal(languages[0])
+    : z.enum(languages as [LanguageKey, LanguageKey, ...LanguageKey[]]);
 }
 
 // Create the language validator

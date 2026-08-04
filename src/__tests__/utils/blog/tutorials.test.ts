@@ -16,9 +16,7 @@ const mockTutorial: CollectionEntry<"tutorials"> = {
     date: new Date("2024-01-15"),
     excerpt: "Learn how to test",
     language: "en",
-    category: "tutorials",
-    difficulty: "beginner",
-    estimated_time: 30,
+    categories: ["tutorials"],
   },
 } as CollectionEntry<"tutorials">;
 
@@ -31,13 +29,10 @@ const mockTutorialWithOptional: CollectionEntry<"tutorials"> = {
     date: new Date("2024-02-01"),
     excerpt: "Advanced concepts",
     language: "es",
-    category: "tutorials",
-    difficulty: "advanced",
-    estimated_time: 120,
-    github_repo: "https://github.com/test/repo",
-    demo_url: "https://demo.example.com",
+    categories: ["tutorials"],
     course: "javascript-fundamentals",
-    featured_image: "./images/tutorial.png",
+    order: 2,
+    cover: "./images/tutorial.png",
   },
 } as CollectionEntry<"tutorials">;
 
@@ -51,34 +46,29 @@ describe("prepareTutorialSummary", () => {
     expect(summary.excerpt).toBe("Learn how to test");
     expect(summary.language).toBe("en");
     expect(summary.date).toEqual(new Date("2024-01-15"));
-    expect(summary.difficulty).toBe("beginner");
-    expect(summary.estimatedTime).toBe(30);
+    expect(summary.categories).toEqual(["tutorials"]);
   });
 
   it("should handle optional fields when not present", () => {
     const summary = prepareTutorialSummary(mockTutorial);
 
-    expect(summary.githubRepo).toBeUndefined();
-    expect(summary.demoUrl).toBeUndefined();
     expect(summary.course).toBeUndefined();
-    expect(summary.featuredImage).toBeUndefined();
+    expect(summary.cover).toBeUndefined();
   });
 
   it("should include optional fields when present", () => {
     const summary = prepareTutorialSummary(mockTutorialWithOptional);
 
-    expect(summary.githubRepo).toBe("https://github.com/test/repo");
-    expect(summary.demoUrl).toBe("https://demo.example.com");
     expect(summary.course).toBe("javascript-fundamentals");
-    expect(summary.featuredImage).toBe("./images/tutorial.png");
+    expect(summary.cover).toBe("./images/tutorial.png");
   });
 
-  it("should handle different difficulty levels", () => {
-    const beginner = prepareTutorialSummary(mockTutorial);
-    expect(beginner.difficulty).toBe("beginner");
+  it("should preserve tutorial order", () => {
+    const basic = prepareTutorialSummary(mockTutorial);
+    expect(basic.order).toBeUndefined();
 
-    const advanced = prepareTutorialSummary(mockTutorialWithOptional);
-    expect(advanced.difficulty).toBe("advanced");
+    const withOrder = prepareTutorialSummary(mockTutorialWithOptional);
+    expect(withOrder.order).toBe(2);
   });
 
   describe("with courses", () => {
@@ -166,7 +156,7 @@ function makeTutorial(order: number, slug: string, course = "test-course"): Coll
       date: new Date("2024-01-01"),
       excerpt: "An excerpt",
       language: "es" as const,
-      category: "tutorials",
+      categories: ["tutorials"],
       course,
       order,
     },

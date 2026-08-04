@@ -15,11 +15,9 @@ export interface PostSummary {
   excerpt: string;
   language: LanguageKey;
   date: Date;
-  category: string;
+  categories: string[];
   cover?: string;
-  featuredImage?: string;
   updateDate?: Date;
-  canonicalUrl?: string;
 }
 
 /**
@@ -35,10 +33,8 @@ export function preparePostSummary(post: CollectionEntry<"posts">): PostSummary 
     excerpt: post.data.excerpt,
     language: post.data.language,
     date: post.data.date,
-    category: post.data.category,
-    cover: post.data.cover || post.data.featured_image,
-    featuredImage: post.data.featured_image,
+    categories: post.data.categories,
+    cover: post.data.cover,
     updateDate: post.data.update_date,
-    canonicalUrl: post.data.canonical_url,
   };
 }

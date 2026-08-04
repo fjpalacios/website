@@ -5,7 +5,7 @@ import { getAlternateLang } from "@/config/languages";
 import { PAGINATION_CONFIG } from "@/config/pagination";
 import type { ContactItem, LanguageKey } from "@/types";
 import { filterByLanguage, prepareBookSummary, preparePostSummary, prepareTutorialSummary } from "@/utils/blog";
-import type { BookSummary, PostSummary } from "@/utils/blog";
+import type { ContentSummary } from "@/utils/blog";
 import { extractContentDate } from "@/utils/content-date";
 
 export const ITEMS_PER_PAGE = PAGINATION_CONFIG.taxonomy;
@@ -151,14 +151,13 @@ export async function hasTargetContent(config: TaxonomyConfig, targetLang: Langu
  */
 export function prepareContentSummary(
   item: CollectionEntry<"posts"> | CollectionEntry<"tutorials"> | CollectionEntry<"books">,
-): PostSummary | BookSummary {
+): ContentSummary {
   if (item.collection === "posts") {
-    return preparePostSummary(item as CollectionEntry<"posts">);
+    return preparePostSummary(item);
   } else if (item.collection === "tutorials") {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Tutorial summary return type compatibility
-    return prepareTutorialSummary(item as CollectionEntry<"tutorials">) as any;
+    return prepareTutorialSummary(item);
   } else {
-    return prepareBookSummary(item as CollectionEntry<"books">);
+    return prepareBookSummary(item);
   }
 }
 

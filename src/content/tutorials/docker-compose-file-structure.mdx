@@ -27,10 +27,10 @@ services:
     # Image or build (not both)
     image: myapp/api:latest
     build:
-      context: ./api          # Directory with the Dockerfile
-      dockerfile: Dockerfile  # Dockerfile name (default: Dockerfile)
+      context: ./api # Directory with the Dockerfile
+      dockerfile: Dockerfile # Dockerfile name (default: Dockerfile)
       args:
-        NODE_ENV: production   # Build-time arguments
+        NODE_ENV: production # Build-time arguments
 
     # Optional: explicit container name (auto-generated if omitted)
     container_name: myapp-api
@@ -54,8 +54,8 @@ services:
 
     # Volumes
     volumes:
-      - ./api/src:/app/src  # Bind mount (development hot reload)
-      - api-data:/app/data  # Named volume
+      - ./api/src:/app/src # Bind mount (development hot reload)
+      - api-data:/app/data # Named volume
 
     # Networks this service connects to
     networks:
@@ -94,10 +94,10 @@ services:
       POSTGRES_DB: myapp
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U myapp -d myapp"]
-      interval: 5s       # How often Docker runs the check
-      timeout: 3s        # Max time allowed per check
-      retries: 5         # Fail after this many consecutive failures
-      start_period: 10s  # Grace period before failures count against retries
+      interval: 5s # How often Docker runs the check
+      timeout: 3s # Max time allowed per check
+      retries: 5 # Fail after this many consecutive failures
+      start_period: 10s # Grace period before failures count against retries
 ```
 
 `start_period` is worth understanding: during that window, health check failures don't count toward the `retries` limit. This gives Postgres time to finish initializing before Docker starts caring whether the check passes. Without it, a health check could fail during normal startup and prematurely mark the service as `unhealthy`.
@@ -110,7 +110,7 @@ services:
     build: ./api
     depends_on:
       db:
-        condition: service_healthy  # Wait until db passes its health check
+        condition: service_healthy # Wait until db passes its health check
 ```
 
 The syntax changes from a list to a map when you add a condition. `condition: service_healthy` holds the API back until Postgres's health check returns `healthy`. This is what `depends_on: [db]` implied it was doing.
@@ -194,7 +194,7 @@ services:
     build: ./api
     env_file:
       - .env
-      - .env.local  # Local overrides, not versioned
+      - .env.local # Local overrides, not versioned
 ```
 
 The difference from interpolation: `env_file` injects variables into the container's environment, but they're not available for substitution elsewhere in the YAML. If you need a variable in `ports`, `image`, or `healthcheck`, use interpolation (`${VAR}`). If you just need it inside the container and want a cleaner YAML, `env_file` is the right choice.
@@ -205,12 +205,12 @@ Without a restart policy, a failed container stays down. In development you'll n
 
 The four options:
 
-| Policy | Behavior |
-|--------|----------|
-| `"no"` | Never restart automatically (default) |
-| `always` | Always restart, even after `docker stop` |
-| `on-failure` | Restart only when the process exits with an error |
-| `unless-stopped` | Like `always`, but respects manual `docker compose stop` |
+| Policy           | Behavior                                                                                                                          |
+| ---------------- | --------------------------------------------------------------------------------------------------------------------------------- |
+| `"no"`           | Never restart automatically (default)                                                                                             |
+| `always`         | Restart automatically whenever it exits; after a manual `docker stop`, restart when the daemon restarts or it is started manually |
+| `on-failure`     | Restart only when the process exits with an error                                                                                 |
+| `unless-stopped` | Like `always`, but respects manual `docker compose stop`                                                                          |
 
 For most cases, `unless-stopped` is the right call: the service recovers if the process crashes, but you can stop it manually without it coming back on its own.
 

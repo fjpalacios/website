@@ -114,7 +114,7 @@ show_user(name="Alice", 34, "London")       # ❌ SyntaxError
 
 Why bother? For the day your function has four boolean parameters and the person reading the code six months from now isn't you. `include_signature=True` says what it does. `True` in position four says nothing.
 
-## *args: variable number of positional arguments
+## \*args: variable number of positional arguments
 
 What if you need a function that accepts any number of arguments? The `*` before the parameter name tells Python to pack all the extra positional arguments into a **tuple**:
 
@@ -159,7 +159,7 @@ Fruits:
 
 Think of `*args` like a function that takes however many pizza toppings you want — you don't hardcode three slots for `topping_1`, `topping_2`, `topping_3`. Whatever shows up goes in.
 
-## **kwargs: variable keyword arguments
+## \*\*kwargs: variable keyword arguments
 
 `**kwargs` does the same thing as `*args`, but for keyword arguments. Instead of a tuple, Python packs everything into a **dictionary**:
 
@@ -217,8 +217,8 @@ log("INFO", "Connection established", "Database ready",
 
 - **Default parameters**: when a reasonable value works for most cases. Don't put a default on everything "just in case" — a function where everything is optional has no clear contract.
 - **Keyword arguments**: when the signature has more than three parameters or when the argument types don't make their purpose obvious.
-- ***args**: when you genuinely don't know how many positional arguments will arrive. If you know, list them explicitly — an explicit signature always communicates more than `*args`.
-- ****kwargs**: for wrappers, decorators, and generic configuration utilities. Not as a substitute for thinking through the interface.
+- **\*args**: when you genuinely don't know how many positional arguments will arrive. If you know, list them explicitly — an explicit signature always communicates more than `*args`.
+- \***\*kwargs**: for wrappers, decorators, and generic configuration utilities. Not as a substitute for thinking through the interface.
 
 ## Key concepts from this lesson
 

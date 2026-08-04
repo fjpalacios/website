@@ -127,7 +127,7 @@ describe("rss/generator", () => {
       const unknownItem = {
         ...mockPosts[0],
         collection: "unknown" as "posts" | "books" | "tutorials",
-      };
+      } as unknown as (typeof mockPosts)[number];
       const url = buildContentUrl(unknownItem, "es");
       expect(url).toBe("/es/publicaciones/primer-post");
     });

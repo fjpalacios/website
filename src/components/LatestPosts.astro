@@ -22,7 +22,7 @@ import Icon from "@components/Icon.astro";
 import Title from "@components/Title.astro";
 import "@styles/components/latest-posts.scss";
 import { t } from "@locales";
-import type { PostSummary } from "@utils/blog";
+import type { ContentSummary } from "@utils/blog";
 import { getLatestPosts } from "@utils/content/getLatestPosts";
 import { formatVintageDate } from "@utils/dateFormat";
 import { buildBookUrl, buildPostUrl, buildTutorialUrl, buildIndexUrl } from "@utils/routes";
@@ -37,7 +37,7 @@ const { limit = 4, lang } = Astro.props;
 /**
  * Get the correct URL based on content type
  */
-function getContentUrl(item: PostSummary): string {
+function getContentUrl(item: ContentSummary): string {
   switch (item.type) {
     case "book":
       return buildBookUrl(item.language, item.slug);
@@ -52,7 +52,7 @@ function getContentUrl(item: PostSummary): string {
 /**
  * Get the correct icon name based on content type
  */
-function getContentIconName(type: PostSummary["type"]): string {
+function getContentIconName(type: ContentSummary["type"]): string {
   switch (type) {
     case "book":
       return "book";

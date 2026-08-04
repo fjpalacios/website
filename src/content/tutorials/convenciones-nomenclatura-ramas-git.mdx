@@ -39,6 +39,7 @@ Puedes pensar que el nombre de una rama es un detalle menor, cosmético. No lo e
 Un nombre de rama es un contrato temporal con el equipo: dice qué tipo de trabajo contiene, a qué ticket o funcionalidad corresponde, y cuándo tiene sentido eliminarla. Cuando ese contrato falta, cada interacción con el historial de ramas empieza con la misma pregunta: "espera, ¿qué es esto?"
 
 Tres síntomas de que hay un problema:
+
 - Alguien pregunta "¿puedo borrar esta rama?" y nadie sabe la respuesta
 - Usas `git branch -a` y tardas más tiempo leyendo nombres que haciendo trabajo
 - Hay dos ramas activas llamadas `feature-nueva` y `feature-nueva-v2` y nadie recuerda cuál es la buena
@@ -60,16 +61,16 @@ docs/api-reference-v2
 
 Los prefijos más habituales:
 
-| Prefijo | Cuándo usarlo |
-|---------|---------------|
-| `feature/` o `feat/` | Nueva funcionalidad |
-| `fix/` o `bugfix/` | Corrección de un bug en desarrollo |
-| `hotfix/` | Fix urgente que va directo a producción |
-| `release/` | Rama de preparación de una versión |
-| `chore/` | Mantenimiento: dependencias, configuración |
-| `docs/` | Cambios solo en documentación |
-| `refactor/` | Refactor sin cambio observable de comportamiento |
-| `test/` | Añadir o corregir tests |
+| Prefijo              | Cuándo usarlo                                    |
+| -------------------- | ------------------------------------------------ |
+| `feature/` o `feat/` | Nueva funcionalidad                              |
+| `fix/` o `bugfix/`   | Corrección de un bug en desarrollo               |
+| `hotfix/`            | Fix urgente que va directo a producción          |
+| `release/`           | Rama de preparación de una versión               |
+| `chore/`             | Mantenimiento: dependencias, configuración       |
+| `docs/`              | Cambios solo en documentación                    |
+| `refactor/`          | Refactor sin cambio observable de comportamiento |
+| `test/`              | Añadir o corregir tests                          |
 
 Si el tutorial anterior sobre [buenas prácticas de commits](/es/tutoriales/buenas-practicas-commits-git) te suena familiar, reconocerás los tipos — son exactamente los de Conventional Commits. No es casualidad. Cuando tus ramas y tus commits hablan el mismo idioma, el historial del proyecto se vuelve mucho más fácil de leer de un vistazo.
 

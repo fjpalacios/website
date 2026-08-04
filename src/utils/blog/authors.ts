@@ -11,16 +11,9 @@ import type { LanguageKey } from "@/types";
 export interface AuthorSummary {
   name: string;
   slug: string;
-  bio: string;
+  bio?: string;
   language: LanguageKey;
-  birthYear?: number;
-  deathYear?: number;
-  nationality?: string;
   picture?: string;
-  website?: string;
-  twitter?: string;
-  goodreads?: string;
-  wikipedia?: string;
   gender?: "male" | "female" | "other";
 }
 
@@ -43,16 +36,9 @@ export function prepareAuthorSummary(author: CollectionEntry<"authors">): Author
   return {
     name: author.data.name,
     slug: author.data.author_slug,
-    bio: author.data.bio,
+    bio: author.body,
     language: author.data.language,
-    birthYear: author.data.birth_year,
-    deathYear: author.data.death_year,
-    nationality: author.data.nationality,
     picture: author.data.picture,
-    website: author.data.website,
-    twitter: author.data.twitter,
-    goodreads: author.data.goodreads,
-    wikipedia: author.data.wikipedia,
     gender: author.data.gender,
   };
 }

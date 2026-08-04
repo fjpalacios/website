@@ -5,6 +5,7 @@
 
 import { getCollection } from "astro:content";
 
+import { isValidLanguage } from "@/config/languages";
 import { PAGINATION_CONFIG } from "@/config/pagination";
 import type { ContactItem } from "@/types/content";
 import { filterByLanguage, prepareTutorialSummary, sortByDate, type TutorialSummary } from "@/utils/blog";
@@ -16,17 +17,19 @@ export const TUTORIALS_PER_PAGE = PAGINATION_CONFIG.tutorials;
  * Get all tutorials for a language, sorted by date
  */
 export async function getAllTutorialsForLanguage(lang: string): Promise<TutorialSummary[]> {
+  if (!isValidLanguage(lang)) {
+    throw new Error(`Unsupported language: ${lang}`);
+  }
+
   // Get all tutorials and courses
   const allTutorials = await getCollection("tutorials");
   const allCourses = await getCollection("courses");
 
   // Filter courses by language
-  // @ts-expect-error - Astro 5 CollectionEntry type compatibility
   const langCourses = filterByLanguage(allCourses, lang);
 
   // Filter by language
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Astro content collection type inference limitation
-  const langTutorials = filterByLanguage(allTutorials, lang as any);
+  const langTutorials = filterByLanguage(allTutorials, lang);
 
   // Sort by date (newest first)
   const sortedTutorials = sortByDate(langTutorials, "desc");

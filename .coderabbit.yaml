@@ -1,0 +1,10 @@
+language: "en-US"
+
+reviews:
+  path_instructions:
+    - path: "src/content/**/*.mdx"
+      instructions: >-
+        These MDX files contain intentionally localized bilingual content. Spanish prose in Spanish tutorial
+        and content files is expected and must not be reported as a language-rule violation. Review code blocks,
+        links, frontmatter, security, and factual correctness normally, but do not require article prose to be
+        English solely because repository source code and developer documentation use English.

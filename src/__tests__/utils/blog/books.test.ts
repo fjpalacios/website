@@ -32,9 +32,8 @@ const mockBooks: CollectionEntry<"books">[] = [
       publisher: "debolsillo",
       genres: ["fiction", "horror", "thriller"],
       challenges: ["2017-reading-challenge"],
-      category: "book-reviews",
+      categories: ["book-reviews"],
       cover: "./covers/test.jpg",
-      buy_links: [],
     },
   },
 ] as CollectionEntry<"books">[];
@@ -47,9 +46,9 @@ const mockAuthors: CollectionEntry<"authors">[] = [
     data: {
       name: "Stephen King",
       author_slug: "stephen-king",
-      bio: "Test bio",
       language: "en" as const,
     },
+    body: "Test bio",
   },
 ] as CollectionEntry<"authors">[];
 
