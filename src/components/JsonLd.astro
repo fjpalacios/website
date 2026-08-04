@@ -1,0 +1,11 @@
+---
+import { serializeJsonForHtml } from "@/utils/serializeJsonForHtml";
+
+interface Props {
+  schema: unknown;
+}
+
+const { schema } = Astro.props;
+---
+
+<script type="application/ld+json" set:html={serializeJsonForHtml(schema)} />

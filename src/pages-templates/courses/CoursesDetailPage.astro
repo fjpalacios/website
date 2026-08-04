@@ -11,6 +11,7 @@
  */
 
 import Breadcrumbs from "@components/Breadcrumbs.astro";
+import JsonLd from "@components/JsonLd.astro";
 import Paginator from "@components/Paginator.astro";
 import PostList from "@components/PostList.astro";
 import Title from "@components/Title.astro";
@@ -130,9 +131,9 @@ const itemListSchema = generateItemListSchema(
   translationSlug={course.data.i18n}
   hasTargetContent={hasTargetContent}
 >
-  <script slot="schema" type="application/ld+json" set:html={JSON.stringify(courseSchema)} />
-  <script slot="schema" type="application/ld+json" set:html={JSON.stringify(itemListSchema)} />
-  <script slot="schema" type="application/ld+json" set:html={JSON.stringify(breadcrumbSchema)} />
+  <JsonLd slot="schema" schema={courseSchema} />
+  <JsonLd slot="schema" schema={itemListSchema} />
+  <JsonLd slot="schema" schema={breadcrumbSchema} />
 
   <Breadcrumbs items={breadcrumbs} lang={lang} />
   <Title title={pageTitle} srOnly={true} useAsPagefindTitle={true} headingLevel="h1" />

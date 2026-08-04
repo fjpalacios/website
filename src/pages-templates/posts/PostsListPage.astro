@@ -10,6 +10,7 @@
  * sorted by date, providing a unified timeline view.
  */
 
+import JsonLd from "@components/JsonLd.astro";
 import Paginator from "@components/Paginator.astro";
 import PostList from "@components/PostList.astro";
 import Title from "@components/Title.astro";
@@ -73,7 +74,7 @@ const itemListSchema = generateItemListSchema(
   <Title title={pageTitle} icon="file-text" />
 
   <div data-pagefind-ignore>
-    <script type="application/ld+json" set:html={JSON.stringify(itemListSchema)} />
+    <JsonLd schema={itemListSchema} />
 
     {
       posts.length > 0 ? (

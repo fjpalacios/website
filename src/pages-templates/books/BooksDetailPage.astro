@@ -10,6 +10,7 @@
 import AuthorInfo from "@components/AuthorInfo.astro";
 import Breadcrumbs from "@components/Breadcrumbs.astro";
 import Icon from "@components/Icon.astro";
+import JsonLd from "@components/JsonLd.astro";
 import OptimizedImage from "@components/OptimizedImage.astro";
 import PostTitle from "@components/PostTitle.astro";
 import Rating from "@components/Rating.astro";
@@ -22,7 +23,7 @@ import { generateBreadcrumbSchema, type BreadcrumbItem } from "@utils/breadcrumb
 import { getBookCoverImage } from "@utils/imageImports";
 import { IMAGE_DIMENSIONS } from "@utils/images";
 import { buildAuthorUrl, buildCategoryUrl, buildGenreUrl, buildPublisherUrl } from "@utils/routes";
-import { safeValidateProps, CommonSchemas } from "@utils/validation";
+import { CommonSchemas, validateProps } from "@utils/validation";
 import { getImage } from "astro:assets";
 import { render, type CollectionEntry } from "astro:content";
 import { z } from "zod";
@@ -36,23 +37,20 @@ interface Props {
 
 // Validate Props at runtime
 const PropsSchema = z.object({
-  bookEntry: z.any(), // CollectionEntry is complex, skip for now
+  bookEntry: z.custom<CollectionEntry<"books">>(isBookCollectionEntry, "Invalid books collection entry"),
   lang: CommonSchemas.language,
-  contact: z.array(z.any()),
+  contact: z.array(
+    z.object({
+      name: z.string(),
+      link: z.string().min(1),
+      icon: z.string(),
+      text: z.string(),
+    }),
+  ),
   hasTargetContent: z.boolean(),
 });
 
-const validatedProps = safeValidateProps(
-  PropsSchema,
-  Astro.props,
-  {
-    bookEntry: Astro.props.bookEntry,
-    lang: "es" as const,
-    contact: Astro.props.contact || [],
-    hasTargetContent: false,
-  },
-  "BooksDetailPage",
-);
+const validatedProps = validateProps(PropsSchema, Astro.props, "BooksDetailPage");
 
 const { bookEntry, lang, contact, hasTargetContent } = validatedProps;
 const book = bookEntry.data;
@@ -67,8 +65,10 @@ import {
   findCategoriesBySlug,
   findSeriesBySlug,
 } from "@/utils/blog";
+import { isBookCollectionEntry } from "@/utils/content/guards";
 import { buildBooksIndexUrl, buildSeriesUrl } from "@/utils/routes";
 import { getAllFromCollection, getCollectionByLanguage } from "@/utils/content/getCollectionByLanguage";
+import { safeHttpUrlSchema } from "@/utils/safeUrl";
 import { processSynopsis } from "@/utils/synopsis";
 
 const allAuthors = await getAllFromCollection("authors");
@@ -94,13 +94,13 @@ const optimizedCoverImage = await getImage({ src: bookCoverImage, format: "webp"
 // Runtime validation schemas
 const BuyLinkSchema = z.object({
   type: z.enum(["paper", "ebook", "audiobook"]),
-  link: z.string().url(),
+  link: safeHttpUrlSchema,
 });
 
 const BuyLinksArraySchema = z.array(BuyLinkSchema);
 
 // Validate buy links with runtime checking
-const typedBuyLinks = safeValidateProps(BuyLinksArraySchema, book.buy || [], [], "BooksDetailPage.buyLinks");
+const typedBuyLinks = validateProps(BuyLinksArraySchema, book.buy || [], "BooksDetailPage.buyLinks");
 
 // Categories and genres are already properly typed from findBySlug functions
 // No need for type assertions - they return the correct CollectionEntry types
@@ -191,7 +191,7 @@ const genreLabel = lang === "en" ? "Genre" : "Género";
   hasTargetContent={hasTargetContent}
   preloadImage={optimizedCoverImage.src}
 >
-  <script slot="schema" type="application/ld+json" set:html={JSON.stringify(breadcrumbSchema)} />
+  <JsonLd slot="schema" schema={breadcrumbSchema} />
   <Breadcrumbs items={breadcrumbs} lang={lang} />
   <main class="book">
     <section class="book__content">
