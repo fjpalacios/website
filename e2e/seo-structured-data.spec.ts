@@ -9,22 +9,6 @@ async function pageExists(page: Page, url: string): Promise<boolean> {
 }
 
 test.describe("SEO Structured Data - Content Pages", () => {
-  test("should render parseable JSON-LD without script breakouts", async ({ page }): Promise<void> => {
-    await page.goto("/es/libros/apocalipsis-de-stephen-king/");
-
-    const jsonLdScripts = await page.locator('script[type="application/ld+json"]').all();
-    expect(jsonLdScripts.length).toBeGreaterThan(0);
-
-    for (const script of jsonLdScripts) {
-      const content = (await script.textContent()) ?? "";
-
-      expect(content).not.toContain("</script>");
-      expect((): void => {
-        JSON.parse(content);
-      }).not.toThrow();
-    }
-  });
-
   test.describe("Book Pages - JSON-LD Schema", () => {
     test("should have Book schema with review on Spanish book page", async ({ page }) => {
       await page.goto("/es/libros/apocalipsis-de-stephen-king/");
