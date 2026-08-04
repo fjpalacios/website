@@ -205,12 +205,12 @@ Without a restart policy, a failed container stays down. In development you'll n
 
 The four options:
 
-| Policy           | Behavior                                                 |
-| ---------------- | -------------------------------------------------------- |
-| `"no"`           | Never restart automatically (default)                    |
-| `always`         | Always restart, even after `docker stop`                 |
-| `on-failure`     | Restart only when the process exits with an error        |
-| `unless-stopped` | Like `always`, but respects manual `docker compose stop` |
+| Policy           | Behavior                                                                                                                          |
+| ---------------- | --------------------------------------------------------------------------------------------------------------------------------- |
+| `"no"`           | Never restart automatically (default)                                                                                             |
+| `always`         | Restart automatically whenever it exits; after a manual `docker stop`, restart when the daemon restarts or it is started manually |
+| `on-failure`     | Restart only when the process exits with an error                                                                                 |
+| `unless-stopped` | Like `always`, but respects manual `docker compose stop`                                                                          |
 
 For most cases, `unless-stopped` is the right call: the service recovers if the process crashes, but you can stop it manually without it coming back on its own.
 
