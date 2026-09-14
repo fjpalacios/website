@@ -7,7 +7,7 @@ import { beforeEach } from "vitest";
  * localStorage mock for tests
  * happy-dom provides localStorage but sometimes it needs to be properly initialized
  */
-class LocalStorageMock {
+export class LocalStorageMock {
   private store: Record<string, string> = {};
 
   clear(): void {
@@ -36,10 +36,23 @@ class LocalStorageMock {
   }
 }
 
-// Set up localStorage mock globally
-global.localStorage = new LocalStorageMock() as Storage;
+export interface StorageHost {
+  localStorage?: Storage;
+}
+
+export function setupLocalStorage(host: StorageHost): void {
+  if (typeof host.localStorage === "undefined") {
+    Object.defineProperty(host, "localStorage", {
+      configurable: true,
+      value: new LocalStorageMock() as Storage,
+    });
+  }
+}
+
+// Set up a localStorage mock only when the test environment does not provide one
+setupLocalStorage(globalThis);
 
 // Clear localStorage before each test
 beforeEach(() => {
-  global.localStorage.clear();
+  globalThis.localStorage.clear();
 });
