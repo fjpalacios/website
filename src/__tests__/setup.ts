@@ -36,8 +36,13 @@ class LocalStorageMock {
   }
 }
 
-// Set up localStorage mock globally
-global.localStorage = new LocalStorageMock() as Storage;
+// Set up a localStorage mock only when the test environment does not provide one
+if (typeof global.localStorage === "undefined") {
+  Object.defineProperty(global, "localStorage", {
+    configurable: true,
+    value: new LocalStorageMock() as Storage,
+  });
+}
 
 // Clear localStorage before each test
 beforeEach(() => {
