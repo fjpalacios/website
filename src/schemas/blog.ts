@@ -1,7 +1,7 @@
 // Blog content schemas
-// Extracted Zod schemas for testing purposes (without Astro dependencies)
+// Shared Zod schemas for content collections and tests
 
-import { z } from "zod";
+import { z } from "astro/zod";
 
 import { getLanguageCodes } from "@/config/languages";
 import type { LanguageKey } from "@/config/languages";
