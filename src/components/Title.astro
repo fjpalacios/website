@@ -30,35 +30,31 @@ const hasLinks = links.length > 0;
 ---
 
 <div class:list={["title", { "sr-only": srOnly }, { "title--with-aux-link": hasLinks }]}>
-  {
-    useAsPagefindTitle && (
-      <span data-pagefind-meta="title" class="title__pagefind-meta">
-        {title}
-      </span>
-    )
-  }
+  {useAsPagefindTitle && (
+    <span data-pagefind-meta="title" class="title__pagefind-meta">
+      {title}
+    </span>
+  )}
   <HeadingTag class="title__heading">
     {icon && <Icon name={icon} size="md" class="title__icon" />}
     {title}
   </HeadingTag>
-  {
-    hasLinks && (
-      <div class="title__aux-links">
-        {links.map((link) => (
-          <a
-            href={link.href}
-            class:list={["title__aux-link", { "title__aux-link--icon-only": link.iconOnly }]}
-            aria-label={link.ariaLabel || link.label}
-            title={link.ariaLabel || link.label}
-          >
-            {link.icon && <Icon name={link.icon} size="sm" class="title__aux-icon" />}
-            {!link.iconOnly && <span class="title__aux-label">{link.label}</span>}
-            {(link.showArrow ?? true) && !link.iconOnly && (
-              <Icon name="chevron-right" size="sm" class="title__aux-arrow" />
-            )}
-          </a>
-        ))}
-      </div>
-    )
-  }
+  {hasLinks && (
+    <div class="title__aux-links">
+      {links.map((link) => (
+        <a
+          href={link.href}
+          class:list={["title__aux-link", { "title__aux-link--icon-only": link.iconOnly }]}
+          aria-label={link.ariaLabel || link.label}
+          title={link.ariaLabel || link.label}
+        >
+          {link.icon && <Icon name={link.icon} size="sm" class="title__aux-icon" />}
+          {!link.iconOnly && <span class="title__aux-label">{link.label}</span>}
+          {(link.showArrow ?? true) && !link.iconOnly && (
+            <Icon name="chevron-right" size="sm" class="title__aux-arrow" />
+          )}
+        </a>
+      ))}
+    </div>
+  )}
 </div>

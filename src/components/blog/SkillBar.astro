@@ -18,9 +18,7 @@ const displayPercentage = clampedWidth.toFixed(1);
   class="skill-bar"
   style={`--skill-color: ${color}; --skill-dark-color: ${darkColor}; --skill-width: ${clampedWidth}%`}
 >
-  <div class="skill-bar__text">
-    {text}
-  </div>
+  <div class="skill-bar__text">{text}</div>
   <div class="skill-bar__box">
     <div class="skill-bar__box__level"></div>
     <div class="skill-bar__box__percent">{displayPercentage}%</div>

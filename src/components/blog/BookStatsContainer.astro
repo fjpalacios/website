@@ -90,46 +90,38 @@ const _maleAuthorsCount = authorsByGender.male.length;
 
     {hasBooks && <GenreBreakdown genresWithCount={genresWithCount} lang={lang} />}
 
-    {
-      hasBooks && (
-        <section class="book-stats-container__section">
-          <h2 class="book-stats-container__section-title">{t.bookStats.publishersAndSeries}</h2>
-          <PublishersAndSeries publishers={publishersWithCount} series={seriesWithCount} lang={lang} />
-        </section>
-      )
-    }
+    {hasBooks && (
+      <section class="book-stats-container__section">
+        <h2 class="book-stats-container__section-title">{t.bookStats.publishersAndSeries}</h2>
+        <PublishersAndSeries publishers={publishersWithCount} series={seriesWithCount} lang={lang} />
+      </section>
+    )}
 
-    {
-      hasBooks && (
-        <SpecialLists
-          favorites={randomFavorites}
-          fiveStars={fiveStarBooks}
-          classics={classicsBooks}
-          recent={recentBooks}
-          totalFavorites={totalFavorites}
-          totalFiveStars={totalFiveStars}
-          totalClassics={totalClassics}
-          lang={lang}
-        />
-      )
-    }
+    {hasBooks && (
+      <SpecialLists
+        favorites={randomFavorites}
+        fiveStars={fiveStarBooks}
+        classics={classicsBooks}
+        recent={recentBooks}
+        totalFavorites={totalFavorites}
+        totalFiveStars={totalFiveStars}
+        totalClassics={totalClassics}
+        lang={lang}
+      />
+    )}
 
-    {
-      hasBooks && (
-        <section class="book-stats-container__section">
-          <h2 class="book-stats-container__section-title">{t.bookStats.activeChallenges}</h2>
-          <ActiveChallenges challenges={activeChallenges} lang={lang} />
-        </section>
-      )
-    }
+    {hasBooks && (
+      <section class="book-stats-container__section">
+        <h2 class="book-stats-container__section-title">{t.bookStats.activeChallenges}</h2>
+        <ActiveChallenges challenges={activeChallenges} lang={lang} />
+      </section>
+    )}
 
-    {
-      !hasBooks && (
-        <div class="book-stats-container__empty-state">
-          <p>{t.emptyState.books}</p>
-        </div>
-      )
-    }
+    {!hasBooks && (
+      <div class="book-stats-container__empty-state">
+        <p>{t.emptyState.books}</p>
+      </div>
+    )}
   </div>
 </div>
 

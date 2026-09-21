@@ -43,20 +43,18 @@ const pageDescription = t(lang, "allCourses");
   <Title title={pageTitle} icon="graduation-cap" />
 
   <div data-pagefind-ignore>
-    {
-      itemsWithContent.length > 0 ? (
-        <TaxonomyListGrouped
-          items={itemsWithContent}
-          title={t(lang, "allCourses")}
-          lang={lang}
-          routeKey="courses"
-          slugField="course_slug"
-        />
-      ) : (
-        <div class="empty-state">
-          <p>{t(lang, "emptyState.courses")}</p>
-        </div>
-      )
-    }
+    {itemsWithContent.length > 0 ? (
+      <TaxonomyListGrouped
+        items={itemsWithContent}
+        title={t(lang, "allCourses")}
+        lang={lang}
+        routeKey="courses"
+        slugField="course_slug"
+      />
+    ) : (
+      <div class="empty-state">
+        <p>{t(lang, "emptyState.courses")}</p>
+      </div>
+    )}
   </div>
 </Layout>

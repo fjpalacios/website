@@ -95,27 +95,25 @@ const sortedLetters = Object.keys(groupedItems).sort();
 ---
 
 <section class="taxonomy-list-grouped">
-  {
-    sortedLetters.map((letter) => (
-      <div class="letter-section">
-        <h3 class="letter-section__header">{letter}</h3>
-        <div class="letter-section__items">
-          {groupedItems[letter].map(({ item, count }) => {
-            const slug = item.data[slugField];
-            const countLabel = count === 1 ? countSingular : countPlural;
-            return (
-              <div class="taxonomy-item">
-                <a href={`/${lang}/${basePath}/${slug}`} class="taxonomy-item__name">
-                  {item.data.name}
-                </a>
-                <span class="taxonomy-item__count">
-                  ({count} {countLabel})
-                </span>
-              </div>
-            );
-          })}
-        </div>
+  {sortedLetters.map((letter) => (
+    <div class="letter-section">
+      <h3 class="letter-section__header">{letter}</h3>
+      <div class="letter-section__items">
+        {groupedItems[letter].map(({ item, count }) => {
+          const slug = item.data[slugField];
+          const countLabel = count === 1 ? countSingular : countPlural;
+          return (
+            <div class="taxonomy-item">
+              <a href={`/${lang}/${basePath}/${slug}`} class="taxonomy-item__name">
+                {item.data.name}
+              </a>
+              <span class="taxonomy-item__count">
+                ({count} {countLabel})
+              </span>
+            </div>
+          );
+        })}
       </div>
-    ))
-  }
+    </div>
+  ))}
 </section>

@@ -55,17 +55,15 @@ const basePath = `/${lang}/${t(lang, "routes.posts")}`;
   <h1 class="sr-only">{displayTitle}</h1>
   <Title title={displayTitle} icon="file-text" />
 
-  {
-    posts.length > 0 ? (
-      <div data-pagefind-ignore>
-        <PostList posts={posts} lang={lang} showOrderBadges={true} />
-      </div>
-    ) : (
-      <div class="empty-state">
-        <p>{t(lang, "emptyState.posts")}</p>
-      </div>
-    )
-  }
+  {posts.length > 0 ? (
+    <div data-pagefind-ignore>
+      <PostList posts={posts} lang={lang} showOrderBadges={true} />
+    </div>
+  ) : (
+    <div class="empty-state">
+      <p>{t(lang, "emptyState.posts")}</p>
+    </div>
+  )}
 
   <Paginator currentPage={currentPage} totalPages={totalPages} basePath={basePath} lang={lang} />
 </Layout>

@@ -60,25 +60,21 @@ function getSeriesUrl(seriesItem: CollectionEntry<"series">, lang: LanguageKey):
     </div>
 
     <div class="publishers-and-series__list">
-      {
-        publishersTop5.map((item) => (
-          <a href={getPublisherUrl(item.publisher, lang)} class="publishers-and-series__card">
-            <span class="publishers-and-series__name">{item.publisher.data.name}</span>
-            <span class="publishers-and-series__count">{item.count}</span>
-          </a>
-        ))
-      }
+      {publishersTop5.map((item) => (
+        <a href={getPublisherUrl(item.publisher, lang)} class="publishers-and-series__card">
+          <span class="publishers-and-series__name">{item.publisher.data.name}</span>
+          <span class="publishers-and-series__count">{item.count}</span>
+        </a>
+      ))}
     </div>
 
-    {
-      publishersTotal > TOP_LIMIT && (
-        <div class="publishers-and-series__view-all">
-          <a href={buildPublishersIndexUrl(lang)} class="publishers-and-series__view-all-link">
-            {t.bookStats.viewAllPublishers}
-          </a>
-        </div>
-      )
-    }
+    {publishersTotal > TOP_LIMIT && (
+      <div class="publishers-and-series__view-all">
+        <a href={buildPublishersIndexUrl(lang)} class="publishers-and-series__view-all-link">
+          {t.bookStats.viewAllPublishers}
+        </a>
+      </div>
+    )}
   </section>
 
   <!-- Series Section -->
@@ -99,25 +95,21 @@ function getSeriesUrl(seriesItem: CollectionEntry<"series">, lang: LanguageKey):
     </div>
 
     <div class="publishers-and-series__list">
-      {
-        seriesTop5.map((item) => (
-          <a href={getSeriesUrl(item.series, lang)} class="publishers-and-series__card">
-            <span class="publishers-and-series__name">{item.series.data.name}</span>
-            <span class="publishers-and-series__count">{item.count}</span>
-          </a>
-        ))
-      }
+      {seriesTop5.map((item) => (
+        <a href={getSeriesUrl(item.series, lang)} class="publishers-and-series__card">
+          <span class="publishers-and-series__name">{item.series.data.name}</span>
+          <span class="publishers-and-series__count">{item.count}</span>
+        </a>
+      ))}
     </div>
 
-    {
-      seriesTotal > TOP_LIMIT && (
-        <div class="publishers-and-series__view-all">
-          <a href={buildSeriesIndexUrl(lang)} class="publishers-and-series__view-all-link">
-            {t.bookStats.viewAllSeries}
-          </a>
-        </div>
-      )
-    }
+    {seriesTotal > TOP_LIMIT && (
+      <div class="publishers-and-series__view-all">
+        <a href={buildSeriesIndexUrl(lang)} class="publishers-and-series__view-all-link">
+          {t.bookStats.viewAllSeries}
+        </a>
+      </div>
+    )}
   </section>
 </div>
 

@@ -207,64 +207,60 @@ const genreLabel = lang === "en" ? "Genre" : "Género";
       <div class="book__content__content">
         <h1 class="sr-only">{book.title}</h1>
         <!-- Pagefind title meta -->
-        <span data-pagefind-meta="title" class="pagefind-meta">{book.title}</span>
+        <span data-pagefind-meta="title" class="pagefind-meta">
+          {book.title}
+        </span>
         <PostTitle title={book.title} date={book.date} lang={lang} headingLevel="h2" />
         <div class="book__content__content__data">
           <div class="book__content__content__data_pages">
             <strong>{pagesLabel}</strong>: {book.pages}
           </div>
           <div class="book__content__content__data__isbn">
-            {
-              book.isbn ? (
-                <>
-                  <strong>ISBN</strong>: {book.isbn}
-                </>
-              ) : book.asin ? (
-                <>
-                  <strong>ASIN</strong>: {book.asin}
-                </>
-              ) : null
-            }
+            {book.isbn ? (
+              <>
+                <strong>ISBN</strong>: {book.isbn}
+              </>
+            ) : book.asin ? (
+              <>
+                <strong>ASIN</strong>: {book.asin}
+              </>
+            ) : null}
           </div>
-          {
-            typedBuyLinks.length > 0 && (
-              <div class="book__content__content__data__buy">
-                <strong>{buyLabel}</strong>:
-                <ul>
-                  {typedBuyLinks.map((buyLink) => (
-                    <li>
-                      <a href={buyLink.link} target="_blank" rel="nofollow">
-                        {buyLink.type === "paper"
-                          ? paperbackLabel
-                          : buyLink.type === "ebook"
-                            ? ebookLabel
-                            : audiobookLabel}
-                      </a>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            )
-          }
-          {
-            publisher && (
-              <div class="book__content__content__data__publisher">
-                <strong>{publisherLabel}</strong>:
-                <ul>
+          {typedBuyLinks.length > 0 && (
+            <div class="book__content__content__data__buy">
+              <strong>{buyLabel}</strong>:
+              <ul>
+                {typedBuyLinks.map((buyLink) => (
                   <li>
-                    <a href={buildPublisherUrl(lang, publisher.data.publisher_slug)}>{publisher.data.name}</a>
+                    <a href={buyLink.link} target="_blank" rel="nofollow">
+                      {buyLink.type === "paper"
+                        ? paperbackLabel
+                        : buyLink.type === "ebook"
+                          ? ebookLabel
+                          : audiobookLabel}
+                    </a>
                   </li>
-                  {book.book_card && (
-                    <li>
-                      <a href={book.book_card} target="_blank" rel="nofollow">
-                        {bookDetailsLabel}
-                      </a>
-                    </li>
-                  )}
-                </ul>
-              </div>
-            )
-          }
+                ))}
+              </ul>
+            </div>
+          )}
+          {publisher && (
+            <div class="book__content__content__data__publisher">
+              <strong>{publisherLabel}</strong>:
+              <ul>
+                <li>
+                  <a href={buildPublisherUrl(lang, publisher.data.publisher_slug)}>{publisher.data.name}</a>
+                </li>
+                {book.book_card && (
+                  <li>
+                    <a href={book.book_card} target="_blank" rel="nofollow">
+                      {bookDetailsLabel}
+                    </a>
+                  </li>
+                )}
+              </ul>
+            </div>
+          )}
         </div>
         <SectionTitle title={synopsisLabel} />
         <div class="text-area" set:html={synopsisHtml} />
@@ -281,69 +277,59 @@ const genreLabel = lang === "en" ? "Genre" : "Género";
     <section class="book__info" data-pagefind-ignore>
       <Icon name="book" size="md" class="book__info__icon" />
       <ul class="book__info__text">
-        {
-          author && (
-            <li>
-              <a href={buildAuthorUrl(lang, author.data.author_slug)} title={authorWithGender}>
-                {author.data.name}
-              </a>
-            </li>
-          )
-        }
-        {
-          publisher && (
-            <li>
-              <a href={buildPublisherUrl(lang, publisher.data.publisher_slug)} title={publisherLabel}>
-                {publisher.data.name}
-              </a>
-            </li>
-          )
-        }
-        {
-          series && book.series_order && (
-            <li>
-              <a href={buildSeriesUrl(lang, series.data.series_slug)}>
-                {series.data.name} ({book.series_order})
-              </a>
-            </li>
-          )
-        }
+        {author && (
+          <li>
+            <a href={buildAuthorUrl(lang, author.data.author_slug)} title={authorWithGender}>
+              {author.data.name}
+            </a>
+          </li>
+        )}
+        {publisher && (
+          <li>
+            <a href={buildPublisherUrl(lang, publisher.data.publisher_slug)} title={publisherLabel}>
+              {publisher.data.name}
+            </a>
+          </li>
+        )}
+        {series && book.series_order && (
+          <li>
+            <a href={buildSeriesUrl(lang, series.data.series_slug)}>
+              {series.data.name} ({book.series_order})
+            </a>
+          </li>
+        )}
       </ul>
     </section>
     <section class="book__info" data-pagefind-ignore>
       <Icon name="folder" size="md" class="book__info__icon" />
       <ul class="book__info__text">
-        {
-          typedCategories.map((category) => (
-            <li>
-              <a
-                href={buildCategoryUrl(lang, category.data.category_slug)}
-                class="book__info__text__item"
-                title={categoryLabel}
-              >
-                {category.data.name}
-              </a>
-            </li>
-          ))
-        }
+        {typedCategories.map((category) => (
+          <li>
+            <a
+              href={buildCategoryUrl(lang, category.data.category_slug)}
+              class="book__info__text__item"
+              title={categoryLabel}
+            >
+              {category.data.name}
+            </a>
+          </li>
+        ))}
       </ul>
     </section>
-    {
-      typedGenres.length > 0 && (
-        <section class="book__info" data-pagefind-ignore>
-          <Icon name="bookmark" size="md" class="book__info__icon" />
-          <ul class="book__info__text">
-            {typedGenres.map((genre) => (
-              <li>
-                <a href={buildGenreUrl(lang, genre.data.genre_slug)} title={genreLabel}>
-                  {genre.data.name}
-                </a>
-              </li>
-            ))}
-          </ul>
-        </section>
-      )
-    }
+    {typedGenres.length > 0 && (
+      <section class="book__info" data-pagefind-ignore>
+        <Icon name="bookmark" size="md" class="book__info__icon" />
+        <ul class="book__info__text">
+          {typedGenres.map((genre) => (
+            <li>
+              <a href={buildGenreUrl(lang, genre.data.genre_slug)} title={genreLabel}>
+                {genre.data.name}
+              </a>
+            </li>
+          ))}
+        </ul>
+      </section>
+    )}
   </main>
   <Share title={book.title} url={currentUrl} lang={lang} twitterUsername={twitterUsername} />
 </Layout>

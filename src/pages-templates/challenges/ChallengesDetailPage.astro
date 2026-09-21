@@ -103,7 +103,9 @@ const itemListSchema = generateItemListSchema(
   <Title title={pageTitle} srOnly={true} useAsPagefindTitle={true} headingLevel="h1" />
 
   <!-- Short indexable description for Pagefind -->
-  <p class="sr-only" aria-hidden="true">{description}</p>
+  <p class="sr-only" aria-hidden="true">
+    {description}
+  </p>
 
   <div data-pagefind-ignore>
     <PostList posts={content} lang={lang} />

@@ -43,15 +43,13 @@ const itemsWithUrls = footerItems.map((item) => {
     <!-- Navigation Links -->
     <nav class="footer__nav" aria-label={t(lang, "footer.navigation")}>
       <ul class="footer__links">
-        {
-          itemsWithUrls.map((item) => (
-            <li class="footer__link-item">
-              <a href={item.url} class:list={["footer__link", { "footer__link--active": item.isActive }]}>
-                {item.label}
-              </a>
-            </li>
-          ))
-        }
+        {itemsWithUrls.map((item) => (
+          <li class="footer__link-item">
+            <a href={item.url} class:list={["footer__link", { "footer__link--active": item.isActive }]}>
+              {item.label}
+            </a>
+          </li>
+        ))}
       </ul>
     </nav>
 
@@ -59,9 +57,13 @@ const itemsWithUrls = footerItems.map((item) => {
     <div class="footer__meta">
       <p class="footer__built-with">
         {t(lang, "footer.builtWith")}
-        <a href="https://astro.build" class="footer__tech-link" rel="noopener noreferrer" target="_blank">Astro</a>
+        <a href="https://astro.build" class="footer__tech-link" rel="noopener noreferrer" target="_blank">
+          Astro
+        </a>
       </p>
-      <span class="footer__meta-separator" aria-hidden="true">·</span>
+      <span class="footer__meta-separator" aria-hidden="true">
+        ·
+      </span>
       <a href={buildLocalizedPath(lang, "privacy")} class="footer__privacy-link">
         {t(lang, "footer.privacy")}
       </a>

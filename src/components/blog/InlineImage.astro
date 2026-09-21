@@ -33,10 +33,8 @@ if (!image) {
 }
 ---
 
-{
-  image ? (
-    <Image src={image} alt={alt} class={`${type}-inline-image`} loading="lazy" decoding="async" />
-  ) : (
-    <img src={src} alt={alt} class={`${type}-inline-image`} />
-  )
-}
+{image ? (
+  <Image src={image} alt={alt} class={`${type}-inline-image`} loading="lazy" decoding="async" />
+) : (
+  <img src={src} alt={alt} class={`${type}-inline-image`} />
+)}

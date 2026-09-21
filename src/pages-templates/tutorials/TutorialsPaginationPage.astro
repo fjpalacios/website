@@ -51,17 +51,15 @@ const basePath = `/${lang}/${t(lang, "routes.tutorials")}`;
   <h1 class="sr-only">{displayTitle}</h1>
   <Title title={displayTitle} icon="graduation-cap" />
 
-  {
-    tutorials.length > 0 ? (
-      <div data-pagefind-ignore>
-        <PostList posts={tutorials} lang={lang} showOrderBadges={true} />
-      </div>
-    ) : (
-      <div class="empty-state">
-        <p>{t(lang, "emptyState.tutorials")}</p>
-      </div>
-    )
-  }
+  {tutorials.length > 0 ? (
+    <div data-pagefind-ignore>
+      <PostList posts={tutorials} lang={lang} showOrderBadges={true} />
+    </div>
+  ) : (
+    <div class="empty-state">
+      <p>{t(lang, "emptyState.tutorials")}</p>
+    </div>
+  )}
 
   <Paginator currentPage={currentPage} totalPages={totalPages} basePath={basePath} lang={lang} />
 </Layout>

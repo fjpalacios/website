@@ -114,7 +114,9 @@ const itemListSchema = generateItemListSchema(
 
   <!-- Description only for meta tags — excluded from Pagefind to avoid author pages
        appearing in search results when searching by book title -->
-  <p class="sr-only" aria-hidden="true" data-pagefind-ignore>{description}</p>
+  <p class="sr-only" aria-hidden="true" data-pagefind-ignore>
+    {description}
+  </p>
 
   <div class="author-detail-page__author-section" data-pagefind-ignore="all">
     <AuthorInfo author={author} border={true} />

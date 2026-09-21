@@ -42,16 +42,14 @@ const scoreText = isFavorite ? t(lang, "rating.favoriteText") : `${numericScore}
 
 <div class={`rating rating--${size} ${isFavorite ? "rating--favorite" : ""}`} role="img" aria-label={ariaLabel}>
   <div class="rating__stars">
-    {
-      Array.from({ length: 5 }, (_, i) => {
-        const starIndex = i + 1;
-        const iconName = isFavorite ? "heart" : "star";
-        const isFilled = starIndex <= numericScore;
-        const iconClass = isFilled ? "rating__icon--filled" : "rating__icon--empty";
+    {Array.from({ length: 5 }, (_, i) => {
+      const starIndex = i + 1;
+      const iconName = isFavorite ? "heart" : "star";
+      const isFilled = starIndex <= numericScore;
+      const iconClass = isFilled ? "rating__icon--filled" : "rating__icon--empty";
 
-        return <Icon name={iconName} class={`rating__icon ${iconClass}`} size={size} filled={isFilled} />;
-      })
-    }
+      return <Icon name={iconName} class={`rating__icon ${iconClass}`} size={size} filled={isFilled} />;
+    })}
   </div>
   {showText && <span class="rating__text">{scoreText}</span>}
 </div>

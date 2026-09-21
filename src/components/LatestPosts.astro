@@ -71,37 +71,35 @@ const latestPosts = await getLatestPosts(lang, limit);
 const allPostsUrl = buildIndexUrl("posts", lang);
 ---
 
-{
-  latestPosts.length > 0 && (
-    <main class="latest-posts">
-      <Title title={t(lang, "latestBlogPosts")} />
-      <section class="latest-posts__list">
-        {latestPosts.map((post) => {
-          const url = getContentUrl(post);
-          const formattedDate = formatVintageDate(post.date, lang);
-          const iconName = getContentIconName(post.type);
+{latestPosts.length > 0 && (
+  <main class="latest-posts">
+    <Title title={t(lang, "latestBlogPosts")} />
+    <section class="latest-posts__list">
+      {latestPosts.map((post) => {
+        const url = getContentUrl(post);
+        const formattedDate = formatVintageDate(post.date, lang);
+        const iconName = getContentIconName(post.type);
 
-          return (
-            <section class="latest-posts__list__post">
-              <section class="latest-posts__list__post__title">
-                <Icon name={iconName} class="latest-posts__list__post__title__badge" size="md" />
-                <a href={url}>{post.title}</a>
-              </section>
-              <section class="latest-posts__list__post__date">
-                <time datetime={formattedDate.datetime} aria-label={formattedDate.aria}>
-                  {formattedDate.visual}
-                </time>
-              </section>
-              <section class="latest-posts__list__post__excerpt">{post.excerpt}</section>
+        return (
+          <section class="latest-posts__list__post">
+            <section class="latest-posts__list__post__title">
+              <Icon name={iconName} class="latest-posts__list__post__title__badge" size="md" />
+              <a href={url}>{post.title}</a>
             </section>
-          );
-        })}
-      </section>
-      <footer class="latest-posts__footer">
-        <a href={allPostsUrl} class="latest-posts__footer__link">
-          {t(lang, "viewAllPosts")}
-        </a>
-      </footer>
-    </main>
-  )
-}
+            <section class="latest-posts__list__post__date">
+              <time datetime={formattedDate.datetime} aria-label={formattedDate.aria}>
+                {formattedDate.visual}
+              </time>
+            </section>
+            <section class="latest-posts__list__post__excerpt">{post.excerpt}</section>
+          </section>
+        );
+      })}
+    </section>
+    <footer class="latest-posts__footer">
+      <a href={allPostsUrl} class="latest-posts__footer__link">
+        {t(lang, "viewAllPosts")}
+      </a>
+    </footer>
+  </main>
+)}

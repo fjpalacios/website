@@ -20,13 +20,13 @@ const description = t(lang, "notFound.description");
     <div class="not-found-content">
       <h1 class="not-found-title">{t(lang, "notFound.heading")}</h1>
       <h2 class="not-found-subtitle">{t(lang, "notFound.subtitle")}</h2>
-      <p class="not-found-message">
-        {t(lang, "notFound.message")}
-      </p>
+      <p class="not-found-message">{t(lang, "notFound.message")}</p>
       <p class="not-found-redirect">
         <span id="redirect-text"></span>
       </p>
-      <a href={`/${lang}/`} class="not-found-button">{t(lang, "notFound.button")}</a>
+      <a href={`/${lang}/`} class="not-found-button">
+        {t(lang, "notFound.button")}
+      </a>
     </div>
   </div>
 </Layout>

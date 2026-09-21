@@ -104,7 +104,9 @@ if (post.update_date) {
       </div>
       <h1 class="sr-only">{post.title}</h1>
       <!-- Pagefind title meta -->
-      <span data-pagefind-meta="title" class="pagefind-meta">{post.title}</span>
+      <span data-pagefind-meta="title" class="pagefind-meta">
+        {post.title}
+      </span>
       <PostTitle title={post.title} date={post.date} lang={lang} headingLevel="h2" />
       <div class="text-area">
         <Content />
@@ -114,19 +116,17 @@ if (post.update_date) {
     <section class="post__info">
       <Icon name="folder" size="md" class="post__info__icon" />
       <ul class="post__info__text">
-        {
-          categories.map((category) => (
-            <li>
-              <a
-                href={buildCategoryUrl(lang, category.data.category_slug)}
-                class="post__info__text__item"
-                title={categoryLabel}
-              >
-                {category.data.name}
-              </a>
-            </li>
-          ))
-        }
+        {categories.map((category) => (
+          <li>
+            <a
+              href={buildCategoryUrl(lang, category.data.category_slug)}
+              class="post__info__text__item"
+              title={categoryLabel}
+            >
+              {category.data.name}
+            </a>
+          </li>
+        ))}
       </ul>
     </section>
   </main>

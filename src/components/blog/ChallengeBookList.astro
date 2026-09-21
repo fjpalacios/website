@@ -18,22 +18,18 @@ const booksInChallenge = allBooks
   .sort((a, b) => new Date(a.data.date).getTime() - new Date(b.data.date).getTime());
 ---
 
-{
-  booksInChallenge.length > 0 && (
-    <ol>
-      {booksInChallenge.map((book) => (
-        <li>
-          <BookLink title={book.data.title} />
-        </li>
-      ))}
-    </ol>
-  )
-}
+{booksInChallenge.length > 0 && (
+  <ol>
+    {booksInChallenge.map((book) => (
+      <li>
+        <BookLink title={book.data.title} />
+      </li>
+    ))}
+  </ol>
+)}
 
-{
-  booksInChallenge.length === 0 && (
-    <p>
-      <em>No books found for this challenge yet.</em>
-    </p>
-  )
-}
+{booksInChallenge.length === 0 && (
+  <p>
+    <em>No books found for this challenge yet.</em>
+  </p>
+)}
