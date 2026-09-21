@@ -66,7 +66,7 @@
     "@astrojs/mdx": "8.0.0",
     "@astrojs/rss": "4.0.19",
     "@astrojs/sitemap": "3.7.4",
-    "astro": "7.3.2",
+    "astro": "7.3.3",
     "get-tsconfig": "5.0.0-beta.6",
     "marked": "^18.0.13",
     "normalize.css": "^8.0.1",
