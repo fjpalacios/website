@@ -44,6 +44,9 @@ jobs:
       - name: Check formatting
         run: bun x prettier --check "src/**/*.{js,jsx,ts,tsx,astro,json,css,scss,md}"
 
+      - name: Run TypeScript typecheck
+        run: bun x astro sync && bun run typecheck
+
   unit-tests:
     name: Unit Tests
     runs-on: ubuntu-latest
