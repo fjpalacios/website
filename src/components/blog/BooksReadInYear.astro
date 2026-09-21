@@ -86,20 +86,18 @@ const sortedMonths = Object.keys(booksByMonth)
 let bookNumber = 1;
 ---
 
-{
-  sortedMonths.map((month) => (
-    <>
-      <h2>{monthNames[language][month]}</h2>
-      <ol start={bookNumber}>
-        {booksByMonth[month].map((book) => {
-          bookNumber++; // Increment for side effect only
-          return (
-            <li>
-              <BookLink title={book.data.title} slug={book.data.post_slug} full={true} />.
-            </li>
-          );
-        })}
-      </ol>
-    </>
-  ))
-}
+{sortedMonths.map((month) => (
+  <>
+    <h2>{monthNames[language][month]}</h2>
+    <ol start={bookNumber}>
+      {booksByMonth[month].map((book) => {
+        bookNumber++; // Increment for side effect only
+        return (
+          <li>
+            <BookLink title={book.data.title} slug={book.data.post_slug} full={true} />.
+          </li>
+        );
+      })}
+    </ol>
+  </>
+))}

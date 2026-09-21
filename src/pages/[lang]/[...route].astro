@@ -57,15 +57,13 @@ const { pageType, contentType } = Astro.props;
 const Template = safeGetTemplate(contentType, pageType);
 ---
 
-{
-  Template ? (
-    <Template {...Astro.props} />
-  ) : (
-    <div>
-      <h1>404 - Template Not Found</h1>
-      <p>
-        No template found for contentType="{contentType}" and pageType="{pageType}"
-      </p>
-    </div>
-  )
-}
+{Template ? (
+  <Template {...Astro.props} />
+) : (
+  <div>
+    <h1>404 - Template Not Found</h1>
+    <p>
+      No template found for contentType="{contentType}" and pageType="{pageType}"
+    </p>
+  </div>
+)}

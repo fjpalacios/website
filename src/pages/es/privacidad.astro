@@ -25,9 +25,11 @@ const contactSubject = encodeURIComponent("Consulta sobre política de privacida
 
         <h2>{t(lang, "privacy.analyticsTitle")}</h2>
         <p>
-          {t(lang, "privacy.analyticsText")}
-          {" "}
-          <a href="https://cloud.umami.is" rel="noopener noreferrer" target="_blank">cloud.umami.is</a>.
+          {t(lang, "privacy.analyticsText")}{" "}
+          <a href="https://cloud.umami.is" rel="noopener noreferrer" target="_blank">
+            cloud.umami.is
+          </a>
+          .
         </p>
 
         <h2>{t(lang, "privacy.cloudflareTitle")}</h2>
@@ -35,15 +37,16 @@ const contactSubject = encodeURIComponent("Consulta sobre política de privacida
 
         <h2>{t(lang, "privacy.thirdPartyTitle")}</h2>
         <p>
-          {t(lang, "privacy.youtubeText")}
-          {" "}
-          <a href="https://i.ytimg.com" rel="noopener noreferrer" target="_blank">i.ytimg.com</a>.
+          {t(lang, "privacy.youtubeText")}{" "}
+          <a href="https://i.ytimg.com" rel="noopener noreferrer" target="_blank">
+            i.ytimg.com
+          </a>
+          .
         </p>
 
         <h2>{t(lang, "privacy.contactTitle")}</h2>
         <p>
-          {t(lang, "privacy.contactText")}
-          {" "}
+          {t(lang, "privacy.contactText")}{" "}
           <a href={`mailto:${contactEmail}?subject=${contactSubject}`}>{contactEmail}</a>.
         </p>
       </div>

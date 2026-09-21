@@ -70,15 +70,13 @@ const itemsWithUrls = filteredMenuItems
   </div>
   <div class="menu__right">
     <ul class="navigation">
-      {
-        itemsWithUrls.map((item) => (
-          <li class="navigation__link">
-            <a href={item.url} class:list={[{ "navigation__link--active": item.isActive }]}>
-              {item.label}
-            </a>
-          </li>
-        ))
-      }
+      {itemsWithUrls.map((item) => (
+        <li class="navigation__link">
+          <a href={item.url} class:list={[{ "navigation__link--active": item.isActive }]}>
+            {item.label}
+          </a>
+        </li>
+      ))}
     </ul>
   </div>
 </nav>

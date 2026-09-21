@@ -15,20 +15,18 @@ const { items, lang } = Astro.props;
 
 <nav class="breadcrumbs" aria-label={t(lang, "breadcrumbs.ariaLabel")} data-pagefind-ignore>
   <ol class="breadcrumbs__list">
-    {
-      items.map((item, _index) => (
-        <li class="breadcrumbs__item">
-          {item.url ? (
-            <a href={item.url} class="breadcrumbs__link">
-              {item.label}
-            </a>
-          ) : (
-            <span class="breadcrumbs__current" aria-current="page">
-              {item.label}
-            </span>
-          )}
-        </li>
-      ))
-    }
+    {items.map((item, _index) => (
+      <li class="breadcrumbs__item">
+        {item.url ? (
+          <a href={item.url} class="breadcrumbs__link">
+            {item.label}
+          </a>
+        ) : (
+          <span class="breadcrumbs__current" aria-current="page">
+            {item.label}
+          </span>
+        )}
+      </li>
+    ))}
   </ol>
 </nav>

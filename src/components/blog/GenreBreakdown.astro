@@ -73,25 +73,21 @@ const genresIndexUrl = buildGenresIndexUrl(lang);
       </div>
 
       <div class="genre-breakdown__list">
-        {
-          fictionTop5.map((item) => (
-            <a href={buildGenreUrl(lang, item.genre.data.genre_slug)} class="genre-breakdown__card">
-              <span class="genre-breakdown__name">{item.genre.data.name}</span>
-              <span class="genre-breakdown__count">{item.count}</span>
-            </a>
-          ))
-        }
+        {fictionTop5.map((item) => (
+          <a href={buildGenreUrl(lang, item.genre.data.genre_slug)} class="genre-breakdown__card">
+            <span class="genre-breakdown__name">{item.genre.data.name}</span>
+            <span class="genre-breakdown__count">{item.count}</span>
+          </a>
+        ))}
       </div>
 
-      {
-        fictionTotal > TOP_LIMIT && (
-          <div class="genre-breakdown__view-all">
-            <a href={genresIndexUrl} class="genre-breakdown__view-all-link">
-              {t.bookStats.viewAllGenres}
-            </a>
-          </div>
-        )
-      }
+      {fictionTotal > TOP_LIMIT && (
+        <div class="genre-breakdown__view-all">
+          <a href={genresIndexUrl} class="genre-breakdown__view-all-link">
+            {t.bookStats.viewAllGenres}
+          </a>
+        </div>
+      )}
     </div>
 
     <!-- Non-Fiction Section -->
@@ -108,25 +104,21 @@ const genresIndexUrl = buildGenresIndexUrl(lang);
       </div>
 
       <div class="genre-breakdown__list">
-        {
-          nonFictionTop5.map((item) => (
-            <a href={buildGenreUrl(lang, item.genre.data.genre_slug)} class="genre-breakdown__card">
-              <span class="genre-breakdown__name">{item.genre.data.name}</span>
-              <span class="genre-breakdown__count">{item.count}</span>
-            </a>
-          ))
-        }
+        {nonFictionTop5.map((item) => (
+          <a href={buildGenreUrl(lang, item.genre.data.genre_slug)} class="genre-breakdown__card">
+            <span class="genre-breakdown__name">{item.genre.data.name}</span>
+            <span class="genre-breakdown__count">{item.count}</span>
+          </a>
+        ))}
       </div>
 
-      {
-        nonFictionTotal > TOP_LIMIT && (
-          <div class="genre-breakdown__view-all">
-            <a href={genresIndexUrl} class="genre-breakdown__view-all-link">
-              {t.bookStats.viewAllGenres}
-            </a>
-          </div>
-        )
-      }
+      {nonFictionTotal > TOP_LIMIT && (
+        <div class="genre-breakdown__view-all">
+          <a href={genresIndexUrl} class="genre-breakdown__view-all-link">
+            {t.bookStats.viewAllGenres}
+          </a>
+        </div>
+      )}
     </div>
   </div>
 </section>

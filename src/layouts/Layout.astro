@@ -118,36 +118,30 @@ const nextPageUrl =
     {nextPageUrl && <link rel="prefetch" href={nextPageUrl} />}
 
     <!-- RSS Feeds - Autodiscovery (only if content exists) -->
-    {
-      hasPostsContent && (
-        <link
-          rel="alternate"
-          type="application/rss+xml"
-          title={`${t(lang, "title")} - ${t(lang, "feeds.general")}`}
-          href={`/${lang}/rss.xml`}
-        />
-      )
-    }
-    {
-      hasBooksContent && (
-        <link
-          rel="alternate"
-          type="application/rss+xml"
-          title={`${t(lang, "title")} - ${t(lang, "feeds.books")}`}
-          href={`/${lang}/${getUrlSegment(lang, "books")}/rss.xml`}
-        />
-      )
-    }
-    {
-      hasTutorialsContent && (
-        <link
-          rel="alternate"
-          type="application/rss+xml"
-          title={`${t(lang, "title")} - ${t(lang, "feeds.tutorials")}`}
-          href={`/${lang}/${getUrlSegment(lang, "tutorials")}/rss.xml`}
-        />
-      )
-    }
+    {hasPostsContent && (
+      <link
+        rel="alternate"
+        type="application/rss+xml"
+        title={`${t(lang, "title")} - ${t(lang, "feeds.general")}`}
+        href={`/${lang}/rss.xml`}
+      />
+    )}
+    {hasBooksContent && (
+      <link
+        rel="alternate"
+        type="application/rss+xml"
+        title={`${t(lang, "title")} - ${t(lang, "feeds.books")}`}
+        href={`/${lang}/${getUrlSegment(lang, "books")}/rss.xml`}
+      />
+    )}
+    {hasTutorialsContent && (
+      <link
+        rel="alternate"
+        type="application/rss+xml"
+        title={`${t(lang, "title")} - ${t(lang, "feeds.tutorials")}`}
+        href={`/${lang}/${getUrlSegment(lang, "tutorials")}/rss.xml`}
+      />
+    )}
 
     <!-- Umami Analytics: ~2KB, no cookies, GDPR compliant. data-domains limits tracking to fjp.es only -->
     <script
@@ -156,8 +150,8 @@ const nextPageUrl =
       src="https://cloud.umami.is/script.js"
       data-website-id="426f751f-3947-4965-a78d-a4573516bd8c"
       data-auto-track="false"
-      data-domains="fjp.es"></script>
-
+      data-domains="fjp.es"
+    ></script>
     <ClientRouter />
     <style is:global lang="scss">
       @use "../styles/main";
@@ -261,7 +255,7 @@ const nextPageUrl =
         copyFeedbackMs: ${TIMINGS.CODE_COPY_FEEDBACK_MS} 
       };
     `}
-    />
+    ></script>
     <script>
       // Add copy buttons and language labels to Prism code blocks
       (function () {

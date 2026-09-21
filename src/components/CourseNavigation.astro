@@ -55,33 +55,29 @@ const continueLabel = t(lang, "courseNavigation.continue");
 
 <nav class="course-navigation" aria-label={`${courseName} navigation`}>
   <div class="course-navigation__container">
-    {
-      previousUrl && previousTutorial && (
-        <a href={previousUrl} class="course-navigation__link course-navigation__link--previous">
-          <div class="course-navigation__icon">
-            <Icon name="chevron-left" size="md" />
-          </div>
-          <div class="course-navigation__content">
-            <span class="course-navigation__label">{previousLabel}</span>
-            <span class="course-navigation__title">{previousTutorial.title}</span>
-          </div>
-        </a>
-      )
-    }
+    {previousUrl && previousTutorial && (
+      <a href={previousUrl} class="course-navigation__link course-navigation__link--previous">
+        <div class="course-navigation__icon">
+          <Icon name="chevron-left" size="md" />
+        </div>
+        <div class="course-navigation__content">
+          <span class="course-navigation__label">{previousLabel}</span>
+          <span class="course-navigation__title">{previousTutorial.title}</span>
+        </div>
+      </a>
+    )}
 
-    {
-      nextUrl && nextTutorial && (
-        <a href={nextUrl} class="course-navigation__link course-navigation__link--next">
-          <div class="course-navigation__content">
-            <span class="course-navigation__label">{nextLabel}</span>
-            <span class="course-navigation__title">{nextTutorial.title}</span>
-            <span class="course-navigation__subtitle">{continueLabel}</span>
-          </div>
-          <div class="course-navigation__icon">
-            <Icon name="chevron-right" size="md" />
-          </div>
-        </a>
-      )
-    }
+    {nextUrl && nextTutorial && (
+      <a href={nextUrl} class="course-navigation__link course-navigation__link--next">
+        <div class="course-navigation__content">
+          <span class="course-navigation__label">{nextLabel}</span>
+          <span class="course-navigation__title">{nextTutorial.title}</span>
+          <span class="course-navigation__subtitle">{continueLabel}</span>
+        </div>
+        <div class="course-navigation__icon">
+          <Icon name="chevron-right" size="md" />
+        </div>
+      </a>
+    )}
   </div>
 </nav>

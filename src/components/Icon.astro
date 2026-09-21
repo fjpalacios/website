@@ -126,26 +126,24 @@ const fillValue = isFillable && filled ? "currentColor" : "none";
 const strokeValue = isFillable && filled ? "none" : "currentColor";
 ---
 
-{
-  iconPath ? (
-    <svg
-      xmlns="http://www.w3.org/2000/svg"
-      width={iconSize}
-      height={iconSize}
-      viewBox={viewBox}
-      fill={fillValue}
-      stroke={strokeValue}
-      stroke-width="2"
-      stroke-linecap="round"
-      stroke-linejoin="round"
-      class={className}
-      aria-hidden="true"
-    >
-      <Fragment set:html={iconPath} />
-    </svg>
-  ) : (
-    <span class={className} role="img" aria-label={`Missing icon: ${name}`}>
-      ❌
-    </span>
-  )
-}
+{iconPath ? (
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    width={iconSize}
+    height={iconSize}
+    viewBox={viewBox}
+    fill={fillValue}
+    stroke={strokeValue}
+    stroke-width="2"
+    stroke-linecap="round"
+    stroke-linejoin="round"
+    class={className}
+    aria-hidden="true"
+  >
+    <Fragment set:html={iconPath} />
+  </svg>
+) : (
+  <span class={className} role="img" aria-label={`Missing icon: ${name}`}>
+    ❌
+  </span>
+)}

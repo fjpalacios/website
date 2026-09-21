@@ -72,36 +72,34 @@ const lists = [
     <h2 class="book-stats-container__section-title">{t.bookStats.specialLists}</h2>
 
     <div class="special-lists__grid">
-      {
-        lists.map((list) => (
-          <div class="special-lists__list-card">
-            <div class="special-lists__header">
-              <Icon
-                name={list.icon}
-                size="lg"
-                class={`special-lists__icon special-lists__icon--${list.id === "fiveStars" ? "five-stars" : list.id}`}
-                filled={list.filled}
-              />
-              <div class="special-lists__title-wrapper">
-                <h3 class="special-lists__title">{list.title}</h3>
-                <p class="special-lists__subtitle">{list.subtitle}</p>
-              </div>
+      {lists.map((list) => (
+        <div class="special-lists__list-card">
+          <div class="special-lists__header">
+            <Icon
+              name={list.icon}
+              size="lg"
+              class={`special-lists__icon special-lists__icon--${list.id === "fiveStars" ? "five-stars" : list.id}`}
+              filled={list.filled}
+            />
+            <div class="special-lists__title-wrapper">
+              <h3 class="special-lists__title">{list.title}</h3>
+              <p class="special-lists__subtitle">{list.subtitle}</p>
             </div>
-
-            {list.books.length > 0 && (
-              <ul class="special-lists__list">
-                {list.books.map((book) => (
-                  <li class="special-lists__book-item">
-                    <a href={getBookUrl(book.data.post_slug)} class="special-lists__book-link">
-                      <span class="special-lists__book-title">{book.data.title}</span>
-                    </a>
-                  </li>
-                ))}
-              </ul>
-            )}
           </div>
-        ))
-      }
+
+          {list.books.length > 0 && (
+            <ul class="special-lists__list">
+              {list.books.map((book) => (
+                <li class="special-lists__book-item">
+                  <a href={getBookUrl(book.data.post_slug)} class="special-lists__book-link">
+                    <span class="special-lists__book-title">{book.data.title}</span>
+                  </a>
+                </li>
+              ))}
+            </ul>
+          )}
+        </div>
+      ))}
     </div>
   </section>
 </div>

@@ -16,4 +16,7 @@ const currentLang = currentPath.startsWith("/en/") ? "en" : "es";
 const spoilerText = t(currentLang, "book.spoilerAlert");
 ---
 
-<strong set:html={spoilerText} />: <span class="spoiler"><slot /></span>
+<strong set:html={spoilerText} />:{" "}
+<span class="spoiler">
+  <slot />
+</span>

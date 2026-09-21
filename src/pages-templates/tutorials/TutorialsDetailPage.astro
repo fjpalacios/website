@@ -146,57 +146,53 @@ if (course) {
       </div>
       <h1 class="sr-only">{tutorial.title}</h1>
       <!-- Pagefind title meta -->
-      <span data-pagefind-meta="title" class="pagefind-meta">{tutorial.title}</span>
+      <span data-pagefind-meta="title" class="pagefind-meta">
+        {tutorial.title}
+      </span>
       <PostTitle title={tutorial.title} date={tutorial.date} lang={lang} headingLevel="h2" />
       <div class="text-area">
         <Content />
       </div>
     </section>
 
-    {
-      course && (
-        <section class="tutorial__info">
-          <Icon name="graduation-cap" size="md" class="tutorial__info__icon" />
-          <ul class="tutorial__info__text">
-            <li>
-              <a href={buildCourseUrl(lang, course.data.course_slug)} title={courseLabel}>
-                {course.data.name}
-              </a>
-            </li>
-          </ul>
-        </section>
-      )
-    }
+    {course && (
+      <section class="tutorial__info">
+        <Icon name="graduation-cap" size="md" class="tutorial__info__icon" />
+        <ul class="tutorial__info__text">
+          <li>
+            <a href={buildCourseUrl(lang, course.data.course_slug)} title={courseLabel}>
+              {course.data.name}
+            </a>
+          </li>
+        </ul>
+      </section>
+    )}
 
     <section class="tutorial__info">
       <Icon name="folder" size="md" class="tutorial__info__icon" />
       <ul class="tutorial__info__text">
-        {
-          categories.map((category) => (
-            <li>
-              <a
-                href={buildCategoryUrl(lang, category.data.category_slug)}
-                class="tutorial__info__text__item"
-                title={categoryLabel}
-              >
-                {category.data.name}
-              </a>
-            </li>
-          ))
-        }
+        {categories.map((category) => (
+          <li>
+            <a
+              href={buildCategoryUrl(lang, category.data.category_slug)}
+              class="tutorial__info__text__item"
+              title={categoryLabel}
+            >
+              {category.data.name}
+            </a>
+          </li>
+        ))}
       </ul>
     </section>
 
-    {
-      course && (previousTutorial || nextTutorial) && (
-        <CourseNavigation
-          previousTutorial={previousTutorial ?? undefined}
-          nextTutorial={nextTutorial ?? undefined}
-          lang={lang}
-          courseName={course.data.name}
-        />
-      )
-    }
+    {course && (previousTutorial || nextTutorial) && (
+      <CourseNavigation
+        previousTutorial={previousTutorial ?? undefined}
+        nextTutorial={nextTutorial ?? undefined}
+        lang={lang}
+        courseName={course.data.name}
+      />
+    )}
   </main>
   <Share title={tutorial.title} url={currentUrl} lang={lang} twitterUsername={twitterUsername} />
 </Layout>

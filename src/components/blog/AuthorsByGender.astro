@@ -56,23 +56,17 @@ const authorsUrl = buildAuthorsIndexUrl(lang);
         <div
           class="authors-by-gender__progress-fill authors-by-gender__progress-fill--female"
           style={`width: ${femalePercentage}%`}
-        >
-        </div>
+        ></div>
         <div
           class="authors-by-gender__progress-fill authors-by-gender__progress-fill--male"
           style={`width: ${malePercentage}%`}
-        >
-        </div>
+        ></div>
       </div>
 
       <!-- Percentages -->
       <div class="authors-by-gender__percentages">
-        <div class="authors-by-gender__percentage authors-by-gender__percentage--female">
-          {femalePercentage}%
-        </div>
-        <div class="authors-by-gender__percentage authors-by-gender__percentage--male">
-          {malePercentage}%
-        </div>
+        <div class="authors-by-gender__percentage authors-by-gender__percentage--female">{femalePercentage}%</div>
+        <div class="authors-by-gender__percentage authors-by-gender__percentage--male">{malePercentage}%</div>
       </div>
     </a>
   </div>

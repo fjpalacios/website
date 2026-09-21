@@ -34,29 +34,27 @@ const scoreEntries = [
   <h2 class="book-stats-container__section-title">{t.bookStats.scoreDistribution}</h2>
 
   <div class="score-distribution">
-    {
-      scoreEntries.map(({ key, count, isFavorite, label }) => {
-        const bookCount = distribution[key];
-        const booksText = bookCount === 1 ? t.bookCount.singular : t.bookCount.plural;
+    {scoreEntries.map(({ key, count, isFavorite, label }) => {
+      const bookCount = distribution[key];
+      const booksText = bookCount === 1 ? t.bookCount.singular : t.bookCount.plural;
 
-        return (
-          <div class="score-distribution__card">
-            <div
-              class={`score-distribution__stars ${isFavorite ? "score-distribution__stars--favorite" : ""}`}
-              role="img"
-              aria-label={label}
-            >
-              {Array.from({ length: count }).map(() => (
-                <Icon name={isFavorite ? "heart" : "star"} class="score-distribution__icon" size="lg" filled={true} />
-              ))}
-            </div>
-            <div class="score-distribution__label">{label}</div>
-            <div class="score-distribution__count">
-              {bookCount} {booksText}
-            </div>
+      return (
+        <div class="score-distribution__card">
+          <div
+            class={`score-distribution__stars ${isFavorite ? "score-distribution__stars--favorite" : ""}`}
+            role="img"
+            aria-label={label}
+          >
+            {Array.from({ length: count }).map(() => (
+              <Icon name={isFavorite ? "heart" : "star"} class="score-distribution__icon" size="lg" filled={true} />
+            ))}
           </div>
-        );
-      })
-    }
+          <div class="score-distribution__label">{label}</div>
+          <div class="score-distribution__count">
+            {bookCount} {booksText}
+          </div>
+        </div>
+      );
+    })}
   </div>
 </section>

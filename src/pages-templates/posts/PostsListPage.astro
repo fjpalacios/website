@@ -76,15 +76,13 @@ const itemListSchema = generateItemListSchema(
   <div data-pagefind-ignore>
     <JsonLd schema={itemListSchema} />
 
-    {
-      posts.length > 0 ? (
-        <PostList posts={posts} lang={lang} showOrderBadges={true} />
-      ) : (
-        <div class="empty-state">
-          <p>{t(lang, "emptyState.posts")}</p>
-        </div>
-      )
-    }
+    {posts.length > 0 ? (
+      <PostList posts={posts} lang={lang} showOrderBadges={true} />
+    ) : (
+      <div class="empty-state">
+        <p>{t(lang, "emptyState.posts")}</p>
+      </div>
+    )}
   </div>
 
   <Paginator currentPage={currentPage} totalPages={totalPages} basePath={basePath} lang={lang} />
