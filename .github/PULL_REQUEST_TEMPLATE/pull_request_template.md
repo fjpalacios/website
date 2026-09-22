@@ -1,15 +1,16 @@
-## Summary
+<!-- An issue is optional. Add a link only when one exists. -->
 
-<!-- What changed and why? Keep it short: 2-4 sentences is enough. -->
+## What changed?
 
-## Changes
+<!-- Tell the story in 2-4 sentences: what was wrong or missing, and what changed? -->
 
--
--
+## Why?
+
+<!-- Explain the motivation. Avoid repeating the file list. -->
 
 ## Validation
 
-<!-- Keep only what applies. Delete lines that are not relevant to this PR. -->
+<!-- Keep only what applies. Delete lines that are not relevant. -->
 
 - [ ] `bun run lint:check`
 - [ ] `bun run format:check`
@@ -21,4 +22,4 @@
 
 ## Risk / Follow-up
 
-<!-- Optional. Mention review risks, rollout notes, or follow-up PRs. Delete if none. -->
+<!-- Optional. Mention only real risks or follow-up work. Delete if none. -->
