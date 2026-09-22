@@ -1,6 +1,6 @@
 # Contributing Guide
 
-This is a personal Astro site, not a large product team repository. Keep changes small, explicit, and easy to review.
+This is a personal Astro site, not a large product team repository. Keep changes small, explicit, and easy to review. The process should help the code, not become a second project to maintain.
 
 ## Workflow
 
@@ -33,12 +33,27 @@ This is a personal Astro site, not a large product team repository. Keep changes
    git commit -m "fix: describe the fix"
    ```
 
-6. Push and open a PR:
+6. Push and open a PR when the change benefits from review:
 
    ```bash
    git push -u origin your-branch
    gh pr create
    ```
+
+`master` is protected, so every change goes through a branch and a PR, including tiny documentation fixes. The lightness belongs in the conversation around the change, not in bypassing the guardrails that keep the default branch healthy.
+
+## Issues and Pull Requests
+
+Issues are optional. Open one when a change needs discussion, contains several steps, or should remain visible until someone picks it up. For a small, well-understood fix, go straight to a branch and a PR.
+
+Pull requests do not require a pre-approved issue, special labels, or a particular closing keyword. A useful PR is simply a short narrative:
+
+1. What changed?
+2. Why was it needed?
+3. How was it checked?
+4. Is there any real risk or follow-up?
+
+Dependabot PRs follow the same rule. Keep them focused, investigate failures before merging, and do not add unrelated cleanup just because the dependency update happens to touch the repository.
 
 ## Branch Naming
 
@@ -101,16 +116,9 @@ bun run validate
 - Dependency PRs should stay one dependency at a time unless versions are explicitly coupled.
 - PR descriptions should explain the PR contents, rationale, and validation. Do not mention unrelated local working-tree state.
 
-## Pull Requests
+## Pull Request Writing
 
-Keep PR descriptions short and useful:
-
-- what changed;
-- why it changed;
-- how it was validated;
-- any real risk or follow-up.
-
-Delete template sections that do not apply.
+Write PR descriptions like a short explanation to a colleague, not like a legal form. Start with the problem, explain the change that solves it, and finish with the evidence that it works. Keep the tone direct and human; delete template sections that do not apply.
 
 ## Merging
 
