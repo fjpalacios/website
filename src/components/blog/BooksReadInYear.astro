@@ -91,7 +91,7 @@ let bookNumber = 1;
     <h2>{monthNames[language][month]}</h2>
     <ol start={bookNumber}>
       {booksByMonth[month].map((book) => {
-        bookNumber++; // Increment for side effect only
+        bookNumber++;
         return (
           <li>
             <BookLink title={book.data.title} slug={book.data.post_slug} full={true} />.
