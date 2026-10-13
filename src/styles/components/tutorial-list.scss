@@ -1,7 +1,0 @@
-@use "../mixins" as *;
-@use "../variables" as *;
-
-.tutorial-list {
-  @include content-grid;
-  margin-bottom: 2rem;
-}
