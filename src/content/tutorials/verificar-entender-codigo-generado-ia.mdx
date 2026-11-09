@@ -1,0 +1,337 @@
+---
+title: "Verificar y entender código generado por IA"
+post_slug: "verificar-entender-codigo-generado-ia"
+date: "2026-11-09"
+excerpt: "Aprende a revisar código generado por IA antes de usarlo: entenderlo, probarlo, detectar red flags y decidir si entra en tu proyecto."
+language: "es"
+categories: ["ia"]
+course: "ia-para-programadores"
+order: 12
+cover: "/images/tutorials/cabecera-ia-para-programadores-curso.jpg"
+i18n: "verifying-understanding-ai-generated-code"
+---
+
+La IA te devuelve una función preciosa. Nombres claros, type hints, estructura decente. Incluso parece escrita por alguien que ha dormido ocho horas, lo cual ya la pone por encima de bastante código humano de martes por la tarde.
+
+La copias, la pegas, ejecutas algo rápido y funciona.
+
+Entonces llega la pregunta incómoda: ¿puedes explicar cada línea? ¿Sabes qué pasa si el input viene raro? ¿Has visto si hay un `except Exception: pass` escondido como una cucaracha bajo la nevera? ¿O estás a punto de meter en tu proyecto código que “parece bien” porque tiene buen peinado?
+
+Esta es una de las reglas más importantes de trabajar con IA: **nunca aceptes código que no entiendes**. No porque la IA sea mala. No porque haya que sufrir artesanalmente cada línea como si programar fuera tallar piedra. Sino porque el código que entra en tu repo pasa a ser responsabilidad tuya. El blame no dirá “lo escribió un modelo con mucha confianza”. Dirá tu nombre. Qué bonito detalle.
+
+En el [tutorial anterior vimos cómo refinar una conversación con IA sin perder el control](/es/tutoriales/iteracion-refinamiento-dialogo-ia). Ahora viene el filtro profesional: cómo decidir si el código generado merece entrar en tu proyecto o si debe volver al horno.
+
+## La prueba de “¿puedo explicar esto?”
+
+El primer filtro no son los tests. Es más incómodo: **explicar el código con tus palabras**.
+
+Si la IA te genera esto:
+
+```python
+from collections import defaultdict
+
+
+def group_orders_by_user(orders: list[dict]) -> dict[int, list[dict]]:
+    grouped_orders: dict[int, list[dict]] = defaultdict(list)
+
+    for order in orders:
+        grouped_orders[order["user_id"]].append(order)
+
+    return dict(grouped_orders)
+```
+
+Antes de usarlo, deberías poder responder:
+
+- ¿Qué hace `defaultdict(list)`?
+- ¿Por qué se convierte a `dict` al final?
+- ¿Qué pasa si una orden no tiene `user_id`?
+- ¿Qué pasa si `user_id` viene como string?
+- ¿La función modifica los objetos originales o solo los agrupa?
+
+Si no puedes responder, no pasa nada. De verdad. El problema no es no saberlo; el problema es fingir que sí porque el código tiene buena pinta. Ese es el camino hacia producción con una linterna sin pilas.
+
+Puedes usar la propia IA para hacer la explicación:
+
+```text
+Explícame este código línea por línea.
+
+Para cada línea o bloque:
+- Qué hace
+- Por qué es necesario
+- Qué asumiría sobre los datos de entrada
+- Qué podría fallar
+
+No propongas mejoras todavía. Solo explica.
+```
+
+Ese “no propongas mejoras todavía” importa. Si no lo pones, la IA puede saltar a refactorizar antes de que entiendas la versión actual. Y entonces tienes dos problemas: el código original que no entendías y una versión nueva que tampoco. Oferta 2x1, pero de las malas.
+
+## Haz que la IA declare sus supuestos
+
+El código generado siempre contiene supuestos. Algunos son razonables. Otros son el equivalente técnico a “seguro que nadie mete un string aquí”. Spoiler: alguien metió un string.
+
+Pídele a la IA que los saque a la luz:
+
+```text
+Lista todos los supuestos que hace este código.
+
+Clasifícalos en:
+1. Supuestos sobre los datos de entrada
+2. Supuestos sobre el entorno
+3. Supuestos sobre rendimiento
+4. Supuestos sobre seguridad
+
+Para cada supuesto, indica qué ocurriría si no se cumple.
+```
+
+Con la función anterior, una buena revisión debería señalar cosas como:
+
+- Cada `order` debe ser un `dict`
+- Cada `order` debe tener la clave `user_id`
+- `user_id` debe ser un entero si quieres que el tipo de retorno sea cierto
+- La lista puede caber en memoria
+- No hay validación de estructura
+
+Fíjate en lo que acaba de pasar: la función no cambió, pero tu comprensión sí. Ahora sabes dónde están las esquinas. Y en programación las esquinas importan, porque ahí es donde se esconde el bug con una taza de café y paciencia infinita.
+
+## Los tests no son decoración
+
+El segundo filtro son los tests. No como ceremonia religiosa, sino como forma concreta de decir: “esto hace lo que creo que hace”.
+
+Para la función anterior, puedes pedir tests así:
+
+```text
+Escribe tests con pytest para esta función.
+
+Cubre:
+- Lista vacía
+- Una orden
+- Varias órdenes del mismo usuario
+- Órdenes de usuarios distintos
+- Orden sin user_id
+- user_id con tipo incorrecto
+- Lista grande (100.000 órdenes): que el tiempo crezca de forma lineal, no cuadrática
+
+No cambies la implementación todavía.
+```
+
+La última línea vuelve a ser importante. Primero quieres tests que describan comportamiento y casos de borde. Después decides si la implementación necesita cambiar.
+
+Un set inicial podría ser:
+
+```python
+import pytest
+
+from orders import group_orders_by_user
+
+
+def test_groups_orders_by_user_id() -> None:
+    orders = [
+        {"id": 1, "user_id": 10, "total": 25.0},
+        {"id": 2, "user_id": 10, "total": 15.0},
+        {"id": 3, "user_id": 20, "total": 40.0},
+    ]
+
+    result = group_orders_by_user(orders)
+
+    assert result == {
+        10: [orders[0], orders[1]],
+        20: [orders[2]],
+    }
+
+
+def test_returns_empty_dict_for_empty_list() -> None:
+    assert group_orders_by_user([]) == {}
+
+
+def test_raises_key_error_when_user_id_is_missing() -> None:
+    orders = [{"id": 1, "total": 25.0}]
+
+    with pytest.raises(KeyError):
+        group_orders_by_user(orders)
+```
+
+¿Estos tests son perfectos? No. ¿Son mejores que “lo he probado con un ejemplo y parece que va”? Muchísimo. Ese “parece que va” ha financiado más horas extra que muchas consultoras.
+
+Si estás siguiendo el [curso de Python desde cero](/es/cursos/aprende-a-programar-desde-cero-python), este punto conecta con algo fundamental: una función no es solo el código que escribes, es el contrato que cumple. Los tests hacen visible ese contrato.
+
+## Red flags que no se negocian
+
+Hay señales que deberían hacerte parar. No “lo miro luego”. No “seguro que no afecta”. Parar.
+
+La IA puede generar código razonable y, aun así, colar cosas peligrosas. Especialmente si el prompt era amplio, el contexto estaba incompleto o le pediste “hazlo production-ready”, esa frase que invoca demonios con certificación Scrum.
+
+Busca esto:
+
+**`TODO` en lógica crítica.**
+
+```python
+def charge_customer(customer_id: str, amount: float) -> None:
+    # TODO: implement payment retry logic
+    payment_provider.charge(customer_id, amount)
+```
+
+Un `TODO` aquí no es una nota inocente. Es una deuda con intereses.
+
+**Excepciones tragadas en silencio.**
+
+```python
+try:
+    send_invoice(invoice)
+except Exception:
+    pass
+```
+
+Esto no es error handling. Es poner cinta aislante encima del piloto rojo del coche. El problema sigue ahí, pero ahora además no lo ves.
+
+**Secrets hardcodeados.**
+
+```python
+API_KEY = "sk_live_123456"
+```
+
+No. Simplemente no. Ni para probar. Ni “luego lo cambio”. Git tiene memoria. GitHub también. Internet, por desgracia, tiene más memoria que algunos equipos de producto.
+
+**SQL por concatenación de strings.**
+
+```python
+query = "SELECT * FROM users WHERE email = '" + email + "'"
+```
+
+Si esto aparece, suena una alarma. Usa queries parametrizadas. La SQL injection no es una leyenda urbana que contaban los seniors para asustar juniors; sigue funcionando porque seguimos escribiendo cosas como esta.
+
+**HTML construido concatenando datos del usuario.**
+
+```python
+return f"<p>Pedido de {email}</p>"
+```
+
+El mismo error que el de SQL, con otro traje. Si ese email viene de un formulario, alguien puede meter un `<script>` y esperar sentado. Con plantillas que escapan por defecto (Jinja, React) no pasa nada; en cuanto aparece un `|safe`, un `innerHTML` o un `dangerouslySetInnerHTML`, hay que saber exactamente por qué está ahí. Y “lo puso la IA” no es una razón.
+
+**Regex compleja sin explicación.**
+
+```python
+pattern = r"^(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$"
+```
+
+Puede ser correcta. También puede ser una trampa con forma de jeroglífico. Si la IA genera una regex compleja, pídele que la explique y que añada tests. Si no puedes entenderla, no la metas en una parte crítica.
+
+## El prompt de revisión seria
+
+Después de entender el código y tener tests básicos, toca pedir una revisión con mala leche profesional. No para que la IA se critique a sí misma con suavidad corporativa, sino para que busque problemas concretos.
+
+Usa algo así:
+
+```text
+Revisa este código como si fueras responsable de aprobarlo en un code review.
+
+Busca específicamente:
+1. Bugs funcionales
+2. Casos de borde no cubiertos
+3. Riesgos de seguridad (SQL injection, XSS, secrets hardcodeados)
+4. Problemas de rendimiento
+5. Supuestos ocultos
+6. Código innecesariamente complejo
+7. Diferencias entre lo que el código hace y lo que el nombre promete
+
+Para cada hallazgo, responde con:
+- Severidad: alta, media o baja
+- Evidencia concreta en el código
+- Por qué importa
+- Cambio mínimo recomendado
+
+No reescribas todo el código salvo que sea estrictamente necesario.
+```
+
+Esta estructura evita dos problemas típicos: que la IA responda “se ve bien” con una sonrisa de cartón, o que reescriba todo porque se ha venido arriba. Tú quieres hallazgos, evidencia y cambios mínimos. Cirugía, no reforma integral del baño.
+
+También puedes pedirle que compare contra los tests:
+
+```text
+Compara la implementación con los tests.
+
+Indica:
+- Qué comportamientos están cubiertos
+- Qué comportamientos no están cubiertos
+- Qué test añadirías antes de modificar la implementación
+- Si algún test afirma un comportamiento dudoso
+```
+
+Esto es especialmente útil porque los tests también pueden estar mal. Sorpresa desagradable: la IA puede generar tests que verifican exactamente el bug que acaba de inventar. Tests verdes, código mal. Muy elegante todo.
+
+## Entender no significa memorizar todo
+
+Hay una trampa psicológica aquí: creer que “entender el código” significa poder reescribirlo de memoria en una pizarra mientras alguien te mira con cara de entrevista técnica.
+
+No.
+
+Entender significa que puedes explicar:
+
+- Qué problema resuelve
+- Qué inputs espera
+- Qué outputs promete
+- Qué errores puede lanzar
+- Qué decisiones importantes toma
+- Qué casos todavía no están cubiertos
+- Qué parte te genera dudas
+
+Ese último punto es clave. Un desarrollador profesional no es quien nunca tiene dudas; es quien sabe localizarlas. “No entiendo esta parte” no es una derrota. Es una señal de que todavía no deberías hacer merge. Mucho mejor eso que el clásico “yo creo que está bien”, frase que debería venir con un extintor.
+
+Una práctica útil es pedir una explicación inversa:
+
+```text
+Hazme preguntas para comprobar si entiendo este código.
+
+Empieza con preguntas fáciles y sube la dificultad.
+No me des las respuestas hasta que yo responda.
+```
+
+Esto convierte a la IA en examinador, no en generador. Y es incómodo de la forma correcta: te obliga a demostrar comprensión, no solo a asentir mientras lees.
+
+## Cuándo aceptar, refinar o rechazar
+
+Después de revisar, tienes tres opciones.
+
+**Aceptar** cuando:
+
+- Entiendes el código
+- Los tests cubren los comportamientos importantes
+- No hay red flags graves
+- Encaja con las convenciones del proyecto
+- El cambio es más simple que el problema que resuelve
+
+**Refinar** cuando:
+
+- La idea es correcta, pero falta validación
+- Hay naming confuso
+- Los tests son insuficientes
+- Hay un caso de borde claro que añadir
+- La implementación funciona, pero es más compleja de lo necesario
+
+**Rechazar y empezar de cero** cuando:
+
+- No puedes explicar una parte importante
+- La arquitectura no encaja
+- Hay riesgos de seguridad estructurales
+- La IA asumió requisitos falsos
+- Corregirlo sería más caro que pedir una versión nueva
+
+Esta decisión es más importante que el prompt perfecto. El prompt perfecto no existe. Lo que existe es criterio. Y el criterio se entrena revisando, probando, rechazando y volviendo a pedir mejor. Sí, da más trabajo que copiar y pegar. También da menos sustos.
+
+## Conceptos clave de esta lección
+
+- El código generado por IA entra en tu repo bajo tu responsabilidad
+- Si no puedes explicar una línea importante, todavía no deberías aceptarla
+- Pide a la IA que declare supuestos antes de refactorizar
+- Los tests convierten “parece que funciona” en comportamiento verificable
+- Los red flags de seguridad, secrets, SQL injection y errores silenciados no se negocian
+- Una buena revisión pide evidencia y cambios mínimos, no una reescritura teatral
+- Aceptar, refinar o rechazar es una decisión técnica, no emocional
+
+---
+
+La IA puede escribir código rápido, pero la velocidad sin criterio solo te permite llegar antes al bug. Tu trabajo no es competir con la IA escribiendo más líneas; es dirigir, entender y decidir qué merece vivir en el proyecto.
+
+En el próximo tutorial cambiamos de escala: veremos el panorama de herramientas de IA para desarrolladores — chats, integraciones de IDE, agentes de terminal y APIs — y cuándo tiene sentido usar cada una sin convertir tu workflow en un mercadillo de suscripciones.
+
+¡Nunca dejes de programar!

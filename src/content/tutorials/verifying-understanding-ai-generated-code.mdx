@@ -1,0 +1,337 @@
+---
+title: "Verifying and understanding AI-generated code"
+post_slug: "verifying-understanding-ai-generated-code"
+date: "2026-11-09"
+excerpt: "Learn how to review AI-generated code before using it: understand it, test it, spot red flags, and decide whether it belongs in your project."
+language: "en"
+categories: ["ai"]
+course: "ai-for-developers"
+order: 12
+cover: "/images/tutorials/cabecera-ia-para-programadores-curso.jpg"
+i18n: "verificar-entender-codigo-generado-ia"
+---
+
+AI gives you a beautiful function. Clear names, type hints, decent structure. It even looks like it was written by someone who slept eight hours, which already puts it ahead of a worrying amount of human Tuesday-afternoon code.
+
+You copy it, paste it, run something quick, and it works.
+
+Then the uncomfortable question arrives: can you explain every line? Do you know what happens with weird input? Did you check for an `except Exception: pass` tucked away like a roach under the fridge? Or are you about to add code to your project because it “looks fine” and has nice hair?
+
+This is one of the most important rules of working with AI: **never accept code you don't understand**. Not because AI is bad. Not because every line must be handcrafted with artisanal suffering as if programming were stone carving. But because once code enters your repo, it becomes your responsibility. The blame will not say “a very confident model wrote this.” It will say your name. How thoughtful.
+
+In the [previous lesson we looked at refining an AI conversation without losing control](/en/tutorials/iteration-refinement-ai-dialogue). Now comes the professional filter: deciding whether generated code deserves to enter your project or needs to go back in the oven.
+
+## The “can I explain this?” test
+
+The first filter is not tests. It is more uncomfortable: **explaining the code in your own words**.
+
+If AI generates this:
+
+```python
+from collections import defaultdict
+
+
+def group_orders_by_user(orders: list[dict]) -> dict[int, list[dict]]:
+    grouped_orders: dict[int, list[dict]] = defaultdict(list)
+
+    for order in orders:
+        grouped_orders[order["user_id"]].append(order)
+
+    return dict(grouped_orders)
+```
+
+Before using it, you should be able to answer:
+
+- What does `defaultdict(list)` do?
+- Why is it converted to `dict` at the end?
+- What happens if an order does not have `user_id`?
+- What happens if `user_id` is a string?
+- Does the function modify the original objects or only group them?
+
+If you can't answer, that's fine. Really. The problem is not not knowing; the problem is pretending you do because the code looks nice. That is the path to production with a flashlight and no batteries.
+
+You can use AI itself to explain the code:
+
+```text
+Explain this code line by line.
+
+For each line or block:
+- What it does
+- Why it is necessary
+- What it assumes about the input data
+- What could fail
+
+Do not suggest improvements yet. Only explain.
+```
+
+That “do not suggest improvements yet” matters. Without it, AI may jump into refactoring before you understand the current version. Then you have two problems: the original code you didn't understand and a new version you also don't understand. The worst kind of two-for-one.
+
+## Make AI declare its assumptions
+
+Generated code always contains assumptions. Some are reasonable. Others are the technical equivalent of “surely nobody will pass a string here.” Spoiler: somebody passed a string.
+
+Ask AI to bring those assumptions into the open:
+
+```text
+List every assumption this code makes.
+
+Classify them as:
+1. Assumptions about input data
+2. Assumptions about the environment
+3. Assumptions about performance
+4. Assumptions about security
+
+For each assumption, explain what would happen if it is false.
+```
+
+For the previous function, a good review should point out things like:
+
+- Each `order` must be a `dict`
+- Each `order` must contain the `user_id` key
+- `user_id` must be an integer if you want the return type to be true
+- The list must fit in memory
+- There is no structure validation
+
+Notice what just happened: the function did not change, but your understanding did. Now you know where the corners are. And in programming, corners matter, because that is where the bug sits with a coffee and infinite patience.
+
+## Tests are not decoration
+
+The second filter is tests. Not as a religious ceremony, but as a concrete way to say: “this does what I think it does.”
+
+For the function above, you can ask for tests like this:
+
+```text
+Write pytest tests for this function.
+
+Cover:
+- Empty list
+- One order
+- Multiple orders for the same user
+- Orders for different users
+- Order without user_id
+- user_id with the wrong type
+- Large list (100,000 orders): time should grow linearly, not quadratically
+
+Do not change the implementation yet.
+```
+
+The last line matters again. First you want tests that describe behavior and edge cases. Then you decide whether the implementation needs to change.
+
+An initial set could be:
+
+```python
+import pytest
+
+from orders import group_orders_by_user
+
+
+def test_groups_orders_by_user_id() -> None:
+    orders = [
+        {"id": 1, "user_id": 10, "total": 25.0},
+        {"id": 2, "user_id": 10, "total": 15.0},
+        {"id": 3, "user_id": 20, "total": 40.0},
+    ]
+
+    result = group_orders_by_user(orders)
+
+    assert result == {
+        10: [orders[0], orders[1]],
+        20: [orders[2]],
+    }
+
+
+def test_returns_empty_dict_for_empty_list() -> None:
+    assert group_orders_by_user([]) == {}
+
+
+def test_raises_key_error_when_user_id_is_missing() -> None:
+    orders = [{"id": 1, "total": 25.0}]
+
+    with pytest.raises(KeyError):
+        group_orders_by_user(orders)
+```
+
+Are these tests perfect? No. Are they better than “I tried one example and it seems fine”? Massively. That “seems fine” has funded more overtime than many consulting companies.
+
+If you are also following the [Python from scratch course](/en/courses/learn-to-code-from-scratch-python), this connects to something fundamental: a function is not just the code you write, it is the contract it fulfills. Tests make that contract visible.
+
+## Red flags that are not negotiable
+
+Some signals should make you stop. Not “I'll check later.” Not “surely it doesn't matter.” Stop.
+
+AI can generate reasonable code and still sneak in dangerous things. Especially if the prompt was broad, the context was incomplete, or you asked for “production-ready” code, that phrase that summons demons with Scrum certification.
+
+Look for this:
+
+**`TODO` inside critical logic.**
+
+```python
+def charge_customer(customer_id: str, amount: float) -> None:
+    # TODO: implement payment retry logic
+    payment_provider.charge(customer_id, amount)
+```
+
+A `TODO` here is not an innocent note. It is debt with interest.
+
+**Silently swallowed exceptions.**
+
+```python
+try:
+    send_invoice(invoice)
+except Exception:
+    pass
+```
+
+This is not error handling. It is putting duct tape over the red warning light in your car. The problem is still there, but now you also can't see it.
+
+**Hardcoded secrets.**
+
+```python
+API_KEY = "sk_live_123456"
+```
+
+No. Just no. Not for testing. Not “I'll change it later.” Git has memory. GitHub too. The internet, unfortunately, has better memory than some product teams.
+
+**SQL built by string concatenation.**
+
+```python
+query = "SELECT * FROM users WHERE email = '" + email + "'"
+```
+
+If this appears, an alarm should go off. Use parameterized queries. SQL injection is not an urban legend seniors tell juniors to scare them; it still works because we still write things like this.
+
+**HTML built by gluing user data together.**
+
+```python
+return f"<p>Order for {email}</p>"
+```
+
+The same mistake in a different suit. If that email comes from a form, someone can drop a `<script>` in there and wait. Templates that escape by default (Jinja, React) have your back; the moment a `|safe`, an `innerHTML` or a `dangerouslySetInnerHTML` shows up, you need to know exactly why it is there. And “the AI wrote it” is not a reason.
+
+**Complex regex without explanation.**
+
+```python
+pattern = r"^(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$"
+```
+
+It might be correct. It might also be a trap shaped like a hieroglyph. If AI generates a complex regex, ask it to explain it and add tests. If you cannot understand it, don't place it in critical logic.
+
+## The serious review prompt
+
+After understanding the code and getting basic tests, ask for a review with professional suspicion. Not so AI can gently critique itself with corporate softness, but so it searches for concrete problems.
+
+Use something like this:
+
+```text
+Review this code as if you were responsible for approving it in a code review.
+
+Look specifically for:
+1. Functional bugs
+2. Missing edge cases
+3. Security risks (SQL injection, XSS, hardcoded secrets)
+4. Performance problems
+5. Hidden assumptions
+6. Unnecessarily complex code
+7. Differences between what the code does and what the name promises
+
+For each finding, answer with:
+- Severity: high, medium, or low
+- Concrete evidence in the code
+- Why it matters
+- Minimal recommended change
+
+Do not rewrite the whole code unless it is strictly necessary.
+```
+
+This structure avoids two common problems: AI replying “looks good” with a plastic smile, or rewriting everything because it got excited. You want findings, evidence, and minimal changes. Surgery, not a full bathroom renovation.
+
+You can also ask it to compare against the tests:
+
+```text
+Compare the implementation with the tests.
+
+Indicate:
+- Which behaviors are covered
+- Which behaviors are not covered
+- Which test you would add before modifying the implementation
+- Whether any test asserts questionable behavior
+```
+
+This is especially useful because tests can also be wrong. Unpleasant surprise: AI can generate tests that verify exactly the bug it just invented. Green tests, wrong code. All very elegant.
+
+## Understanding does not mean memorizing everything
+
+There is a psychological trap here: thinking that “understanding the code” means being able to rewrite it from memory on a whiteboard while somebody stares at you like you're in the interview.
+
+No.
+
+Understanding means you can explain:
+
+- What problem it solves
+- What inputs it expects
+- What outputs it promises
+- What errors it can raise
+- What important decisions it makes
+- Which cases are still not covered
+- Which part still makes you uncertain
+
+That last point is key. A professional developer is not someone who never has doubts; it is someone who can locate them. “I don't understand this part” is not a defeat. It is a sign that you should not merge yet. Much better than the classic “I think it's fine,” a sentence that should come with a fire extinguisher.
+
+A useful practice is asking for a reverse explanation:
+
+```text
+Ask me questions to check whether I understand this code.
+
+Start with easy questions and increase the difficulty.
+Do not give me the answers until I respond.
+```
+
+This turns AI into an examiner, not a generator. And it is uncomfortable in the right way: it forces you to demonstrate understanding, not just nod while reading.
+
+## When to accept, refine, or reject
+
+After reviewing, you have three options.
+
+**Accept** when:
+
+- You understand the code
+- Tests cover the important behaviors
+- There are no serious red flags
+- It fits the project's conventions
+- The change is simpler than the problem it solves
+
+**Refine** when:
+
+- The idea is correct, but validation is missing
+- Naming is confusing
+- Tests are insufficient
+- There is a clear edge case to add
+- The implementation works, but is more complex than necessary
+
+**Reject and start fresh** when:
+
+- You cannot explain an important part
+- The architecture does not fit
+- There are structural security risks
+- AI assumed false requirements
+- Fixing it would cost more than asking for a new version
+
+This decision matters more than the perfect prompt. The perfect prompt does not exist. What exists is judgment. And judgment is trained by reviewing, testing, rejecting, and asking again with better constraints. Yes, it is more work than copy-paste. It also comes with fewer surprises.
+
+## Key concepts from this lesson
+
+- AI-generated code enters your repo under your responsibility
+- If you cannot explain an important line, you should not accept it yet
+- Ask AI to declare assumptions before refactoring
+- Tests turn “it seems to work” into verifiable behavior
+- Security red flags, secrets, SQL injection, and swallowed errors are not negotiable
+- A good review asks for evidence and minimal changes, not theatrical rewrites
+- Accepting, refining, or rejecting is a technical decision, not an emotional one
+
+---
+
+AI can write code quickly, but speed without judgment only gets you to the bug faster. Your job is not to compete with AI by writing more lines; it is to direct, understand, and decide what deserves to live in the project.
+
+In the next lesson we'll zoom out and look at the AI tool landscape for developers — chats, IDE integrations, terminal agents, and APIs — and when each one makes sense without turning your workflow into a subscription flea market.
+
+Never stop coding!
