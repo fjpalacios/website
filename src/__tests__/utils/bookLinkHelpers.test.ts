@@ -1,10 +1,5 @@
-import {
-  parseTitle,
-  findBook,
-  generateDisplayTitle,
-  generateBookUrl,
-  detectLanguageFromUrl,
-} from "@utils/bookLinkHelpers";
+import { parseTitle, findBook, generateDisplayTitle, generateBookUrl } from "@utils/bookLinkHelpers";
+import { detectLanguageFromUrl } from "@utils/languageHelpers";
 import type { CollectionEntry } from "astro:content";
 import { describe, expect, test } from "vitest";
 
@@ -206,7 +201,7 @@ describe("bookLinkHelpers", () => {
       expect(detectLanguageFromUrl("/en/books/the-stand")).toBe("en");
       expect(detectLanguageFromUrl("/en/authors/stephen-king")).toBe("en");
       expect(detectLanguageFromUrl("/en/")).toBe("en");
-      expect(detectLanguageFromUrl("/en")).toBe("es"); // No trailing slash, doesn't match
+      expect(detectLanguageFromUrl("/en")).toBe("en"); // Bare /en counts as English in languageHelpers
     });
 
     test("should detect Spanish from /es/ prefix", () => {
@@ -223,7 +218,7 @@ describe("bookLinkHelpers", () => {
     });
 
     test("should handle edge cases", () => {
-      expect(detectLanguageFromUrl("/en")).toBe("es"); // No trailing slash
+      expect(detectLanguageFromUrl("/en")).toBe("en"); // Bare /en counts as English
       expect(detectLanguageFromUrl("/english/path")).toBe("es"); // Contains 'en' but not /en/
       expect(detectLanguageFromUrl("/es")).toBe("es"); // No trailing slash, still defaults to es
     });

@@ -1,0 +1,40 @@
+---
+/**
+ * CourseLink Component
+ * Links to a course only when that course exists.
+ *
+ * The author writes two texts on purpose: `linked` for the day the course is
+ * published, `plain` for the day it is not. That way a tutorial can promise a
+ * course that is still being written without shipping a dead link.
+ *
+ * Usage in MDX:
+ * <CourseLink slug="domina-bash-desde-cero"
+ *             linked="el curso de Bash scripting"
+ *             plain="las próximas lecciones de este curso" />
+ *
+ * Props:
+ * - slug: the course slug **in the page's language** (see references/courses.md)
+ * - linked: text rendered as a link when the course exists
+ * - plain: text rendered as a plain sentence when it does not
+ * - lang: language to resolve in ("es" | "en", default: detected from the URL)
+ */
+
+import { findCourse, resolveConditionalLink } from "@utils/courseLinkHelpers";
+import { detectLanguageFromUrl } from "@utils/languageHelpers";
+import { buildCourseUrl } from "@utils/routes";
+import { getCollection } from "astro:content";
+
+interface Props {
+  slug: string;
+  linked?: string;
+  plain?: string;
+  lang?: "es" | "en";
+}
+
+const { slug, linked, plain, lang = detectLanguageFromUrl(Astro.url.pathname) } = Astro.props;
+
+const course = findCourse(await getCollection("courses"), slug, lang);
+const { href, text } = resolveConditionalLink(course ? buildCourseUrl(lang, slug) : undefined, linked, plain);
+---
+
+{href ? <a href={href}>{text}</a> : text}

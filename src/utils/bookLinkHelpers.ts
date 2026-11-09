@@ -10,20 +10,6 @@ import type { LanguageKey } from "@/types";
 import { escapeHtml } from "@/utils/safeUrl";
 
 /**
- * Detect language from URL pathname
- * @param pathname - URL pathname (e.g., "/en/books/the-stand" or "/es/libros/apocalipsis")
- * @returns Detected language ("en" or "es"), defaults to "es" if not detected
- *
- * @example
- * detectLanguageFromUrl("/en/books/the-stand") // "en"
- * detectLanguageFromUrl("/es/libros/apocalipsis") // "es"
- * detectLanguageFromUrl("/unknown/path") // "es" (default)
- */
-export const detectLanguageFromUrl = (pathname: string): LanguageKey => {
-  return pathname.startsWith("/en/") ? "en" : "es";
-};
-
-/**
  * Parse a book title in format "Title, Author" or just "Title"
  */
 export const parseTitle = (titleStr: string) => {

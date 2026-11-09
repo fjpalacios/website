@@ -10,7 +10,8 @@
  * - name: Author name (must match exactly, case-sensitive)
  */
 
-import { findAuthor, generateAuthorUrl, detectLanguageFromUrl } from "@utils/authorLinkHelpers";
+import { findAuthor, generateAuthorUrl } from "@utils/authorLinkHelpers";
+import { detectLanguageFromUrl } from "@utils/languageHelpers";
 import { getCollection } from "astro:content";
 
 interface Props {

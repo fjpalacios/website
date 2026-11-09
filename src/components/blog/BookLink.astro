@@ -14,7 +14,8 @@
  * - lang: Language to search in ("es" | "en", default: auto-detected from URL)
  */
 
-import { findBook, generateDisplayTitle, generateBookUrl, detectLanguageFromUrl } from "@utils/bookLinkHelpers";
+import { findBook, generateBookUrl, generateDisplayTitle } from "@utils/bookLinkHelpers";
+import { detectLanguageFromUrl } from "@utils/languageHelpers";
 import { getCollection } from "astro:content";
 
 interface Props {
