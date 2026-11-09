@@ -11,7 +11,8 @@
  * - name: Series name (must match exactly, case-sensitive)
  */
 
-import { findSeries, generateSeriesUrl, detectLanguageFromUrl } from "@utils/seriesLinkHelpers";
+import { detectLanguageFromUrl } from "@utils/languageHelpers";
+import { findSeries, generateSeriesUrl } from "@utils/seriesLinkHelpers";
 import { getCollection } from "astro:content";
 
 interface Props {

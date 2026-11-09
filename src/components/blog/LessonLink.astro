@@ -1,0 +1,46 @@
+---
+/**
+ * LessonLink Component
+ * Links to a lesson of another course only when that lesson exists.
+ *
+ * Built for the cross-course references the roadmaps declare in a lesson's
+ * Prerequisites line ("Docker L13"): the sentence can mention the other course
+ * without breaking while that course is still unpublished.
+ *
+ * Usage in MDX:
+ * <LessonLink course="domina-docker-desde-cero" order={13}
+ *             linked="levantar Postgres con Compose, como en Docker L13"
+ *             plain="levantar Postgres con Compose" />
+ *
+ * Props:
+ * - course: course slug **in the page's language**
+ * - order: lesson number inside that course
+ * - linked: text rendered as a link when the lesson exists
+ * - plain: text rendered as a plain sentence when it does not
+ * - lang: language to resolve in ("es" | "en", default: detected from the URL)
+ */
+
+import { findLesson, resolveConditionalLink } from "@utils/courseLinkHelpers";
+import { detectLanguageFromUrl } from "@utils/languageHelpers";
+import { buildTutorialUrl } from "@utils/routes";
+import { getCollection } from "astro:content";
+
+interface Props {
+  course: string;
+  order: number;
+  linked?: string;
+  plain?: string;
+  lang?: "es" | "en";
+}
+
+const { course, order, linked, plain, lang = detectLanguageFromUrl(Astro.url.pathname) } = Astro.props;
+
+const lesson = findLesson(await getCollection("tutorials"), course, order, lang);
+const { href, text } = resolveConditionalLink(
+  lesson ? buildTutorialUrl(lang, lesson.data.post_slug) : undefined,
+  linked,
+  plain,
+);
+---
+
+{href ? <a href={href}>{text}</a> : text}
