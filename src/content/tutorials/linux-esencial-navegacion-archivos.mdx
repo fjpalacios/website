@@ -1,0 +1,634 @@
+---
+title: "Linux esencial para DevOps: navegación, archivos y permisos"
+post_slug: "linux-esencial-navegacion-archivos"
+date: "2026-11-10"
+excerpt: "Aprende a moverte por Linux, entender el filesystem, manipular archivos y leer permisos sin tratar la terminal como una habitación oscura."
+language: "es"
+categories: ["devops"]
+course: "devops-sre-platform-engineering-desde-cero"
+order: 3
+cover: "/images/tutorials/cabecera-devops-curso.jpg"
+i18n: "linux-essentials-navigation-files"
+---
+
+import { CourseLink } from "@components/blog";
+
+Entras en una máquina Linux por primera vez con cierta intención profesional. No “voy a ejecutar dos comandos copiados de Stack Overflow y que sea lo que Dios quiera”, sino intención profesional de verdad.
+
+Tecleas `ls /` y aparece esto:
+
+```text
+bin  boot  dev  etc  home  lib  opt  proc  root  tmp  usr  var
+```
+
+Y claro: ¿qué es `etc`? ¿Por qué `usr` no tiene una `e`? ¿`var` de variable? ¿`root` es una carpeta o una persona con demasiado poder? ¿Puedo tocar algo o el servidor va a empezar a emitir humo administrativo?
+
+Tranquilo. Linux no está intentando intimidarte. Bueno, un poco sí. Pero debajo de esos nombres cortos hay una lógica bastante sólida. En DevOps, entender esa lógica es obligatorio: los servidores viven en Linux, los logs viven en Linux, los servicios se configuran en Linux y muchos incidentes empiezan con alguien diciendo “solo he movido un archivo”. Spoiler: no era “solo”.
+
+## El filesystem de Linux no es una carpeta gigante
+
+En Linux todo cuelga de una raíz única: `/`.
+
+No hay `C:\`, `D:\` ni unidades separadas al estilo Windows. Hay un árbol. Todo está dentro de ese árbol: discos, usuarios, configuraciones, logs, procesos, dispositivos y algún rincón que parece puesto ahí para comprobar si estabas prestando atención.
+
+Una versión simplificada del mapa:
+
+```text
+/
+├── bin      → Comandos esenciales como ls, cp, mv
+├── etc      → Configuración del sistema y de los servicios
+├── home     → Directorios de usuarios
+├── opt      → Software opcional de terceros
+├── tmp      → Archivos temporales
+├── usr      → Programas y librerías de usuario
+└── var      → Datos variables: logs, cachés, colas
+```
+
+Piensa en `/` como un edificio técnico:
+
+- `/home` son los apartamentos de los usuarios.
+- `/etc` es el cuarto donde se guardan los manuales, llaves y configuraciones.
+- `/var` es el almacén donde las cosas cambian todo el tiempo: logs, colas, cachés.
+- `/tmp` es la mesa de trabajo donde dejas cosas temporales y luego alguien limpia.
+- `/bin` y `/usr/bin` son estanterías llenas de herramientas.
+
+No necesitas memorizar cada directorio hoy. Nadie serio aprende Linux recitando `/usr/libexec` como si fuese poesía medieval. Lo que necesitas es saber dónde suelen vivir las cosas y, sobre todo, no tratar `/` como una carpeta de descargas donde puedes ordenar “a tu manera”.
+
+Vamos a movernos por ese árbol.
+
+## Saber dónde estás: `pwd`, `ls` y `cd`
+
+Antes de tocar nada en una terminal, necesitas orientación. En una interfaz gráfica ves ventanas, iconos y carpetas. En terminal, tu mapa empieza con tres comandos:
+
+- `pwd`: muestra dónde estás.
+- `ls`: lista qué hay ahí.
+- `cd`: cambia de directorio.
+
+Entra en la VM del curso si estás siguiendo la configuración recomendada:
+
+```bash
+multipass shell devops-lab
+```
+
+Ahora pregunta dónde estás:
+
+```bash
+pwd
+```
+
+```text
+/home/ubuntu
+```
+
+Eso significa: estás en el directorio personal del usuario `ubuntu`.
+
+Lista el contenido:
+
+```bash
+ls
+```
+
+Probablemente verás poco o nada. Normal. Una casa recién creada no tiene todavía cajas por el suelo. Dale tiempo.
+
+Ahora usa formatos más útiles:
+
+```bash
+ls -l
+ls -lh
+ls -la
+```
+
+La diferencia importa:
+
+| Comando   | Qué muestra                                  |
+| --------- | -------------------------------------------- |
+| `ls`      | Nombres básicos                              |
+| `ls -l`   | Formato largo: permisos, propietario, tamaño |
+| `ls -lh`  | Tamaños legibles para humanos                |
+| `ls -la`  | También archivos ocultos como `.bashrc`      |
+| `ls -ltr` | Ordenado por fecha, el más reciente al final |
+
+Los archivos que empiezan por `.` están ocultos por convención. No son mágicos. No están avergonzados. Simplemente son archivos de configuración que normalmente no quieres ver mezclados con todo.
+
+Para moverte:
+
+```bash
+cd /var/log
+pwd
+ls -lh
+```
+
+Para volver a tu home:
+
+```bash
+cd ~
+```
+
+Para subir un nivel:
+
+```bash
+cd ..
+```
+
+Para volver al directorio anterior:
+
+```bash
+cd -
+```
+
+`cd -` parece un detalle pequeño hasta que estás saltando entre `/etc/nginx/sites-available` y `/var/log/nginx` y empiezas a sentir que podrías perderte en tu propia terminal. Ahí deja de ser detalle y se convierte en supervivencia básica.
+
+Ya sabes mirar y moverte. Toca crear terreno propio.
+
+## Crear directorios sin montar una excavación arqueológica
+
+En el tutorial anterior dejamos un workspace llamado `~/devops-course`. Vamos a usarlo:
+
+```bash
+cd ~/devops-course
+pwd
+```
+
+Si no lo tienes, créalo ahora:
+
+```bash
+mkdir -p ~/devops-course/{scripts,configs,logs,projects,notes}
+cd ~/devops-course
+```
+
+El flag `-p` de `mkdir` significa: “crea también los directorios padres si no existen y no te quejes si ya existen”. Es uno de esos flags humildes que evitan dramas innecesarios.
+
+Compara:
+
+```bash
+mkdir projects/app
+```
+
+Si `projects` no existe, falla.
+
+```bash
+mkdir -p projects/app/src
+```
+
+Si falta toda la ruta, la crea. Sin discurso. Sin ticket de Jira.
+
+Para ver la estructura de forma más agradable puedes usar `tree`. Si no lo tienes instalado:
+
+```bash
+# macOS y Linux (Homebrew)
+brew install tree
+
+# Ubuntu / Debian
+sudo apt install -y tree
+
+# Arch Linux
+sudo pacman -S tree
+```
+
+Ahora:
+
+```bash
+tree ~/devops-course
+```
+
+```text
+/home/ubuntu/devops-course
+├── configs
+├── logs
+├── notes
+├── projects
+└── scripts
+```
+
+`tree` no es imprescindible, pero ayuda mucho cuando una estructura crece. Y en DevOps las estructuras crecen. A veces de forma sana. A veces como una carpeta `backup-final-old-new-real` que nadie se atreve a borrar.
+
+Ya tienes sitio. Ahora vamos a crear archivos.
+
+## Crear, copiar, mover y renombrar archivos
+
+Para crear un archivo vacío:
+
+```bash
+touch notes/lesson-03.md
+```
+
+Para escribir una línea de texto:
+
+```bash
+printf 'Linux navigation practice\n' > notes/lesson-03.md
+```
+
+Fíjate en `>`: redirige la salida y **sobrescribe** el archivo. Si ya había contenido, lo reemplaza. Sin preguntar. Linux confía mucho en ti, que es bonito hasta que recuerdas que a veces tú tampoco deberías confiar tanto en ti.
+
+Para añadir contenido sin borrar lo anterior:
+
+```bash
+printf 'Current directory: %s\n' "$(pwd)" >> notes/lesson-03.md
+```
+
+`>>` añade al final.
+
+Ahora copia el archivo:
+
+```bash
+cp notes/lesson-03.md notes/lesson-03-copy.md
+```
+
+Renómbralo:
+
+```bash
+mv notes/lesson-03-copy.md notes/linux-filesystem-notes.md
+```
+
+Muévelo a otro directorio:
+
+```bash
+mv notes/linux-filesystem-notes.md configs/
+```
+
+Sí, `mv` sirve para mover y para renombrar. Es el mismo concepto: cambiar la ruta de un archivo. Si cambia el nombre dentro del mismo directorio, lo llamamos renombrar. Si cambia de directorio, lo llamamos mover. La herramienta no necesita dos botones distintos para sentirse realizada.
+
+Para copiar directorios necesitas `-r`:
+
+```bash
+cp -r configs configs-backup
+```
+
+El `-r` significa recursive: copia el directorio y su contenido. Sin `-r`, `cp` se niega porque un directorio no es un archivo simple. Bien por `cp`. Alguien tenía que poner límites.
+
+Antes de borrar nada, primero aprendamos a mirar contenido.
+
+## Leer archivos sin abrir un editor
+
+En servidores, muchas veces no quieres editar un archivo. Solo quieres verlo. Para eso tienes varias herramientas:
+
+```bash
+cat notes/lesson-03.md
+```
+
+`cat` imprime todo el archivo. Va bien para archivos pequeños. Para archivos grandes, `cat` es como abrir una manguera dentro de casa: sale todo, técnicamente cumple, pero quizá no era el plan.
+
+Para ver el principio:
+
+```bash
+head -n 5 /var/log/syslog
+```
+
+Para ver el final:
+
+```bash
+tail -n 5 /var/log/syslog
+```
+
+Para seguir un archivo en tiempo real:
+
+```bash
+tail -f /var/log/syslog
+```
+
+`tail -f` es fundamental para logs. Se queda mirando el archivo y muestra nuevas líneas cuando aparecen. Es el equivalente terminal a quedarse al lado de una puerta esperando a que alguien entre, pero con más valor profesional.
+
+Para navegar por un archivo largo:
+
+```bash
+less /var/log/syslog
+```
+
+Dentro de `less`:
+
+- `Space`: baja una página.
+- `b`: sube una página.
+- `/texto`: busca.
+- `n`: siguiente coincidencia.
+- `q`: salir.
+
+Sí, `q` para salir. Si esto te acaba de recordar a Vim, normal. Y si Vim todavía te mira desde una esquina como un jefe final, el curso [Domina Vim desde cero](/es/cursos/domina-vim-desde-cero) empieza justo por sobrevivir a ese primer encuentro.
+
+Ya puedes crear, mover y leer. Ahora viene la parte donde conviene bajar la velocidad.
+
+## Borrar archivos: el momento motosierra
+
+Para borrar un archivo:
+
+```bash
+rm configs/linux-filesystem-notes.md
+```
+
+Para borrar un directorio vacío:
+
+```bash
+rmdir configs-backup
+```
+
+Si el directorio tiene contenido, `rmdir` se niega. Bien. Esa negativa es una barandilla.
+
+Para borrar un directorio con todo dentro:
+
+```bash
+rm -r configs-backup
+```
+
+Y aquí aparece el clásico:
+
+```bash
+rm -rf some-directory
+```
+
+`-r` borra recursivamente. `-f` fuerza y reduce preguntas. Juntos son útiles. También son peligrosos. `rm -rf` no es malvado, pero es una motosierra: herramienta legítima, pésima idea usarla con sueño y sin mirar hacia dónde apunta.
+
+Regla sencilla:
+
+```bash
+pwd
+ls -la some-directory
+rm -rf some-directory
+```
+
+Primero confirma dónde estás. Luego confirma qué vas a borrar. Después borras.
+
+Si estás construyendo scripts, aplica la versión defensiva:
+
+```bash
+rm -rf -- "$target_directory"
+```
+
+Ese `--` marca el final de opciones y evita que un valor raro empiece por `-` y se interprete como flag. Y las comillas evitan que espacios o caracteres especiales conviertan tu script en un episodio de true crime técnico. Son la base de todo lo que viene después: en las próximas lecciones los verás dentro de scripts de verdad, donde un espacio sin proteger deja de ser un detalle y se convierte en un despliegue a medias.
+
+Si quieres el tema completo, <CourseLink slug="domina-bash-desde-cero" linked="el curso de Bash scripting" plain="la parte de automatización de este curso" /> lo cubre de principio a fin.
+
+Ahora hablemos de permisos, porque tarde o temprano verás un `Permission denied` y pensarás que Linux te tiene manía.
+
+## Entender permisos: `rwx` sin invocar magia negra
+
+Ejecuta:
+
+```bash
+ls -l notes/lesson-03.md
+```
+
+Verás algo parecido a esto:
+
+```text
+-rw-r--r-- 1 ubuntu ubuntu 62 Aug  3 10:00 notes/lesson-03.md
+```
+
+La parte importante es esta:
+
+```text
+-rw-r--r--
+```
+
+Se lee así:
+
+```text
+- rw- r-- r--
+│ │   │   └── others
+│ │   └────── group
+│ └────────── owner
+└──────────── type
+```
+
+El primer carácter indica el tipo:
+
+- `-`: archivo normal.
+- `d`: directorio.
+- `l`: enlace simbólico.
+
+Luego vienen tres bloques:
+
+- propietario;
+- grupo;
+- otros.
+
+Cada bloque puede tener:
+
+- `r`: read, leer;
+- `w`: write, escribir;
+- `x`: execute, ejecutar.
+
+Para un archivo, `x` significa que se puede ejecutar como programa o script. Para un directorio, `x` significa que se puede entrar o atravesar. Sí, el mismo símbolo cambia un poco de sentido según el contexto. Linux hace estas cosas. No te agobies: con práctica empieza a encajar.
+
+Vamos a crear un script pequeño:
+
+```bash
+cat > scripts/hello.sh <<'EOF'
+#!/usr/bin/env bash
+printf 'Hello from Linux\n'
+EOF
+```
+
+Intenta ejecutarlo:
+
+```bash
+./scripts/hello.sh
+```
+
+Probablemente obtendrás:
+
+```text
+bash: ./scripts/hello.sh: Permission denied
+```
+
+El archivo existe, pero no tiene permiso de ejecución. Añádelo:
+
+```bash
+chmod +x scripts/hello.sh
+```
+
+Ahora:
+
+```bash
+./scripts/hello.sh
+```
+
+```text
+Hello from Linux
+```
+
+También verás permisos en formato numérico:
+
+```bash
+chmod 755 scripts/hello.sh
+chmod 644 notes/lesson-03.md
+```
+
+Traducción práctica:
+
+| Modo  | Significado habitual                    |
+| ----- | --------------------------------------- |
+| `755` | propietario todo, resto leer y ejecutar |
+| `644` | propietario lee/escribe, resto solo lee |
+| `600` | solo el propietario lee/escribe         |
+| `700` | solo el propietario todo                |
+
+No memorices todos los números como si fueran códigos de caja fuerte. Quédate con los comunes. En DevOps verás `600` para claves privadas SSH, `700` para `.ssh`, `755` para scripts/directorios ejecutables y `644` para archivos normales.
+
+### Cambiar el propietario: `chown`
+
+`chmod` dice **qué** se puede hacer con un archivo. `chown` dice **de quién** es:
+
+```bash
+sudo chown ubuntu:ubuntu configs/app.env
+```
+
+Eso asigna propietario `ubuntu` y grupo `ubuntu`. Para un árbol entero:
+
+```bash
+sudo chown -R deploy:deploy /srv/app
+```
+
+`-R` es recursivo, igual que en `cp` y `rm`, y con la misma advertencia: apuntando a la ruta equivocada cambia el dueño de media máquina. Compruébalo antes con `ls -l`, como hacías antes de borrar.
+
+En DevOps lo usarás sobre todo al desplegar: los archivos llegan con un usuario y el servicio corre con otro, y hasta que no cuadras el propietario el proceso no puede escribir sus logs. Por eso el `Permission denied` casi nunca significa “Linux te tiene manía”: significa que el archivo pertenece a alguien que no es quien intenta usarlo.
+
+Permisos entendidos. Ahora falta encontrar cosas, porque un servidor real nunca te deja los archivos importantes encima de la mesa.
+
+## Encontrar archivos y buscar dentro de ellos
+
+Para encontrar archivos por nombre:
+
+```bash
+find ~/devops-course -name "*.md"
+```
+
+Para encontrar directorios:
+
+```bash
+find ~/devops-course -type d
+```
+
+Para encontrar archivos modificados recientemente:
+
+```bash
+find ~/devops-course -type f -mtime -7
+```
+
+`find` parece tosco al principio. Luego descubres que puede localizar casi cualquier cosa si le das criterios claros. Es como un perro rastreador, pero con sintaxis de los años setenta.
+
+Para buscar texto dentro de archivos:
+
+```bash
+grep -r "Linux" ~/devops-course/notes
+```
+
+Opciones útiles:
+
+```bash
+grep -ri "linux" ~/devops-course/notes
+grep -rn "Linux" ~/devops-course
+```
+
+| Comando | Qué hace                     |
+| ------- | ---------------------------- |
+| `-r`    | busca recursivamente         |
+| `-i`    | ignora mayúsculas/minúsculas |
+| `-n`    | muestra número de línea      |
+
+Más adelante usarás herramientas más modernas como `rg` (`ripgrep`) porque son rapidísimas y agradables. Pero `grep` está en todas partes. En una máquina mínima, en un contenedor pequeño, en un servidor con cara de 2014: `grep` suele estar ahí. Apréndelo primero. Luego ya le pones turbo.
+
+## Práctica guiada: prepara una estructura de operaciones
+
+Vamos a juntar todo en una práctica pequeña. Crea una estructura simulando un proyecto de operaciones:
+
+```bash
+cd ~/devops-course
+mkdir -p projects/webapp/{bin,config,logs,tmp}
+```
+
+Crea un archivo de configuración:
+
+```bash
+cat > projects/webapp/config/app.env <<'EOF'
+APP_ENV=development
+APP_PORT=8080
+LOG_LEVEL=info
+EOF
+```
+
+Crea un script:
+
+```bash
+cat > projects/webapp/bin/start.sh <<'EOF'
+#!/usr/bin/env bash
+printf 'Starting webapp on port 8080\n'
+EOF
+```
+
+Dale permisos de ejecución:
+
+```bash
+chmod +x projects/webapp/bin/start.sh
+```
+
+Genera un log falso:
+
+```bash
+printf '[INFO] Application started\n' > projects/webapp/logs/app.log
+printf '[WARN] Cache is empty\n' >> projects/webapp/logs/app.log
+```
+
+Comprueba la estructura:
+
+```bash
+tree projects/webapp
+```
+
+```text
+projects/webapp
+├── bin
+│   └── start.sh
+├── config
+│   └── app.env
+├── logs
+│   └── app.log
+└── tmp
+```
+
+Ejecuta el script:
+
+```bash
+./projects/webapp/bin/start.sh
+```
+
+Busca configuración:
+
+```bash
+grep -n "APP_PORT" projects/webapp/config/app.env
+```
+
+Lee logs:
+
+```bash
+tail -n 10 projects/webapp/logs/app.log
+```
+
+Mira permisos:
+
+```bash
+ls -l projects/webapp/bin/start.sh
+```
+
+Esta práctica parece pequeña, pero contiene media vida operativa: estructura, configuración, scripts, logs, permisos y búsqueda. Cambia los nombres y ya estás cerca de lo que harás con servicios reales.
+
+## Qué debes llevarte de esta lección
+
+Linux deja de dar miedo cuando dejas de verlo como una caja negra y empiezas a verlo como un sistema con mapa.
+
+Quédate con esto:
+
+- `/` es la raíz del filesystem.
+- `/home`, `/etc`, `/var`, `/tmp`, `/usr` y `/opt` tienen responsabilidades habituales.
+- `pwd`, `ls` y `cd` son orientación básica.
+- `mkdir`, `touch`, `cp`, `mv` y `rm` manipulan archivos y directorios.
+- `cat`, `head`, `tail` y `less` te permiten leer sin editar.
+- `chmod` controla permisos; `rwx` no es decoración.
+- `find` y `grep` te ayudan a localizar archivos y contenido.
+- `rm -rf` se usa con respeto, no con fe.
+
+---
+
+**Reto**: Dentro de `~/devops-course/projects`, crea un directorio `api-service` con subdirectorios `bin`, `config` y `logs`. Añade un script ejecutable `bin/healthcheck.sh` que imprima `OK`, un archivo `config/service.env` con `SERVICE_PORT=3000` y un log `logs/service.log` con dos líneas. Después usa `find`, `grep`, `ls -l` y `tail` para demostrar que todo existe y tiene sentido.
+
+En el próximo tutorial seguiremos con Linux, pero subiremos un nivel: procesos, servicios, networking básico y logs del sistema. Es decir, la parte donde la máquina deja de ser “archivos en carpetas” y empieza a comportarse como un sistema vivo que a veces necesita cariño, a veces necesita reinicio y a veces necesita que mires `journalctl` antes de culpar a Kubernetes.
+
+¡Nunca dejes de programar!
