@@ -1,0 +1,623 @@
+---
+title: "Setting Up PostgreSQL with Docker, psql, and pgAdmin"
+post_slug: "setting-up-postgresql-docker-psql-pgadmin"
+date: "2026-11-11"
+excerpt: "Run PostgreSQL 18 with Docker Compose, connect with psql and pgAdmin, and understand the pieces of your first real SQL environment."
+language: "en"
+categories: ["sql"]
+course: "sql-from-zero-to-dba"
+order: 2
+cover: "/images/tutorials/cabecera-sql-curso.jpg"
+i18n: "preparar-postgresql-docker-psql-pgadmin"
+---
+
+import { LessonLink } from "@components/blog";
+
+Time for the pleasant part: stop talking about databases as an idea and run one for real.
+
+You open the terminal, type `docker compose up`, logs start flying, one line says `database system is ready to accept connections`, another looks like it was written by a printer having a difficult morning, and now you're thinking: is that it? Is PostgreSQL running? Where do I connect? Which user? Why does a database need more environment variables than some projects have tests?
+
+Relax. We're not deploying production. We're building a lab. And a good lab needs three things: a database you can break without apologizing, a fast way to talk to it from the terminal, and a visual interface for looking around without feeling like you're defusing a bomb.
+
+Today we'll set up that lab with **PostgreSQL 18**, **Docker Compose**, **psql**, and **pgAdmin**. CLI first, because `psql` is where you'll really learn SQL. pgAdmin comes second as a visual helper, for those days when a tree of tables feels calmer than another blinking prompt. We all have those days.
+
+One thing before we go on: this assumes you have Docker installed and know how to bring something up with Compose. If that is not you yet, <LessonLink course="mastering-docker-from-scratch" order={13} linked="the Docker Compose lesson" plain="the first lessons of the Docker course" /> is where to start.
+
+## What we are actually running
+
+Our environment will have two containers:
+
+| Service    | Image                 | Purpose                                    |
+| ---------- | --------------------- | ------------------------------------------ |
+| `postgres` | `postgres:18`         | The PostgreSQL server where the data lives |
+| `pgadmin`  | `dpage/pgadmin4:9.15` | A web UI for connecting to PostgreSQL      |
+
+We'll also use a Docker **volume** to persist PostgreSQL data. That matters: if you remove the container but keep the volume, your data stays. If you remove the volume, it disappears. Docker has no emotional attachment to your tables. Useful to remember before experimenting with commands that start with `docker volume rm`.
+
+The shape is this:
+
+```text
+Your terminal
+     │
+     ├── docker compose
+     │       ├── postgres container → PostgreSQL server
+     │       └── pgadmin container  → Web UI
+     │
+     └── psql → command-line client
+```
+
+In the [Docker course](/en/courses/mastering-docker-from-scratch), we already work with containers, ports, and volumes. Here we won't become Docker administrators again; we'll use it as a tool to get PostgreSQL clean, reproducible, and easy to restart after we do something educational. “Educational” sometimes means “I broke everything.” That's part of the process.
+
+Let's create the file.
+
+## Creating the lab project
+
+Create a folder for the course:
+
+```bash
+mkdir -p ~/sql-course
+cd ~/sql-course
+```
+
+Inside it, create a file named `compose.yaml`:
+
+```bash
+touch compose.yaml
+```
+
+Now write this configuration:
+
+```yaml
+services:
+  postgres:
+    image: postgres:18
+    container_name: sql-course-postgres
+    environment:
+      POSTGRES_USER: course_user
+      POSTGRES_PASSWORD: course_password
+      POSTGRES_DB: course_db
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U course_user -d course_db"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  pgadmin:
+    image: dpage/pgadmin4:9.15
+    container_name: sql-course-pgadmin
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@example.com
+      PGADMIN_DEFAULT_PASSWORD: admin_password
+    ports:
+      - "5050:80"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    volumes:
+      - pgadmin_data:/var/lib/pgadmin
+
+volumes:
+  postgres_data:
+  pgadmin_data:
+```
+
+Before running it, let's understand it. Copying YAML without understanding it is like signing a contract because “the indentation looks clean.” Dangerous, though aesthetically pleasing.
+
+## Understanding the `compose.yaml`
+
+The first part defines the `postgres` service:
+
+```yaml
+postgres:
+  image: postgres:18
+```
+
+This tells Docker to use the official PostgreSQL 18 image. We could use `latest`, but for a course that's a bad idea. `latest` can mean one thing today and another thing tomorrow. And when you're learning, having the floor move under your feet is not helpful. You already have `NULL` waiting for its turn.
+
+The `container_name` line below is optional: it pins the container name so `docker ps` and `docker compose logs postgres` stay predictable instead of growing a suffix. Production files usually leave it out, because it stops the service from scaling to several replicas; in a lab, stable names are worth more than that freedom.
+
+Then we have the environment variables:
+
+```yaml
+environment:
+  POSTGRES_USER: course_user
+  POSTGRES_PASSWORD: course_password
+  POSTGRES_DB: course_db
+```
+
+The official PostgreSQL image reads these variables when it initializes an empty database:
+
+- `POSTGRES_USER`: creates the initial user.
+- `POSTGRES_PASSWORD`: sets that user's password.
+- `POSTGRES_DB`: creates the initial database.
+
+This only applies **the first time the volume is initialized**. If you change `POSTGRES_PASSWORD` after the container has already run, PostgreSQL won't magically rewrite the password. The data already exists inside the volume. Docker doesn't read your mind, and honestly that's probably for the best.
+
+Then we expose the port:
+
+```yaml
+ports:
+  - "5432:5432"
+```
+
+The first `5432` is the port on your machine. The second `5432` is the port inside the container. PostgreSQL listens on `5432` by default, so we keep the classic mapping.
+
+Next comes a very important line:
+
+```yaml
+volumes:
+  - postgres_data:/var/lib/postgresql
+```
+
+For PostgreSQL 18, the official image uses `/var/lib/postgresql` as the recommended volume location. The actual data directory lives inside that structure. Could you mount a different path? Yes. Do you need to today? No. Simplicity first. There will be time later for backups, upgrades, and decisions that make a DBA stare silently out the window.
+
+The `healthcheck` asks whether PostgreSQL is ready:
+
+```yaml
+healthcheck:
+  test: ["CMD-SHELL", "pg_isready -U course_user -d course_db"]
+```
+
+`pg_isready` asks the server whether it is accepting connections and returns an exit code based on the answer. `-U` and `-d` tell it which user and which database to ask for; without them it would use the container's default user, which is not the one you want.
+
+Careful with the attribution, because it is the most common misreading of a Compose file: **the healthcheck does not wait for anything**. It only declares the service's state, moving from `starting` to `healthy` once the first check passes. What actually waits is the condition on the other service, and that comes a couple of blocks further down.
+
+The second service defines pgAdmin:
+
+```yaml
+pgadmin:
+  image: dpage/pgadmin4:9.15
+```
+
+pgAdmin needs an email and password to create its initial administrator user:
+
+```yaml
+environment:
+  PGADMIN_DEFAULT_EMAIL: admin@example.com
+  PGADMIN_DEFAULT_PASSWORD: admin_password
+```
+
+This is a local lab. Do not use these credentials in production. That sounds obvious, but uploading `.env` files to GitHub also sounded obvious, and yet the internet is what it is.
+
+Finally, we expose pgAdmin on port `5050`:
+
+```yaml
+ports:
+  - "5050:80"
+```
+
+That means you'll open pgAdmin at `http://localhost:5050`.
+
+And finally, the line that ties the two services together:
+
+```yaml
+depends_on:
+  postgres:
+    condition: service_healthy
+```
+
+This is what actually keeps pgAdmin from starting too early: Docker waits for the `postgres` healthcheck to report `healthy` and only then brings `pgadmin` up. Without the healthcheck that condition would have nothing to check; without the condition, the healthcheck would report and nobody would listen. Both pieces together are what remove the classic “I opened the UI and it says it can't connect”.
+
+We have the blueprint. Now let's power it on.
+
+## Starting PostgreSQL and pgAdmin
+
+From the `~/sql-course` folder, run:
+
+```bash
+docker compose up -d
+```
+
+The `-d` flag starts everything in the background. Without `-d`, the terminal stays attached to the logs, which is sometimes useful and sometimes like watching a fireplace made of text.
+
+Check that the services are running:
+
+```bash
+docker compose ps
+```
+
+You should see something like this:
+
+```text
+NAME                  IMAGE                 STATUS                    PORTS
+sql-course-postgres   postgres:18           Up (healthy)              0.0.0.0:5432->5432/tcp
+sql-course-pgadmin    dpage/pgadmin4:9.15   Up                        0.0.0.0:5050->80/tcp
+```
+
+If `postgres` says `starting`, wait a few seconds and run the command again. Databases also deserve to start with dignity.
+
+You can inspect the logs with:
+
+```bash
+docker compose logs postgres
+```
+
+The line you're looking for is:
+
+```text
+database system is ready to accept connections
+```
+
+Once you see that, PostgreSQL is ready.
+
+Now let's talk to it from the terminal.
+
+## Connecting with `psql`
+
+`psql` is PostgreSQL's command-line client. It's direct, powerful, and at first a little dry, like many tools you eventually learn to respect.
+
+You can enter `psql` inside the container:
+
+```bash
+docker compose exec postgres psql -U course_user -d course_db
+```
+
+If everything works, you'll see something like this:
+
+```text
+psql (18.4 (Debian 18.4-1.pgdg13+2))
+Type "help" for help.
+
+course_db=#
+```
+
+That `course_db=#` prompt means you're inside PostgreSQL, connected to the `course_db` database.
+
+Try your first query:
+
+```sql
+SELECT version();
+```
+
+You'll see something like this:
+
+```text
+                                              version
+-----------------------------------------------------------------------------------------------------
+ PostgreSQL 18.4 (Debian 18.4-1.pgdg13+2) on x86_64-pc-linux-gnu, compiled by gcc 14.2.0, 64-bit
+(1 row)
+```
+
+Then try something smaller:
+
+```sql
+SELECT 1 + 1 AS result;
+```
+
+```text
+ result
+--------
+      2
+(1 row)
+```
+
+Notice `AS result`. That's an **alias**: a temporary name for the output column. In this course we'll use aliases in `snake_case`, descriptive, and without quotes unless there is a strong reason. That means `total_spent`, not `Total Spent`, not `x`, not `prettyColumnBecauseReasons`. Queries deserve names that don't look like they were invented at 3 AM.
+
+To exit `psql`, type:
+
+```sql
+\q
+```
+
+Yes, it starts with a backslash. In `psql`, client-specific commands use `\`. SQL queries end with `;`. At first this looks like a tiny oddity. Then you discover that `psql` has a whole universe of internal commands and accept that terminals also have secret rooms.
+
+Let's look at the useful ones.
+
+## Basic `psql` commands
+
+Enter again:
+
+```bash
+docker compose exec postgres psql -U course_user -d course_db
+```
+
+Inside `psql`, try:
+
+```sql
+\l
+```
+
+Lists databases. You'll see four: yours, `postgres`, and the two templates PostgreSQL uses to create new databases.
+
+```text
+                                       List of databases
+   Name    |   Owner     | Encoding | Locale Provider |  Collate   |   Ctype
+-----------+-------------+----------+-----------------+------------+------------
+ course_db | course_user | UTF8     | libc            | en_US.utf8 | en_US.utf8
+ postgres  | course_user | UTF8     | libc            | en_US.utf8 | en_US.utf8
+ template0 | course_user | UTF8     | libc            | en_US.utf8 | en_US.utf8
+ template1 | course_user | UTF8     | libc            | en_US.utf8 | en_US.utf8
+(4 rows)
+```
+
+The ICU and privilege columns are trimmed here; PostgreSQL 18 prints more of them. What matters is that you recognise the shape.
+
+```sql
+\conninfo
+```
+
+Shows which database, user, and server you're connected to.
+
+```text
+You are connected to database "course_db" as user "course_user" via socket in "/var/run/postgresql" at port "5432".
+```
+
+That `/var/run/postgresql` is the tell that you are inside the container, talking over the local socket instead of coming in over the network.
+
+```sql
+\dt
+```
+
+Lists tables in the current schema. Right now you'll probably see none, because we haven't created any tables yet. That's fine. A fresh lab doesn't have samples on the table.
+
+```sql
+\?
+```
+
+Shows help for `psql` commands. It's long. Very long. Don't try to memorize it. Nobody becomes a better person by learning every meta-command at once.
+
+For now, these are the ones you need:
+
+| Command         | What it does            |
+| --------------- | ----------------------- |
+| `\q`            | Exit `psql`             |
+| `\l`            | List databases          |
+| `\conninfo`     | Show current connection |
+| `\dt`           | List tables             |
+| `\d table_name` | Describe a table        |
+| `\?`            | Show `psql` help        |
+
+And here's the key difference:
+
+```sql
+SELECT 1;
+```
+
+That is SQL.
+
+```sql
+\dt
+```
+
+That is a `psql` command.
+
+If you mix them up and something fails, it doesn't mean you're bad at SQL. It means you're learning where the language ends and the tool begins. Small border, large confusion. Classic computing.
+
+Now let's open pgAdmin.
+
+## Connecting with pgAdmin
+
+Open your browser at:
+
+```text
+http://localhost:5050
+```
+
+Log in with:
+
+```text
+Email: admin@example.com
+Password: admin_password
+```
+
+You'll see pgAdmin. Breathe. Yes, it has many panels. Yes, it looks like an airplane cockpit designed by someone who deeply loves context menus. You don't need to understand all of it today.
+
+To register the PostgreSQL server:
+
+1. Right-click **Servers**.
+2. Choose **Register** → **Server...**.
+3. In the **General** tab, use this name:
+
+```text
+SQL Course PostgreSQL
+```
+
+4. In the **Connection** tab, use these values:
+
+| Field                | Value             |
+| -------------------- | ----------------- |
+| Host name/address    | `postgres`        |
+| Port                 | `5432`            |
+| Maintenance database | `course_db`       |
+| Username             | `course_user`     |
+| Password             | `course_password` |
+
+The important detail is the host: **inside Docker Compose, the service is named `postgres`**. pgAdmin should not connect to `localhost`, because from pgAdmin's point of view `localhost` means “the pgAdmin container itself”, not your machine and not the PostgreSQL container.
+
+This breaks brains. Not because it's advanced, but because the word `localhost` looks innocent and then turns out to have contextual identity. Like a polite villain.
+
+Save the connection. If everything works, you'll see the server in the left tree. Open `Databases` and you should see `course_db`.
+
+pgAdmin will help you inspect structures, explore tables, and run queries visually. But we'll build the muscle in `psql`. The UI helps; the terminal teaches. Also, no Electron fan heroics, which is always a small act of mercy.
+
+## Creating a test table
+
+Back to `psql` for a real check:
+
+```bash
+docker compose exec postgres psql -U course_user -d course_db
+```
+
+Create a simple table:
+
+```sql
+CREATE TABLE books (
+  id INTEGER,
+  title TEXT,
+  author TEXT
+);
+```
+
+Now list the tables:
+
+```sql
+\dt
+```
+
+You should see something like this:
+
+```text
+         List of relations
+ Schema | Name  | Type  |    Owner
+--------+-------+-------+-------------
+ public | books | table | course_user
+(1 row)
+```
+
+And if you want to see what is inside that table without opening pgAdmin:
+
+```sql
+\d books
+```
+
+```text
+                        Table "public.books"
+ Column |  Type   | Collation | Nullable | Default
+--------+---------+-----------+----------+---------
+ id     | integer |           |          |
+ title  | text    |           |          |
+ author | text    |           |          |
+```
+
+Columns and types, still without `PRIMARY KEY` or `NOT NULL`. That is deliberate: they arrive in their own lesson.
+
+Insert a couple of rows:
+
+```sql
+INSERT INTO books (id, title, author)
+VALUES
+  (1, 'The Pragmatic Programmer', 'Andrew Hunt and David Thomas'),
+  (2, 'Designing Data-Intensive Applications', 'Martin Kleppmann');
+```
+
+Query the data:
+
+```sql
+SELECT id, title, author
+FROM books;
+```
+
+```text
+ id |                title                 |             author
+----+--------------------------------------+--------------------------------
+  1 | The Pragmatic Programmer             | Andrew Hunt and David Thomas
+  2 | Designing Data-Intensive Applications | Martin Kleppmann
+(2 rows)
+```
+
+You just created a table, inserted data, and queried it. We haven't discussed primary keys, detailed data types, constraints, or design yet. That's coming soon. Right now the important part is proving that the lab works.
+
+If you open pgAdmin and refresh `Schemas` → `public` → `Tables`, you should see the `books` table. If it doesn't appear, right-click and choose **Refresh**. pgAdmin sometimes needs to be reminded that the world has changed. We all know someone like that.
+
+## Stopping, starting, and cleaning the environment
+
+To stop the containers without deleting data:
+
+```bash
+docker compose down
+```
+
+To start them again:
+
+```bash
+docker compose up -d
+```
+
+Your `books` table will still be there because it is stored in the `postgres_data` volume.
+
+Check it:
+
+```bash
+docker compose exec postgres psql -U course_user -d course_db -c "SELECT id, title FROM books;"
+```
+
+The `-c` flag runs a query and exits. Very useful for quick checks.
+
+If you want to delete the whole lab, including data:
+
+```bash
+docker compose down -v
+```
+
+⚠️ That `-v` removes the volumes defined by the Compose file. Here that means deleting `postgres_data` and `pgadmin_data`. In a lab, that's fine. In a real environment, this command can turn a normal morning into a meeting with security, product, and someone asking “do we have a backup?”
+
+Use `down -v` only when you really want to start from zero.
+
+## Common problems
+
+### Port `5432` is already in use
+
+If you have PostgreSQL installed locally, port `5432` may already be taken.
+
+Change the external port:
+
+```yaml
+ports:
+  - "5433:5432"
+```
+
+Inside Docker it remains `5432`; from your machine you connect through `5433`.
+
+### pgAdmin does not connect with `localhost`
+
+Inside pgAdmin, use `postgres` as the host, not `localhost`.
+
+`localhost` from a container means “myself.” And pgAdmin, despite its enthusiasm, is not PostgreSQL.
+
+### I changed the password and it still fails
+
+If the volume already existed, changing `POSTGRES_PASSWORD` in `compose.yaml` does not change the password inside PostgreSQL.
+
+To restart from scratch:
+
+```bash
+docker compose down -v
+docker compose up -d
+```
+
+This deletes data. Repeating it because this is where someone scrolls too fast and then looks at the terminal like it betrayed them: **this deletes data**.
+
+### `psql` is waiting because I forgot the semicolon
+
+In SQL, many statements end with `;`.
+
+If you write:
+
+```sql
+SELECT 1
+```
+
+`psql` will show something like:
+
+```text
+course_db-#
+```
+
+It isn't broken. It is waiting for you to finish the statement. Type:
+
+```sql
+;
+```
+
+And it will continue. The first time it's scary. The second time it's annoying. The third time it's just who you are.
+
+## What you take from this lesson
+
+Today you set up the base environment for the course:
+
+- PostgreSQL 18 running in Docker.
+- A persistent volume so recreating containers doesn't delete your data.
+- `psql` as the main tool for running SQL.
+- pgAdmin as a visual helper.
+- A first `books` table to prove everything works.
+- The difference between SQL commands and `psql` meta-commands.
+
+This is not “installing a tool.” This is preparing the workbench. From now on, when we talk about tables, columns, rows, constraints, or queries, they won't be drawings in the air: you'll have a real database where you can test things and break them with some elegance.
+
+In the next lesson we'll write our first `SELECT` queries: choosing columns, using aliases, filtering results, and starting to read data with intention. That's where SQL stops being “that thing under the ORM” and starts looking like a very precise way to ask questions.
+
+Never stop coding!
