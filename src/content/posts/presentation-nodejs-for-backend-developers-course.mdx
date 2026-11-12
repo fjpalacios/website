@@ -1,0 +1,88 @@
+---
+title: "Introducing the Node.js for Backend Developers Course"
+post_slug: "presentation-nodejs-for-backend-developers-course"
+date: "2026-11-12"
+excerpt: "Inherited a Node service that works and you can't explain why? This free course gives you the model: event loop, async, HTTP without frameworks."
+language: "en"
+categories: ["programming"]
+cover: "/images/posts/cabecera-nodejs-post.jpg"
+i18n: "presentacion-curso-nodejs-para-backend"
+---
+
+You have been writing backend code for years. You know how to open a transaction, wire a queue, put a timeout where it belongs and read a log at three in the morning without losing your faith in humanity. Then one day you inherit a Node service.
+
+You open the entry file, read it, and you can even follow it. Then comes the awkward question: why is the process idling at zero CPU while it refuses to answer? Why is there an `await` inside a `forEach` that does nothing at all? Why does the healthcheck return 200 while the app is bored to death?
+
+You are reading JavaScript with the eyes of another language. That is exactly the gap this course fills.
+
+Welcome to **Node.js for Backend Developers**: a complete, free course for people who already know how to program and need JavaScript and Node as a mental model, not as an alphabet.
+
+### The problem with JavaScript courses
+
+Almost everything published about JavaScript is written for the browser. The DOM, events, whichever framework is fashionable, whichever bundler survived. A server has no DOM. It has sockets, files, processes, memory, and a runtime that will let you block all of it with one badly placed loop.
+
+The few resources that do look at the server side assume you already come from JavaScript. So you end up copying `async/await` by visual symmetry, which is like adding commas for aesthetics: looks tidy, means nothing.
+
+### Translate, don't memorise
+
+Nothing here wastes a minute on what a variable is or what an `if` does. Every concept is explained against what you already have in your head:
+
+- The **event loop** against Python's GIL and threads: two different answers to the same problem.
+- The **object model** against the classes you already know: `this`, the prototype chain, and `class` as syntactic sugar over it.
+- **ES modules** against Python's `import`, and CommonJS as the legacy you will meet in production and need to recognise.
+- **Promises** against callbacks, and `async/await` against the coroutines you already use.
+- **Streams and backpressure** against reading a whole file and trusting that RAM is infinite.
+
+Programmer to programmer. No hand-holding on the basics, no skipping the parts that are not obvious.
+
+### What you end up building
+
+The path starts where Node starts: understanding that JavaScript was born in a browser and that someone decided to take it out of there. From that you move to the event loop, the piece that decides whether your service holds up or chokes. Think of a waiter during the lunch rush: he cooks nothing, but he never stops moving, and the moment he stops to chat the whole bar stalls.
+
+With that model in place, everything else falls into line. Callbacks, promises and `async/await` stop being syntax you copy and become decisions with consequences. You learn the runtime from the inside: globals, `process`, the module system, the standard library. You work with files, paths and environment variables without Windows reminding you that slashes matter.
+
+And then comes the part that changes how you look at frameworks: writing an HTTP server by hand with the `http` module. Reading the body as a stream, building your own router, returning status codes that actually mean something. After that, Express looks like what it is: convenience, not magic. You build with it, you understand what it does for you, and you see what it hides.
+
+The end of the road is a real project: an Express API with its structure, its error handling and its tests. And one last stop most courses skip because they live off selling dependencies: everything the runtime already ships, from the test runner to watch mode to loading `.env` files. You will know when a package earns its place and when you are installing something Node already gave you.
+
+You will not walk away with a copied CRUD. You will walk away with a server you understand.
+
+### What this course does not cover
+
+This list is the important part of the announcement, because a course that promises everything teaches nothing:
+
+- **Frameworks, for real**. Express shows up here so you can take it apart, not so you can exploit it. API design, OpenAPI contracts, NestJS, authentication and authorisation belong to the Backend APIs course, which starts exactly where this one ends.
+- **Persistence**. There is no database here. Not one. Storing data is its own discipline, with its own indexes, transactions and course: [SQL: From Zero to DBA](/en/courses/sql-from-zero-to-dba).
+- **Deployment and process supervision**. Containers, processes, observability. That is the [DevOps, SRE and Platform Engineering](/en/courses/devops-sre-platform-engineering-from-scratch) course, and I am not duplicating it here.
+- **TypeScript**. This course is JavaScript. TypeScript has its own course, and this one is its prerequisite: first you understand the runtime, then you put types on top.
+- **Native addons and C++ internals**. If you ever need to write native code, you will have learned how to find your way. Not here.
+
+### Do I need prior knowledge?
+
+You need to know how to program. That is it. You do not need to know JavaScript, and in fact the course is designed for people who don't.
+
+What does help:
+
+- Having done real backend work: requests, errors, configuration, deploys.
+- Curiosity about the "why", not only the "how". Node is a runtime with very specific design decisions, and nearly all of them have a consequence you feel in production.
+- A machine where you can install software. `nvm` from day one, because pinning the runtime version is not bureaucracy: it is the difference between "works on my machine" and "works".
+
+If you don't program yet, this is not your course. Start with [learning to code from scratch](/en/courses/learn-to-code-from-scratch-python) and come back later: order matters.
+
+### An honest warning
+
+Node is not fast because it is Node. It is fast at what it is fast at: many connections waiting on things that happen outside your process. When the work is CPU-bound, the thread blocks and no amount of `async` saves you. Parse a huge file on the main thread and your server stops serving, while the event loop watches with the same face you make when you find an expired certificate in production. The answer isn't prayer: it's moving that work off the thread, and you learn how here.
+
+You also won't find the fashionable folder structure here. There is small code, examples you can actually run, and explanations of why something lives where it lives. When something is a simplification, it says so: a course that hides its shortcuts only moves the problem to the reader.
+
+### From "it works" to "I know why"
+
+That difference is the whole difference between copying and programming. JavaScript on the server has a very specific mental model, and once you have it the tools stop being frightening: not because you memorised them, but because you know which problem they solve.
+
+This is not a course you absorb in one afternoon. Not because of the amount of material, but because the event loop, async and streams are learned by writing, breaking things and looking again. By the end, Node stops being the runtime you live alongside and becomes one more tool in your belt.
+
+---
+
+**First lesson available November 13th**: "What is JavaScript and Why Node.js"
+
+Never stop coding!
