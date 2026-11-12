@@ -181,7 +181,7 @@ Igual que con `*args`, el nombre `kwargs` es convención. El `**` es lo que cuen
 
 `**kwargs` aparece mucho en código que construye o configura objetos, en wrappers de funciones, y en utilidades genéricas que no saben de antemano qué opciones van a recibir.
 
-Una advertencia honesta: `**kwargs` puede hacer tu función muy flexible o completamente opaca. Si alguien llama a `configurar(nombre="test", temperatura=37, pizza=True)` y la función acepta todo sin quejarse, no hay forma de saber desde fuera qué parámetros son realmente válidos. Úsalo cuando la flexibilidad tiene sentido real; no como atajo para no pensar qué acepta tu función. La señal de alarma: si usas `kwargs.get()` en ocho sitios distintos dentro de la misma función, probablemente esa función está haciendo demasiadas cosas.
+Advertencia: `**kwargs` puede hacer tu función muy flexible o completamente opaca. Si alguien llama a `configurar(nombre="test", temperatura=37, pizza=True)` y la función acepta todo sin quejarse, no hay forma de saber desde fuera qué parámetros son realmente válidos. Úsalo cuando la flexibilidad tiene sentido real; no como atajo para no pensar qué acepta tu función. La señal de alarma: si usas `kwargs.get()` en ocho sitios distintos dentro de la misma función, probablemente esa función está haciendo demasiadas cosas.
 
 ## Combinando todo
 

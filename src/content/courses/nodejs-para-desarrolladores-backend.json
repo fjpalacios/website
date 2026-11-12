@@ -1,0 +1,7 @@
+{
+  "name": "Node.js para desarrolladores backend",
+  "course_slug": "nodejs-para-desarrolladores-backend",
+  "language": "es",
+  "description": "JavaScript y Node como modelo mental para quien ya programa: el event loop, la asincronía, los streams y un servidor HTTP escrito a mano antes de tocar un framework.",
+  "i18n": "nodejs-for-backend-developers"
+}
