@@ -1,0 +1,306 @@
+---
+title: "Qué es JavaScript y por qué existe Node.js"
+post_slug: "que-es-javascript-y-por-que-nodejs"
+date: "2026-11-13"
+excerpt: "JavaScript nació en un navegador y acabó sirviendo APIs. Entiende qué es V8, qué hace libuv y qué gana y qué pierde un servidor escrito en Node."
+language: "es"
+categories: ["nodejs"]
+course: "nodejs-para-desarrolladores-backend"
+order: 1
+cover: "/images/tutorials/cabecera-nodejs-curso.jpg"
+i18n: "what-is-javascript-and-why-nodejs"
+---
+
+import { CourseLink } from "@components/blog";
+
+JavaScript tiene un problema de reputación. Que si es un lenguaje de juguete, que si no tiene tipos, que si la comparación de igualdad está rota, que si vive en el navegador molestando a los diseñadores. Todo eso tiene algo de verdad, y nada que ver con lo que vas a hacer en este curso.
+
+Porque el mismo lenguaje que se insulta en las redes está detrás de la mitad de las APIs que usas cada día. Y no por accidente: por una decisión de diseño muy concreta que se tomó hace unos cuantos años.
+
+Hoy no vas a escribir JavaScript todavía. Vas a entender de dónde viene, por qué alguien se lo llevó del navegador a un servidor y qué hay de verdad dentro de Node cuando escribes `node` y pulsas Intro. El resto del curso se apoya en esa base, y si la base está torcida, todo lo demás se aprende de memoria.
+
+## JavaScript nació para el navegador
+
+Estamos en 1995. Netscape domina la web y tiene un problema: las páginas son documentos estáticos. Cualquier validación de un formulario obliga a ir al servidor, esperar y volver. Brendan Eich escribe un lenguaje para el navegador en unos pocos días, con prisa y sin tiempo para elegir bonito el diseño.
+
+El nombre fue una operación de marketing. Java estaba de moda, así que el lenguaje se llamó JavaScript aunque no tenga nada que ver con Java. Es la parte de su historia que se explica mejor en una reunión comercial que en un libro de ingeniería.
+
+Después llegó la estandarización: el lenguaje pasó a llamarse **ECMAScript** en el estándar, y JavaScript es el nombre comercial de la implementación. En la práctica todo el mundo dice JavaScript y nadie dice ECMAScript, igual que todo el mundo dice aspirina y nadie dice ácido acetilsalicílico.
+
+Lo importante del origen no es la anécdota. Es la consecuencia: JavaScript se diseñó para un entorno concreto, el navegador, donde el trabajo principal es **reaccionar a eventos** —un clic, una respuesta de red— sin bloquear la interfaz. Ese modelo de eventos no era un detalle: era la razón de ser del lenguaje. Años después, alguien miró ese modelo y pensó que servía para algo más grande que un botón.
+
+## Por qué alguien lo sacó de ahí
+
+En 2009, Ryan Dahl presentó Node.js. El problema que intentaba resolver no era de JavaScript, era de los servidores.
+
+La forma clásica de atender conexiones es dedicar un hilo a cada una: llega una petición, se reserva un hilo, se espera a la base de datos, se responde, se libera. Funciona, pero cada conexión cuesta memoria y cambiar de hilo cuesta tiempo. Con miles de conexiones simultáneas y la mayoría esperando a que el disco o la red contesten, el servidor se pasa el día organizando hilos para que no hagan nada.
+
+Node propone lo contrario: **un solo hilo para tu código**, y nada de quedarse esperando. Cuando hay que leer un fichero o hablar con la red, Node delega la espera y sigue con otra cosa. Cuando la respuesta está lista, vuelve.
+
+Y para eso, JavaScript era un candidato perfecto, precisamente por su defecto de origen: el navegador ya le había enseñado a vivir de eventos y de callbacks. El lenguaje que parecía atado a la ventana del navegador resultó ser el que ya sabía trabajar sin bloquearse.
+
+## V8 no es Node
+
+Aquí se mezclan dos cosas que conviene separar desde el primer día, porque media internet las usa como sinónimos.
+
+**V8** es el motor de JavaScript: el programa que lee tu código, lo compila y lo ejecuta. Lo desarrolla Google, es el mismo que usa Chrome, y no sabe nada de ficheros, ni de red, ni de servidores. Solo sabe ejecutar JavaScript muy rápido.
+
+**Node.js** es el entorno completo: el motor, más una biblioteca de entrada y salida, más un conjunto de módulos para hablar con el sistema operativo.
+
+La analogía habitual es el motor y el coche. V8 es el motor; Node es el coche entero, con chasis, transmisión y depósito. Un motor suelto hace ruido muy convincente y no te lleva a ningún sitio.
+
+No hace falta creerme: se comprueba. Instala Node como verás más abajo y pídele las versiones:
+
+```bash
+node -p "process.versions.v8"
+node -p "process.versions.uv"
+```
+
+```
+14.6.202.34-node.40
+1.52.1
+```
+
+Dos números, dos piezas distintas. La primera es V8, el motor. La segunda es **libuv**, y merece su propio apartado.
+
+## libuv: el que espera por ti
+
+**libuv** es la biblioteca que hace posible la promesa de Node. Su trabajo es hablar con el sistema operativo para que tu proceso pueda tener cientos de operaciones en marcha sin tener cientos de hilos.
+
+Cada sistema operativo tiene su mecanismo para eso: `epoll` en Linux, `kqueue` en macOS y BSD, los puertos de completado en Windows. libuv los unifica detrás de una sola interfaz y añade un **pool de hilos** para las tareas que el sistema no puede dejar en segundo plano por su cuenta, como algunas operaciones de disco, DNS o criptografía.
+
+Esto corrige un mito que conviene desactivar ya: Node no es «single-threaded» en el sentido de que solo exista un hilo en el proceso. Tu código JavaScript corre en un hilo, sí, pero por debajo hay más gente trabajando. Lo que no hay es un hilo por petición.
+
+La consecuencia práctica es la que importa: mientras libuv espera, tu hilo principal sigue a lo suyo. No se sienta a la fresca a mirar cómo llega el dato: atiende lo siguiente. Y cuando el dato está, vuelve.
+
+## Qué gana Node y qué pierde
+
+Node no es mejor. Es distinto, y la diferencia se puede resumir en una tabla:
+
+| Situación                            | Node                                     | La alternativa clásica                   |
+| ------------------------------------ | ---------------------------------------- | ---------------------------------------- |
+| Muchas conexiones esperando datos    | Brilla: un hilo atiende a todas          | Cada conexión cuesta un hilo             |
+| API con mucha entrada y salida       | Encaja de forma natural                  | Funciona, con más maquinaria             |
+| Tiempo real: chats, notificaciones   | Conexiones abiertas y baratas            | Conexiones caras de mantener             |
+| Trabajo intensivo de CPU             | Sufre: bloquea el hilo y deja de atender | Reparte el trabajo entre hilos sin drama |
+| Cálculo científico o procesado heavy | No es su terreno                         | Es exactamente su terreno                |
+
+La fila que decide el resto del curso es la cuarta. En Node, si tu código se pasa veinte segundos calculando, el servidor deja de responder durante veinte segundos. No hay hilo de reserva, no hay nadie más atendiendo la puerta. Volveremos a esto con detalle, y tiene solución, pero la solución nunca es «esperar que no pase».
+
+## JavaScript frente a Python
+
+Vienes de otro lenguaje, así que la comparación no es un adorno: es la forma más rápida de aprender. Estas son las diferencias que de verdad cambian cómo escribes código.
+
+| Concepto     | Python                         | JavaScript                                     |
+| ------------ | ------------------------------ | ---------------------------------------------- |
+| Tipado       | Dinámico, con tipos opcionales | Dinámico, sin tipos en el lenguaje             |
+| Objetos      | Clases clásicas                | Prototipos, con `class` como azúcar sintáctico |
+| Números      | Enteros y flotantes separados  | Un solo tipo: doble precisión IEEE 754         |
+| Concurrencia | Hilos con GIL, `asyncio`       | Un hilo y un bucle de eventos                  |
+| Ejecución    | Interpretado por CPython       | Compilado al vuelo por V8                      |
+
+Dos matices, porque la tabla miente por omisión:
+
+Los **números** son el detalle que más sorpresas da a quien viene de Python. En JavaScript no hay enteros: todos los números son de coma flotante de doble precisión. `0.1 + 0.2` no da `0.3`, da `0.30000000000000004`, y eso no es un bug: es el tipo. Los enteros grandes pierden precisión y para eso existe `BigInt`.
+
+La **concurrencia** no es que Python sea peor, es que resuelve otro problema. El GIL y el bucle de eventos son dos respuestas distintas a la misma pregunta: cómo hacer que un programa no se quede mirando al techo mientras espera.
+
+El modelo de objetos lo verás en detalle en la siguiente lección. Aquí basta con saber que `class` en JavaScript no es lo que parece: no hay clases de verdad, hay una cadena de prototipos con una sintaxis amable por encima.
+
+## Instalar Node con nvm
+
+Podrías instalar Node desde la web oficial y tener una sola versión. Funcionaría hasta el primer proyecto que necesite otra. Y entonces empezaría el ritual: desinstalar, instalar, romper algo, volver atrás.
+
+**nvm** es un gestor de versiones: instala varias a la vez y te deja cambiar entre ellas por proyecto. Ese cambio se declara en un fichero, `.nvmrc`, que se commitea con el código. Desde el primer día, porque el primer día es cuando cuesta cero.
+
+La instalación oficial es un script. Si prefieres tu gestor de paquetes, hay opciones, pero ojo a la segunda:
+
+```bash
+# macOS y Linux (Homebrew)
+brew install nvm
+
+# Ubuntu / Debian
+# no hay paquete oficial de nvm en los repositorios:
+# la vía documentada es el script de instalación
+
+# Arch Linux (AUR)
+paru -S nvm
+```
+
+La instalación recomendada por el propio proyecto:
+
+```bash
+curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.3/install.sh | bash
+```
+
+Salida real:
+
+```
+=> Downloading nvm from git to '/home/tu-usuario/.nvm'
+=> Cloning into '/home/tu-usuario/.nvm'...
+=> Compressing and cleaning up git repository
+=> Appending nvm source string to /home/tu-usuario/.bashrc
+=> Appending bash_completion source string to /home/tu-usuario/.bashrc
+```
+
+Después hay que abrir una terminal nueva, o cargar el fichero de tu shell, para que el comando exista:
+
+```bash
+nvm --version
+```
+
+```
+0.40.3
+```
+
+Ahora la parte útil. Instalar la versión que hoy recibe soporte a largo plazo:
+
+```bash
+nvm install --lts
+```
+
+```
+Installing latest LTS version.
+Downloading and installing node v26.13.1...
+Computing checksum with sha256sum
+Checksums matched!
+Now using node v26.13.1 (npm v11.20.0)
+Creating default alias: default -> lts/* (-> v26.13.1)
+```
+
+Ese `lts/*` es lo que quieres: no un número concreto que caduca, sino «la LTS que toque». Compruébalo:
+
+```bash
+node -v
+npm -v
+```
+
+```
+v26.13.1
+11.20.0
+```
+
+Y fija esa versión como predeterminada, para que una terminal nueva no arranque con la del sistema:
+
+```bash
+nvm alias default 'lts/*'
+```
+
+```
+default -> lts/* (-> v26.13.1)
+```
+
+Para un proyecto concreto, el fichero `.nvmrc` con una línea:
+
+```bash
+echo 'lts/*' > .nvmrc
+nvm use
+```
+
+```
+Found '/home/tu-usuario/proyecto/.nvmrc' with version <lts/*>
+Now using node v26.13.1 (npm v11.20.0)
+```
+
+Ese fichero se commitea. Quien clone el repositorio ejecuta `nvm use` y tiene la misma versión que tú, sin leer un README desactualizado. Es la versión de «funciona en mi máquina» que sí funciona.
+
+## Tu primer contacto con el runtime
+
+Antes de escribir JavaScript de verdad, vamos a comprobar que el runtime está donde crees. Crea el proyecto del curso:
+
+```bash
+mkdir node-backend && cd node-backend
+npm init -y
+mkdir -p src/lessons
+```
+
+Abre `package.json` y añade la línea que activa los módulos modernos:
+
+```json
+{
+  "type": "module"
+}
+```
+
+Ese `"type": "module"` no es decoración: cambia cómo Node interpreta `import` y `export`, y lo vas a usar todo el curso. Sin él, Node asume el sistema antiguo y los ejemplos fallan de una forma que no dice nada.
+
+Ahora el primer fichero, `src/lessons/01-runtime.mjs`:
+
+```js
+console.log("Node", process.version);
+console.log("Plataforma", process.platform, process.arch);
+console.log("V8", process.versions.v8);
+console.log("libuv", process.versions.uv);
+```
+
+Ejecútalo:
+
+```bash
+node src/lessons/01-runtime.mjs
+```
+
+```
+Node v26.13.1
+Plataforma linux x64
+V8 14.6.202.34-node.40
+libuv 1.52.1
+```
+
+En tu máquina `linux x64` dirá lo que corresponda: `darwin arm64` en un Mac reciente, `win32 x64` en Windows. Los números de V8 y libuv pueden variar con el parche. Lo que no cambia es lo que acabas de ver: Node no es un lenguaje, es un programa con piezas, y esas piezas tienen versión.
+
+`process` es el objeto que representa al proceso en marcha. Es global, siempre está ahí, y es la puerta de entrada a casi todo lo que hace un servidor: variables de entorno, argumentos, señales, salida. No hace falta memorizarlo hoy; sí saber que existe y que no es magia.
+
+## Problemas habituales
+
+### `nvm: command not found`
+
+El script de instalación añade unas líneas a tu `.bashrc` o `.zshrc`, pero no recarga la terminal que ya tenías abierta. Abre una nueva o carga el fichero:
+
+```bash
+source ~/.bashrc
+```
+
+Si usas zsh, `source ~/.zshrc`. Y si has instalado nvm con Homebrew, en macOS puede que el mensaje de Homebrew indique que hay que crear el directorio `~/.nvm` antes: léelo, lo dice.
+
+### `node -v` muestra otra versión
+
+Sospecha del `PATH`. Si tienes Node instalado por el sistema, por Homebrew o por un gestor como `asdf`, puede aparecer antes que el de nvm. Compruébalo:
+
+```bash
+which node
+```
+
+Si la ruta no está dentro de `~/.nvm/versions/node/…`, ese es el problema. Cargar nvm, abrir una terminal nueva o `nvm use` en el proyecto lo resuelve.
+
+### `.nvmrc` está, pero la versión no cambia
+
+`.nvmrc` es una declaración, no una orden. Alguien tiene que leerlo:
+
+```bash
+nvm use
+```
+
+Y en según qué shells, ni eso: hay configuraciones que lo cargan automáticamente al entrar en el directorio y otras que no. Si no cambia, ejecuta `nvm use` a mano antes de trabajar.
+
+### `nvm install --lts` falla con un error de checksum o de red
+
+Suele ser red corporativa, proxy o un espejo raro. Reintenta, y si sigue, comprueba si estás detrás de un proxy que intercepta HTTPS. No es un problema de Node ni de tu código.
+
+## Qué te llevas de esta lección
+
+Hoy has entendido el terreno donde vas a trabajar el resto del curso:
+
+- JavaScript nació para el navegador y su modelo de eventos acabó siendo útil en el servidor.
+- **V8** ejecuta el lenguaje; **Node** es el entorno completo que lo rodea.
+- **libuv** hace la espera por ti, y por eso Node atiende miles de conexiones con un hilo de JavaScript.
+- Node gana en entrada y salida, y pierde en trabajo de CPU. Ese límite va a aparecer una y otra vez.
+- Tienes Node instalado con **nvm**, con la versión fijada en `.nvmrc` y una versión LTS por defecto.
+- Has ejecutado código en el runtime y has visto sus piezas con sus propios números.
+
+Si vienes de otro lenguaje y todo esto te suena a traducción, es exactamente lo que es. Aprender Node no consiste en memorizar una sintaxis nueva: consiste en traducir lo que ya sabes y detectar los tres o cuatro sitios donde la traducción no es exacta.
+
+Si todavía no programas, este no es el punto de entrada: <CourseLink slug="aprende-a-programar-desde-cero-python" linked="el curso de Python desde cero" plain="aprender a programar primero" /> te dará la base que aquí se da por hecha.
+
+En la siguiente lección empezamos con el lenguaje: variables, funciones, destructuring y spread. Sin explicar qué es una variable, y con la comparación con Python al lado en cada apartado.
+
+¡Nunca dejes de programar!

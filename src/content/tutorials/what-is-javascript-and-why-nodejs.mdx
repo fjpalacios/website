@@ -1,0 +1,306 @@
+---
+title: "What is JavaScript and Why Node.js Exists"
+post_slug: "what-is-javascript-and-why-nodejs"
+date: "2026-11-13"
+excerpt: "JavaScript was born in a browser and ended up serving APIs. Here is what V8 is, what libuv does, and what a Node server wins and loses."
+language: "en"
+categories: ["nodejs"]
+course: "nodejs-for-backend-developers"
+order: 1
+cover: "/images/tutorials/cabecera-nodejs-curso.jpg"
+i18n: "que-es-javascript-y-por-que-nodejs"
+---
+
+import { CourseLink } from "@components/blog";
+
+JavaScript has a reputation problem. It's a toy language. It has no types. Equality is broken. It lives in the browser getting in the way of designers. All of that is partly true, and none of it has anything to do with what you're going to do in this course.
+
+Because the same language people complain about online is behind half the APIs you hit every day. Not by accident, either: it got there through a very specific design decision made a while back.
+
+No JavaScript today. Instead you're going to understand where it came from, why somebody took it out of the browser and put it on a server, and what's actually inside Node when you type `node` and press Enter. Everything else in this course stands on that, and a crooked foundation just means you memorise the rest.
+
+## JavaScript was born in the browser
+
+It's 1995. Netscape owns the web and has a problem: pages are static documents. Any form validation means a round trip to the server and back. Brendan Eich writes a language for the browser in a handful of days, in a hurry, with no time to pick a nice design.
+
+The name was marketing. Java was hot, so the language got called JavaScript despite having nothing to do with Java. It's the part of its history that makes more sense in a sales meeting than in an engineering book.
+
+Then came standardisation: the language is **ECMAScript** on paper, and JavaScript is the commercial name of the implementation. In practice everyone says JavaScript, in the same way everyone says aspirin instead of acetylsalicylic acid.
+
+The interesting bit isn't the trivia, it's the consequence. JavaScript was designed for one environment — the browser — where the main job is **reacting to events**: a click, a network response, without freezing the interface. That event model wasn't a detail, it was the whole point of the language. Years later somebody looked at it and thought it could do something bigger than a button.
+
+## Why anyone took it out of there
+
+In 2009 Ryan Dahl introduced Node.js. The problem he was chasing wasn't a JavaScript problem, it was a server problem.
+
+The classic way to handle connections is one thread per connection: request arrives, thread reserved, wait for the database, respond, release. It works, but every connection costs memory and every thread switch costs time. With thousands of concurrent connections — most of them waiting on a disk or a network — the server spends its day arranging threads that have nothing to do.
+
+Node proposes the opposite: **one thread for your code**, and no waiting around. When something needs a file or a socket, Node hands off the wait and moves on. When the answer arrives, it comes back.
+
+JavaScript was a perfect fit precisely because of its origin story: the browser had already taught it to live on events and callbacks. The language that looked bolted to a browser window turned out to be the one that already knew how not to block.
+
+## V8 is not Node
+
+Two things get mixed up constantly, and it's worth separating them on day one because half the internet uses them as synonyms.
+
+**V8** is the JavaScript engine: the program that reads your code, compiles it, and runs it. Google builds it, Chrome ships it, and it knows nothing about files, networks, or servers. It only knows how to run JavaScript very fast.
+
+**Node.js** is the whole environment: the engine, plus an I/O library, plus a set of modules for talking to the operating system.
+
+The usual analogy is an engine and a car. V8 is the engine; Node is the car — chassis, gearbox, fuel tank. An engine on a stand makes a very convincing noise and gets you nowhere.
+
+Don't take my word for it. Install Node as shown below and ask it:
+
+```bash
+node -p "process.versions.v8"
+node -p "process.versions.uv"
+```
+
+```
+14.6.202.34-node.40
+1.52.1
+```
+
+Two numbers, two different parts. The first is V8, the engine. The second is **libuv**, which deserves its own section.
+
+## libuv: the one that waits for you
+
+**libuv** is what makes Node's promise possible. Its job is talking to the operating system so your process can keep hundreds of operations in flight without hundreds of threads.
+
+Every OS has its own mechanism: `epoll` on Linux, `kqueue` on macOS and the BSDs, completion ports on Windows. libuv puts one interface in front of all of them, and adds a **thread pool** for the jobs the OS can't background on its own — some disk operations, DNS, cryptography.
+
+That kills a myth worth killing early: Node is not "single-threaded" in the sense that the process has one thread. Your JavaScript runs on one thread, yes, but there is more staff downstairs. What you don't get is one thread per request.
+
+The practical consequence is the one that matters: while libuv waits, your main thread carries on. It doesn't sit around watching the data arrive; it handles the next thing. And when the data lands, it comes back.
+
+## What Node wins and what it loses
+
+Node isn't better. It's different, and the difference fits in a table:
+
+| Situation                          | Node                               | The classic alternative         |
+| ---------------------------------- | ---------------------------------- | ------------------------------- |
+| Many connections waiting on data   | Shines: one thread serves them all | Every connection costs a thread |
+| I/O-heavy API                      | Fits naturally                     | Works, with more machinery      |
+| Real time: chat, notifications     | Open connections are cheap         | Open connections are expensive  |
+| CPU-heavy work                     | Struggles: it blocks the thread    | Spreads the work across threads |
+| Number crunching, heavy processing | Not its turf                       | Exactly its turf                |
+
+The row that decides the rest of this course is the fourth. In Node, if your code spends twenty seconds computing, the server stops answering for twenty seconds. There's no spare thread, nobody else at the door. We'll come back to that in detail, and it has a fix — but the fix is never "hope it doesn't happen".
+
+## JavaScript versus Python
+
+You come from another language, so this comparison isn't decoration: it's the fastest way to learn. These are the differences that actually change how you write code.
+
+| Concept     | Python                                | JavaScript                                  |
+| ----------- | ------------------------------------- | ------------------------------------------- |
+| Typing      | Dynamic, with optional type hints     | Dynamic, no types in the language           |
+| Objects     | Classic classes                       | Prototypes, with `class` as syntactic sugar |
+| Numbers     | Separate integers and floats          | One type: IEEE 754 double precision         |
+| Concurrency | Threads under the GIL, plus `asyncio` | One thread and an event loop                |
+| Execution   | Interpreted by CPython                | Compiled on the fly by V8                   |
+
+Two caveats, because a table lies by omission.
+
+**Numbers** are what trips up Python developers most. JavaScript has no integers: every number is a double-precision float. `0.1 + 0.2` isn't `0.3`, it's `0.30000000000000004`, and that's not a bug, that's the type. Big integers lose precision, which is exactly why `BigInt` exists.
+
+**Concurrency** isn't about one being worse. The GIL and the event loop are two answers to the same question: how do you stop a program from staring at the ceiling while it waits.
+
+You'll see the object model up close in the next lesson. For now, just know that `class` in JavaScript is not what it looks like: there are no real classes, there's a prototype chain with pleasant syntax on top.
+
+## Installing Node with nvm
+
+You could install Node from the official site and have exactly one version. That works right up until the first project that needs a different one. Then the ritual starts: uninstall, reinstall, break something, roll back.
+
+**nvm** is a version manager: it installs several at once and lets you switch per project. That switch is declared in a file, `.nvmrc`, which you commit with the code. From day one, because day one is when it costs nothing.
+
+The official install is a script. If you'd rather use your package manager there are options, though mind the second one:
+
+```bash
+# macOS and Linux (Homebrew)
+brew install nvm
+
+# Ubuntu / Debian
+# there is no official nvm package in the repositories:
+# the documented route is the install script
+
+# Arch Linux (AUR)
+paru -S nvm
+```
+
+The route the project itself recommends:
+
+```bash
+curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.3/install.sh | bash
+```
+
+Real output:
+
+```
+=> Downloading nvm from git to '/home/your-user/.nvm'
+=> Cloning into '/home/your-user/.nvm'...
+=> Compressing and cleaning up git repository
+=> Appending nvm source string to /home/your-user/.bashrc
+=> Appending bash_completion source string to /home/your-user/.bashrc
+```
+
+Then open a new terminal, or reload your shell file, so the command exists:
+
+```bash
+nvm --version
+```
+
+```
+0.40.3
+```
+
+Now the useful part. Install the line that gets long-term support today:
+
+```bash
+nvm install --lts
+```
+
+```
+Installing latest LTS version.
+Downloading and installing node v26.13.1...
+Computing checksum with sha256sum
+Checksums matched!
+Now using node v26.13.1 (npm v11.20.0)
+Creating default alias: default -> lts/* (-> v26.13.1)
+```
+
+That `lts/*` is what you want: not a number that expires, but "whatever LTS is current". Check it:
+
+```bash
+node -v
+npm -v
+```
+
+```
+v26.13.1
+11.20.0
+```
+
+And pin it as the default, so a fresh terminal doesn't start with the system one:
+
+```bash
+nvm alias default 'lts/*'
+```
+
+```
+default -> lts/* (-> v26.13.1)
+```
+
+For a specific project, a `.nvmrc` with one line:
+
+```bash
+echo 'lts/*' > .nvmrc
+nvm use
+```
+
+```
+Found '/home/your-user/project/.nvmrc' with version <lts/*>
+Now using node v26.13.1 (npm v11.20.0)
+```
+
+That file gets committed. Anyone who clones the repo runs `nvm use` and gets the same version you have, without reading a stale README. It's the "works on my machine" that actually works.
+
+## First contact with the runtime
+
+Before writing real JavaScript, let's confirm the runtime is where you think it is. Create the course project:
+
+```bash
+mkdir node-backend && cd node-backend
+npm init -y
+mkdir -p src/lessons
+```
+
+Open `package.json` and add the line that turns on modern modules:
+
+```json
+{
+  "type": "module"
+}
+```
+
+That `"type": "module"` is not decoration: it changes how Node reads `import` and `export`, and you'll use it for the whole course. Without it, Node assumes the old system and examples fail in a way that tells you nothing.
+
+Now the first file, `src/lessons/01-runtime.mjs`:
+
+```js
+console.log("Node", process.version);
+console.log("Platform", process.platform, process.arch);
+console.log("V8", process.versions.v8);
+console.log("libuv", process.versions.uv);
+```
+
+Run it:
+
+```bash
+node src/lessons/01-runtime.mjs
+```
+
+```
+Node v26.13.1
+Platform linux x64
+V8 14.6.202.34-node.40
+libuv 1.52.1
+```
+
+On your machine `linux x64` will read `darwin arm64` on a recent Mac, `win32 x64` on Windows. The V8 and libuv numbers move with patch releases. What doesn't change is what you just saw: Node isn't a language, it's a program made of parts, and those parts have versions.
+
+`process` is the object representing the running process. It's global, always there, and it's the front door to nearly everything a server does: environment variables, arguments, signals, output. You don't need to memorise it today, just know it exists and that it isn't magic.
+
+## Common problems
+
+### `nvm: command not found`
+
+The install script appends a few lines to `.bashrc` or `.zshrc`, but it doesn't reload the terminal you already had open. Open a new one, or source the file:
+
+```bash
+source ~/.bashrc
+```
+
+On zsh, `source ~/.zshrc`. And if you installed nvm through Homebrew, the Homebrew message may tell you to create `~/.nvm` first — read it, it says so.
+
+### `node -v` shows a different version
+
+Blame `PATH`. If Node is also installed by the system, by Homebrew, or by a manager like `asdf`, it can come first. Check:
+
+```bash
+which node
+```
+
+If the path isn't under `~/.nvm/versions/node/…`, that's your problem. Sourcing nvm, opening a new terminal, or running `nvm use` in the project fixes it.
+
+### `.nvmrc` exists but the version doesn't change
+
+`.nvmrc` is a declaration, not a command. Someone has to read it:
+
+```bash
+nvm use
+```
+
+Some shell setups load it automatically when you enter the directory, most don't. If it doesn't switch, run `nvm use` by hand before you start working.
+
+### `nvm install --lts` fails with a checksum or network error
+
+Usually a corporate network, a proxy, or an odd mirror. Retry, and if it persists, check whether a proxy is intercepting HTTPS. It's not Node and it's not your code.
+
+## What you take from this lesson
+
+You now know the ground you'll be working on:
+
+- JavaScript was built for the browser, and its event model turned out to be useful on a server.
+- **V8** runs the language; **Node** is the environment around it.
+- **libuv** does the waiting, which is why Node handles thousands of connections on one JavaScript thread.
+- Node wins at I/O and loses at CPU work. That limit will show up again and again.
+- You have Node installed through **nvm**, with the version pinned in `.nvmrc` and an LTS default.
+- You ran code in the runtime and saw its parts report their own versions.
+
+If you come from another language and this feels like translation, that's exactly what it is. Learning Node isn't memorising new syntax: it's translating what you know and finding the three or four places where the translation isn't exact.
+
+If you don't program yet, this isn't your entry point: <CourseLink slug="learn-to-code-from-scratch-python" linked="the Python from scratch course" plain="learn to program first" /> gives you the foundation this course assumes.
+
+Next lesson we start on the language itself: variables, functions, destructuring, spread. No explaining what a variable is, and Python sitting next to it the whole way.
+
+Never stop coding!
