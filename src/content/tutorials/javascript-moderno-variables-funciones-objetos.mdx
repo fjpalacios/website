@@ -1,0 +1,618 @@
+---
+title: "JavaScript moderno: variables, funciones y objetos"
+post_slug: "javascript-moderno-variables-funciones-objetos"
+date: "2026-11-16"
+excerpt: "const, this, prototipos, destructuring y spread: la sintaxis que vas a leer cada día en un backend de Node, con lo que de verdad hace debajo."
+language: "es"
+categories: ["nodejs"]
+course: "nodejs-para-desarrolladores-backend"
+order: 2
+cover: "/images/tutorials/cabecera-nodejs-curso.jpg"
+i18n: "modern-javascript-variables-functions-objects"
+---
+
+Todo el JavaScript que has leído se parece, y una parte está mal. No porque esté roto: porque viene de otra época. Código de 2012 copiado en 2026, con guiones bajos, callbacks y `var` por todas partes, como esa receta familiar que nadie ha actualizado y todo el mundo sigue cocinando.
+
+Vas a leer mucho de eso, así que conviene saber qué está pasado de moda y qué no. Y hay una segunda razón, más importante: casi todo lo que en JavaScript parece arbitrario tiene una explicación concreta. `const` que no es constante. `this` que cambia según cómo llames. `class` que no es una clase. Cada una de esas rarezas es una decisión de diseño, y hasta que no la entiendes, el lenguaje parece escrito por alguien con prisa.
+
+Lo estaba. Pero es coherente.
+
+## `const`, `let` y el `var` que ya no
+
+Dos formas de declarar variables, y una tercera que sobrevive por inercia.
+
+```js
+const nombre = "Ada";
+let contador = 0;
+contador++;
+
+console.log(nombre, contador);
+```
+
+```
+Ada 1
+```
+
+`let` es una variable: se puede reasignar. `const` no:
+
+```js
+const nombre = "Ada";
+nombre = "Grace";
+```
+
+```
+TypeError: Assignment to constant variable.
+```
+
+Y aquí llega el malentendido número uno de JavaScript: **`const` no hace constante un objeto**. Impide reasignar el nombre, no congelar el valor. Esto es perfectamente legal:
+
+```js
+const usuario = { nombre: "Ada" };
+usuario.nombre = "Grace";
+usuario.edad = 36;
+console.log(usuario);
+```
+
+```
+{ nombre: 'Grace', edad: 36 }
+```
+
+`const` significa «esta referencia no cambia de destino». Si quieres congelar el objeto de verdad, existe `Object.freeze`, que impide añadir o cambiar propiedades.
+
+### Bloque contra función
+
+La diferencia entre `var` y `let` no es de estilo, es de dónde vive la variable. `var` vive en la función; `let` vive en el bloque:
+
+```js
+if (true) {
+  var fueraDelBloque = "var";
+  let dentroDelBloque = "let";
+}
+
+console.log(fueraDelBloque);
+console.log(dentroDelBloque);
+```
+
+```
+var
+ReferenceError: dentroDelBloque is not defined
+```
+
+Ese `ReferenceError` es una buena noticia: el lenguaje te avisa en vez de dejarte pasar. Con `var` acabas con variables que se escapan de su bloque y aparecen donde nadie las espera, con el mismo nombre que otra, sobrescribiéndose en silencio.
+
+Hay una diferencia más, la que casi nadie explica, y es la que salva los bucles con callbacks. Con `var`, el bucle comparte una sola variable para todas las vueltas:
+
+```js
+for (var i = 0; i < 3; i++) {
+  setTimeout(() => console.log("var", i));
+}
+for (let j = 0; j < 3; j++) {
+  setTimeout(() => console.log("let", j));
+}
+```
+
+```
+var 3
+var 3
+var 3
+let 0
+let 1
+let 2
+```
+
+Con `var` los tres callbacks leen la misma variable, y para cuando se ejecutan el bucle ya terminó. Con `let` cada vuelta tiene su propia copia. Ese es el motivo real por el que `var` se abandonó: no era una cuestión de gusto.
+
+El `var` es lo que se quema en la _cremà_: existe, se celebra una vez al año y no lo quieres en producción. Lo vas a encontrar en código ajeno, reconócelo y no lo escribas.
+
+### La zona muerta temporal
+
+`let` y `const` también se elevan, pero quedan en una zona muerta temporal hasta que la declaración se ejecuta. En la práctica: usarlas antes de declararlas es un error, no un `undefined`.
+
+```js
+console.log(antes);
+let antes = 1;
+```
+
+```
+ReferenceError: Cannot access 'antes' before initialization
+```
+
+Comparado con una función declarada, que sí está disponible antes de su línea:
+
+```js
+console.log(typeof antesDeDeclarar);
+function antesDeDeclarar() {
+  return 1;
+}
+```
+
+```
+function
+```
+
+Ese contraste, `function` disponible y `let` con error, es exactamente la diferencia entre elevación completa y elevación a zona muerta. Y es la razón por la que casi todo el mundo declara arriba y lee hacia abajo, en vez de jugar a adivinar.
+
+## Igualdad, coerción y valores que mienten
+
+JavaScript tiene dos operadores de igualdad, y una regla que resuelve casi todos los casos: usa siempre `===`.
+
+```js
+console.log(1 == "1");
+console.log(1 === "1");
+console.log(0 == false);
+console.log([] == false);
+console.log(null == undefined);
+console.log(null === undefined);
+```
+
+```
+true
+false
+true
+true
+true
+false
+```
+
+`==` convierte los tipos antes de comparar. `===` no. De ahí sale `[] == false` siendo `true`, que es el tipo de resultado que hace que alguien cierre el portátil y se dedique a la jardinería. La discusión sobre `==` se cerró hace años: se perdió, y se perdió con razón.
+
+Hay una excepción que sí se usa: `valor == null` es cierto tanto para `null` como para `undefined`, y a veces eso es exactamente lo que quieres comprobar. Es el único `==` que vas a ver en código cuerdo.
+
+La otra mitad del problema son los valores que se comportan como mentira:
+
+```js
+const cantidad = 0;
+
+if (cantidad) {
+  console.log("hay cantidad");
+} else {
+  console.log("no hay cantidad");
+}
+```
+
+```
+no hay cantidad
+```
+
+Los valores falsy son `false`, `0`, `""`, `null`, `undefined` y `NaN` (la lista completa añade `-0` y `0n`). Todo lo demás es verdadero, incluido `"0"`, que es una cadena no vacía y por tanto `true`.
+
+En un backend esto no es teoría. Un campo `cantidad: 0` es un dato válido y a la vez es mentira para un `if`. Si compruebas `if (cantidad)`, tu API responderá que no hay cantidad cuando la hay, y el bug aparecerá en producción un viernes. Comprueba lo que quieres comprobar: `if (cantidad !== undefined)`, o `if (Number.isFinite(cantidad))` si esperas un número.
+
+### `null`, `undefined` y `NaN`
+
+`undefined` es «no se ha asignado» o «esa propiedad no existe». `null` es «vacío a propósito», y lo pone alguien. La diferencia importa en cuanto serializas: JSON no tiene `undefined`, así que ese campo desaparece, mientras que `null` viaja y llega. Lo verás otra vez al final de la lección.
+
+Y queda `NaN`, que tiene una propiedad única en el lenguaje: no es igual a sí mismo.
+
+```js
+console.log(NaN === NaN);
+console.log(Number.isNaN(NaN));
+console.log(isNaN("hola"));
+console.log(Number.isNaN("hola"));
+```
+
+```
+false
+true
+true
+false
+```
+
+`NaN` aparece cuando una operación numérica no tiene sentido, como `Number("hola")`. Para comprobarlo hay que usar `Number.isNaN`, no el `isNaN` global: ese convierte antes de preguntar, así que dice que `"hola"` es `NaN`, que es falso. Dos funciones con nombres casi iguales y comportamiento distinto: elige siempre la que lleva el `Number` delante.
+
+## Tres formas de escribir una función
+
+```js
+// 1. Declaración: se eleva entera, tiene nombre, tiene `this`
+function sumar(a, b) {
+  return a + b;
+}
+
+// 2. Expresión: una función asignada a una variable
+const restar = function (a, b) {
+  return a - b;
+};
+
+// 3. Arrow: la forma corta, y con reglas propias
+const multiplicar = (a, b) => a * b;
+```
+
+Las tres se llaman igual y se comportan distinto en dos cosas: la elevación y `this`.
+
+```js
+console.log(sumar(2, 3));
+console.log(multiplicar(2, 3));
+```
+
+```
+5
+6
+```
+
+La expresión no se eleva:
+
+```js
+console.log(typeof expresion);
+const expresion = () => 1;
+```
+
+```
+ReferenceError: Cannot access 'expresion' before initialization
+```
+
+### Arrow functions y `this`
+
+La diferencia que de verdad importa: una arrow function **no tiene `this` propio**. Usa el `this` del sitio donde se escribió. Una función normal recibe `this` en el momento de la llamada, y por eso depende de cómo la llames.
+
+```js
+const contador = {
+  total: 0,
+  incrementarConFuncion() {
+    this.total++;
+  },
+  incrementarConArrow: () => {
+    this.total++;
+  },
+};
+
+contador.incrementarConFuncion();
+console.log("método:", contador.total);
+```
+
+```
+método: 1
+```
+
+La arrow falla:
+
+```js
+contador.incrementarConArrow();
+```
+
+```
+TypeError: Cannot read properties of undefined (reading 'total')
+```
+
+Un módulo ES, que es lo que estás usando, corre en modo estricto, así que el `this` del nivel superior es `undefined`. La arrow hereda ese `undefined` y hace `undefined.total`. No es un bug: es la definición.
+
+El caso real donde esto duele no es el de arriba, es este:
+
+```js
+const boton = {
+  nombre: "guardar",
+  pulsar() {
+    console.log("pulsado", this.nombre);
+  },
+};
+
+setTimeout(boton.pulsar, 0);
+setTimeout(() => boton.pulsar(), 0);
+```
+
+```
+pulsado undefined
+pulsado guardar
+```
+
+Al pasar `boton.pulsar` como callback, el método se despega del objeto y pierde su `this`. La segunda línea lo envuelve en una arrow y conserva el contexto. Ese patrón, envolver para no perder `this`, es uno de los más comunes en JavaScript, y ahora sabes por qué existe en lugar de memorizarlo.
+
+Si vienes de Python, la traducción útil es esta: la arrow function se parece a una `lambda` en que es corta y es un valor, pero se diferencia en que arrastra el contexto de donde nace. Y `lambda` en Python no puede tener más de una expresión; en JavaScript la arrow puede tener un bloque entero.
+
+### Parámetros: por defecto y resto
+
+```js
+function crearUsuario(nombre, rol = "lector", ...permisos) {
+  return { nombre, rol, permisos };
+}
+
+console.log(crearUsuario("ada"));
+console.log(crearUsuario("grace", "admin", "leer", "escribir", "borrar"));
+console.log(crearUsuario.length);
+```
+
+```
+{ nombre: 'ada', rol: 'lector', permisos: [] }
+{
+  nombre: 'grace',
+  rol: 'admin',
+  permisos: [ 'leer', 'escribir', 'borrar' ]
+}
+1
+```
+
+Ese `1` es la propiedad `length` de la función: cuenta los parámetros **antes** del primero con valor por defecto o resto. Es un detalle que solo importa cuando construyes librerías o validas firmas, pero explica por qué `crearUsuario.length` es `1` y no `3`.
+
+`...permisos` es un parámetro resto: recoge todo lo que sobra en un array de verdad. No es el objeto `arguments`, que existe en las funciones normales, no en las arrows, y que ya no deberías usar.
+
+## Destructuring: desmontar por partes
+
+Extraer valores de un objeto o un array sin escribir cinco líneas intermedias.
+
+```js
+const usuario = { nombre: "Ada", edad: 36, direccion: { ciudad: "Valencia" } };
+
+const { nombre, edad: años } = usuario;
+console.log(nombre, años);
+
+const {
+  direccion: { ciudad },
+} = usuario;
+console.log(ciudad);
+
+const [primero, ...resto] = [10, 20, 30, 40];
+console.log(primero, resto);
+
+const { telefono = "sin teléfono" } = usuario;
+console.log(telefono);
+```
+
+```
+Ada 36
+Valencia
+10 [ 20, 30, 40 ]
+sin teléfono
+```
+
+Cuatro cosas en un ejemplo: renombrar (`edad: años`), anidar (`direccion: { ciudad }`), resto en arrays (`...resto`) y valor por defecto (`telefono = "sin teléfono"`). Todo eso se usa a diario en backend: desestructurar `req.body`, `req.query`, la respuesta de un servicio, las opciones de configuración.
+
+Y hay dos variantes que vas a escribir más que las demás. La primera es el resto en objetos, que sirve para descartar campos:
+
+```js
+const usuario = { nombre: "ada", password: "secreto", rol: "admin" };
+const { password, ...publico } = usuario;
+console.log(publico);
+
+function crear({ nombre, rol = "lector" }) {
+  return `${nombre}/${rol}`;
+}
+console.log(crear({ nombre: "ada" }));
+```
+
+```
+{ nombre: 'ada', rol: 'admin' }
+ada/lector
+```
+
+`password` se extrae solo para dejarlo fuera: `publico` es el objeto sin ese campo. Ese patrón es la forma más corta y más legible de asegurarte de que un hash de contraseña no acaba en una respuesta HTTP. Y la segunda función muestra lo otro: desestructurar en los parámetros, que es cómo se lee `req.body` sin repetir `body.nombre`, `body.rol` tres veces.
+
+El equivalente en Python es el desempaquetado de tuplas y diccionarios, pero con una diferencia que sorprende: en JavaScript el destructuring funciona con **nombres de propiedad**, no con posiciones, cuando hablas de objetos. Python te obliga a pensar en orden; JavaScript te obliga a pensar en nombres. Y avisa menos cuando te equivocas: si pides una propiedad que no existe, no hay error, hay `undefined`.
+
+## Spread y el mito de la copia
+
+El operador `...` en el lado derecho copia y expande. Sirve para arrays y para objetos:
+
+```js
+const lista = [1, 2, 3];
+const otra = [...lista, 4];
+console.log(otra, lista);
+
+const base = { a: 1, b: { c: 2 } };
+const fusion = { ...base, d: 5, a: 0 };
+console.log(fusion.a, fusion.d);
+```
+
+```
+[ 1, 2, 3, 4 ] [ 1, 2, 3 ]
+0 5
+```
+
+El original no se toca, y en la fusión manda el último: `a: 0` gana a `a: 1`. Ese es el patrón estándar para sobrescribir opciones sin mutar la configuración original, y lo vas a usar todo el curso.
+
+Ahora el mito. `{ ...base }` es una copia **superficial**: copia el primer nivel y comparte las referencias de dentro.
+
+```js
+const base = { a: 1, b: { c: 2 } };
+const copia = { ...base };
+
+copia.a = 99;
+copia.b.c = 99;
+
+console.log("original:", base);
+```
+
+```
+original: { a: 1, b: { c: 99 } }
+```
+
+`a` quedó intacto porque es un número, un valor. `b` es un objeto, y la copia guarda la misma referencia: tocar la copia toca el original. Esto provoca bugs de los que se tardan dos horas en encontrar y un minuto en arreglar cuando sabes qué mirar.
+
+Si necesitas una copia profunda de datos que van a cruzar una frontera, no escribas un `JSON.parse(JSON.stringify(...))` por reflejo: el runtime tiene `structuredClone`. De eso hablamos al final, porque tiene sus propias reglas.
+
+## Objetos, prototipos y `this`
+
+Aquí está la parte del lenguaje que más cuesta a quien viene de Java o de Python, y la que más veces se explica mal.
+
+Un objeto en JavaScript es, a la vez, dos cosas que en otros lenguajes están separadas: un **diccionario** de claves y valores, y una **instancia** que hereda comportamiento.
+
+```js
+const animal = {
+  comer() {
+    return "comiendo";
+  },
+};
+
+const perro = Object.create(animal);
+perro.ladrar = () => "guau";
+
+console.log(perro.ladrar(), perro.comer());
+console.log(Object.getPrototypeOf(perro) === animal);
+console.log(Object.hasOwn(perro, "ladrar"), Object.hasOwn(perro, "comer"));
+console.log(perro);
+```
+
+```
+guau comiendo
+true
+true false
+{ ladrar: [Function (anonymous)] }
+```
+
+`perro` no tiene `comer`. Lo busca, no lo encuentra, sube a su prototipo y ahí está. Eso es la **cadena de prototipos**: la resolución de propiedades es una búsqueda hacia arriba, y termina en `null`. Si no está en ningún sitio, `undefined`, sin error.
+
+La última línea del ejemplo merece un comentario: al imprimir `perro` solo aparece `ladrar`. `comer` existe, pero no es propiedad propia del objeto. Por eso `Object.hasOwn` es la pregunta correcta cuando te importa si algo está de verdad en ese objeto o lo ha heredado.
+
+### `typeof` tampoco distingue objetos
+
+Hay una segunda trampa en la misma zona, más antigua y más tonta:
+
+```js
+console.log(typeof null);
+console.log(typeof []);
+console.log(Array.isArray([]));
+```
+
+```
+object
+object
+true
+```
+
+`typeof null` devuelve `object`. No es una decisión de diseño: es un bug de 1995 que se mantuvo por compatibilidad, porque arreglarlo habría roto medio internet. Y `typeof []` también dice `object`, porque un array es un objeto. Para arrays, la pregunta correcta es `Array.isArray`. `typeof` sirve para distinguir primitivos y para saber si algo es `function`; para el resto, no preguntes.
+
+El detalle que confunde a todo el mundo: `__proto__` y `prototype` no son lo mismo. `perro.__proto__` es el prototipo de esa instancia concreta. `prototype` solo existe en funciones, y es el objeto que se usará como prototipo de las instancias que crees con `new`. Dos nombres parecidos para dos cosas distintas, y no hay forma de arreglarlo a estas alturas.
+
+### `class` es azúcar sintáctico
+
+Y ahora la revelación que cambia cómo lees el código: `class` no añade un modelo de herencia. Envuelve la cadena de prototipos que acabas de ver.
+
+```js
+class Animal {
+  #nombre;
+  constructor(nombre) {
+    this.#nombre = nombre;
+  }
+  hablar() {
+    return `${this.#nombre} hace un ruido`;
+  }
+}
+
+class Perro extends Animal {
+  hablar() {
+    return `${super.hablar()}: guau`;
+  }
+}
+
+const d = new Perro("Toby");
+console.log(d.hablar());
+console.log(typeof Perro, d instanceof Animal);
+console.log(Object.getOwnPropertyNames(Animal.prototype));
+console.log(d);
+```
+
+```
+Toby hace un ruido: guau
+function true
+[ 'constructor', 'hablar' ]
+Perro {}
+```
+
+Fíjate en `typeof Perro`: `function`. Una clase es una función. Y en el tercer `console.log`: los métodos viven en el `prototype`, no en cada instancia. Por eso crear diez mil objetos no duplica diez mil veces el código de `hablar`.
+
+El `Perro {}` vacío tiene truco: `#nombre` es un campo privado y no se muestra al imprimir. La privacidad es real, no una convención con guion bajo como en Python. Si alguien intenta `d.#nombre` desde fuera, error de sintaxis, no un pacto de caballeros.
+
+Y esto es lo que `class` **no** te da: no hay interfaces, no hay clases abstractas, no hay métodos privados heredables de forma natural, y `instanceof` se rompe en cuanto el objeto cruza una frontera de serialización. Si vienes de Java, la palabra `class` te va a sugerir más garantías de las que hay.
+
+## La frontera JSON
+
+Todo backend termina serializando. Y `JSON.stringify` no guarda tu objeto, guarda lo que puede representarse como texto:
+
+```js
+const pedido = {
+  id: 7,
+  fecha: new Date("2026-11-14"),
+  total: 30,
+  envio: undefined,
+};
+
+const texto = JSON.stringify(pedido);
+console.log(texto);
+console.log(Object.keys(JSON.parse(texto)));
+```
+
+```
+{"id":7,"fecha":"2026-11-14T00:00:00.000Z","total":30}
+[ 'id', 'fecha', 'total' ]
+```
+
+Dos pérdidas en un ejemplo. La `Date` se convirtió en una cadena ISO, y al volver ya no es una fecha: es texto. Y `envio` desapareció porque `undefined` no existe en JSON. Las funciones también se van, en silencio.
+
+Y hay un error que vas a ver en producción más de una vez:
+
+```js
+const circular = { nombre: "x" };
+circular.yo = circular;
+JSON.stringify(circular);
+```
+
+```
+TypeError: Converting circular structure to JSON
+    --> starting at object with constructor 'Object'
+    --- property 'yo' closes the circle
+```
+
+La alternativa moderna para copiar y mover datos entre hilos o contextos es `structuredClone`, que sí conserva fechas:
+
+```js
+const pedido = { id: 7, fecha: new Date("2026-11-14"), envio: undefined };
+const copia = structuredClone(pedido);
+console.log(copia.fecha instanceof Date, copia.envio);
+```
+
+```
+true undefined
+```
+
+Pero no es magia: lo que no puede clonar, lo dice en vez de borrarlo en silencio.
+
+```js
+const pedido = { id: 7, enviar: () => "hecho" };
+try {
+  structuredClone(pedido);
+} catch (e) {
+  console.log(e.name + ": " + e.message);
+}
+```
+
+```
+DataCloneError: () => "hecho" could not be cloned.
+```
+
+La regla práctica: `JSON` para hablar con el exterior —HTTP, ficheros, otras APIs— y `structuredClone` para copiar datos dentro de tu proceso. Son herramientas distintas y confundirlas produce bugs silenciosos, que son los peores.
+
+## Problemas habituales
+
+### `TypeError: Assignment to constant variable.`
+
+Estás reasignando una variable declarada con `const`. Si el valor es un objeto y quieres cambiarlo **por dentro**, eso es legal; si quieres cambiar el objeto entero, necesitas `let`.
+
+### `ReferenceError: Cannot access 'x' before initialization`
+
+La zona muerta temporal. Estás usando una variable `let` o `const` antes de su declaración. Busca el orden de las líneas, no el valor.
+
+### `this` es `undefined` dentro de un método
+
+Casi siempre es una función pasada como callback: al despegarse del objeto, pierde su `this`. Envuelve la llamada en una arrow function, o usa `bind`. Si el método está escrito con arrow desde el principio, ya estaba mal: las arrows no sirven para métodos de objeto porque no tienen `this` propio.
+
+### Cambio el objeto copiado y también cambia el original
+
+Copia superficial. `{ ...objeto }` y `[...array]` solo copian el primer nivel. Para datos anidados, `structuredClone`.
+
+### `JSON.stringify` me elimina un campo sin avisar
+
+Es lo que hace con `undefined` y con las funciones. Si el campo tiene que viajar, conviértelo explícitamente a un valor que JSON entienda.
+
+## Qué te llevas de esta lección
+
+- `let` para lo que cambia, `const` para lo que no se reasigna. `var` no se escribe.
+- `const` no congela objetos: congela la referencia.
+- Arrow functions no tienen `this` propio: lo heredan de donde se escriben.
+- Destructuring y spread son la forma normal de leer y construir datos en backend.
+- El spread copia un nivel. Lo de dentro se comparte.
+- `class` es azúcar sobre la cadena de prototipos, y conviene saber qué azúcar es.
+- `JSON` para cruzar fronteras, `structuredClone` para copiar dentro de casa.
+
+Con esto ya puedes leer la mayoría del JavaScript que te vas a encontrar en un servicio real. No todo: falta lo que más se lee, que es `async` y `await`, y eso viene después del event loop, que es lo que de verdad lo explica.
+
+En la siguiente lección toca otra sintaxis de andar por casa: módulos, template literals, optional chaining y los métodos de array que sustituyen a las list comprehensions de Python. Sin ellos no se lee un fichero de nadie.
+
+¡Nunca dejes de programar!
