@@ -1,0 +1,600 @@
+---
+title: "Modern JavaScript: Variables, Functions and Objects"
+post_slug: "modern-javascript-variables-functions-objects"
+date: "2026-11-16"
+excerpt: "const, this, prototypes, destructuring and spread: the syntax you read every day in a Node backend, and what it actually does underneath."
+language: "en"
+categories: ["nodejs"]
+course: "nodejs-for-backend-developers"
+order: 2
+cover: "/images/tutorials/cabecera-nodejs-curso.jpg"
+i18n: "javascript-moderno-variables-funciones-objetos"
+---
+
+All JavaScript looks the same, and a good chunk of it is wrong. Not broken — dated. Code written in 2012 and pasted into 2026, full of underscores, callbacks and `var` everywhere, like a family recipe nobody has updated and everybody keeps cooking.
+
+You're going to read a lot of it, so it pays to know what's dated and what isn't. There's a better reason too: almost everything in JavaScript that looks arbitrary has a specific explanation behind it. `const` that isn't constant. `this` that changes with the way you call. `class` that isn't a class. Every one of those oddities is a design decision, and until you see it, the language looks like it was written by someone in a hurry.
+
+It was. But it's consistent.
+
+## `const`, `let`, and the `var` you no longer need
+
+Two ways to declare a variable, plus a third that survives on inertia.
+
+```js
+const name = "Ada";
+let counter = 0;
+counter++;
+
+console.log(name, counter);
+```
+
+```
+Ada 1
+```
+
+`let` is a variable: you can reassign it. `const` isn't:
+
+```js
+const name = "Ada";
+name = "Grace";
+```
+
+```
+TypeError: Assignment to constant variable.
+```
+
+And here comes misunderstanding number one: **`const` does not make an object constant**. It stops you reassigning the name, not freezing the value. This is perfectly legal:
+
+```js
+const user = { name: "Ada" };
+user.name = "Grace";
+user.age = 36;
+console.log(user);
+```
+
+```
+{ name: 'Grace', age: 36 }
+```
+
+`const` means "this reference will not point somewhere else". If you want to freeze the object itself there's `Object.freeze`, which stops you adding or changing properties.
+
+### Block versus function
+
+The difference between `var` and `let` isn't style, it's where the variable lives. `var` lives in the function; `let` lives in the block:
+
+```js
+if (true) {
+  var outsideBlock = "var";
+  let insideBlock = "let";
+}
+
+console.log(outsideBlock);
+console.log(insideBlock);
+```
+
+```
+var
+ReferenceError: insideBlock is not defined
+```
+
+That `ReferenceError` is good news: the language tells you instead of letting it slide. With `var` you end up with variables that escape their block and turn up where nobody expects them, sharing a name with something else and overwriting it in silence.
+
+There's one more difference, the one almost nobody explains, and it's the one that saves loops with callbacks. With `var`, the loop shares a single variable across every iteration:
+
+```js
+for (var i = 0; i < 3; i++) {
+  setTimeout(() => console.log("var", i));
+}
+for (let j = 0; j < 3; j++) {
+  setTimeout(() => console.log("let", j));
+}
+```
+
+```
+var 3
+var 3
+var 3
+let 0
+let 1
+let 2
+```
+
+With `var` all three callbacks read the same variable, and by the time they run the loop has finished. With `let` each iteration gets its own copy. That's the real reason `var` was retired. It was never a matter of taste.
+
+Treat `var` the way you'd treat a flip phone: historically interesting, occasionally still in the drawer, never your plan for the day.
+
+### The temporal dead zone
+
+`let` and `const` are hoisted too, but they land in a temporal dead zone until their declaration runs. In practice: using them before declaring is an error, not an `undefined`.
+
+```js
+console.log(before);
+let before = 1;
+```
+
+```
+ReferenceError: Cannot access 'before' before initialization
+```
+
+Compare that with a declared function, which is available before its own line:
+
+```js
+console.log(typeof beforeDeclaring);
+function beforeDeclaring() {
+  return 1;
+}
+```
+
+```
+function
+```
+
+That contrast — `function` available, `let` exploding — is exactly the difference between full hoisting and hoisting into a dead zone. It's also why sensible code declares at the top and reads downwards instead of playing guess-the-line.
+
+## Equality, coercion, and values that lie
+
+JavaScript has two equality operators, and one rule that settles almost every case: always use `===`.
+
+```js
+console.log(1 == "1");
+console.log(1 === "1");
+console.log(0 == false);
+console.log([] == false);
+console.log(null == undefined);
+console.log(null === undefined);
+```
+
+```
+true
+false
+true
+true
+true
+false
+```
+
+`==` converts types before comparing. `===` doesn't. That's where `[] == false` being `true` comes from — the kind of result that makes people close the laptop and take up gardening. The `==` argument was settled years ago: it lost, and it deserved to.
+
+There's one exception you'll actually see: `value == null` is true for both `null` and `undefined`, and sometimes that's precisely the check you want. It's the only `==` in sane code.
+
+The other half of the problem is the values that behave like a lie:
+
+```js
+const amount = 0;
+
+if (amount) {
+  console.log("has amount");
+} else {
+  console.log("no amount");
+}
+```
+
+```
+no amount
+```
+
+The falsy values are `false`, `0`, `""`, `null`, `undefined` and `NaN` (the full list adds `-0` and `0n`). Everything else is truthy, including `"0"`, which is a non-empty string and therefore `true`.
+
+In a backend this isn't theory. A field `amount: 0` is valid data and a lie to an `if` at the same time. Check `if (amount)` and your API will report nothing when there is something — and that bug ships on a Friday. Check what you mean: `if (amount !== undefined)`, or `if (Number.isFinite(amount))` when you expect a number.
+
+### `null`, `undefined` and `NaN`
+
+`undefined` means "never assigned" or "that property isn't there". `null` means "deliberately empty", and a human put it there. The difference matters the moment you serialise: JSON has no `undefined`, so that field vanishes, while `null` travels and arrives. You'll see it again at the end of this lesson.
+
+Then there's `NaN`, which has a property unique in the language: it isn't equal to itself.
+
+```js
+console.log(NaN === NaN);
+console.log(Number.isNaN(NaN));
+console.log(isNaN("hello"));
+console.log(Number.isNaN("hello"));
+```
+
+```
+false
+true
+true
+false
+```
+
+`NaN` shows up when a numeric operation makes no sense, like `Number("hello")`. To test for it use `Number.isNaN`, not the global `isNaN`: that one converts first and then answers, so it claims `"hello"` is `NaN`, which is wrong. Two functions with nearly identical names and different behaviour — always pick the one with `Number` in front.
+
+## Three ways to write a function
+
+```js
+// 1. Declaration: hoisted whole, has a name, has its own `this`
+function add(a, b) {
+  return a + b;
+}
+
+// 2. Expression: a function assigned to a variable
+const subtract = function (a, b) {
+  return a - b;
+};
+
+// 3. Arrow: the short form, with its own rules
+const multiply = (a, b) => a * b;
+```
+
+All three get called the same way and behave differently in two things: hoisting and `this`.
+
+```js
+console.log(add(2, 3));
+console.log(multiply(2, 3));
+```
+
+```
+5
+6
+```
+
+The expression does not hoist:
+
+```js
+console.log(typeof expression);
+const expression = () => 1;
+```
+
+```
+ReferenceError: Cannot access 'expression' before initialization
+```
+
+### Arrow functions and `this`
+
+The difference that actually matters: an arrow function has **no `this` of its own**. It uses the `this` from where it was written. A normal function receives `this` at call time, which means it depends on how you call it.
+
+```js
+const counter = {
+  total: 0,
+  incrementWithFunction() {
+    this.total++;
+  },
+  incrementWithArrow: () => {
+    this.total++;
+  },
+};
+
+counter.incrementWithFunction();
+console.log("method:", counter.total);
+```
+
+```
+method: 1
+```
+
+The arrow fails:
+
+```js
+counter.incrementWithArrow();
+```
+
+```
+TypeError: Cannot read properties of undefined (reading 'total')
+```
+
+An ES module — which is what you're using — runs in strict mode, so top-level `this` is `undefined`. The arrow inherits that `undefined` and does `undefined.total`. Not a bug. The definition.
+
+The case where this really hurts isn't the one above, it's this one:
+
+```js
+const button = {
+  name: "save",
+  press() {
+    console.log("pressed", this.name);
+  },
+};
+
+setTimeout(button.press, 0);
+setTimeout(() => button.press(), 0);
+```
+
+```
+pressed undefined
+pressed save
+```
+
+Pass `button.press` as a callback and the method comes unstuck from its object, losing `this`. The second line wraps it in an arrow and keeps the context. That wrapper pattern is one of the most common things in JavaScript, and now you know why it exists instead of memorising it.
+
+If you come from Python, the useful translation is this: the arrow function is close to a `lambda` in that it's short and it's a value, but it carries the surrounding context with it. And a Python `lambda` can only hold one expression, whereas a JavaScript arrow can hold an entire block.
+
+### Parameters: defaults and rest
+
+```js
+function createUser(name, role = "reader", ...permissions) {
+  return { name, role, permissions };
+}
+
+console.log(createUser("ada"));
+console.log(createUser("grace", "admin", "read", "write", "delete"));
+console.log(createUser.length);
+```
+
+```
+{ name: 'ada', role: 'reader', permissions: [] }
+{
+  name: 'grace',
+  role: 'admin',
+  permissions: [ 'read', 'write', 'delete' ]
+}
+1
+```
+
+That `1` is the function's `length`: it counts parameters **before** the first default or rest. It only matters when you build libraries or validate signatures, but it explains why `createUser.length` is `1` and not `3`.
+
+`...permissions` is a rest parameter: it collects everything left over into a real array. It is not the `arguments` object, which exists in normal functions, doesn't exist in arrows, and shouldn't be in your code anyway.
+
+## Destructuring: taking things apart
+
+Pulling values out of an object or an array without five intermediate lines.
+
+```js
+const user = { name: "Ada", age: 36, address: { city: "Valencia" } };
+
+const { name, age: years } = user;
+console.log(name, years);
+
+const {
+  address: { city },
+} = user;
+console.log(city);
+
+const [first, ...rest] = [10, 20, 30, 40];
+console.log(first, rest);
+
+const { phone = "no phone" } = user;
+console.log(phone);
+```
+
+```
+Ada 36
+Valencia
+10 [ 20, 30, 40 ]
+no phone
+```
+
+Four things in one example: renaming (`age: years`), nesting (`address: { city }`), rest in arrays (`...rest`) and a default (`phone = "no phone"`). All of it shows up daily in backend work: destructuring `req.body`, `req.query`, a service response, configuration options.
+
+Two variants you'll write more than the rest. The first is object rest, which exists to discard fields:
+
+```js
+const user = { name: "ada", password: "secret", role: "admin" };
+const { password, ...publicUser } = user;
+console.log(publicUser);
+
+function create({ name, role = "reader" }) {
+  return `${name}/${role}`;
+}
+console.log(create({ name: "ada" }));
+```
+
+```
+{ name: 'ada', role: 'admin' }
+ada/reader
+```
+
+`password` is pulled out only to be left behind: `publicUser` is the object without that field. That's the shortest readable way to make sure a password hash never ends up in an HTTP response. The second function shows the other half: destructuring in parameters, which is how you read `req.body` without repeating `body.name`, `body.role` three times.
+
+The Python equivalent is tuple and dict unpacking, with one difference that catches people out: when you destructure an **object**, JavaScript works on property names, not positions. Python makes you think about order; JavaScript makes you think about names. And it warns you less when you get it wrong: ask for a property that doesn't exist and you don't get an error, you get `undefined`.
+
+## Spread, and the myth of the copy
+
+The `...` operator on the right-hand side copies and expands. Arrays and objects both:
+
+```js
+const list = [1, 2, 3];
+const other = [...list, 4];
+console.log(other, list);
+
+const base = { a: 1, b: { c: 2 } };
+const merged = { ...base, d: 5, a: 0 };
+console.log(merged.a, merged.d);
+```
+
+```
+[ 1, 2, 3, 4 ] [ 1, 2, 3 ]
+0 5
+```
+
+The original is untouched, and in the merge the last one wins: `a: 0` beats `a: 1`. That's the standard pattern for overriding options without mutating the original config, and you'll use it for the rest of the course.
+
+Now the myth. `{ ...base }` is a **shallow** copy: it copies the first level and shares the references inside.
+
+```js
+const base = { a: 1, b: { c: 2 } };
+const copy = { ...base };
+
+copy.a = 99;
+copy.b.c = 99;
+
+console.log("original:", base);
+```
+
+```
+original: { a: 1, b: { c: 99 } }
+```
+
+`a` survived because it's a number, a value. `b` is an object, and the copy holds the same reference: touch the copy, touch the original. This produces bugs that take two hours to find and one minute to fix once you know where to look.
+
+If you need a deep copy of data crossing a boundary, don't reach for `JSON.parse(JSON.stringify(...))` by reflex: the runtime ships `structuredClone`. We'll get to it at the end, because it has rules of its own.
+
+## Objects, prototypes and `this`
+
+This is the part of the language that hurts most if you come from Java or Python, and the part that gets explained worst.
+
+An object in JavaScript is two things that other languages keep apart: a **dictionary** of keys and values, and an **instance** that inherits behaviour.
+
+```js
+const animal = {
+  eat() {
+    return "eating";
+  },
+};
+
+const dog = Object.create(animal);
+dog.bark = () => "woof";
+
+console.log(dog.bark(), dog.eat());
+console.log(Object.getPrototypeOf(dog) === animal);
+console.log(Object.hasOwn(dog, "bark"), Object.hasOwn(dog, "eat"));
+console.log(dog);
+```
+
+```
+woof eating
+true
+true false
+{ bark: [Function (anonymous)] }
+```
+
+`dog` has no `eat`. It looks, doesn't find it, climbs to its prototype, and there it is. That's the **prototype chain**: property lookup is a walk upwards, ending at `null`. Not found anywhere? `undefined`, no error.
+
+The last line deserves a note: printing `dog` shows only `bark`. `eat` exists, but it isn't an own property. Which is why `Object.hasOwn` is the right question when you care whether something is genuinely on that object or merely inherited.
+
+The detail that trips up everybody: `__proto__` and `prototype` are not the same thing. `dog.__proto__` is the prototype of that particular instance. `prototype` only exists on functions, and it's the object that will become the prototype of instances you create with `new`. Two similar names for two different things, and it's far too late to fix.
+
+### `class` is syntactic sugar
+
+And now the reveal that changes how you read code: `class` adds no inheritance model. It wraps the prototype chain you just saw.
+
+```js
+class Animal {
+  #name;
+  constructor(name) {
+    this.#name = name;
+  }
+  speak() {
+    return `${this.#name} makes a noise`;
+  }
+}
+
+class Dog extends Animal {
+  speak() {
+    return `${super.speak()}: woof`;
+  }
+}
+
+const d = new Dog("Toby");
+console.log(d.speak());
+console.log(typeof Dog, d instanceof Animal);
+console.log(Object.getOwnPropertyNames(Animal.prototype));
+console.log(d);
+```
+
+```
+Toby makes a noise: woof
+function true
+[ 'constructor', 'speak' ]
+Dog {}
+```
+
+Look at `typeof Dog`: `function`. A class is a function. And the third line: methods live on the `prototype`, not on every instance. That's why creating ten thousand objects doesn't duplicate the code of `hablar` ten thousand times.
+
+The empty `Dog {}` has a trick: `#name` is a private field and doesn't show when printed. That privacy is real, not an underscore convention like Python's. Reach for `d.#name` from outside and you get a syntax error, not a gentleman's agreement.
+
+And here's what `class` does **not** give you: no interfaces, no abstract classes, no inherited private methods in any natural way, and `instanceof` breaks the moment the object crosses a serialisation boundary. If you come from Java, the word `class` will promise you more guarantees than are actually there.
+
+## The JSON boundary
+
+Every backend ends up serialising. And `JSON.stringify` doesn't save your object, it saves whatever can be represented as text:
+
+```js
+const order = {
+  id: 7,
+  date: new Date("2026-11-14"),
+  total: 30,
+  shipping: undefined,
+};
+
+const text = JSON.stringify(order);
+console.log(text);
+console.log(Object.keys(JSON.parse(text)));
+```
+
+```
+{"id":7,"date":"2026-11-14T00:00:00.000Z","total":30}
+[ 'id', 'date', 'total' ]
+```
+
+Two losses in one example. The `Date` became an ISO string, and on the way back it's no longer a date: it's text. And `shipping` vanished because `undefined` doesn't exist in JSON. Functions go too, silently.
+
+And there's an error you'll meet in production more than once:
+
+```js
+const circular = { name: "x" };
+circular.self = circular;
+JSON.stringify(circular);
+```
+
+```
+TypeError: Converting circular structure to JSON
+    --> starting at object with constructor 'Object'
+    --- property 'self' closes the circle
+```
+
+The modern alternative for copying data and moving it between threads or contexts is `structuredClone`, which does keep dates:
+
+```js
+const order = { id: 7, date: new Date("2026-11-14"), shipping: undefined };
+const copy = structuredClone(order);
+console.log(copy.date instanceof Date, copy.shipping);
+```
+
+```
+true undefined
+```
+
+But it isn't magic: anything it can't clone, it tells you about instead of dropping it silently.
+
+```js
+const order = { id: 7, ship: () => "done" };
+try {
+  structuredClone(order);
+} catch (e) {
+  console.log(e.name + ": " + e.message);
+}
+```
+
+```
+DataCloneError: () => "done" could not be cloned.
+```
+
+The rule of thumb: `JSON` for talking to the outside world — HTTP, files, other APIs — and `structuredClone` for copying data inside your process. Different tools, and mixing them up produces silent bugs, which are the worst kind.
+
+## Common problems
+
+### `TypeError: Assignment to constant variable.`
+
+You're reassigning a `const`. If the value is an object and you want to change it **inside**, that's fine; if you want to swap the object itself, you need `let`.
+
+### `ReferenceError: Cannot access 'x' before initialization`
+
+The temporal dead zone. You're using a `let` or `const` before its declaration. Check the order of the lines, not the value.
+
+### `this` is `undefined` inside a method
+
+Almost always a function passed as a callback: once it comes unstuck from the object it loses its `this`. Wrap the call in an arrow, or use `bind`. If the method was written as an arrow in the first place, it was broken from the start: arrows don't have their own `this` and don't belong in methods.
+
+### I change the copy and the original changes too
+
+Shallow copy. `{ ...object }` and `[...array]` only copy the first level. For nested data, `structuredClone`.
+
+### `JSON.stringify` silently drops one of my fields
+
+That's what it does with `undefined` and functions. If the field has to travel, convert it explicitly into something JSON understands.
+
+## What you take from this lesson
+
+- `let` for what changes, `const` for what isn't reassigned. `var` is not in the toolbox.
+- `const` doesn't freeze objects: it freezes the reference.
+- Arrow functions have no `this` of their own; they inherit it.
+- Destructuring and spread are the normal way to read and build data in backend code.
+- Spread copies one level. What's inside is shared.
+- `class` is sugar over the prototype chain, and it's worth knowing which sugar.
+- `JSON` for crossing boundaries, `structuredClone` for copying at home.
+
+That's enough to read most of the JavaScript you'll find in a real service. Not all of it: what you'll read most is `async` and `await`, and that comes after the event loop, which is the thing that actually explains it.
+
+Next lesson is more everyday syntax: modules, template literals, optional chaining and the array methods that replace Python's list comprehensions. Without them you can't read anyone's file.
+
+Never stop coding!
