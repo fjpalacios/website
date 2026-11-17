@@ -1,0 +1,600 @@
+---
+title: "Módulos, literales y los métodos de array que sustituyen a los bucles"
+post_slug: "modulos-literales-y-metodos-de-array"
+date: "2026-11-17"
+excerpt: "Por qué a veces import funciona y a veces explota, qué resuelve el encadenamiento opcional y cómo dejar de escribir bucles para recorrer un array."
+language: "es"
+categories: ["nodejs"]
+course: "nodejs-para-desarrolladores-backend"
+order: 3
+cover: "/images/tutorials/cabecera-nodejs-curso.jpg"
+i18n: "es-modules-template-literals-array-methods"
+---
+
+import { CourseLink } from "@components/blog";
+
+Abres el primer fichero de un proyecto ajeno y aparece un `require`. Abres el siguiente y hay un `import`. En otro hay `export default`, en otro `module.exports`, y alguien ha dejado un `.mjs` al lado de un `.cjs` como si fuera una prueba de valor. Y en la raíz, un `package.json` de cuatro líneas que decide cuál de los dos mundos es el real.
+
+Esto no es desorden: son dos sistemas de módulos conviviendo, y Node lleva años aceptando los dos. La parte buena es que se entiende en un rato. La parte mala es que los errores que produce cuando te equivocas son de los que no te dicen nada útil, así que conviene reconocerlos de antemano.
+
+Después de los módulos vienen los patrones que verás en cada línea de código moderno: literales de plantilla, encadenamiento opcional, coalescencia nula. Y al final, los métodos de array, que son la razón por la que en JavaScript casi nadie escribe un `for` para recorrer una lista.
+
+## Dos sistemas de módulos y un fichero que decide
+
+**ESM** (ECMAScript Modules) es el sistema actual: `import` y `export`. **CommonJS** es el anterior: `require` y `module.exports`. Node acepta los dos, y la decisión de cuál estás usando no la toma el fichero, la toma `package.json`:
+
+```json
+{
+  "type": "module"
+}
+```
+
+Con esa línea, todos los `.js` del proyecto son ESM. Sin ella, son CommonJS. Un interruptor con dos posiciones, y no avisa cuando lo mueves: el mismo `import` que funciona en un proyecto revienta en el otro.
+
+Y ese es el origen del error más común al empezar:
+
+```js
+import { formatearPrecio } from "../lib/precio.mjs";
+console.log(formatearPrecio(1));
+```
+
+```
+SyntaxError: Cannot use import statement outside a module
+```
+
+El mensaje no dice «pon `type: module`», pero es exactamente eso. Si el fichero se llama `.js` y el `package.json` dice `commonjs`, `import` es una palabra prohibida.
+
+Es el error de bienvenida al ecosistema: cae al menos una vez por proyecto, nunca en la primera media hora y nunca en buen momento. Como los pantallazos azules, pero sin perder el trabajo.
+
+Hay dos formas de salir. La buena: `"type": "module"` en el `package.json` del proyecto. La quirúrgica: renombrar el fichero a `.mjs`, que es ESM independientemente de lo que diga el `package.json`. El reverso también existe: `.cjs` es CommonJS aunque el proyecto sea ESM. Esas dos extensiones son la forma de tener los dos mundos en el mismo directorio sin pelearse.
+
+Si vienes de Python, el modelo mental es casi el mismo: un fichero es un módulo, lo que no exportas no sale, y `import` trae nombres. La diferencia está en el detalle: Python resuelve por ruta de paquetes y `sys.path`; Node resuelve por ruta de fichero y extensiones. Y en Python tienes una sola forma de hacerlo. Aquí tienes dos historias y un fichero que arbitra.
+
+## named contra default
+
+Un módulo puede exportar nombres concretos, un valor por defecto, o las dos cosas. Y esto es una decisión de diseño, no un capricho:
+
+```js
+// src/lib/precio.mjs
+export const IVA = 0.21;
+
+export function formatearPrecio(importe) {
+  // amount in cents
+  return `${(importe / 100).toFixed(2)} EUR`;
+}
+
+export default function aplicarDescuento(precio, porcentaje) {
+  return Math.round(precio * (1 - porcentaje / 100));
+}
+```
+
+Al importarlo:
+
+```js
+import aplicarDescuento, { formatearPrecio, IVA } from "../lib/precio.mjs";
+
+console.log(formatearPrecio(1999));
+console.log(aplicarDescuento(1999, 10));
+console.log(IVA);
+```
+
+```
+19.99 EUR
+1799
+0.21
+```
+
+Los nombres entre llaves tienen que coincidir con los del módulo. El que va fuera de las llaves es el default, y ahí puedes ponerle el nombre que quieras: `aplicarDescuento` podría llamarse `rebaja` y funcionaría igual.
+
+Esa libertad es precisamente el problema. **Usa named exports**, salvo que haya una razón de peso. Por tres motivos muy concretos:
+
+- **Se pueden renombrar sin ambigüedad.** `import { formatearPrecio as precio }` deja claro qué estás haciendo. Con el default, cada fichero del proyecto puede llamarlo de una forma distinta y ninguno miente.
+- **El editor te encuentra los usos.** Un default se importa con nombres distintos en cada sitio; buscar `formatearPrecio` te da todas las referencias, buscar `rebaja` te da la mitad.
+- **Un módulo con default invita a crecer.** Empieza siendo una función, acaba siendo un objeto con cinco métodos metidos en un default porque no hay sitio limpio donde ponerlos.
+
+El default tiene un caso legítimo: cuando el módulo **es** una cosa. Una función que hace un cálculo, una clase. Cuando el módulo **tiene** cosas, named.
+
+## Consumir código antiguo sin dramas
+
+Te vas a encontrar `require` en todas partes, y no hay que reescribirlo: hay que saber leerlo.
+
+```js
+// src/lib/legacy.cjs
+const VERSION = "1.0.4";
+module.exports = { VERSION };
+```
+
+Desde ESM puedes importarlo:
+
+```js
+import legacy from "../lib/legacy.cjs";
+console.log(legacy);
+```
+
+```
+{ VERSION: '1.0.4' }
+```
+
+`module.exports` llega como el export default. Y aquí viene una sorpresa que casi nadie espera: los named imports desde CommonJS también funcionan a menudo, porque Node analiza el fichero de forma estática y detecta qué exporta.
+
+```js
+import { VERSION } from "../lib/legacy.cjs";
+console.log(VERSION);
+```
+
+```
+1.0.4
+```
+
+Pero «a menudo» no es «siempre». Si el módulo construye sus exports de forma dinámica, ese análisis se queda a ciegas, y entonces sí explota:
+
+```js
+// src/lib/dinamico.cjs
+const campos = {};
+campos.generated = 42;
+module.exports = campos;
+```
+
+```js
+import { generated } from "../lib/dinamico.cjs";
+console.log(generated);
+```
+
+```
+SyntaxError: Named export 'generated' not found. The requested module '../lib/dinamico.cjs' is a CommonJS module, which may not support all module.exports as named exports.
+CommonJS modules can always be imported via the default export, for example using:
+```
+
+La solución es la que sugiere el mensaje: importa el default y accede a la propiedad.
+
+```js
+import dinamico from "../lib/dinamico.cjs";
+console.log(dinamico.generated);
+```
+
+```
+42
+```
+
+Regla práctica: con código CommonJS ajeno, default y luego `.propiedad`. Es más feo y nunca falla.
+
+## Template literals
+
+Las comillas invertidas hacen dos cosas que las comillas normales no: interpolar y respetar los saltos de línea.
+
+```js
+const usuario = { nombre: "ada", direccion: { ciudad: "Valencia" } };
+
+console.log(`Hola, ${usuario.nombre}. Vives en ${usuario.direccion.ciudad}.`);
+```
+
+```
+Hola, ada. Vives en Valencia.
+```
+
+Dentro de `${}` cabe una expresión, no solo una variable: una llamada, una operación, un ternario. Y el salto de línea es real, sin `\n`:
+
+```js
+console.log(`Una línea
+y otra línea`);
+```
+
+```
+Una línea
+y otra línea
+```
+
+Cuidado con una tentación: los template literals son para construir texto, no para construir SQL. Concatenar una consulta con `${}` es la puerta de entrada a la inyección de SQL. Si el dato viene de fuera, va como parámetro, nunca como texto.
+
+## Los métodos de string que sí vas a usar
+
+Las plantillas construyen texto. Estos métodos lo limpian y lo parten, y en un backend se usan a diario: normalizar lo que llega, construir un slug, montar una ruta.
+
+```js
+const bruto = "  Ada Lovelace  ";
+console.log(JSON.stringify(bruto.trim()));
+console.log("a,b,c".split(","));
+console.log(["a", "b"].join("-"));
+console.log("a-b-c".replaceAll("-", "/"));
+```
+
+```
+"Ada Lovelace"
+[ 'a', 'b', 'c' ]
+a-b
+a/b/c
+```
+
+El `JSON.stringify` del primer `console.log` está ahí a propósito: sin él, los espacios del final no se ven y no sabrías si `trim` ha hecho algo. Cuando depures texto, haz que los límites se vean.
+
+Y una advertencia que ahorra una tarde: `replace` sustituye **solo la primera** coincidencia. `replaceAll` las sustituye todas. Es el error clásico al limpiar un campo con varios separadores.
+
+## Encadenamiento opcional y coalescencia nula
+
+Dos operadores que resuelven dos problemas distintos, y que se confunden todo el rato.
+
+```js
+const usuario = { nombre: "ada", direccion: { ciudad: "Valencia" } };
+console.log(usuario?.direccion?.ciudad);
+console.log(usuario?.telefono?.numero);
+```
+
+```
+Valencia
+undefined
+```
+
+Y también protege la llamada a un método que puede no existir:
+
+```js
+const obj = {
+  saludar() {
+    return "hola";
+  },
+};
+console.log(obj.saludar?.());
+```
+
+```
+hola
+```
+
+Sin el `?.`, ese segundo acceso revienta:
+
+```js
+const usuario = {};
+console.log(usuario.direccion.ciudad);
+```
+
+```
+TypeError: Cannot read properties of undefined (reading 'ciudad')
+```
+
+`?.` significa «si lo de la izquierda es `null` o `undefined`, para y devuelve `undefined`». No es un `try/catch` disfrazado: solo protege accesos, no errores de otra naturaleza.
+
+Y luego está `??`, que responde a otra pregunta: ¿esto tiene valor?
+
+```js
+const config = { intentos: 0, timeout: null };
+
+console.log(config.intentos ?? 3);
+console.log(config.intentos || 3);
+console.log(config.timeout ?? 3);
+```
+
+```
+0
+3
+3
+```
+
+Fíjate en las dos primeras líneas: mismo dato, resultados distintos. `||` trata `0` como falso y devuelve el valor por defecto; `??` solo sustituye cuando el valor es `null` o `undefined`. Para configuración numérica —reintentos, puertos, límites— `??` es casi siempre lo que quieres, y `||` es un bug esperando a que alguien ponga un cero.
+
+Existe también la versión de asignación, para no repetir el nombre:
+
+```js
+let intentos = 0;
+intentos ||= 5;
+console.log(intentos);
+```
+
+```
+5
+```
+
+`||=` asigna solo si el valor actual es falso; `??=` asigna solo si es `null` o `undefined`. Con `intentos = 0`, `||=` lo pisa y `??=` lo respeta. Elige según lo que signifique un cero en tu dominio.
+
+### Cortocircuito
+
+`&&` devuelve el primer valor falso que encuentra, o el último si todos son verdaderos. Eso permite escribir un `if` de una línea:
+
+```js
+const isValid = false;
+console.log(isValid && "enviado");
+```
+
+```
+false
+```
+
+Funciona, y se lee bien cuando es una guarda corta. Deja de leerse bien cuando encadenas tres, y se convierte en un infierno cuando el valor de la izquierda puede ser `0` o `""`, porque entonces devuelve `0` o `""` en vez de un booleano. Si lo que quieres es un booleano, escribe `Boolean(x)` o el comparador. `&&` devuelve valores, no decisiones.
+
+## Métodos de array: los bucles que ya no escribes
+
+Aquí está el cambio más grande entre JavaScript de 2012 y el de ahora. Antes se recorría con `for`; hoy se transforma con métodos, y el resultado se lee como una frase.
+
+```js
+const libros = [
+  { titulo: "Emma", publicado: 1815, paginas: 474, valoracion: 4 },
+  { titulo: "Middlemarch", publicado: 1871, paginas: 904, valoracion: 5 },
+  { titulo: "Dracula", publicado: 1897, paginas: 418, valoracion: 3 },
+  { titulo: "Ulises", publicado: 1922, paginas: 730, valoracion: 2 },
+];
+
+console.log(libros.map((libro) => libro.titulo));
+console.log(libros.filter((libro) => libro.paginas > 500).map(({ titulo }) => titulo));
+console.log(libros.find((libro) => libro.titulo === "Dracula"));
+console.log(
+  libros.some((libro) => libro.valoracion === 5),
+  libros.every((libro) => libro.valoracion >= 3),
+);
+```
+
+```
+[ 'Emma', 'Middlemarch', 'Dracula', 'Ulises' ]
+[ 'Middlemarch', 'Ulises' ]
+{ titulo: 'Dracula', publicado: 1897, paginas: 418, valoracion: 3 }
+true false
+```
+
+Cada método responde a una pregunta distinta, y confundirlos es la causa de medio código raro:
+
+| Método   | Devuelve                       | Para qué                        |
+| -------- | ------------------------------ | ------------------------------- |
+| `map`    | Un array nuevo, misma longitud | Transformar cada elemento       |
+| `filter` | Un array nuevo, misma forma    | Quedarte con los que cumplen    |
+| `find`   | Un elemento, o `undefined`     | Encontrar el primero que cumple |
+| `some`   | `true` o `false`               | ¿Alguno cumple?                 |
+| `every`  | `true` o `false`               | ¿Todos cumplen?                 |
+| `reduce` | Lo que devuelva tu función     | Convertir el array en otra cosa |
+
+Los tres primeros devuelven arrays nuevos: no tocan el original. Eso conecta con la lección anterior: transformar sin mutar es la norma, no el lujo.
+
+### `reduce` sin miedo
+
+`reduce` es el que más asusta y el que menos debería. Recibe una función con dos argumentos —acumulador y elemento— y un valor inicial:
+
+```js
+console.log(libros.reduce((total, libro) => total + libro.paginas, 0));
+```
+
+```
+2526
+```
+
+Ese `0` final no es opcional en la práctica. Sin valor inicial, `reduce` usa el primer elemento como acumulador, y con un array vacío se rompe:
+
+```js
+const vacio = [];
+console.log(vacio.reduce((total, pagina) => total + pagina));
+```
+
+```
+TypeError: Reduce of empty array with no initial value
+```
+
+Ponlo siempre. Cuesta un carácter y te ahorra el incidente.
+
+### Agrupar sin escribir el `reduce`
+
+El caso donde más se usa `reduce` es agrupar, y para eso ya hay una función:
+
+```js
+const libros = [
+  { titulo: "Emma", valoracion: 4 },
+  { titulo: "Middlemarch", valoracion: 5 },
+  { titulo: "Dracula", valoracion: 4 },
+];
+console.log(Object.groupBy(libros, (libro) => libro.valoracion));
+```
+
+```
+[Object: null prototype] {
+  '4': [
+    { titulo: 'Emma', valoracion: 4 },
+    { titulo: 'Dracula', valoracion: 4 }
+  ],
+  '5': [ { titulo: 'Middlemarch', valoracion: 5 } ]
+}
+```
+
+Fíjate en el `[Object: null prototype]` del principio. No es un detalle de impresión: el objeto resultante no tiene prototipo, así que no arrastra `toString` ni `constructor`, y una clave llamada `constructor` no rompe nada. Es la respuesta correcta a un problema que antes se resolvía con `{}` y un `hasOwnProperty` defensivo.
+
+### `sort` muta, y además ordena mal
+
+Este es el método que más veces he visto colarse en una revisión de código:
+
+```js
+const numeros = [10, 9, 1, 25];
+const ordenados = numeros.sort();
+console.log(ordenados);
+console.log(numeros);
+```
+
+```
+[ 1, 10, 25, 9 ]
+[ 1, 10, 25, 9 ]
+```
+
+Dos sorpresas en cuatro líneas. La primera: `sort()` **muta** el array original, y el «nuevo» array es el mismo. La segunda: sin comparador, ordena como texto, así que `10` va antes que `9` porque `"10" < "9"`. Para números, comparador explícito:
+
+```js
+const ordenados = [10, 9, 1, 25].toSorted((a, b) => a - b);
+console.log(ordenados);
+```
+
+```
+[ 1, 9, 10, 25 ]
+```
+
+`toSorted` es la versión que no muta, y tiene hermanas: `toReversed` y `toSpliced`.
+
+```js
+console.log([1, 2, 3].toReversed());
+```
+
+```
+[ 3, 2, 1 ]
+```
+
+Si tu Node está al día, úsalas. Son la respuesta moderna al problema clásico de ordenar y cargarte la lista que estabas mostrando.
+
+## Objetos: keys, values y entries
+
+Los arrays tienen métodos; los objetos tienen tres funciones que los convierten en algo recorrible.
+
+```js
+const libro = { titulo: "Emma", publicado: 1815, paginas: 474 };
+console.log(Object.keys(libro));
+console.log(Object.values(libro));
+console.log(Object.entries(libro));
+```
+
+```
+[ 'titulo', 'publicado', 'paginas' ]
+[ 'Emma', 1815, 474 ]
+[ [ 'titulo', 'Emma' ], [ 'publicado', 1815 ], [ 'paginas', 474 ] ]
+```
+
+`Object.entries` es el puente: convierte el objeto en un array de pares, y a partir de ahí tienes `map`, `filter` y todo lo demás. Y `Object.fromEntries` hace el viaje de vuelta, que es como se transforma un objeto sin mutarlo:
+
+```js
+const enTexto = Object.fromEntries(Object.entries(libro).map(([clave, valor]) => [clave, String(valor)]));
+console.log(enTexto);
+```
+
+```
+{ titulo: 'Emma', publicado: '1815', paginas: '474' }
+```
+
+En Python esto es `dict.items()`, y el paralelismo es casi exacto: recorrer un diccionario como pares. Lo que en Python era una list comprehension, aquí es `map` y `filter` encadenados. Menos compacto, igual de claro una vez te acostumbras.
+
+## Cuando el objeto no basta: Map y Set
+
+Un objeto vale para un diccionario de claves de texto. Cuando las claves no son texto, o cuando el problema es contar y deduplicar, hay dos estructuras que casi nadie enseña y que resuelven justo eso.
+
+Un `Set` es una colección sin duplicados:
+
+```js
+const etiquetas = ["js", "node", "js"];
+console.log([...new Set(etiquetas)]);
+```
+
+```
+[ 'js', 'node' ]
+```
+
+Deduplicar en una línea. El `[...]` está porque un `Set` no es un array: hay que expandirlo para recuperar la forma que espera el resto del código.
+
+Y un `Map` es un diccionario con claves de cualquier tipo, que conserva el orden de inserción y sabe cuántas entradas tiene sin contarlas:
+
+```js
+const cache = new Map();
+cache.set(1, "uno");
+console.log(cache.get(1), cache.size);
+```
+
+```
+uno 1
+```
+
+La diferencia con un objeto no es de estilo: `Map` acepta claves que no son cadenas —números, objetos— y no arrastra las propiedades heredadas del prototipo. Si alguna vez has visto un `if (obj["toString"])` que se comportaba raro, ya sabes de qué hablo.
+
+Regla práctica: objeto para datos con forma fija, `Map` para un diccionario de verdad, `Set` cuando la pregunta es «¿está repetido?».
+
+## Fechas: el objeto que depende de dónde estés
+
+Un `Date` en JavaScript representa un **instante**, no una fecha del calendario. Esa distinción es la que provoca los bugs de zona horaria, y no es un problema de base de datos: es del lenguaje.
+
+```js
+console.log(new Date("2026-11-14").toISOString());
+console.log(new Date("2026-11-14T00:00").toISOString());
+```
+
+Ejecutado en un portátil con hora de Madrid:
+
+```
+2026-11-14T00:00:00.000Z
+2026-11-13T23:00:00.000Z
+```
+
+El mismo código, en un servidor configurado en UTC:
+
+```
+2026-11-14T00:00:00.000Z
+2026-11-14T00:00:00.000Z
+```
+
+La primera línea es una fecha sin hora, y JavaScript la interpreta como **medianoche UTC**. La segunda lleva hora pero no zona, y la interpreta en la **zona local**. Dos cadenas que parecen la misma fecha, dos instantes distintos, y ninguna de las dos te avisa. En una API, eso es un pedido que se registra el día anterior.
+
+De ahí salen tres reglas que sí puedes memorizar:
+
+- **Guarda y transporta en UTC.** `toISOString()` para salir, y convierte a local solo en el borde: al pintar, o al leer una fecha de un usuario.
+- **Sé explícito con la zona.** `2026-11-14T00:00:00Z` no deja nada a la interpretación; `2026-11-14T00:00:00` sí.
+- **Los meses empiezan en cero.** `getMonth()` de noviembre devuelve `10`. No es un bug nuevo: es de 1995 y ya no se cambia.
+
+Y dos trampas más del mismo objeto:
+
+```js
+console.log(new Date("2026-11-14") === new Date("2026-11-14"));
+
+const fecha = new Date("2026-11-14");
+fecha.setDate(fecha.getDate() + 1);
+console.log(fecha.toISOString());
+```
+
+```
+false
+2026-11-15T00:00:00.000Z
+```
+
+El `false` no significa que las fechas sean distintas: son dos objetos, y `===` compara referencias. Para comparar instantes se usa `.getTime()` o la resta, que devuelve milisegundos. Y `setDate` **muta** el objeto, igual que `sort` mutaba el array: la misma familia de trampas.
+
+Para medir duraciones, `Date.now()` da milisegundos desde 1970 y se resta sin ceremonia.
+
+Guardar fechas, elegir el tipo de columna y consultar por rangos es otro oficio: eso vive en <CourseLink slug="sql-de-cero-a-dba" linked="el curso de SQL, donde las fechas de la base de datos tienen su propio apartado" plain="las lecciones de SQL" />.
+
+## Problemas habituales
+
+### `SyntaxError: Cannot use import statement outside a module`
+
+Falta `"type": "module"` en el `package.json`, o el fichero debería llamarse `.mjs`. Es el error de bienvenida al ecosistema, y sale al menos una vez por proyecto.
+
+### `SyntaxError: Named export 'x' not found` viniendo de un `.cjs`
+
+Estás intentando sacar un nombre de un módulo CommonJS que lo construye de forma dinámica. Importa el default y accede a la propiedad.
+
+### `forEach` no devuelve nada
+
+```js
+console.log([1, 2, 3].forEach((n) => n * 2));
+```
+
+```
+undefined
+```
+
+`forEach` devuelve `undefined`, siempre. Si quieres el resultado, es `map`. Guardar lo que devuelve `forEach` en una variable y luego preguntarte por qué está vacía es un clásico.
+
+### `TypeError: Reduce of empty array with no initial value`
+
+Te falta el valor inicial de `reduce`. Ponlo aunque el array «nunca» esté vacío: siempre acaba estando vacío un día.
+
+### `sort` me cambia el array original
+
+`sort`, `reverse`, `splice`, `push` y `pop` mutan. Si necesitas el original intacto, `toSorted`, `toReversed`, `toSpliced`, o copia antes con `[...array]`.
+
+### `||` me devuelve el valor por defecto cuando el valor era `0`
+
+`0`, `""` y `false` son falsos. Si el cero es un valor legítimo, usa `??`.
+
+## Qué te llevas de esta lección
+
+- ESM es `import`/`export`, CommonJS es `require`/`module.exports`, y `package.json` decide cuál usas.
+- `.mjs` y `.cjs` fuerzan el sistema por fichero, sin tocar el `package.json`.
+- Named exports por defecto: se renombran, se buscan y no crecen sin control.
+- Con CommonJS ajeno, default y `.propiedad`. Es feo y no falla.
+- `?.` protege accesos; `??` sustituye solo `null` y `undefined`, no el cero.
+- `map`, `filter`, `find`, `some`, `every` y `reduce` cubren casi todo lo que hacías con un `for`.
+- `sort` muta y ordena como texto. `toSorted` con comparador es lo que quieres.
+- `Object.entries` y `Object.fromEntries` son el puente entre objetos y arrays.
+- `Object.groupBy` agrupa sin escribir un `reduce` a mano.
+- Un `Set` deduplica y un `Map` es un diccionario de verdad: el objeto no siempre es la herramienta.
+- `trim`, `split`, `join` y `replaceAll` son el pan de cada día con texto, y `replace` solo cambia la primera coincidencia.
+- Un `Date` es un instante, no una fecha: `2026-11-14` y `2026-11-14T00:00` no son lo mismo en cuanto sales de UTC.
+
+Con esto tienes el vocabulario para leer cualquier fichero de un proyecto Node moderno. Lo que todavía no puedes explicar es por qué dos operaciones que parecen simultáneas no lo son, y por qué el servidor se queda mudo cuando alguien calcula demasiado.
+
+Eso es el event loop, y es la siguiente lección. Es la que convierte «he leído documentación» en «entiendo lo que pasa».
+
+¡Nunca dejes de programar!
