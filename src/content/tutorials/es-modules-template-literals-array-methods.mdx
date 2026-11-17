@@ -1,0 +1,596 @@
+---
+title: "Modules, template literals, and the array methods that replace your loops"
+post_slug: "es-modules-template-literals-array-methods"
+date: "2026-11-17"
+excerpt: "Why import sometimes works and sometimes explodes, what optional chaining buys you, and how to stop writing loops to walk an array."
+language: "en"
+categories: ["nodejs"]
+course: "nodejs-for-backend-developers"
+order: 3
+cover: "/images/tutorials/cabecera-nodejs-curso.jpg"
+i18n: "modulos-literales-y-metodos-de-array"
+---
+
+import { CourseLink } from "@components/blog";
+
+You open the first file of somebody else's project and there's a `require`. The next file has an `import`. Another one exports a default, `module.exports` shows up somewhere else, and someone has left a `.mjs` next to a `.cjs` as if it were a dare. And in the root, a four-line `package.json` deciding which of the two worlds is the real one.
+
+That's not chaos: it's two module systems living together, and Node has been accepting both for years. The good news is you can understand it in one sitting. The bad news is that the errors you get when you mix them up tell you almost nothing useful, so it pays to recognise them in advance.
+
+After modules come the patterns you'll see in every modern line of code: template literals, optional chaining, nullish coalescing. And then the array methods, which are the reason hardly anyone writes a `for` loop over a list in JavaScript anymore.
+
+## Two module systems and one file that decides
+
+**ESM** (ECMAScript Modules) is the current system: `import` and `export`. **CommonJS** is the older one: `require` and `module.exports`. Node accepts both, and which one you're using isn't decided by the file, it's decided by `package.json`:
+
+```json
+{
+  "type": "module"
+}
+```
+
+With that line, every `.js` in the project is ESM. Without it, they're CommonJS. Two lines of JSON holding more authority than the average architecture decision record, and far less appetite for explaining itself.
+
+That's the origin of the most common error when you start:
+
+```js
+import { formatPrice } from "../lib/pricing.mjs";
+console.log(formatPrice(1));
+```
+
+```
+SyntaxError: Cannot use import statement outside a module
+```
+
+The message never says "add `type: module`", but that's exactly what it means. If the file is `.js` and the `package.json` says `commonjs`, `import` is a forbidden word.
+
+It's the welcome error: it lands at least once per project, never in the first half hour, and never at a good time. Blue screens of death, minus the lost work.
+
+Two ways out. The good one: `"type": "module"` in the project's `package.json`. The surgical one: rename the file to `.mjs`, which is ESM regardless of what `package.json` thinks. The reverse exists too: `.cjs` is CommonJS even in an ESM project. Those two extensions are how you keep both worlds in one directory without a fight.
+
+If you come from Python the mental model is nearly identical: a file is a module, nothing leaves unless you export it, and `import` brings names over. The difference is in the details: Python resolves through package paths and `sys.path`, Node resolves through file paths and extensions. And Python gives you one way to do it. Here you get two histories and a file that referees.
+
+## named versus default
+
+A module can export specific names, one default value, or both. And that's a design decision, not a style preference:
+
+```js
+// src/lib/pricing.mjs
+export const TAX_RATE = 0.21;
+
+export function formatPrice(cents) {
+  return `${(cents / 100).toFixed(2)} EUR`;
+}
+
+export default function applyDiscount(price, percent) {
+  return Math.round(price * (1 - percent / 100));
+}
+```
+
+Importing it:
+
+```js
+import applyDiscount, { formatPrice, TAX_RATE } from "../lib/pricing.mjs";
+
+console.log(formatPrice(1999));
+console.log(applyDiscount(1999, 10));
+console.log(TAX_RATE);
+```
+
+```
+19.99 EUR
+1799
+0.21
+```
+
+The names in braces must match the module's. The one outside the braces is the default, and you can call it whatever you like: `applyDiscount` could be `discount` and it would work the same.
+
+That freedom is exactly the problem. **Use named exports**, unless there's a real reason not to. Three very concrete reasons:
+
+- **They rename unambiguously.** `import { formatPrice as price }` says what's happening. With a default, every file in the project can call it something different and none of them is lying.
+- **Your editor can find the usages.** A default gets imported under a different name in every file; searching `formatPrice` finds every reference, searching `discount` finds half of them.
+- **A default module invites growth.** It starts as one function and ends up as an object with five methods crammed into the default because there's nowhere clean to put them.
+
+The default has one legitimate case: when the module **is** a thing. A function that does one calculation, a class. When the module **has** things, go named.
+
+## Consuming old code without drama
+
+You'll find `require` everywhere, and you don't need to rewrite it: you need to read it.
+
+```js
+// src/lib/legacy.cjs
+const VERSION = "1.0.4";
+module.exports = { VERSION };
+```
+
+From ESM you can import it:
+
+```js
+import legacy from "../lib/legacy.cjs";
+console.log(legacy);
+```
+
+```
+{ VERSION: '1.0.4' }
+```
+
+`module.exports` arrives as the default export. And here's a surprise most people don't expect: named imports from CommonJS often work too, because Node analyses the file statically and detects what it exports.
+
+```js
+import { VERSION } from "../lib/legacy.cjs";
+console.log(VERSION);
+```
+
+```
+1.0.4
+```
+
+But "often" isn't "always". If the module builds its exports dynamically, that analysis goes blind, and then it does explode:
+
+```js
+// src/lib/dynamic.cjs
+const fields = {};
+fields.generated = 42;
+module.exports = fields;
+```
+
+```js
+import { generated } from "../lib/dynamic.cjs";
+console.log(generated);
+```
+
+```
+SyntaxError: Named export 'generated' not found. The requested module '../lib/dynamic.cjs' is a CommonJS module, which may not support all module.exports as named exports.
+CommonJS modules can always be imported via the default export, for example using:
+```
+
+The fix is what the message suggests: import the default and reach for the property.
+
+```js
+import dynamic from "../lib/dynamic.cjs";
+console.log(dynamic.generated);
+```
+
+```
+42
+```
+
+Rule of thumb: with someone else's CommonJS, take the default and then `.property`. It's uglier and it never fails.
+
+## Template literals
+
+Backticks do two things normal quotes don't: interpolate, and respect line breaks.
+
+```js
+const user = { name: "ada", address: { city: "Valencia" } };
+
+console.log(`Hi, ${user.name}. You live in ${user.address.city}.`);
+```
+
+```
+Hi, ada. You live in Valencia.
+```
+
+Inside `${}` you can put an expression, not just a variable: a call, an operation, a ternary. And the line break is real, no `\n` needed:
+
+```js
+console.log(`One line
+and another line`);
+```
+
+```
+One line
+and another line
+```
+
+One warning worth keeping: template literals are for building text, not for building SQL. Concatenating a query with `${}` is the front door to SQL injection. If the value comes from outside, it travels as a parameter, never as text.
+
+## The string methods you'll actually use
+
+Template literals build text. These methods clean it up and split it, and in a backend you use them daily: normalising what arrives, building a slug, assembling a path.
+
+```js
+const raw = "  Ada Lovelace  ";
+console.log(JSON.stringify(raw.trim()));
+console.log("a,b,c".split(","));
+console.log(["a", "b"].join("-"));
+console.log("a-b-c".replaceAll("-", "/"));
+```
+
+```
+"Ada Lovelace"
+[ 'a', 'b', 'c' ]
+a-b
+a/b/c
+```
+
+The `JSON.stringify` in the first line is there on purpose: without it the trailing spaces are invisible and you can't tell whether `trim` did anything. When you debug text, make the edges visible.
+
+And a warning that saves an afternoon: `replace` swaps **only the first** match. `replaceAll` swaps every one. It's the classic mistake when cleaning a field with several separators.
+
+## Optional chaining and nullish coalescing
+
+Two operators solving two different problems, and they get confused constantly.
+
+```js
+const user = { name: "ada", address: { city: "Valencia" } };
+console.log(user?.address?.city);
+console.log(user?.phone?.number);
+```
+
+```
+Valencia
+undefined
+```
+
+It also guards a method call that may not exist:
+
+```js
+const obj = {
+  greet() {
+    return "hello";
+  },
+};
+console.log(obj.greet?.());
+```
+
+```
+hello
+```
+
+Without the `?.`, that second access blows up:
+
+```js
+const user = {};
+console.log(user.address.city);
+```
+
+```
+TypeError: Cannot read properties of undefined (reading 'city')
+```
+
+`?.` means "if the thing on the left is `null` or `undefined`, stop and hand back `undefined`". It isn't a disguised `try/catch`: it only guards property access, not errors of any other kind.
+
+Then there's `??`, which answers a different question: does this have a value?
+
+```js
+const config = { retries: 0, timeout: null };
+
+console.log(config.retries ?? 3);
+console.log(config.retries || 3);
+console.log(config.timeout ?? 3);
+```
+
+```
+0
+3
+3
+```
+
+Look at the first two lines: same value, different answers. `||` treats `0` as false and returns the default; `??` only substitutes when the value is `null` or `undefined`. For numeric configuration — retries, ports, limits — `??` is almost always what you mean, and `||` is a bug waiting for someone to set a zero.
+
+There's an assignment version too, so you don't repeat the name:
+
+```js
+let attempts = 0;
+attempts ||= 5;
+console.log(attempts);
+```
+
+```
+5
+```
+
+`||=` assigns only if the current value is falsy; `??=` assigns only if it's `null` or `undefined`. With `attempts = 0`, `||=` overwrites it and `??=` respects it. Pick according to what a zero means in your domain.
+
+### Short-circuit
+
+`&&` returns the first falsy value it finds, or the last one if they're all truthy. That lets you write a one-line `if`:
+
+```js
+const isValid = false;
+console.log(isValid && "sent");
+```
+
+```
+false
+```
+
+It works and reads fine as a short guard. It stops reading fine when you chain three, and it becomes a nightmare when the left side can be `0` or `""`, because then it returns `0` or `""` instead of a boolean. If you want a boolean, write `Boolean(x)` or the comparison. `&&` returns values, not decisions.
+
+## Array methods: the loops you no longer write
+
+This is the biggest gap between JavaScript in 2012 and JavaScript now. Back then you walked an array with `for`; today you transform it with methods, and the result reads like a sentence.
+
+```js
+const books = [
+  { title: "Emma", year: 1815, pages: 474, rating: 4 },
+  { title: "Middlemarch", year: 1871, pages: 904, rating: 5 },
+  { title: "Dracula", year: 1897, pages: 418, rating: 3 },
+  { title: "Ulysses", year: 1922, pages: 730, rating: 2 },
+];
+
+console.log(books.map((book) => book.title));
+console.log(books.filter((book) => book.pages > 500).map(({ title }) => title));
+console.log(books.find((book) => book.title === "Dracula"));
+console.log(
+  books.some((book) => book.rating === 5),
+  books.every((book) => book.rating >= 3),
+);
+```
+
+```
+[ 'Emma', 'Middlemarch', 'Dracula', 'Ulysses' ]
+[ 'Middlemarch', 'Ulysses' ]
+{ title: 'Dracula', year: 1897, pages: 418, rating: 3 }
+true false
+```
+
+Each method answers a different question, and mixing them up causes half the odd code you'll read:
+
+| Method   | Returns                        | What for                           |
+| -------- | ------------------------------ | ---------------------------------- |
+| `map`    | A new array, same length       | Transform every element            |
+| `filter` | A new array, same shape        | Keep the ones that qualify         |
+| `find`   | One element, or `undefined`    | Find the first one that does       |
+| `some`   | `true` or `false`              | Does any of them qualify?          |
+| `every`  | `true` or `false`              | Do all of them qualify?            |
+| `reduce` | Whatever your function returns | Turn the array into something else |
+
+The first three return new arrays: they don't touch the original. That connects to the previous lesson: transforming without mutating is the norm, not a luxury.
+
+### `reduce` without fear
+
+`reduce` is the one that scares people and the one that least deserves it. It takes a function with two arguments — accumulator and element — and an initial value:
+
+```js
+console.log(books.reduce((total, book) => total + book.pages, 0));
+```
+
+```
+2526
+```
+
+That trailing `0` isn't optional in practice. Without an initial value, `reduce` uses the first element as the accumulator, and with an empty array it breaks:
+
+```js
+const empty = [];
+console.log(empty.reduce((total, page) => total + page));
+```
+
+```
+TypeError: Reduce of empty array with no initial value
+```
+
+Always pass it. It costs one character and saves you an incident.
+
+### Grouping without writing the `reduce`
+
+The most common use of `reduce` is grouping, and for that there's already a function:
+
+```js
+const books = [
+  { title: "Emma", rating: 4 },
+  { title: "Middlemarch", rating: 5 },
+  { title: "Dracula", rating: 4 },
+];
+console.log(Object.groupBy(books, (book) => book.rating));
+```
+
+```
+[Object: null prototype] {
+  '4': [ { title: 'Emma', rating: 4 }, { title: 'Dracula', rating: 4 } ],
+  '5': [ { title: 'Middlemarch', rating: 5 } ]
+}
+```
+
+Note the `[Object: null prototype]` at the front. That's not a printing quirk: the result has no prototype, so it carries no `toString` and no `constructor`, and a key named `constructor` breaks nothing. It's the right answer to a problem people used to solve with `{}` and a defensive `hasOwnProperty`.
+
+### `sort` mutates, and it sorts wrong
+
+This is the method I've seen slip through code review most often:
+
+```js
+const numbers = [10, 9, 1, 25];
+const sorted = numbers.sort();
+console.log(sorted);
+console.log(numbers);
+```
+
+```
+[ 1, 10, 25, 9 ]
+[ 1, 10, 25, 9 ]
+```
+
+Two surprises in four lines. First: `sort()` **mutates** the original, and the "new" array is the same one. Second: with no comparator it sorts as text, so `10` comes before `9` because `"10" < "9"`. For numbers, pass the comparator:
+
+```js
+const ordered = [10, 9, 1, 25].toSorted((a, b) => a - b);
+console.log(ordered);
+```
+
+```
+[ 1, 9, 10, 25 ]
+```
+
+`toSorted` is the version that doesn't mutate, and it has siblings: `toReversed` and `toSpliced`.
+
+```js
+console.log([1, 2, 3].toReversed());
+```
+
+```
+[ 3, 2, 1 ]
+```
+
+If your Node is current, use them. They're the modern answer to the classic problem of sorting the list you were still displaying.
+
+## Objects: keys, values and entries
+
+Arrays have methods; objects have three functions that turn them into something you can walk.
+
+```js
+const book = { title: "Emma", year: 1815, pages: 474 };
+console.log(Object.keys(book));
+console.log(Object.values(book));
+console.log(Object.entries(book));
+```
+
+```
+[ 'title', 'year', 'pages' ]
+[ 'Emma', 1815, 474 ]
+[ [ 'title', 'Emma' ], [ 'year', 1815 ], [ 'pages', 474 ] ]
+```
+
+`Object.entries` is the bridge: it turns the object into an array of pairs, and from there you have `map`, `filter` and the rest. `Object.fromEntries` makes the return trip, which is how you transform an object without mutating it:
+
+```js
+const asText = Object.fromEntries(Object.entries(book).map(([key, value]) => [key, String(value)]));
+console.log(asText);
+```
+
+```
+{ title: 'Emma', year: '1815', pages: '474' }
+```
+
+In Python this is `dict.items()`, and the parallel is almost exact: walking a dictionary as pairs. What was a list comprehension there is chained `map` and `filter` here. Less compact, just as clear once you're used to it.
+
+## When an object isn't enough: Map and Set
+
+An object works for a dictionary with text keys. When the keys aren't text, or when the problem is counting and deduplicating, there are two structures almost nobody teaches that solve exactly that.
+
+A `Set` is a collection with no duplicates:
+
+```js
+const tags = ["js", "node", "js"];
+console.log([...new Set(tags)]);
+```
+
+```
+[ 'js', 'node' ]
+```
+
+Deduplicating in one line. The `[...]` is there because a `Set` isn't an array: you expand it to get back the shape the rest of your code expects.
+
+A `Map` is a dictionary with keys of any type, which keeps insertion order and knows how many entries it holds without counting them:
+
+```js
+const cache = new Map();
+cache.set(1, "one");
+console.log(cache.get(1), cache.size);
+```
+
+```
+one 1
+```
+
+The difference from an object isn't style: `Map` accepts keys that aren't strings — numbers, objects — and doesn't drag inherited prototype properties around. If you've ever seen an `if (obj["toString"])` behave oddly, that's what I mean.
+
+Rule of thumb: an object for data with a fixed shape, `Map` for an actual dictionary, `Set` when the question is "is this already in here?".
+
+## Dates: the object that depends on where you are
+
+A JavaScript `Date` represents an **instant**, not a calendar date. That distinction is what produces time zone bugs, and it isn't a database problem: it's the language.
+
+```js
+console.log(new Date("2026-11-14").toISOString());
+console.log(new Date("2026-11-14T00:00").toISOString());
+```
+
+Run on a laptop set to Madrid time:
+
+```
+2026-11-14T00:00:00.000Z
+2026-11-13T23:00:00.000Z
+```
+
+The same code on a server configured for UTC:
+
+```
+2026-11-14T00:00:00.000Z
+2026-11-14T00:00:00.000Z
+```
+
+The first line is a date with no time, and JavaScript reads it as **midnight UTC**. The second has a time but no zone, so it reads it in the **local zone**. Two strings that look like the same date, two different instants, and neither of them warns you. In an API, that's an order filed on the previous day.
+
+Three rules worth memorising:
+
+- **Store and transport in UTC.** `toISOString()` on the way out, and convert to local only at the edge: when rendering, or when reading a date out of a human.
+- **Be explicit about the zone.** `2026-11-14T00:00:00Z` leaves nothing to interpretation; `2026-11-14T00:00:00` does.
+- **Months start at zero.** `getMonth()` in November returns `10`. Not a new bug: it's from 1995 and it isn't changing.
+
+Two more traps in the same object:
+
+```js
+console.log(new Date("2026-11-14") === new Date("2026-11-14"));
+
+const fecha = new Date("2026-11-14");
+fecha.setDate(fecha.getDate() + 1);
+console.log(fecha.toISOString());
+```
+
+```
+false
+2026-11-15T00:00:00.000Z
+```
+
+That `false` doesn't mean the dates differ: they're two objects, and `===` compares references. To compare instants you use `.getTime()` or subtraction, which gives you milliseconds. And `setDate` **mutates** the object, exactly like `sort` mutated the array: same family of trap.
+
+For durations, `Date.now()` gives milliseconds since 1970, and you subtract without ceremony.
+
+Storing dates, picking a column type and querying by range is a different trade: that lives in <CourseLink slug="sql-from-zero-to-dba" linked="the SQL course, where database dates get their own section" plain="the SQL lessons" />.
+
+## Common problems
+
+### `SyntaxError: Cannot use import statement outside a module`
+
+`"type": "module"` is missing from `package.json`, or the file should be `.mjs`. It's the welcome error to the ecosystem, and it shows up at least once per project.
+
+### `SyntaxError: Named export 'x' not found`, coming from a `.cjs`
+
+You're pulling a name out of a CommonJS module that builds it dynamically. Import the default and reach for the property.
+
+### `forEach` returns nothing
+
+```js
+console.log([1, 2, 3].forEach((n) => n * 2));
+```
+
+```
+undefined
+```
+
+`forEach` returns `undefined`, always. If you want the result, that's `map`. Storing what `forEach` returns in a variable and then wondering why it's empty is a classic.
+
+### `TypeError: Reduce of empty array with no initial value`
+
+You forgot `reduce`'s initial value. Pass it even though the array "can never" be empty: one day it will be.
+
+### `sort` changes my original array
+
+`sort`, `reverse`, `splice`, `push` and `pop` mutate. If you need the original intact, use `toSorted`, `toReversed`, `toSpliced`, or copy first with `[...array]`.
+
+### `||` gives me the default when the value was `0`
+
+`0`, `""` and `false` are falsy. If zero is legitimate data, you want `??`.
+
+## What you take from this lesson
+
+- ESM is `import`/`export`, CommonJS is `require`/`module.exports`, and `package.json` decides which one you're in.
+- `.mjs` and `.cjs` force the system per file, without touching `package.json`.
+- Named exports by default: they rename, they get found, and they don't grow out of control.
+- With someone else's CommonJS, default plus `.property`. Ugly, and it doesn't fail.
+- `?.` guards access; `??` substitutes only for `null` and `undefined`, not for zero.
+- `map`, `filter`, `find`, `some`, `every` and `reduce` cover almost everything a `for` loop used to do.
+- `sort` mutates and sorts as text. `toSorted` with a comparator is what you want.
+- `Object.entries` and `Object.fromEntries` are the bridge between objects and arrays.
+- `Object.groupBy` groups without hand-rolling a `reduce`.
+- A `Set` deduplicates and a `Map` is an actual dictionary: an object isn't always the tool.
+- `trim`, `split`, `join` and `replaceAll` are everyday text work, and `replace` only changes the first match.
+- A `Date` is an instant, not a date: `2026-11-14` and `2026-11-14T00:00` stop being the same thing the moment you leave UTC.
+
+That gives you the vocabulary to read any file in a modern Node project. What you still can't explain is why two operations that look simultaneous aren't, and why a server goes quiet when someone computes too much.
+
+That's the event loop, and it's the next lesson. It's the one that turns "I've read the docs" into "I understand what's happening".
+
+Never stop coding!
