@@ -1,0 +1,374 @@
+---
+title: "El event loop: el modelo mental que lo cambia todo"
+post_slug: "el-event-loop-el-modelo-mental"
+date: "2026-11-18"
+excerpt: "Por qué un setTimeout de cero milisegundos tarda trescientos, por qué el servidor se queda mudo y en qué orden se ejecuta tu código cuando hay promesas por medio."
+language: "es"
+categories: ["nodejs"]
+course: "nodejs-para-desarrolladores-backend"
+order: 4
+cover: "/images/tutorials/cabecera-nodejs-curso.jpg"
+i18n: "the-event-loop-the-mental-model"
+---
+
+import { LessonLink } from "@components/blog";
+
+Hay un bug que aparece en todos los servicios de Node tarde o temprano, y casi siempre se diagnostica mal. La aplicación atiende bien, los logs están limpios, el proceso no ha muerto… y de repente deja de responder durante unos segundos. `htop` enseña un núcleo al 100 % y los otros once mirando, aburridos.
+
+No es la base de datos. No es la red. Es que alguien ha metido trabajo de CPU en el único hilo que tenía permiso para atender peticiones.
+
+Para entender por qué eso paraliza todo, y por qué `setTimeout(fn, 0)` no significa «ahora», hay que abrir la caja. Esta lección es la caja.
+
+## Un hilo, y aun así concurrente
+
+JavaScript corre en un solo hilo: una pila de llamadas, una instrucción detrás de otra. No hay dos líneas de tu código ejecutándose a la vez, nunca.
+
+Entonces, ¿cómo atiende Node miles de conexiones? Porque **no las atiende a la vez**: las acepta todas y no se queda esperando a ninguna.
+
+La diferencia está en qué haces mientras esperas. En el modelo clásico de hilo por conexión, cada petición reserva un hilo y lo deja mirando al techo hasta que la base de datos contesta. Miles de conexiones son miles de hilos, casi todos dormidos. En Node, cuando una operación tiene que esperar —leer un fichero, hablar con la red, consultar el DNS—, la delegas y sigues con lo siguiente. Cuando el resultado está listo, te avisan.
+
+Ese «te avisan» es literal: el sistema operativo sabe cuándo un socket tiene datos y avisa al proceso. libuv, que ya conociste en la primera lección, es quien traduce esos avisos de `epoll`, `kqueue` o los puertos de completado de Windows a algo que Node entienda. Y para lo que el sistema no puede dejar en segundo plano —parte del disco, DNS, criptografía— libuv mantiene un pool de hilos propio.
+
+La concurrencia es real. Lo que no existe es tu código corriendo dos veces a la vez.
+
+Si vienes de Python, la comparación aclara el terreno: el GIL y el event loop son dos respuestas al mismo problema. Python te deja escribir hilos y después los serializa; Node no te deja escribirlos y te obliga a pensar en términos de espera. Ninguno es mejor: son dos formas de decir «no bloquees».
+
+## El bucle, por dentro
+
+Con una sola pieza no se entiende. Hay cuatro, y todas importan:
+
+- **La pila de llamadas** (_call stack_): donde se ejecuta tu código. Una función encima de otra. Cuando está vacía, no hay nada que hacer en este instante.
+- **libuv**: donde viven las operaciones que esperan algo de fuera.
+- **La cola de macrotareas**: los callbacks de `setTimeout`, de los eventos de red, de las lecturas de disco. Cosas que esperan su turno.
+- **La cola de microtareas**: las continuaciones de las promesas, y lo que encoles con `queueMicrotask`.
+
+El bucle hace siempre lo mismo, en este orden: si la pila está vacía, **vacía por completo la cola de microtareas**, y solo después coge **una** macrotarea. Cuando esa termina, vuelve a vaciar microtareas, y así sin parar.
+
+La asimetría es la clave: las microtareas se vacían **todas** antes de pasar a la siguiente macrotarea. Si una microtarea encola otra microtarea, esa también entra en el turno. Es la fuente de la mitad de las sorpresas.
+
+Se ve mejor ejecutándolo:
+
+```js
+console.log("1");
+setTimeout(() => console.log("2"), 0);
+Promise.resolve().then(() => console.log("3"));
+queueMicrotask(() => console.log("4"));
+console.log("5");
+```
+
+```
+1
+5
+3
+4
+2
+```
+
+Línea a línea: `1` es síncrono y sale ya. `setTimeout` no ejecuta nada, encola una macrotarea. La promesa y `queueMicrotask` encolan microtareas. `5` sale antes que ninguna de ellas porque el script sigue corriendo. Cuando el módulo termina, la pila se vacía y el bucle drena las microtareas en orden: `3` y luego `4`. Y solo entonces llega el turno de la macrotarea: `2`.
+
+Que `3` salga antes que `4` no es magia: se encoló antes.
+
+### `setImmediate` no es `setTimeout(0)`
+
+Node tiene una tercera forma de pedir turno, y su nombre engaña: `setImmediate` **no** se ejecuta de inmediato, se ejecuta en su propia fase del bucle, la de comprobación, que va justo después de la de entrada y salida.
+
+```js
+setTimeout(() => console.log("timeout"), 0);
+setImmediate(() => console.log("immediate"));
+```
+
+```
+immediate
+timeout
+```
+
+En el nivel superior sale primero `setImmediate`, y no por casualidad: un temporizador necesita al menos un milisegundo, y el bucle pasa antes por la fase de comprobación. Pero no lo conviertas en ley, porque depende de lo que tarde el proceso en arrancar; en otra máquina puedes verlo al revés.
+
+Donde sí es determinista es dentro de un callback de entrada y salida:
+
+```js
+import { readFile } from "node:fs/promises";
+
+readFile("./package.json", "utf8").then(() => {
+  setTimeout(() => console.log("timeout"), 0);
+  setImmediate(() => console.log("immediate"));
+});
+```
+
+```
+immediate
+timeout
+```
+
+Ahí `setImmediate` gana siempre, porque la fase de comprobación se ejecuta en la misma vuelta del bucle, antes de que los temporizadores vuelvan a mirar el reloj. Si ves documentación que promete un orden fijo en el nivel superior, desconfía: es el único punto del bucle donde el resultado es discutible.
+
+### La cola que Node añade aparte
+
+Node tiene además `process.nextTick`, que no es una promesa ni un temporizador y tiene su propia cola. Funciona tan bien como suena en el nombre —se ejecuta muy pronto— pero su prioridad exacta depende de dónde lo encoles: en el módulo principal corre después de las promesas, y dentro de un callback de temporizador corre antes.
+
+No lo metas en el modelo mental de dos colas, porque no encaja, y desconfía de cualquier tutorial que te lo venda como «microtarea que va primero» sin más. Reconócelo cuando lo veas en código ajeno y sigue. Lo que sí necesitas saber es que no es lo mismo que una promesa, y que mezclarlos es una fuente de orden inesperado.
+
+## Lo que esto significa en la práctica
+
+### Nunca bloquees el bucle
+
+La pila de llamadas es de un solo carril. Si una tarea síncrona tarda trescientos milisegundos, durante trescientos milisegundos no se ejecuta nada más: ni callbacks, ni promesas, ni peticiones nuevas.
+
+No hace falta creerme. Programa un temporizador de cero y bloquéalo a propósito:
+
+```js
+const t0 = performance.now();
+setTimeout(() => {
+  console.log("retraso de setTimeout(0):", (performance.now() - t0).toFixed(1), "ms");
+}, 0);
+
+const inicio = Date.now();
+while (Date.now() < inicio + 300) {}
+
+console.log("el bloqueo terminó a los", Date.now() - inicio, "ms");
+```
+
+```
+el bloqueo terminó a los 300 ms
+retraso de setTimeout(0): 306.9 ms
+```
+
+El temporizador pidió turno a los cero milisegundos. Se ejecutó a los 306,9, porque el hilo estaba ocupado. Los números exactos variarán en tu máquina; la diferencia de orden de magnitud, no.
+
+En un servidor eso no es un temporizador impaciente: son todas las peticiones esperando detrás del que decidió procesar un CSV entero en memoria.
+
+### Se puede bloquear sin un `for`
+
+El ejemplo anterior es evidente: un bucle síncrono de trescientos milisegundos. El caso que nadie detecta produce el mismo efecto sin un solo bucle largo, manteniendo la cola de microtareas siempre llena:
+
+```js
+const inicio = Date.now();
+setTimeout(() => console.log("el temporizador salió a los", Date.now() - inicio, "ms"), 0);
+
+let n = 0;
+function paso() {
+  let x = 0;
+  for (let i = 0; i < 1e6; i++) x += i;
+  n++;
+  if (n < 50) Promise.resolve().then(paso);
+}
+Promise.resolve().then(paso);
+```
+
+```
+el temporizador salió a los 370 ms
+```
+
+Cincuenta microtareas encadenadas, cada una con un trabajo síncrono pequeño. El temporizador pidió turno a los cero milisegundos y salió a los 370. No hay ningún `while` grande: hay una cola que nunca se vacía, y el bucle no toma la siguiente macrotarea hasta vaciarla del todo.
+
+Esto es la cara oscura de la regla que acabas de aprender. Un `.then` que se reencola a sí mismo deja el servidor sin atender igual que un `JSON.parse` de doscientos megas.
+
+### `setTimeout(fn, 0)` no es cero
+
+Lo mismo, sin bloqueo de por medio: el temporizador de cero tarda alrededor de un milisegundo, no cero.
+
+```js
+const medir = (n) => {
+  const t0 = performance.now();
+  setTimeout(() => {
+    console.log("vuelta", n, (performance.now() - t0).toFixed(2), "ms");
+    if (n < 3) medir(n + 1);
+  }, 0);
+};
+medir(1);
+```
+
+```
+vuelta 1 1.23 ms
+vuelta 2 1.29 ms
+vuelta 3 1.15 ms
+```
+
+`0` no significa «inmediato», significa «tan pronto como puedas, y no antes de cero». El sistema tiene una resolución de reloj, el bucle tiene que llegar a la fase de temporizadores y hay trabajo por delante. Es una diferencia de milisegundos que se convierte en un problema real cuando alguien usa `setTimeout` como si fuera un `sleep` de precisión.
+
+### El temporizador que no deja salir al proceso
+
+Una rareza que produce alguno de los mejores «¿por qué mi script no termina?»: un temporizador pendiente mantiene el proceso vivo, y se puede renunciar a eso.
+
+```js
+setTimeout(() => console.log("esto nunca se ejecuta"), 5000).unref();
+setTimeout(() => console.log("esto sí"), 0);
+console.log("fin del script");
+```
+
+```
+fin del script
+esto sí
+```
+
+El proceso termina en centésimas, no en cinco segundos. `unref()` significa «no cuentes conmigo para mantener el proceso en marcha»: si es lo único pendiente, Node sale. Se usa en temporizadores de limpieza, cachés y keepalives que no deben impedir que el programa acabe.
+
+### Trocear antes de delegar
+
+Antes de mandar el trabajo a otro hilo hay una opción más barata: partirlo en trozos y dejar que el bucle atienda entre uno y otro. La petición tarda lo mismo en total, pero el servidor sigue respondiendo.
+
+Con una trampa que cuesta una tarde: **ceder tiene que ser una macrotarea**. Encadenar promesas no libera el bucle, porque las microtareas se vacían todas antes de mirar la siguiente macrotarea.
+
+```js
+const inicio = Date.now();
+setTimeout(() => console.log("el temporizador salió a los", Date.now() - inicio, "ms"), 0);
+
+const trozos = (n) => {
+  if (n === 0) return Promise.resolve();
+  let x = 0;
+  for (let j = 0; j < 1e6; j++) x += j;
+  return Promise.resolve().then(() => trozos(n - 1));
+};
+
+trozos(100).then(() => console.log("fin del trabajo a los", Date.now() - inicio, "ms"));
+```
+
+```
+fin del trabajo a los 886 ms
+el temporizador salió a los 892 ms
+```
+
+Cien vueltas encadenadas con `.then` y el temporizador sigue saliendo después de todo el trabajo. Encadenar microtareas cede el turno a otras microtareas, no a la entrada y salida.
+
+Cambia esa línea por una macrotarea y la historia es otra. Node tiene un módulo para esto, `node:timers/promises`, que exporta `setTimeout`, `setInterval`, `setImmediate` y `scheduler` en versión promesa, para no envolver callbacks a mano:
+
+```js
+import { scheduler } from "node:timers/promises";
+
+const inicio = Date.now();
+setTimeout(() => console.log("el temporizador salió a los", Date.now() - inicio, "ms"), 0);
+
+const trozos = (n) => {
+  if (n === 0) return Promise.resolve();
+  let x = 0;
+  for (let j = 0; j < 1e6; j++) x += j;
+  return scheduler.yield().then(() => trozos(n - 1));
+};
+
+trozos(100).then(() => console.log("fin del trabajo a los", Date.now() - inicio, "ms"));
+```
+
+```
+el temporizador salió a los 7 ms
+fin del trabajo a los 927 ms
+```
+
+`scheduler.yield()` hace exactamente lo que su nombre dice: devuelve el control al bucle y te devuelve a ti después. En versiones anteriores de Node no existe; el equivalente es `setImmediate` del mismo módulo, o `setTimeout(resolve, 0)` si tiras de callback.
+
+Y fíjate en lo que **no** cambia: el trabajo total es el mismo, 886 ms en un caso y 927 en el otro. Ceder no te da velocidad ni te la quita de forma apreciable; lo que cambia es que el temporizador salga a los 892 milisegundos o a los 7. La diferencia no es de rendimiento, es de si el servidor atiende mientras trabaja.
+
+Elige el trozo lo bastante grande para que la ida y vuelta no domine, y lo bastante pequeño para que la peor espera de una petición siga siendo aceptable.
+
+Dos aclaraciones que evitan confusión:
+
+- Esto **no es paralelismo**. Sigue habiendo un núcleo, el mismo trabajo y el mismo tiempo total, solo repartido. Sirve para no dejar el servidor mudo, no para ir más rápido.
+- Un `yield` de generador **no hace esto**. Pausa la función, no el bucle: quien lo conduce sigue necesitando una macrotarea entre paso y paso. Es la misma trampa con una capa de sintaxis encima, y los generadores son otra historia que este curso no cubre.
+
+### La salida de emergencia
+
+Cuando el trabajo no se puede trocear —o cuando trocearlo no basta—, la respuesta no es «optimizar el bucle»: es sacarlo del hilo. `worker_threads` te da hilos de verdad y `cluster` te da procesos. Ninguno es una bala de plata: cuestan arranque, obligan a mover datos entre contextos y añaden superficie de fallo.
+
+Eso tiene <LessonLink course="nodejs-para-desarrolladores-backend" order={13} linked="su propia lección al final del curso, con código" plain="su propio apartado más adelante en el curso" />. Aquí basta con la regla: el bucle no se bloquea, el trabajo se mueve.
+
+## Predice el orden antes de ejecutar
+
+Este es el examen de la lección. Léelo, apunta el orden en un papel y luego ejecútalo:
+
+```js
+console.log("A");
+setTimeout(() => console.log("B"), 0);
+Promise.resolve()
+  .then(() => console.log("C"))
+  .then(() => console.log("D"));
+queueMicrotask(() => console.log("E"));
+console.log("F");
+```
+
+```
+A
+F
+C
+E
+D
+B
+```
+
+Si has fallado en `D` y `E`, no pasa nada: es el detalle que casi todo el mundo yerra. `C` es la primera microtarea y encola `D` **al final** de la cola, detrás de `E`, que ya estaba esperando. El orden no depende de cuándo se creó la promesa, sino de cuándo se encoló cada continuación.
+
+Si has fallado en `B`, revisa la sección del bucle. Y si has acertado todo, ya tienes el modelo que la mayoría de la gente que escribe Node no tiene.
+
+## Problemas habituales
+
+### El servidor deja de responder unos segundos y vuelve solo
+
+Trabajo de CPU en el hilo principal: `JSON.parse` de una respuesta enorme, un `for` sobre un millón de elementos, una expresión regular que se va de las manos, un `readFileSync` en una ruta de petición. Todo eso bloquea el bucle igual que el `while` del ejemplo.
+
+### `setTimeout(fn, 0)` se retrasa más de lo esperado
+
+O hay trabajo síncrono delante, o hay muchas macrotareas en cola. No es un temporizador roto: es el bucle llegando cuando puede.
+
+### El intervalo se solapa consigo mismo
+
+`setInterval` no espera a que tu callback termine: programa el siguiente turno igual. Con un callback que tarda 250 ms y un intervalo de 100, acabas con tres ejecuciones a la vez.
+
+```js
+let n = 0;
+let enCurso = 0;
+const id = setInterval(() => {
+  enCurso++;
+  console.log("vuelta", ++n, "· en curso:", enCurso);
+  setTimeout(() => {
+    enCurso--;
+  }, 250);
+  if (n === 3) clearInterval(id);
+}, 100);
+```
+
+```
+vuelta 1 · en curso: 1
+vuelta 2 · en curso: 2
+vuelta 3 · en curso: 3
+```
+
+Si no quieres eso, no uses `setInterval`: encadena un `setTimeout` al final del trabajo, así el siguiente turno se programa cuando el anterior ha terminado. Y cuando el callback es síncrono pero lento, el intervalo tampoco se recupera: los huecos pasan de 100 a 250 ms y siguen a 100, sin ponerse al día.
+
+Un detalle que el ejemplo da por sabido: `setInterval` devuelve un identificador que se cancela con `clearInterval`, y `setTimeout` con `clearTimeout`. Sin eso, el temporizador sigue vivo mientras el proceso respire.
+
+### Un retraso enorme salta de inmediato
+
+El retraso de un temporizador es un entero con signo de 32 bits. Pide más y no espera: te avisa y lo pone a 1 milisegundo.
+
+```js
+setTimeout(() => console.log("disparado"), 2147483648);
+```
+
+```
+TimeoutOverflowWarning: 2147483648 does not fit into a 32-bit signed integer.
+Timeout duration was set to 1.
+disparado
+```
+
+La primera línea llega precedida de `(node:PID)`, que cambia en cada ejecución. Es el tipo de bug que aparece cuando alguien configura un tiempo de espera «de un día» con un número calculado: el máximo son 2.147.483.647 ms, unas 24,8 días, y por encima el temporizador se vuelve inmediato. Justo lo contrario de lo que pedías.
+
+### Una promesa que debería ejecutarse antes se ejecuta después
+
+Revisa si hay una microtarea nueva en medio y si hay `process.nextTick` mezclado. El orden sigue una regla, pero no es la que sugiere la lectura del código.
+
+### Un trabajo largo parece congelar el servidor
+
+Si el trabajo es de CPU, no hay temporizador que lo arregle: el hilo está ocupado y todo lo demás espera. Trocear y ceder el turno lo alivia; sacarlo del hilo lo resuelve.
+
+## Qué te llevas de esta lección
+
+- JavaScript corre en un hilo. La concurrencia está en la espera, no en el código.
+- libuv delega la espera al sistema operativo y avisa cuando hay resultado.
+- El bucle vacía **todas** las microtareas antes de tomar **otra** macrotarea.
+- Las promesas y `queueMicrotask` son microtareas; los temporizadores y los callbacks de E/S son macrotareas.
+- `process.nextTick` existe, no es una promesa y no encaja en el modelo de dos colas.
+- `setTimeout(fn, 0)` tarda alrededor de un milisegundo, y mucho más si el hilo está ocupado.
+- Bloquear el hilo no ralentiza el servidor: lo para.
+- El trabajo de CPU se saca del hilo, no se optimiza dentro.
+
+Con esto puedes leer cualquier traza de logs entrelazada sin suponer que el orden es el que parece. Y viene bien, porque la siguiente lección va de promesas: el mecanismo que crea esas microtareas que acabas de aprender a ordenar.
+
+¡Nunca dejes de programar!
