@@ -1,0 +1,374 @@
+---
+title: "The event loop: the mental model that changes everything"
+post_slug: "the-event-loop-the-mental-model"
+date: "2026-11-18"
+excerpt: "Why a zero-millisecond setTimeout takes three hundred, why your server goes quiet, and the order your code actually runs in once promises are involved."
+language: "en"
+categories: ["nodejs"]
+course: "nodejs-for-backend-developers"
+order: 4
+cover: "/images/tutorials/cabecera-nodejs-curso.jpg"
+i18n: "el-event-loop-el-modelo-mental"
+---
+
+import { LessonLink } from "@components/blog";
+
+There's a bug that turns up in every Node service sooner or later, and it almost always gets diagnosed wrong. The app serves fine, the logs are clean, the process is alive… and then it stops answering for a few seconds. `htop` shows one core at 100% and the other eleven watching, bored.
+
+It isn't the database. It isn't the network. It's that somebody put CPU work on the only thread allowed to take requests.
+
+To understand why that freezes everything, and why `setTimeout(fn, 0)` doesn't mean "now", you have to open the box. This lesson is the box.
+
+## One thread, and concurrent anyway
+
+JavaScript runs on a single thread: one call stack, one instruction after another. Two lines of your code never run at the same time. Ever.
+
+So how does Node serve thousands of connections? Because it doesn't **serve them at once**: it accepts them all and refuses to wait for any of them.
+
+The difference is in what you do while waiting. In the classic thread-per-connection model, each request reserves a thread and leaves it staring at the ceiling until the database answers. Thousands of connections are thousands of threads, nearly all asleep. In Node, when an operation has to wait — reading a file, talking to the network, resolving DNS — you hand it off and move on. When the result is ready, someone tells you.
+
+That "someone tells you" is literal: the operating system knows when a socket has data and notifies the process. libuv, which you met in the first lesson, translates those notifications from `epoll`, `kqueue` or Windows completion ports into something Node understands. And for the work the OS can't background on its own — some disk operations, DNS, cryptography — libuv keeps a thread pool of its own.
+
+The concurrency is real. What doesn't exist is your code running twice at once.
+
+If you come from Python, the comparison clears the ground: the GIL and the event loop are two answers to the same question. Python lets you write threads and then serialises them; Node doesn't let you write them and forces you to think in terms of waiting. Neither is better. They're two ways of saying "don't block".
+
+## The loop, from the inside
+
+One moving part explains nothing. There are four, and all of them matter:
+
+- **The call stack**: where your code runs. One function on top of another. When it's empty, there's nothing to do right now.
+- **libuv**: where the operations waiting on something external live.
+- **The macrotask queue**: `setTimeout` callbacks, network events, disk reads. Things waiting their turn.
+- **The microtask queue**: promise continuations, and whatever you enqueue with `queueMicrotask`.
+
+The loop does the same thing every time, in this order: if the stack is empty, **drain the microtask queue completely**, and only then take **one** macrotask. When that one finishes, drain microtasks again, and on it goes.
+
+The asymmetry is the whole point: microtasks are drained **entirely** before moving to the next macrotask. If a microtask enqueues another microtask, that one goes into the same turn. That's where half the surprises come from.
+
+It's easier to run than to describe:
+
+```js
+console.log("1");
+setTimeout(() => console.log("2"), 0);
+Promise.resolve().then(() => console.log("3"));
+queueMicrotask(() => console.log("4"));
+console.log("5");
+```
+
+```
+1
+5
+3
+4
+2
+```
+
+Line by line: `1` is synchronous and leaves immediately. `setTimeout` runs nothing, it queues a macrotask. The promise and `queueMicrotask` queue microtasks. `5` comes out before any of them because the script is still running. When the module ends, the stack empties and the loop drains the microtasks in order: `3`, then `4`. Only then does the macrotask get its turn: `2`.
+
+`3` before `4` isn't magic: it was queued first.
+
+### `setImmediate` is not `setTimeout(0)`
+
+Node has a third way to ask for a turn, and the name lies: `setImmediate` **doesn't** run immediately, it runs in a phase of its own — the check phase — right after the poll phase.
+
+```js
+setTimeout(() => console.log("timeout"), 0);
+setImmediate(() => console.log("immediate"));
+```
+
+```
+immediate
+timeout
+```
+
+At the top level `setImmediate` comes first, and not by accident: a timer needs at least a millisecond, and the loop reaches the check phase before that. Don't turn it into law, though, because it depends on how long the process takes to start; on another machine you can see the opposite order.
+
+Where it is deterministic is inside an I/O callback:
+
+```js
+import { readFile } from "node:fs/promises";
+
+readFile("./package.json", "utf8").then(() => {
+  setTimeout(() => console.log("timeout"), 0);
+  setImmediate(() => console.log("immediate"));
+});
+```
+
+```
+immediate
+timeout
+```
+
+There `setImmediate` always wins, because the check phase runs in the same turn of the loop, before the timers look at the clock again. If you read documentation promising a fixed order at the top level, be suspicious: it's the one point in the loop where the answer is arguable.
+
+### The queue Node adds on the side
+
+Node also has `process.nextTick`, which is neither a promise nor a timer and has a queue of its own. It does what the name promises — it runs very soon — but its exact priority depends on where you enqueue it: at the top level it runs after promises, and inside a timer callback it runs before them.
+
+Don't put it into the two-queue model, because it doesn't fit, and be suspicious of any tutorial that sells it as "the microtask that goes first" and stops there. Recognise it when you meet it in someone else's code and move on. What you do need to know is that it isn't a promise, and mixing them produces orderings you didn't write.
+
+## What this means in practice
+
+### Never block the loop
+
+The call stack has one lane. If a synchronous task takes three hundred milliseconds, then for three hundred milliseconds nothing else runs: no callbacks, no promises, no new requests.
+
+You don't have to take my word for it. Schedule a zero timer and block it on purpose:
+
+```js
+const t0 = performance.now();
+setTimeout(() => {
+  console.log("setTimeout(0) delay:", (performance.now() - t0).toFixed(1), "ms");
+}, 0);
+
+const start = Date.now();
+while (Date.now() < start + 300) {}
+
+console.log("the blocking ended after", Date.now() - start, "ms");
+```
+
+```
+the blocking ended after 300 ms
+setTimeout(0) delay: 308.1 ms
+```
+
+The timer asked for a slot at zero milliseconds. It ran at 308.1, because the thread was busy. Your exact numbers will differ; the order of magnitude won't.
+
+On a server that isn't an impatient timer: it's every request queueing behind whoever decided to parse a whole CSV in memory.
+
+### You can block it without a `for`
+
+The example above is obvious: a three-hundred-millisecond synchronous loop. The case nobody spots produces the same effect with no long loop at all, just by keeping the microtask queue permanently full:
+
+```js
+const start = Date.now();
+setTimeout(() => console.log("the timer ran after", Date.now() - start, "ms"), 0);
+
+let n = 0;
+function step() {
+  let x = 0;
+  for (let i = 0; i < 1e6; i++) x += i;
+  n++;
+  if (n < 50) Promise.resolve().then(step);
+}
+Promise.resolve().then(step);
+```
+
+```
+the timer ran after 448 ms
+```
+
+Fifty chained microtasks, each with a small piece of synchronous work. The timer asked for a turn at zero milliseconds and ran at 448. There's no big `while` anywhere: there's a queue that never empties, and the loop won't take the next macrotask until it does.
+
+That's the dark side of the rule you just learned. A `.then` that re-enqueues itself leaves the server unattended just as thoroughly as a two-hundred-megabyte `JSON.parse`.
+
+### `setTimeout(fn, 0)` isn't zero
+
+Same thing, with no blocking involved: a zero timer takes about a millisecond, not zero.
+
+```js
+const measure = (n) => {
+  const t0 = performance.now();
+  setTimeout(() => {
+    console.log("round", n, (performance.now() - t0).toFixed(2), "ms");
+    if (n < 3) measure(n + 1);
+  }, 0);
+};
+measure(1);
+```
+
+```
+round 1 1.26 ms
+round 2 0.18 ms
+round 3 1.14 ms
+```
+
+`0` doesn't mean "immediately", it means "as soon as you can, and not before zero". The system has a clock resolution, the loop has to reach the timer phase, and there's work ahead in the queue. It's a few milliseconds that become a real problem the moment somebody treats `setTimeout` as a precision sleep.
+
+### The timer that won't let the process exit
+
+One oddity that produces some of the best "why won't my script end?" moments: a pending timer keeps the process alive, and you can opt out.
+
+```js
+setTimeout(() => console.log("this never runs"), 5000).unref();
+setTimeout(() => console.log("this one does"), 0);
+console.log("script ends");
+```
+
+```
+script ends
+this one does
+```
+
+The process finishes in hundredths of a second, not five seconds. `unref()` means "don't count on me to keep the process running": if it's the only thing pending, Node exits. It's used for cleanup timers, caches and keepalives that shouldn't stop the program from finishing.
+
+### Chunk it before you delegate it
+
+Before shipping the work to another thread there's a cheaper option: cut it into chunks and let the loop serve between one and the next. The request takes the same total time, but the server keeps answering.
+
+With one trap that costs an afternoon: **the yield has to be a macrotask**. Chaining promises doesn't release the loop, because microtasks are drained in full before the next macrotask is even considered.
+
+```js
+const start = Date.now();
+setTimeout(() => console.log("the timer ran after", Date.now() - start, "ms"), 0);
+
+const chunks = (n) => {
+  if (n === 0) return Promise.resolve();
+  let x = 0;
+  for (let j = 0; j < 1e6; j++) x += j;
+  return Promise.resolve().then(() => chunks(n - 1));
+};
+
+chunks(100).then(() => console.log("the work finished after", Date.now() - start, "ms"));
+```
+
+```
+the work finished after 892 ms
+the timer ran after 898 ms
+```
+
+A hundred rounds chained with `.then` and the timer still runs after all the work. Chaining microtasks hands the turn to other microtasks, not to I/O.
+
+Change that one line for a macrotask and the story changes. Node has a module for this, `node:timers/promises`, which exports `setTimeout`, `setInterval`, `setImmediate` and `scheduler` in promise form so you don't wrap callbacks by hand:
+
+```js
+import { scheduler } from "node:timers/promises";
+
+const start = Date.now();
+setTimeout(() => console.log("the timer ran after", Date.now() - start, "ms"), 0);
+
+const chunks = (n) => {
+  if (n === 0) return Promise.resolve();
+  let x = 0;
+  for (let j = 0; j < 1e6; j++) x += j;
+  return scheduler.yield().then(() => chunks(n - 1));
+};
+
+chunks(100).then(() => console.log("the work finished after", Date.now() - start, "ms"));
+```
+
+```
+the timer ran after 6 ms
+the work finished after 796 ms
+```
+
+`scheduler.yield()` does exactly what the name says: it hands control back to the loop and gives it back to you afterwards. Older Node versions don't have it; the equivalent is `setImmediate` from the same module, or `setTimeout(resolve, 0)` if you're working with callbacks.
+
+And look at what **doesn't** change: the total work is the same, 892 ms in one case and 796 in the other. Yielding neither gives nor takes away speed in any meaningful way; what changes is whether the timer runs at 898 milliseconds or at 6. The difference isn't performance, it's whether the server answers while it works.
+
+Pick the chunk big enough that the round trip doesn't dominate, and small enough that the worst wait for a request stays acceptable.
+
+Two clarifications that save confusion:
+
+- This is **not parallelism**. Same core, same work, same total time, just spread out. It stops the server going mute; it doesn't make it faster.
+- A generator's `yield` **doesn't do this**. It pauses the function, not the loop: whatever drives the generator still needs a macrotask between steps. It's the same trap with a syntax layer on top, and generators are a different story this course doesn't cover.
+
+### The emergency exit
+
+When the work can't be chunked — or when chunking isn't enough — the answer isn't "optimise the loop": it's getting it off the thread. `worker_threads` gives you real threads and `cluster` gives you processes. Neither is a silver bullet: both cost startup, both force you to move data between contexts, both add failure surface.
+
+That has <LessonLink course="nodejs-for-backend-developers" order={13} linked="its own lesson at the end of the course, with code" plain="its own section later in the course" />. Here, the rule is enough: the loop doesn't get blocked, the work gets moved.
+
+## Predict the order before you run it
+
+This is the lesson's exam. Read it, write the order down, then run it:
+
+```js
+console.log("A");
+setTimeout(() => console.log("B"), 0);
+Promise.resolve()
+  .then(() => console.log("C"))
+  .then(() => console.log("D"));
+queueMicrotask(() => console.log("E"));
+console.log("F");
+```
+
+```
+A
+F
+C
+E
+D
+B
+```
+
+If you got `D` and `E` wrong, that's fine: it's the detail almost everyone misses. `C` is the first microtask and it enqueues `D` **at the end** of the queue, behind `E`, which was already waiting. The order doesn't depend on when the promise was created, but on when each continuation was queued.
+
+If you got `B` wrong, go back to the loop section. And if you got everything right, you already have the model most people writing Node don't have.
+
+## Common problems
+
+### The server stops responding for a few seconds, then recovers
+
+CPU work on the main thread: `JSON.parse` on a huge response, a `for` over a million items, a regular expression that runs away, a `readFileSync` on a request path. All of it blocks the loop exactly like the `while` above.
+
+### `setTimeout(fn, 0)` is delayed far more than expected
+
+Either there's synchronous work ahead, or there are many macrotasks queued. The timer isn't broken: the loop is getting there when it can.
+
+### The interval overlaps itself
+
+`setInterval` doesn't wait for your callback to finish: it schedules the next turn anyway. With a callback taking 250 ms and an interval of 100, you end up with three executions at once.
+
+```js
+let n = 0;
+let running = 0;
+const id = setInterval(() => {
+  running++;
+  console.log("tick", ++n, "· running:", running);
+  setTimeout(() => {
+    running--;
+  }, 250);
+  if (n === 3) clearInterval(id);
+}, 100);
+```
+
+```
+tick 1 · running: 1
+tick 2 · running: 2
+tick 3 · running: 3
+```
+
+If you don't want that, don't use `setInterval`: chain a `setTimeout` at the end of the work, so the next turn is scheduled once the previous one finished. And when the callback is synchronous but slow, the interval doesn't catch up either: gaps go from 100 to 250 ms and continue at 100.
+
+One detail the example takes for granted: `setInterval` returns an identifier you cancel with `clearInterval`, and `setTimeout` with `clearTimeout`. Without that, the timer stays alive as long as the process does.
+
+### A huge delay fires immediately
+
+A timer's delay is a signed 32-bit integer. Ask for more and it doesn't wait: it warns you and sets it to 1 millisecond.
+
+```js
+setTimeout(() => console.log("fired"), 2147483648);
+```
+
+```
+TimeoutOverflowWarning: 2147483648 does not fit into a 32-bit signed integer.
+Timeout duration was set to 1.
+fired
+```
+
+The first line arrives prefixed with `(node:PID)`, which changes on every run. It's the kind of bug that shows up when somebody configures a "one day" timeout from a computed number: the maximum is 2,147,483,647 ms, about 24.8 days, and above that the timer becomes immediate. The exact opposite of what was asked for.
+
+### A promise that should run first runs later
+
+Check whether a new microtask is in the way, and whether `process.nextTick` is in the mix. The order follows a rule, but not the one the code's shape suggests.
+
+### A long job seems to freeze the server
+
+If the work is CPU, no timer fixes it: the thread is busy and everything else waits. Chunking and yielding eases it; moving it off the thread solves it.
+
+## What you take from this lesson
+
+- JavaScript runs on one thread. The concurrency is in the waiting, not in the code.
+- libuv hands the waiting to the operating system and reports back when there's a result.
+- The loop drains **all** microtasks before taking **another** macrotask.
+- Promises and `queueMicrotask` are microtasks; timers and I/O callbacks are macrotasks.
+- `process.nextTick` exists, isn't a promise, and doesn't fit the two-queue model.
+- `setTimeout(fn, 0)` takes about a millisecond, and much longer when the thread is busy.
+- Blocking the thread doesn't slow the server down: it stops it.
+- CPU work gets moved off the thread, not optimised inside it.
+
+With this you can read any interleaved log without assuming the order is the one it looks like. Which helps, because the next lesson is about promises: the mechanism that creates the microtasks you just learned to order.
+
+Never stop coding!
