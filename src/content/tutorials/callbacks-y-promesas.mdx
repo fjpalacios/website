@@ -1,0 +1,378 @@
+---
+title: "Callbacks y promesas: del infierno anidado al valor que llega después"
+post_slug: "callbacks-y-promesas"
+date: "2026-11-19"
+excerpt: "Por qué el estilo (err, datos) te obligó a anidar, qué es una promesa por dentro y cuándo lanzar diez peticiones a la vez en lugar de una detrás de otra."
+language: "es"
+categories: ["nodejs"]
+course: "nodejs-para-desarrolladores-backend"
+order: 5
+cover: "/images/tutorials/cabecera-nodejs-curso.jpg"
+i18n: "callbacks-and-promises"
+---
+
+Hay un error que todo el mundo ha cometido una vez y que resume una década de estilo: leer un fichero con callback, olvidar comprobar el error, y estrellarse al pedirle la longitud a `undefined`.
+
+```js
+readFile("./no-existe.json", "utf8", (error, datos) => {
+  console.log(datos.length);
+});
+```
+
+```
+TypeError: Cannot read properties of undefined (reading 'length')
+```
+
+El error real —que el fichero no existe— se pierde, y el mensaje que ves habla de otra cosa. Ese detalle, pequeño y molesto, es la razón por la que las promesas existen. No vinieron a hacer el código más bonito: vinieron a que el error no se pueda ignorar por accidente.
+
+## El callback: una función que se ejecuta después
+
+Un callback es una función que pasas como argumento para que otro la llame cuando tenga algo. En Node adopta una forma muy concreta: **el error primero**.
+
+```js
+import { readFile } from "node:fs";
+
+readFile("./package.json", "utf8", (error, datos) => {
+  if (error) {
+    console.log("error:", error.code);
+    return;
+  }
+  console.log("leídos", datos.length, "caracteres");
+});
+```
+
+```
+leídos 47 caracteres
+```
+
+Ese `(error, datos)` no es un capricho: es la convención que Node eligió para que el primer argumento siempre exista y siempre signifique lo mismo, haya resultado o no. Y si hay error:
+
+```js
+readFile("./no-existe.json", "utf8", (error, datos) => {
+  if (error) {
+    console.log("error:", error.code, "·", error.message.split(",")[0]);
+    return;
+  }
+  console.log(datos.length);
+});
+```
+
+```
+error: ENOENT · ENOENT: no such file or directory
+```
+
+Funciona. Y durante años fue la única forma. El problema aparece cuando encadenas pasos, porque cada paso necesita su callback, y cada callback vive dentro del anterior.
+
+## La pirámide
+
+Tres operaciones que dependen una de otra: leer la configuración, pedir los datos y escribir el resultado. Con callbacks, la forma es esta (cada `paso` es una función que recibe un callback y tarda un poco en responder; el detalle no importa, la forma sí):
+
+```js
+paso1((err1, uno) => {
+  if (err1) return console.log(err1);
+  paso2(uno, (err2, dos) => {
+    if (err2) return console.log(err2);
+    paso3(dos, (err3, tres) => {
+      if (err3) return console.log(err3);
+      console.log("resultado:", tres);
+    });
+  });
+});
+```
+
+```
+paso 1
+paso 2 con uno
+paso 3 con dos
+resultado: tres
+```
+
+Funciona, y ya se ve el problema. Cada nivel añade una comprobación de error, un parámetro nuevo y una indentación más. Con diez pasos tienes un histograma. Con manejo de errores serio —limpiar, reintentar, avisar— tienes una pirámide con más escalones que el Miguelete y peores vistas.
+
+Y hay un problema peor que la forma: **no hay valor de retorno**. Una función con callback no devuelve el resultado, lo entrega. Eso significa que no puedes guardarlo en una variable, ni devolverlo, ni componerlo. Solo puedes seguir anidando.
+
+## La promesa: un contenedor de un valor futuro
+
+Una promesa es un objeto que representa un valor que aún no tienes. No el valor: la promesa de que llegará.
+
+Tiene tres estados: **pendiente**, **cumplida** o **rechazada**. Y solo se puede mover una vez, en un sentido. Se ve muy bien imprimiéndola:
+
+```js
+const p = new Promise((resolve) => setTimeout(() => resolve("listo"), 50));
+console.log(p);
+setTimeout(() => console.log(p), 100);
+```
+
+```
+Promise { <pending> }
+Promise { 'listo' }
+```
+
+El primer `console.log` ocurre mientras está pendiente; el segundo, cuando ya se cumplió y guarda el valor `'listo'`. Ese objeto es lo que puedes pasar de una función a otra.
+
+### `then`, `catch` y `finally`
+
+```js
+Promise.resolve(2)
+  .then((n) => {
+    console.log("paso 1:", n);
+    return n * 3;
+  })
+  .then((n) => {
+    console.log("paso 2:", n);
+    throw new Error("fallo a propósito");
+  })
+  .catch((error) => console.log("catch:", error.message))
+  .finally(() => console.log("finally"));
+```
+
+```
+paso 1: 2
+paso 2: 6
+catch: fallo a propósito
+finally
+```
+
+Cuatro cosas, en orden: `then` recibe el valor y devuelve uno nuevo que alimenta el siguiente `then`. Una excepción lanzada dentro de un `then` no revienta el proceso: viaja al `catch` más cercano. `catch` puede devolver un valor y la cadena sigue. Y `finally` se ejecuta siempre, con resultado o con error, que es donde va la limpieza.
+
+Y si el `then` devuelve una promesa, la cadena la desenvuelve: no acabas con promesas dentro de promesas, acabas con el valor.
+
+```js
+const esperar = (ms, valor) => new Promise((resolve) => setTimeout(() => resolve(valor), ms));
+
+Promise.resolve(2)
+  .then((n) => esperar(10, n * 3))
+  .then((n) => console.log("el then desenvuelve la promesa:", n));
+```
+
+```
+el then desenvuelve la promesa: 6
+```
+
+Es plano, no anidado, y el error viaja solo: no hay que comprobarlo en cada nivel. Ahí está la diferencia que importa.
+
+Una trampa pequeña que cuesta un rato: **un `then` sin `return` propaga `undefined`**.
+
+```js
+Promise.resolve(2)
+  .then((n) => {
+    n * 3;
+  })
+  .then((n) => console.log("el siguiente recibe:", n));
+```
+
+```
+el siguiente recibe: undefined
+```
+
+Sin `return`, la función devuelve `undefined` y la cadena continúa con eso. Si el siguiente paso falla por un valor vacío, empieza a mirar aquí.
+
+## `Promise.resolve` y `Promise.reject`
+
+Existen para dos cosas que se hacen constantemente: envolver un valor que ya tienes y fabricar un rechazo, normalmente en tests.
+
+```js
+const yaListo = Promise.resolve("vale");
+const rechazada = Promise.reject(new Error("no"));
+
+yaListo.then((valor) => console.log("cumplida:", valor));
+rechazada.catch((error) => console.log("rechazada:", error.message));
+```
+
+```
+cumplida: vale
+rechazada: no
+```
+
+Y una regla que ahorra código: si una función puede devolver un valor o una promesa, devuelve una promesa siempre. Quien la llama no debería tener que preguntar cuál de las dos le va a llegar.
+
+## Varias a la vez: `Promise.all`
+
+Aquí está el motivo por el que las promesas cambiaron el rendimiento de medio backend. Tres operaciones independientes, cada una de 300 ms:
+
+```js
+const esperar = (ms, valor) => new Promise((resolve) => setTimeout(() => resolve(valor), ms));
+
+const t0 = Date.now();
+Promise.all([esperar(300, "a"), esperar(300, "b"), esperar(300, "c")]).then((resultados) => {
+  console.log("Promise.all:", Date.now() - t0, "ms", resultados);
+});
+
+const t1 = Date.now();
+esperar(300, "a")
+  .then(() => esperar(300, "b"))
+  .then(() => esperar(300, "c"))
+  .then(() => console.log("secuencial:", Date.now() - t1, "ms"));
+```
+
+```
+Promise.all: 301 ms [ 'a', 'b', 'c' ]
+secuencial: 908 ms
+```
+
+Tres veces más rápido, sin optimizar nada: las tres empiezan a la vez porque nadie espera a nadie. La versión secuencial espera 300, luego 300, luego 300. Es la diferencia entre pedir tres cosas y pedir una, esperar, pedir otra.
+
+Y su condición, que hay que tener clara: **todo o nada**. Si una rechaza, la promesa de `Promise.all` rechaza entera, aunque las otras dos estén terminando bien.
+
+```js
+Promise.all([esperar(10, "a"), Promise.reject(new Error("boom"))])
+  .then((resultados) => console.log("no debería llegar:", resultados))
+  .catch((error) => console.log("Promise.all rechaza entero:", error.message));
+```
+
+```
+Promise.all rechaza entero: boom
+```
+
+Una advertencia que se aprende en producción: `Promise.all` no tiene freno. Lanza todo a la vez. Con cinco peticiones es gratis; con diez mil filas de una base de datos es un ataque que te haces a ti mismo. Los límites de concurrencia son materia de otro sitio, pero el aviso va aquí: si el array puede ser grande, `Promise.all` no es una cola.
+
+## Cuando no quieres todo o nada: `Promise.allSettled`
+
+Si necesitas el resultado de las tres aunque una falle —un panel que muestra lo que puede—, hay otra función:
+
+```js
+Promise.allSettled([esperar(10, "a"), Promise.reject(new Error("boom")), esperar(10, "c")]).then((settled) =>
+  console.log(settled.map((r) => r.status)),
+);
+```
+
+```
+[ 'fulfilled', 'rejected', 'fulfilled' ]
+```
+
+Y dentro de cada uno hay `value` o `reason` según el caso:
+
+```js
+Promise.allSettled([esperar(10, "a"), Promise.reject(new Error("boom"))]).then((settled) =>
+  console.log(settled.map((r) => (r.status === "fulfilled" ? r.value : r.reason.message))),
+);
+```
+
+```
+[ 'a', 'boom' ]
+```
+
+No rechaza nunca: devuelve un array con el estado de cada una, y dentro `value` o `reason` según el caso. Es la diferencia entre «necesito las tres» y «necesito saber cómo fue cada una».
+
+## Y la primera que conteste: `Promise.any`
+
+Es el espejo de `all`: gana la primera que se cumpla y las demás se ignoran.
+
+```js
+const esperar = (ms, valor) => new Promise((resolve) => setTimeout(() => resolve(valor), ms));
+const falla = (ms, motivo) => new Promise((_, reject) => setTimeout(() => reject(new Error(motivo)), ms));
+
+Promise.any([falla(10, "caída"), esperar(50, "réplica 2"), falla(20, "caída 2")]).then((valor) =>
+  console.log("la primera que responde:", valor),
+);
+```
+
+```
+la primera que responde: réplica 2
+```
+
+Y si fallan todas, el error no es una de ellas: es un `AggregateError` que lleva los motivos dentro.
+
+```js
+Promise.any([falla(10, "caída"), falla(20, "caída 2")]).catch((error) => {
+  console.log("todas fallaron:", error.name);
+  console.log(
+    "motivos:",
+    error.errors.map((e) => e.message),
+  );
+});
+```
+
+```
+todas fallaron: AggregateError
+motivos: [ 'caída', 'caída 2' ]
+```
+
+Se usa para redundancia: dos réplicas del mismo servicio, dos fuentes del mismo dato, y te quedas con la que llegue antes.
+
+## Crear tus propias promesas
+
+La mayoría del código moderno no crea promesas, las consume. Pero cuando envuelves una API de callbacks, hay que construirlas:
+
+```js
+function leerFichero(ruta) {
+  return new Promise((resolve, reject) => {
+    readFile(ruta, "utf8", (error, datos) => {
+      if (error) {
+        reject(error);
+        return;
+      }
+      resolve(datos);
+    });
+  });
+}
+
+leerFichero("./package.json").then((datos) => console.log("a mano:", datos.length));
+```
+
+```
+a mano: 47
+```
+
+Ese patrón —envolver, comprobar el error, resolver o rechazar— se repite tanto que Node trae la herramienta hecha:
+
+```js
+import { promisify } from "node:util";
+
+const leer = promisify(readFile);
+leer("./package.json", "utf8").then((datos) => console.log("promisify:", datos.length));
+```
+
+```
+promisify: 47
+```
+
+Y en muchos casos ni eso: los módulos importantes ya tienen su versión con promesas. `fs/promises` es el mismo `fs` sin callbacks.
+
+```js
+import { readFile as readFilePromise } from "node:fs/promises";
+
+readFilePromise("./package.json", "utf8").then((datos) => console.log("fs/promises:", datos.length));
+```
+
+```
+fs/promises: 47
+```
+
+Las tres formas devuelven lo mismo (`47` caracteres, en este caso). Regla práctica: usa `node:fs/promises` y compañía; recurre a `promisify` con librerías antiguas; escribe `new Promise` a mano solo cuando la API que envuelves no tenga otra salida. Durante unos años hubo incluso un paquete en npm para promisificar cosas. Sí, uno. Y otro para saber si un número era par.
+
+## Problemas habituales
+
+### `Cannot read properties of undefined` después de una lectura
+
+Olvidaste comprobar el error del callback. Con la convención `(error, datos)`, si hay error, `datos` es `undefined` y el error real se queda sin contar.
+
+### Un `then` recibe `undefined` y no sabes por qué
+
+Falta el `return` en el `then` anterior. La cadena no adivina: propaga lo que devuelve la función, y sin `return` devuelve `undefined`.
+
+### `Promise.all` falla y pierdo los resultados que sí llegaron
+
+Es su contrato: todo o nada. Si necesitas los parciales, `Promise.allSettled`.
+
+### Voy más lento de lo que debería con tres peticiones independientes
+
+Las estás esperando una detrás de otra. Si no dependen entre sí, van en `Promise.all`: tres de 300 ms son 300, no 900.
+
+### Creo promesas por todas partes y el código se complica
+
+Si envuelves funciones que ya devuelven promesas en `new Promise`, estás construyendo algo que ya existía. Y si te ves anidando `then` dentro de `then`, es el momento de la lección siguiente.
+
+## Qué te llevas de esta lección
+
+- Un callback es una función que se ejecuta después; en Node, con `(error, resultado)`.
+- Anidar callbacks no es un problema estético: pierdes el retorno y el manejo de errores se multiplica.
+- Una promesa es un contenedor de un valor futuro, con tres estados y una sola transición.
+- `then` encadena, `catch` recoge el error de cualquier punto anterior, `finally` limpia siempre.
+- Un `then` sin `return` propaga `undefined`.
+- `Promise.all` va en paralelo y es todo o nada; `Promise.allSettled` te da el estado de cada una.
+- Casi nunca necesitas `new Promise`: `fs/promises`, `promisify` y las APIs modernas ya lo traen.
+
+Con esto sabes qué hay dentro de una promesa y cómo se combinan. Lo que aún no sabes es cómo escribir código asíncrono que se lea como código normal, sin cadenas de `then`. Eso es `async/await`, y es la siguiente lección.
+
+¡Nunca dejes de programar!
