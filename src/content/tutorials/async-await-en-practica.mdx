@@ -1,0 +1,431 @@
+---
+title: "async/await en práctica: el código asíncrono que se lee como normal"
+post_slug: "async-await-en-practica"
+date: "2026-11-20"
+excerpt: "Cerco a los tres fallos que todo el mundo comete: olvidar el await, usar forEach con async y esperar en serie lo que podía ir en paralelo."
+language: "es"
+categories: ["nodejs"]
+course: "nodejs-para-desarrolladores-backend"
+order: 6
+cover: "/images/tutorials/cabecera-nodejs-curso.jpg"
+i18n: "async-await-in-practice"
+---
+
+Este código parece correcto. Se ejecuta, no da error y los logs salen:
+
+```js
+console.log("antes");
+[10, 20, 30].forEach(async (ms) => {
+  await esperar(ms);
+  console.log("dentro:", ms);
+});
+console.log("después");
+```
+
+```
+antes
+después
+dentro: 10
+dentro: 20
+dentro: 30
+```
+
+Y está roto. `forEach` no espera a los callbacks asíncronos, así que el código de después corre antes que el bucle, y no hay manera de saber cuándo ha terminado todo. No hay error, no hay aviso: solo un orden equivocado que en producción se convierte en una respuesta enviada antes de tiempo.
+
+`async/await` resuelve el problema de fondo —escribir asincronía sin cadenas de `then`— pero añade trampas propias. Esta lección va de las tres que más cuestan.
+
+## Una función `async` siempre devuelve una promesa
+
+`async` no convierte una función en mágica: le cambia el tipo de retorno.
+
+```js
+async function f() {
+  return 1;
+}
+
+const p = f();
+console.log(p);
+console.log(p instanceof Promise);
+p.then((valor) => console.log("dentro:", valor));
+```
+
+```
+Promise { 1 }
+true
+dentro: 1
+```
+
+Devuelvas lo que devuelvas, sale una promesa. Si devuelves un valor, la promesa queda cumplida con ese valor; si lanzas una excepción, queda rechazada. Y eso explica por qué puedes usar `.then` con una función `async`: es una promesa más.
+
+## `await` no bloquea: suspende
+
+La confusión más habitual es creer que `await` congela el programa. No congela nada: **suspende la función actual** y devuelve el control a quien la llamó.
+
+```js
+async function f() {
+  console.log("a");
+  await null;
+  console.log("b");
+}
+
+f();
+console.log("c");
+```
+
+```
+a
+c
+b
+```
+
+`await null` no espera a nada —`null` no es una promesa— y aun así suspende. `c` se ejecuta antes que `b` porque `b` está en una microtarea, y eso ya lo sabes de la lección del event loop.
+
+Si vienes de Python, la sintaxis te resultará familiar hasta el punto de la sospecha: `async def`, `await`, mismo aspecto. La diferencia no está en el código, está en el runtime: Python tiene un bucle de eventos que hay que arrancar explícitamente, y Node ya lo tiene funcionando. Un `await` en Python sin bucle es un error; en Node es el día a día.
+
+## Secuencial o en paralelo
+
+Aquí se decide si tu endpoint tarda 300 ms o 900. Tres operaciones independientes, cada una de 300:
+
+```js
+const t0 = Date.now();
+const [x, y, z] = await Promise.all([esperar(300, "x"), esperar(300, "y"), esperar(300, "z")]);
+console.log("paralelo:", Date.now() - t0, "ms", x, y, z);
+
+const t1 = Date.now();
+const a = await esperar(300, "x");
+const b = await esperar(300, "y");
+const d = await esperar(300, "z");
+console.log("secuencial:", Date.now() - t1, "ms", a, b, d);
+```
+
+```
+paralelo: 301 ms x y z
+secuencial: 901 ms x y z
+```
+
+La regla es sencilla de enunciar y fácil de olvidar: **si una operación no necesita el resultado de la anterior, no la esperes**. `await` sobre tres cosas seguidas significa «una detrás de otra», aunque las tres fueran independientes.
+
+Y el detalle que hace útil el `await` doble: puedes desestructurar el array que devuelve `Promise.all` en la misma línea.
+
+## Top-level await, con letra pequeña
+
+En un módulo ES puedes usar `await` en el nivel superior, sin envolverlo en una función:
+
+```js
+const x = await Promise.resolve(1);
+console.log(x);
+```
+
+```
+1
+```
+
+Pero solo en un módulo. El mismo código en un fichero CommonJS no arranca:
+
+```js
+const x = await Promise.resolve(1);
+console.log(x);
+```
+
+```
+SyntaxError: await is only valid in async functions and the top level bodies of modules
+```
+
+El mensaje lo dice todo. Si tu fichero es `.js` con `"type": "commonjs"` o `.cjs`, envuelve el código en una función `async` y llámala. Es el mismo motivo por el que `import` fallaba en la lección de módulos.
+
+## `try/catch`: el patrón limpio
+
+Con `async/await`, el manejo de errores vuelve a ser lo que era antes de las promesas: `try`, `catch`, `finally`.
+
+```js
+const falla = () => Promise.reject(new Error("la base de datos no responde"));
+
+async function guardar() {
+  try {
+    await falla();
+    console.log("no debería llegar");
+  } catch (error) {
+    console.log("recuperado:", error.message);
+  } finally {
+    console.log("cerrando la transacción");
+  }
+  console.log("la función sigue viva");
+}
+await guardar();
+```
+
+```
+recuperado: la base de datos no responde
+cerrando la transacción
+la función sigue viva
+```
+
+El `await` convierte un rechazo en una excepción normal, y a partir de ahí funciona el `catch` de siempre. Sin `.catch` encadenado, sin callbacks de error: el código se lee de arriba abajo.
+
+### `return await`, o el `catch` que no captura
+
+Hay una diferencia de dos palabras que cambia el comportamiento, y se ve mejor ejecutándola:
+
+```js
+async function sinAwait() {
+  try {
+    return Promise.reject(new Error("boom"));
+  } catch (error) {
+    return "capturado: " + error.message;
+  }
+}
+
+try {
+  console.log("sin await →", await sinAwait());
+} catch (error) {
+  console.log("sin await escapó:", error.message);
+}
+
+async function conAwait() {
+  try {
+    return await Promise.reject(new Error("boom"));
+  } catch (error) {
+    return "capturado: " + error.message;
+  }
+}
+console.log("con await →", await conAwait());
+```
+
+```
+sin await escapó: boom
+con await → capturado: boom
+```
+
+En la primera, `return` devuelve la promesa rechazada sin desenvolverla, así que el `catch` de dentro no la ve y el error escapa a quien llamó. En la segunda, `await` la desenvuelve dentro del `try` y el `catch` la recoge.
+
+La regla, con su excepción: normalmente `return` a secas está bien y `return await` es ruido. La excepción es exactamente esta —cuando lo devuelves desde dentro de un `try` que quiere capturar el error— y entonces `return await` no es opcional.
+
+## Cuando olvidas el `await`
+
+Un rechazo sin `catch` no es un aviso: es una excepción que nadie recoge, y Node no la deja pasar.
+
+```js
+async function guardar() {
+  const resultado = Promise.reject(new Error("se me olvidó el await"));
+  console.log("seguí sin esperar");
+}
+guardar();
+```
+
+```
+seguí sin esperar
+file:///tmp/l6/e.mjs:2
+  const resultado = Promise.reject(new Error("se me olvidó el await"));
+                                   ^
+
+Error: se me olvidó el await
+```
+
+Y el proceso **termina con código 1**. El resto de la traza es la pila, que aquí sobra; lo importante es que la promesa rechazada se quedó sin nadie que la mirara y Node decidió no seguir fingiendo que todo iba bien.
+
+Parece duro. Es lo correcto: un error asíncrono que se ignora es un error que aparecerá más tarde, en otro sitio y con otra forma —un dato incompleto, una transacción a medias—. Fallar rápido en el sitio del fallo es más barato que depurar sus consecuencias.
+
+## La última red: `unhandledRejection`
+
+Si quieres enterarte de esos casos sin que el proceso muera en mitad de la noche, existe un manejador global:
+
+```js
+process.on("unhandledRejection", (error) => {
+  console.log("última red:", error.message);
+});
+
+async function guardar() {
+  Promise.reject(new Error("se me olvidó el await"));
+  console.log("seguí sin esperar");
+}
+guardar();
+```
+
+```
+seguí sin esperar
+última red: se me olvidó el await
+```
+
+El proceso sobrevive. Y por eso mismo hay que usarlo con cuidado: **es una red, no un colchón**. Si el manejador se limita a imprimir y seguir, acabas con un servicio que ignora sus propios fallos y responde como si nada. Su sitio es la observabilidad —avisar a quien deba enterarse— no el perdón.
+
+## Bucles: `for...of` sí, `forEach` no
+
+Volvemos al código del principio, ahora con la alternativa correcta. Primero el que falla:
+
+```js
+console.log("antes");
+[10, 20, 30].forEach(async (ms) => {
+  await esperar(ms);
+  console.log("dentro:", ms);
+});
+console.log("después");
+```
+
+```
+antes
+después
+dentro: 10
+dentro: 20
+dentro: 30
+```
+
+Y ahora el que funciona:
+
+```js
+console.log("antes");
+for (const ms of [10, 20, 30]) {
+  await esperar(ms);
+  console.log("dentro:", ms);
+}
+console.log("después");
+```
+
+```
+antes
+dentro: 10
+dentro: 20
+dentro: 30
+después
+```
+
+`for...of` ejecuta una vuelta detrás de otra y el `await` funciona porque estás dentro de una función `async` de verdad. `forEach` no: llama a tu callback, no espera lo que devuelve y sigue. No hay forma de esperar el bucle entero, ni con `await` delante.
+
+Y si el orden no importa y quieres paralelismo, no es ninguno de los dos: es `Promise.all` con un `map`.
+
+```js
+const resultados = await Promise.all([10, 20, 30].map((ms) => esperar(ms, ms)));
+console.log("todos a la vez:", resultados);
+```
+
+```
+todos a la vez: [ 10, 20, 30 ]
+```
+
+Tres formas, tres comportamientos: `forEach` no espera, `for...of` espera en serie, `map` con `Promise.all` espera en paralelo.
+
+### Y fuera de los bucles pasa lo mismo
+
+`forEach` no es el único que ignora lo que devuelve un callback asíncrono. `setTimeout`, un manejador de eventos, un `server.on(...)`: ninguno espera tu promesa. Si esa promesa rechaza, nadie la recoge.
+
+```js
+setTimeout(async () => {
+  throw new Error("nadie recoge esto");
+}, 10);
+```
+
+```
+Error: nadie recoge esto
+```
+
+Y el proceso sale con código 1. La excepción no la ve `try/catch` de fuera, ni `unhandledRejection` del `setTimeout`: es una promesa huérfana. Cuando escribas un handler asíncrono en una API que no espera callbacks, el manejo de errores es tuyo, dentro del handler, siempre.
+
+## Un timeout con `Promise.race`
+
+La última pieza: cortar algo que tarda demasiado. `Promise.race` devuelve la **primera** promesa que se resuelva o rechace, y con eso se construye un límite de tiempo.
+
+```js
+const conTimeout = (promesa, ms) =>
+  Promise.race([promesa, esperar(ms).then(() => Promise.reject(new Error("timeout")))]);
+
+try {
+  console.log("lento:", await conTimeout(esperar(500, "datos"), 100));
+} catch (error) {
+  console.log("lento →", error.message);
+}
+
+try {
+  console.log("rápido:", await conTimeout(esperar(10, "datos"), 100));
+} catch (error) {
+  console.log("rápido →", error.message);
+}
+```
+
+```
+lento → timeout
+rápido: datos
+```
+
+Gana la primera: si el dato llega en 10 ms, sale el dato; si tarda 500 y el límite es 100, sale el `timeout`.
+
+Ojo con lo que esto **no** hace: no cancela la operación lenta. La petición sigue viva por detrás, gastando conexión y memoria; solo has dejado de esperarla. Cancelar de verdad es otra cosa, y tiene nombre propio.
+
+## Cancelar de verdad: `AbortSignal`
+
+El estándar para interrumpir algo en JavaScript es un `AbortController` y su señal. El control aborta; la señal se pasa a la operación, que tiene que haber aceptado escucharla.
+
+```js
+import { setTimeout as dormir } from "node:timers/promises";
+
+const control = new AbortController();
+setTimeout(() => control.abort(), 100);
+const inicio = Date.now();
+
+try {
+  await dormir(1000, "listo", { signal: control.signal });
+  console.log("no debería llegar");
+} catch (error) {
+  console.log("abortado a los", Date.now() - inicio, "ms ·", error.name);
+}
+```
+
+```
+abortado a los 100 ms · AbortError
+```
+
+Cien milisegundos después de arrancar, el temporizador de un segundo deja de esperar. La operación no se «cancela» por arte de magia: la API de `node:timers/promises` sabe leer `{ signal }` y corta cuando la señal se dispara. Si la API no acepta señal, no hay cancelación, solo paciencia.
+
+Para el caso más común —un límite de tiempo— hay un atajo que se ahorra el controlador:
+
+```js
+import { setTimeout as dormir } from "node:timers/promises";
+
+try {
+  await dormir(1000, "listo", { signal: AbortSignal.timeout(100) });
+} catch (error) {
+  console.log("timeout de serie ·", error.name);
+}
+```
+
+```
+timeout de serie · AbortError
+```
+
+Y una tercera pieza que evita comprobaciones a mano: `signal.throwIfAborted()` lanza el motivo del aborto si ya está disparado, con el motivo que tú hayas puesto. Es cómo se cancelan lecturas de fichero, `fetch`, streams y el trabajo en vuelo de un apagado ordenado: el `AbortController` se pasa de arriba abajo y cada capa comprueba su señal.
+
+## Problemas habituales
+
+### El proceso muere con `Error: ...` y código 1 sin que yo lance nada
+
+Un rechazo sin `catch` y sin `await`. Busca la promesa que creaste y no esperaste: casi siempre es un `await` que falta.
+
+### `forEach` con `async` no espera
+
+Es lo que hace `forEach`: no mira el valor que devuelve el callback. Cambia a `for...of` si quieres serie, o a `map` con `Promise.all` si quieres paralelo.
+
+### Mi endpoint tarda la suma de tres llamadas
+
+Las estás esperando una detrás de otra. Si son independientes, van en `Promise.all`.
+
+### `await` en el nivel superior no funciona en mi fichero
+
+El fichero no es un módulo ES. `"type": "module"` en el `package.json`, extensión `.mjs`, o envuélvelo en una función `async`.
+
+### Puse un `unhandledRejection` y ya no veo los errores
+
+Lo estás usando como colchón. El manejador debe avisar, no silenciar.
+
+## Qué te llevas de esta lección
+
+- Una función `async` siempre devuelve una promesa, con el valor o con el error.
+- `await` suspende la función actual, no el programa.
+- Si dos operaciones son independientes, van en `Promise.all`: 300 ms, no 900.
+- El `await` de nivel superior solo existe en módulos ES.
+- `try/catch/finally` vuelve a ser el patrón de errores, sin cadenas de `catch`.
+- Olvidar un `await` mata el proceso, y hace bien: el error no se puede perder.
+- `unhandledRejection` es una red de observabilidad, no un perdón.
+- `forEach` no espera; `for...of` espera en serie; `map` con `Promise.all`, en paralelo.
+- `Promise.race` da un timeout, pero no cancela nada.
+
+Con esto ya escribes asincronía legible. Lo que falta es el terreno donde vive: los objetos y módulos que Node te da para hablar con el sistema. El primero es `process`, y con él los globales, la librería estándar y las piezas que están ahí sin que las importes.
+
+¡Nunca dejes de programar!
