@@ -1,0 +1,363 @@
+---
+title: "Globals, modules and the standard library: the ground you work on"
+post_slug: "globals-modules-and-the-standard-library"
+date: "2026-11-23"
+excerpt: "process, Buffer, import.meta, package.json exports and the five runtime modules you actually use, with their real output."
+language: "en"
+categories: ["nodejs"]
+course: "nodejs-for-backend-developers"
+order: 7
+cover: "/images/tutorials/cabecera-nodejs-curso.jpg"
+i18n: "globales-modulos-y-libreria-estandar"
+---
+
+You open a file in somebody else's project and see this, without a single `import`:
+
+```js
+const port = process.env.PORT ?? 3000;
+const body = Buffer.from(req.body);
+const path = `${import.meta.dirname}/config.json`;
+```
+
+It works. `process`, `Buffer` and `import.meta` aren't imported because the runtime puts them there: they're globals or pseudo-globals. Knowing which ones exist, which ones you shouldn't touch, and what the standard library actually ships is the difference between "it works" and "I know what I'm holding".
+
+## What already exists without importing
+
+`process` is the object representing the running process. It's the front door to almost everything a server needs to know about itself:
+
+```js
+console.log("cwd:", process.cwd());
+console.log("pid is a number:", typeof process.pid);
+console.log("env.PATH set:", Boolean(process.env.PATH));
+```
+
+```
+cwd: /tmp/l7
+pid is a number: number
+env.PATH set: true
+```
+
+Three things there, in order of real-world use: `cwd()` is the directory you started the process from — **not** the file's directory, and that difference breaks scripts —; `pid` is the number identifying the process, useful when a log tells you "something" died and you need to know which; and `env` holds the environment variables, always as text and never as numbers: a `PORT=3000` is the string `"3000"` until you convert it.
+
+The fourth, `exit()`, isn't in the example on purpose: it ends the process on the spot, without waiting for output to flush or for pending promises to finish, and trying it inside a demo script takes the demo down with it. It belongs at the very end, in a CLI, not in the middle of a server.
+
+### `argv`: the first two positions aren't yours
+
+`process.argv` is an array holding the whole command line, and that's where the classic mistake starts: the first two positions aren't arguments.
+
+```js
+console.log("all of argv:", process.argv.length, "entries");
+console.log("yours start at 2:", process.argv.slice(2));
+```
+
+```
+all of argv: 4 entries
+yours start at 2: [ 'one', 'two' ]
+```
+
+Position `0` is the Node binary and `1` is the file you're running. What the user typed starts at `2`, which is why every script begins with `slice(2)`. Parsing those options — flags, values, `--help` — has its own runtime tool and its own lesson at the end of the course; today it's enough not to read the wrong position.
+
+Then `Buffer`, Node's way of handling bytes:
+
+```js
+const buffer = Buffer.from("hola", "utf8");
+
+console.log(buffer);
+console.log("length:", buffer.length);
+console.log("hex:", buffer.toString("hex"));
+console.log("from base64:", Buffer.from(buffer.toString("base64"), "base64").toString("utf8"));
+```
+
+```
+<Buffer 68 6f 6c 61>
+length: 4
+hex: 686f6c61
+from base64: hola
+```
+
+A `Buffer` is a `Uint8Array` with encoding superpowers: you tell it what format you're reading and which one you're writing. You'll meet it in files, in HTTP bodies, and in anything that isn't clean text.
+
+One rule that's security, not style: for new memory use `Buffer.alloc`, never `Buffer.allocUnsafe`. The second one doesn't wipe whatever was in that memory before, and if a token, a hash or another process's data comes out of it, no test will tell you.
+
+About `global`: it exists and it's the same object as `globalThis`, but don't use it for state. A global shared between modules is a singleton on steroids: impossible to test, impossible to reset between tests, and invisible in any reading of the code. If something must be unique, let the module that uses it declare it.
+
+## `__dirname` is gone, and there's a replacement
+
+In CommonJS, `__dirname` and `__filename` are strings holding the file's path. In an ES module they don't exist:
+
+```js
+console.log(__dirname);
+```
+
+```
+ReferenceError: __dirname is not defined in ES module scope
+```
+
+The modern substitute lives in `import.meta`, and for a couple of versions now it's direct:
+
+```js
+console.log("dirname:", import.meta.dirname);
+console.log("filename:", import.meta.filename);
+console.log("url:", import.meta.url);
+```
+
+```
+dirname: /tmp/l7
+filename: /tmp/l7/c.mjs
+url: file:///tmp/l7/c.mjs
+```
+
+`import.meta.url` has always been there, and it's a `file://` URL, not a path. For years you had to convert it with `fileURLToPath`; today `import.meta.dirname` and `import.meta.filename` save you the ritual. If you see that ritual in someone else's code, it predates them.
+
+And a warning that saves an afternoon: `cwd()` and `import.meta.dirname` are **not** the same thing. `cwd()` depends on where you launched the process; `import.meta.dirname`, on the file being executed. For a config file that lives next to your code you want the second; to respect the folder the user called you from, the first.
+
+## How Node resolves a module
+
+Two systems coexist, and you already know them: `import` is **static** — resolved before execution, hoisted to the top of the module, and the imports are live bindings to the original — while `require` is a function that runs when its turn comes.
+
+The practical difference is the cache. `require` stores every loaded module and returns **the same object** the second time:
+
+```js
+const a = require("./one.cjs");
+const b = require("./one.cjs");
+a.counter++;
+console.log("same reference:", a === b, "· counter:", b.counter);
+```
+
+```
+same reference: true · counter: 1
+```
+
+That explains half a dozen odd behaviours: why a module initialises once, why shared state persists, why in tests a cached module keeps data from the previous test. `import` caches too, with the same effect and different rules.
+
+### And `import` bindings are live
+
+I mentioned it in passing and it's worth seeing, because it surprises people: `import` doesn't copy the value, it links the variable. If the module changes its own value, whoever imported it sees the change.
+
+```js
+// counter.mjs
+export let total = 0;
+export const add = () => {
+  total++;
+};
+```
+
+```js
+// live.mjs
+import { total, add } from "./counter.mjs";
+console.log("before:", total);
+add();
+add();
+console.log("after:", total);
+```
+
+```
+before: 0
+after: 2
+```
+
+The importer can't reassign `total` — that's an error — but it does see its changes. One of those things that looks like magic until you test it, and it explains why exporting mutable state from a module works and why it's a bad idea.
+
+Then resolution: `node:fs` is always an internal module, `./something.js` is a path relative to the file, `express` is a package from `node_modules`. Nothing else. When something "can't find" a module, it's almost always one of those three categories mistaken for another.
+
+## `package.json`: the keys that actually decide
+
+Four matter to the runtime, and not equally.
+
+`type` you've seen: `"module"` or `"commonjs"`, and it decides how every `.js` is read. `engines` is executable documentation: it states which Node versions you support, and with `engine-strict` in npm it becomes an install error. `main` is the classic entry point and is close to folklore today: if there's an `exports`, `exports` wins.
+
+`exports` is the one that changes the game, because it **closes** the package: what isn't declared can't be imported.
+
+```json
+{
+  "name": "node-course",
+  "type": "module",
+  "exports": {
+    ".": "./index.js",
+    "./utils": "./src/utils.js"
+  }
+}
+```
+
+With that, `node-course/utils` works:
+
+```js
+import { add } from "node-course/utils";
+console.log("imported by name:", add(2, 3));
+```
+
+```
+imported by name: 5
+```
+
+And what isn't declared doesn't:
+
+```js
+import { secret } from "node-course/src/internal.js";
+```
+
+```
+Error [ERR_PACKAGE_PATH_NOT_EXPORTED]: Package subpath './src/internal.js' is not defined by "exports" in /tmp/l7p/package.json
+```
+
+That error is a feature, not an obstacle: it's how a package can refactor its insides without breaking anyone, because only what's declared is a contract.
+
+## Workspaces: when the monorepo earns its place
+
+A monorepo with `workspaces` is a root `package.json` declaring where the packages live, and npm links them to each other:
+
+```json
+{
+  "name": "monorepo-course",
+  "workspaces": ["packages/*"]
+}
+```
+
+After `npm install`, the result on disk is this:
+
+```
+node_modules/@course/api -> ../../packages/api
+node_modules/@course/core -> ../../packages/core
+```
+
+No copies: links to the real code. Which is why `packages/api` can import `@course/core` without its own `node_modules` folder: resolution walks up to the root. That's the famous _hoisting_, and it's the reason a dependency in a monorepo can "be there" without being where you think.
+
+When it earns its place: when two packages share code and you want to version them together. When it's three folders and a lie: when they share nothing and you've just moved `src/` one level down. A workspace adds shared resolution, per-package scripts and one more layer to search when something breaks; if that doesn't pay for itself, don't build it.
+
+## The standard library you'll actually use
+
+Node ships more than people think and less than it promises. These five modules turn up in any backend.
+
+**`node:os`** to know where you're running:
+
+```js
+import { cpus, totalmem, platform, arch } from "node:os";
+
+console.log("cpus:", cpus().length, "· platform:", platform(), arch());
+console.log("total memory (GB, rounded):", Math.round(totalmem() / 1024 ** 3));
+```
+
+```
+cpus: 12 · platform: linux x64
+total memory (GB, rounded): 31
+```
+
+Twelve cores, and your JavaScript runs on one. You knew that from the event loop lesson; now you know how to ask the system. The exact numbers are this machine's; yours will differ.
+
+**`node:url`** to take URLs apart without regular expressions:
+
+```js
+const url = new URL("https://fjp.es/en/tutorials/node?page=2&sort=date#install");
+console.log("host:", url.host);
+console.log("page:", url.searchParams.get("page"));
+url.searchParams.set("page", "3");
+console.log("new query:", url.search);
+```
+
+```
+host: fjp.es
+page: 2
+new query: ?page=3&sort=date
+```
+
+`URL` and `URLSearchParams` are the standard and they encode for you. The `querystring` module you'll find in older code is marked legacy: same job, fewer guarantees.
+
+**`node:crypto`** for anything that must not be predictable:
+
+```js
+import { createHash, randomBytes, randomUUID } from "node:crypto";
+
+console.log("uuid:", randomUUID().length, "characters");
+console.log("random:", randomBytes(4).toString("hex").length, "hex characters");
+console.log("sha256:", createHash("sha256").update("hola").digest("hex").slice(0, 16));
+```
+
+```
+uuid: 36 characters
+random: 8 hex characters
+sha256: b221d9dbb083a7f3
+```
+
+Two rules that aren't negotiable: for identifiers use `randomUUID()`; for tokens and secrets, `randomBytes()`. **Never `Math.random()`**: it isn't cryptographically secure and it's meant for simulations, not permissions.
+
+**`node:util`** to debug and to adapt old code: `format` prints with placeholders — `%s`, `%d` — and `inspect` shows nested objects at whatever depth you ask for. `promisify`, which you already used in the promises lesson, lives here too.
+
+**`node:events`**, the one holding half of Node together: almost everything that emits things — a server, a stream, a process — is an `EventEmitter`. And here's the piece left pending in the async lesson: `events.on` turns an emitter into an async iterable, and `for await...of` walks it like a list.
+
+```js
+import { EventEmitter, on } from "node:events";
+
+const emitter = new EventEmitter();
+setTimeout(() => {
+  emitter.emit("data", 1);
+  emitter.emit("data", 2);
+  emitter.emit("data", 3);
+}, 10);
+
+for await (const [value] of on(emitter, "data")) {
+  console.log("received:", value);
+  if (value === 3) break;
+}
+```
+
+```
+received: 1
+received: 2
+received: 3
+```
+
+That `for await` is the missing piece: it works with any async iterable, and `on()` builds one out of events.
+
+And a warning that reaches production dressed as an alarm: `EventEmitter` complains once it accumulates more than ten listeners for the same event.
+
+```js
+import { EventEmitter } from "node:events";
+
+const emitter = new EventEmitter();
+for (let i = 0; i < 11; i++) emitter.on("data", () => {});
+console.log("listeners:", emitter.listenerCount("data"));
+```
+
+```
+listeners: 11
+MaxListenersExceededWarning: Possible EventEmitter memory leak detected. 11 data listeners added to [EventEmitter]. MaxListeners is 10.
+```
+
+The warning arrives on `stderr` prefixed with `(node:PID)`. It isn't always a leak: sometimes you have ten legitimate listeners and the limit is simply too low, and then you raise it with `setMaxListeners`. But when it shows up uninvited, it usually means something subscribes on every request and never unsubscribes.
+
+## Common problems
+
+### `ReferenceError: __dirname is not defined`
+
+You're in an ES module. Use `import.meta.dirname`, or `fileURLToPath(import.meta.url)` on older Node versions.
+
+### A config file won't load when I run from another directory
+
+You used `cwd()` instead of the module's path. Switch to `import.meta.dirname`.
+
+### `ERR_PACKAGE_PATH_NOT_EXPORTED`
+
+The package has `exports` and you're entering through a path it never declared. Either use the public path, or the package has to open it.
+
+### A module keeps state between tests
+
+The module cache. `require` and `import` always return the same object; if it holds state, that state survives. The fix is not holding state in the module.
+
+### A "random" token generated with `Math.random()`
+
+It isn't really random and it's useless for security. `randomBytes()` or `randomUUID()`.
+
+## What you take from this lesson
+
+- `process`, `Buffer` and `import.meta` are there without importing; `global` exists and isn't for state.
+- `cwd()` and the module's path aren't the same thing, and confusing them breaks scripts.
+- `__dirname` doesn't exist in ESM: `import.meta.dirname` and `import.meta.filename` do.
+- `import` is static and links live; `require` executes and caches. Both cache.
+- `exports` closes the package: what isn't declared can't be imported.
+- Workspaces are links and shared resolution, not copies; _hoisting_ explains where dependencies end up.
+- `os`, `url`, `crypto`, `util` and `events` cover almost everything a backend asks the system.
+- `for await...of` walks async iterables, and `events.on` builds one.
+
+The next lesson is the part of the system you'll touch most: files, paths and environment variables, with `fs/promises`, `path` and the cancellation signals you already know.
+
+Never stop coding!
