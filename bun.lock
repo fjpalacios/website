@@ -27,7 +27,7 @@
         "@testing-library/dom": "^10.4.2",
         "@typescript-eslint/eslint-plugin": "^8.73.0",
         "@typescript-eslint/parser": "^8.72.2",
-        "@vitest/coverage-istanbul": "5.1.0",
+        "@vitest/coverage-istanbul": "5.1.1",
         "@vitest/ui": "^5.1.0",
         "eslint": "^10.14.0",
         "eslint-config-prettier": "^10.1.2",
@@ -587,7 +587,7 @@
 
     "@unrs/resolver-binding-win32-x64-msvc": ["@unrs/resolver-binding-win32-x64-msvc@1.11.1", "", { "os": "win32", "cpu": "x64" }, "sha512-lrW200hZdbfRtztbygyaq/6jP6AKE8qQN2KvPcJ+x7wiD038YtnYtZ82IMNJ69GJibV7bwL3y9FgK+5w/pYt6g=="],
 
-    "@vitest/coverage-istanbul": ["@vitest/coverage-istanbul@5.1.0", "", { "dependencies": { "@vitest/istanbul-lib-coverage": "^2.1.0", "@vitest/istanbul-lib-instrument": "^2.1.0", "@vitest/istanbul-lib-report": "^2.1.0", "@vitest/istanbul-lib-source-maps": "^2.1.0", "magicast": "^0.5.5", "obug": "^3.0.0", "tinyrainbow": "^3.2.0" }, "peerDependencies": { "vitest": "5.1.0" } }, "sha512-XRAUYsfdho+Az4K2eEWOVPedtIzUZbCl2eO9pOjNH5L1/niuy8cYwlK2W9RUtfwYZumoqic+4pRGqAvch/JSzg=="],
+    "@vitest/coverage-istanbul": ["@vitest/coverage-istanbul@5.1.1", "", { "dependencies": { "@vitest/istanbul-lib-coverage": "^2.1.0", "@vitest/istanbul-lib-instrument": "^2.1.0", "@vitest/istanbul-lib-report": "^2.1.0", "@vitest/istanbul-lib-source-maps": "^2.1.0", "magicast": "^0.5.5", "obug": "^3.0.0", "tinyrainbow": "^3.2.0" }, "peerDependencies": { "vitest": "5.1.1" } }, "sha512-bcn7v3+FrcH3E9RwzS7zIGo8RXAQL5n0Eu4B46jVUZGQ1LVoz4VmtAnm3eOvrjLFnv8AMWcfabMFmHdOFxXeIw=="],
 
     "@vitest/istanbul-lib-coverage": ["@vitest/istanbul-lib-coverage@2.1.0", "", {}, "sha512-WOjuS+xcjSIy7ruYBQ+9BUcV7XZQ0FyVcbWbWxW9TRx/kLGx5SQaeFRIFDJxjNplb6YsT7SpKo2zuXXUo91OIQ=="],
 
