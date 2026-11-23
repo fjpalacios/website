@@ -1,0 +1,378 @@
+---
+title: "Ficheros, rutas y variables de entorno: lo que tocas todos los días"
+post_slug: "ficheros-rutas-y-variables-de-entorno"
+date: "2026-11-24"
+excerpt: "Leer un log de 2 GB con readFile no es lento, es un bug. fs/promises, streams, join contra resolve y configuración que falla al arrancar."
+language: "es"
+categories: ["nodejs"]
+course: "nodejs-para-desarrolladores-backend"
+order: 8
+cover: "/images/tutorials/cabecera-nodejs-curso.jpg"
+i18n: "files-paths-and-environment-variables"
+---
+
+Un script lee un fichero de log de cien megas con `readFile`, tarda 58 milisegundos y funciona. En producción el fichero pesa dos gigas, el proceso se come dos gigas de memoria y el servicio muere por OOM. El código era el mismo.
+
+No es un problema de velocidad: `readFile` no es lento, es que **carga todo**. Y cargar todo está bien hasta que deja de estarlo. Esta lección va de eso, de las rutas que rompen en Windows y de la configuración que debería impedir que el servidor arranque mal.
+
+## `fs/promises`: el módulo que sí
+
+Node tiene dos caras del sistema de ficheros. La de callbacks (`node:fs`) y la de promesas (`node:fs/promises`). Usa la segunda: si te equivocas e importas `readFile` del módulo de callbacks, el error es este.
+
+```
+TypeError [ERR_INVALID_ARG_TYPE]: The "cb" argument must be of type function. Received undefined
+```
+
+Mezclar las dos es el primer tropiezo. Con la buena:
+
+```js
+import { readFile, readdir, writeFile, appendFile, mkdir } from "node:fs/promises";
+
+console.log("leído:", JSON.stringify((await readFile("./datos/uno.txt", "utf8")).trim()));
+
+await appendFile("./datos/uno.txt", "otra línea\n");
+console.log("tras append:", JSON.stringify(await readFile("./datos/uno.txt", "utf8")));
+
+await writeFile("./datos/nuevo.txt", "creado\n");
+await mkdir("./datos/c/d", { recursive: true });
+console.log("readdir recursivo:", (await readdir("./datos", { recursive: true })).sort());
+```
+
+```
+leído: "hola"
+tras append: "hola\notra línea\n"
+readdir recursivo: [ 'a', 'a/b', 'a/b/dos.txt', 'c', 'c/d', 'nuevo.txt', 'uno.txt' ]
+```
+
+Cuatro operaciones que hacen falta siempre. `appendFile` añade sin borrar; `writeFile` sobrescribe el fichero entero, no lo edita; `mkdir` con `{ recursive: true }` crea toda la jerarquía y no falla si ya existe. Y `readdir` con `recursive` te da el árbol completo, que es como se recorre un directorio sin escribir una función recursiva a mano.
+
+Dos avisos de `writeFile`: sobrescribe sin preguntar, así que un `writeFile` distraído vacía un fichero que tardaste una hora en generar; y su `{ flag: "wx" }` es la forma de escribir solo si no existe, que es como se evita pisar un dato sin querer.
+
+### Escribir sin dejar el fichero a medias
+
+`writeFile` no es atómico: si el proceso muere a mitad, deja un fichero truncado. Y un fichero de configuración truncado es peor que no tenerlo, porque el que lo lee no sabe si está incompleto.
+
+El patrón que lo evita son dos líneas: escribe en un temporal y renombra.
+
+```js
+import { writeFile, rename, readFile, stat } from "node:fs/promises";
+
+const destino = "./config.json";
+await writeFile(`${destino}.tmp`, JSON.stringify({ puerto: 3001 }, null, 2));
+await rename(`${destino}.tmp`, destino);
+
+const info = await stat(destino);
+console.log("tras rename:", (await readFile(destino, "utf8")).replace(/\s+/g, " "));
+console.log("es fichero:", info.isFile(), "· bytes:", info.size);
+```
+
+```
+tras rename: { "puerto": 3001 }
+es fichero: true · bytes: 20
+```
+
+`rename` sustituye el destino sin preguntar y, dentro del mismo sistema de ficheros, es atómico: quien lea `config.json` ve la versión vieja o la nueva, nunca media. Si escribes el temporal en `/tmp` y el destino en otro sistema, el renombrado copia y deja de ser atómico; por eso el temporal va **al lado** del destino.
+
+Ese `stat` es el otro módulo que falta: `stat` te da tamaño, fechas y si es un fichero o un directorio. `info.isFile()`, `info.size`, `info.mtime`. Todo lo que necesitas para decidir sin abrir nada.
+
+## Los errores se pueden tratar, y tienen nombre
+
+Un error de fichero no es una caja negra: lleva un `code` que puedes comparar.
+
+```js
+import { readFile, mkdir } from "node:fs/promises";
+
+for (const [etiqueta, fn] of [
+  ["no existe", () => readFile("./no-esta.txt", "utf8")],
+  ["ya existe", () => mkdir("./datos")],
+]) {
+  try {
+    await fn();
+  } catch (error) {
+    console.log(etiqueta, "→", error.code, "·", error.message);
+  }
+}
+```
+
+```
+no existe → ENOENT · ENOENT: no such file or directory, open './no-esta.txt'
+ya existe → EEXIST · EEXIST: file already exists, mkdir './datos'
+```
+
+`ENOENT` es «no está», `EEXIST` es «ya está», `EACCES` es «no tienes permiso». Con el `code` puedes decidir: si el fichero de configuración no existe, uso los valores por defecto y aviso; si no tengo permisos, es un error de despliegue y hay que fallar. Comparar por el mensaje de texto es frágil; por el `code`, no.
+
+### No compruebes si existe: inténtalo
+
+Hay un `existsSync` en Node y es una trampa. Entre tu comprobación y tu lectura hay una ventana en la que el fichero puede desaparecer: comprobar y luego usar es una carrera, aunque dure microsegundos. El patrón correcto es intentar y tratar el `ENOENT`.
+
+```js
+import { readFile } from "node:fs/promises";
+
+async function leerSiExiste(ruta) {
+  try {
+    return await readFile(ruta, "utf8");
+  } catch (error) {
+    if (error.code === "ENOENT") return null;
+    throw error;
+  }
+}
+
+console.log("config.json:", await leerSiExiste("./config.json"));
+console.log("no-esta.json:", await leerSiExiste("./no-esta.json"));
+```
+
+```
+config.json: {
+  "puerto": 3001
+}
+no-esta.json: null
+```
+
+Una operación en vez de dos, y sin ventana. El `throw` de la última línea es la mitad importante: solo el «no está» se convierte en `null`; un `EACCES` sigue subiendo, porque no tener permisos no es lo mismo que no tener fichero.
+
+## Ficheros grandes: leer todo es un bug
+
+Aquí está la afirmación de la introducción, medida. Un fichero de 96 MB, dos formas de leerlo, memoria del proceso al terminar:
+
+| Forma                       | Memoria residente | Tiempo |
+| --------------------------- | ----------------- | ------ |
+| `readFile`                  | **176 MB**        | 58 ms  |
+| `for await` sobre un stream | **102 MB**        | 141 ms |
+
+Partíamos de 81 MB, así que `readFile` añadió unos 95 MB —el fichero entero— y el stream unos 21, el tamaño de un trozo. Y ojo con la segunda columna: el stream **tarda más del doble**. No es magia, es un intercambio, y en un servidor la memoria escasea antes que el tiempo.
+
+Las dos filas de la tabla son **dos ejecuciones distintas**, y ahí está la gracia: en el mismo proceso, el buffer de `readFile` sigue vivo cuando empiezas a hacer streaming y la comparación no vale.
+
+```js
+// leer-todo.mjs
+import { readFile } from "node:fs/promises";
+
+const mb = (n) => Math.round(n / 1024 / 1024) + " MB";
+const t0 = performance.now();
+const contenido = await readFile("./grande.log");
+
+console.log(
+  "readFile →",
+  mb(process.memoryUsage().rss),
+  "·",
+  Math.round(performance.now() - t0),
+  "ms · leídos",
+  mb(contenido.length),
+);
+```
+
+```
+readFile → 176 MB · 58 ms · leídos 95 MB
+```
+
+```js
+// por-trozos.mjs
+import { createReadStream } from "node:fs";
+
+const mb = (n) => Math.round(n / 1024 / 1024) + " MB";
+const t0 = performance.now();
+let total = 0;
+for await (const trozo of createReadStream("./grande.log")) total += trozo.length;
+
+console.log(
+  "stream →",
+  mb(process.memoryUsage().rss),
+  "·",
+  Math.round(performance.now() - t0),
+  "ms · leídos",
+  mb(total),
+);
+```
+
+```
+stream → 102 MB · 141 ms · leídos 95 MB
+```
+
+Un stream entrega trozos de un tamaño fijo y no pide el siguiente hasta que has terminado con el anterior. Eso es la **backpressure**: si tu consumidor es lento, la lectura se frena en vez de acumular en memoria. Y `for await...of` —el que aprendiste con `events.on`— es la forma más corta de consumirlo.
+
+Para el caso de siempre, copiar un stream a un fichero, hay una función que se encarga de todo:
+
+```js
+import { createReadStream, createWriteStream, statSync } from "node:fs";
+import { pipeline } from "node:stream/promises";
+import { createGzip } from "node:zlib";
+
+await pipeline(createReadStream("./grande.log"), createGzip(), createWriteStream("./grande.log.gz"));
+
+const mb = (bytes) => Math.round(bytes / 1e6) + " MB";
+const kb = (bytes) => Math.round(bytes / 1e3) + " KB";
+console.log("comprimido:", mb(statSync("./grande.log").size), "→", kb(statSync("./grande.log.gz").size));
+```
+
+```
+comprimido: 100 MB → 97 KB
+```
+
+`pipeline` conecta las tres piezas, propaga los errores y cierra lo que abrió. Encadenar `.pipe()` a mano hace lo mismo hasta que algo falla, y entonces deja ficheros abiertos y promesas colgando.
+
+Y para el caso concreto de un log —muchas líneas, ninguna gigante— hay una pieza que convierte el stream en líneas:
+
+```js
+import { createReadStream } from "node:fs";
+import { createInterface } from "node:readline";
+
+const rl = createInterface({ input: createReadStream("./log.txt"), crlfDelay: Infinity });
+
+let n = 0;
+for await (const linea of rl) {
+  console.log(++n, linea);
+}
+```
+
+```
+1 linea uno
+2 linea dos
+3 linea tres
+```
+
+`readline` corta por saltos de línea sin cargar el fichero y se consume con el mismo `for await` de todo lo demás. Procesar un log de dos gigas línea a línea es exactamente esto; `split("\n")` sobre el contenido entero es exactamente el bug de la introducción.
+
+## Cancelar una lectura
+
+En la lección de asincronía viste el `AbortController`. Aquí tiene su primer uso real: `readFile` acepta `{ signal }` y se puede interrumpir.
+
+```js
+import { readFile } from "node:fs/promises";
+
+const control = new AbortController();
+control.abort();
+
+try {
+  await readFile("./grande.log", { signal: control.signal });
+  console.log("no debería llegar");
+} catch (error) {
+  console.log("lectura cancelada →", error.name + ": " + error.message);
+}
+```
+
+```
+lectura cancelada → AbortError: The operation was aborted
+```
+
+Parece trivial con el controlador ya abortado, y es exactamente lo que necesitas en producción: cuando llega la señal de apagado, abortas el controlador y todas las lecturas en vuelo se cortan solas.
+
+## Rutas: `join` concatena, `resolve` decide
+
+Dos funciones que parecen la misma y no lo son.
+
+```js
+import { join, resolve, dirname, basename, extname } from "node:path";
+
+console.log("join relativo:", join("datos", "a", "..", "uno.txt"));
+console.log("resolve relativo:", resolve("datos", "uno.txt"));
+console.log("dirname:", dirname("/var/log/app/error.log"));
+console.log("basename:", basename("/var/log/app/error.log"));
+console.log("extname:", extname("/var/log/app/error.log"));
+```
+
+```
+join relativo: datos/uno.txt
+resolve relativo: /tmp/l8/datos/uno.txt
+dirname: /var/log/app
+basename: error.log
+extname: .log
+```
+
+`join` une y normaliza: se come el `..` y devuelve una ruta **relativa** si le diste piezas relativas. `resolve` hace lo mismo y además la convierte en absoluta contra el directorio de trabajo. Esa es toda la diferencia, y es la que hace que `join` sea predecible y `resolve` dependa de dónde lanzaste el proceso.
+
+Regla: para construir rutas dentro de tu proyecto, `join`. Para obtener una ruta absoluta de algo que el usuario te dio, `resolve`. Y nunca concatenes con `+`.
+
+Las tres de siempre parten de una ruta: `dirname` se queda con la carpeta, `basename` con el nombre, `extname` con la extensión. Sirven para renombrar `foto.jpeg` a `foto.webp`, para sacar el slug de una URL transformada en fichero, para comprobar que un fichero subido es lo que dice ser.
+
+Y lo de Windows: escribir `"carpetas/archivo.txt"` a mano funciona en Linux y macOS, y en Windows también **casi siempre**, porque Windows acepta las barras normales. Hasta que no. Usa `join` y deja que el módulo ponga el separador correcto; te ahorra el bug que solo aparece en la máquina de un compañero.
+
+Si vienes de Python, `path` es tu `pathlib`, con menos azúcar: no hay objetos `Path`, son funciones que reciben cadenas y devuelven cadenas. La comparación útil es que `resolve` hace lo que `Path.resolve()`, y `join` lo que el operador `/`.
+
+## Variables de entorno
+
+`process.env` es un objeto con las variables de entorno del proceso, y **todo son cadenas**. No hay números, no hay booleanos, no hay validación.
+
+```js
+console.log("PORT:", process.env.PORT, "· tipo:", typeof process.env.PORT);
+```
+
+```
+PORT: undefined · tipo: undefined
+```
+
+No está, y no pasa nada. Ese es el problema: `undefined` se propaga hasta que algo falla tres capas más abajo con un mensaje que no menciona la configuración.
+
+Para cargar un `.env` sin instalar nada, el runtime lo trae desde hace un par de versiones:
+
+```bash
+node --env-file=.env env.mjs
+```
+
+```
+PORT: 3001 · tipo: string
+APP_NAME: curso-node
+```
+
+`--env-file` da error si el fichero no existe, lo cual está bien en producción; `--env-file-if-exists` no, y es lo que quieres en local. Y si ves `dotenv` en un proyecto, es la forma antigua de hacer lo mismo: sigue funcionando y ya no hace falta.
+
+Dos reglas que no son negociables:
+
+- **El `.env` no se commitea nunca.** Lleva secretos. Lo que se commitea es `.env.example`, con las mismas claves y valores falsos, que es el contrato: quien clone el repo sabe qué necesita.
+- **La configuración se valida al arrancar.** Si falta `DATABASE_URL`, el proceso debe morir al principio, no a la tercera petición.
+
+```js
+const puerto = Number(process.env.PORT ?? 3000);
+if (!Number.isInteger(puerto) || puerto < 1 || puerto > 65535) {
+  console.error("PORT inválido:", process.env.PORT);
+  process.exit(1);
+}
+console.log("arrancando en el puerto", puerto);
+```
+
+```
+PORT inválido: undefined
+```
+
+Ese `exit(1)` es el único sitio donde `process.exit` está justificado: antes de tener nada que romper. Pasado ese punto, se cierra con orden.
+
+## Problemas habituales
+
+### El proceso se queda sin memoria leyendo un fichero
+
+`readFile` carga todo. Si el tamaño no está acotado, usa `createReadStream` y `for await`, o `pipeline`.
+
+### `ENOENT` en un fichero que existe
+
+Ruta relativa resuelta contra `cwd()`, no contra tu módulo. Usa `join(import.meta.dirname, ...)`.
+
+### Funciona en Linux y falla en Windows
+
+Rutas concatenadas a mano. `join` pone el separador; tú no.
+
+### Un `readFile` me devuelve un `Buffer` y el texto sale raro
+
+Sin el segundo argumento (`"utf8"`) obtienes bytes. Con él, texto.
+
+### `process.env.PORT` es `"3000"` y `+ 1` da `"30001"`
+
+Todo es cadena. Convierte con `Number()` y valida el resultado.
+
+### El servidor arranca con configuración incompleta y falla más tarde
+
+No validaste al inicio. Falla pronto y con un mensaje que diga qué variable falta.
+
+## Qué te llevas de esta lección
+
+- `node:fs/promises` para todo; el módulo de callbacks es la otra cara.
+- `readFile` carga el fichero entero: 95 MB de memoria para un fichero de 95 MB.
+- Los streams leen por trozos, con backpressure, y cuestan algo más de tiempo.
+- `pipeline` conecta y cierra por ti; `for await` consume un stream sin ceremonia.
+- `readFile` acepta `{ signal }`: el `AbortController` de la lección anterior sirve para cortar lecturas.
+- `join` concatena y normaliza; `resolve` además hace absoluta contra `cwd()`.
+- `process.env` es todo cadenas: convierte y valida.
+- `--env-file` sustituye a `dotenv`; `.env` no se commitea, `.env.example` sí.
+- La configuración se valida al arrancar y el proceso muere ahí si está mal.
+
+Con esto ya sabes leer y escribir en el sistema sin romperlo, y arrancar con configuración sana. Lo siguiente es el motivo por el que estás aquí: un servidor HTTP, primero con el módulo `http` a pelo y luego con un framework, para entender qué hace cada uno.
+
+¡Nunca dejes de programar!
