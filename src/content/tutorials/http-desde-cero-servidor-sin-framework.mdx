@@ -1,0 +1,292 @@
+---
+title: "HTTP desde cero: un servidor sin framework"
+post_slug: "http-desde-cero-servidor-sin-framework"
+date: "2026-11-25"
+excerpt: "createServer, leer el cuerpo a mano, un router con un Map y por qué Express acaba siendo la opción: HTTP a pelo, con sus salidas reales."
+language: "es"
+categories: ["nodejs"]
+course: "nodejs-para-desarrolladores-backend"
+order: 9
+cover: "/images/tutorials/cabecera-nodejs-curso.jpg"
+i18n: "http-from-scratch-a-server-without-a-framework"
+---
+
+Todo el curso has estado delegando la espera. Ahora toca usarla para lo que Node se inventó: atender peticiones.
+
+Y antes de que nadie te venda un framework, hay una pregunta que solo se responde con el módulo `http` a pelo: ¿qué hace Express por ti? Esta lección lo enseña haciendo lo mismo sin él, con sus limitaciones incluidas. La más útil aparece en la primera prueba: pedir `/saludo` con `PUT` devuelve **404**, no «método no permitido», porque un router de tres líneas no distingue las dos cosas.
+
+## El servidor más pequeño
+
+```js
+import { createServer } from "node:http";
+
+const servidor = createServer((req, res) => {
+  res.writeHead(200, { "Content-Type": "text/plain; charset=utf-8" });
+  res.end("hola\n");
+});
+
+servidor.listen(3123, () => console.log("escuchando en 3123"));
+```
+
+Dos líneas de verdad: `createServer` recibe una función, `listen` abre el puerto. Y responde:
+
+```bash
+curl -s -i http://localhost:3123/
+```
+
+```
+HTTP/1.1 200 OK
+Content-Type: text/plain; charset=utf-8
+Date: Sat, 14 Nov 2026 21:09:41 GMT
+Connection: keep-alive
+Keep-Alive: timeout=5
+Transfer-Encoding: chunked
+```
+
+Fíjate en lo que **no** escribiste: la línea de estado, la fecha, `Connection` y ese `Transfer-Encoding: chunked` que aparece porque no diste un `Content-Length`. Node rellena lo que puede; lo que decides tú son el código, las cabeceras que te importan y el cuerpo.
+
+Ese callback se ejecuta **una vez por petición**, no una vez por conexión. Es la diferencia con un servidor de sockets y la razón por la que el event loop del curso importa aquí: cien peticiones son cien llamadas, no cien hilos.
+
+## Qué trae la petición
+
+`req` es un `IncomingMessage`, y lo que necesitas está en tres sitios: método, URL y cabeceras.
+
+```js
+const url = new URL(req.url, `http://${req.headers.host}`);
+const nombre = url.searchParams.get("nombre") ?? "mundo";
+```
+
+Ese `new URL` no es ceremonia: `req.url` es solo la parte de la ruta y la query —`/saludo?nombre=Ada`—, sin host ni protocolo. Para construir un `URL` hace falta una base, y `req.headers.host` la tiene. Con el objeto ya puedes usar `searchParams`, que decodifica y codifica por ti.
+
+```bash
+curl -s "http://localhost:3123/saludo?nombre=Ada"
+```
+
+```
+{"saludo":"hola Ada"}
+```
+
+Las cabeceras llegan en `req.headers`, en minúsculas y como cadenas: `host`, `user-agent`, `content-type`, `authorization`. Todo lo que un cliente quiera contarte está ahí, sin validar.
+
+## El cuerpo hay que leerlo tú
+
+Aquí está la primera diferencia seria con un framework. `req` es un **stream**: el cuerpo no está en una propiedad, llega por trozos.
+
+```js
+rutas.set("POST /eco", async (req, res) => {
+  let cuerpo = "";
+  for await (const trozo of req) cuerpo += trozo;
+
+  try {
+    const datos = JSON.parse(cuerpo);
+    res.writeHead(200, { "Content-Type": "application/json" });
+    res.end(JSON.stringify({ recibido: datos }));
+  } catch {
+    res.writeHead(400, { "Content-Type": "application/json" });
+    res.end(JSON.stringify({ error: "JSON inválido" }));
+  }
+});
+```
+
+```bash
+curl -s -X POST -H "Content-Type: application/json" -d '{"libro":"Emma"}' http://localhost:3123/eco
+```
+
+```
+{"recibido":{"libro":"Emma"}}
+```
+
+Y con basura:
+
+```bash
+curl -s -i -X POST -d 'no soy json' http://localhost:3123/eco
+```
+
+```
+HTTP/1.1 400 Bad Request
+Content-Type: application/json
+```
+
+Tres cosas que estás haciendo a mano y que un framework te daría hechas: acumular el stream, parsear, y decidir qué código devolver cuando el JSON está roto. Más una cuarta que no se ve: **no hay límite de tamaño**. Alguien puede mandarte dos gigas de cuerpo y tu servidor los acumula en una cadena hasta que el proceso muere. Un framework te pone un límite por defecto; a pelo, el límite lo pones tú.
+
+Y un detalle medido que corrige la intuición: si **no** lees el cuerpo, la respuesta sigue saliendo bien (200 en 23 ms con dos megas enviados). No se rompe nada. Simplemente pierdes el dato, y Node tiene que vaciar el socket igualmente. No leer el cuerpo no es un error del protocolo: es un dato que se tira.
+
+## La respuesta: códigos y cabeceras
+
+`res` es un `ServerResponse`, y tiene dos formas de escribir: `writeHead(código, cabeceras)` de una vez, o `setHeader` antes y `writeHead` después. El cuerpo va en `end()`.
+
+El código de estado es información para el cliente, no para ti. `200` es «aquí está», `201` «lo creé», `400` «tu petición está mal», `404` «no existe esa ruta», `500` «me rompí yo». Elegir mal el código convierte un bug de cliente en una alerta de servidor.
+
+Y el `Content-Length`, que es donde se ve si has pensado en el cliente:
+
+```js
+const cuerpo = "respuesta fija\n";
+res.writeHead(200, {
+  "Content-Type": "text/plain; charset=utf-8",
+  "Content-Length": Buffer.byteLength(cuerpo),
+});
+res.end(cuerpo);
+```
+
+```
+Content-Type: text/plain; charset=utf-8
+Content-Length: 15
+```
+
+Sin `Content-Length`, Node usa `Transfer-Encoding: chunked` y el cliente va recibiendo trozos sin saber cuánto falta. Con él, el cliente sabe el tamaño exacto desde el principio. `Buffer.byteLength` y no `.length`: en UTF-8, «ñ» son dos bytes y una letra.
+
+## Un router en un `Map`
+
+`createServer` no sabe de rutas: te da todas las peticiones y tú decides. Con el `Map` de la lección de módulos, un router cabe en diez líneas.
+
+```js
+const rutas = new Map();
+
+rutas.set("GET /", (req, res) => {
+  res.writeHead(200, { "Content-Type": "text/plain; charset=utf-8" });
+  res.end("hola\n");
+});
+
+rutas.set("GET /saludo", (req, res) => {
+  // …
+});
+
+const servidor = createServer(async (req, res) => {
+  const ruta = new URL(req.url, `http://${req.headers.host}`).pathname;
+  const manejador = rutas.get(`${req.method} ${ruta}`);
+
+  if (!manejador) {
+    res.writeHead(404, { "Content-Type": "text/plain; charset=utf-8" });
+    res.end("no encontrado\n");
+    return;
+  }
+  await manejador(req, res);
+});
+```
+
+Funciona, y ahí empieza el problema. La clave es `"MÉTODO ruta"`, así que:
+
+- Un `PUT /saludo` no encuentra nada y devuelve **404**, cuando lo correcto sería **405 Method Not Allowed**. Medido, y es la respuesta que da este router.
+
+Y aquí toca corregir una suposición antes de idealizar el framework: **Express tampoco distingue los dos casos por defecto**. En la lección siguiente, el mismo `PUT` a una ruta que solo admite `GET` devuelve también 404. El 405 lo escribe quien lo quiere: ni el router de tres líneas ni el framework de sesenta y cinco paquetes te lo regalan.
+
+- No hay parámetros en la ruta: `/libros/42` no existe como concepto. Tendrías que partir la cadena y comparar prefijos.
+- No hay middleware: nada que se ejecute antes o después de todas las rutas.
+- No hay manejo de errores: si un manejador lanza, el `await` propaga y la petición se queda sin respuesta hasta que el cliente corta.
+
+Eso es exactamente lo que Express te resuelve, y por eso la siguiente lección lo desmonta en vez de presentarlo como magia. Pero ahora sabes qué hay debajo, que es la diferencia entre usar una herramienta y creer en ella.
+
+## Conexiones que se reutilizan
+
+Una petición HTTP no tiene por qué abrir una conexión TCP nueva. Por defecto, HTTP/1.1 mantiene la conexión abierta y la reutiliza, y eso se ve en las cabeceras que viste al principio: `Connection: keep-alive` y `Keep-Alive: timeout=5`.
+
+Se ve mejor con `curl`, pidiendo dos URLs en una sola invocación.
+
+```bash
+curl -v http://localhost:3124/a http://localhost:3124/b
+```
+
+```
+* Connection #0 to host localhost:3124 left intact
+* Connection #0 to host localhost:3124 left intact
+```
+
+La misma conexión `#0` para las dos peticiones: no hubo handshake TCP ni TLS nuevo. En un servicio con carga esto es la diferencia entre una conexión por petición y una por cliente, y explica por qué matar servidores a lo bruto deja conexiones en un estado que nadie espera.
+
+## El cliente que nunca termina de hablar
+
+Un servidor HTTP no solo espera datos: espera **cabeceras completas** antes de poder responderte. Un cliente puede abrir una conexión, mandar media cabecera y quedarse callado indefinidamente. Con suficientes clientes así, te quedas sin puertos sin haber recibido una sola petición válida.
+
+Node trae los límites puestos, y aquí viene el detalle que no está en casi ningún tutorial: **no son temporizadores por conexión, son comprobaciones periódicas**.
+
+```js
+const servidor = createServer((req, res) => {
+  res.end("ok\n");
+});
+
+servidor.headersTimeout = 300;
+servidor.connectionsCheckingInterval = 50;
+```
+
+Con eso, un cliente que manda media cabecera y se calla recibe esto:
+
+```
+cerrado tras 320 ms · recibido: HTTP/1.1 408 Request Timeout
+```
+
+Un `408`, que es el código correcto y que casi nadie implementa a mano. Pero prueba a quitar la segunda línea: con `headersTimeout = 300` y el intervalo por defecto, el cliente **seguía conectado a los cinco segundos**. El intervalo de comprobación por defecto es de treinta segundos, así que el límite se aplica cuando toca revisar, no cuando se cumple.
+
+Los tres valores que importan: `headersTimeout` (60 s por defecto) para las cabeceras, `requestTimeout` (5 min) para el cuerpo entero, y `keepAliveTimeout` (5 s) para la conexión ociosa que se queda abierta entre peticiones. En producción, además, hay casi siempre un proxy delante con sus propios timeouts, que suele disparar antes que el tuyo.
+
+## CORS, lo mínimo
+
+Si una página de `fjp.es` llama a una API en `api.fjp.es`, el navegador bloquea la respuesta salvo que el servidor lo permita explícitamente. Eso es CORS, y a pelo es una cabecera y un caso especial.
+
+```js
+res.setHeader("Access-Control-Allow-Origin", "*");
+
+if (req.method === "OPTIONS") {
+  res.writeHead(204, {
+    "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
+    "Access-Control-Allow-Headers": "Content-Type",
+  });
+  res.end();
+  return;
+}
+```
+
+```bash
+curl -s -i -X OPTIONS -H "Origin: https://fjp.es" http://localhost:3124/
+```
+
+```
+HTTP/1.1 204 No Content
+Access-Control-Allow-Origin: *
+Access-Control-Allow-Methods: GET, POST, OPTIONS
+Access-Control-Allow-Headers: Content-Type
+```
+
+Ese `OPTIONS` es el _preflight_: el navegador pregunta antes de mandar la petición de verdad. `204` y sin cuerpo, porque no hay nada que devolver, solo permisos. Y `*` en `Allow-Origin` significa «cualquiera», que está bien para una API pública y mal para una que lleva cookies.
+
+## Problemas habituales
+
+### `res.end()` no devuelve nada al cliente
+
+Se te olvidó llamarlo, o llamaste a `writeHead` después de escribir el cuerpo. Una petición sin `end()` deja al cliente esperando hasta el timeout.
+
+### `Cannot set headers after they are sent`
+
+Llamaste a `writeHead` dos veces, o escribiste el cuerpo antes de las cabeceras. Las cabeceras van antes del cuerpo, siempre.
+
+### El cuerpo llega vacío
+
+No lo leíste. `req` es un stream: sin `for await` o sin `req.on("data")`, no hay cuerpo.
+
+### `JSON.parse` revienta con peticiones reales
+
+No comprobaste el `Content-Type` ni capturaste el error. Un cuerpo vacío o mal formado no es una excepción del servidor: es un `400`.
+
+### Muchas conexiones abiertas y ninguna petición completada
+
+Clientes lentos que no terminan de mandar las cabeceras. Sin `headersTimeout` ajustado y sin un intervalo de comprobación corto, esas conexiones ocupan puertos hasta que algo externo las corta.
+
+### Funciona con `curl` y falla desde el navegador
+
+CORS. El navegador exige las cabeceras y, para peticiones no simples, el `OPTIONS` previo.
+
+## Qué te llevas de esta lección
+
+- `createServer` da una función por petición, con `req` y `res`, y no sabe nada de rutas.
+- `req.url` es ruta y query; para `URL` hace falta una base, y `req.headers.host` la da.
+- El cuerpo es un stream: se lee con `for await`, y el límite de tamaño lo pones tú.
+- No leer el cuerpo no rompe la respuesta: pierdes el dato.
+- `Content-Length` frente a `chunked`, y por qué se calcula con `Buffer.byteLength`.
+- Un router es un `Map` con la clave `"MÉTODO ruta"`, y por eso un método equivocado devuelve 404 en vez de 405. Express tampoco lo distingue: el 405 lo pones tú.
+- Sin middleware ni manejo de errores, ese router se queda corto en cuanto crece.
+- HTTP/1.1 reutiliza conexiones; `curl -v` lo demuestra con la misma conexión dos veces.
+- CORS a mano es una cabecera y un `OPTIONS` que responde `204`.
+- Los timeouts del servidor se aplican por comprobación periódica, no por conexión: sin ajustar `connectionsCheckingInterval`, un `headersTimeout` corto no hace nada.
+
+Ahora tienes el suelo. La siguiente lección pone Express encima y lo desmonta: qué hace exactamente cada pieza, qué te ahorra y qué te esconde. Después de haber escrito el router a mano, la comparación se lee de otra manera.
+
+¡Nunca dejes de programar!
