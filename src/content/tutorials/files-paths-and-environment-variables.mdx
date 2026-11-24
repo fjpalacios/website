@@ -1,0 +1,374 @@
+---
+title: "Files, paths and environment variables: what you touch every day"
+post_slug: "files-paths-and-environment-variables"
+date: "2026-11-24"
+excerpt: "Reading a 2 GB log with readFile isn't slow, it's a bug. fs/promises, streams, join versus resolve, and configuration that fails at startup."
+language: "en"
+categories: ["nodejs"]
+course: "nodejs-for-backend-developers"
+order: 8
+cover: "/images/tutorials/cabecera-nodejs-curso.jpg"
+i18n: "ficheros-rutas-y-variables-de-entorno"
+---
+
+A script reads a hundred-megabyte log file with `readFile`, takes 58 milliseconds and works. In production the file is two gigabytes, the process eats two gigabytes of memory and the service dies of OOM. Same code.
+
+It isn't a speed problem: `readFile` isn't slow, it just **loads everything**. And loading everything is fine until it isn't. This lesson is about that, about the paths that break on Windows, and about the configuration that should stop a server from starting wrong.
+
+## `fs/promises`: the module you want
+
+Node has two faces of the file system. The callback one (`node:fs`) and the promise one (`node:fs/promises`). Use the second: import `readFile` from the callback module by mistake and this is the error.
+
+```
+TypeError [ERR_INVALID_ARG_TYPE]: The "cb" argument must be of type function. Received undefined
+```
+
+Mixing the two is the first stumble. With the right one:
+
+```js
+import { readFile, readdir, writeFile, appendFile, mkdir } from "node:fs/promises";
+
+console.log("read:", JSON.stringify((await readFile("./data/one.txt", "utf8")).trim()));
+
+await appendFile("./data/one.txt", "another line\n");
+console.log("after append:", JSON.stringify(await readFile("./data/one.txt", "utf8")));
+
+await writeFile("./data/new.txt", "created\n");
+await mkdir("./data/c/d", { recursive: true });
+console.log("recursive readdir:", (await readdir("./data", { recursive: true })).sort());
+```
+
+```
+read: "hola"
+after append: "hola\nanother line\n"
+recursive readdir: [ 'a', 'a/b', 'c', 'c/d', 'new.txt', 'one.txt' ]
+```
+
+Four operations you always need. `appendFile` adds without erasing; `writeFile` overwrites the whole file, it doesn't edit it; `mkdir` with `{ recursive: true }` creates the whole hierarchy and doesn't fail if it's already there. And `readdir` with `recursive` gives you the full tree, which is how you walk a directory without writing a recursive function by hand.
+
+Two warnings about `writeFile`: it overwrites without asking, so one distracted call empties a file that took you an hour to generate; and `{ flag: "wx" }` is how you write only when the file doesn't exist, which is how you avoid trampling a datum by accident.
+
+### Writing without leaving the file half-done
+
+`writeFile` isn't atomic: if the process dies halfway, it leaves a truncated file. And a truncated config file is worse than no file, because whoever reads it can't tell it's incomplete.
+
+The pattern that avoids it is two lines: write to a temporary file and rename.
+
+```js
+import { writeFile, rename, readFile, stat } from "node:fs/promises";
+
+const target = "./config.json";
+await writeFile(`${target}.tmp`, JSON.stringify({ port: 3001 }, null, 2));
+await rename(`${target}.tmp`, target);
+
+const info = await stat(target);
+console.log("after rename:", (await readFile(target, "utf8")).replace(/\s+/g, " "));
+console.log("is a file:", info.isFile(), "· bytes:", info.size);
+```
+
+```
+after rename: { "port": 3001 }
+is a file: true · bytes: 18
+```
+
+`rename` replaces the target without asking and, within the same file system, is atomic: whoever reads `config.json` sees the old version or the new one, never half. If you write the temporary file to `/tmp` and the target lives on another file system, the rename copies and stops being atomic; that's why the temporary file goes **next to** the target.
+
+That `stat` is the other module you're missing: it gives you size, dates and whether it's a file or a directory. `info.isFile()`, `info.size`, `info.mtime`. Everything you need to decide without opening anything.
+
+## File errors can be handled, and they have names
+
+A file error isn't a black box: it carries a `code` you can compare.
+
+```js
+import { readFile, mkdir } from "node:fs/promises";
+
+for (const [label, fn] of [
+  ["missing", () => readFile("./nope.txt", "utf8")],
+  ["already there", () => mkdir("./data")],
+]) {
+  try {
+    await fn();
+  } catch (error) {
+    console.log(label, "→", error.code, "·", error.message);
+  }
+}
+```
+
+```
+missing → ENOENT · ENOENT: no such file or directory, open './nope.txt'
+already there → EEXIST · EEXIST: file already exists, mkdir './data'
+```
+
+`ENOENT` is "not there", `EEXIST` is "already there", `EACCES` is "no permission". With the `code` you can decide: if the config file doesn't exist, use defaults and warn; if you lack permissions, that's a deployment error and it has to fail. Comparing message text is fragile; comparing `code` isn't.
+
+### Don't check whether it exists: try it
+
+There's an `existsSync` in Node and it's a trap. Between your check and your read there's a window where the file can disappear: checking and then using is a race, even if it lasts microseconds. The correct pattern is to try and handle `ENOENT`.
+
+```js
+import { readFile } from "node:fs/promises";
+
+async function readIfExists(path) {
+  try {
+    return await readFile(path, "utf8");
+  } catch (error) {
+    if (error.code === "ENOENT") return null;
+    throw error;
+  }
+}
+
+console.log("config.json:", await readIfExists("./config.json"));
+console.log("missing.json:", await readIfExists("./missing.json"));
+```
+
+```
+config.json: {
+  "port": 3001
+}
+missing.json: null
+```
+
+One operation instead of two, and no window. The `throw` on the last line is the important half: only "not there" becomes `null`; an `EACCES` keeps going up, because lacking permission isn't the same as lacking a file.
+
+## Big files: reading everything is a bug
+
+Here's the claim from the introduction, measured. A 96 MB file, two ways to read it, process memory afterwards:
+
+| Way                       | Resident memory | Time   |
+| ------------------------- | --------------- | ------ |
+| `readFile`                | **176 MB**      | 58 ms  |
+| `for await` over a stream | **102 MB**      | 141 ms |
+
+We started at 81 MB, so `readFile` added about 95 — the whole file — and the stream added about 21, the size of one chunk. Note the second column too: the stream takes **more than twice as long**. It isn't magic, it's a trade, and on a server memory runs out before time does.
+
+The two rows are **two separate runs**, and that's the point: in the same process the `readFile` buffer is still alive when you start streaming, so the comparison is worthless.
+
+```js
+// read-all.mjs
+import { readFile } from "node:fs/promises";
+
+const mb = (n) => Math.round(n / 1024 / 1024) + " MB";
+const t0 = performance.now();
+const content = await readFile("./big.log");
+
+console.log(
+  "readFile →",
+  mb(process.memoryUsage().rss),
+  "·",
+  Math.round(performance.now() - t0),
+  "ms · read",
+  mb(content.length),
+);
+```
+
+```
+readFile → 176 MB · 54 ms · read 95 MB
+```
+
+```js
+// in-chunks.mjs
+import { createReadStream } from "node:fs";
+
+const mb = (n) => Math.round(n / 1024 / 1024) + " MB";
+const t0 = performance.now();
+let total = 0;
+for await (const chunk of createReadStream("./big.log")) total += chunk.length;
+
+console.log("stream →", mb(process.memoryUsage().rss), "·", Math.round(performance.now() - t0), "ms · read", mb(total));
+```
+
+```
+stream → 100 MB · 142 ms · read 95 MB
+```
+
+A stream hands you chunks of a fixed size and doesn't ask for the next one until you're done with the previous. That's **backpressure**: if your consumer is slow, the read slows down instead of piling up in memory. And `for await...of` — the one you learned with `events.on` — is the shortest way to consume it.
+
+For the usual case, copying a stream into a file, there's a function that handles everything:
+
+```js
+import { createReadStream, createWriteStream, statSync } from "node:fs";
+import { pipeline } from "node:stream/promises";
+import { createGzip } from "node:zlib";
+
+await pipeline(createReadStream("./big.log"), createGzip(), createWriteStream("./big.log.gz"));
+
+const mb = (bytes) => Math.round(bytes / 1e6) + " MB";
+const kb = (bytes) => Math.round(bytes / 1e3) + " KB";
+console.log("compressed:", mb(statSync("./big.log").size), "→", kb(statSync("./big.log.gz").size));
+```
+
+```
+compressed: 100 MB → 97 KB
+```
+
+`pipeline` connects the three pieces, propagates errors and closes what it opened. Chaining `.pipe()` by hand does the same until something fails, and then it leaves files open and promises hanging.
+
+And for the specific case of a log — many lines, none of them huge — there's a piece that turns the stream into lines:
+
+```js
+import { createReadStream } from "node:fs";
+import { createInterface } from "node:readline";
+
+const rl = createInterface({ input: createReadStream("./log.txt"), crlfDelay: Infinity });
+
+let n = 0;
+for await (const line of rl) {
+  console.log(++n, line);
+}
+```
+
+```
+1 line one
+2 line two
+3 line three
+```
+
+`readline` splits on newlines without loading the file and is consumed with the same `for await` as everything else. Processing a two-gigabyte log line by line is exactly this; `split("\n")` on the whole content is exactly the bug from the introduction.
+
+## Cancelling a read
+
+In the async lesson you met `AbortController`. Here it gets its first real use: `readFile` accepts `{ signal }` and can be interrupted.
+
+```js
+import { readFile } from "node:fs/promises";
+
+const control = new AbortController();
+control.abort();
+
+try {
+  await readFile("./big.log", { signal: control.signal });
+  console.log("this should not run");
+} catch (error) {
+  console.log("read cancelled →", error.name + ": " + error.message);
+}
+```
+
+```
+read cancelled → AbortError: The operation was aborted
+```
+
+It looks trivial with the controller already aborted, and it's exactly what you need in production: when the shutdown signal arrives, you abort the controller and every read in flight cuts itself off.
+
+## Paths: `join` concatenates, `resolve` decides
+
+Two functions that look the same and aren't.
+
+```js
+import { join, resolve, dirname, basename, extname } from "node:path";
+
+console.log("join relative:", join("data", "a", "..", "one.txt"));
+console.log("resolve relative:", resolve("data", "one.txt"));
+console.log(
+  "dirname:",
+  dirname("/var/log/app/error.log"),
+  "· basename:",
+  basename("/var/log/app/error.log"),
+  "· extname:",
+  extname("/var/log/app/error.log"),
+);
+```
+
+```
+join relative: data/one.txt
+resolve relative: /tmp/l8e/data/one.txt
+dirname: /var/log/app · basename: error.log · extname: .log
+```
+
+`join` joins and normalises: it eats the `..` and returns a **relative** path if you gave it relative pieces. `resolve` does the same and also turns it absolute against the working directory. That's the whole difference, and it's the one that makes `join` predictable and `resolve` depend on where you launched the process.
+
+The rule: to build paths inside your project, `join`. To get an absolute path for something the user gave you, `resolve`. And never concatenate with `+`.
+
+The other three split a path: `dirname` keeps the folder, `basename` the name, `extname` the extension. They're for renaming `photo.jpeg` to `photo.webp`, for pulling a slug out of a URL turned into a filename, for checking that an uploaded file is what it claims.
+
+And Windows: writing `"folders/file.txt"` by hand works on Linux and macOS, and on Windows **almost always** too, because Windows accepts forward slashes. Until it doesn't. Use `join` and let the module pick the separator; it saves you the bug that only shows up on a colleague's machine.
+
+If you come from Python, `path` is your `pathlib` with less sugar: no `Path` objects, just functions that take strings and return strings. The useful comparison is that `resolve` does what `Path.resolve()` does, and `join` what the `/` operator does.
+
+## Environment variables
+
+`process.env` is an object with the process's environment variables, and **everything is a string**. No numbers, no booleans, no validation.
+
+```js
+console.log("PORT:", process.env.PORT, "· type:", typeof process.env.PORT);
+```
+
+```
+PORT: undefined · type: undefined
+```
+
+It isn't there, and nothing happens. That's the problem: `undefined` travels down until something fails three layers below with a message that never mentions configuration.
+
+To load a `.env` without installing anything, the runtime has shipped it for a couple of versions:
+
+```bash
+node --env-file=.env env.mjs
+```
+
+```
+PORT: 3001 · type: string
+APP_NAME: node-course
+```
+
+`--env-file` errors if the file doesn't exist, which is right in production; `--env-file-if-exists` doesn't, which is what you want locally. And if you see `dotenv` in a project, it's the old way of doing the same thing: still works, no longer needed.
+
+Two rules that aren't negotiable:
+
+- **The `.env` is never committed.** It holds secrets. What gets committed is `.env.example`, with the same keys and fake values, which is the contract: whoever clones the repo knows what it needs.
+- **Configuration is validated at startup.** If `DATABASE_URL` is missing, the process must die at the beginning, not on the third request.
+
+```js
+const port = Number(process.env.PORT ?? 3000);
+if (!Number.isInteger(port) || port < 1 || port > 65535) {
+  console.error("invalid PORT:", process.env.PORT);
+  process.exit(1);
+}
+console.log("starting on port", port);
+```
+
+```
+invalid PORT: undefined
+```
+
+That `exit(1)` is the only place `process.exit` is justified: before there's anything to break. Past that point, you close in an orderly way.
+
+## Common problems
+
+### The process runs out of memory reading a file
+
+`readFile` loads everything. If the size isn't bounded, use `createReadStream` with `for await`, or `pipeline`.
+
+### `ENOENT` on a file that exists
+
+A relative path resolved against `cwd()`, not against your module. Use `join(import.meta.dirname, ...)`.
+
+### Works on Linux, fails on Windows
+
+Paths concatenated by hand. `join` picks the separator; you don't.
+
+### `readFile` gives me a `Buffer` and the text looks odd
+
+Without the second argument (`"utf8"`) you get bytes. With it, text.
+
+### `process.env.PORT` is `"3000"` and `+ 1` gives `"30001"`
+
+Everything is a string. Convert with `Number()` and validate the result.
+
+### The server starts with incomplete configuration and fails later
+
+You didn't validate at startup. Fail early, with a message naming the missing variable.
+
+## What you take from this lesson
+
+- `node:fs/promises` for everything; the callback module is the other face.
+- `readFile` loads the whole file: 95 MB of memory for a 95 MB file.
+- Streams read in chunks, with backpressure, and cost a little more time.
+- `pipeline` connects and closes for you; `for await` consumes a stream without ceremony.
+- `readFile` accepts `{ signal }`: the `AbortController` from the previous lesson cuts reads.
+- `join` concatenates and normalises; `resolve` also makes it absolute against `cwd()`.
+- `process.env` is all strings: convert and validate.
+- `--env-file` replaces `dotenv`; `.env` isn't committed, `.env.example` is.
+- Configuration is validated at startup and the process dies there when it's wrong.
+
+You now know how to read and write on the system without breaking it, and how to start with sane configuration. What comes next is the reason you're here: an HTTP server, first with the bare `http` module and then with a framework, so you understand what each one does.
+
+Never stop coding!
