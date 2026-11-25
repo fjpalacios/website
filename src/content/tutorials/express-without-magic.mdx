@@ -1,0 +1,330 @@
+---
+title: "Express without magic: what each piece does"
+post_slug: "express-without-magic"
+date: "2026-11-26"
+excerpt: "Sixty-five packages for what you wrote in twenty lines yesterday. We take Express apart: middleware, express.json, routers and the 413 you never wrote."
+language: "en"
+categories: ["nodejs"]
+course: "nodejs-for-backend-developers"
+order: 10
+cover: "/images/tutorials/cabecera-nodejs-curso.jpg"
+i18n: "express-sin-magia"
+---
+
+Yesterday you wrote an HTTP server in twenty lines. Today you install Express and it tells you this:
+
+```
+added 65 packages in 2s
+```
+
+Sixty-five packages for a layer that is, underneath, a queue of functions. It's worth knowing what's inside those sixty-five before handing them your API. And one piece sums it up better than any diagram: you send a 200 KB body and get a `413 Payload Too Large` that **you never wrote**. A middleware you didn't know about decided it.
+
+## Install it and look at what it brings
+
+```bash
+npm install express
+```
+
+With Express 5, the install leaves 65 packages, and the first thing the server does is tell the world it uses Express:
+
+```
+HTTP/1.1 200 OK
+X-Powered-By: Express
+Content-Type: text/html; charset=utf-8
+Content-Length: 5
+ETag: W/"5-Y7v+qCuIgO0zzbdiqhH6tyKpCiQ"
+```
+
+That `X-Powered-By` is free information for anyone hunting known vulnerabilities. It's one line to remove, and in production you always remove it:
+
+```js
+app.disable("x-powered-by");
+```
+
+Notice the `ETag` and the `Content-Type` too. You wrote neither: Express adds them. And the `Content-Type` is `text/html` for a string that was plain text, which is the first sign that `res.send` does more than it looks.
+
+## What Express adds to `req` and `res`
+
+`res.send` picks the type, computes `Content-Length` and adds an `ETag`. `res.json` does the same with JSON and the right `Content-Type`. `res.status` chains:
+
+```js
+app.get("/", (req, res) => {
+  res.send("hello\n");
+});
+
+app.get("/books/:id", (req, res) => {
+  res.json({ id: req.params.id, sort: req.query.sort ?? "title" });
+});
+```
+
+```bash
+curl -s "http://localhost:3211/books/42?sort=date"
+```
+
+```
+{"id":"42","sort":"date"}
+```
+
+Two new things compared to the `http` module: **route parameters** (`:id`) that arrive in `req.params`, and `req.query` already parsed. In the previous lesson that was a `Map` keyed by `"GET /books/:id"` that didn't exist, and a hand-rolled `new URL()`. Here it's a string with a colon and a property.
+
+And `req.params` is always strings: `id` is `"42"`, not `42`. If you need a number, convert it and validate.
+
+## `express.json()`: the middleware you didn't write
+
+This is what the plan asked to look inside, and three requests show it.
+
+```js
+app.post("/echo", express.json(), (req, res) => {
+  res.json({ received: req.body });
+});
+```
+
+**With `Content-Type: application/json`:**
+
+```bash
+curl -s -X POST -H "Content-Type: application/json" -d '{"book":"Emma"}' http://localhost:3211/echo
+```
+
+```
+{"received":{"book":"Emma"}}
+```
+
+**Without that header:**
+
+```bash
+curl -s -X POST -d '{"book":"Emma"}' http://localhost:3211/echo
+```
+
+```
+{}
+```
+
+The body is ignored and `req.body` stays empty. No error, no warning: the middleware only acts when the `Content-Type` matches. It's the most common integration failure with clients that don't send the header, and you diagnose it by looking at `req.headers["content-type"]`.
+
+**With 200 KB:**
+
+```
+HTTP/1.1 413 Payload Too Large
+X-Powered-By: Express
+Content-Security-Policy: default-src 'none'
+```
+
+The default limit is 100 KB (`limit: "100kb"`) and the same middleware enforces it. That's the `413` you never wrote: the first time you see it you search your code and it isn't there. It's in Express, in an option you change when the API takes images or documents:
+
+```js
+app.use(express.json({ limit: "1mb" }));
+```
+
+Underneath, `express.json()` does what you did by hand in the previous lesson: read the stream, accumulate, check the limit, parse. With one thing you didn't have: if the JSON is broken, it answers `400` with a syntax error instead of letting your route's `catch` decide.
+
+### The missing sibling: forms
+
+An HTML `<form>` doesn't send JSON: it sends `application/x-www-form-urlencoded`. Mount only `express.json()` and that body is ignored too, with `req.body` back to `{}`.
+
+```js
+app.use(express.urlencoded({ extended: false }));
+```
+
+```bash
+curl -s -X POST -d "name=ada&role=admin" http://localhost:3222/form
+```
+
+```
+{"body":{"name":"ada","role":"admin"}}
+```
+
+`extended: false` uses the simple query-string parser; `true` adds nested structures through `qs`. For flat forms, `false` is enough and less surprising.
+
+That's the pattern that repeats across Express: one middleware, one content type. `express.json()` for JSON, `express.urlencoded()` for forms, `multer` for `multipart/form-data`. What you don't mount isn't parsed, and nothing warns you.
+
+## Middleware: a queue of functions
+
+A middleware is a function with three arguments: `req`, `res` and `next`. It runs in the order it was registered, and `next()` passes the turn along.
+
+```js
+app.use((req, res, next) => {
+  console.log("1 · before the route:", req.method, req.url);
+  next();
+});
+
+app.use((req, res, next) => {
+  const t0 = Date.now();
+  res.on("finish", () => console.log("3 · finished in", Date.now() - t0, "ms"));
+  next();
+});
+```
+
+```
+1 · before the route: GET /boom
+3 · finished in 6 ms
+```
+
+Two things there: the order is registration order, not the order you care about; and `res.on("finish")` lets you measure the end of a request without wrapping the route. That's how a logger or a latency gauge gets built in three lines.
+
+And the part that costs an hour of debugging: **if a middleware calls neither `next()` nor a response method, the request hangs**. No error, no default framework timeout: the client just waits.
+
+```bash
+curl -s -o /dev/null -w "%{http_code} after %{time_total}s\n" --max-time 3 http://localhost:3211/hang
+```
+
+```
+000 after 3.001259s
+```
+
+`000` is curl saying "no response", and its exit code is 28. When it happens, look for the middleware that forgot `next()`.
+
+## Errors: the four-argument middleware
+
+A route that throws doesn't take the server down: Express catches it and looks for a middleware with **four** arguments.
+
+```js
+app.get("/boom", () => {
+  throw new Error("exploded");
+});
+
+app.use((error, req, res, next) => {
+  console.log("4 · error caught:", error.message);
+  res.status(500).json({ error: "something broke" });
+});
+```
+
+```
+HTTP/1.1 500 Internal Server Error
+Content-Type: application/json; charset=utf-8
+```
+
+The four arguments aren't optional to Express: that's how it tells an error handler from a normal middleware. Write three and your handler never runs, with no warning at all. It's one of the cruellest signatures in the ecosystem.
+
+In Express 5 this also works with `async` functions: a rejected promise goes to the same handler. In Express 4 you had to wrap it by hand. The next lesson goes deep on that.
+
+And a trap worth knowing now: if your handler answers `500` no matter what, you destroy the status the framework had already chosen. A body over the limit arrives as a `413`, and my handler above turned it into a `500` — measured, in the server log: `4 · error caught: request entity too large`. Express attaches `status` to those errors; read it before deciding the code.
+
+## Third-party: `cors` and `morgan`
+
+Each is one line to install and each replaces code you'd write worse.
+
+```js
+app.use(morgan("dev"));
+app.use(cors());
+```
+
+`morgan` leaves one line per request on standard output:
+
+```
+GET /public/data.txt 200 5.979 ms - 19
+```
+
+Method, path, status, duration and bytes. It's what you'd have written by hand with `res.on("finish")` in the previous lesson, colours included.
+
+And `cors()` answers the preflight with considerably more judgement than the three headers you wrote by hand:
+
+```
+HTTP/1.1 204 No Content
+Access-Control-Allow-Origin: *
+Access-Control-Allow-Methods: GET,HEAD,PUT,PATCH,POST,DELETE
+Vary: Access-Control-Request-Headers
+```
+
+Five methods against the three you declared, and a `Vary` header that stops a cache from serving the wrong response to another origin. That `Vary` is exactly the kind of detail you don't write until it bites you.
+
+## `express.static` and the router
+
+`express.static` serves a whole directory with cache headers, ranges and `Last-Modified`:
+
+```js
+app.use("/public", express.static("public"));
+```
+
+```
+HTTP/1.1 200 OK
+Accept-Ranges: bytes
+Cache-Control: public, max-age=0
+Last-Modified: Sat, 14 Nov 2026 22:33:33 GMT
+```
+
+And `express.Router()` is what the `Map` router was missing: an object that groups routes and gets mounted under a prefix.
+
+```js
+const users = express.Router();
+users.get("/", (req, res) => res.json([{ id: 1, name: "ada" }]));
+users.get("/:id", (req, res) => res.json({ id: req.params.id }));
+
+app.use("/api/users", users);
+```
+
+```bash
+curl -s http://localhost:3211/api/users
+curl -s http://localhost:3211/api/users/7
+```
+
+```
+[{"id":1,"name":"ada"}]
+{"id":"7"}
+```
+
+The prefix composes: inside the router the path is `/` and `/:id`, outside it's mounted at `/api/users`. That lets you keep `routes/users.js` with its own routes and `app.js` with five lines of mounting. And when the project grows, the next step is the factory pattern: a function that takes dependencies and returns the `app`, so it can be tested without opening a port.
+
+### What Express solves by itself, and what it doesn't
+
+One thing you wrote by hand in the previous lesson and get for free here: `OPTIONS`.
+
+```bash
+curl -s -i -X OPTIONS http://localhost:3222/get-only
+```
+
+```
+HTTP/1.1 200 OK
+Allow: GET, HEAD
+```
+
+Express answers on its own, with the `Allow` header and the methods that route accepts. It saves a branch and, more importantly, saves you from getting it wrong.
+
+But `405` still doesn't exist. A `PUT` to a route that only accepts `GET` returns **404**, exactly like your `Map` router did.
+
+```
+404
+```
+
+Still the wrong answer according to the protocol, and still what the framework does by default. If you want to tell "doesn't exist" from "not that method", you write it yourself. It's one of those things you assume the framework already does and it doesn't.
+
+## Common problems
+
+### `req.body` is empty
+
+`express.json()` is missing, or the client isn't sending `Content-Type: application/json`. Without the header, the middleware doesn't touch the body.
+
+### `413 Payload Too Large` and I don't know where it comes from
+
+From the `limit` on `express.json`, 100 KB by default. Raise it on the route that needs it, not across the whole app.
+
+### The request hangs with no response
+
+A middleware called neither `next()` nor a response method. Find the last one that ran before the silence.
+
+### My error handler never runs
+
+It has three arguments. Express needs four to recognise it, even if you never use `next`.
+
+### `req.params.id` isn't a number
+
+Everything arriving through the URL is a string. Convert and validate, and return `400` when it isn't.
+
+### A string's `Content-Type` is `text/html`
+
+`res.send("hello")` assumes HTML. For plain text, call `res.type("text/plain")` first, or `res.json` if it's data.
+
+## What you take from this lesson
+
+- Express is a queue of functions: middleware in order, and `next()` to pass the turn.
+- `res.send` and `res.json` fill in type, length and `ETag` for you; `X-Powered-By` is always removed.
+- `req.params` and `req.query` exist; parameters are strings.
+- `express.json()` only acts on `Content-Type: application/json`, has a 100 KB limit and answers `413` when you pass it.
+- A middleware that doesn't call `next()` leaves the request hanging with no warning.
+- The error handler needs four arguments, and in Express 5 it also catches `async` ones.
+- `cors` and `morgan` replace your own code with something better thought out.
+- `express.Router()` groups routes and is mounted under a prefix.
+- The application factory (`createApp(deps)`) is what makes all of this testable.
+
+You have the framework taken apart. What comes next is what turns a pile of routes into a service you can maintain: centralised error handling, validation at the boundary, a layered structure, logs and an orderly shutdown.
+
+Never stop coding!
