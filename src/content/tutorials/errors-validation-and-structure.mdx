@@ -1,0 +1,333 @@
+---
+title: "Errors, validation and structure: the service that holds"
+post_slug: "errors-validation-and-structure"
+date: "2026-11-27"
+excerpt: "One place for errors, Zod at the boundary, logs with an identifier and a shutdown that drops no requests: from a pile of routes to a service."
+language: "en"
+categories: ["nodejs"]
+course: "nodejs-for-backend-developers"
+order: 11
+cover: "/images/tutorials/cabecera-nodejs-curso.jpg"
+i18n: "errores-validacion-y-estructura"
+---
+
+You deploy. The old process gets the signal and dies on the spot, with three requests half-way inside. The clients don't get an error: they get nothing. Measured, with the `curl` that was waiting:
+
+```
+without handler → 000
+process exit without handler: 143
+```
+
+`000` is "no response", and `143` is 128 + 15, the signal. Now the same test with four extra lines:
+
+```
+with handler → 200
+process exit with handler: 0
+```
+
+That's the difference between a service and a pile of routes. And it isn't the only one: the same project that loses requests on deploy is usually the one handing stack traces to clients and the one that can't tell which request failed because its logs are loose lines.
+
+This is the lesson that turns what you know into something maintainable.
+
+## One place for errors
+
+In the previous lesson every route picked its code. With twenty routes that's twenty different decisions and no policy. The pattern is a single error middleware, with **four** arguments, mounted last.
+
+```js
+class AppError extends Error {
+  constructor(message, status = 500, code = "internal_error") {
+    super(message);
+    this.status = status;
+    this.code = code;
+  }
+}
+
+class NotFoundError extends AppError {
+  constructor(resource) {
+    super(`No such ${resource}`, 404, "not_found");
+  }
+}
+```
+
+A domain error carries its HTTP status and its business code. And the central handler does the only translation that should exist:
+
+```js
+app.use((error, req, res, next) => {
+  const known = error instanceof AppError;
+  const status = known ? error.status : 500;
+
+  res.status(status).json({
+    error: known ? error.code : "internal_error",
+    message: known ? error.message : "something broke",
+  });
+});
+```
+
+With three routes failing in three ways:
+
+```bash
+curl -s http://localhost:3311/boom
+curl -s http://localhost:3311/async-boom
+curl -s http://localhost:3311/crash
+```
+
+```
+{"error":"not_found","message":"No such book 7"}
+{"error":"not_found","message":"No such async book"}
+{"error":"internal_error","message":"something broke"}
+```
+
+The first two are errors you threw and they describe what happened. The third is an unexpected `TypeError`, and the client sees **neither the message nor the trace**: it gets a generic one. The full detail goes to the log, which belongs to whoever programs, not to whoever calls.
+
+That's the rule that never breaks: **the client gets what it needs to act; the server keeps what it needs to debug**. Answer with `error.stack` and you're publishing your server's layout and your file names.
+
+### A 404 is also an error, and it's also centralised
+
+An error middleware doesn't catch "no route matched": that isn't an error, it's Express reaching the end without finding anything and answering with its own HTML page. If your API speaks JSON, that page is noise. You fix it with a normal middleware **after every route** and before the error one:
+
+```js
+app.use((req, res) => {
+  res.status(404).json({ error: "not_found", path: req.originalUrl });
+});
+```
+
+```bash
+curl -s http://localhost:3322/nope
+```
+
+```
+{"error":"not_found","path":"/nope"}
+```
+
+`req.originalUrl` and not `req.url`: inside a mounted router, `req.url` is trimmed to the prefix, and the client needs to see the path it asked for.
+
+## `async` no longer needs help
+
+In Express 4, an exception thrown inside an `async` function never reached the error handler: it stayed in a rejected promise and, with luck, in an `unhandledRejection`. That's where `express-async-errors` came from: it wraps your routes so the exception travels up.
+
+Express 5 doesn't need it. Measured, the async route above returns the same as the synchronous one:
+
+```
+{"error":"not_found","message":"No such async book"}
+```
+
+Express forwards the rejection to the handler by itself. If you see `express-async-errors` in a new project, it's dead weight from an older version.
+
+What **is** still yours:
+
+- **`try/catch` where you actually recover.** If the cache fails and you fall back to the database, that isn't an error: it's plan B, and it lives in the route.
+- **Never call `next(error)` after responding.** If the body is already sent, the handler tries to answer again and you get `Cannot set headers after they are sent`.
+
+## Validate at the boundary
+
+Everything coming in through a request is hostile until proven otherwise: strings where you expected numbers, `null` where you expected an object, two megabytes of text where you expected an id. And validating inside the route means repeating it in every branch.
+
+The boundary is a schema, and Zod turns it into code:
+
+```js
+import { z } from "zod";
+
+const BookSchema = z.object({
+  title: z.string().min(1),
+  pages: z.coerce.number().int().positive(),
+  genre: z.enum(["novel", "essay"]).default("novel"),
+});
+
+const ok = BookSchema.safeParse({ title: "Emma", pages: "474" });
+console.log("valid:", ok.success, "· data:", ok.data);
+
+const bad = BookSchema.safeParse({ title: "", pages: -3 });
+console.log("valid:", bad.success);
+for (const issue of bad.error.issues) {
+  console.log(" ·", issue.path.join("."), "→", issue.message);
+}
+```
+
+```
+valid: true · data: { title: 'Emma', pages: 474, genre: 'novel' }
+valid: false
+ · title → Too small: expected string to have >=1 characters
+ · pages → Too small: expected number to be >0
+```
+
+Three things it does that hurt by hand: it **coerces** (`"474"` becomes `474`, which is what arrives over HTTP), it **applies defaults** (`genre: "novel"`), and it **collects every problem** with its exact path instead of failing on the first. And what it returns isn't an exception: `safeParse` hands you a result you can turn into a `400` with the list of failures.
+
+That response shape matters more than it looks. A `400` with `{ error: "invalid_input", details: [{ field, message }] }` lets the client paint the error next to the right input. A `400` with the text "invalid input" tells nobody anything.
+
+## Structure: routes, controllers, services
+
+With two routes, everything fits in `app.js`. With twenty, it doesn't. The split that works is the usual one, because each layer has a different reason to change:
+
+- **Routes**: which URL calls which controller. Changes when the API changes.
+- **Controllers**: translate HTTP into calls. They read `req`, write `res`, and nothing else. Change when the protocol changes.
+- **Services**: the business logic, unaware that HTTP exists. Change when the business changes, and they're the only thing you can test without starting a server.
+
+And two files with similar names worth not confusing: `app.js` builds and configures the application; `index.js` (or `server.js`) starts it, listens on a port and worries about signals. That split is what lets you import `app` in a test and throw requests at it without occupying a fixed port.
+
+Better still, a factory:
+
+```js
+export function createApp({ repository, logger }) {
+  const app = express();
+  // …
+  return app;
+}
+```
+
+Dependencies come in as arguments. In a test you pass a fake repository and a silent logger; in production, the real ones. Nothing global, nothing hidden.
+
+And a configuration module that validates at startup, like the one in the files lesson: if `DATABASE_URL` is missing, the process dies at the beginning, not on the third request.
+
+## Logs you can follow
+
+A log line without an identifier is a sentence in a diary with no dates. With twenty simultaneous requests you need to join the four lines of one request.
+
+`pino` writes JSON, one line per event, and takes structured fields:
+
+```js
+app.use((req, res, next) => {
+  req.id = req.headers["x-request-id"] ?? randomUUID();
+  const t0 = Date.now();
+  res.on("finish", () => {
+    log.info({ id: req.id, method: req.method, path: req.url, status: res.statusCode, ms: Date.now() - t0 }, "request");
+  });
+  next();
+});
+```
+
+```
+{"level":30,"time":1794697598645,"pid":1132699,"id":"e5f5f3e3-…","method":"GET","path":"/books/7","status":200,"ms":13,"msg":"request"}
+{"level":50,"time":1794697598656,"pid":1132699,"id":"02053e8e-…","err":{"type":"Error","message":"the service exploded","stack":"…"},"msg":"unhandled error"}
+```
+
+Two things: the same `id` appears on the error line and the request line, so you can rebuild the whole story; and the error carries its trace **to the log**, where it's useful, while the client gets the generic one.
+
+The identifier is copied from the client when it sends one (`x-request-id`) and generated otherwise. So when the frontend reports a failing request, its identifier and yours are the same one and nobody has to guess.
+
+And a classic logging trap: **the IP**. Behind a proxy, `req.ip` is the proxy's unless you say otherwise:
+
+```js
+app.set("trust proxy", 1);
+```
+
+```
+without trust proxy → {"ip":"::1"}
+with trust proxy    → {"ip":"203.0.113.9"}
+```
+
+With `X-Forwarded-For` set, without that line every log says `::1` and every IP-based rate limit points at the same place. With it, the real address. The `1` means "trust the first proxy in front of me"; behind a chain of several, you raise the number.
+
+## Shutting down without dropping requests
+
+A deploy doesn't kill a process: it sends `SIGTERM` and waits for it to leave. What you do with that signal decides whether you lose requests.
+
+```js
+const server = app.listen(3000);
+
+process.on("SIGTERM", () => {
+  server.close(() => {
+    log.info("closed cleanly");
+    process.exit(0);
+  });
+});
+```
+
+`server.close()` stops accepting new connections and waits for the ones in flight. The test, with an 800 ms request running and the signal at 200:
+
+```
+with handler → 200
+process exit with handler: 0
+```
+
+Against the `000` and `143` from the introduction. With one caveat: if a request gets stuck, the close never finishes, which is why almost everyone adds a timer that forces the exit at ten or thirty seconds.
+
+And the piece that separates a correct close from one that hangs: **a deadline**. If a request never finishes, `server.close()` waits forever. The complete pattern gives a few milliseconds of grace and then aborts whatever is still alive, with the `AbortController` from the async lesson.
+
+```js
+const control = new AbortController();
+
+app.get("/slow", async (req, res, next) => {
+  try {
+    await sleep(2000, null, { signal: control.signal });
+    res.json({ ok: true });
+  } catch (error) {
+    if (error.name === "AbortError") {
+      res.status(503).json({ error: "shutting_down" });
+      return;
+    }
+    next(error);
+  }
+});
+
+for (const signal of ["SIGTERM", "SIGINT"]) {
+  process.on(signal, () => {
+    server.close(() => {
+      console.log("closed");
+      process.exit(0);
+    });
+    setTimeout(() => control.abort(), 100);
+  });
+}
+```
+
+```bash
+kill -TERM <pid>
+```
+
+```
+in-flight request → 503
+exit: 0
+SIGTERM · stop accepting, 100 ms of grace
+deadline reached · aborting what is left
+closed
+```
+
+The in-flight request gets a `503` with a message that tells the truth — "I'm shutting down" — instead of a cut connection. And the process exits with `0`, because it did what it had to do. `SIGINT` is the same story with Ctrl+C: you register both, because locally you kill with the keyboard and in production with a signal.
+
+Exit codes say something and are worth using well: `0` is "I finished fine", `1` is "I failed", and `143` is "I was killed", which is what you'll see in the logs of a container that was sent the signal and ignored it. `process.exitCode = 1` lets the process end by itself with that code; `process.exit(1)` cuts it on the spot, and it's only justified when there's nothing left to finish.
+
+And the two safety nets, with judgement: `unhandledRejection` and `uncaughtException`. Their job is to record the error and **exit**; a process that has seen an uncaught exception is in a state you don't know, and serving requests from there is worse than falling over. Exiting lets the orchestrator start a clean one.
+
+## Common problems
+
+### `Cannot set headers after they are sent`
+
+You responded and also called `next(error)`, or the error handler tried to answer an already-sent request. Check `res.headersSent` before writing.
+
+### The error handler never runs
+
+It has three arguments instead of four. Express doesn't warn.
+
+### The client receives the error's stack trace
+
+You're sending `error.stack` or the whole object. Respond with a code and a message, and keep the rest in the log.
+
+### Logs don't let me follow a request
+
+There's no identifier, or it isn't on every line. Add it in the first middleware and put it in every log for that request.
+
+### Requests are lost on deploy
+
+There's no `SIGTERM` handler, or the process doesn't wait for `server.close()`. The orchestrator kills it a few seconds later.
+
+### Validation is scattered across routes
+
+Move it to a middleware or the controller, with one schema per endpoint. Repeating `if (!body.title)` in every branch is how one gets forgotten.
+
+## What you take from this lesson
+
+- An error middleware with four arguments, last in line, decides the code for everything.
+- Domain errors carry their status and code; unknown ones become a generic `500`.
+- The client gets what it needs to act; the trace stays in the log.
+- Express 5 forwards `async` rejections; `express-async-errors` is dead weight.
+- `try/catch` only where you recover, and never `next()` after responding.
+- Zod at the boundary: it coerces, applies defaults and collects problems with their path.
+- Routes, controllers and services, with `app.js` separate from `index.js` and a factory that takes dependencies.
+- JSON logs with one identifier per request; the real IP requires `trust proxy`.
+- A closing 404, after the routes and before the error handler, so the API never returns HTML.
+- `SIGTERM` and `SIGINT` with `server.close()`, a deadline and an `AbortController`: whatever doesn't finish in time gets a `503` instead of a cut connection. `143` means you didn't do it.
+- `unhandledRejection` and `uncaughtException` get logged and exited.
+
+With this the service survives a deploy and a hostile request. There's one code lesson left before the close: the final project, where all of this gets assembled into a real API.
+
+Never stop coding!
